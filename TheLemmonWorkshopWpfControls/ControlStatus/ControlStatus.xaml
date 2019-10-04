@@ -1,0 +1,104 @@
+﻿<UserControl
+    x:Class="TheLemmonWorkshopWpfControls.ControlStatus.ControlStatus"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controlStatus="clr-namespace:TheLemmonWorkshopWpfControls.ControlStatus"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toastControl="clr-namespace:TheLemmonWorkshopWpfControls.ToastControl"
+    xmlns:utility="clr-namespace:TheLemmonWorkshopWpfControls.Utility"
+    xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    d:DataContext="{d:DesignInstance controlStatus:ControlStatusViewModel}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        <BooleanToVisibilityConverter x:Key="BoolTrueVisibleFalseCollapsed" />
+    </UserControl.Resources>
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+        <Rectangle
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Fill="LightGray"
+            Opacity=".4"
+            Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
+        <ListBox
+            Grid.Column="1"
+            Margin="0,12,0,12"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            utility:ListBoxBehavior.ScrollOnNewItem="True"
+            Background="White"
+            BorderThickness="0"
+            ItemsSource="{Binding StatusLog}"
+            Opacity=".7"
+            Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
+        <Grid
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+            <Border Background="White" CornerRadius="8">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        MaxWidth="400"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="24"
+                        Text="{Binding MessageBoxTitle}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        Grid.Row="1"
+                        MaxWidth="400"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Text="{Binding MessageBoxMessage}" />
+                    <ItemsControl
+                        Grid.Row="2"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding MessageBoxButtonList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button
+                                    MinWidth="125"
+                                    Command="{Binding Data.UserMessageBoxResponseCommand, Source={StaticResource Proxy}}"
+                                    CommandParameter="{Binding .}"
+                                    Content="{Binding .}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+        </Grid>
+        <StackPanel
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Orientation="Vertical">
+            <xctk:BusyIndicator
+                BusyContent="Background Task Running"
+                IsBusy="True"
+                Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
+            <toastControl:ToastTray DataContext="{Binding Toast}" />
+        </StackPanel>
+    </Grid>
+</UserControl>
