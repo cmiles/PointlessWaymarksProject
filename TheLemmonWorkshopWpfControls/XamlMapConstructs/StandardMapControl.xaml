@@ -25,15 +25,43 @@
         </DataTemplate>
 
         <Style x:Key="PolylineItemStyle" TargetType="map:MapItem">
-            <EventSetter Event="MouseDown" Handler="MapItemMouseDown" />
-            <EventSetter Event="MouseLeftButtonDown" Handler="MapItemMouseDown" />
+            <EventSetter Event="TouchDown" Handler="MapItemTouchDown" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="map:MapItem">
                         <map:MapPolyline
+                            x:Name="selectedPath"
                             Locations="{Binding Locations}"
                             Stroke="Red"
-                            StrokeThickness="3" />
+                            StrokeThickness="3">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="Disabled" />
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="selectedPath"
+                                                Storyboard.TargetProperty="StrokeThickness"
+                                                To="5"
+                                                Duration="0:0:0.1" />
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="SelectionStates">
+                                    <VisualState x:Name="Unselected" />
+                                    <VisualState x:Name="Selected">
+                                        <Storyboard>
+                                            <ColorAnimation
+                                                Storyboard.TargetName="selectedPath"
+                                                Storyboard.TargetProperty="Stroke.Color"
+                                                To="GreenYellow"
+                                                Duration="0:0:0.1" />
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </map:MapPolyline>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -41,8 +69,6 @@
 
         <Style x:Key="PointItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown" />
-            <EventSetter Event="MouseDown" Handler="MapItemMouseDown" />
-            <EventSetter Event="MouseLeftButtonDown" Handler="MapItemMouseDown" />
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}" />
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="Template">
@@ -115,8 +141,6 @@
 
         <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
             <EventSetter Event="TouchDown" Handler="MapItemTouchDown" />
-            <EventSetter Event="MouseDown" Handler="MapItemMouseDown" />
-            <EventSetter Event="MouseLeftButtonDown" Handler="MapItemMouseDown" />
             <Setter Property="map:MapPanel.Location" Value="{Binding Location}" />
             <Setter Property="VerticalAlignment" Value="Bottom" />
             <Setter Property="Foreground" Value="Black" />
@@ -178,16 +202,30 @@
             <map:MapScale HorizontalAlignment="Left" VerticalAlignment="Bottom" />
 
             <!--  use ItemTemplate or ItemContainerStyle alternatively  -->
-            <map:MapItemsControl ItemTemplate="{StaticResource PolylineItemTemplate}" ItemsSource="{Binding Polylines}" />
-            <!--<map:MapItemsControl ItemsSource="{Binding Polylines}"
-                                 ItemContainerStyle="{StaticResource PolylineItemStyle}" />-->
-
+            <!--<map:MapItemsControl ItemTemplate="{StaticResource PolylineItemTemplate}" ItemsSource="{Binding Polylines}" />-->
             <map:MapItemsControl
-                ItemContainerStyle="{StaticResource PointItemStyle}"
-                ItemsSource="{Binding Points}"
+                x:Name="MapPolylineItemControl"
+                ItemContainerStyle="{StaticResource PolylineItemStyle}"
+                ItemsSource="{Binding Polylines}"
                 SelectionMode="Extended" />
 
-            <map:MapItemsControl ItemContainerStyle="{StaticResource PushpinItemStyle}" ItemsSource="{Binding Pushpins}" />
+            <map:MapItemsControl
+                x:Name="MapPointsItemControl"
+                ItemContainerStyle="{StaticResource PointItemStyle}"
+                ItemsSource="{Binding Points}"
+                SelectionMode="Extended">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding PointsMapSelectionChangedCommand}" CommandParameter="{Binding ElementName=MapPointsItemControl, Path=SelectedItems}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </map:MapItemsControl>
+
+            <map:MapItemsControl
+                x:Name="MapPushPinsItemControl"
+                ItemContainerStyle="{StaticResource PushpinItemStyle}"
+                ItemsSource="{Binding Pushpins}"
+                SelectionMode="Extended" />
 
             <Path
                 map:MapPanel.Location="53.5,8.2"

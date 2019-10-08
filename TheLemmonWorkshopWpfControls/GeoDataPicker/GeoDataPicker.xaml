@@ -5,6 +5,7 @@
     xmlns:controlStatus="clr-namespace:TheLemmonWorkshopWpfControls.ControlStatus"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:geoDataPicker="clr-namespace:TheLemmonWorkshopWpfControls.GeoDataPicker"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:io="clr-namespace:NetTopologySuite.IO;assembly=NetTopologySuite.IO.GPX"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xamlMapConstructs="clr-namespace:TheLemmonWorkshopWpfControls.XamlMapConstructs"
@@ -31,26 +32,36 @@
                     <RowDefinition Height="120" />
                 </Grid.RowDefinitions>
                 <Button Command="{Binding StartLoadCommand}">Load</Button>
-                <ListBox
-                    Grid.Row="1"
-                    ItemsSource="{Binding StandardMapContext.Points}"
-                    SelectedItem="{Binding SelectedItem}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate DataType="xamlMapConstructs:MapDisplayPoint">
-                            <TextBlock Text="{Binding Name}" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <ListBox
-                    Grid.Row="2"
-                    ItemsSource="{Binding StandardMapContext.Polylines}"
-                    SelectedItem="{Binding SelectedItem}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate DataType="xamlMapConstructs:MapDisplayPolyline">
-                            <TextBlock Text="{Binding Name}" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                <GroupBox Grid.Row="1" Header="Points">
+                    <ListBox
+                        x:Name="PointsList"
+                        ItemsSource="{Binding StandardMapContext.Points}"
+                        SelectedItem="{Binding SelectedPoint}"
+                        SelectionMode="Extended">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding ListPointsSelectionChangedCommand}" CommandParameter="{Binding ElementName=PointsList, Path=SelectedItems}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="xamlMapConstructs:MapDisplayPoint">
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </GroupBox>
+                <GroupBox Grid.Row="2" Header="Lines">
+                    <ListBox
+                        ItemsSource="{Binding StandardMapContext.Polylines}"
+                        SelectedItem="{Binding SelectedLine}"
+                        SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="xamlMapConstructs:MapDisplayPolyline">
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </GroupBox>
                 <Button Grid.Row="3">Clear</Button>
                 <TextBox
                     Grid.Row="4"

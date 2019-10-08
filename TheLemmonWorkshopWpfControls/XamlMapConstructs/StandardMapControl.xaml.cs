@@ -1,8 +1,9 @@
 ﻿using MapControl;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
@@ -10,24 +11,16 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
     /// <summary>
     /// Interaction logic for UserControl1.xaml
     /// </summary>
-    public partial class StandardMapControl : UserControl
+    public partial class StandardMapControl
     {
         public StandardMapControl()
         {
             InitializeComponent();
+
+            DataContextChanged += OnDataContextChanged;
         }
 
         public StandardMapViewModel Model() => (StandardMapViewModel)DataContext;
-
-        private void MapItemMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var mapItem = (MapItem)sender;
-            mapItem.IsSelected = !mapItem.IsSelected;
-
-            if (e.Source is ISelectable baseObject) baseObject.IsSelected = mapItem.IsSelected;
-
-            e.Handled = true;
-        }
 
         private void MapItemTouchDown(object sender, TouchEventArgs e)
         {
@@ -91,6 +84,58 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             {
                 //map.ZoomMap(e.GetPosition(map), Math.Ceiling(map.ZoomLevel - 1.5));
             }
+        }
+
+        private void ModelOnListPointSelectionRequest(object sender, List<MapDisplayPoint> e)
+        {
+            MapPointsItemControl.SelectItems(x =>
+            {
+                if (e == null || !e.Any()) return false;
+                if (!(x is MapDisplayPoint point)) return false;
+
+                if (e.Last() == point)
+                {
+                    Model().MapCenter = point.Location;
+                }
+                return e.Contains(point);
+            });
+        }
+
+        private void ModelOnListPolylineSelectionRequest(object sender, List<MapDisplayPolyline> e)
+        {
+            MapPolylineItemControl.SelectItems(x =>
+            {
+                if (!(x is MapDisplayPolyline line)) return false;
+
+                if (e.Last() == line && line.Locations.Count > 0)
+                {
+                    Model().MapCenter = line.Locations[0];
+                }
+                return e.Contains(line);
+            });
+        }
+
+        private void ModelOnListPushpinSelectionRequest(object sender, List<MapDisplayPoint> e)
+        {
+            MapPushPinsItemControl.SelectItems(x =>
+            {
+                if (!(x is MapDisplayPoint point)) return false;
+
+                if (e.Last() == point)
+                {
+                    Model().MapCenter = point.Location;
+                }
+                return e.Contains(point);
+            });
+        }
+
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (!(e.NewValue is StandardMapViewModel model)) return;
+
+            model.MapPolylineSelectionRequest += ModelOnListPolylineSelectionRequest;
+            model.MapPointSelectionRequest += ModelOnListPointSelectionRequest;
+            model.MapPushpinSelectionRequest += ModelOnListPushpinSelectionRequest;
         }
 
         private void SeamarksChecked(object sender, RoutedEventArgs e)

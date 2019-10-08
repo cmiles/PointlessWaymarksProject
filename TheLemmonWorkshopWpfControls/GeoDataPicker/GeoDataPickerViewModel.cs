@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -25,8 +26,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
     {
         private static readonly HttpClient HttpClient = new HttpClient();
         private string _fileName;
-        private MapDisplayObject _selectedItem;
-
+        private List<MapDisplayPoint> _selectedPoints;
         private StandardMapViewModel _standardMapContext;
         private ControlStatusViewModel _statusContext;
 
@@ -39,6 +39,8 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             ClearCommand = new RelayCommand(() =>
                 StatusContext.RunBlockingTask(() => ClearList(StatusContext.ProgressTracker())));
             SelectItemCommand = new RelayCommand(async () => await ReturnSelected());
+
+            ListPointsSelectionChangedCommand = new RelayCommand<IList>(ListPointsSelectionChanged);
 
             StandardMapContext = new StandardMapViewModel(statusContext);
         }
@@ -60,23 +62,20 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             }
         }
 
-        public MapDisplayObject SelectedItem
+        public RelayCommand<IList> ListPointsSelectionChangedCommand { get; set; }
+
+
+
+        public List<MapDisplayPoint> SelectedPoints
         {
-            get => _selectedItem;
+            get => _selectedPoints;
             set
             {
-                if (Equals(value, _selectedItem)) return;
-                _selectedItem = value;
+                if (Equals(value, _selectedPoints)) return;
+                _selectedPoints = value;
                 OnPropertyChanged();
 
-                if (SelectedItem != null)
-                {
-                    var possiblePoint = StandardMapContext.Points.SingleOrDefault(x => x.Id == SelectedItem.Id);
-                    if (possiblePoint != null) StandardMapContext.MapCenter = possiblePoint.Location;
-
-                    var possibleLine = StandardMapContext.Polylines.SingleOrDefault(x => x.Id == SelectedItem.Id);
-                    if (possibleLine != null) StandardMapContext.MapCenter = possibleLine.Locations.First();
-                }
+                StandardMapContext.OnMapPointSelectionRequest(this, SelectedPoints);
             }
         }
 
@@ -124,13 +123,31 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private void ListPointsSelectionChanged(IList listOfPoints)
+        {
+            if (listOfPoints == null || listOfPoints.Count == 0)
+            {
+                SelectedPoints = new List<MapDisplayPoint>();
+                return;
+            }
+
+            var newSelection = new List<MapDisplayPoint>();
+
+            foreach (var loopPoints in listOfPoints)
+            {
+                if (loopPoints is MapDisplayPoint toAdd) newSelection.Add(toAdd);
+            }
+
+            SelectedPoints = newSelection;
+        }
+
         private async Task LoadFile(IProgress<string> progress)
         {
             progress.Report("Get File...");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var fileDialog = new OpenFileDialog {DefaultExt = ".gpx", Filter = "GPX Files (*.gpx)|*.gpx|All Files|*.*"};
+            var fileDialog = new OpenFileDialog { DefaultExt = ".gpx", Filter = "GPX Files (*.gpx)|*.gpx|All Files|*.*" };
 
             var result = fileDialog.ShowDialog();
 
@@ -204,9 +221,9 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                 var pointList = new List<MapLocationM>();
 
                 foreach (var loopSegments in loopTrack.Segments)
-                foreach (var loopPoints in loopSegments.Waypoints)
-                    pointList.Add(new MapLocationM(loopPoints.Latitude, loopPoints.Longitude,
-                        loopPoints.ElevationInMeters));
+                    foreach (var loopPoints in loopSegments.Waypoints)
+                        pointList.Add(new MapLocationM(loopPoints.Latitude, loopPoints.Longitude,
+                            loopPoints.ElevationInMeters));
 
                 StandardMapContext.Polylines.Add(new MapDisplayPolyline
                 {
@@ -233,13 +250,15 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
         private async Task ReturnSelected()
         {
-            if (SelectedItem == null)
+            if(SelectedPoints.Count != 1)
             {
-                StatusContext.ToastError("Nothing Selected?");
+                StatusContext.ToastError("Please select 1 point...");
                 return;
             }
 
-            var possiblePoint = StandardMapContext.Points.SingleOrDefault(x => x.Id == SelectedItem.Id);
+            var selectedPoint = SelectedPoints[0];
+
+            var possiblePoint = StandardMapContext.Points.SingleOrDefault(x => x.Id == selectedPoint.Id);
             if (possiblePoint != null)
             {
                 var newPoint = new Point(possiblePoint.Location.Longitude, possiblePoint.Location.Latitude);
@@ -260,19 +279,19 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                 }
 
                 GeoDataSelected?.Invoke(this,
-                    new SelectedGeoData {GeoType = LocationDataTypeConsts.Point, GeoData = newPoint});
+                    new SelectedGeoData { GeoType = LocationDataTypeConsts.Point, GeoData = newPoint });
 
                 return;
             }
 
-            var possibleLine = StandardMapContext.Polylines.SingleOrDefault(x => x.Id == SelectedItem.Id);
+            var possibleLine = StandardMapContext.Polylines.SingleOrDefault(x => x.Id == selectedPoint.Id);
 
             if (possibleLine != null)
             {
                 var ntsLineString = new LineString(possibleLine.Locations
                     .Select(x => new Coordinate(x.Longitude, x.Latitude)).ToArray());
                 GeoDataSelected?.Invoke(this,
-                    new SelectedGeoData {GeoType = LocationDataTypeConsts.Line, GeoData = ntsLineString});
+                    new SelectedGeoData { GeoType = LocationDataTypeConsts.Line, GeoData = ntsLineString });
             }
         }
     }
