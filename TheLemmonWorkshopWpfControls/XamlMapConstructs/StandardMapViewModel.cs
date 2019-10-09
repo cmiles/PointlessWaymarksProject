@@ -1,13 +1,13 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
-using MapControl;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
+using MapControl;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
 
@@ -17,7 +17,6 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
     {
         private Location _mapCenter = new Location(53.5, 8.2);
 
-        private List<MapDisplayPoint> _selectedPoints = new List<MapDisplayPoint>();
         private ControlStatusViewModel _statusContext = new ControlStatusViewModel();
 
         public StandardMapViewModel(ControlStatusViewModel statusContext)
@@ -25,21 +24,8 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             StatusContext = statusContext;
 
             PointsMapSelectionChangedCommand = new RelayCommand<IList>(MapsPointsSelectionChanged);
+            PolylinesMapSelectionChangedCommand = new RelayCommand<IList>(MapsPolylineSelectionChanged);
         }
-
-        public event EventHandler<List<MapDisplayPoint>> ListPointSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPolyline>> ListPolylineSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> ListPushpinSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> MapPointSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPolyline>> MapPolylineSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> MapPushpinSelectionRequest;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public Location MapCenter
         {
@@ -56,8 +42,10 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
         public ObservableCollection<MapDisplayPoint> Points { get; } = new ObservableCollection<MapDisplayPoint>();
         public RelayCommand<IList> PointsMapSelectionChangedCommand { get; set; }
 
-        public ObservableCollection<MapDisplayPolyline> Polylines { get; } = new ObservableCollection<MapDisplayPolyline>();
+        public ObservableCollection<MapDisplayPolyline> Polylines { get; } =
+            new ObservableCollection<MapDisplayPolyline>();
 
+        public RelayCommand<IList> PolylinesMapSelectionChangedCommand { get; set; }
         public ObservableCollection<MapDisplayPoint> Pushpins { get; } = new ObservableCollection<MapDisplayPoint>();
 
         public ControlStatusViewModel StatusContext
@@ -71,13 +59,26 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<List<MapDisplayPoint>> ListPointSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPolyline>> ListPolylineSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> ListPushpinSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> MapPointSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPolyline>> MapPolylineSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> MapPushpinSelectionRequest;
+
         public async void CreateLocation(Point getPosition)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
             var newMapPoint = new MapDisplayPoint
             {
-                Id = Guid.NewGuid(),
-                Location = new MapLocationM(getPosition.Y, getPosition.X, null)
+                Id = Guid.NewGuid(), Location = new MapLocationM(getPosition.Y, getPosition.X, null)
             };
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -85,11 +86,20 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             Points.Add(newMapPoint);
         }
 
-        public void OnMapPointSelectionRequest(object sender, List<MapDisplayPoint> toRequest) => MapPointSelectionRequest?.Invoke(sender, toRequest);
+        public void OnMapPointSelectionRequest(object sender, List<MapDisplayPoint> toRequest)
+        {
+            MapPointSelectionRequest?.Invoke(sender, toRequest);
+        }
 
-        public void OnMapPolylineSelectionRequest(object sender, List<MapDisplayPolyline> toRequest) => MapPolylineSelectionRequest?.Invoke(sender, toRequest);
+        public void OnMapPolylineSelectionRequest(object sender, List<MapDisplayPolyline> toRequest)
+        {
+            MapPolylineSelectionRequest?.Invoke(sender, toRequest);
+        }
 
-        public void OnMapPushPinSelectionRequest(object sender, List<MapDisplayPoint> toRequest) => MapPushpinSelectionRequest?.Invoke(sender, toRequest);
+        public void OnMapPushPinSelectionRequest(object sender, List<MapDisplayPoint> toRequest)
+        {
+            MapPushpinSelectionRequest?.Invoke(sender, toRequest);
+        }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -115,6 +125,26 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             }
 
             ListPointSelectionRequest?.Invoke(this, finalList);
+        }
+
+        private void MapsPolylineSelectionChanged(IList pointList)
+        {
+            if (pointList == null || pointList.Count == 0)
+            {
+                ListPolylineSelectionRequest?.Invoke(this, new List<MapDisplayPolyline>());
+                return;
+            }
+
+            var finalList = new List<MapDisplayPolyline>();
+
+            foreach (var loopList in pointList)
+            {
+                var mapPoint = loopList as MapDisplayPolyline;
+
+                finalList.Add(mapPoint);
+            }
+
+            ListPolylineSelectionRequest?.Invoke(this, finalList);
         }
     }
 }

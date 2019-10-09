@@ -105,6 +105,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
         {
             MapPolylineItemControl.SelectItems(x =>
             {
+                if (e == null || !e.Any()) return false;
                 if (!(x is MapDisplayPolyline line)) return false;
 
                 if (e.Last() == line && line.Locations.Count > 0)

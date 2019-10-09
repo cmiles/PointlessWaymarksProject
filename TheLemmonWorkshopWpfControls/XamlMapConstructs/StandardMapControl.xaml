@@ -124,6 +124,11 @@
                                                 Storyboard.TargetProperty="Opacity"
                                                 To="0.7"
                                                 Duration="0:0:0.1" />
+                                            <ColorAnimation
+                                                Storyboard.TargetName="selectedPath"
+                                                Storyboard.TargetProperty="Fill.Color"
+                                                To="GreenYellow"
+                                                Duration="0:0:0.1" />
                                         </Storyboard>
                                     </VisualState>
                                 </VisualStateGroup>
@@ -207,7 +212,13 @@
                 x:Name="MapPolylineItemControl"
                 ItemContainerStyle="{StaticResource PolylineItemStyle}"
                 ItemsSource="{Binding Polylines}"
-                SelectionMode="Extended" />
+                SelectionMode="Extended">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding PolylinesMapSelectionChangedCommand}" CommandParameter="{Binding ElementName=MapPolylineItemControl, Path=SelectedItems}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </map:MapItemsControl>
 
             <map:MapItemsControl
                 x:Name="MapPointsItemControl"

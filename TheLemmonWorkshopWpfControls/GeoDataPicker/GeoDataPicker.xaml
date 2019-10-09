@@ -36,11 +36,10 @@
                     <ListBox
                         x:Name="PointsList"
                         ItemsSource="{Binding StandardMapContext.Points}"
-                        SelectedItem="{Binding SelectedPoint}"
                         SelectionMode="Extended">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding ListPointsSelectionChangedCommand}" CommandParameter="{Binding ElementName=PointsList, Path=SelectedItems}" />
+                                <i:InvokeCommandAction Command="{Binding PointsListSelectionChangedCommand}" CommandParameter="{Binding ElementName=PointsList, Path=SelectedItems}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                         <ListBox.ItemTemplate>
@@ -52,14 +51,19 @@
                 </GroupBox>
                 <GroupBox Grid.Row="2" Header="Lines">
                     <ListBox
+                        x:Name="LinesList"
                         ItemsSource="{Binding StandardMapContext.Polylines}"
-                        SelectedItem="{Binding SelectedLine}"
-                        SelectionMode="Single">
+                        SelectionMode="Extended">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="xamlMapConstructs:MapDisplayPolyline">
                                 <TextBlock Text="{Binding Name}" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding PolylinesListSelectionChangedCommand}" CommandParameter="{Binding ElementName=LinesList, Path=SelectedItems}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                     </ListBox>
                 </GroupBox>
                 <Button Grid.Row="3">Clear</Button>

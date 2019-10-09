@@ -26,6 +26,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
     {
         private static readonly HttpClient HttpClient = new HttpClient();
         private string _fileName;
+        private List<MapDisplayPolyline> _selectedLines;
         private List<MapDisplayPoint> _selectedPoints;
         private StandardMapViewModel _standardMapContext;
         private ControlStatusViewModel _statusContext;
@@ -40,7 +41,8 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                 StatusContext.RunBlockingTask(() => ClearList(StatusContext.ProgressTracker())));
             SelectItemCommand = new RelayCommand(async () => await ReturnSelected());
 
-            ListPointsSelectionChangedCommand = new RelayCommand<IList>(ListPointsSelectionChanged);
+            PointsListSelectionChangedCommand = new RelayCommand<IList>(PointsListSelectionChanged);
+            PolylinesListSelectionChangedCommand = new RelayCommand<IList>(PolylinesListSelectionChanged);
 
             StandardMapContext = new StandardMapViewModel(statusContext);
         }
@@ -62,9 +64,21 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             }
         }
 
-        public RelayCommand<IList> ListPointsSelectionChangedCommand { get; set; }
+        public RelayCommand<IList> PolylinesListSelectionChangedCommand { get; set; }
+        public RelayCommand<IList> PointsListSelectionChangedCommand { get; set; }
 
+        public List<MapDisplayPolyline> SelectedLines
+        {
+            get => _selectedLines;
+            set
+            {
+                if (Equals(value, _selectedLines)) return;
+                _selectedLines = value;
+                OnPropertyChanged();
 
+                StandardMapContext.OnMapPolylineSelectionRequest(this, SelectedLines);
+            }
+        }
 
         public List<MapDisplayPoint> SelectedPoints
         {
@@ -123,22 +137,22 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void ListPointsSelectionChanged(IList listOfPoints)
+        private void PolylinesListSelectionChanged(IList listOfLines)
         {
-            if (listOfPoints == null || listOfPoints.Count == 0)
+            if (listOfLines == null || listOfLines.Count == 0)
             {
-                SelectedPoints = new List<MapDisplayPoint>();
+                SelectedLines = new List<MapDisplayPolyline>();
                 return;
             }
 
-            var newSelection = new List<MapDisplayPoint>();
+            var newSelection = new List<MapDisplayPolyline>();
 
-            foreach (var loopPoints in listOfPoints)
+            foreach (var loopLines in listOfLines)
             {
-                if (loopPoints is MapDisplayPoint toAdd) newSelection.Add(toAdd);
+                if (loopLines is MapDisplayPolyline toAdd) newSelection.Add(toAdd);
             }
 
-            SelectedPoints = newSelection;
+            SelectedLines = newSelection;
         }
 
         private async Task LoadFile(IProgress<string> progress)
@@ -248,9 +262,27 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             }
         }
 
+        private void PointsListSelectionChanged(IList listOfPoints)
+        {
+            if (listOfPoints == null || listOfPoints.Count == 0)
+            {
+                SelectedPoints = new List<MapDisplayPoint>();
+                return;
+            }
+
+            var newSelection = new List<MapDisplayPoint>();
+
+            foreach (var loopPoints in listOfPoints)
+            {
+                if (loopPoints is MapDisplayPoint toAdd) newSelection.Add(toAdd);
+            }
+
+            SelectedPoints = newSelection;
+        }
+
         private async Task ReturnSelected()
         {
-            if(SelectedPoints.Count != 1)
+            if (SelectedPoints.Count != 1)
             {
                 StatusContext.ToastError("Please select 1 point...");
                 return;
