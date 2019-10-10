@@ -1,13 +1,13 @@
-﻿using System;
+﻿using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
+using MapControl;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
-using MapControl;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
 
@@ -25,7 +25,34 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 
             PointsMapSelectionChangedCommand = new RelayCommand<IList>(MapsPointsSelectionChanged);
             PolylinesMapSelectionChangedCommand = new RelayCommand<IList>(MapsPolylineSelectionChanged);
+
+            ClearAllSelectionsCommand = new RelayCommand(() =>
+            {
+                MapsPointsSelectionChanged(null);
+                MapsPolylineSelectionChanged(null);
+            });
+            ClearPointsSelectionCommand = new RelayCommand(() => MapsPointsSelectionChanged(null));
+            ClearPolylinesSelectionCommand = new RelayCommand(() => MapsPolylineSelectionChanged(null));
         }
+
+        public event EventHandler<List<MapDisplayPoint>> ListPointSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPolyline>> ListPolylineSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> ListPushpinSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> MapPointSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPolyline>> MapPolylineSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> MapPushpinSelectionRequest;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public RelayCommand ClearAllSelectionsCommand { get; set; }
+
+        public RelayCommand ClearPointsSelectionCommand { get; set; }
+        public RelayCommand ClearPolylinesSelectionCommand { get; set; }
 
         public Location MapCenter
         {
@@ -59,26 +86,13 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public event EventHandler<List<MapDisplayPoint>> ListPointSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPolyline>> ListPolylineSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> ListPushpinSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> MapPointSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPolyline>> MapPolylineSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> MapPushpinSelectionRequest;
-
         public async void CreateLocation(Point getPosition)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
             var newMapPoint = new MapDisplayPoint
             {
-                Id = Guid.NewGuid(), Location = new MapLocationM(getPosition.Y, getPosition.X, null)
+                Id = Guid.NewGuid(),
+                Location = new MapLocationM(getPosition.Y, getPosition.X, null)
             };
 
             await ThreadSwitcher.ResumeForegroundAsync();

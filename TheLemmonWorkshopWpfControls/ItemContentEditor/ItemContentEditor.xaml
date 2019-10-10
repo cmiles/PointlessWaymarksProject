@@ -5,6 +5,7 @@
     xmlns:contentFormat="clr-namespace:TheLemmonWorkshopWpfControls.ContentFormat"
     xmlns:controlStatus="clr-namespace:TheLemmonWorkshopWpfControls.ControlStatus"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:geoDataPicker="clr-namespace:TheLemmonWorkshopWpfControls.GeoDataPicker"
     xmlns:itemContentEditor="clr-namespace:TheLemmonWorkshopWpfControls.ItemContentEditor"
     xmlns:mainImageFormat="clr-namespace:TheLemmonWorkshopWpfControls.MainImageFormat"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -114,18 +115,15 @@
             <TabItem Header="Location Picker">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
                         <RowDefinition />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <WrapPanel>
-                        <TextBox IsReadOnly="True" Text="{Binding UserContent.LocationDataType}" />
-                        <TextBox IsReadOnly="True" Text="{Binding UserContent.LocationData.Coordinate.Y, StringFormat='Latitude {0}'}" />
-                        <TextBox IsReadOnly="True" Text="{Binding UserContent.LocationData.Coordinate.X, StringFormat='Longitude {0}'}" />
-                        <TextBox IsReadOnly="True" Text="{Binding UserContent.LocationData.Coordinate.M, StringFormat='Elevation {0}'}" />
-                    </WrapPanel>
-                    <xamlMapConstructs:StandardMapControl Grid.Row="1" DataContext="{Binding StandardMapContext}" />
-                    <Button Grid.Row="2" Command="{Binding ShowGeoPickerCommand}">Pick Data</Button>
+                    <geoDataPicker:GeoDataPicker DataContext="{Binding GeoDataPickerContext}" />
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <Button Command="{Binding GeoDataPickerContext.StandardMapContext.ClearAllSelectionsCommand}">Clear Current Map Selections</Button>
+                        <Button Command="{Binding SelectGeoDataCommand}">Set Current Map Selection</Button>
+                        <TextBlock Text="{Binding UserContent.LocationDataType, StringFormat='Data Type: {0}'}" />
+                    </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="Save">

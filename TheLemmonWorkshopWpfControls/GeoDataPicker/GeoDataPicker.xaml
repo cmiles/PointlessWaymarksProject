@@ -23,68 +23,88 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <GroupBox Header="Data List">
-            <Grid Width="180">
+            <Grid Width="200">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition />
                     <RowDefinition />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="120" />
                 </Grid.RowDefinitions>
-                <Button Command="{Binding StartLoadCommand}">Load</Button>
+                <Button Margin="2" Command="{Binding StartLoadCommand}">Load File</Button>
                 <GroupBox Grid.Row="1" Header="Points">
-                    <ListBox
-                        x:Name="PointsList"
-                        ItemsSource="{Binding StandardMapContext.Points}"
-                        SelectionMode="Extended">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding PointsListSelectionChangedCommand}" CommandParameter="{Binding ElementName=PointsList, Path=SelectedItems}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate DataType="xamlMapConstructs:MapDisplayPoint">
-                                <TextBlock Text="{Binding Name}" />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ListBox
+                            x:Name="PointsList"
+                            ItemsSource="{Binding StandardMapContext.Points}"
+                            SelectedItem="{Binding SelectedPoint}"
+                            SelectionMode="Extended">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding PointsListSelectionChangedCommand}" CommandParameter="{Binding ElementName=PointsList, Path=SelectedItems}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="xamlMapConstructs:MapDisplayPoint">
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <GroupBox Grid.Row="1" Header="Details">
+                            <TextBox
+                                BorderThickness="0"
+                                IsReadOnly="True"
+                                Text="{Binding SelectedPoint.ExtendedDescription}"
+                                TextWrapping="Wrap" />
+                        </GroupBox>
+                    </Grid>
                 </GroupBox>
                 <GroupBox Grid.Row="2" Header="Lines">
-                    <ListBox
-                        x:Name="LinesList"
-                        ItemsSource="{Binding StandardMapContext.Polylines}"
-                        SelectionMode="Extended">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate DataType="xamlMapConstructs:MapDisplayPolyline">
-                                <TextBlock Text="{Binding Name}" />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding PolylinesListSelectionChangedCommand}" CommandParameter="{Binding ElementName=LinesList, Path=SelectedItems}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </ListBox>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ListBox
+                            x:Name="LinesList"
+                            ItemsSource="{Binding StandardMapContext.Polylines}"
+                            SelectedItem="{Binding SelectedPolyline}"
+                            SelectionMode="Extended">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="xamlMapConstructs:MapDisplayPolyline">
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding PolylinesListSelectionChangedCommand}" CommandParameter="{Binding ElementName=LinesList, Path=SelectedItems}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ListBox>
+                        <GroupBox Grid.Row="1" Header="Details">
+                            <TextBox
+                                BorderThickness="0"
+                                IsReadOnly="True"
+                                Text="{Binding SelectedPolyline.ExtendedDescription}"
+                                TextWrapping="Wrap" />
+                        </GroupBox>
+                    </Grid>
                 </GroupBox>
-                <Button Grid.Row="3">Clear</Button>
-                <TextBox
-                    Grid.Row="4"
-                    BorderThickness="0"
-                    IsReadOnly="True"
-                    Text="{Binding SelectedItem.ExtendedDescription}"
-                    TextWrapping="Wrap" />
+                <Button
+                    Grid.Row="3"
+                    Margin="2"
+                    Command="{Binding ClearItemsCommand}">
+                    Clear Items
+                </Button>
             </Grid>
         </GroupBox>
+
         <xamlMapConstructs:StandardMapControl
             Grid.Row="0"
             Grid.Column="1"
             DataContext="{Binding StandardMapContext}" />
-        <Button
-            Grid.Row="1"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            Command="{Binding SelectItemCommand}">
-            Select
-        </Button>
     </Grid>
 </UserControl>

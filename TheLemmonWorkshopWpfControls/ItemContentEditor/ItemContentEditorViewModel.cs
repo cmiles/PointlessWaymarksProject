@@ -17,7 +17,6 @@ using TheLemmonWorkshopWpfControls.GeoDataPicker;
 using TheLemmonWorkshopWpfControls.MainImageFormat;
 using TheLemmonWorkshopWpfControls.Models;
 using TheLemmonWorkshopWpfControls.Utility;
-using TheLemmonWorkshopWpfControls.XamlMapConstructs;
 
 namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 {
@@ -25,7 +24,6 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
     {
         private ContentFormatChooserViewModel _bodyContentFormatContext;
         private MainImageFormatChooserViewModel _mainImageFormatContext;
-        private StandardMapViewModel _standardMapContext;
         private ControlStatusViewModel _statusContext;
         private ContentFormatChooserViewModel _updateNotesFormatContext;
         private UserSiteContent _userContent;
@@ -33,10 +31,11 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
         public ItemContentEditorViewModel()
         {
             StatusContext = new ControlStatusViewModel();
-            StandardMapContext = new StandardMapViewModel(StatusContext);
+            GeoDataPickerContext = new GeoDataPickerViewModel(StatusContext);
 
-            ShowGeoPickerCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ShowGeoPicker));
             SaveContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveContent));
+
+            SelectGeoDataCommand = new RelayCommand(SelectGeoData);
 
             UserContent = new UserSiteContent { Fingerprint = Guid.NewGuid() };
 
@@ -67,6 +66,8 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             }
         }
 
+        public GeoDataPickerViewModel GeoDataPickerContext { get; set; }
+
         public MainImageFormatChooserViewModel MainImageFormatContext
         {
             get => _mainImageFormatContext;
@@ -79,19 +80,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
         }
 
         public RelayCommand SaveContentCommand { get; set; }
-
-        public RelayCommand ShowGeoPickerCommand { get; set; }
-
-        public StandardMapViewModel StandardMapContext
-        {
-            get => _standardMapContext;
-            set
-            {
-                if (Equals(value, _standardMapContext)) return;
-                _standardMapContext = value;
-                OnPropertyChanged();
-            }
-        }
+        public RelayCommand SelectGeoDataCommand { get; set; }
 
         public ControlStatusViewModel StatusContext
         {
@@ -134,30 +123,6 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async void GeoDataPickerContextOnGeoDataSelected(object sender, SelectedGeoData e)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-            if (e == null) return;
-            UserContent.LocationDataType = e.GeoType;
-            UserContent.LocationData = e.GeoData;
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            StandardMapContext.Points.Clear();
-            StandardMapContext.Polylines.Clear();
-
-            if (UserContent.LocationDataType == LocationDataTypeConsts.Point)
-            {
-                StandardMapContext.Points.Add(new MapDisplayPoint
-                {
-                    Location = new MapLocationM(((Point)UserContent.LocationData).Coordinate.Y,
-                        ((Point)UserContent.LocationData).Coordinate.X,
-                        ((Point)UserContent.LocationData).Coordinate.M)
-                });
-                StandardMapContext.MapCenter = StandardMapContext.Points.First().Location;
-            }
         }
 
         private async Task SaveContent()
@@ -217,13 +182,36 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             await context.SaveChangesAsync();
         }
 
-        private async Task ShowGeoPicker()
+        private void SelectGeoData()
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newWindow = new GeoDataPickerWindow();
-            newWindow.GeoDataPickerContext.GeoDataSelected += GeoDataPickerContextOnGeoDataSelected;
+            var selectedPoints = GeoDataPickerContext.SelectedPoints.ToList();
+            var selectedLines = GeoDataPickerContext.SelectedLines.ToList();
 
-            newWindow.Show();
+            if (selectedPoints.Count + selectedLines.Count > 1)
+            {
+                StatusContext.ToastError("Sorry - please select only one point or line...");
+                return;
+            }
+
+            if (selectedPoints.Count > 0)
+            {
+                UserContent.LocationDataType = LocationDataTypeConsts.Point;
+                UserContent.LocationData = new Point(selectedPoints.First().Location.Longitude, selectedPoints.First().Location.Latitude);
+            }
+
+            if (selectedLines.Count > 0)
+            {
+                UserContent.LocationDataType = LocationDataTypeConsts.Line;
+
+                var coordinateList = new List<Coordinate>();
+
+                foreach (var location in selectedLines.First().Locations)
+                {
+                    coordinateList.Add(new Coordinate(location.Longitude, location.Latitude));
+                }
+
+                UserContent.LocationData = new LineString(coordinateList.ToArray());
+            }
         }
     }
 }

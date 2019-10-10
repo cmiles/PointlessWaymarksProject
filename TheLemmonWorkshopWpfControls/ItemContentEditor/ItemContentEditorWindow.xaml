@@ -5,9 +5,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:TheLemmonWorkshopWpfControls.ItemContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="ItemContentEditorWindow"
-    Width="800"
-    Height="450"
+    Title="Basic Content Editor"
+    Width="1400"
+    Height="800"
     mc:Ignorable="d">
     <Grid>
         <local:ItemContentEditor DataContext="{Binding ItemContentEditorContext}" />

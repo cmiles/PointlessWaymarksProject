@@ -27,7 +27,9 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
         private static readonly HttpClient HttpClient = new HttpClient();
         private string _fileName;
         private List<MapDisplayPolyline> _selectedLines;
+        private MapDisplayPoint _selectedPoint;
         private List<MapDisplayPoint> _selectedPoints;
+        private MapDisplayPolyline _selectedPolyline;
         private StandardMapViewModel _standardMapContext;
         private ControlStatusViewModel _statusContext;
 
@@ -37,7 +39,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
             StartLoadCommand = new RelayCommand(() =>
                 StatusContext.RunBlockingTask(() => LoadFile(StatusContext.ProgressTracker())));
-            ClearCommand = new RelayCommand(() =>
+            ClearItemsCommand = new RelayCommand(() =>
                 StatusContext.RunBlockingTask(() => ClearList(StatusContext.ProgressTracker())));
             SelectItemCommand = new RelayCommand(async () => await ReturnSelected());
 
@@ -51,7 +53,8 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public RelayCommand ClearCommand { get; set; }
+        public RelayCommand ClearItemsCommand { get; set; }
+        public RelayCommand ClearSelectionCommand { get; set; }
 
         public string FileName
         {
@@ -64,8 +67,8 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             }
         }
 
-        public RelayCommand<IList> PolylinesListSelectionChangedCommand { get; set; }
         public RelayCommand<IList> PointsListSelectionChangedCommand { get; set; }
+        public RelayCommand<IList> PolylinesListSelectionChangedCommand { get; set; }
 
         public List<MapDisplayPolyline> SelectedLines
         {
@@ -80,6 +83,17 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             }
         }
 
+        public MapDisplayPoint SelectedPoint
+        {
+            get => _selectedPoint;
+            set
+            {
+                if (Equals(value, _selectedPoint)) return;
+                _selectedPoint = value;
+                OnPropertyChanged();
+            }
+        }
+
         public List<MapDisplayPoint> SelectedPoints
         {
             get => _selectedPoints;
@@ -90,6 +104,17 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                 OnPropertyChanged();
 
                 StandardMapContext.OnMapPointSelectionRequest(this, SelectedPoints);
+            }
+        }
+
+        public MapDisplayPolyline SelectedPolyline
+        {
+            get => _selectedPolyline;
+            set
+            {
+                if (Equals(value, _selectedPolyline)) return;
+                _selectedPolyline = value;
+                OnPropertyChanged();
             }
         }
 
@@ -135,24 +160,6 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void PolylinesListSelectionChanged(IList listOfLines)
-        {
-            if (listOfLines == null || listOfLines.Count == 0)
-            {
-                SelectedLines = new List<MapDisplayPolyline>();
-                return;
-            }
-
-            var newSelection = new List<MapDisplayPolyline>();
-
-            foreach (var loopLines in listOfLines)
-            {
-                if (loopLines is MapDisplayPolyline toAdd) newSelection.Add(toAdd);
-            }
-
-            SelectedLines = newSelection;
         }
 
         private async Task LoadFile(IProgress<string> progress)
@@ -278,6 +285,24 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             }
 
             SelectedPoints = newSelection;
+        }
+
+        private void PolylinesListSelectionChanged(IList listOfLines)
+        {
+            if (listOfLines == null || listOfLines.Count == 0)
+            {
+                SelectedLines = new List<MapDisplayPolyline>();
+                return;
+            }
+
+            var newSelection = new List<MapDisplayPolyline>();
+
+            foreach (var loopLines in listOfLines)
+            {
+                if (loopLines is MapDisplayPolyline toAdd) newSelection.Add(toAdd);
+            }
+
+            SelectedLines = newSelection;
         }
 
         private async Task ReturnSelected()
