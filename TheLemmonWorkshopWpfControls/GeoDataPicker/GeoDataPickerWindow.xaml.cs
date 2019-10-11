@@ -68,7 +68,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             GeoDataPickerContext.StandardMapContext.Points.Add(new MapDisplayPoint
             {
                 Id = id,
-                Location = new MapLocationM(latitude, longitude, null),
+                Location = new MapLocationZ(latitude, longitude, null),
                 Name = name
             });
         }

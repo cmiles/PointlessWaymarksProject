@@ -11,9 +11,43 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
     {
         private readonly Dictionary<string, UIElement> mapLayers;
 
+        private string currentMapLayerName = "CalTopo Topo Layer";
+
+        public MapLayers()
+        {
+            // Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
+            // (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
+            // A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
+            // for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
+
+            mapLayers = CreateMapLayers();
+
+            MapLayerNames.AddRange(
+                new List<string> { "Thunderforest Outdoor", "OpenStreetMap", "OpenStreetMap TOPO WMS" });
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public UIElement CurrentMapLayer => mapLayers[currentMapLayerName];
+
+        public string CurrentMapLayerName
+        {
+            get => currentMapLayerName;
+            set
+            {
+                currentMapLayerName = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentMapLayerName)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentMapLayer)));
+            }
+        }
+
+        public List<string> MapLayerNames { get; } = new List<string>();
+
+        public UIElement SeamarksLayer => mapLayers["Seamarks"];
+
         private Dictionary<string, UIElement> CreateMapLayers()
         {
-            var settings = Settings.SettingsUtility.ReadSettings();
+            var settings = UserSettingsUtilities.ReadSettings();
 
             var toReturn = new Dictionary<string, UIElement>();
 
@@ -35,7 +69,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
                         Layers = "f16a"
                     });
 
-                MapLayerNames.AddRange(new List<string> {"CalTopo Topo Layer", "CalTopo Forest Service"});
+                MapLayerNames.AddRange(new List<string> { "CalTopo Topo Layer", "CalTopo Forest Service" });
             }
 
             if (!string.IsNullOrWhiteSpace(settings.BingApiKey))
@@ -108,7 +142,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
                     SourceName = "Stamen Terrain",
                     Description =
                         "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0)\nData by [OpenStreetMap](http://openstreetmap.org/), under [ODbL](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource {UriFormat = "http://tile.stamen.com/terrain/{z}/{x}/{y}.png"},
+                    TileSource = new TileSource { UriFormat = "http://tile.stamen.com/terrain/{z}/{x}/{y}.png" },
                     MaxZoomLevel = 17
                 });
             toReturn.Add("Stamen Toner Light",
@@ -117,14 +151,14 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
                     SourceName = "Stamen Toner Light",
                     Description =
                         "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0)\nData by [OpenStreetMap](http://openstreetmap.org/), under [ODbL](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource {UriFormat = "http://tile.stamen.com/toner-lite/{z}/{x}/{y}.png"},
+                    TileSource = new TileSource { UriFormat = "http://tile.stamen.com/toner-lite/{z}/{x}/{y}.png" },
                     MaxZoomLevel = 18
                 });
             toReturn.Add("Seamarks",
                 new MapTileLayer
                 {
                     SourceName = "OpenSeaMap",
-                    TileSource = new TileSource {UriFormat = "http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"},
+                    TileSource = new TileSource { UriFormat = "http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png" },
                     MinZoomLevel = 9,
                     MaxZoomLevel = 18
                 });
@@ -156,39 +190,5 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 
             return toReturn;
         }
-
-        private string currentMapLayerName = "CalTopo Topo Layer";
-
-        public MapLayers()
-        {
-            // Bing Maps TileLayers with tile URLs retrieved from the Imagery Metadata Service
-            // (see http://msdn.microsoft.com/en-us/library/ff701716.aspx).
-            // A Bing Maps API Key (see http://msdn.microsoft.com/en-us/library/ff428642.aspx) is required
-            // for using these layers and must be assigned to the static BingMapsTileLayer.ApiKey property.
-
-            mapLayers = CreateMapLayers();
-
-            MapLayerNames.AddRange(
-                new List<string> {"Thunderforest Outdoor", "OpenStreetMap", "OpenStreetMap TOPO WMS"});
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public UIElement CurrentMapLayer => mapLayers[currentMapLayerName];
-
-        public string CurrentMapLayerName
-        {
-            get => currentMapLayerName;
-            set
-            {
-                currentMapLayerName = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentMapLayerName)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentMapLayer)));
-            }
-        }
-
-        public List<string> MapLayerNames { get; } = new List<string>();
-
-        public UIElement SeamarksLayer => mapLayers["Seamarks"];
     }
 }

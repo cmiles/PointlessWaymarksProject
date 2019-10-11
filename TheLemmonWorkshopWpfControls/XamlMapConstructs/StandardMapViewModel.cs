@@ -92,7 +92,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             var newMapPoint = new MapDisplayPoint
             {
                 Id = Guid.NewGuid(),
-                Location = new MapLocationM(getPosition.Y, getPosition.X, null)
+                Location = new MapLocationZ(getPosition.Y, getPosition.X, null)
             };
 
             await ThreadSwitcher.ResumeForegroundAsync();

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using TheLemmonWorkshopWpfControls;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.ItemContentEditor;
-using TheLemmonWorkshopWpfControls.Settings;
 using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopContentEditor
@@ -30,7 +29,7 @@ namespace TheLemmonWorkshopContentEditor
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             ToastTestCommand = new RelayCommand(() => StatusContext.ToastWarning("Test"));
 
-            SettingsUtility.VerifyAndCreate();
+            UserSettingsUtilities.VerifyAndCreate();
 
             var db = Db.Context();
             db.Database.EnsureCreated();

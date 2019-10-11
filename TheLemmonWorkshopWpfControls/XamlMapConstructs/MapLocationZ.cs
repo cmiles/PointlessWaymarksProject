@@ -1,8 +1,8 @@
 ﻿namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 {
-    public class MapLocationM : MapControl.Location
+    public class MapLocationZ : MapControl.Location
     {
-        public MapLocationM(double latitude, double longitude, double? elevation)
+        public MapLocationZ(double latitude, double longitude, double? elevation)
         {
             Latitude = latitude;
             Longitude = longitude;

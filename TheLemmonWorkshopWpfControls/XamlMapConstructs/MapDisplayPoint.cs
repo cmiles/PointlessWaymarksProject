@@ -13,7 +13,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 
         private bool _isSelected;
 
-        private MapLocationM _location;
+        private MapLocationZ _location;
 
         private string _name;
 
@@ -52,7 +52,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             }
         }
 
-        public MapLocationM Location
+        public MapLocationZ Location
         {
             get => _location;
             set

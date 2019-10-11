@@ -7,9 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TheLemmonWorkshopData;
+using TheLemmonWorkshopData.Elevation;
 using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls.ContentFormat;
 using TheLemmonWorkshopWpfControls.ControlStatus;
@@ -23,6 +25,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
     public class ItemContentEditorViewModel : INotifyPropertyChanged
     {
         private ContentFormatChooserViewModel _bodyContentFormatContext;
+        private HttpClient _httpClient = new HttpClient();
         private MainImageFormatChooserViewModel _mainImageFormatContext;
         private ControlStatusViewModel _statusContext;
         private ContentFormatChooserViewModel _updateNotesFormatContext;
@@ -35,7 +38,9 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 
             SaveContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveContent));
 
-            SelectGeoDataCommand = new RelayCommand(SelectGeoData);
+            SelectGeoDataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SelectGeoData));
+            UpdateSelectedGeoDataElevation =
+                new RelayCommand(() => StatusContext.RunBlockingTask(UpdateSelectedPointGeoDataElevation));
 
             UserContent = new UserSiteContent { Fingerprint = Guid.NewGuid() };
 
@@ -103,6 +108,8 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public RelayCommand UpdateSelectedGeoDataElevation { get; set; }
 
         public UserSiteContent UserContent
         {
@@ -182,21 +189,35 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             await context.SaveChangesAsync();
         }
 
-        private void SelectGeoData()
+        private async Task SelectGeoData()
         {
             var selectedPoints = GeoDataPickerContext.SelectedPoints.ToList();
             var selectedLines = GeoDataPickerContext.SelectedLines.ToList();
 
             if (selectedPoints.Count + selectedLines.Count > 1)
             {
-                StatusContext.ToastError("Sorry - please select only one point or line...");
+                StatusContext.ToastError("Sorry - please select only one point or one line...");
                 return;
             }
 
             if (selectedPoints.Count > 0)
             {
                 UserContent.LocationDataType = LocationDataTypeConsts.Point;
-                UserContent.LocationData = new Point(selectedPoints.First().Location.Longitude, selectedPoints.First().Location.Latitude);
+
+                var point = selectedPoints.First().Location;
+                double elevation;
+
+                if (point.Elevation == null)
+                {
+                    elevation = await GoogleElevationService.GetElevation(_httpClient,
+                        UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, point.Longitude, point.Latitude);
+                }
+                else
+                {
+                    elevation = point.Elevation.Value;
+                }
+
+                UserContent.LocationData = SpatialHelpers.Wgs84Point(point.Longitude, point.Latitude, elevation);
             }
 
             if (selectedLines.Count > 0)
@@ -212,6 +233,71 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 
                 UserContent.LocationData = new LineString(coordinateList.ToArray());
             }
+        }
+
+        private async Task UpdateLineElevation(IProgress<string> progress)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var line = (LineString)UserContent.LocationData;
+            
+            var totalPoints = line.Coordinates.Length;
+            var currentPointNumber = 0;
+
+            var lineStringFactory = NetTopologySuite.Geometries.Implementation.DotSpatialAffineCoordinateSequenceFactory.Instance;
+            var newLineStringSequence = lineStringFactory.Create(totalPoints, Ordinates.XYZ);
+
+            foreach (var loopCoordinate in line.Coordinates)
+            {
+
+                progress.Report($"Point {currentPointNumber} of {totalPoints} - existing elevation is {loopCoordinate.M}m - " +
+                                $"lat {loopCoordinate.Y} long {loopCoordinate.X}");
+
+                var elevation = await GoogleElevationService.GetElevation(_httpClient,
+                    UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, loopCoordinate.Y,
+                    loopCoordinate.X);
+
+                progress.Report($"Found {elevation}m");
+
+                newLineStringSequence.SetOrdinate(currentPointNumber, Ordinate.X, loopCoordinate.X);
+                newLineStringSequence.SetOrdinate(currentPointNumber, Ordinate.Y, loopCoordinate.Y);
+                newLineStringSequence.SetOrdinate(currentPointNumber, Ordinate.Z, elevation);
+
+                currentPointNumber++;
+            }
+
+            UserContent.LocationData = SpatialHelpers.Wgs84GeometryFactory().CreateLineString(newLineStringSequence);
+        }
+
+        private async Task UpdatePointElevation(IProgress<string> progress)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var point = (Point)UserContent.LocationData;
+
+            progress.Report($"Querying for Elevation - existing elevation is {point.Z}m - lat {point.Y} long {point.X}");
+
+            var elevation = await GoogleElevationService.GetElevation(_httpClient,
+                UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, point.Y,
+                point.X);
+
+            progress.Report($"Found {elevation}m");
+
+            UserContent.LocationData = SpatialHelpers.Wgs84Point(point.X, point.Y, point.Z);
+        }
+
+        private async Task UpdateSelectedPointGeoDataElevation()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (UserContent.LocationData == null)
+            {
+                StatusContext.ToastError("No data selected?");
+                return;
+            }
+
+            if (UserContent.LocationDataType == LocationDataTypeConsts.Point) await UpdatePointElevation(StatusContext.ProgressTracker());
+            if (UserContent.LocationDataType == LocationDataTypeConsts.Line) await UpdateLineElevation(StatusContext.ProgressTracker());
         }
     }
 }

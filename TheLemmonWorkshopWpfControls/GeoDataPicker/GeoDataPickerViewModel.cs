@@ -26,9 +26,9 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
     {
         private static readonly HttpClient HttpClient = new HttpClient();
         private string _fileName;
-        private List<MapDisplayPolyline> _selectedLines;
+        private List<MapDisplayPolyline> _selectedLines = new List<MapDisplayPolyline>();
         private MapDisplayPoint _selectedPoint;
-        private List<MapDisplayPoint> _selectedPoints;
+        private List<MapDisplayPoint> _selectedPoints = new List<MapDisplayPoint>();
         private MapDisplayPolyline _selectedPolyline;
         private StandardMapViewModel _standardMapContext;
         private ControlStatusViewModel _statusContext;
@@ -222,7 +222,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                     Id = idGuid,
                     Name = loopWaypoint.Name,
                     Location =
-                        new MapLocationM(loopWaypoint.Latitude, loopWaypoint.Longitude,
+                        new MapLocationZ(loopWaypoint.Latitude, loopWaypoint.Longitude,
                             loopWaypoint.ElevationInMeters),
                     ExtendedDescription = "Waypoint - " + loopWaypoint.Comment +
                                           (loopWaypoint.ElevationInMeters == null
@@ -239,11 +239,11 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             {
                 var idGuid = Guid.NewGuid();
 
-                var pointList = new List<MapLocationM>();
+                var pointList = new List<MapLocationZ>();
 
                 foreach (var loopSegments in loopTrack.Segments)
                     foreach (var loopPoints in loopSegments.Waypoints)
-                        pointList.Add(new MapLocationM(loopPoints.Latitude, loopPoints.Longitude,
+                        pointList.Add(new MapLocationZ(loopPoints.Latitude, loopPoints.Longitude,
                             loopPoints.ElevationInMeters));
 
                 StandardMapContext.Polylines.Add(new MapDisplayPolyline
@@ -325,7 +325,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                     try
                     {
                         var elevation = await GoogleElevationService.GetElevation(HttpClient,
-                            Settings.SettingsUtility.ReadSettings().GoogleMapsApiKey, possiblePoint.Location.Latitude,
+                            UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, possiblePoint.Location.Latitude,
                             possiblePoint.Location.Longitude);
                         newPoint.M = elevation;
                     }

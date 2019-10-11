@@ -123,6 +123,7 @@
                         <Button Command="{Binding GeoDataPickerContext.StandardMapContext.ClearAllSelectionsCommand}">Clear Current Map Selections</Button>
                         <Button Command="{Binding SelectGeoDataCommand}">Set Current Map Selection</Button>
                         <TextBlock Text="{Binding UserContent.LocationDataType, StringFormat='Data Type: {0}'}" />
+                        <Button Command="{Binding UpdateSelectedGeoDataElevation}">Update Elevation</Button>
                     </StackPanel>
                 </Grid>
             </TabItem>
