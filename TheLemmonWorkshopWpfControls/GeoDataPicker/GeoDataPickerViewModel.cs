@@ -42,12 +42,15 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             ClearItemsCommand = new RelayCommand(() =>
                 StatusContext.RunBlockingTask(() => ClearList(StatusContext.ProgressTracker())));
             SelectItemCommand = new RelayCommand(async () => await ReturnSelected());
+            RenamePointCommand = new RelayCommand<MapDisplayPoint>(async x => await RenamePoint(x));
 
             PointsListSelectionChangedCommand = new RelayCommand<IList>(PointsListSelectionChanged);
             PolylinesListSelectionChangedCommand = new RelayCommand<IList>(PolylinesListSelectionChanged);
 
             StandardMapContext = new StandardMapViewModel(statusContext);
         }
+
+        public RelayCommand<MapDisplayPoint> RenamePointCommand { get; set; }
 
         public event EventHandler<SelectedGeoData> GeoDataSelected;
 
@@ -303,6 +306,17 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             }
 
             SelectedLines = newSelection;
+        }
+
+        private async Task RenamePoint(MapDisplayPoint toRename)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var (shouldRename, newName) = await StatusContext.ShowStringEntry("Rename Point", $"Original Name: {toRename.Name}", toRename.Name);
+
+            if (!shouldRename) return;
+
+            toRename.Name = newName;
         }
 
         private async Task ReturnSelected()

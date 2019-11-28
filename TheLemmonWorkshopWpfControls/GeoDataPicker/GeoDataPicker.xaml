@@ -9,10 +9,16 @@
     xmlns:io="clr-namespace:NetTopologySuite.IO;assembly=NetTopologySuite.IO.GPX"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:xamlMapConstructs="clr-namespace:TheLemmonWorkshopWpfControls.XamlMapConstructs"
+    xmlns:utility="clr-namespace:TheLemmonWorkshopWpfControls.Utility"
     d:DataContext="{d:DesignInstance geoDataPicker:GeoDataPickerViewModel}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -26,15 +32,22 @@
             <Grid Width="200">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition />
-                    <RowDefinition />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
                 <Button Margin="2" Command="{Binding StartLoadCommand}">Load File</Button>
-                <GroupBox Grid.Row="1" Header="Points">
+                <Button
+                    Grid.Row="1"
+                    Margin="2"
+                    Command="{Binding ClearItemsCommand}">
+                    Clear All Data
+                </Button>
+                <GroupBox Grid.Row="2" Header="Points">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition />
                         </Grid.RowDefinitions>
                         <ListBox
@@ -49,23 +62,34 @@
                             </i:Interaction.Triggers>
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="xamlMapConstructs:MapDisplayPoint">
-                                    <TextBlock Text="{Binding Name}" />
+                                        <TextBlock Text="{Binding Name}" >
+                                            <TextBlock.InputBindings>
+                                                <MouseBinding
+                                                    Command="{Binding Data.RenamePointCommand, Source={StaticResource Proxy}}"
+                                                    CommandParameter="{Binding .}"
+                                                    MouseAction="LeftDoubleClick" />
+                                            </TextBlock.InputBindings>
+                                        </TextBlock>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <GroupBox Grid.Row="1" Header="Details">
+                        <Button Grid.Row="1" Command="{Binding StandardMapContext.ClearPointsSelectionCommand}">Clear Selection</Button>
+                        <GroupBox Grid.Row="2" Header="Details">
                             <TextBox
                                 BorderThickness="0"
                                 IsReadOnly="True"
                                 Text="{Binding SelectedPoint.ExtendedDescription}"
-                                TextWrapping="Wrap" />
+                                TextWrapping="Wrap">
+
+                            </TextBox>
                         </GroupBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox Grid.Row="2" Header="Lines">
+                <GroupBox Grid.Row="3" Header="Lines">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition />
                         </Grid.RowDefinitions>
                         <ListBox
@@ -84,7 +108,8 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </ListBox>
-                        <GroupBox Grid.Row="1" Header="Details">
+                        <Button Grid.Row="1" Command="{Binding StandardMapContext.ClearPolylinesSelectionCommand}">Clear Selection</Button>
+                        <GroupBox Grid.Row="2" Header="Details">
                             <TextBox
                                 BorderThickness="0"
                                 IsReadOnly="True"
@@ -93,15 +118,8 @@
                         </GroupBox>
                     </Grid>
                 </GroupBox>
-                <Button
-                    Grid.Row="3"
-                    Margin="2"
-                    Command="{Binding ClearItemsCommand}">
-                    Clear Items
-                </Button>
             </Grid>
         </GroupBox>
-
         <xamlMapConstructs:StandardMapControl
             Grid.Row="0"
             Grid.Column="1"

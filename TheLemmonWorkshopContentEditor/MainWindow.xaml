@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:TheLemmonWorkshopContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:contentList="clr-namespace:TheLemmonWorkshopWpfControls.ContentList;assembly=TheLemmonWorkshopWpfControls"
     Title="MainWindow"
     Width="1200"
     Height="600"
@@ -16,6 +17,7 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
+        <contentList:ContentListView></contentList:ContentListView>
         <StackPanel Grid.Column="1">
             <Button Command="{Binding NewContentCommand}">New Content</Button>
             <Button Command="{Binding ToastTestCommand}">Test Toast</Button>

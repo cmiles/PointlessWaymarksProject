@@ -17,6 +17,7 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
     public class ControlStatusViewModel : INotifyPropertyChanged
     {
         private readonly ManualResetEvent _messageBoxMre = new ManualResetEvent(false);
+        private readonly ManualResetEvent _stringEntryMre = new ManualResetEvent(false);
         private bool _blockUi;
         private int _countOfRunningBlockingTasks;
         private int _countOfRunningNonBlockingTasks;
@@ -30,6 +31,11 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
         private bool _nonBlockingTaskAreRunning;
         private ObservableCollection<string> _statusLog;
         private ToastSource _toast;
+        private bool _stringEntryVisible;
+        private string _stringEntryTitle;
+        private string _stringEntryMessage;
+        private string _stringEntryUserText;
+        private bool _stringEntryApproved;
 
         public ControlStatusViewModel()
         {
@@ -37,7 +43,11 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             StatusLog = new ObservableCollection<string>();
 
             UserMessageBoxResponseCommand = new RelayCommand<string>(UserMessageBoxResponse);
+            UserStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
+            UserStringEntryCancelledResponseCommand = new RelayCommand(UserStringEntryCancelledResponse);
         }
+
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -191,6 +201,52 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
         }
 
         public RelayCommand<string> UserMessageBoxResponseCommand { get; set; }
+        public RelayCommand UserStringEntryApprovedResponseCommand { get; set; }
+        public RelayCommand UserStringEntryCancelledResponseCommand { get; set; }
+
+        public bool StringEntryVisible
+        {
+            get => _stringEntryVisible;
+            set
+            {
+                if (value == _stringEntryVisible) return;
+                _stringEntryVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string StringEntryTitle
+        {
+            get => _stringEntryTitle;
+            set
+            {
+                if (value == _stringEntryTitle) return;
+                _stringEntryTitle = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string StringEntryMessage
+        {
+            get => _stringEntryMessage;
+            set
+            {
+                if (value == _stringEntryMessage) return;
+                _stringEntryMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string StringEntryUserText
+        {
+            get => _stringEntryUserText;
+            set
+            {
+                if (value == _stringEntryUserText) return;
+                _stringEntryUserText = value;
+                OnPropertyChanged();
+            }
+        }
 
         public IProgress<string> ProgressTracker()
         {
@@ -251,6 +307,46 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             MessageBoxVisible = false;
 
             return toReturn;
+        }
+
+        public async Task<(bool, string)> ShowStringEntry(string title, string body, string initialUserString)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            StringEntryTitle = title;
+            StringEntryMessage = body;
+            StringEntryUserText = initialUserString;
+            StringEntryVisible = true;
+            StringEntryApproved = false;
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            _stringEntryMre.WaitOne();
+            _stringEntryMre.Reset();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var toReturn = StringEntryUserText;
+            var approved = StringEntryApproved;
+
+            StringEntryTitle = string.Empty;
+            StringEntryMessage = string.Empty; ;
+            StringEntryUserText = string.Empty; ;
+            StringEntryVisible = false;
+            StringEntryApproved = false;
+
+            return (approved, toReturn);
+        }
+
+        public bool StringEntryApproved
+        {
+            get => _stringEntryApproved;
+            set
+            {
+                if (value == _stringEntryApproved) return;
+                _stringEntryApproved = value;
+                OnPropertyChanged();
+            }
         }
 
         public void ToastError(string toastText)
@@ -323,6 +419,18 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
         {
             MessageBoxResponse = responseString;
             _messageBoxMre?.Set();
+        }
+
+        private void UserStringEntryApprovedResponse()
+        {
+            StringEntryApproved = true;
+            _stringEntryMre?.Set();
+        }
+
+        private void UserStringEntryCancelledResponse()
+        {
+            StringEntryApproved = false;
+            _stringEntryMre?.Set();
         }
     }
 }

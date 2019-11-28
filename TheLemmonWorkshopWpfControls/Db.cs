@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using TheLemmonWorkshopData;
 
 namespace TheLemmonWorkshopWpfControls
 {
     public static class Db
     {
+
         public static LemmonWorkshopContext Context()
         {
             var optionsBuilder = new DbContextOptionsBuilder<LemmonWorkshopContext>();

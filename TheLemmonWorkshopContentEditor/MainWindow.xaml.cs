@@ -1,9 +1,14 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
+﻿using System.Collections.Generic;
+using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
+using NetTopologySuite.Geometries;
+using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls;
+using TheLemmonWorkshopWpfControls.ContentList;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.ItemContentEditor;
 using TheLemmonWorkshopWpfControls.Utility;
@@ -15,8 +20,8 @@ namespace TheLemmonWorkshopContentEditor
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private ItemContentEditorViewModel _itemContentEditorContext;
         private ControlStatusViewModel _statusContext;
+        private ContentListViewModel _contextListContext;
 
         public MainWindow()
         {
@@ -25,6 +30,7 @@ namespace TheLemmonWorkshopContentEditor
             DataContext = this;
 
             StatusContext = new ControlStatusViewModel();
+            ContextListContext = new ContentListViewModel(StatusContext);
 
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             ToastTestCommand = new RelayCommand(() => StatusContext.ToastWarning("Test"));
@@ -33,20 +39,24 @@ namespace TheLemmonWorkshopContentEditor
 
             var db = Db.Context();
             db.Database.EnsureCreated();
+
+
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public ItemContentEditorViewModel ItemContentEditorContext
+        public ContentListViewModel ContextListContext
         {
-            get => _itemContentEditorContext;
+            get => _contextListContext;
             set
             {
-                if (Equals(value, _itemContentEditorContext)) return;
-                _itemContentEditorContext = value;
+                if (Equals(value, _contextListContext)) return;
+                _contextListContext = value;
                 OnPropertyChanged();
             }
         }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
 
         public RelayCommand NewContentCommand { get; set; }
 
@@ -76,5 +86,6 @@ namespace TheLemmonWorkshopContentEditor
             var newContentWindow = new ItemContentEditorWindow { Left = Left + 4, Top = Top + 4 };
             newContentWindow.Show();
         }
+
     }
 }

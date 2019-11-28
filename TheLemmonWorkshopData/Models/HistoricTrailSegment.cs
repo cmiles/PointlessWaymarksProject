@@ -1,5 +1,6 @@
 ﻿using NetTopologySuite.Geometries;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TheLemmonWorkshopData.Models
 {
@@ -14,6 +15,8 @@ namespace TheLemmonWorkshopData.Models
         public decimal HighestElevation { get; set; }
         public int Id { get; set; }
         public decimal LengthInMeters { get; set; }
+
+        [Column(TypeName = "geometry")]
         public Geometry LocationData { get; set; }
         public decimal LowestElevation { get; set; }
         public string SegmentContent { get; set; }

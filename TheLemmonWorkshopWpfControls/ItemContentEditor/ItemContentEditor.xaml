@@ -116,15 +116,21 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="42" />
                     </Grid.RowDefinitions>
                     <geoDataPicker:GeoDataPicker DataContext="{Binding GeoDataPickerContext}" />
-                    <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <Button Command="{Binding GeoDataPickerContext.StandardMapContext.ClearAllSelectionsCommand}">Clear Current Map Selections</Button>
-                        <Button Command="{Binding SelectGeoDataCommand}">Set Current Map Selection</Button>
-                        <TextBlock Text="{Binding UserContent.LocationDataType, StringFormat='Data Type: {0}'}" />
-                        <Button Command="{Binding UpdateSelectedGeoDataElevation}">Update Elevation</Button>
-                    </StackPanel>
+                    <Border
+                        Grid.Row="1"
+                        BorderBrush="LightGray"
+                        BorderThickness="1"
+                        CornerRadius="2"
+                        Margin="4">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="4">
+                            <Button Command="{Binding SelectGeoDataCommand}" Width="180" Margin="2">Choose Current Map Selection</Button>
+                            <TextBlock Text="{Binding UserContent.LocationDataType, StringFormat='Selected Data Type: {0}'}" Margin="24,2,2,2" Width="240" VerticalAlignment="Center"/>
+                            <Button Command="{Binding UpdateSelectedGeoDataElevation}" Width="120" Margin="12,2,2,2">Update Elevation</Button>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </TabItem>
             <TabItem Header="Save">
