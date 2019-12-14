@@ -10,6 +10,6 @@
     Height="800"
     mc:Ignorable="d">
     <Grid>
-        <local:ItemContentEditor DataContext="{Binding ItemContentEditorContext}" />
+        <local:ItemContentEditorControl DataContext="{Binding ItemContentEditorContext}" />
     </Grid>
 </Window>

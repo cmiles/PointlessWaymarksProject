@@ -22,19 +22,19 @@ using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 {
-    public class ItemContentEditorViewModel : INotifyPropertyChanged
+    public class ItemContentEditorContext : INotifyPropertyChanged
     {
-        private ContentFormatChooserViewModel _bodyContentFormatContext;
-        private HttpClient _httpClient = new HttpClient();
-        private MainImageFormatChooserViewModel _mainImageFormatContext;
+        private ContentFormatChooserContext _bodyContentFormatContext;
+        private readonly HttpClient _httpClient = new HttpClient();
+        private MainImageFormatChooserContext _mainImageFormatContext;
         private ControlStatusViewModel _statusContext;
-        private ContentFormatChooserViewModel _updateNotesFormatContext;
+        private ContentFormatChooserContext _updateNotesFormatContext;
         private UserSiteContent _userContent;
 
-        public ItemContentEditorViewModel()
+        public ItemContentEditorContext()
         {
             StatusContext = new ControlStatusViewModel();
-            GeoDataPickerContext = new GeoDataPickerViewModel(StatusContext);
+            GeoDataPickerContext = new GeoDataPickerContext(StatusContext);
 
             SaveContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveContent));
 
@@ -44,15 +44,15 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 
             UserContent = new UserSiteContent { Fingerprint = Guid.NewGuid() };
 
-            BodyContentFormatContext = new ContentFormatChooserViewModel();
+            BodyContentFormatContext = new ContentFormatChooserContext();
             BodyContentFormatContext.OnSelectedValueChanged += (sender, s) => UserContent.BodyContentFormat = s;
             UserContent.BodyContentFormat =
                 Enum.GetName(typeof(ContentFormatEnum), BodyContentFormatContext.SelectedContentFormat);
-            UpdateNotesFormatContext = new ContentFormatChooserViewModel();
+            UpdateNotesFormatContext = new ContentFormatChooserContext();
             UpdateNotesFormatContext.OnSelectedValueChanged += (sender, s) => UserContent.UpdateNotesFormat = s;
             UserContent.UpdateNotesFormat =
                 Enum.GetName(typeof(ContentFormatEnum), UpdateNotesFormatContext.SelectedContentFormat);
-            MainImageFormatContext = new MainImageFormatChooserViewModel();
+            MainImageFormatContext = new MainImageFormatChooserContext();
             MainImageFormatContext.OnSelectedValueChanged += (sender, s) => UserContent.MainImageFormat = s;
             UserContent.MainImageFormat =
                 Enum.GetName(typeof(ContentFormatEnum), MainImageFormatContext.SelectedContentFormat);
@@ -60,7 +60,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ContentFormatChooserViewModel BodyContentFormatContext
+        public ContentFormatChooserContext BodyContentFormatContext
         {
             get => _bodyContentFormatContext;
             set
@@ -71,9 +71,9 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             }
         }
 
-        public GeoDataPickerViewModel GeoDataPickerContext { get; set; }
+        public GeoDataPickerContext GeoDataPickerContext { get; set; }
 
-        public MainImageFormatChooserViewModel MainImageFormatContext
+        public MainImageFormatChooserContext MainImageFormatContext
         {
             get => _mainImageFormatContext;
             set
@@ -98,7 +98,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             }
         }
 
-        public ContentFormatChooserViewModel UpdateNotesFormatContext
+        public ContentFormatChooserContext UpdateNotesFormatContext
         {
             get => _updateNotesFormatContext;
             set

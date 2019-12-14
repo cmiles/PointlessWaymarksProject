@@ -13,12 +13,12 @@ using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopWpfControls.ContentList
 {
-    public class ContentListViewModel : INotifyPropertyChanged
+    public class ContentListContext : INotifyPropertyChanged
     {
         private ControlStatusViewModel _statusContext;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ContentListViewModel(ControlStatusViewModel statusContext)
+        public ContentListContext(ControlStatusViewModel statusContext)
         {
             StatusContext = statusContext;
 

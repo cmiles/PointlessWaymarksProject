@@ -22,7 +22,7 @@ using Location = MapControl.Location;
 
 namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 {
-    public class GeoDataPickerViewModel : INotifyPropertyChanged
+    public class GeoDataPickerContext : INotifyPropertyChanged
     {
         private static readonly HttpClient HttpClient = new HttpClient();
         private string _fileName;
@@ -33,7 +33,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
         private StandardMapViewModel _standardMapContext;
         private ControlStatusViewModel _statusContext;
 
-        public GeoDataPickerViewModel(ControlStatusViewModel statusContext)
+        public GeoDataPickerContext(ControlStatusViewModel statusContext)
         {
             StatusContext = statusContext;
 

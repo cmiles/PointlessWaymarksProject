@@ -30,12 +30,12 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
         private bool _messageBoxVisible;
         private bool _nonBlockingTaskAreRunning;
         private ObservableCollection<string> _statusLog;
-        private ToastSource _toast;
-        private bool _stringEntryVisible;
-        private string _stringEntryTitle;
-        private string _stringEntryMessage;
-        private string _stringEntryUserText;
         private bool _stringEntryApproved;
+        private string _stringEntryMessage;
+        private string _stringEntryTitle;
+        private string _stringEntryUserText;
+        private bool _stringEntryVisible;
+        private ToastSource _toast;
 
         public ControlStatusViewModel()
         {
@@ -46,8 +46,6 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             UserStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
             UserStringEntryCancelledResponseCommand = new RelayCommand(UserStringEntryCancelledResponse);
         }
-
-
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -189,39 +187,13 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             }
         }
 
-        public ToastSource Toast
+        public bool StringEntryApproved
         {
-            get => _toast;
+            get => _stringEntryApproved;
             set
             {
-                if (Equals(value, _toast)) return;
-                _toast = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public RelayCommand<string> UserMessageBoxResponseCommand { get; set; }
-        public RelayCommand UserStringEntryApprovedResponseCommand { get; set; }
-        public RelayCommand UserStringEntryCancelledResponseCommand { get; set; }
-
-        public bool StringEntryVisible
-        {
-            get => _stringEntryVisible;
-            set
-            {
-                if (value == _stringEntryVisible) return;
-                _stringEntryVisible = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string StringEntryTitle
-        {
-            get => _stringEntryTitle;
-            set
-            {
-                if (value == _stringEntryTitle) return;
-                _stringEntryTitle = value;
+                if (value == _stringEntryApproved) return;
+                _stringEntryApproved = value;
                 OnPropertyChanged();
             }
         }
@@ -237,6 +209,17 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             }
         }
 
+        public string StringEntryTitle
+        {
+            get => _stringEntryTitle;
+            set
+            {
+                if (value == _stringEntryTitle) return;
+                _stringEntryTitle = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string StringEntryUserText
         {
             get => _stringEntryUserText;
@@ -247,6 +230,32 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
                 OnPropertyChanged();
             }
         }
+
+        public bool StringEntryVisible
+        {
+            get => _stringEntryVisible;
+            set
+            {
+                if (value == _stringEntryVisible) return;
+                _stringEntryVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ToastSource Toast
+        {
+            get => _toast;
+            set
+            {
+                if (Equals(value, _toast)) return;
+                _toast = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand<string> UserMessageBoxResponseCommand { get; set; }
+        public RelayCommand UserStringEntryApprovedResponseCommand { get; set; }
+        public RelayCommand UserStringEntryCancelledResponseCommand { get; set; }
 
         public IProgress<string> ProgressTracker()
         {
@@ -336,17 +345,6 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             StringEntryApproved = false;
 
             return (approved, toReturn);
-        }
-
-        public bool StringEntryApproved
-        {
-            get => _stringEntryApproved;
-            set
-            {
-                if (value == _stringEntryApproved) return;
-                _stringEntryApproved = value;
-                OnPropertyChanged();
-            }
         }
 
         public void ToastError(string toastText)

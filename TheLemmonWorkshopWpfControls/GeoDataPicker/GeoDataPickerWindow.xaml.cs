@@ -17,7 +17,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
     /// </summary>
     public partial class GeoDataPickerWindow : INotifyPropertyChanged
     {
-        private GeoDataPickerViewModel _geoDataPickerContext;
+        private GeoDataPickerContext _geoDataPickerContext;
 
         public GeoDataPickerWindow()
         {
@@ -25,13 +25,13 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
             DataContext = this;
 
-            GeoDataPickerContext = new GeoDataPickerViewModel(new ControlStatusViewModel());
+            GeoDataPickerContext = new GeoDataPickerContext(new ControlStatusViewModel());
             GeoDataPickerContext.GeoDataSelected += (sender, data) => Close();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public GeoDataPickerViewModel GeoDataPickerContext
+        public GeoDataPickerContext GeoDataPickerContext
         {
             get => _geoDataPickerContext;
             set

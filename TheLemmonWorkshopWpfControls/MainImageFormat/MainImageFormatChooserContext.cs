@@ -8,13 +8,13 @@ using TheLemmonWorkshopData;
 
 namespace TheLemmonWorkshopWpfControls.MainImageFormat
 {
-    public class MainImageFormatChooserViewModel : INotifyPropertyChanged
+    public class MainImageFormatChooserContext : INotifyPropertyChanged
     {
         private List<MainImageContentFormatEnum> _contentFormatChoices;
 
         private MainImageContentFormatEnum _selectedContentFormat;
 
-        public MainImageFormatChooserViewModel()
+        public MainImageFormatChooserContext()
         {
             ContentFormatChoices = Enum.GetValues(typeof(MainImageContentFormatEnum))
                 .Cast<MainImageContentFormatEnum>().ToList();

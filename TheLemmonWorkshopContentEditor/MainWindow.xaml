@@ -17,7 +17,7 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <contentList:ContentListView></contentList:ContentListView>
+        <contentList:ContentListControl></contentList:ContentListControl>
         <StackPanel Grid.Column="1">
             <Button Command="{Binding NewContentCommand}">New Content</Button>
             <Button Command="{Binding ToastTestCommand}">Test Toast</Button>

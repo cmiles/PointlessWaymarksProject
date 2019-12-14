@@ -21,7 +21,7 @@ namespace TheLemmonWorkshopContentEditor
     public partial class MainWindow : INotifyPropertyChanged
     {
         private ControlStatusViewModel _statusContext;
-        private ContentListViewModel _contextListContext;
+        private ContentListContext _contextListContext;
 
         public MainWindow()
         {
@@ -30,7 +30,7 @@ namespace TheLemmonWorkshopContentEditor
             DataContext = this;
 
             StatusContext = new ControlStatusViewModel();
-            ContextListContext = new ContentListViewModel(StatusContext);
+            ContextListContext = new ContentListContext(StatusContext);
 
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             ToastTestCommand = new RelayCommand(() => StatusContext.ToastWarning("Test"));
@@ -43,7 +43,7 @@ namespace TheLemmonWorkshopContentEditor
 
         }
 
-        public ContentListViewModel ContextListContext
+        public ContentListContext ContextListContext
         {
             get => _contextListContext;
             set

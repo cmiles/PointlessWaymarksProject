@@ -6,11 +6,11 @@ using TheLemmonWorkshopWpfControls.XamlMapConstructs;
 namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 {
     /// <summary>
-    /// Interaction logic for GeoDataPicker.xaml
+    /// Interaction logic for GeoDataPickerControl.xaml
     /// </summary>
-    public partial class GeoDataPicker
+    public partial class GeoDataPickerControl
     {
-        public GeoDataPicker()
+        public GeoDataPickerControl()
         {
             InitializeComponent();
             DataContextChanged += OnDataContextChanged;
@@ -18,7 +18,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (!(DataContext is GeoDataPickerViewModel model)) return;
+            if (!(DataContext is GeoDataPickerContext model)) return;
 
             model.StandardMapContext.ListPointSelectionRequest += StandardMapContextOnListPointSelectionRequest;
             model.StandardMapContext.ListPolylineSelectionRequest += StandardMapContextOnListPolyLineSelectionRequest;

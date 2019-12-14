@@ -8,13 +8,13 @@ using TheLemmonWorkshopData;
 
 namespace TheLemmonWorkshopWpfControls.ContentFormat
 {
-    public class ContentFormatChooserViewModel : INotifyPropertyChanged
+    public class ContentFormatChooserContext : INotifyPropertyChanged
     {
         private List<ContentFormatEnum> _contentFormatChoices;
 
         private ContentFormatEnum _selectedContentFormat;
 
-        public ContentFormatChooserViewModel()
+        public ContentFormatChooserContext()
         {
             ContentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum))
                 .Cast<ContentFormatEnum>().ToList();

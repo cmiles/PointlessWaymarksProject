@@ -11,14 +11,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TheLemmonWorkshopWpfControls.ContentList
+namespace TheLemmonWorkshopWpfControls.ImageResizeAndUpload
 {
     /// <summary>
-    /// Interaction logic for ContentListView.xaml
+    /// Interaction logic for ImageResizeAndUploadControl.xaml
     /// </summary>
-    public partial class ContentListView : UserControl
+    public partial class ImageResizeAndUploadControl : UserControl
     {
-        public ContentListView()
+        public ImageResizeAndUploadControl()
         {
             InitializeComponent();
         }

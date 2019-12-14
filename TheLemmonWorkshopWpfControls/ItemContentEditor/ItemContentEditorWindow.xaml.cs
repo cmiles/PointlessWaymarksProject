@@ -9,7 +9,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
     /// </summary>
     public partial class ItemContentEditorWindow : INotifyPropertyChanged
     {
-        private ItemContentEditorViewModel _itemContentEditorContext;
+        private ItemContentEditorContext _itemContentEditorContext;
 
         public ItemContentEditorWindow()
         {
@@ -17,12 +17,12 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 
             DataContext = this;
 
-            ItemContentEditorContext = new ItemContentEditorViewModel();
+            ItemContentEditorContext = new ItemContentEditorContext();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ItemContentEditorViewModel ItemContentEditorContext
+        public ItemContentEditorContext ItemContentEditorContext
         {
             get => _itemContentEditorContext;
             set
