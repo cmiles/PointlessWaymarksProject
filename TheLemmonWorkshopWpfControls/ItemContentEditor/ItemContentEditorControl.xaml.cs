@@ -1,7 +1,7 @@
 ﻿namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 {
     /// <summary>
-    /// Interaction logic for ItemContentEditorControl.xaml
+    ///     Interaction logic for ItemContentEditorControl.xaml
     /// </summary>
     public partial class ItemContentEditorControl
     {

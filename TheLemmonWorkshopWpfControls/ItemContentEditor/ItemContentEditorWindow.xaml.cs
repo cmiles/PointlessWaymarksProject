@@ -1,11 +1,11 @@
-﻿using JetBrains.Annotations;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 
 namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 {
     /// <summary>
-    /// Interaction logic for ItemContentEditorWindow.xaml
+    ///     Interaction logic for ItemContentEditorWindow.xaml
     /// </summary>
     public partial class ItemContentEditorWindow : INotifyPropertyChanged
     {
@@ -20,8 +20,6 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             ItemContentEditorContext = new ItemContentEditorContext();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public ItemContentEditorContext ItemContentEditorContext
         {
             get => _itemContentEditorContext;
@@ -32,6 +30,8 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

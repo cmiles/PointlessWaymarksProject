@@ -7,7 +7,8 @@ namespace TheLemmonWorkshopData.Elevation
 {
     public static class GoogleElevationService
     {
-        public static async Task<double> GetElevation(HttpClient client, string apiKey, double latitude, double longitude)
+        public static async Task<double> GetElevation(HttpClient client, string apiKey, double latitude,
+            double longitude)
         {
             var elevationReturn = await client.GetStringAsync(
                 $"https://maps.googleapis.com/maps/api/elevation/json?locations={latitude},{longitude}&key={apiKey}");

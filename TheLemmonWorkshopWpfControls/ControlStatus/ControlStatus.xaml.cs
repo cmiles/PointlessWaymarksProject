@@ -3,7 +3,7 @@
 namespace TheLemmonWorkshopWpfControls.ControlStatus
 {
     /// <summary>
-    /// Interaction logic for ControlStatus.xaml
+    ///     Interaction logic for ControlStatus.xaml
     /// </summary>
     public partial class ControlStatus : UserControl
     {

@@ -11,27 +11,21 @@ namespace TheLemmonWorkshopWpfControls.Utility
     public class ListBoxBehavior
     {
         public static readonly DependencyProperty ScrollOnNewItemProperty =
-            DependencyProperty.RegisterAttached(
-                "ScrollOnNewItem",
-                typeof(bool),
-                typeof(ListBoxBehavior),
+            DependencyProperty.RegisterAttached("ScrollOnNewItem", typeof(bool), typeof(ListBoxBehavior),
                 new UIPropertyMetadata(false, OnScrollOnNewItemChanged));
 
-        private static readonly Dictionary<ListBox, Capture> Associations =
-                       new Dictionary<ListBox, Capture>();
+        private static readonly Dictionary<ListBox, Capture> Associations = new Dictionary<ListBox, Capture>();
 
         public static bool GetScrollOnNewItem(DependencyObject obj)
         {
-            return (bool)obj.GetValue(ScrollOnNewItemProperty);
+            return (bool) obj.GetValue(ScrollOnNewItemProperty);
         }
 
-        public static void OnScrollOnNewItemChanged(
-            DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
+        public static void OnScrollOnNewItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var listBox = d as ListBox;
             if (listBox == null) return;
-            bool oldValue = (bool)e.OldValue, newValue = (bool)e.NewValue;
+            bool oldValue = (bool) e.OldValue, newValue = (bool) e.NewValue;
             if (newValue == oldValue) return;
             if (newValue)
             {
@@ -58,7 +52,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
 
         private static void ListBox_ItemsSourceChanged(object sender, EventArgs e)
         {
-            var listBox = (ListBox)sender;
+            var listBox = (ListBox) sender;
             if (Associations.ContainsKey(listBox))
                 Associations[listBox].Dispose();
             Associations[listBox] = new Capture(listBox);
@@ -66,7 +60,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
 
         private static void ListBox_Loaded(object sender, RoutedEventArgs e)
         {
-            var listBox = (ListBox)sender;
+            var listBox = (ListBox) sender;
             var incc = listBox.Items as INotifyCollectionChanged;
             if (incc == null) return;
             listBox.Loaded -= ListBox_Loaded;
@@ -75,7 +69,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
 
         private static void ListBox_Unloaded(object sender, RoutedEventArgs e)
         {
-            var listBox = (ListBox)sender;
+            var listBox = (ListBox) sender;
             if (Associations.ContainsKey(listBox))
                 Associations[listBox].Dispose();
             listBox.Unloaded -= ListBox_Unloaded;
@@ -90,10 +84,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
             {
                 this.listBox = listBox;
                 incc = listBox.ItemsSource as INotifyCollectionChanged;
-                if (incc != null)
-                {
-                    incc.CollectionChanged += incc_CollectionChanged;
-                }
+                if (incc != null) incc.CollectionChanged += incc_CollectionChanged;
             }
 
             public void Dispose()

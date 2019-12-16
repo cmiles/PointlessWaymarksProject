@@ -37,6 +37,18 @@ namespace TheLemmonWorkshopWpfControls.ToastControl
             Unloaded += OnUnloaded;
         }
 
+        public Canvas Icon
+        {
+            get => (Canvas) GetValue(IconProperty);
+            set => SetValue(IconProperty, value);
+        }
+
+        public ToastViewModel Toast
+        {
+            get => (ToastViewModel) GetValue(NotificationProperty);
+            set => SetValue(NotificationProperty, value);
+        }
+
         public event RoutedEventHandler NotificationClosed
         {
             add => AddHandler(NotificationClosedEvent, value);
@@ -47,18 +59,6 @@ namespace TheLemmonWorkshopWpfControls.ToastControl
         {
             add => AddHandler(NotificationClosingEvent, value);
             remove => RemoveHandler(NotificationClosingEvent, value);
-        }
-
-        public Canvas Icon
-        {
-            get => (Canvas)GetValue(IconProperty);
-            set => SetValue(IconProperty, value);
-        }
-
-        public ToastViewModel Toast
-        {
-            get => (ToastViewModel)GetValue(NotificationProperty);
-            set => SetValue(NotificationProperty, value);
         }
 
         public void InvokeHideAnimation()
@@ -82,8 +82,7 @@ namespace TheLemmonWorkshopWpfControls.ToastControl
         private static void NotificationChanged(DependencyObject dependencyObject,
             DependencyPropertyChangedEventArgs eventArgs)
         {
-            if (!(dependencyObject is ToastControl control) ||
-                !(eventArgs.NewValue is ToastViewModel notification))
+            if (!(dependencyObject is ToastControl control) || !(eventArgs.NewValue is ToastViewModel notification))
                 return;
 
             notification.InvokeHideAnimation = control.InvokeHideAnimation;

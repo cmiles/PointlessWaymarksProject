@@ -1,10 +1,10 @@
-using JetBrains.Annotations;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
+using JetBrains.Annotations;
 
 namespace TheLemmonWorkshopWpfControls.ToastControl
 {
@@ -34,8 +34,6 @@ namespace TheLemmonWorkshopWpfControls.ToastControl
             };
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public bool IsOpen
         {
             get => _isOpen;
@@ -51,6 +49,8 @@ namespace TheLemmonWorkshopWpfControls.ToastControl
         public TimeSpan NotificationLifeTime { get; set; }
         public ObservableCollection<ToastViewModel> NotificationMessages { get; }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public void Hide(Guid id)
         {
             var n = NotificationMessages.SingleOrDefault(x => x.Id == id);
@@ -59,11 +59,7 @@ namespace TheLemmonWorkshopWpfControls.ToastControl
 
             n.InvokeHideAnimation();
 
-            var timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(200),
-                Tag = n
-            };
+            var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(200), Tag = n};
             timer.Tick += RemoveNotificationsTimer_OnTick;
             timer.Start();
         }
@@ -77,25 +73,17 @@ namespace TheLemmonWorkshopWpfControls.ToastControl
             }
 
             if (MaximumNotificationCount != UnlimitedNotifications)
-            {
                 if (NotificationMessages.Count >= MaximumNotificationCount)
                 {
-                    var removeCount = (int)(NotificationMessages.Count - MaximumNotificationCount) + 1;
+                    var removeCount = (int) (NotificationMessages.Count - MaximumNotificationCount) + 1;
 
-                    var itemsToRemove = NotificationMessages.OrderBy(x => x.CreateTime)
-                        .Take(removeCount)
-                        .Select(x => x.Id)
-                        .ToList();
+                    var itemsToRemove = NotificationMessages.OrderBy(x => x.CreateTime).Take(removeCount)
+                        .Select(x => x.Id).ToList();
                     foreach (var id in itemsToRemove)
                         Hide(id);
                 }
-            }
 
-            NotificationMessages.Add(new ToastViewModel
-            {
-                Message = message,
-                Type = type
-            });
+            NotificationMessages.Add(new ToastViewModel {Message = message, Type = type});
         }
 
         [NotifyPropertyChangedInvocator]
@@ -140,14 +128,10 @@ namespace TheLemmonWorkshopWpfControls.ToastControl
                 return;
 
             var currentTime = DateTime.Now;
-            var itemsToRemove = NotificationMessages.Where(x => (currentTime - x.CreateTime) >= NotificationLifeTime)
-                .Select(x => x.Id)
-                .ToList();
+            var itemsToRemove = NotificationMessages.Where(x => currentTime - x.CreateTime >= NotificationLifeTime)
+                .Select(x => x.Id).ToList();
 
-            foreach (var id in itemsToRemove)
-            {
-                Hide(id);
-            }
+            foreach (var id in itemsToRemove) Hide(id);
         }
     }
 }

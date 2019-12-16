@@ -1,7 +1,7 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 
 namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 {
@@ -10,8 +10,6 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
         private string _displayName;
         private Guid _id;
         private bool _isProtectedFromClearing;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public string DisplayName
         {
@@ -47,6 +45,8 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                 OnPropertyChanged();
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

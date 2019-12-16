@@ -1,9 +1,9 @@
-﻿using MapControl;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
+using MapControl;
 
 namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 {
@@ -23,10 +23,8 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             mapLayers = CreateMapLayers();
 
             MapLayerNames.AddRange(
-                new List<string> { "Thunderforest Outdoor", "OpenStreetMap", "OpenStreetMap TOPO WMS" });
+                new List<string> {"Thunderforest Outdoor", "OpenStreetMap", "OpenStreetMap TOPO WMS"});
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public UIElement CurrentMapLayer => mapLayers[currentMapLayerName];
 
@@ -44,6 +42,8 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
         public List<string> MapLayerNames { get; } = new List<string>();
 
         public UIElement SeamarksLayer => mapLayers["Seamarks"];
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private Dictionary<string, UIElement> CreateMapLayers()
         {
@@ -69,7 +69,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
                         Layers = "f16a"
                     });
 
-                MapLayerNames.AddRange(new List<string> { "CalTopo Topo Layer", "CalTopo Forest Service" });
+                MapLayerNames.AddRange(new List<string> {"CalTopo Topo Layer", "CalTopo Forest Service"});
             }
 
             if (!string.IsNullOrWhiteSpace(settings.BingApiKey))
@@ -142,7 +142,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
                     SourceName = "Stamen Terrain",
                     Description =
                         "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0)\nData by [OpenStreetMap](http://openstreetmap.org/), under [ODbL](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://tile.stamen.com/terrain/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource {UriFormat = "http://tile.stamen.com/terrain/{z}/{x}/{y}.png"},
                     MaxZoomLevel = 17
                 });
             toReturn.Add("Stamen Toner Light",
@@ -151,14 +151,14 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
                     SourceName = "Stamen Toner Light",
                     Description =
                         "Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0)\nData by [OpenStreetMap](http://openstreetmap.org/), under [ODbL](http://www.openstreetmap.org/copyright)",
-                    TileSource = new TileSource { UriFormat = "http://tile.stamen.com/toner-lite/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource {UriFormat = "http://tile.stamen.com/toner-lite/{z}/{x}/{y}.png"},
                     MaxZoomLevel = 18
                 });
             toReturn.Add("Seamarks",
                 new MapTileLayer
                 {
                     SourceName = "OpenSeaMap",
-                    TileSource = new TileSource { UriFormat = "http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png" },
+                    TileSource = new TileSource {UriFormat = "http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"},
                     MinZoomLevel = 9,
                     MaxZoomLevel = 18
                 });

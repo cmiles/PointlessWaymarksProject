@@ -57,7 +57,8 @@
                             SelectionMode="Extended">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
-                                    <i:InvokeCommandAction Command="{Binding PointsListSelectionChangedCommand}" CommandParameter="{Binding ElementName=PointsList, Path=SelectedItems}" />
+                                    <i:InvokeCommandAction Command="{Binding PointsListSelectionChangedCommand}"
+                                                           CommandParameter="{Binding ElementName=PointsList, Path=SelectedItems}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <ListBox.ItemTemplate>
@@ -102,7 +103,8 @@
                             </ListBox.ItemTemplate>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
-                                    <i:InvokeCommandAction Command="{Binding PolylinesListSelectionChangedCommand}" CommandParameter="{Binding ElementName=LinesList, Path=SelectedItems}" />
+                                    <i:InvokeCommandAction Command="{Binding PolylinesListSelectionChangedCommand}"
+                                                           CommandParameter="{Binding ElementName=LinesList, Path=SelectedItems}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </ListBox>

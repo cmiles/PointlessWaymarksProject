@@ -6,26 +6,31 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.3.108.4" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.110" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.7.0" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
+    <PackageReference Include="HtmlTags" Version="8.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
     <PackageReference Include="Markdig.Wpf" Version="0.3.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0-preview3.19553.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.0.0" />
     <PackageReference Include="Ookii.Dialogs.Wpf.NETCore" Version="2.0.0" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.1-beta" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
-    <PackageReference Include="System.Runtime.Caching" Version="4.7.0-preview3.19551.4" />
-    <PackageReference Include="System.Text.Json" Version="4.7.0-preview3.19551.4" />
+    <PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
+    <PackageReference Include="System.Text.Json" Version="4.7.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
     <PackageReference Include="XAML.MapControl" Version="4.15.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TheLemmonWorkshopData\TheLemmonWorkshopData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,8 @@
-﻿using JetBrains.Annotations;
-using MapControl;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
+using MapControl;
 
 namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 {
@@ -13,8 +13,6 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
         private bool _isSelected;
         private LocationCollection _locations;
         private string _name;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public string ExtendedDescription
         {
@@ -38,17 +36,6 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             }
         }
 
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                if (value == _isSelected) return;
-                _isSelected = value;
-                OnPropertyChanged();
-            }
-        }
-
         public LocationCollection Locations
         {
             get => _locations;
@@ -67,6 +54,19 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             {
                 if (value == _name) return;
                 _name = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (value == _isSelected) return;
+                _isSelected = value;
                 OnPropertyChanged();
             }
         }

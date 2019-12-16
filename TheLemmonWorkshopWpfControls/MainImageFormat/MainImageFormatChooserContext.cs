@@ -1,9 +1,9 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using TheLemmonWorkshopData;
 
 namespace TheLemmonWorkshopWpfControls.MainImageFormat
@@ -16,14 +16,10 @@ namespace TheLemmonWorkshopWpfControls.MainImageFormat
 
         public MainImageFormatChooserContext()
         {
-            ContentFormatChoices = Enum.GetValues(typeof(MainImageContentFormatEnum))
-                .Cast<MainImageContentFormatEnum>().ToList();
+            ContentFormatChoices = Enum.GetValues(typeof(MainImageContentFormatEnum)).Cast<MainImageContentFormatEnum>()
+                .ToList();
             SelectedContentFormat = ContentFormatChoices.First();
         }
-
-        public event EventHandler<string> OnSelectedValueChanged;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public List<MainImageContentFormatEnum> ContentFormatChoices
         {
@@ -45,9 +41,14 @@ namespace TheLemmonWorkshopWpfControls.MainImageFormat
                 _selectedContentFormat = value;
                 OnPropertyChanged();
 
-                OnSelectedValueChanged?.Invoke(this, Enum.GetName(typeof(MainImageContentFormatEnum), SelectedContentFormat));
+                OnSelectedValueChanged?.Invoke(this,
+                    Enum.GetName(typeof(MainImageContentFormatEnum), SelectedContentFormat));
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<string> OnSelectedValueChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

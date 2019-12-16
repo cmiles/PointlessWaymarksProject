@@ -1,11 +1,11 @@
-﻿using JetBrains.Annotations;
-using MapControl;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using MapControl;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
 using TheLemmonWorkshopWpfControls.XamlMapConstructs;
@@ -13,7 +13,7 @@ using TheLemmonWorkshopWpfControls.XamlMapConstructs;
 namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 {
     /// <summary>
-    /// Interaction logic for GeoDataPickerWindow.xaml
+    ///     Interaction logic for GeoDataPickerWindow.xaml
     /// </summary>
     public partial class GeoDataPickerWindow : INotifyPropertyChanged
     {
@@ -29,8 +29,6 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             GeoDataPickerContext.GeoDataSelected += (sender, data) => Close();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public GeoDataPickerContext GeoDataPickerContext
         {
             get => _geoDataPickerContext;
@@ -42,7 +40,10 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             }
         }
 
-        public async Task AddLine(List<(double latitude, double longitude)> line, string name, string description, bool protectFromUserClearing)
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public async Task AddLine(List<(double latitude, double longitude)> line, string name, string description,
+            bool protectFromUserClearing)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -50,14 +51,14 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            GeoDataPickerContext.StandardMapContext.Polylines.Add(new MapDisplayPolyline()
+            GeoDataPickerContext.StandardMapContext.Polylines.Add(new MapDisplayPolyline
             {
-                Id = id,
-                Locations = new LocationCollection(line.Select(x => new Location(x.latitude, x.longitude)))
+                Id = id, Locations = new LocationCollection(line.Select(x => new Location(x.latitude, x.longitude)))
             });
         }
 
-        public async Task AddPoint(double latitude, double longitude, string name, string description, bool protectFromUserClearing)
+        public async Task AddPoint(double latitude, double longitude, string name, string description,
+            bool protectFromUserClearing)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -67,9 +68,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
             GeoDataPickerContext.StandardMapContext.Points.Add(new MapDisplayPoint
             {
-                Id = id,
-                Location = new MapLocationZ(latitude, longitude, null),
-                Name = name
+                Id = id, Location = new MapLocationZ(latitude, longitude, null), Name = name
             });
         }
 

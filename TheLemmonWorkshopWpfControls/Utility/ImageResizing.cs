@@ -1,14 +1,14 @@
-﻿using Amazon;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TheLemmonWorkshopWpfControls.Utility
 {
@@ -16,7 +16,6 @@ namespace TheLemmonWorkshopWpfControls.Utility
     {
         public static class ImageResizing
         {
-
             public static FileInfo ResizeForDisplay(FileInfo fullName, IProgress<string> progress)
             {
                 int originalWidth;
@@ -58,7 +57,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
                         $"{Path.GetFileNameWithoutExtension(fullName.Name)}--For-Display.jpg");
 
                     using var outImage = File.Create(newFile);
-                    image.SaveAsJpeg(outImage, new JpegEncoder { Quality = 82 });
+                    image.SaveAsJpeg(outImage, new JpegEncoder {Quality = 82});
                 }
 
                 return new FileInfo(newFile);
@@ -136,14 +135,14 @@ namespace TheLemmonWorkshopWpfControls.Utility
                 {
                     var naturalWidth = image.Width;
 
-                    var newHeight = (int)(image.Height * ((decimal)width / naturalWidth));
+                    var newHeight = (int) (image.Height * ((decimal) width / naturalWidth));
                     newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
                         $"{Path.GetFileNameWithoutExtension(toResize.Name)}--For-Display.jpg");
 
                     image.Mutate(ctx => ctx.Resize(width, newHeight, KnownResamplers.Bicubic));
 
                     using var outImage = File.Create(newFile);
-                    image.SaveAsJpeg(outImage, new JpegEncoder { Quality = quality });
+                    image.SaveAsJpeg(outImage, new JpegEncoder {Quality = quality});
                 }
 
                 return new FileInfo(newFile);
@@ -159,7 +158,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
                 {
                     var naturalWidth = image.Width;
 
-                    var newHeight = (int)(image.Height * ((decimal)width / naturalWidth));
+                    var newHeight = (int) (image.Height * ((decimal) width / naturalWidth));
 
                     image.Mutate(ctx => ctx.Resize(width, newHeight, KnownResamplers.Bicubic));
 
@@ -167,15 +166,16 @@ namespace TheLemmonWorkshopWpfControls.Utility
                         $"{Path.GetFileNameWithoutExtension(toResize.Name)}--{image.Width}w--{image.Height}h.jpg");
 
                     using var outImage = File.Create(newFile);
-                    image.SaveAsJpeg(outImage, new JpegEncoder { Quality = quality });
+                    image.SaveAsJpeg(outImage, new JpegEncoder {Quality = quality});
                 }
 
                 return new FileInfo(newFile);
             }
 
-            public static async Task ProcessAndUploadImageFile(FileInfo originalImage, List<string> bucketSubdirectoryList, IProgress<string> progress)
+            public static async Task ProcessAndUploadImageFile(FileInfo originalImage,
+                List<string> bucketSubdirectoryList, IProgress<string> progress)
             {
-                var fullList = new List<FileInfo> { originalImage, ResizeForDisplay(originalImage, progress) };
+                var fullList = new List<FileInfo> {originalImage, ResizeForDisplay(originalImage, progress)};
 
                 fullList.AddRange(ResizeForSrcset(originalImage, progress));
 
@@ -190,9 +190,10 @@ namespace TheLemmonWorkshopWpfControls.Utility
                 }
             }
 
-            public static async Task ProcessAndUploadImageHtmlFile(FileInfo originalImage, List<string> bucketSubdirectoryList, IProgress<string> progress)
+            public static async Task ProcessAndUploadImageHtmlFile(FileInfo originalImage,
+                List<string> bucketSubdirectoryList, IProgress<string> progress)
             {
-                var fullList = new List<FileInfo> { originalImage, ResizeForDisplay(originalImage, progress) };
+                var fullList = new List<FileInfo> {originalImage, ResizeForDisplay(originalImage, progress)};
 
                 fullList.AddRange(ResizeForSrcset(originalImage, progress));
 
@@ -219,7 +220,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
 
                 progress?.Report($"Upload {toUpload.FullName} to Directory {finalBucketName} Setup");
 
-                var awsCredentials = new Amazon.Runtime.BasicAWSCredentials(settings.AmazonS3AccessKey, settings.AmazonS3SecretKey);
+                var awsCredentials = new BasicAWSCredentials(settings.AmazonS3AccessKey, settings.AmazonS3SecretKey);
 
                 IAmazonS3 client = new AmazonS3Client(awsCredentials);
 

@@ -6,7 +6,7 @@ using TheLemmonWorkshopWpfControls.XamlMapConstructs;
 namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 {
     /// <summary>
-    /// Interaction logic for GeoDataPickerControl.xaml
+    ///     Interaction logic for GeoDataPickerControl.xaml
     /// </summary>
     public partial class GeoDataPickerControl
     {
@@ -43,7 +43,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
             foreach (var loopSelected in PointsList.SelectedItems)
             {
-                var item = (MapDisplayPoint)loopSelected;
+                var item = (MapDisplayPoint) loopSelected;
                 if (e.Contains(item)) alreadySelected.Add(item);
                 if (!e.Contains(item)) toRemove.Add(item);
             }
@@ -73,7 +73,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
             foreach (var loopSelected in LinesList.SelectedItems)
             {
-                var item = (MapDisplayPolyline)loopSelected;
+                var item = (MapDisplayPolyline) loopSelected;
                 if (e.Contains(item)) alreadySelected.Add(item);
                 if (!e.Contains(item)) toRemove.Add(item);
             }

@@ -80,7 +80,8 @@
                                 VerticalScrollBarVisibility="Visible" />
                         </GroupBox>
                         <GroupBox Grid.Column="1" Header="Preview">
-                            <WebBrowser wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UserContent.BodyContentHtmlOutput}" />
+                            <WebBrowser
+                                wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UserContent.BodyContentHtmlOutput}" />
                         </GroupBox>
                     </Grid>
                 </Grid>
@@ -107,7 +108,8 @@
                                 VerticalScrollBarVisibility="Visible" />
                         </GroupBox>
                         <GroupBox Grid.Column="1" Header="Preview">
-                            <WebBrowser wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UserContent.UpdateNotesHtmlOutput}" />
+                            <WebBrowser
+                                wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UserContent.UpdateNotesHtmlOutput}" />
                         </GroupBox>
                     </Grid>
                 </Grid>
@@ -127,7 +129,9 @@
                         Margin="4">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="4">
                             <Button Command="{Binding SelectGeoDataCommand}" Width="180" Margin="2">Choose Current Map Selection</Button>
-                            <TextBlock Text="{Binding UserContent.LocationDataType, StringFormat='Selected Data Type: {0}'}" Margin="24,2,2,2" Width="240" VerticalAlignment="Center"/>
+                            <TextBlock
+                                Text="{Binding UserContent.LocationDataType, StringFormat='Selected Data Type: {0}'}"
+                                Margin="24,2,2,2" Width="240" VerticalAlignment="Center" />
                             <Button Command="{Binding UpdateSelectedGeoDataElevation}" Width="120" Margin="12,2,2,2">Update Elevation</Button>
                         </StackPanel>
                     </Border>

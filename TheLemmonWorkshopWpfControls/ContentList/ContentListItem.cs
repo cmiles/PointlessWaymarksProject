@@ -6,10 +6,9 @@ namespace TheLemmonWorkshopWpfControls.ContentList
 {
     public class ContentListItem : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public string Title { get; set; }
         public string Summary { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

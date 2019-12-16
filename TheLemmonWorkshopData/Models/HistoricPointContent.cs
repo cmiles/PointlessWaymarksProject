@@ -1,10 +1,10 @@
-﻿using NetTopologySuite.Geometries;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using NetTopologySuite.Geometries;
 
 namespace TheLemmonWorkshopData.Models
 {
-    public class HistoricSiteContent
+    public class HistoricPointContent
     {
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
@@ -17,8 +17,8 @@ namespace TheLemmonWorkshopData.Models
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
 
-        [Column(TypeName = "geometry")]
-        public Geometry LocationData { get; set; }
+        [Column(TypeName = "geometry")] public Geometry LocationData { get; set; }
+
         public string LocationDataType { get; set; }
         public string MainImage { get; set; }
 

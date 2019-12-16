@@ -1,8 +1,8 @@
-﻿using JetBrains.Annotations;
-using NetTopologySuite.Geometries;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
+using NetTopologySuite.Geometries;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopWpfControls.WpfHtml;
 
@@ -31,8 +31,6 @@ namespace TheLemmonWorkshopWpfControls.Models
         private string _updateNotes;
         private string _updateNotesFormat;
         private string _updateNotesHtmlOutput;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public string BodyContent
         {
@@ -277,6 +275,8 @@ namespace TheLemmonWorkshopWpfControls.Models
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public void CleanStrings()
         {
             BodyContent = CoalesceTrim(BodyContent);
@@ -302,6 +302,7 @@ namespace TheLemmonWorkshopWpfControls.Models
                 BodyContentHtmlOutput = output.ToHtmlDocument("Body Content", string.Empty);
                 return;
             }
+
             BodyContentHtmlOutput = "<h2>Not able to process input</h2>".ToHtmlDocument("Invalid", string.Empty);
         }
 
@@ -313,6 +314,7 @@ namespace TheLemmonWorkshopWpfControls.Models
                 MainImageHtmlOutput = output.ToHtmlDocument("Main Image", string.Empty);
                 return;
             }
+
             MainImageHtmlOutput = "<h2>Not able to process input</h2>".ToHtmlDocument("Invalid", string.Empty);
         }
 
@@ -324,6 +326,7 @@ namespace TheLemmonWorkshopWpfControls.Models
                 UpdateNotesHtmlOutput = output.ToHtmlDocument("Update Notes", string.Empty);
                 return;
             }
+
             UpdateNotesHtmlOutput = "<h2>Not able to process input</h2>".ToHtmlDocument("Invalid", string.Empty);
         }
 

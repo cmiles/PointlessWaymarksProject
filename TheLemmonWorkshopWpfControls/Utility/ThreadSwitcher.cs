@@ -6,15 +6,20 @@ namespace TheLemmonWorkshopWpfControls.Utility
     public class ThreadSwitcher
     {
         // For both WPF and Windows Forms
-        public static ThreadPoolThreadSwitcher ResumeBackgroundAsync() =>
-            new ThreadPoolThreadSwitcher();
+        public static ThreadPoolThreadSwitcher ResumeBackgroundAsync()
+        {
+            return new ThreadPoolThreadSwitcher();
+        }
 
         // For WPF
-        public static DispatcherThreadSwitcher ResumeForegroundAsync(
-            Dispatcher dispatcher) =>
-            new DispatcherThreadSwitcher(dispatcher);
+        public static DispatcherThreadSwitcher ResumeForegroundAsync(Dispatcher dispatcher)
+        {
+            return new DispatcherThreadSwitcher(dispatcher);
+        }
 
-        public static DispatcherThreadSwitcher ResumeForegroundAsync() =>
-            new DispatcherThreadSwitcher(Application.Current.Dispatcher);
+        public static DispatcherThreadSwitcher ResumeForegroundAsync()
+        {
+            return new DispatcherThreadSwitcher(Application.Current.Dispatcher);
+        }
     }
 }

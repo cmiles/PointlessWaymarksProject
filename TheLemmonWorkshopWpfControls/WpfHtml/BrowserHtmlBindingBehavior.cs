@@ -8,16 +8,13 @@ namespace TheLemmonWorkshopWpfControls.WpfHtml
     {
         //<WebBrowser lcl:BrowserBehavior.Html="{Binding HtmlToDisplay}" />
 
-        public static readonly DependencyProperty HtmlProperty = DependencyProperty.RegisterAttached(
-            "Html",
-            typeof(string),
-            typeof(BrowserHtmlBindingBehavior),
-            new FrameworkPropertyMetadata(OnHtmlChanged));
+        public static readonly DependencyProperty HtmlProperty = DependencyProperty.RegisterAttached("Html",
+            typeof(string), typeof(BrowserHtmlBindingBehavior), new FrameworkPropertyMetadata(OnHtmlChanged));
 
         [AttachedPropertyBrowsableForType(typeof(WebBrowser))]
         public static string GetHtml(WebBrowser d)
         {
-            return (string)d.GetValue(HtmlProperty);
+            return (string) d.GetValue(HtmlProperty);
         }
 
         public static void SetHtml(WebBrowser d, string value)

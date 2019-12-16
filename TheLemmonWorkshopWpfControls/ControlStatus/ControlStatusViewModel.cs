@@ -1,6 +1,4 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -9,6 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
 using TheLemmonWorkshopWpfControls.ToastControl;
 using TheLemmonWorkshopWpfControls.Utility;
 
@@ -46,8 +46,6 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             UserStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
             UserStringEntryCancelledResponseCommand = new RelayCommand(UserStringEntryCancelledResponse);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public bool BlockUi
         {
@@ -257,6 +255,8 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
         public RelayCommand UserStringEntryApprovedResponseCommand { get; set; }
         public RelayCommand UserStringEntryCancelledResponseCommand { get; set; }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public IProgress<string> ProgressTracker()
         {
             var toReturn = new Progress<string>();
@@ -339,8 +339,10 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             var approved = StringEntryApproved;
 
             StringEntryTitle = string.Empty;
-            StringEntryMessage = string.Empty; ;
-            StringEntryUserText = string.Empty; ;
+            StringEntryMessage = string.Empty;
+            ;
+            StringEntryUserText = string.Empty;
+            ;
             StringEntryVisible = false;
             StringEntryApproved = false;
 
@@ -378,10 +380,7 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
                 return;
             }
 
-            if (obj.IsFaulted)
-            {
-                ToastError($"Error: {obj.Exception?.Message}");
-            }
+            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
         }
 
         private void NonBlockTaskCompleted(Task obj)
@@ -394,10 +393,7 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
                 return;
             }
 
-            if (obj.IsFaulted)
-            {
-                ToastError($"Error: {obj.Exception?.Message}");
-            }
+            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
         }
 
         private void ProgressTrackerChange(object sender, string e)
@@ -406,10 +402,7 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             {
                 StatusLog.Add(e);
 
-                if (StatusLog.Count > 20)
-                {
-                    StatusLog.Remove(StatusLog.First());
-                }
+                if (StatusLog.Count > 20) StatusLog.Remove(StatusLog.First());
             });
         }
 

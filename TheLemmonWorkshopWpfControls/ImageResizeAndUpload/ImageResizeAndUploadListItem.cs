@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 using JetBrains.Annotations;
 
 namespace TheLemmonWorkshopWpfControls.ImageResizeAndUpload
 {
     public class ImageResizeAndUploadListItem : INotifyPropertyChanged
     {
+        private FileInfo _fileItem;
+        private bool _selected;
+
         public bool Selected
         {
             get => _selected;
@@ -20,9 +20,6 @@ namespace TheLemmonWorkshopWpfControls.ImageResizeAndUpload
                 OnPropertyChanged();
             }
         }
-
-        private FileInfo _fileItem;
-        private bool _selected;
 
         public FileInfo FileItem
         {

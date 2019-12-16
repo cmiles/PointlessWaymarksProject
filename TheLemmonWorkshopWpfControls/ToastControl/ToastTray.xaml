@@ -86,7 +86,8 @@
         <Style x:Key="CloseButtonIcon" TargetType="Rectangle">
             <Setter Property="Width" Value="10" />
             <Setter Property="Height" Value="10" />
-            <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}" />
+            <Setter Property="Fill"
+                    Value="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}" />
         </Style>
 
         <Style TargetType="{x:Type toast1:ToastControl}">
@@ -110,7 +111,8 @@
                                     Grid.Column="0"
                                     Style="{StaticResource NotificationIcon}">
                                     <Rectangle.OpacityMask>
-                                        <VisualBrush Stretch="Fill" Visual="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}" />
+                                        <VisualBrush Stretch="Fill"
+                                                     Visual="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}" />
                                     </Rectangle.OpacityMask>
                                 </Rectangle>
 

@@ -1,11 +1,12 @@
-﻿using JetBrains.Annotations;
-using MvvmHelpers.Commands;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using MvvmHelpers.Commands;
+using Ookii.Dialogs.Wpf;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
 
@@ -19,10 +20,8 @@ namespace TheLemmonWorkshopWpfControls.ImageResizeAndUpload
         public ImageResizeAndUploadContext()
         {
             StatusContext = new ControlStatusViewModel();
-            ChooseAndLoadDirectoryCommand = new MvvmHelpers.Commands.Command(() => StatusContext.RunBlockingTask(ChooseAndLoadDirectory));
+            ChooseAndLoadDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ChooseAndLoadDirectory));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public Command ChooseAndLoadDirectoryCommand { get; set; }
 
@@ -48,11 +47,13 @@ namespace TheLemmonWorkshopWpfControls.ImageResizeAndUpload
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public async Task ChooseAndLoadDirectory()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var directoryPicker = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+            var directoryPicker = new VistaFolderBrowserDialog();
 
             if (!(directoryPicker.ShowDialog() ?? false)) return;
 
@@ -67,7 +68,7 @@ namespace TheLemmonWorkshopWpfControls.ImageResizeAndUpload
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var filesToAdd = directory.EnumerateFiles().Where(x => x.Extension.ToLower() == ".jpg").OrderBy(x => x.Name)
-                .Select(x => new ImageResizeAndUploadListItem { FileItem = x }).ToList();
+                .Select(x => new ImageResizeAndUploadListItem {FileItem = x}).ToList();
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

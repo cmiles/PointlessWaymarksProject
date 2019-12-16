@@ -215,7 +215,8 @@
                 SelectionMode="Extended">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
-                        <i:InvokeCommandAction Command="{Binding PolylinesMapSelectionChangedCommand}" CommandParameter="{Binding ElementName=MapPolylineItemControl, Path=SelectedItems}" />
+                        <i:InvokeCommandAction Command="{Binding PolylinesMapSelectionChangedCommand}"
+                                               CommandParameter="{Binding ElementName=MapPolylineItemControl, Path=SelectedItems}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </map:MapItemsControl>
@@ -227,7 +228,8 @@
                 SelectionMode="Extended">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
-                        <i:InvokeCommandAction Command="{Binding PointsMapSelectionChangedCommand}" CommandParameter="{Binding ElementName=MapPointsItemControl, Path=SelectedItems}" />
+                        <i:InvokeCommandAction Command="{Binding PointsMapSelectionChangedCommand}"
+                                               CommandParameter="{Binding ElementName=MapPointsItemControl, Path=SelectedItems}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </map:MapItemsControl>

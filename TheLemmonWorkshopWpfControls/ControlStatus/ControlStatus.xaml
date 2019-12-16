@@ -60,16 +60,16 @@
                         Text="{Binding StringEntryTitle}"
                         TextWrapping="Wrap" />
                     <TextBlock
-                        Margin="0,12,0,12"
                         Grid.Row="1"
                         MaxWidth="400"
+                        Margin="0,12,0,12"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Text="{Binding StringEntryMessage}" />
                     <TextBox
-                        Margin="0,12,0,12"
                         Grid.Row="2"
                         Width="240"
+                        Margin="0,12,0,12"
                         Text="{Binding StringEntryUserText, UpdateSourceTrigger=PropertyChanged}" />
                     <Grid Grid.Row="3" Margin="0,12,0,12">
                         <Grid.ColumnDefinitions>

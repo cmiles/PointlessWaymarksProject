@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Code\TheLemmonWorkshop02" t="IncludeFlat">
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="TheLemmonWorkshopContentEditor" t="IncludeRecursive">
+        <e p="App.xaml" t="Include" />
+        <e p="App.xaml.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="MainWindow.xaml" t="Include" />
+        <e p="MainWindow.xaml.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="App.g.cs" t="Include" />
+              <e p="TheLemmonWorkshopContentEditor.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="TheLemmonWorkshopContentEditor.csproj" t="IncludeRecursive" />
+      </e>
+      <e p="TheLemmonWorkshopContentEditor.sln" t="IncludeFlat" />
+      <e p="TheLemmonWorkshopData" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="ContentProcessor.cs" t="Include" />
+        <e p="DistanceHelpers.cs" t="Include" />
+        <e p="Elevation" t="Include">
+          <e p="GoogleElevationResponse.cs" t="Include" />
+          <e p="GoogleElevationResult.cs" t="Include" />
+          <e p="GoogleElevationService.cs" t="Include" />
+          <e p="GoogleLocation.cs" t="Include" />
+        </e>
+        <e p="FormatTypeEnum.cs" t="Include" />
+        <e p="LemmonWorkshopContext.cs" t="Include" />
+        <e p="LocationDataTypeConsts.cs" t="Include" />
+        <e p="MainImageProcessor.cs" t="Include" />
+        <e p="Models" t="Include">
+          <e p="HistoricLineContent.cs" t="Include" />
+          <e p="HistoricPhotoContent.cs" t="Include" />
+          <e p="HistoricPointContent.cs" t="Include" />
+          <e p="HistoricPostContent.cs" t="Include" />
+          <e p="HistoricTrailSegment.cs" t="Include" />
+          <e p="LineContent.cs" t="Include" />
+          <e p="PhotoContent.cs" t="Include" />
+          <e p="PointContent.cs" t="Include" />
+          <e p="PostContent.cs" t="Include" />
+          <e p="TrailSegment.cs" t="Include" />
+        </e>
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netstandard2.1" t="Include">
+              <e p="TheLemmonWorkshopData.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Slug.cs" t="Include" />
+        <e p="SpatialHelpers.cs" t="Include" />
+        <e p="TextTransforms" t="Include">
+          <e p="SingleImagePageCode.cs" t="Include" />
+          <e p="SinglePhotoPage.cs" t="Include" />
+          <e p="SinglePhotoPage.tt" t="Include" />
+        </e>
+        <e p="TheLemmonWorkshopData.csproj" t="IncludeRecursive" />
+      </e>
+      <e p="TheLemmonWorkshopWpfControls" t="IncludeRecursive">
+        <e p="AssemblyInfo.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="ContentFormat" t="Include">
+          <e p="ContentFormatChooserContext.cs" t="Include" />
+          <e p="ContentFormatChooserControl.xaml" t="Include" />
+          <e p="ContentFormatChooserControl.xaml.cs" t="Include" />
+        </e>
+        <e p="ContentList" t="Include">
+          <e p="ContentListContext.cs" t="Include" />
+          <e p="ContentListControl.xaml" t="Include" />
+          <e p="ContentListControl.xaml.cs" t="Include" />
+          <e p="ContentListItem.cs" t="Include" />
+        </e>
+        <e p="ControlStatus" t="Include">
+          <e p="ControlStatus.xaml" t="Include" />
+          <e p="ControlStatus.xaml.cs" t="Include" />
+          <e p="ControlStatusViewModel.cs" t="Include" />
+        </e>
+        <e p="Db.cs" t="Include" />
+        <e p="GeoDataPicker" t="Include">
+          <e p="GeoDataMapDisplayObject.cs" t="Include" />
+          <e p="GeoDataPickerContext.cs" t="Include" />
+          <e p="GeoDataPickerControl.xaml" t="Include" />
+          <e p="GeoDataPickerControl.xaml.cs" t="Include" />
+          <e p="GeoDataPickerWindow.xaml" t="Include" />
+          <e p="GeoDataPickerWindow.xaml.cs" t="Include" />
+          <e p="SelectedGeoData.cs" t="Include" />
+        </e>
+        <e p="ImagePage" t="Include">
+          <e p="PhotoPageContext.cs" t="Include" />
+        </e>
+        <e p="ImageResizeAndUpload" t="Include">
+          <e p="ImageResizeAndUploadContext.cs" t="Include" />
+          <e p="ImageResizeAndUploadControl.xaml" t="Include" />
+          <e p="ImageResizeAndUploadControl.xaml.cs" t="Include" />
+          <e p="ImageResizeAndUploadListItem.cs" t="Include" />
+        </e>
+        <e p="ItemContentEditor" t="Include">
+          <e p="ItemContentEditorContext.cs" t="Include" />
+          <e p="ItemContentEditorControl.xaml" t="Include" />
+          <e p="ItemContentEditorControl.xaml.cs" t="Include" />
+          <e p="ItemContentEditorWindow.xaml" t="Include" />
+          <e p="ItemContentEditorWindow.xaml.cs" t="Include" />
+        </e>
+        <e p="MainImageFormat" t="Include">
+          <e p="MainImageFormatChooser.xaml" t="Include" />
+          <e p="MainImageFormatChooser.xaml.cs" t="Include" />
+          <e p="MainImageFormatChooserContext.cs" t="Include" />
+        </e>
+        <e p="Models" t="Include">
+          <e p="UserSiteContent.cs" t="Include" />
+        </e>
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="ContentFormat" t="Include">
+                <e p="ContentFormatChooserControl.g.cs" t="Include" />
+              </e>
+              <e p="ContentList" t="Include">
+                <e p="ContentListControl.g.cs" t="Include" />
+              </e>
+              <e p="ControlStatus" t="Include">
+                <e p="ControlStatus.g.cs" t="Include" />
+              </e>
+              <e p="GeneratedInternalTypeHelper.g.cs" t="Include" />
+              <e p="GeoDataPicker" t="Include">
+                <e p="GeoDataPickerControl.g.cs" t="Include" />
+                <e p="GeoDataPickerWindow.g.cs" t="Include" />
+              </e>
+              <e p="ImageResizeAndUpload" t="Include">
+                <e p="ImageResizeAndUploadControl.g.cs" t="Include" />
+              </e>
+              <e p="ItemContentEditor" t="Include">
+                <e p="ItemContentEditorControl.g.cs" t="Include" />
+                <e p="ItemContentEditorWindow.g.cs" t="Include" />
+              </e>
+              <e p="MainImageFormat" t="Include">
+                <e p="MainImageFormatChooser.g.cs" t="Include" />
+              </e>
+              <e p="TheLemmonWorkshopWpfControls.AssemblyInfo.cs" t="Include" />
+              <e p="ToastControl" t="Include">
+                <e p="ToastTray.g.cs" t="Include" />
+              </e>
+              <e p="XamlMapConstructs" t="Include">
+                <e p="StandardMapControl.g.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+        <e p="TheLemmonWorkshopWpfControls.csproj" t="IncludeRecursive" />
+        <e p="ToastControl" t="Include">
+          <e p="ToastControl.cs" t="Include" />
+          <e p="ToastSource.cs" t="Include" />
+          <e p="ToastTray.xaml" t="Include" />
+          <e p="ToastTray.xaml.cs" t="Include" />
+          <e p="ToastType.cs" t="Include" />
+          <e p="ToastTypeTemplateSelector.cs" t="Include" />
+          <e p="ToastViewModel.cs" t="Include" />
+        </e>
+        <e p="UserSettings.cs" t="Include" />
+        <e p="UserSettingsUtilities.cs" t="Include" />
+        <e p="Utility" t="Include">
+          <e p="BindingProxy.cs" t="Include" />
+          <e p="BooleanNotToVisibilityConverter.cs" t="Include" />
+          <e p="DispatcherThreadSwitcher.cs" t="Include" />
+          <e p="ImageResizing.cs" t="Include" />
+          <e p="ListBoxBehavior.cs" t="Include" />
+          <e p="ThreadPoolThreadSwitcher.cs" t="Include" />
+          <e p="ThreadSwitcher.cs" t="Include" />
+          <e p="UiThreadHelper.cs" t="Include" />
+        </e>
+        <e p="Views" t="Include" />
+        <e p="WpfHtml" t="Include">
+          <e p="BrowserHtmlBindingBehavior.cs" t="Include" />
+          <e p="WpfHtmlDocument.cs" t="Include" />
+        </e>
+        <e p="XamlMapConstructs" t="Include">
+          <e p="ISelectable.cs" t="Include" />
+          <e p="MapDisplayPoint.cs" t="Include" />
+          <e p="MapDisplayPolyline.cs" t="Include" />
+          <e p="MapLayers.cs" t="Include" />
+          <e p="MapLocationToVisibilityConverter.cs" t="Include" />
+          <e p="MapLocationZ.cs" t="Include" />
+          <e p="OutlinedText.cs" t="Include" />
+          <e p="StandardMapControl.xaml" t="Include" />
+          <e p="StandardMapControl.xaml.cs" t="Include" />
+          <e p="StandardMapViewModel.cs" t="Include" />
+        </e>
+      </e>
+    </e>
+    <e p="C:\Users\charl\.Rider2019.3\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\charl\.Rider2019.3\system\resharper-host\local\Transient\ReSharperHost\v193\SolutionCaches\_TheLemmonWorkshopContentEditor.-1830832476.00" t="ExcludeRecursive" />
+  </component>
+</project>

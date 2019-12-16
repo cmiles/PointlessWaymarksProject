@@ -1,4 +1,5 @@
 ﻿using System;
+using Markdig;
 
 namespace TheLemmonWorkshopData
 {
@@ -19,7 +20,7 @@ namespace TheLemmonWorkshopData
                     return imageRawString;
 
                 case MainImageContentFormatEnum.MarkdigMarkdown01:
-                    return Markdig.Markdown.ToHtml(imageRawString ?? string.Empty);
+                    return Markdown.ToHtml(imageRawString ?? string.Empty);
 
                 default:
                     return imageRawString;

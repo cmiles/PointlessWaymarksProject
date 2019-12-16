@@ -1,13 +1,13 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
-using MapControl;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
+using MapControl;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
 
@@ -34,20 +34,6 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             ClearPointsSelectionCommand = new RelayCommand(() => MapsPointsSelectionChanged(null));
             ClearPolylinesSelectionCommand = new RelayCommand(() => MapsPolylineSelectionChanged(null));
         }
-
-        public event EventHandler<List<MapDisplayPoint>> ListPointSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPolyline>> ListPolylineSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> ListPushpinSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> MapPointSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPolyline>> MapPolylineSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> MapPushpinSelectionRequest;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public RelayCommand ClearAllSelectionsCommand { get; set; }
 
@@ -85,6 +71,20 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
                 OnPropertyChanged();
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<List<MapDisplayPoint>> ListPointSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPolyline>> ListPolylineSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> ListPushpinSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> MapPointSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPolyline>> MapPolylineSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> MapPushpinSelectionRequest;
 
         public async void CreateLocation(Point getPosition)
         {

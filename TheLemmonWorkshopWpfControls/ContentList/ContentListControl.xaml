@@ -12,7 +12,7 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:ContentListItem">
                         <Grid>
-                            <TextBlock Text="{Binding Title}"></TextBlock>
+                            <TextBlock Text="{Binding Title}" />
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

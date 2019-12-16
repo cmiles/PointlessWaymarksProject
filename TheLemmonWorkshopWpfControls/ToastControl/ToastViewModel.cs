@@ -1,23 +1,21 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 
 namespace TheLemmonWorkshopWpfControls.ToastControl
 {
     public class ToastViewModel : INotifyPropertyChanged
     {
-        public Action InvokeHideAnimation;
         private string _message = "";
         private ToastType _type;
+        public Action InvokeHideAnimation;
 
         public ToastViewModel()
         {
             Id = Guid.NewGuid();
             CreateTime = DateTime.Now;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public DateTime CreateTime { get; }
         public Guid Id { get; }
@@ -43,6 +41,8 @@ namespace TheLemmonWorkshopWpfControls.ToastControl
                 OnPropertyChanged();
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")

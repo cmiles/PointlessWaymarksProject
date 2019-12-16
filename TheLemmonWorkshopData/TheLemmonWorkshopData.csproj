@@ -6,15 +6,37 @@
 
   <ItemGroup>
     <PackageReference Include="GeoAPI" Version="1.7.5" />
+    <PackageReference Include="HtmlTags" Version="8.0.0" />
     <PackageReference Include="Markdig" Version="0.18.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0-preview3.19554.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0-preview3.19554.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="3.1.0-preview3.19554.8" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0-preview3.19553.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0" />
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.0.0" />
-    <PackageReference Include="System.Text.Json" Version="4.7.0-preview3.19551.4" />
+    <PackageReference Include="System.CodeDom" Version="4.7.0" />
+    <PackageReference Include="System.Text.Json" Version="4.7.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TextTransforms\SinglePhotoPage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SinglePhotoPage.cs</LastGenOutput>
+      <CustomToolNamespace>TheLemmonWorkshopData.TextTransformations</CustomToolNamespace>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="TextTransforms\SinglePhotoPage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SinglePhotoPage.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

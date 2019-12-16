@@ -1,15 +1,16 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
-using Omu.ValueInjecter;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Implementation;
+using Omu.ValueInjecter;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Elevation;
 using TheLemmonWorkshopData.Models;
@@ -24,8 +25,8 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 {
     public class ItemContentEditorContext : INotifyPropertyChanged
     {
-        private ContentFormatChooserContext _bodyContentFormatContext;
         private readonly HttpClient _httpClient = new HttpClient();
+        private ContentFormatChooserContext _bodyContentFormatContext;
         private MainImageFormatChooserContext _mainImageFormatContext;
         private ControlStatusViewModel _statusContext;
         private ContentFormatChooserContext _updateNotesFormatContext;
@@ -42,7 +43,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             UpdateSelectedGeoDataElevation =
                 new RelayCommand(() => StatusContext.RunBlockingTask(UpdateSelectedPointGeoDataElevation));
 
-            UserContent = new UserSiteContent { Fingerprint = Guid.NewGuid() };
+            UserContent = new UserSiteContent {Fingerprint = Guid.NewGuid()};
 
             BodyContentFormatContext = new ContentFormatChooserContext();
             BodyContentFormatContext.OnSelectedValueChanged += (sender, s) => UserContent.BodyContentFormat = s;
@@ -57,8 +58,6 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             UserContent.MainImageFormat =
                 Enum.GetName(typeof(ContentFormatEnum), MainImageFormatContext.SelectedContentFormat);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public ContentFormatChooserContext BodyContentFormatContext
         {
@@ -122,6 +121,8 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public void LoadExistingData(string slugToLoad)
         {
         }
@@ -146,14 +147,14 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 
             var context = Db.Context();
 
-            var allPreviousVersionsInContent = await context.SiteContents
+            var allPreviousVersionsInContent = await context.PointContents
                 .Where(x => x.Fingerprint == UserContent.Fingerprint).ToListAsync();
 
             if (UserContent.Id > 0 && !allPreviousVersionsInContent.Any())
                 if ("No" == await StatusContext.ShowMessage("Db Conflict",
                         "The version you started editing is not active in the database (perhaps it was deleted while " +
                         "you were working?) - do you want to continue saving and create a 'new' active entry?",
-                        new List<string> { "Yes", "No" }))
+                        new List<string> {"Yes", "No"}))
                     return;
 
             var differentVersionInDatabase = allPreviousVersionsInContent.Where(x => x.Id == UserContent.Id).ToList();
@@ -164,27 +165,27 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                         $"{differentVersionInDatabase.First().LastUpdatedBy} - this is different than the version you started from. Saving " +
                         "will overwrite the updated changes in the database - you may want to look at the saved version and manually merge " +
                         "changes? Continue saving and overwrite changes in the database?",
-                        new List<string> { "Yes", "No" }))
+                        new List<string> {"Yes", "No"}))
                     return;
 
             foreach (var loopOtherVersions in differentVersionInDatabase)
             {
-                var newHistoric = new HistoricSiteContent();
+                var newHistoric = new HistoricPointContent();
                 newHistoric.InjectFrom(loopOtherVersions);
                 newHistoric.Id = 0;
-                context.HistoricSiteContents.Add(newHistoric);
+                context.HistoricPointContents.Add(newHistoric);
             }
 
             await context.SaveChangesAsync();
 
-            context.SiteContents.RemoveRange(differentVersionInDatabase);
+            context.PointContents.RemoveRange(differentVersionInDatabase);
 
             await context.SaveChangesAsync();
 
-            var toAdd = new SiteContent();
+            var toAdd = new PointContent();
             toAdd.InjectFrom(UserContent);
             toAdd.Id = 0;
-            context.SiteContents.Add(toAdd);
+            context.PointContents.Add(toAdd);
 
             await context.SaveChangesAsync();
         }
@@ -208,14 +209,10 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                 double elevation;
 
                 if (point.Elevation == null)
-                {
                     elevation = await GoogleElevationService.GetElevation(_httpClient,
                         UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, point.Longitude, point.Latitude);
-                }
                 else
-                {
                     elevation = point.Elevation.Value;
-                }
 
                 UserContent.LocationData = SpatialHelpers.Wgs84Point(point.Longitude, point.Latitude, elevation);
             }
@@ -227,9 +224,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                 var coordinateList = new List<Coordinate>();
 
                 foreach (var location in selectedLines.First().Locations)
-                {
                     coordinateList.Add(new Coordinate(location.Longitude, location.Latitude));
-                }
 
                 UserContent.LocationData = new LineString(coordinateList.ToArray());
             }
@@ -239,23 +234,22 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var line = (LineString)UserContent.LocationData;
-            
+            var line = (LineString) UserContent.LocationData;
+
             var totalPoints = line.Coordinates.Length;
             var currentPointNumber = 0;
 
-            var lineStringFactory = NetTopologySuite.Geometries.Implementation.DotSpatialAffineCoordinateSequenceFactory.Instance;
+            var lineStringFactory = DotSpatialAffineCoordinateSequenceFactory.Instance;
             var newLineStringSequence = lineStringFactory.Create(totalPoints, Ordinates.XYZ);
 
             foreach (var loopCoordinate in line.Coordinates)
             {
-
-                progress.Report($"Point {currentPointNumber} of {totalPoints} - existing elevation is {loopCoordinate.M}m - " +
-                                $"lat {loopCoordinate.Y} long {loopCoordinate.X}");
+                progress.Report(
+                    $"Point {currentPointNumber} of {totalPoints} - existing elevation is {loopCoordinate.M}m - " +
+                    $"lat {loopCoordinate.Y} long {loopCoordinate.X}");
 
                 var elevation = await GoogleElevationService.GetElevation(_httpClient,
-                    UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, loopCoordinate.Y,
-                    loopCoordinate.X);
+                    UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, loopCoordinate.Y, loopCoordinate.X);
 
                 progress.Report($"Found {elevation}m");
 
@@ -273,13 +267,13 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var point = (Point)UserContent.LocationData;
+            var point = (Point) UserContent.LocationData;
 
-            progress.Report($"Querying for Elevation - existing elevation is {point.Z}m - lat {point.Y} long {point.X}");
+            progress.Report(
+                $"Querying for Elevation - existing elevation is {point.Z}m - lat {point.Y} long {point.X}");
 
             var elevation = await GoogleElevationService.GetElevation(_httpClient,
-                UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, point.Y,
-                point.X);
+                UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, point.Y, point.X);
 
             progress.Report($"Found {elevation}m");
 
@@ -296,8 +290,10 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                 return;
             }
 
-            if (UserContent.LocationDataType == LocationDataTypeConsts.Point) await UpdatePointElevation(StatusContext.ProgressTracker());
-            if (UserContent.LocationDataType == LocationDataTypeConsts.Line) await UpdateLineElevation(StatusContext.ProgressTracker());
+            if (UserContent.LocationDataType == LocationDataTypeConsts.Point)
+                await UpdatePointElevation(StatusContext.ProgressTracker());
+            if (UserContent.LocationDataType == LocationDataTypeConsts.Line)
+                await UpdateLineElevation(StatusContext.ProgressTracker());
         }
     }
 }

@@ -22,11 +22,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
             }
         }
 
-        public object ConvertBack(
-          object value,
-          Type targetType,
-          object parameter,
-          CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is Visibility v)
                 return v == Visibility.Collapsed;

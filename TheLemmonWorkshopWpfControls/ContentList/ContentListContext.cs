@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +13,6 @@ namespace TheLemmonWorkshopWpfControls.ContentList
     public class ContentListContext : INotifyPropertyChanged
     {
         private ControlStatusViewModel _statusContext;
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public ContentListContext(ControlStatusViewModel statusContext)
         {
@@ -36,24 +32,21 @@ namespace TheLemmonWorkshopWpfControls.ContentList
             }
         }
 
+        public ObservableCollection<ContentListItem> Items { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public async Task LoadAllContent()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var db = Db.Context();
 
-            var rawList = await db.SiteContents.ToListAsync();
+            var rawList = await db.PointContents.ToListAsync();
 
-            var processedList = rawList.Select(x => new ContentListItem
-            {
-                Title = x.Title,
-                Summary = x.Summary
-            });
+            var processedList = rawList.Select(x => new ContentListItem {Title = x.Title, Summary = x.Summary});
 
             Items = new ObservableCollection<ContentListItem>(processedList);
         }
-
-        public ObservableCollection<ContentListItem> Items { get; set; }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

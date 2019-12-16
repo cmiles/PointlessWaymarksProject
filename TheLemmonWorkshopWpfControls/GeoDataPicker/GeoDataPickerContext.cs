@@ -1,10 +1,4 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
-using MapControl;
-using Microsoft.Win32;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,6 +7,12 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
+using MapControl;
+using Microsoft.Win32;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Elevation;
 using TheLemmonWorkshopWpfControls.ControlStatus;
@@ -51,10 +51,6 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
         }
 
         public RelayCommand<MapDisplayPoint> RenamePointCommand { get; set; }
-
-        public event EventHandler<SelectedGeoData> GeoDataSelected;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public RelayCommand ClearItemsCommand { get; set; }
         public RelayCommand ClearSelectionCommand { get; set; }
@@ -147,6 +143,10 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<SelectedGeoData> GeoDataSelected;
+
         public async Task ClearList(IProgress<string> progress)
         {
             progress.Report("Clearing List");
@@ -171,7 +171,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var fileDialog = new OpenFileDialog { DefaultExt = ".gpx", Filter = "GPX Files (*.gpx)|*.gpx|All Files|*.*" };
+            var fileDialog = new OpenFileDialog {DefaultExt = ".gpx", Filter = "GPX Files (*.gpx)|*.gpx|All Files|*.*"};
 
             var result = fileDialog.ShowDialog();
 
@@ -245,9 +245,9 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                 var pointList = new List<MapLocationZ>();
 
                 foreach (var loopSegments in loopTrack.Segments)
-                    foreach (var loopPoints in loopSegments.Waypoints)
-                        pointList.Add(new MapLocationZ(loopPoints.Latitude, loopPoints.Longitude,
-                            loopPoints.ElevationInMeters));
+                foreach (var loopPoints in loopSegments.Waypoints)
+                    pointList.Add(new MapLocationZ(loopPoints.Latitude, loopPoints.Longitude,
+                        loopPoints.ElevationInMeters));
 
                 StandardMapContext.Polylines.Add(new MapDisplayPolyline
                 {
@@ -283,9 +283,8 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             var newSelection = new List<MapDisplayPoint>();
 
             foreach (var loopPoints in listOfPoints)
-            {
-                if (loopPoints is MapDisplayPoint toAdd) newSelection.Add(toAdd);
-            }
+                if (loopPoints is MapDisplayPoint toAdd)
+                    newSelection.Add(toAdd);
 
             SelectedPoints = newSelection;
         }
@@ -301,9 +300,8 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
             var newSelection = new List<MapDisplayPolyline>();
 
             foreach (var loopLines in listOfLines)
-            {
-                if (loopLines is MapDisplayPolyline toAdd) newSelection.Add(toAdd);
-            }
+                if (loopLines is MapDisplayPolyline toAdd)
+                    newSelection.Add(toAdd);
 
             SelectedLines = newSelection;
         }
@@ -312,7 +310,8 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var (shouldRename, newName) = await StatusContext.ShowStringEntry("Rename Point", $"Original Name: {toRename.Name}", toRename.Name);
+            var (shouldRename, newName) =
+                await StatusContext.ShowStringEntry("Rename Point", $"Original Name: {toRename.Name}", toRename.Name);
 
             if (!shouldRename) return;
 
@@ -335,7 +334,6 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                 var newPoint = new Point(possiblePoint.Location.Longitude, possiblePoint.Location.Latitude);
 
                 if (possiblePoint.Location.Elevation == null)
-                {
                     try
                     {
                         var elevation = await GoogleElevationService.GetElevation(HttpClient,
@@ -347,10 +345,9 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                     {
                         Console.WriteLine(e);
                     }
-                }
 
                 GeoDataSelected?.Invoke(this,
-                    new SelectedGeoData { GeoType = LocationDataTypeConsts.Point, GeoData = newPoint });
+                    new SelectedGeoData {GeoType = LocationDataTypeConsts.Point, GeoData = newPoint});
 
                 return;
             }
@@ -362,7 +359,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                 var ntsLineString = new LineString(possibleLine.Locations
                     .Select(x => new Coordinate(x.Longitude, x.Latitude)).ToArray());
                 GeoDataSelected?.Invoke(this,
-                    new SelectedGeoData { GeoType = LocationDataTypeConsts.Line, GeoData = ntsLineString });
+                    new SelectedGeoData {GeoType = LocationDataTypeConsts.Line, GeoData = ntsLineString});
             }
         }
     }

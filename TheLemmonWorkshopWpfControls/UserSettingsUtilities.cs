@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json;
 
 namespace TheLemmonWorkshopWpfControls
 {
@@ -14,7 +15,7 @@ namespace TheLemmonWorkshopWpfControls
                 currentFile.Refresh();
             }
 
-            return System.Text.Json.JsonSerializer.Deserialize<UserSettings>(File.ReadAllText(currentFile.FullName));
+            return JsonSerializer.Deserialize<UserSettings>(File.ReadAllText(currentFile.FullName));
         }
 
         public static FileInfo SettingsFile()
@@ -24,8 +25,9 @@ namespace TheLemmonWorkshopWpfControls
 
         public static DirectoryInfo StorageDirectory()
         {
-            var storageDirectory = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "HikeLemmon Workshop"));
+            var storageDirectory =
+                new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "HikeLemmon Workshop"));
 
             if (!storageDirectory.Exists) storageDirectory.Create();
 
@@ -42,7 +44,7 @@ namespace TheLemmonWorkshopWpfControls
         public static void WriteSettings(UserSettings toWrite)
         {
             var currentFile = SettingsFile();
-            File.WriteAllText(currentFile.FullName, System.Text.Json.JsonSerializer.Serialize(toWrite));
+            File.WriteAllText(currentFile.FullName, JsonSerializer.Serialize(toWrite));
         }
     }
 }

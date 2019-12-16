@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
-using NetTopologySuite.Geometries;
-using TheLemmonWorkshopData.Models;
+using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
 using TheLemmonWorkshopWpfControls;
 using TheLemmonWorkshopWpfControls.ContentList;
 using TheLemmonWorkshopWpfControls.ControlStatus;
@@ -16,12 +12,12 @@ using TheLemmonWorkshopWpfControls.Utility;
 namespace TheLemmonWorkshopContentEditor
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private ControlStatusViewModel _statusContext;
         private ContentListContext _contextListContext;
+        private ControlStatusViewModel _statusContext;
 
         public MainWindow()
         {
@@ -39,8 +35,6 @@ namespace TheLemmonWorkshopContentEditor
 
             var db = Db.Context();
             db.Database.EnsureCreated();
-
-
         }
 
         public ContentListContext ContextListContext
@@ -53,9 +47,6 @@ namespace TheLemmonWorkshopContentEditor
                 OnPropertyChanged();
             }
         }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
 
         public RelayCommand NewContentCommand { get; set; }
@@ -73,6 +64,13 @@ namespace TheLemmonWorkshopContentEditor
 
         public RelayCommand ToastTestCommand { get; set; }
 
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public async Task CreateHtmlDoc()
+        {
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -83,9 +81,8 @@ namespace TheLemmonWorkshopContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new ItemContentEditorWindow { Left = Left + 4, Top = Top + 4 };
+            var newContentWindow = new ItemContentEditorWindow {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
-
     }
 }

@@ -1,15 +1,15 @@
-﻿using MapControl;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using MapControl;
 
 namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 {
     /// <summary>
-    /// Interaction logic for UserControl1.xaml
+    ///     Interaction logic for UserControl1.xaml
     /// </summary>
     public partial class StandardMapControl
     {
@@ -20,11 +20,14 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             DataContextChanged += OnDataContextChanged;
         }
 
-        public StandardMapViewModel Model() => (StandardMapViewModel)DataContext;
+        public StandardMapViewModel Model()
+        {
+            return (StandardMapViewModel) DataContext;
+        }
 
         private void MapItemTouchDown(object sender, TouchEventArgs e)
         {
-            var mapItem = (MapItem)sender;
+            var mapItem = (MapItem) sender;
             mapItem.IsSelected = !mapItem.IsSelected;
 
             if (e.Source is ISelectable baseObject) baseObject.IsSelected = mapItem.IsSelected;
@@ -57,8 +60,8 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
         private void MapMouseMove(object sender, MouseEventArgs e)
         {
             var location = map.ViewportPointToLocation(e.GetPosition(map));
-            var latitude = (int)Math.Round(location.Latitude * 60000d);
-            var longitude = (int)Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
+            var latitude = (int) Math.Round(location.Latitude * 60000d);
+            var longitude = (int) Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
             var latHemisphere = 'N';
             var lonHemisphere = 'E';
 
@@ -76,7 +79,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 
             mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
                 "{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}", latHemisphere, latitude / 60000,
-                (latitude % 60000) / 1000d, lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
+                latitude % 60000 / 1000d, lonHemisphere, longitude / 60000, longitude % 60000 / 1000d);
         }
 
         private void MapMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -94,10 +97,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
                 if (e == null || !e.Any()) return false;
                 if (!(x is MapDisplayPoint point)) return false;
 
-                if (e.Last() == point)
-                {
-                    Model().MapCenter = point.Location;
-                }
+                if (e.Last() == point) Model().MapCenter = point.Location;
                 return e.Contains(point);
             });
         }
@@ -109,10 +109,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
                 if (e == null || !e.Any()) return false;
                 if (!(x is MapDisplayPolyline line)) return false;
 
-                if (e.Last() == line && line.Locations.Count > 0)
-                {
-                    Model().MapCenter = line.Locations[0];
-                }
+                if (e.Last() == line && line.Locations.Count > 0) Model().MapCenter = line.Locations[0];
                 return e.Contains(line);
             });
         }
@@ -123,10 +120,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
             {
                 if (!(x is MapDisplayPoint point)) return false;
 
-                if (e.Last() == point)
-                {
-                    Model().MapCenter = point.Location;
-                }
+                if (e.Last() == point) Model().MapCenter = point.Location;
                 return e.Contains(point);
             });
         }
@@ -143,12 +137,12 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
         private void SeamarksChecked(object sender, RoutedEventArgs e)
         {
             map.Children.Insert(map.Children.IndexOf(mapGraticule),
-                ((StandardMapViewModel)DataContext).MapLayers.SeamarksLayer);
+                ((StandardMapViewModel) DataContext).MapLayers.SeamarksLayer);
         }
 
         private void SeamarksUnchecked(object sender, RoutedEventArgs e)
         {
-            map.Children.Remove(((StandardMapViewModel)DataContext).MapLayers.SeamarksLayer);
+            map.Children.Remove(((StandardMapViewModel) DataContext).MapLayers.SeamarksLayer);
         }
     }
 }
