@@ -6,7 +6,7 @@ namespace TheLemmonWorkshopData.Models
 {
     public class TrailSegment
     {
-        public string Code { get; set; }
+        public string Slug { get; set; }
         public decimal CumulativeElevation { get; set; }
         public decimal ElevationGain { get; set; }
         public decimal ElevationLoss { get; set; }

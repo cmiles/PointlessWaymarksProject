@@ -31,9 +31,9 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
         private List<MapDisplayPoint> _selectedPoints = new List<MapDisplayPoint>();
         private MapDisplayPolyline _selectedPolyline;
         private StandardMapViewModel _standardMapContext;
-        private ControlStatusViewModel _statusContext;
+        private StatusControlContext _statusContext;
 
-        public GeoDataPickerContext(ControlStatusViewModel statusContext)
+        public GeoDataPickerContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
 
@@ -132,7 +132,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
         public RelayCommand StartLoadCommand { get; set; }
 
-        public ControlStatusViewModel StatusContext
+        public StatusControlContext StatusContext
         {
             get => _statusContext;
             set

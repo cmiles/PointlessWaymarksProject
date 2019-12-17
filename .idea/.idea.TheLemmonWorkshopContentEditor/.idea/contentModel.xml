@@ -40,6 +40,12 @@
           <e p="HistoricPointContent.cs" t="Include" />
           <e p="HistoricPostContent.cs" t="Include" />
           <e p="HistoricTrailSegment.cs" t="Include" />
+          <e p="IBodyContent.cs" t="Include" />
+          <e p="IContentId.cs" t="Include" />
+          <e p="ICreatedAndLastUpdateOnAndBy.cs" t="Include" />
+          <e p="IMainImage.cs" t="Include" />
+          <e p="ITitleAndSummary.cs" t="Include" />
+          <e p="IUpdateNotes.cs" t="Include" />
           <e p="LineContent.cs" t="Include" />
           <e p="PhotoContent.cs" t="Include" />
           <e p="PointContent.cs" t="Include" />
@@ -76,10 +82,11 @@
           <e p="ContentListControl.xaml.cs" t="Include" />
           <e p="ContentListItem.cs" t="Include" />
         </e>
+        <e p="ContentUpdateEditor" t="Include" />
         <e p="ControlStatus" t="Include">
-          <e p="ControlStatus.xaml" t="Include" />
-          <e p="ControlStatus.xaml.cs" t="Include" />
-          <e p="ControlStatusViewModel.cs" t="Include" />
+          <e p="StatusControl.xaml" t="Include" />
+          <e p="StatusControl.xaml.cs" t="Include" />
+          <e p="StatusControlContext.cs" t="Include" />
         </e>
         <e p="Db.cs" t="Include" />
         <e p="GeoDataPicker" t="Include">
@@ -90,9 +97,6 @@
           <e p="GeoDataPickerWindow.xaml" t="Include" />
           <e p="GeoDataPickerWindow.xaml.cs" t="Include" />
           <e p="SelectedGeoData.cs" t="Include" />
-        </e>
-        <e p="ImagePage" t="Include">
-          <e p="PhotoPageContext.cs" t="Include" />
         </e>
         <e p="ImageResizeAndUpload" t="Include">
           <e p="ImageResizeAndUploadContext.cs" t="Include" />
@@ -152,6 +156,11 @@
             </e>
           </e>
         </e>
+        <e p="PhotoContentEditor" t="Include">
+          <e p="PhotoContentEditorContext.cs" t="Include" />
+          <e p="PhotoContentEditorControl.xaml" t="Include" />
+          <e p="PhotoContentEditorControl.xaml.cs" t="Include" />
+        </e>
         <e p="TheLemmonWorkshopWpfControls.csproj" t="IncludeRecursive" />
         <e p="ToastControl" t="Include">
           <e p="ToastControl.cs" t="Include" />
@@ -161,6 +170,15 @@
           <e p="ToastType.cs" t="Include" />
           <e p="ToastTypeTemplateSelector.cs" t="Include" />
           <e p="ToastViewModel.cs" t="Include" />
+        </e>
+        <e p="UpdateNotesEditor" t="Include">
+          <e p="UpdateNotesEditorContext.cs" t="Include" />
+          <e p="UpdateNotesEditorControl.xaml" t="Include" />
+          <e p="UpdateNotesEditorControl.xaml.cs" t="Include" />
+        </e>
+        <e p="UpdatesByAndOnDisplay" t="Include">
+          <e p="UpdateByAndOnDisplay.xaml" t="Include" />
+          <e p="UpdateByAndOnDisplay.xaml.cs" t="Include" />
         </e>
         <e p="UserSettings.cs" t="Include" />
         <e p="UserSettingsUtilities.cs" t="Include" />

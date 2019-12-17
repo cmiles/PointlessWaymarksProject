@@ -14,7 +14,7 @@ using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopWpfControls.ControlStatus
 {
-    public class ControlStatusViewModel : INotifyPropertyChanged
+    public class StatusControlContext : INotifyPropertyChanged
     {
         private readonly ManualResetEvent _messageBoxMre = new ManualResetEvent(false);
         private readonly ManualResetEvent _stringEntryMre = new ManualResetEvent(false);
@@ -37,7 +37,7 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
         private bool _stringEntryVisible;
         private ToastSource _toast;
 
-        public ControlStatusViewModel()
+        public StatusControlContext()
         {
             Toast = new ToastSource();
             StatusLog = new ObservableCollection<string>();

@@ -22,7 +22,7 @@
             <Button Command="{Binding NewContentCommand}">New Content</Button>
             <Button Command="{Binding ToastTestCommand}">Test Toast</Button>
         </StackPanel>
-        <controlStatus:ControlStatus
+        <controlStatus:StatusControl
             Grid.Row="0"
             Grid.Column="0"
             Grid.ColumnSpan="2"

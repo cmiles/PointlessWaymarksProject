@@ -12,16 +12,16 @@ namespace TheLemmonWorkshopWpfControls.ContentList
 {
     public class ContentListContext : INotifyPropertyChanged
     {
-        private ControlStatusViewModel _statusContext;
+        private StatusControlContext _statusContext;
 
-        public ContentListContext(ControlStatusViewModel statusContext)
+        public ContentListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
 
             StatusContext.RunBlockingTask(LoadAllContent);
         }
 
-        public ControlStatusViewModel StatusContext
+        public StatusControlContext StatusContext
         {
             get => _statusContext;
             set

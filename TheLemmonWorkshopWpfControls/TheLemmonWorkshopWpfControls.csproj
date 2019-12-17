@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ContentUpdateEditor" />
     <Folder Include="Views\" />
   </ItemGroup>
 

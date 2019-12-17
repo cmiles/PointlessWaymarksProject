@@ -6,7 +6,7 @@
 <head>
 <meta charset="utf-8">
 
-    <title><#=PageTitle#></title>
+    <title><#=PageTitle #></title>
     <meta name="description" content="<#=Description #>">
     <meta name="author" content="<#=TakenBy #>">
     <meta name="keywords" content="HTML, CSS, XML, JavaScript">
@@ -28,14 +28,15 @@
 </head>
 
 <body>
-    <img src="<#=DisplayImageUrl #>" srcset="<# SrcSetString()#>" loading="lazy" width="100%"/>
-    <div>Aperature <#=Aperture#></div>
-    <div>Shutter Speed <#=ShutterSpeed#></div>
-    <div>Lens <#=Lens#></div>
-    <div>Camera <#=Camera#></div>
-    <div>Photographer <#=TakenBy#></div>
-    <div>Taken On <#=TakenOn#></div>
-    <div>License <#=License#></div>
+    <img src="<#=DisplayImageUrl #>" srcset="<#
+    SrcSetString(); #>" loading="lazy" width="100%"/>
+    <div>Aperature <#=Aperture #></div>
+    <div>Shutter Speed <#=ShutterSpeed #></div>
+    <div>Lens <#=Lens #></div>
+    <div>Camera <#=Camera #></div>
+    <div>Photographer <#=TakenBy #></div>
+    <div>Taken On <#=TakenOn #></div>
+    <div>License <#=License #></div>
 </body>
 
 </html>

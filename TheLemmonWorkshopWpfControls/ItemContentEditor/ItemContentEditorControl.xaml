@@ -143,6 +143,6 @@
                 </Grid>
             </TabItem>
         </TabControl>
-        <controlStatus:ControlStatus d:IsHidden="true" DataContext="{Binding StatusContext}" />
+        <controlStatus:StatusControl d:IsHidden="true" DataContext="{Binding StatusContext}" />
     </Grid>
 </UserControl>

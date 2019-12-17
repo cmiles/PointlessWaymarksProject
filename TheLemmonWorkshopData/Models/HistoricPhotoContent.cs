@@ -8,7 +8,7 @@ namespace TheLemmonWorkshopData.Models
         public string Title { get; set; }
         public string AltText { get; set; }
         public string Description { get; set; }
-        public string Author { get; set; }
+        public string Photographer { get; set; }
         public string Camera { get; set; }
         public string Lens { get; set; }
         public string Aperture { get; set; }

@@ -15,11 +15,11 @@ namespace TheLemmonWorkshopWpfControls.ImageResizeAndUpload
     public class ImageResizeAndUploadContext : INotifyPropertyChanged
     {
         private ObservableCollection<ImageResizeAndUploadListItem> _items;
-        private ControlStatusViewModel _statusContext;
+        private StatusControlContext _statusContext;
 
         public ImageResizeAndUploadContext()
         {
-            StatusContext = new ControlStatusViewModel();
+            StatusContext = new StatusControlContext();
             ChooseAndLoadDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ChooseAndLoadDirectory));
         }
 
@@ -36,7 +36,7 @@ namespace TheLemmonWorkshopWpfControls.ImageResizeAndUpload
             }
         }
 
-        public ControlStatusViewModel StatusContext
+        public StatusControlContext StatusContext
         {
             get => _statusContext;
             set

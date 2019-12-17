@@ -4,29 +4,31 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
-namespace TheLemmonWorkshopWpfControls.ImagePage
+namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 {
-    public class PhotoPageContext : INotifyPropertyChanged
+    public class PhotoContentEditorContext : INotifyPropertyChanged
     {
         private string _altText;
         private string _aperture;
-        private string _author;
         private string _baseFileName;
         private string _camera;
+        private string _currentUpdateBy;
         private string _description;
         private Guid _fingerprint;
         private int _id;
-        private string _lastUpdatedBy;
         private DateTime? _lastUpdatedOn;
         private string _lens;
+        private string _pageCreatedBy;
         private DateTime _pageCreatedOn;
         private DateTime _pageLastUpdateBy;
         private DateTime _pageLastUpdateOn;
+        private string _photoCreatedBy;
         private DateTime _photoCreatedOn;
         private FileInfo _selectedFile;
         private string _shutterSpeed;
         private string _slug;
         private string _title;
+        private string _updatedBy;
         private string _updateNotes;
         private string _updateNotesFormat;
 
@@ -74,13 +76,13 @@ namespace TheLemmonWorkshopWpfControls.ImagePage
             }
         }
 
-        public string Author
+        public string PhotoCreatedBy
         {
-            get => _author;
+            get => _photoCreatedBy;
             set
             {
-                if (value == _author) return;
-                _author = value;
+                if (value == _photoCreatedBy) return;
+                _photoCreatedBy = value;
                 OnPropertyChanged();
             }
         }
@@ -140,6 +142,17 @@ namespace TheLemmonWorkshopWpfControls.ImagePage
             }
         }
 
+        public string CurrentUpdateBy
+        {
+            get => _currentUpdateBy;
+            set
+            {
+                if (value == _currentUpdateBy) return;
+                _currentUpdateBy = value;
+                OnPropertyChanged();
+            }
+        }
+
         public DateTime PhotoCreatedOn
         {
             get => _photoCreatedOn;
@@ -147,6 +160,17 @@ namespace TheLemmonWorkshopWpfControls.ImagePage
             {
                 if (value.Equals(_photoCreatedOn)) return;
                 _photoCreatedOn = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string PageCreatedBy
+        {
+            get => _pageCreatedBy;
+            set
+            {
+                if (value == _pageCreatedBy) return;
+                _pageCreatedBy = value;
                 OnPropertyChanged();
             }
         }
@@ -206,13 +230,13 @@ namespace TheLemmonWorkshopWpfControls.ImagePage
             }
         }
 
-        public string LastUpdatedBy
+        public string UpdatedBy
         {
-            get => _lastUpdatedBy;
+            get => _updatedBy;
             set
             {
-                if (value == _lastUpdatedBy) return;
-                _lastUpdatedBy = value;
+                if (value == _updatedBy) return;
+                _updatedBy = value;
                 OnPropertyChanged();
             }
         }

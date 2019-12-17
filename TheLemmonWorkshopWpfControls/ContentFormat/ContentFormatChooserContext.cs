@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TheLemmonWorkshopData;
+using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopWpfControls.ContentFormat
 {
@@ -45,6 +47,17 @@ namespace TheLemmonWorkshopWpfControls.ContentFormat
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public async Task<bool> TrySelectContentChoice(string contentChoice)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(contentChoice)) return false;
+
+            var toSelect = Enum.TryParse(typeof(ContentFormatEnum), contentChoice, true, out var parsedSelection);
+            if (toSelect) SelectedContentFormat = (ContentFormatEnum) parsedSelection;
+            return toSelect;
+        }
 
         public event EventHandler<string> OnSelectedValueChanged;
 

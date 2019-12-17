@@ -124,55 +124,56 @@ namespace TheLemmonWorkshopData
             #line hidden
             this.Write("\" srcset=\"");
             #line 31 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
- SrcSetString()
+
+    SrcSetString(); 
             
             #line default
             #line hidden
             this.Write("\" loading=\"lazy\" width=\"100%\"/>\r\n    <div>Aperature ");
             
-            #line 32 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 33 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Aperture));
             
             #line default
             #line hidden
             this.Write("</div>\r\n    <div>Shutter Speed ");
             
-            #line 33 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 34 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ShutterSpeed));
             
             #line default
             #line hidden
             this.Write("</div>\r\n    <div>Lens ");
             
-            #line 34 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 35 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Lens));
             
             #line default
             #line hidden
             this.Write("</div>\r\n    <div>Camera ");
             
-            #line 35 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 36 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Camera));
             
             #line default
             #line hidden
             this.Write("</div>\r\n    <div>Photographer ");
             
-            #line 36 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 37 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(TakenBy));
             
             #line default
             #line hidden
             this.Write("</div>\r\n    <div>Taken On ");
             
-            #line 37 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 38 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(TakenOn));
             
             #line default
             #line hidden
             this.Write("</div>\r\n    <div>License ");
             
-            #line 38 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 39 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(License));
             
             #line default

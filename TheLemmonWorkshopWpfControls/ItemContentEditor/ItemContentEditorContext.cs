@@ -28,13 +28,13 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
         private readonly HttpClient _httpClient = new HttpClient();
         private ContentFormatChooserContext _bodyContentFormatContext;
         private MainImageFormatChooserContext _mainImageFormatContext;
-        private ControlStatusViewModel _statusContext;
+        private StatusControlContext _statusContext;
         private ContentFormatChooserContext _updateNotesFormatContext;
         private UserSiteContent _userContent;
 
         public ItemContentEditorContext()
         {
-            StatusContext = new ControlStatusViewModel();
+            StatusContext = new StatusControlContext();
             GeoDataPickerContext = new GeoDataPickerContext(StatusContext);
 
             SaveContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveContent));
@@ -86,7 +86,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
         public RelayCommand SaveContentCommand { get; set; }
         public RelayCommand SelectGeoDataCommand { get; set; }
 
-        public ControlStatusViewModel StatusContext
+        public StatusControlContext StatusContext
         {
             get => _statusContext;
             set

@@ -17,9 +17,9 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
     {
         private Location _mapCenter = new Location(53.5, 8.2);
 
-        private ControlStatusViewModel _statusContext = new ControlStatusViewModel();
+        private StatusControlContext _statusContext = new StatusControlContext();
 
-        public StandardMapViewModel(ControlStatusViewModel statusContext)
+        public StandardMapViewModel(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
 
@@ -61,7 +61,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
         public RelayCommand<IList> PolylinesMapSelectionChangedCommand { get; set; }
         public ObservableCollection<MapDisplayPoint> Pushpins { get; } = new ObservableCollection<MapDisplayPoint>();
 
-        public ControlStatusViewModel StatusContext
+        public StatusControlContext StatusContext
         {
             get => _statusContext;
             set

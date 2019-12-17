@@ -25,7 +25,7 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
 
             DataContext = this;
 
-            GeoDataPickerContext = new GeoDataPickerContext(new ControlStatusViewModel());
+            GeoDataPickerContext = new GeoDataPickerContext(new StatusControlContext());
             GeoDataPickerContext.GeoDataSelected += (sender, data) => Close();
         }
 

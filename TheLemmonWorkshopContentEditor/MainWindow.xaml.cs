@@ -17,7 +17,7 @@ namespace TheLemmonWorkshopContentEditor
     public partial class MainWindow : INotifyPropertyChanged
     {
         private ContentListContext _contextListContext;
-        private ControlStatusViewModel _statusContext;
+        private StatusControlContext _statusContext;
 
         public MainWindow()
         {
@@ -25,7 +25,7 @@ namespace TheLemmonWorkshopContentEditor
 
             DataContext = this;
 
-            StatusContext = new ControlStatusViewModel();
+            StatusContext = new StatusControlContext();
             ContextListContext = new ContentListContext(StatusContext);
 
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
@@ -51,7 +51,7 @@ namespace TheLemmonWorkshopContentEditor
 
         public RelayCommand NewContentCommand { get; set; }
 
-        public ControlStatusViewModel StatusContext
+        public StatusControlContext StatusContext
         {
             get => _statusContext;
             set
