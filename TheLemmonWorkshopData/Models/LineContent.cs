@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 
 namespace TheLemmonWorkshopData.Models
 {
-    public class LineContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleAndSummary, IUpdateNotes, IMainImage,
+    public class LineContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlug, IUpdateNotes, IMainImage,
         IBodyContent
     {
         [Column(TypeName = "geometry")] public Geometry LocationData { get; set; }
@@ -12,7 +12,6 @@ namespace TheLemmonWorkshopData.Models
         public string LocationDataType { get; set; }
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
-        public string Slug { get; set; }
         public Guid Fingerprint { get; set; }
         public int Id { get; set; }
         public string CreatedBy { get; set; }
@@ -22,6 +21,7 @@ namespace TheLemmonWorkshopData.Models
         public string MainImage { get; set; }
 
         public string MainImageFormat { get; set; }
+        public string Slug { get; set; }
 
         public string Summary { get; set; }
         public string Title { get; set; }

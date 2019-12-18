@@ -291,6 +291,11 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
         }
 
+        public void RunFireAndForgetTaskWithUiToastErrorReturn(Func<Task> toRun)
+        {
+            Task.Run(toRun).ContinueWith(FireAndForgetTaskWithToastErrorReturnCompleted);
+        }
+
         public async Task<string> ShowMessage(string title, string body, List<string> buttons)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -392,6 +397,13 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
                 ToastWarning("Cancelled Task");
                 return;
             }
+
+            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
+        }
+
+        private void FireAndForgetTaskWithToastErrorReturnCompleted(Task obj)
+        {
+            if (obj.IsCanceled) return;
 
             if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
         }

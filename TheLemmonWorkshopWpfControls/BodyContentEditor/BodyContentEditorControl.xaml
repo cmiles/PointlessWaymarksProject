@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="TheLemmonWorkshopWpfControls.BodyContentEditor.BodyContentEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TheLemmonWorkshopWpfControls.BodyContentEditor"
+             xmlns:wpfHtml="clr-namespace:TheLemmonWorkshopWpfControls.WpfHtml"
+             xmlns:contentFormat="clr-namespace:TheLemmonWorkshopWpfControls.ContentFormat"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:BodyContentEditorContext}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Format Type">
+            <contentFormat:ContentFormatChooserControl DataContext="{Binding BodyContentFormat}" />
+        </GroupBox>
+        <Grid Grid.Row="1" Margin="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <GroupBox Header="Content">
+                <TextBox
+                    AcceptsReturn="True"
+                    Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Visible" />
+            </GroupBox>
+            <GroupBox Grid.Column="1" Header="Preview">
+                <WebBrowser
+                    wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding BodyContentHtmlOutput}" />
+            </GroupBox>
+        </Grid>
+    </Grid>
+</UserControl>

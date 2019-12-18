@@ -13,6 +13,7 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
+              <e p="MainWindow.g.cs" t="Include" />
               <e p="TheLemmonWorkshopContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -44,7 +45,7 @@
           <e p="IContentId.cs" t="Include" />
           <e p="ICreatedAndLastUpdateOnAndBy.cs" t="Include" />
           <e p="IMainImage.cs" t="Include" />
-          <e p="ITitleAndSummary.cs" t="Include" />
+          <e p="ITitleSummarySlug.cs" t="Include" />
           <e p="IUpdateNotes.cs" t="Include" />
           <e p="LineContent.cs" t="Include" />
           <e p="PhotoContent.cs" t="Include" />
@@ -71,6 +72,11 @@
       <e p="TheLemmonWorkshopWpfControls" t="IncludeRecursive">
         <e p="AssemblyInfo.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
+        <e p="BodyContentEditor" t="Include">
+          <e p="BodyContentEditorContext.cs" t="Include" />
+          <e p="BodyContentEditorControl.xaml" t="Include" />
+          <e p="BodyContentEditorControl.xaml.cs" t="Include" />
+        </e>
         <e p="ContentFormat" t="Include">
           <e p="ContentFormatChooserContext.cs" t="Include" />
           <e p="ContentFormatChooserControl.xaml" t="Include" />
@@ -87,6 +93,11 @@
           <e p="StatusControl.xaml" t="Include" />
           <e p="StatusControl.xaml.cs" t="Include" />
           <e p="StatusControlContext.cs" t="Include" />
+        </e>
+        <e p="CreatedAndUpdatedByAndOnDisplay" t="Include">
+          <e p="CreatedAndUpdatedByAndOnDisplayContext.cs" t="Include" />
+          <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml" t="Include" />
+          <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml.cs" t="Include" />
         </e>
         <e p="Db.cs" t="Include" />
         <e p="GeoDataPicker" t="Include">
@@ -129,7 +140,7 @@
                 <e p="ContentListControl.g.cs" t="Include" />
               </e>
               <e p="ControlStatus" t="Include">
-                <e p="ControlStatus.g.cs" t="Include" />
+                <e p="StatusControl.g.cs" t="Include" />
               </e>
               <e p="GeneratedInternalTypeHelper.g.cs" t="Include" />
               <e p="GeoDataPicker" t="Include">
@@ -146,9 +157,18 @@
               <e p="MainImageFormat" t="Include">
                 <e p="MainImageFormatChooser.g.cs" t="Include" />
               </e>
+              <e p="PhotoContentEditor" t="Include">
+                <e p="PhotoContentEditorControl.g.cs" t="Include" />
+              </e>
               <e p="TheLemmonWorkshopWpfControls.AssemblyInfo.cs" t="Include" />
               <e p="ToastControl" t="Include">
                 <e p="ToastTray.g.cs" t="Include" />
+              </e>
+              <e p="UpdateNotesEditor" t="Include">
+                <e p="UpdateNotesEditorControl.g.cs" t="Include" />
+              </e>
+              <e p="UpdatesByAndOnDisplay" t="Include">
+                <e p="UpdateByAndOnDisplay.g.cs" t="Include" />
               </e>
               <e p="XamlMapConstructs" t="Include">
                 <e p="StandardMapControl.g.cs" t="Include" />
@@ -175,10 +195,6 @@
           <e p="UpdateNotesEditorContext.cs" t="Include" />
           <e p="UpdateNotesEditorControl.xaml" t="Include" />
           <e p="UpdateNotesEditorControl.xaml.cs" t="Include" />
-        </e>
-        <e p="UpdatesByAndOnDisplay" t="Include">
-          <e p="UpdateByAndOnDisplay.xaml" t="Include" />
-          <e p="UpdateByAndOnDisplay.xaml.cs" t="Include" />
         </e>
         <e p="UserSettings.cs" t="Include" />
         <e p="UserSettingsUtilities.cs" t="Include" />

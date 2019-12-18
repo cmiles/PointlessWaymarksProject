@@ -11,51 +11,51 @@ using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
 using TheLemmonWorkshopWpfControls.WpfHtml;
 
-namespace TheLemmonWorkshopWpfControls.UpdateNotesEditor
+namespace TheLemmonWorkshopWpfControls.BodyContentEditor
 {
-    public class UpdateNotesEditorContext : INotifyPropertyChanged
+    public class BodyContentEditorContext : INotifyPropertyChanged
     {
-        private IUpdateNotes _dbEntry;
-        private ContentFormatChooserContext _updateNotesFormat = new ContentFormatChooserContext();
-        private string _updateNotesHtmlOutput;
-        private string _userUpdateNotes = string.Empty;
+        private ContentFormatChooserContext _bodyContentFormat = new ContentFormatChooserContext();
+        private string _bodyContentHtmlOutput;
+        private IBodyContent _dbEntry;
+        private string _userBodyContent = string.Empty;
 
-        public UpdateNotesEditorContext(StatusControlContext statusContext, IUpdateNotes dbEntry)
+        public BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry)
         {
             StatusContext = statusContext;
-            UpdateNotesFormat = new ContentFormatChooserContext();
+            BodyContentFormat = new ContentFormatChooserContext();
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
         public StatusControlContext StatusContext { get; set; }
 
-        public ContentFormatChooserContext UpdateNotesFormat
+        public ContentFormatChooserContext BodyContentFormat
         {
-            get => _updateNotesFormat;
+            get => _bodyContentFormat;
             set
             {
-                if (Equals(value, _updateNotesFormat)) return;
-                _updateNotesFormat = value;
+                if (Equals(value, _bodyContentFormat)) return;
+                _bodyContentFormat = value;
                 OnPropertyChanged();
 
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
             }
         }
 
-        public string UpdateNotes
+        public string BodyContent
         {
-            get => _userUpdateNotes;
+            get => _userBodyContent;
             set
             {
-                if (value == _userUpdateNotes) return;
-                _userUpdateNotes = value;
+                if (value == _userBodyContent) return;
+                _userBodyContent = value;
                 OnPropertyChanged();
 
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
             }
         }
 
-        public IUpdateNotes DbEntry
+        public IBodyContent DbEntry
         {
             get => _dbEntry;
             set
@@ -66,20 +66,20 @@ namespace TheLemmonWorkshopWpfControls.UpdateNotesEditor
             }
         }
 
-        public string UpdateNotesHtmlOutput
+        public string BodyContentHtmlOutput
         {
-            get => _updateNotesHtmlOutput;
+            get => _bodyContentHtmlOutput;
             set
             {
-                if (value == _updateNotesHtmlOutput) return;
-                _updateNotesHtmlOutput = value;
+                if (value == _bodyContentHtmlOutput) return;
+                _bodyContentHtmlOutput = value;
                 OnPropertyChanged();
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public async Task LoadData(IUpdateNotes toLoad)
+        public async Task LoadData(IBodyContent toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -87,13 +87,13 @@ namespace TheLemmonWorkshopWpfControls.UpdateNotesEditor
 
             if (toLoad == null)
             {
-                UpdateNotes = string.Empty;
-                UpdateNotesFormat.SelectedContentFormat = UpdateNotesFormat.ContentFormatChoices.First();
+                BodyContent = string.Empty;
+                BodyContentFormat.SelectedContentFormat = BodyContentFormat.ContentFormatChoices.First();
                 return;
             }
 
-            UpdateNotes = toLoad.UpdateNotes;
-            var setUpdateFormatOk = await UpdateNotesFormat.TrySelectContentChoice(toLoad.UpdateNotesFormat);
+            BodyContent = toLoad.BodyContent;
+            var setUpdateFormatOk = await BodyContentFormat.TrySelectContentChoice(toLoad.BodyContentFormat);
 
             if (!setUpdateFormatOk) StatusContext.ToastWarning("Trouble loading Format from Db...");
         }
@@ -104,12 +104,12 @@ namespace TheLemmonWorkshopWpfControls.UpdateNotesEditor
 
             try
             {
-                var processResults = ContentProcessor.ContentHtml(UpdateNotesFormat.SelectedContentFormat, UpdateNotes);
-                UpdateNotesHtmlOutput = processResults.ToHtmlDocument("Update Notes", string.Empty);
+                var processResults = ContentProcessor.ContentHtml(BodyContentFormat.SelectedContentFormat, BodyContent);
+                BodyContentHtmlOutput = processResults.ToHtmlDocument("Update Notes", string.Empty);
             }
             catch (Exception e)
             {
-                UpdateNotesHtmlOutput = "<h2>Not able to process input</h2>".ToHtmlDocument("Invalid", string.Empty);
+                BodyContentHtmlOutput = "<h2>Not able to process input</h2>".ToHtmlDocument("Invalid", string.Empty);
             }
         }
 

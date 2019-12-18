@@ -2,9 +2,9 @@
 
 namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
 {
-    public partial class UpdateByAndOnDisplay : UserControl
+    public partial class CreatedAndUpdatedByAndOnDisplayControl : UserControl
     {
-        public UpdateByAndOnDisplay()
+        public CreatedAndUpdatedByAndOnDisplayControl()
         {
             InitializeComponent();
         }

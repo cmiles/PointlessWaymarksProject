@@ -7,7 +7,7 @@
              xmlns:contentFormat="clr-namespace:TheLemmonWorkshopWpfControls.ContentFormat"
              xmlns:wpfHtml="clr-namespace:TheLemmonWorkshopWpfControls.WpfHtml"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:UpdateNotesEditorContext}">
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
@@ -15,7 +15,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <GroupBox Grid.Row="0" Header="Format Type">
-                <contentFormat:ContentFormatChooserControl DataContext="{Binding UpdateNotesFormatContext}" />
+                <contentFormat:ContentFormatChooserControl DataContext="{Binding UpdateNotesFormat}" />
             </GroupBox>
             <Grid Grid.Row="1" Margin="2">
                 <Grid.ColumnDefinitions>
@@ -25,13 +25,13 @@
                 <GroupBox Header="Content">
                     <TextBox
                         AcceptsReturn="True"
-                        Text="{Binding UserContent.UpdateNotes, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding UpdateNotes, UpdateSourceTrigger=PropertyChanged}"
                         TextWrapping="Wrap"
                         VerticalScrollBarVisibility="Visible" />
                 </GroupBox>
                 <GroupBox Grid.Column="1" Header="Preview">
                     <WebBrowser
-                        wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UserContent.UpdateNotesHtmlOutput}" />
+                        wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UpdateNotesHtmlOutput}" />
                 </GroupBox>
             </Grid>
         </Grid>
