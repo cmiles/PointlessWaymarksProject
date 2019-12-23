@@ -6,7 +6,7 @@
 <head>
 <meta charset="utf-8">
 
-    <title><#=PageTitle #></title>
+    <title><#=PageTitle #></title>i
     <meta name="description" content="<#=Description #>">
     <meta name="author" content="<#=TakenBy #>">
     <meta name="keywords" content="HTML, CSS, XML, JavaScript">

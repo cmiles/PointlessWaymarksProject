@@ -4,81 +4,80 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TheLemmonWorkshopWpfControls.PhotoContentEditor"
+             xmlns:titleSummarySlugEditor="clr-namespace:TheLemmonWorkshopWpfControls.TitleSummarySlugEditor"
+             xmlns:contentIdViewer="clr-namespace:TheLemmonWorkshopWpfControls.ContentIdViewer"
+             xmlns:updatesByAndOnDisplay="clr-namespace:TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay"
+             xmlns:updateNotesEditor="clr-namespace:TheLemmonWorkshopWpfControls.UpdateNotesEditor"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:PhotoContentEditorContext}">
     <Grid>
-        <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Slug</TextBlock>
-                <TextBox Text="{Binding Slug}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Title</TextBlock>
-                <TextBox Text="{Binding Title}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Alt Text</TextBlock>
-                <TextBox Text="{Binding AltText}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Description</TextBlock>
-                <TextBox Text="{Binding Camera}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Photographer</TextBlock>
-                <TextBox Text="{Binding PhotoCreatedBy}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Photo Created On</TextBlock>
-                <TextBox Text="{Binding PhotoCreatedOn}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Camera</TextBlock>
-                <TextBox Text="{Binding Camera}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Lens</TextBlock>
-                <TextBox Text="{Binding Lens}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Aperture</TextBlock>
-                <TextBox Text="{Binding Aperture}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Shutter Speed</TextBlock>
-                <TextBox Text="{Binding ShutterSpeed}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Base File Name</TextBlock>
-                <TextBox Text="{Binding BaseFileName}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Current Update By</TextBlock>
-                <TextBox Text="{Binding }" />
-            </StackPanel>
-        </StackPanel>
-        <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Fingerprint</TextBlock>
-                <TextBlock Text="{Binding Fingerprint}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Page Created On</TextBlock>
-                <TextBlock Text="{Binding PageCreatedOn}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Page Created By</TextBlock>
-                <TextBlock Text="{Binding PageCreatedBy}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Page Last Updated On</TextBlock>
-                <TextBlock Text="{Binding PageCreatedOn}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <TextBlock>Page Last Updated By</TextBlock>
-                <TextBlock Text="{Binding PageCreatedBy}" />
-            </StackPanel>
-        </StackPanel>
+        <TabControl>
+            <TabItem Header="Photo Content">
+                <StackPanel>
+                    <titleSummarySlugEditor:TitleSummarySlugEditorControl />
+                    <updatesByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl />
+                    <contentIdViewer:ContentIdViewerControl />
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Update Notes">
+                <Grid>
+                    <updateNotesEditor:UpdateNotesEditorControl />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Photo">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Button>Choose Photo</Button>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedFile.FullName}" />
+                    <StackPanel Grid.Row="1" Grid.Column="1">
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Alt Text</Label>
+                            <TextBox Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Photo Created By</Label>
+                            <TextBox Text="{Binding PhotoCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Photo Created On</Label>
+                            <TextBox Text="{Binding PhotoCreatedOn, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Camera</Label>
+                            <TextBox Text="{Binding Camera, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Lens</Label>
+                            <TextBox Text="{Binding Lens, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Aperture</Label>
+                            <TextBox Text="{Binding Aperture, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Shutter Speed</Label>
+                            <TextBox Text="{Binding ShutterSpeed, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>License</Label>
+                            <TextBox Text="{Binding License, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <Image Grid.Row="1" Grid.Column="1" Stretch="Fill">
+                        <Image.Source>
+                            <BitmapImage UriSource="{Binding SelectedFile.FullName}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

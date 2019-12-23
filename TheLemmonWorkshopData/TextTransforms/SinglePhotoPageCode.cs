@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TheLemmonWorkshopData
+namespace TheLemmonWorkshopData.TextTransforms
 {
     public partial class SinglePhotoPage
     {
@@ -44,11 +44,5 @@ namespace TheLemmonWorkshopData
         {
             return string.Join(", ", SrcsetImages.OrderByDescending(x => x.Width).Select(x => $"{x.Url} {x.Width}w"));
         }
-    }
-
-    public class SrcSetImage
-    {
-        public int Width { get; set; }
-        public string Url { get; set; }
     }
 }

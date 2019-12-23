@@ -5,7 +5,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace TheLemmonWorkshopData
+namespace TheLemmonWorkshopData.TextTransforms
 {
     using System;
     
@@ -31,7 +31,7 @@ namespace TheLemmonWorkshopData
             
             #line default
             #line hidden
-            this.Write("</title>\r\n    <meta name=\"description\" content=\"");
+            this.Write("</title>i\r\n    <meta name=\"description\" content=\"");
             
             #line 10 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Description));

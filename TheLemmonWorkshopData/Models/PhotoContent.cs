@@ -6,9 +6,11 @@ namespace TheLemmonWorkshopData.Models
     {
         public string AltText { get; set; }
         public string PhotoCreatedBy { get; set; }
+        public DateTime PhotoCreatedOn { get; set; }
         public string Camera { get; set; }
         public string Lens { get; set; }
         public string Aperture { get; set; }
+        public string License { get; set; }
         public string ShutterSpeed { get; set; }
         public string BaseFileName { get; set; }
         public Guid Fingerprint { get; set; }

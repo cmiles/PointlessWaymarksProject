@@ -2,7 +2,12 @@
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using TheLemmonWorkshopWpfControls.ControlStatus;
+using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 {
@@ -12,44 +17,67 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
         private string _aperture;
         private string _baseFileName;
         private string _camera;
-        private string _currentUpdateBy;
-        private string _description;
-        private Guid _fingerprint;
-        private int _id;
-        private DateTime? _lastUpdatedOn;
         private string _lens;
-        private string _pageCreatedBy;
-        private DateTime _pageCreatedOn;
-        private DateTime _pageLastUpdateBy;
-        private DateTime _pageLastUpdateOn;
         private string _photoCreatedBy;
         private DateTime _photoCreatedOn;
         private FileInfo _selectedFile;
         private string _shutterSpeed;
-        private string _slug;
-        private string _title;
-        private string _updatedBy;
-        private string _updateNotes;
-        private string _updateNotesFormat;
+        private string _license;
+        private StatusControlContext _statusContext;
 
-        public string Slug
+        public PhotoContentEditorContext(StatusControlContext statusContext)
         {
-            get => _slug;
-            set
+            StatusContext = statusContext ?? new StatusControlContext();
+        }
+        
+        public async Task ChooseFile()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            
+            var dialog = new Ookii.Dialogs.Wpf.VistaOpenFileDialog();
+
+            if (!(dialog.ShowDialog() ?? false)) return;
+            
+            var newFile = new FileInfo(dialog.FileName);
+
+            if (!newFile.Exists)
             {
-                if (value == _slug) return;
-                _slug = value;
-                OnPropertyChanged();
+                StatusContext.ToastError("File doesn't exist?");
+                return;
             }
+
+            ThreadSwitcher.ResumeBackgroundAsync();
+
+            SelectedFile = newFile;
+
+            await ProcessSelectedFile();
         }
 
-        public string Title
+        private async Task ProcessSelectedFile()
         {
-            get => _title;
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            
+            SelectedFile.Refresh();
+            
+            if (!SelectedFile.Exists)
+            {
+                StatusContext.ToastError("File doesn't exist?");
+                return;
+            }
+
+            var decodedImage = SixLabors.ImageSharp.Image.Load(SelectedFile.FullName, new JpegDecoder()).Metadata;
+            //decodedImage.ExifProfile
+            //Todo: Pull image metadata and merge with context data
+            
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
             set
             {
-                if (value == _title) return;
-                _title = value;
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
                 OnPropertyChanged();
             }
         }
@@ -64,18 +92,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
                 OnPropertyChanged();
             }
         }
-
-        public string Description
-        {
-            get => _description;
-            set
-            {
-                if (value == _description) return;
-                _description = value;
-                OnPropertyChanged();
-            }
-        }
-
+        
         public string PhotoCreatedBy
         {
             get => _photoCreatedBy;
@@ -142,17 +159,6 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             }
         }
 
-        public string CurrentUpdateBy
-        {
-            get => _currentUpdateBy;
-            set
-            {
-                if (value == _currentUpdateBy) return;
-                _currentUpdateBy = value;
-                OnPropertyChanged();
-            }
-        }
-
         public DateTime PhotoCreatedOn
         {
             get => _photoCreatedOn;
@@ -164,116 +170,6 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             }
         }
 
-        public string PageCreatedBy
-        {
-            get => _pageCreatedBy;
-            set
-            {
-                if (value == _pageCreatedBy) return;
-                _pageCreatedBy = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DateTime PageCreatedOn
-        {
-            get => _pageCreatedOn;
-            set
-            {
-                if (value.Equals(_pageCreatedOn)) return;
-                _pageCreatedOn = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DateTime PageLastUpdateOn
-        {
-            get => _pageLastUpdateOn;
-            set
-            {
-                if (value.Equals(_pageLastUpdateOn)) return;
-                _pageLastUpdateOn = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DateTime PageLastUpdateBy
-        {
-            get => _pageLastUpdateBy;
-            set
-            {
-                if (value.Equals(_pageLastUpdateBy)) return;
-                _pageLastUpdateBy = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Guid Fingerprint
-        {
-            get => _fingerprint;
-            set
-            {
-                if (value.Equals(_fingerprint)) return;
-                _fingerprint = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public int Id
-        {
-            get => _id;
-            set
-            {
-                if (value == _id) return;
-                _id = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string UpdatedBy
-        {
-            get => _updatedBy;
-            set
-            {
-                if (value == _updatedBy) return;
-                _updatedBy = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DateTime? LastUpdatedOn
-        {
-            get => _lastUpdatedOn;
-            set
-            {
-                if (Nullable.Equals(value, _lastUpdatedOn)) return;
-                _lastUpdatedOn = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string UpdateNotes
-        {
-            get => _updateNotes;
-            set
-            {
-                if (value == _updateNotes) return;
-                _updateNotes = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string UpdateNotesFormat
-        {
-            get => _updateNotesFormat;
-            set
-            {
-                if (value == _updateNotesFormat) return;
-                _updateNotesFormat = value;
-                OnPropertyChanged();
-            }
-        }
-
         public FileInfo SelectedFile
         {
             get => _selectedFile;
@@ -281,6 +177,17 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             {
                 if (Equals(value, _selectedFile)) return;
                 _selectedFile = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string License
+        {
+            get => _license;
+            set
+            {
+                if (value == _license) return;
+                _license = value;
                 OnPropertyChanged();
             }
         }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls.ControlStatus;
+using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
 {
@@ -48,6 +49,8 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
 
         public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             DbEntry = toLoad;
 
             var newStringParts = new List<string>();

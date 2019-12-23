@@ -63,9 +63,10 @@
         <e p="Slug.cs" t="Include" />
         <e p="SpatialHelpers.cs" t="Include" />
         <e p="TextTransforms" t="Include">
-          <e p="SingleImagePageCode.cs" t="Include" />
           <e p="SinglePhotoPage.cs" t="Include" />
           <e p="SinglePhotoPage.tt" t="Include" />
+          <e p="SinglePhotoPageCode.cs" t="Include" />
+          <e p="SrcSetImage.cs" t="Include" />
         </e>
         <e p="TheLemmonWorkshopData.csproj" t="IncludeRecursive" />
       </e>
@@ -81,6 +82,11 @@
           <e p="ContentFormatChooserContext.cs" t="Include" />
           <e p="ContentFormatChooserControl.xaml" t="Include" />
           <e p="ContentFormatChooserControl.xaml.cs" t="Include" />
+        </e>
+        <e p="ContentIdViewer" t="Include">
+          <e p="ContentIdViewerControl.xaml" t="Include" />
+          <e p="ContentIdViewerControl.xaml.cs" t="Include" />
+          <e p="ContentIdViewerControlContext.cs" t="Include" />
         </e>
         <e p="ContentList" t="Include">
           <e p="ContentListContext.cs" t="Include" />
@@ -122,6 +128,11 @@
           <e p="ItemContentEditorWindow.xaml" t="Include" />
           <e p="ItemContentEditorWindow.xaml.cs" t="Include" />
         </e>
+        <e p="MainImageEditor" t="Include">
+          <e p="MainImageEditorContext.cs" t="Include" />
+          <e p="MainImageEditorControl.xaml" t="Include" />
+          <e p="MainImageEditorControl.xaml.cs" t="Include" />
+        </e>
         <e p="MainImageFormat" t="Include">
           <e p="MainImageFormatChooser.xaml" t="Include" />
           <e p="MainImageFormatChooser.xaml.cs" t="Include" />
@@ -133,6 +144,9 @@
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
+              <e p="BodyContentEditor" t="Include">
+                <e p="BodyContentEditorControl.g.cs" t="Include" />
+              </e>
               <e p="ContentFormat" t="Include">
                 <e p="ContentFormatChooserControl.g.cs" t="Include" />
               </e>
@@ -141,6 +155,9 @@
               </e>
               <e p="ControlStatus" t="Include">
                 <e p="StatusControl.g.cs" t="Include" />
+              </e>
+              <e p="CreatedAndUpdatedByAndOnDisplay" t="Include">
+                <e p="CreatedAndUpdatedByAndOnDisplayControl.g.cs" t="Include" />
               </e>
               <e p="GeneratedInternalTypeHelper.g.cs" t="Include" />
               <e p="GeoDataPicker" t="Include">
@@ -167,9 +184,6 @@
               <e p="UpdateNotesEditor" t="Include">
                 <e p="UpdateNotesEditorControl.g.cs" t="Include" />
               </e>
-              <e p="UpdatesByAndOnDisplay" t="Include">
-                <e p="UpdateByAndOnDisplay.g.cs" t="Include" />
-              </e>
               <e p="XamlMapConstructs" t="Include">
                 <e p="StandardMapControl.g.cs" t="Include" />
               </e>
@@ -182,6 +196,11 @@
           <e p="PhotoContentEditorControl.xaml.cs" t="Include" />
         </e>
         <e p="TheLemmonWorkshopWpfControls.csproj" t="IncludeRecursive" />
+        <e p="TitleSummarySlugEditor" t="Include">
+          <e p="TitleSummarySlugEditorContext.cs" t="Include" />
+          <e p="TitleSummarySlugEditorControl.xaml" t="Include" />
+          <e p="TitleSummarySlugEditorControl.xaml.cs" t="Include" />
+        </e>
         <e p="ToastControl" t="Include">
           <e p="ToastControl.cs" t="Include" />
           <e p="ToastSource.cs" t="Include" />
