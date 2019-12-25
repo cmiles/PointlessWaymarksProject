@@ -7,6 +7,7 @@ using TheLemmonWorkshopWpfControls;
 using TheLemmonWorkshopWpfControls.ContentList;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.ItemContentEditor;
+using TheLemmonWorkshopWpfControls.PhotoContentEditor;
 using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopContentEditor
@@ -29,6 +30,7 @@ namespace TheLemmonWorkshopContentEditor
             ContextListContext = new ContentListContext(StatusContext);
 
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
+            NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
             ToastTestCommand = new RelayCommand(() => StatusContext.ToastWarning("Test"));
 
             UserSettingsUtilities.VerifyAndCreate();
@@ -36,6 +38,8 @@ namespace TheLemmonWorkshopContentEditor
             var db = Db.Context();
             db.Database.EnsureCreated();
         }
+
+        public RelayCommand NewPhotoContentCommand { get; set; }
 
         public ContentListContext ContextListContext
         {
@@ -82,6 +86,14 @@ namespace TheLemmonWorkshopContentEditor
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newContentWindow = new ItemContentEditorWindow {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+        
+        private async Task NewPhotoContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PhotoContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
     }

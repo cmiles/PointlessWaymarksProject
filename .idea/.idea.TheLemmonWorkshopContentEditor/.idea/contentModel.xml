@@ -31,6 +31,7 @@
           <e p="GoogleElevationService.cs" t="Include" />
           <e p="GoogleLocation.cs" t="Include" />
         </e>
+        <e p="ExifHelpers.cs" t="Include" />
         <e p="FormatTypeEnum.cs" t="Include" />
         <e p="LemmonWorkshopContext.cs" t="Include" />
         <e p="LocationDataTypeConsts.cs" t="Include" />
@@ -106,6 +107,12 @@
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml.cs" t="Include" />
         </e>
         <e p="Db.cs" t="Include" />
+        <e p="ExifDiagnosticViewer" t="Include">
+          <e p="ExifDiagnosticViewerContext.cs" t="Include" />
+          <e p="ExifDiagnosticViewerControl.cs" t="Include" />
+          <e p="ExifDiagnosticViewerControl.Designer.cs" t="Include" />
+          <e p="ExifDiagnosticViewerControl.resx" t="Include" />
+        </e>
         <e p="GeoDataPicker" t="Include">
           <e p="GeoDataMapDisplayObject.cs" t="Include" />
           <e p="GeoDataPickerContext.cs" t="Include" />
@@ -150,6 +157,9 @@
               <e p="ContentFormat" t="Include">
                 <e p="ContentFormatChooserControl.g.cs" t="Include" />
               </e>
+              <e p="ContentIdViewer" t="Include">
+                <e p="ContentIdViewerControl.g.cs" t="Include" />
+              </e>
               <e p="ContentList" t="Include">
                 <e p="ContentListControl.g.cs" t="Include" />
               </e>
@@ -171,6 +181,9 @@
                 <e p="ItemContentEditorControl.g.cs" t="Include" />
                 <e p="ItemContentEditorWindow.g.cs" t="Include" />
               </e>
+              <e p="MainImageEditor" t="Include">
+                <e p="MainImageEditorControl.g.cs" t="Include" />
+              </e>
               <e p="MainImageFormat" t="Include">
                 <e p="MainImageFormatChooser.g.cs" t="Include" />
               </e>
@@ -178,6 +191,9 @@
                 <e p="PhotoContentEditorControl.g.cs" t="Include" />
               </e>
               <e p="TheLemmonWorkshopWpfControls.AssemblyInfo.cs" t="Include" />
+              <e p="TitleSummarySlugEditor" t="Include">
+                <e p="TitleSummarySlugEditorControl.g.cs" t="Include" />
+              </e>
               <e p="ToastControl" t="Include">
                 <e p="ToastTray.g.cs" t="Include" />
               </e>
@@ -194,6 +210,8 @@
           <e p="PhotoContentEditorContext.cs" t="Include" />
           <e p="PhotoContentEditorControl.xaml" t="Include" />
           <e p="PhotoContentEditorControl.xaml.cs" t="Include" />
+          <e p="PhotoContentEditorWindow.xaml" t="Include" />
+          <e p="PhotoContentEditorWindow.xaml.cs" t="Include" />
         </e>
         <e p="TheLemmonWorkshopWpfControls.csproj" t="IncludeRecursive" />
         <e p="TitleSummarySlugEditor" t="Include">

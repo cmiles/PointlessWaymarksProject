@@ -148,7 +148,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             var context = Db.Context();
 
             var allPreviousVersionsInContent = await context.PointContents
-                .Where(x => x.Fingerprint == UserContent.Fingerprint).ToListAsync();
+                .Where(x => x.ContentId == UserContent.Fingerprint).ToListAsync();
 
             if (UserContent.Id > 0 && !allPreviousVersionsInContent.Any())
                 if ("No" == await StatusContext.ShowMessage("Db Conflict",

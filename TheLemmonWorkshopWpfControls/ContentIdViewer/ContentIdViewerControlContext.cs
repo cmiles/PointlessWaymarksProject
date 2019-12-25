@@ -46,7 +46,7 @@ namespace TheLemmonWorkshopWpfControls.ContentIdViewer
             }
 
             
-            ContentIdInformation = $"Id: {dbEntry.Id} Fingerprint: {dbEntry.Fingerprint}";
+            ContentIdInformation = $"Id: {dbEntry.Id} Fingerprint: {dbEntry.ContentId}";
         }
 
         public string ContentIdInformation

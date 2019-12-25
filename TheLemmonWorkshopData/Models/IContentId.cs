@@ -6,6 +6,6 @@ namespace TheLemmonWorkshopData.Models
     {
         public int Id { get; set; }
 
-        public Guid Fingerprint { get; set; }
+        public Guid ContentId { get; set; }
     }
 }

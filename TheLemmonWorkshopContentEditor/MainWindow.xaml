@@ -2,11 +2,11 @@
     x:Class="TheLemmonWorkshopContentEditor.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contentList="clr-namespace:TheLemmonWorkshopWpfControls.ContentList;assembly=TheLemmonWorkshopWpfControls"
     xmlns:controlStatus="clr-namespace:TheLemmonWorkshopWpfControls.ControlStatus;assembly=TheLemmonWorkshopWpfControls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:TheLemmonWorkshopContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:contentList="clr-namespace:TheLemmonWorkshopWpfControls.ContentList;assembly=TheLemmonWorkshopWpfControls"
     Title="MainWindow"
     Width="1200"
     Height="600"
@@ -20,6 +20,7 @@
         <contentList:ContentListControl />
         <StackPanel Grid.Column="1">
             <Button Command="{Binding NewContentCommand}">New Content</Button>
+            <Button Command="{Binding NewPhotoContentCommand}">New Photo Content</Button>
             <Button Command="{Binding ToastTestCommand}">Test Toast</Button>
         </StackPanel>
         <controlStatus:StatusControl
