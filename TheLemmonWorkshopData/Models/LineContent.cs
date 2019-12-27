@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TheLemmonWorkshopData.Models
 {
-    public class LineContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes, IMainImage,
-        IBodyContent, ITag
+    public class LineContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes,
+        IMainImage, IBodyContent, ITag
     {
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }

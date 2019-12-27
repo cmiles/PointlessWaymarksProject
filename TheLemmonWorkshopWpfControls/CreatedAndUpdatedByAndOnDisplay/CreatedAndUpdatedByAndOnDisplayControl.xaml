@@ -9,7 +9,22 @@
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </UserControl.Resources>
     <Grid>
-        <TextBlock Text="{Binding CreatedAndUpdatedByAndOn}" TextWrapping="Wrap" />
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Vertical"
+                        Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
+                <TextBlock>Folder</TextBlock>
+                <TextBox Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical"
+                        Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
+                <TextBlock>Folder</TextBlock>
+                <TextBox Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <TextBlock Text="{Binding CreatedAndUpdatedByAndOn}" TextWrapping="Wrap" />
+        </StackPanel>
     </Grid>
 </UserControl>

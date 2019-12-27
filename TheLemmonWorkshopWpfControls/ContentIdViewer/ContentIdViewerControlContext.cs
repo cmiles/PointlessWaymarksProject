@@ -14,11 +14,10 @@ namespace TheLemmonWorkshopWpfControls.ContentIdViewer
         private string _contentIdInformation;
         private IContentId _dbEntry;
 
-        public ContentIdViewerControlContext(StatusControlContext statusContext,
-            IContentId dbEntry)
+        public ContentIdViewerControlContext(StatusControlContext statusContext, IContentId dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-            
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
@@ -36,10 +35,10 @@ namespace TheLemmonWorkshopWpfControls.ContentIdViewer
         public async Task LoadData(IContentId dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-            
+
             DbEntry = dbEntry;
 
-            if (dbEntry == null) 
+            if (dbEntry == null)
             {
                 ContentIdInformation = "Id: (Db Entry Is Null) Fingerprint: (Db Entry is Null)";
                 return;

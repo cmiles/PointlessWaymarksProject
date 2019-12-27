@@ -11,7 +11,7 @@ namespace TheLemmonWorkshopWpfControls.HtmlViewer
         {
             StatusContext = new StatusControlContext();
         }
-        
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;

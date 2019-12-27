@@ -13,7 +13,6 @@ namespace TheLemmonWorkshopWpfControls.MainImageEditor
         public MainImageEditorContext(StatusControlContext statusContext, IMainImage dbEntry)
         {
             DbEntry = dbEntry;
-            
         }
 
         public IMainImage DbEntry

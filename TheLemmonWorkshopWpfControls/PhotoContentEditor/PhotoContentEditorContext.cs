@@ -28,7 +28,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
     {
         private string _altText;
         private string _aperture;
-        private string _baseFileName;
+        private string _originalFileName;
         private string _cameraMake;
         private string _cameraModel;
         private RelayCommand _chooseFileCommand;
@@ -47,7 +47,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
         private string _shutterSpeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tags;
-        private TitleSummarySlugEditorContext _titleSummarySlug;
+        private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
 
         public PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent toLoad)
@@ -81,13 +81,13 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             }
         }
 
-        public string BaseFileName
+        public string OriginalFileName
         {
-            get => _baseFileName;
+            get => _originalFileName;
             set
             {
-                if (value == _baseFileName) return;
-                _baseFileName = value;
+                if (value == _originalFileName) return;
+                _originalFileName = value;
                 OnPropertyChanged();
             }
         }
@@ -293,13 +293,13 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             }
         }
 
-        public TitleSummarySlugEditorContext TitleSummarySlug
+        public TitleSummarySlugEditorContext TitleSummarySlugFolder
         {
-            get => _titleSummarySlug;
+            get => _titleSummarySlugFolder;
             set
             {
-                if (Equals(value, _titleSummarySlug)) return;
-                _titleSummarySlug = value;
+                if (Equals(value, _titleSummarySlugFolder)) return;
+                _titleSummarySlugFolder = value;
                 OnPropertyChanged();
             }
         }
@@ -323,12 +323,12 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 
             if (toProcess.Value.Numerator < 0)
             {
-                return Math.Round(Math.Pow(2, (double)-1 * toProcess.Value.Numerator / toProcess.Value.Denominator), 1)
+                return Math.Round(Math.Pow(2, (double) -1 * toProcess.Value.Numerator / toProcess.Value.Denominator), 1)
                     .ToString("N1");
             }
 
             return
-                $"1/{Math.Round(Math.Pow(2, (double)toProcess.Value.Numerator / toProcess.Value.Denominator), 1):N0}";
+                $"1/{Math.Round(Math.Pow(2, (double) toProcess.Value.Numerator / toProcess.Value.Denominator), 1):N0}";
         }
 
         public async Task ChooseFile()
@@ -359,7 +359,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DbEntry = toLoad ?? new PhotoContent();
-            TitleSummarySlug = new TitleSummarySlugEditorContext(StatusContext, toLoad);
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
             CreatedAndUpdatedByAndOnDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
@@ -368,7 +368,16 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             ChooseFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ChooseFile));
             ResizeFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ResizePhoto));
             ViewPhotoMetadataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
+
+            SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
         }
+
+        private async Task SaveAndCreateLocal()
+        {
+            var titleSummarySlugFolderValidation = await TitleSummarySlugFolder.Validate();
+        }
+
+        public RelayCommand SaveAndCreateLocalCommand { get; set; }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -399,7 +408,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             PhotoCreatedOn =
                 DateTime.ParseExact(exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal),
                     "yyyy:MM:dd HH:mm:ss", CultureInfo.InvariantCulture);
-            TitleSummarySlug.Folder = PhotoCreatedOn.Year.ToString("F0");
+            TitleSummarySlugFolder.Folder = PhotoCreatedOn.Year.ToString("F0");
 
             var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
             if (!string.IsNullOrWhiteSpace(isoString))
@@ -415,8 +424,8 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
             License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
             ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
-            TitleSummarySlug.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
-            TitleSummarySlug.Slug = Slug.Create(true, TitleSummarySlug.Title);
+            TitleSummarySlugFolder.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
+            TitleSummarySlugFolder.Slug = Slug.Create(true, TitleSummarySlugFolder.Title);
             Tags.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords).Replace(";", ",") ?? string.Empty;
         }
 

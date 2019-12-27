@@ -68,9 +68,11 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlug}" />
+                            <titleSummarySlugEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding Tags}" />
-                            <updatesByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedAndUpdatedByAndOnDisplay}" />
+                            <updatesByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedAndUpdatedByAndOnDisplay}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" />
                         </StackPanel>
                     </ScrollViewer>

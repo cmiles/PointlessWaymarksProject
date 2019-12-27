@@ -10,29 +10,27 @@
     d:DesignWidth="300"
     mc:Ignorable="d">
     <Grid>
-        <Grid>
+        <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Vertical">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock>Title</TextBlock>
-                    <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
-                <StackPanel Orientation="Vertical">
-                    <TextBlock>Slug</TextBlock>
-                    <TextBox Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
-                <StackPanel Orientation="Vertical">
-                    <TextBlock>Folder</TextBlock>
-                    <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
-                <StackPanel Orientation="Vertical">
-                    <TextBlock>Summary</TextBlock>
-                    <TextBox
-                        AcceptsReturn="True"
-                        Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="Wrap"
-                        VerticalScrollBarVisibility="Visible" />
-                </StackPanel>
+                <TextBlock>Title</TextBlock>
+                <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
-        </Grid>
+            <StackPanel Orientation="Vertical">
+                <TextBlock>Slug</TextBlock>
+                <TextBox Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical">
+                <TextBlock>Folder</TextBlock>
+                <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical">
+                <TextBlock>Summary</TextBlock>
+                <TextBox
+                    AcceptsReturn="True"
+                    Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Visible" />
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </UserControl>

@@ -2,7 +2,8 @@
 
 namespace TheLemmonWorkshopData.Models
 {
-    public class HistoricPhotoContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes, ITag
+    public class HistoricPhotoContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes,
+        ITag
     {
         public string AltText { get; set; }
         public string Aperture { get; set; }

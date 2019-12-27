@@ -27,16 +27,17 @@ namespace TheLemmonWorkshopContentEditor
             DataContext = this;
 
             StatusContext = new StatusControlContext();
-            ContextListContext = new ContentListContext(StatusContext);
-
-            NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
-            NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
-            ToastTestCommand = new RelayCommand(() => StatusContext.ToastWarning("Test"));
 
             UserSettingsUtilities.VerifyAndCreate();
 
             var db = Db.Context();
+            db.Database.EnsureDeleted();
             db.Database.EnsureCreated();
+
+            ContextListContext = new ContentListContext(StatusContext);
+            NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
+            NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
+            ToastTestCommand = new RelayCommand(() => StatusContext.ToastWarning("Test"));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -82,7 +83,7 @@ namespace TheLemmonWorkshopContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new ItemContentEditorWindow { Left = Left + 4, Top = Top + 4 };
+            var newContentWindow = new ItemContentEditorWindow {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 
@@ -90,7 +91,7 @@ namespace TheLemmonWorkshopContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PhotoContentEditorWindow(null) { Left = Left + 4, Top = Top + 4 };
+            var newContentWindow = new PhotoContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
     }

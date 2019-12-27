@@ -196,7 +196,8 @@
                 <e p="ToastTray.g.cs" t="Include" />
               </e>
               <e p="UpdateNotesEditor" t="Include">
-                <e p="UpdateNotesEditorControl.g.cs" t="Include" />
+                <e p="UpdateNotesEditorHorizontalControl.g.cs" t="Include" />
+                <e p="UpdateNotesEditorVerticalControl.g.cs" t="Include" />
               </e>
               <e p="XamlMapConstructs" t="Include">
                 <e p="StandardMapControl.g.cs" t="Include" />
@@ -233,8 +234,10 @@
         </e>
         <e p="UpdateNotesEditor" t="Include">
           <e p="UpdateNotesEditorContext.cs" t="Include" />
-          <e p="UpdateNotesEditorControl.xaml" t="Include" />
-          <e p="UpdateNotesEditorControl.xaml.cs" t="Include" />
+          <e p="UpdateNotesEditorHorizontalControl.xaml" t="Include" />
+          <e p="UpdateNotesEditorHorizontalControl.xaml.cs" t="Include" />
+          <e p="UpdateNotesEditorVerticalControl.xaml" t="Include" />
+          <e p="UpdateNotesEditorVerticalControl.xaml.cs" t="Include" />
         </e>
         <e p="UserSettings.cs" t="Include" />
         <e p="UserSettingsUtilities.cs" t="Include" />

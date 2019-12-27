@@ -13,12 +13,38 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
     {
         private string _createdAndUpdatedByAndOn;
         private ICreatedAndLastUpdateOnAndBy _dbEntry;
+        private bool _showCreatedByEditor;
+        private bool _showUpdatedByEditor;
+        private string _createdBy;
+        private string _updatedBy;
 
         public CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
             ICreatedAndLastUpdateOnAndBy dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
+        }
+
+        public string UpdatedBy
+        {
+            get => _updatedBy;
+            set
+            {
+                if (value == _updatedBy) return;
+                _updatedBy = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string CreatedBy
+        {
+            get => _createdBy;
+            set
+            {
+                if (value == _createdBy) return;
+                _createdBy = value;
+                OnPropertyChanged();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -59,7 +85,14 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
             if (DbEntry == null)
             {
                 CreatedAndUpdatedByAndOn = "New Entry";
+                ShowCreatedByEditor = true;
+                ShowUpdatedByEditor = false;
                 return;
+            }
+            else
+            {
+                ShowCreatedByEditor = false;
+                ShowUpdatedByEditor = true;
             }
 
             if (!string.IsNullOrWhiteSpace(DbEntry.CreatedBy))
@@ -75,6 +108,28 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
             if (DbEntry.LastUpdatedOn != null) newStringParts.Add($"On {DbEntry.LastUpdatedOn:g}");
 
             CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
+        }
+
+        public bool ShowUpdatedByEditor
+        {
+            get => _showUpdatedByEditor;
+            set
+            {
+                if (value == _showUpdatedByEditor) return;
+                _showUpdatedByEditor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowCreatedByEditor
+        {
+            get => _showCreatedByEditor;
+            set
+            {
+                if (value == _showCreatedByEditor) return;
+                _showCreatedByEditor = value;
+                OnPropertyChanged();
+            }
         }
 
         [NotifyPropertyChangedInvocator]

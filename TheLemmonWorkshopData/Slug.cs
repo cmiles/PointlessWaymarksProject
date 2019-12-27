@@ -1,9 +1,60 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace TheLemmonWorkshopData
 {
     public static class Slug
     {
+        public static (bool isValid, string explanation) FolderAndSlugCreateValidUri(List<string> folderList,
+            string slug)
+        {
+            var isValid = true;
+            var explanation = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                isValid = false;
+                explanation = "Folder and Slug must only use lower case.";
+            }
+
+            if (!isValid) return (isValid, explanation);
+
+            if (slug.Any(char.IsUpper) || folderList.Any(x => x.Any(char.IsUpper)))
+            {
+                isValid = false;
+                explanation = "Folder and Slug must only use lower case.";
+            }
+
+            if (!isValid) return (isValid, explanation);
+
+            var uriToCheck = $@"//{string.Join("/", folderList)}{(folderList.Any() ? "/" : "")}{slug}";
+
+            if (!Uri.IsWellFormedUriString(uriToCheck, UriKind.RelativeOrAbsolute))
+            {
+                isValid = false;
+                explanation = "Folders and Slug do not form a legal uri - illegal characters?";
+            }
+
+            return (isValid, explanation);
+        }
+
+        public static async Task<bool> SlugExistsInDatabase(this LemmonWorkshopContext context, string slug)
+        {
+            if (string.IsNullOrWhiteSpace(slug)) return false;
+
+            var lineCheck = await context.LineContents.AnyAsync(x => x.Slug == slug);
+            var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug);
+            var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug);
+            var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug);
+            var trailCheck = await context.TrailSegments.AnyAsync(x => x.Slug == slug);
+
+            return lineCheck && photoCheck && pointCheck && postCheck && trailCheck;
+        }
+
         public static string Create(bool toLower, params string[] values)
         {
             return Create(toLower, string.Join("-", values));
@@ -57,7 +108,7 @@ namespace TheLemmonWorkshopData
 
                     // Tricky way to convert to lowercase
                     if (toLower)
-                        sb.Append((char)(c | 32));
+                        sb.Append((char) (c | 32));
                     else
                         sb.Append(c);
                 }

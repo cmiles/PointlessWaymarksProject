@@ -44,7 +44,7 @@ namespace TheLemmonWorkshopWpfControls.ContentList
 
             var rawList = await db.PointContents.ToListAsync();
 
-            var processedList = rawList.Select(x => new ContentListItem { Title = x.Title, Summary = x.Summary });
+            var processedList = rawList.Select(x => new ContentListItem {Title = x.Title, Summary = x.Summary});
 
             Items = new ObservableCollection<ContentListItem>(processedList);
         }

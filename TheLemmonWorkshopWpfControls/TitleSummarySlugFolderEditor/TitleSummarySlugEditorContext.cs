@@ -1,8 +1,11 @@
 ﻿using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
@@ -24,7 +27,72 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
-        
+
+        public async Task<(bool valid, string explanation)> Validate()
+        {
+            var isValid = true;
+            var errorMessage = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(Title))
+            {
+                isValid = false;
+                errorMessage += "Title can not be blank.";
+            }
+
+            if (string.IsNullOrWhiteSpace(Summary))
+            {
+                isValid = false;
+                errorMessage += "Summary can not be blank.";
+            }
+
+            if (string.IsNullOrWhiteSpace(Slug))
+            {
+                isValid = false;
+                errorMessage += "Slug can not be blank.";
+            }
+
+            if (string.IsNullOrWhiteSpace(Folder))
+            {
+                isValid = false;
+                errorMessage += "Folder can not be blank.";
+            }
+
+            if (!isValid) return (isValid, errorMessage);
+
+            var folderList = Folder.Split(",").ToList();
+
+            if (folderList.Any(x => !IsValidFilename(x)))
+            {
+                isValid = false;
+                errorMessage += "Folders have illegal characters...";
+            }
+
+            if (!isValid) return (isValid, errorMessage);
+
+            if (await Db.Context().SlugExistsInDatabase(Slug))
+            {
+                isValid = false;
+                errorMessage += "Slug already exists in Database";
+            }
+
+            return (isValid, errorMessage);
+        }
+
+        bool IsValidFilename(string testName)
+        {
+            //https://stackoverflow.com/questions/62771/how-do-i-check-if-a-given-string-is-a-legal-valid-file-name-under-windows
+            Regex containsABadCharacter =
+                new Regex($"[{Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()))}]");
+            if (containsABadCharacter.IsMatch(testName))
+            {
+                return false;
+            }
+
+            ;
+
+            return true;
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;

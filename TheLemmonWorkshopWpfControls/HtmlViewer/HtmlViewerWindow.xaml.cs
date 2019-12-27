@@ -8,7 +8,7 @@ namespace TheLemmonWorkshopWpfControls.HtmlViewer
         {
             InitializeComponent();
 
-            DataContext = new HtmlViewerContext { HtmlString = htmlString };
+            DataContext = new HtmlViewerContext {HtmlString = htmlString};
         }
     }
 }

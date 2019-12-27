@@ -19,7 +19,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
             public static async Task ProcessAndUploadImageFile(FileInfo originalImage,
                 List<string> bucketSubdirectoryList, IProgress<string> progress)
             {
-                var fullList = new List<FileInfo> { originalImage, ResizeForDisplay(originalImage, progress) };
+                var fullList = new List<FileInfo> {originalImage, ResizeForDisplay(originalImage, progress)};
 
                 fullList.AddRange(ResizeForSrcset(originalImage, progress));
 
@@ -37,7 +37,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
             public static async Task ProcessAndUploadImageHtmlFile(FileInfo originalImage,
                 List<string> bucketSubdirectoryList, IProgress<string> progress)
             {
-                var fullList = new List<FileInfo> { originalImage, ResizeForDisplay(originalImage, progress) };
+                var fullList = new List<FileInfo> {originalImage, ResizeForDisplay(originalImage, progress)};
 
                 fullList.AddRange(ResizeForSrcset(originalImage, progress));
 
@@ -93,7 +93,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
                         $"{Path.GetFileNameWithoutExtension(fullName.Name)}--For-Display.jpg");
 
                     using var outImage = File.Create(newFile);
-                    image.SaveAsJpeg(outImage, new JpegEncoder { Quality = 82 });
+                    image.SaveAsJpeg(outImage, new JpegEncoder {Quality = 82});
                 }
 
                 return new FileInfo(newFile);
@@ -101,7 +101,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
 
             public static List<FileInfo> ResizeForDisplayAndSrcset(FileInfo originalImage, IProgress<string> progress)
             {
-                var fullList = new List<FileInfo> { originalImage, ResizeForDisplay(originalImage, progress) };
+                var fullList = new List<FileInfo> {originalImage, ResizeForDisplay(originalImage, progress)};
 
                 fullList.AddRange(ResizeForSrcset(originalImage, progress));
 
@@ -180,14 +180,14 @@ namespace TheLemmonWorkshopWpfControls.Utility
                 {
                     var naturalWidth = image.Width;
 
-                    var newHeight = (int)(image.Height * ((decimal)width / naturalWidth));
+                    var newHeight = (int) (image.Height * ((decimal) width / naturalWidth));
                     newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
                         $"{Path.GetFileNameWithoutExtension(toResize.Name)}--For-Display.jpg");
 
                     image.Mutate(ctx => ctx.Resize(width, newHeight, KnownResamplers.Bicubic));
 
                     using var outImage = File.Create(newFile);
-                    image.SaveAsJpeg(outImage, new JpegEncoder { Quality = quality });
+                    image.SaveAsJpeg(outImage, new JpegEncoder {Quality = quality});
                 }
 
                 return new FileInfo(newFile);
@@ -203,7 +203,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
                 {
                     var naturalWidth = image.Width;
 
-                    var newHeight = (int)(image.Height * ((decimal)width / naturalWidth));
+                    var newHeight = (int) (image.Height * ((decimal) width / naturalWidth));
 
                     image.Mutate(ctx => ctx.Resize(width, newHeight, KnownResamplers.Bicubic));
 
@@ -211,7 +211,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
                         $"{Path.GetFileNameWithoutExtension(toResize.Name)}--{image.Width}w--{image.Height}h.jpg");
 
                     using var outImage = File.Create(newFile);
-                    image.SaveAsJpeg(outImage, new JpegEncoder { Quality = quality });
+                    image.SaveAsJpeg(outImage, new JpegEncoder {Quality = quality});
                 }
 
                 return new FileInfo(newFile);

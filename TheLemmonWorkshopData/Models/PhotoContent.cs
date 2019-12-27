@@ -6,7 +6,7 @@ namespace TheLemmonWorkshopData.Models
     {
         public string AltText { get; set; }
         public string Aperture { get; set; }
-        public string BaseFileName { get; set; }
+        public string OriginalFileName { get; set; }
         public string CameraMake { get; set; }
         public string CameraModel { get; set; }
         public Guid ContentId { get; set; }
