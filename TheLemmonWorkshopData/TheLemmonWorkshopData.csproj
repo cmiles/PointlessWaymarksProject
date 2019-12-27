@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0" />
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.0.0" />
+    <PackageReference Include="ObjectDumper.NET" Version="2.4.19323.7-pre" />
     <PackageReference Include="System.CodeDom" Version="4.7.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />

@@ -16,14 +16,14 @@ namespace TheLemmonWorkshopWpfControls.UpdateNotesEditor
     public class UpdateNotesEditorContext : INotifyPropertyChanged
     {
         private IUpdateNotes _dbEntry;
-        private ContentFormatChooserContext _updateNotesFormat = new ContentFormatChooserContext();
+        private ContentFormatChooserContext _updateNotesFormat;
         private string _updateNotesHtmlOutput;
         private string _userUpdateNotes = string.Empty;
 
         public UpdateNotesEditorContext(StatusControlContext statusContext, IUpdateNotes dbEntry)
         {
-            StatusContext = statusContext;
-            UpdateNotesFormat = new ContentFormatChooserContext();
+            StatusContext = statusContext ?? new StatusControlContext();
+            UpdateNotesFormat = new ContentFormatChooserContext(statusContext);
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 

@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
+﻿using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
 using TheLemmonWorkshopWpfControls;
 using TheLemmonWorkshopWpfControls.ContentList;
 using TheLemmonWorkshopWpfControls.ControlStatus;
@@ -39,7 +39,7 @@ namespace TheLemmonWorkshopContentEditor
             db.Database.EnsureCreated();
         }
 
-        public RelayCommand NewPhotoContentCommand { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public ContentListContext ContextListContext
         {
@@ -52,8 +52,8 @@ namespace TheLemmonWorkshopContentEditor
             }
         }
 
-
         public RelayCommand NewContentCommand { get; set; }
+        public RelayCommand NewPhotoContentCommand { get; set; }
 
         public StatusControlContext StatusContext
         {
@@ -67,9 +67,6 @@ namespace TheLemmonWorkshopContentEditor
         }
 
         public RelayCommand ToastTestCommand { get; set; }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task CreateHtmlDoc()
         {
@@ -85,15 +82,15 @@ namespace TheLemmonWorkshopContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new ItemContentEditorWindow {Left = Left + 4, Top = Top + 4};
+            var newContentWindow = new ItemContentEditorWindow { Left = Left + 4, Top = Top + 4 };
             newContentWindow.Show();
         }
-        
+
         private async Task NewPhotoContent()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PhotoContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            var newContentWindow = new PhotoContentEditorWindow(null) { Left = Left + 4, Top = Top + 4 };
             newContentWindow.Show();
         }
     }

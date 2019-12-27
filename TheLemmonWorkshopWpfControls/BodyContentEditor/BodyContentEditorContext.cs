@@ -15,19 +15,29 @@ namespace TheLemmonWorkshopWpfControls.BodyContentEditor
 {
     public class BodyContentEditorContext : INotifyPropertyChanged
     {
-        private ContentFormatChooserContext _bodyContentFormat = new ContentFormatChooserContext();
+        private ContentFormatChooserContext _bodyContentFormat;
         private string _bodyContentHtmlOutput;
         private IBodyContent _dbEntry;
         private string _userBodyContent = string.Empty;
+        private StatusControlContext _statusContext;
 
         public BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry)
         {
-            StatusContext = statusContext;
-            BodyContentFormat = new ContentFormatChooserContext();
+            StatusContext = statusContext ?? new StatusControlContext();
+            BodyContentFormat = new ContentFormatChooserContext(StatusContext);
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
-        public StatusControlContext StatusContext { get; set; }
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ContentFormatChooserContext BodyContentFormat
         {

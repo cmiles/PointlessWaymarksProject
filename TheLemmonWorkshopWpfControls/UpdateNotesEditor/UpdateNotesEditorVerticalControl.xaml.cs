@@ -2,9 +2,9 @@
 
 namespace TheLemmonWorkshopWpfControls.UpdateNotesEditor
 {
-    public partial class UpdateNotesEditorControl : UserControl
+    public partial class UpdateNotesEditorVerticalControl : UserControl
     {
-        public UpdateNotesEditorControl()
+        public UpdateNotesEditorVerticalControl()
         {
             InitializeComponent();
         }

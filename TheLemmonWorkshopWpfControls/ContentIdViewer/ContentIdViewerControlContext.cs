@@ -17,7 +17,7 @@ namespace TheLemmonWorkshopWpfControls.ContentIdViewer
         public ContentIdViewerControlContext(StatusControlContext statusContext,
             IContentId dbEntry)
         {
-            StatusContext = statusContext;
+            StatusContext = statusContext ?? new StatusControlContext();
             
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
@@ -45,7 +45,6 @@ namespace TheLemmonWorkshopWpfControls.ContentIdViewer
                 return;
             }
 
-            
             ContentIdInformation = $"Id: {dbEntry.Id} Fingerprint: {dbEntry.ContentId}";
         }
 

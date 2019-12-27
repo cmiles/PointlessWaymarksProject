@@ -1,7 +1,6 @@
-﻿using System.ComponentModel;
+﻿using JetBrains.Annotations;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using JetBrains.Annotations;
 using TheLemmonWorkshopData.Models;
 
 namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
@@ -17,6 +16,8 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             DataContext = this;
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public PhotoContentEditorContext PhotoContentEditor
         {
             get => _photoContentEditor;
@@ -28,13 +29,10 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        
     }
 }

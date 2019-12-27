@@ -1,0 +1,22 @@
+﻿<UserControl
+    x:Class="TheLemmonWorkshopWpfControls.TagsEditor.TagsEditorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:TheLemmonWorkshopWpfControls.TagsEditor"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{d:DesignInstance local:TagsEditorContext}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <TextBlock>Tags (Comma Separated)</TextBlock>
+            <TextBox
+                AcceptsReturn="True"
+                MinLines="6"
+                Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap" />
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,16 +1,16 @@
-﻿using System;
+﻿using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Implementation;
+using Omu.ValueInjecter;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.Geometries.Implementation;
-using Omu.ValueInjecter;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Elevation;
 using TheLemmonWorkshopData.Models;
@@ -43,13 +43,13 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             UpdateSelectedGeoDataElevation =
                 new RelayCommand(() => StatusContext.RunBlockingTask(UpdateSelectedPointGeoDataElevation));
 
-            UserContent = new UserSiteContent {Fingerprint = Guid.NewGuid()};
+            UserContent = new UserSiteContent { Fingerprint = Guid.NewGuid() };
 
-            BodyContentFormatContext = new ContentFormatChooserContext();
+            BodyContentFormatContext = new ContentFormatChooserContext(StatusContext);
             BodyContentFormatContext.OnSelectedValueChanged += (sender, s) => UserContent.BodyContentFormat = s;
             UserContent.BodyContentFormat =
                 Enum.GetName(typeof(ContentFormatEnum), BodyContentFormatContext.SelectedContentFormat);
-            UpdateNotesFormatContext = new ContentFormatChooserContext();
+            UpdateNotesFormatContext = new ContentFormatChooserContext(StatusContext);
             UpdateNotesFormatContext.OnSelectedValueChanged += (sender, s) => UserContent.UpdateNotesFormat = s;
             UserContent.UpdateNotesFormat =
                 Enum.GetName(typeof(ContentFormatEnum), UpdateNotesFormatContext.SelectedContentFormat);
@@ -58,6 +58,8 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             UserContent.MainImageFormat =
                 Enum.GetName(typeof(ContentFormatEnum), MainImageFormatContext.SelectedContentFormat);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public ContentFormatChooserContext BodyContentFormatContext
         {
@@ -121,8 +123,6 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public void LoadExistingData(string slugToLoad)
         {
         }
@@ -154,7 +154,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                 if ("No" == await StatusContext.ShowMessage("Db Conflict",
                         "The version you started editing is not active in the database (perhaps it was deleted while " +
                         "you were working?) - do you want to continue saving and create a 'new' active entry?",
-                        new List<string> {"Yes", "No"}))
+                        new List<string> { "Yes", "No" }))
                     return;
 
             var differentVersionInDatabase = allPreviousVersionsInContent.Where(x => x.Id == UserContent.Id).ToList();
@@ -165,7 +165,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                         $"{differentVersionInDatabase.First().LastUpdatedBy} - this is different than the version you started from. Saving " +
                         "will overwrite the updated changes in the database - you may want to look at the saved version and manually merge " +
                         "changes? Continue saving and overwrite changes in the database?",
-                        new List<string> {"Yes", "No"}))
+                        new List<string> { "Yes", "No" }))
                     return;
 
             foreach (var loopOtherVersions in differentVersionInDatabase)
@@ -234,7 +234,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var line = (LineString) UserContent.LocationData;
+            var line = (LineString)UserContent.LocationData;
 
             var totalPoints = line.Coordinates.Length;
             var currentPointNumber = 0;
@@ -267,7 +267,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var point = (Point) UserContent.LocationData;
+            var point = (Point)UserContent.LocationData;
 
             progress.Report(
                 $"Querying for Elevation - existing elevation is {point.Z}m - lat {point.Y} long {point.X}");

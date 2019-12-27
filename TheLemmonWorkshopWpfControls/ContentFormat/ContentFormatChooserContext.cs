@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TheLemmonWorkshopData;
+using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopWpfControls.ContentFormat
@@ -15,11 +16,24 @@ namespace TheLemmonWorkshopWpfControls.ContentFormat
         private List<ContentFormatEnum> _contentFormatChoices;
 
         private ContentFormatEnum _selectedContentFormat;
+        private StatusControlContext _statusContext;
 
-        public ContentFormatChooserContext()
+        public ContentFormatChooserContext(StatusControlContext statusContext)
         {
+            StatusContext = statusContext ?? new StatusControlContext();
             ContentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum)).Cast<ContentFormatEnum>().ToList();
             SelectedContentFormat = ContentFormatChoices.First();
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
         }
 
         public List<ContentFormatEnum> ContentFormatChoices

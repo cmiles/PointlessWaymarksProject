@@ -14,13 +14,14 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
         private string _summary;
         private string _title;
         private string _slug;
-        private ITitleSummarySlug _dbEntry;
+        private ITitleSummarySlugFolder _dbEntry;
         private StatusControlContext _statusContext;
+        private string _folder;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlug dbEntry)
+        public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
         {
-            StatusContext = statusContext;
+            StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
         
@@ -35,7 +36,7 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
             }
         }
 
-        public async Task LoadData(ITitleSummarySlug dbEntry)
+        public async Task LoadData(ITitleSummarySlugFolder dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -54,13 +55,24 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
             Slug = DbEntry.Slug ?? string.Empty;
         }
 
-        public ITitleSummarySlug DbEntry
+        public ITitleSummarySlugFolder DbEntry
         {
             get => _dbEntry;
             set
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Folder
+        {
+            get => _folder;
+            set
+            {
+                if (value == _folder) return;
+                _folder = value;
                 OnPropertyChanged();
             }
         }

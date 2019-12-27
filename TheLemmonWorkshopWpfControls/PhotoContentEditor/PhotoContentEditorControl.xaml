@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:TheLemmonWorkshopWpfControls.PhotoContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tagsEditor="clr-namespace:TheLemmonWorkshopWpfControls.TagsEditor"
     xmlns:titleSummarySlugEditor="clr-namespace:TheLemmonWorkshopWpfControls.TitleSummarySlugEditor"
     xmlns:updateNotesEditor="clr-namespace:TheLemmonWorkshopWpfControls.UpdateNotesEditor"
     xmlns:updatesByAndOnDisplay="clr-namespace:TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay"
@@ -14,77 +15,127 @@
     d:DesignWidth="300"
     mc:Ignorable="d">
     <Grid>
-        <TabControl>
-            <TabItem Header="Photo Content">
-                <StackPanel>
-                    <titleSummarySlugEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlug}" />
-                    <updatesByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedAndUpdatedByAndOnDisplay}" />
-                    <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" />
-                </StackPanel>
-            </TabItem>
-            <TabItem Header="Update Notes">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <GroupBox Margin="4,0,0,4" Header="Photo">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Button
+                    Grid.Row="0"
+                    Grid.ColumnSpan="2"
+                    Height="28"
+                    Margin="4"
+                    Command="{Binding ChooseFileCommand}">
+                    Choose Photo
+                </Button>
+                <GroupBox
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="4"
+                    BorderBrush="LightGray"
+                    BorderThickness="2"
+                    Header="Photo">
+                    <Grid Margin="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Image Source="{Binding SelectedFileFullPath}" />
+                        <TextBlock
+                            Grid.Row="1"
+                            HorizontalAlignment="Center"
+                            Text="{Binding SelectedFile.FullName}"
+                            TextWrapping="Wrap" />
+                    </Grid>
+                </GroupBox>
+                <Button
+                    Grid.Row="2"
+                    Height="28"
+                    Margin="4"
+                    Command="{Binding ViewPhotoMetadataCommand}">
+                    Show All Metadata
+                </Button>
+            </Grid>
+        </GroupBox>
+        <TabControl Grid.Column="1" Margin="4,9,4,5">
+            <TabItem Header="Summary">
                 <Grid>
-                    <updateNotesEditor:UpdateNotesEditorControl DataContext="{Binding UpdateNotes}" />
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="4" CanHorizontallyScroll="False">
+                            <titleSummarySlugEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlug}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding Tags}" />
+                            <updatesByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedAndUpdatedByAndOnDisplay}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" />
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </TabItem>
             <TabItem Header="Photo">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <StackPanel Margin="4">
+                            <StackPanel Orientation="Vertical">
+                                <Label>Alt Text</Label>
+                                <TextBox Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Label>Photo Created By</Label>
+                                <TextBox Text="{Binding PhotoCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Label>Photo Created On</Label>
+                                <TextBox Text="{Binding PhotoCreatedOn, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Label>Camera Make</Label>
+                                <TextBox Text="{Binding CameraMake, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Label>Camera Model</Label>
+                                <TextBox Text="{Binding CameraModel, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Label>Lens</Label>
+                                <TextBox Text="{Binding Lens, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Label>Aperture</Label>
+                                <TextBox Text="{Binding Aperture, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Label>Shutter Speed</Label>
+                                <TextBox Text="{Binding ShutterSpeed, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Label>License</Label>
+                                <TextBox Text="{Binding License, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Update Notes">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Button Command="{Binding ChooseFileCommand}">Choose Photo</Button>
-                    <TextBlock
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        Text="{Binding SelectedFile.FullName}" />
-                    <StackPanel Grid.Row="1" Grid.Column="1">
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Alt Text</Label>
-                            <TextBox Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Photo Created By</Label>
-                            <TextBox Text="{Binding PhotoCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Photo Created On</Label>
-                            <TextBox Text="{Binding PhotoCreatedOn, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Camera Make</Label>
-                            <TextBox Text="{Binding CameraMake, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Camera Model</Label>
-                            <TextBox Text="{Binding CameraModel, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Lens</Label>
-                            <TextBox Text="{Binding Lens, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Aperture</Label>
-                            <TextBox Text="{Binding Aperture, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Shutter Speed</Label>
-                            <TextBox Text="{Binding ShutterSpeed, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>License</Label>
-                            <TextBox Text="{Binding License, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                    </StackPanel>
-                    <Image
-                        Grid.Row="1"
-                        Grid.Column="1"
-                        Stretch="Fill" />
+                    <updateNotesEditor:UpdateNotesEditorHorizontalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
+            </TabItem>
+            <TabItem Header="Upload and Save">
+                <StackPanel>
+                    <Button
+                        Height="40"
+                        Margin="4"
+                        Command="{Binding ResizeFileCommand}">
+                        Resize
+                    </Button>
+                    <Button Height="40" Margin="4">Upload</Button>
+                    <Button Height="40" Margin="4">Save</Button>
+                </StackPanel>
             </TabItem>
         </TabControl>
     </Grid>

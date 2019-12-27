@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using JetBrains.Annotations;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
@@ -17,8 +17,21 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
         public CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
             ICreatedAndLastUpdateOnAndBy dbEntry)
         {
-            StatusContext = statusContext;
+            StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string CreatedAndUpdatedByAndOn
+        {
+            get => _createdAndUpdatedByAndOn;
+            set
+            {
+                if (value == _createdAndUpdatedByAndOn) return;
+                _createdAndUpdatedByAndOn = value;
+                OnPropertyChanged();
+            }
         }
 
         public ICreatedAndLastUpdateOnAndBy DbEntry
@@ -32,20 +45,7 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
             }
         }
 
-        public string CreatedAndUpdatedByAndOn
-        {
-            get => _createdAndUpdatedByAndOn;
-            set
-            {
-                if (value == _createdAndUpdatedByAndOn) return;
-                _createdAndUpdatedByAndOn = value;
-                OnPropertyChanged();
-            }
-        }
-
         public StatusControlContext StatusContext { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)
         {
@@ -56,7 +56,11 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
             var newStringParts = new List<string>();
 
             CreatedAndUpdatedByAndOn = string.Empty;
-            if (DbEntry == null) return;
+            if (DbEntry == null)
+            {
+                CreatedAndUpdatedByAndOn = "New Entry";
+                return;
+            }
 
             if (!string.IsNullOrWhiteSpace(DbEntry.CreatedBy))
                 newStringParts.Add($"Created By {DbEntry.CreatedBy.Trim()}");

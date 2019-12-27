@@ -46,7 +46,8 @@
           <e p="IContentId.cs" t="Include" />
           <e p="ICreatedAndLastUpdateOnAndBy.cs" t="Include" />
           <e p="IMainImage.cs" t="Include" />
-          <e p="ITitleSummarySlug.cs" t="Include" />
+          <e p="ITags.cs" t="Include" />
+          <e p="ITitleSummarySlugFolder.cs" t="Include" />
           <e p="IUpdateNotes.cs" t="Include" />
           <e p="LineContent.cs" t="Include" />
           <e p="PhotoContent.cs" t="Include" />
@@ -107,12 +108,6 @@
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml.cs" t="Include" />
         </e>
         <e p="Db.cs" t="Include" />
-        <e p="ExifDiagnosticViewer" t="Include">
-          <e p="ExifDiagnosticViewerContext.cs" t="Include" />
-          <e p="ExifDiagnosticViewerControl.cs" t="Include" />
-          <e p="ExifDiagnosticViewerControl.Designer.cs" t="Include" />
-          <e p="ExifDiagnosticViewerControl.resx" t="Include" />
-        </e>
         <e p="GeoDataPicker" t="Include">
           <e p="GeoDataMapDisplayObject.cs" t="Include" />
           <e p="GeoDataPickerContext.cs" t="Include" />
@@ -122,11 +117,10 @@
           <e p="GeoDataPickerWindow.xaml.cs" t="Include" />
           <e p="SelectedGeoData.cs" t="Include" />
         </e>
-        <e p="ImageResizeAndUpload" t="Include">
-          <e p="ImageResizeAndUploadContext.cs" t="Include" />
-          <e p="ImageResizeAndUploadControl.xaml" t="Include" />
-          <e p="ImageResizeAndUploadControl.xaml.cs" t="Include" />
-          <e p="ImageResizeAndUploadListItem.cs" t="Include" />
+        <e p="HtmlViewer" t="Include">
+          <e p="HtmlViewerContext.cs" t="Include" />
+          <e p="HtmlViewerWindow.xaml" t="Include" />
+          <e p="HtmlViewerWindow.xaml.cs" t="Include" />
         </e>
         <e p="ItemContentEditor" t="Include">
           <e p="ItemContentEditorContext.cs" t="Include" />
@@ -174,8 +168,8 @@
                 <e p="GeoDataPickerControl.g.cs" t="Include" />
                 <e p="GeoDataPickerWindow.g.cs" t="Include" />
               </e>
-              <e p="ImageResizeAndUpload" t="Include">
-                <e p="ImageResizeAndUploadControl.g.cs" t="Include" />
+              <e p="HtmlViewer" t="Include">
+                <e p="HtmlViewerWindow.g.cs" t="Include" />
               </e>
               <e p="ItemContentEditor" t="Include">
                 <e p="ItemContentEditorControl.g.cs" t="Include" />
@@ -189,9 +183,13 @@
               </e>
               <e p="PhotoContentEditor" t="Include">
                 <e p="PhotoContentEditorControl.g.cs" t="Include" />
+                <e p="PhotoContentEditorWindow.g.cs" t="Include" />
+              </e>
+              <e p="TagsEditor" t="Include">
+                <e p="TagsEditorControl.g.cs" t="Include" />
               </e>
               <e p="TheLemmonWorkshopWpfControls.AssemblyInfo.cs" t="Include" />
-              <e p="TitleSummarySlugEditor" t="Include">
+              <e p="TitleSummarySlugFolderEditor" t="Include">
                 <e p="TitleSummarySlugEditorControl.g.cs" t="Include" />
               </e>
               <e p="ToastControl" t="Include">
@@ -213,8 +211,13 @@
           <e p="PhotoContentEditorWindow.xaml" t="Include" />
           <e p="PhotoContentEditorWindow.xaml.cs" t="Include" />
         </e>
+        <e p="TagsEditor" t="Include">
+          <e p="TagsEditorContext.cs" t="Include" />
+          <e p="TagsEditorControl.xaml" t="Include" />
+          <e p="TagsEditorControl.xaml.cs" t="Include" />
+        </e>
         <e p="TheLemmonWorkshopWpfControls.csproj" t="IncludeRecursive" />
-        <e p="TitleSummarySlugEditor" t="Include">
+        <e p="TitleSummarySlugFolderEditor" t="Include">
           <e p="TitleSummarySlugEditorContext.cs" t="Include" />
           <e p="TitleSummarySlugEditorControl.xaml" t="Include" />
           <e p="TitleSummarySlugEditorControl.xaml.cs" t="Include" />

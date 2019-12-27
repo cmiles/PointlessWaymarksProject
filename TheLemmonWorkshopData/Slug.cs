@@ -57,7 +57,7 @@ namespace TheLemmonWorkshopData
 
                     // Tricky way to convert to lowercase
                     if (toLower)
-                        sb.Append((char) (c | 32));
+                        sb.Append((char)(c | 32));
                     else
                         sb.Append(c);
                 }
@@ -96,21 +96,27 @@ namespace TheLemmonWorkshopData
                 case 'ı':
                     swap = "i";
                     break;
+
                 case 'ł':
                     swap = "l";
                     break;
+
                 case 'Ł':
                     swap = toLower ? "l" : "L";
                     break;
+
                 case 'đ':
                     swap = "d";
                     break;
+
                 case 'ß':
                     swap = "ss";
                     break;
+
                 case 'ø':
                     swap = "o";
                     break;
+
                 case 'Þ':
                     swap = "th";
                     break;
