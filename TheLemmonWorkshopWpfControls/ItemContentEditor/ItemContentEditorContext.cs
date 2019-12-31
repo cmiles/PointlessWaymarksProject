@@ -145,7 +145,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                 return;
             }
 
-            var context = Db.Context();
+            var context = await Db.Context();
 
             var allPreviousVersionsInContent = await context.PointContents
                 .Where(x => x.ContentId == UserContent.Fingerprint).ToListAsync();
@@ -210,7 +210,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
 
                 if (point.Elevation == null)
                     elevation = await GoogleElevationService.GetElevation(_httpClient,
-                        UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, point.Longitude, point.Latitude);
+                        (await UserSettingsUtilities.ReadSettings()).GoogleMapsApiKey, point.Longitude, point.Latitude);
                 else
                     elevation = point.Elevation.Value;
 
@@ -249,7 +249,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                     $"lat {loopCoordinate.Y} long {loopCoordinate.X}");
 
                 var elevation = await GoogleElevationService.GetElevation(_httpClient,
-                    UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, loopCoordinate.Y, loopCoordinate.X);
+                    (await UserSettingsUtilities.ReadSettings()).GoogleMapsApiKey, loopCoordinate.Y, loopCoordinate.X);
 
                 progress.Report($"Found {elevation}m");
 
@@ -273,7 +273,7 @@ namespace TheLemmonWorkshopWpfControls.ItemContentEditor
                 $"Querying for Elevation - existing elevation is {point.Z}m - lat {point.Y} long {point.X}");
 
             var elevation = await GoogleElevationService.GetElevation(_httpClient,
-                UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, point.Y, point.X);
+                (await UserSettingsUtilities.ReadSettings()).GoogleMapsApiKey, point.Y, point.X);
 
             progress.Report($"Found {elevation}m");
 

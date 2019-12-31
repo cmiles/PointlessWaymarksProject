@@ -30,6 +30,8 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
 
         public async Task<(bool valid, string explanation)> Validate()
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             var isValid = true;
             var errorMessage = string.Empty;
 
@@ -69,7 +71,7 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
 
             if (!isValid) return (isValid, errorMessage);
 
-            if (await Db.Context().SlugExistsInDatabase(Slug))
+            if (await (await Db.Context()).SlugExistsInDatabase(Slug))
             {
                 isValid = false;
                 errorMessage += "Slug already exists in Database";

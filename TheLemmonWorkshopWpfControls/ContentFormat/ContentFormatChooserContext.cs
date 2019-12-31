@@ -17,6 +17,7 @@ namespace TheLemmonWorkshopWpfControls.ContentFormat
 
         private ContentFormatEnum _selectedContentFormat;
         private StatusControlContext _statusContext;
+        private string _selectedContentFormatAsString;
 
         public ContentFormatChooserContext(StatusControlContext statusContext)
         {
@@ -57,6 +58,19 @@ namespace TheLemmonWorkshopWpfControls.ContentFormat
                 OnPropertyChanged();
 
                 OnSelectedValueChanged?.Invoke(this, Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat));
+                SelectedContentFormatAsString =
+                    Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat) ?? string.Empty;
+            }
+        }
+
+        public string SelectedContentFormatAsString
+        {
+            get => _selectedContentFormatAsString;
+            set
+            {
+                if (value == _selectedContentFormatAsString) return;
+                _selectedContentFormatAsString = value;
+                OnPropertyChanged();
             }
         }
 

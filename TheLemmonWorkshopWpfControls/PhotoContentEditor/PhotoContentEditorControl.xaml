@@ -10,6 +10,7 @@
     xmlns:titleSummarySlugEditor="clr-namespace:TheLemmonWorkshopWpfControls.TitleSummarySlugEditor"
     xmlns:updateNotesEditor="clr-namespace:TheLemmonWorkshopWpfControls.UpdateNotesEditor"
     xmlns:updatesByAndOnDisplay="clr-namespace:TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay"
+    xmlns:controlStatus="clr-namespace:TheLemmonWorkshopWpfControls.ControlStatus"
     d:DataContext="{d:DesignInstance local:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -135,10 +136,11 @@
                         Command="{Binding ResizeFileCommand}">
                         Resize
                     </Button>
-                    <Button Height="40" Margin="4">Upload</Button>
-                    <Button Height="40" Margin="4">Save</Button>
+                    <Button Height="40" Margin="4" Command="{Binding SaveAndCreateLocalCommand}">Save And Create Local</Button>
                 </StackPanel>
             </TabItem>
         </TabControl>
+        <controlStatus:StatusControl Grid.Column="0" Grid.ColumnSpan="2" d:IsHidden="true"
+                                     DataContext="{Binding StatusContext}" />
     </Grid>
 </UserControl>

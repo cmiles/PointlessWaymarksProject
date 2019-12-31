@@ -137,5 +137,22 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public async Task<(bool, string)> Validate()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null && string.IsNullOrWhiteSpace(CreatedBy))
+            {
+                return (false, "Created by can not be blank for a new entry.");
+            }
+
+            if (DbEntry != null && string.IsNullOrWhiteSpace(UpdatedBy))
+            {
+                return (false, "Updated by can not be blank when updating an entry");
+            }
+
+            return (true, string.Empty);
+        }
     }
 }

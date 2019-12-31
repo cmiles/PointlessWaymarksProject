@@ -47,7 +47,7 @@ namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 
         private Dictionary<string, UIElement> CreateMapLayers()
         {
-            var settings = UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsUtilities.ReadSettings().Result;
 
             var toReturn = new Dictionary<string, UIElement>();
 

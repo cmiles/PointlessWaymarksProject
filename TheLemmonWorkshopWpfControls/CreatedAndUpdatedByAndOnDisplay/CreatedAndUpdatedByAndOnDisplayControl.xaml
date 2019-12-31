@@ -16,12 +16,12 @@
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Vertical"
                         Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
-                <TextBlock>Folder</TextBlock>
+                <Label>Created By</Label>
                 <TextBox Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Orientation="Vertical"
                         Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
-                <TextBlock>Folder</TextBlock>
+                <Label>Updated By</Label>
                 <TextBox Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <TextBlock Text="{Binding CreatedAndUpdatedByAndOn}" TextWrapping="Wrap" />

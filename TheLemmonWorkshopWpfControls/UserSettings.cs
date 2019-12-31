@@ -10,8 +10,8 @@
         public string DatabaseName { get; set; } = "PointlessWaymarksDb";
         public string GoogleMapsApiKey { get; set; } = string.Empty;
 
-        public string LocalFileRoot { get; set; }
+        public string LocalSiteRootDirectory { get; set; }
 
-        public string LocalMasterImageArchive { get; set; }
+        public string LocalMasterMediaArchive { get; set; }
     }
 }

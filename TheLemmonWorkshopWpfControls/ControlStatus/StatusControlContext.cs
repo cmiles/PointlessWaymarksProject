@@ -139,7 +139,7 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             }
         }
 
-        public string MessageBoxResponse { get; set; }
+        public string ShowMessageResponse { get; set; }
 
         public string MessageBoxTitle
         {
@@ -307,20 +307,43 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            _messageBoxMre.WaitOne();
-            _messageBoxMre.Reset();
+            _currentFullScreenCancellationSource = new CancellationTokenSource();
+
+            try
+            {
+                await Task.Delay(TimeSpan.FromMinutes(3), _currentFullScreenCancellationSource.Token);
+            }
+            catch (Exception e)
+            {
+                if (!(e is OperationCanceledException))
+                {
+                    Progress($"ShowMessage Exception {e.Message}");
+                }
+            }
+            finally
+            {
+                _currentFullScreenCancellationSource = null;
+            }
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var toReturn = MessageBoxResponse;
+            var toReturn = ShowMessageResponse ?? string.Empty;
 
             MessageBoxTitle = string.Empty;
             MessageBoxMessage = string.Empty;
             MessageBoxButtonList = new List<string>();
-            MessageBoxResponse = string.Empty;
+            ShowMessageResponse = string.Empty;
             MessageBoxVisible = false;
 
             return toReturn;
+        }
+
+        private CancellationTokenSource _currentFullScreenCancellationSource;
+
+
+        public void StateForceDismissFullScreenMessage()
+        {
+            _currentFullScreenCancellationSource?.Cancel();
         }
 
         public async Task<(bool, string)> ShowStringEntry(string title, string body, string initialUserString)
@@ -333,10 +356,23 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             StringEntryVisible = true;
             StringEntryApproved = false;
 
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            _currentFullScreenCancellationSource = new CancellationTokenSource();
 
-            _stringEntryMre.WaitOne();
-            _stringEntryMre.Reset();
+            try
+            {
+                await Task.Delay(TimeSpan.FromMinutes(3), _currentFullScreenCancellationSource.Token);
+            }
+            catch (Exception e)
+            {
+                if (!(e is OperationCanceledException))
+                {
+                    Progress($"ShowMessage Exception {e.Message}");
+                }
+            }
+            finally
+            {
+                _currentFullScreenCancellationSource = null;
+            }
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -410,6 +446,11 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
 
         private void ProgressTrackerChange(object sender, string e)
         {
+            Progress(e);
+        }
+
+        public void Progress(string e)
+        {
             Application.Current.Dispatcher?.InvokeAsync(() =>
             {
                 StatusLog.Add(e);
@@ -420,20 +461,21 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
 
         private void UserMessageBoxResponse(string responseString)
         {
-            MessageBoxResponse = responseString;
-            _messageBoxMre?.Set();
+            ShowMessageResponse = responseString;
+            Progress($"Show Message Response {responseString}");
+            _currentFullScreenCancellationSource?.Cancel();
         }
 
         private void UserStringEntryApprovedResponse()
         {
             StringEntryApproved = true;
-            _stringEntryMre?.Set();
+            _currentFullScreenCancellationSource?.Cancel();
         }
 
         private void UserStringEntryCancelledResponse()
         {
             StringEntryApproved = false;
-            _stringEntryMre?.Set();
+            _currentFullScreenCancellationSource?.Cancel();
         }
     }
 }

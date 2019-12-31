@@ -222,7 +222,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
             {
                 if (bucketSubdirectoryList == null) bucketSubdirectoryList = new List<string>();
 
-                var settings = UserSettingsUtilities.ReadSettings();
+                var settings = await UserSettingsUtilities.ReadSettings();
 
                 var finalBucketName = bucketSubdirectoryList.Aggregate(settings.AmazonS3Bucket,
                     (current, loopSubDirs) => $@"{current}/{loopSubDirs}");

@@ -1,14 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using TheLemmonWorkshopData;
 
 namespace TheLemmonWorkshopWpfControls
 {
     public static class Db
     {
-        public static LemmonWorkshopContext Context()
+        public static async Task<LemmonWorkshopContext> Context()
         {
             var optionsBuilder = new DbContextOptionsBuilder<LemmonWorkshopContext>();
-            var dbPath = UserSettingsUtilities.ReadSettings().DatabaseName;
+            var dbPath = (await UserSettingsUtilities.ReadSettings()).DatabaseName;
             return new LemmonWorkshopContext(optionsBuilder
                 .UseSqlServer(
                     $"Server = (localdb)\\mssqllocaldb; Database={dbPath}; Trusted_Connection=True; MultipleActiveResultSets=true",

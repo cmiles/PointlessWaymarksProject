@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
 
@@ -16,9 +17,9 @@ namespace TheLemmonWorkshopWpfControls.ContentList
 
         public ContentListContext(StatusControlContext statusContext)
         {
-            StatusContext = statusContext;
+            StatusContext = statusContext ?? new StatusControlContext();
 
-            StatusContext.RunBlockingTask(LoadAllContent);
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadAllContent);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -40,13 +41,18 @@ namespace TheLemmonWorkshopWpfControls.ContentList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var db = Db.Context();
+            var db = await Db.Context();
 
-            var rawList = await db.PointContents.ToListAsync();
+            var rawList = (await db.LineContents.ToListAsync()).Select(x =>
+                new ContentListItem {ContentType = "Line", SummaryInfo = (ITitleSummarySlugFolder) x}).ToList();
+            rawList.AddRange((await db.PhotoContents.ToListAsync()).Select(x =>
+                new ContentListItem {ContentType = "Photo", SummaryInfo = (ITitleSummarySlugFolder) x}).ToList());
+            rawList.AddRange((await db.PointContents.ToListAsync()).Select(x =>
+                new ContentListItem {ContentType = "Point", SummaryInfo = (ITitleSummarySlugFolder) x}).ToList());
+            rawList.AddRange((await db.PostContents.ToListAsync()).Select(x =>
+                new ContentListItem {ContentType = "Post", SummaryInfo = (ITitleSummarySlugFolder) x}).ToList());
 
-            var processedList = rawList.Select(x => new ContentListItem {Title = x.Title, Summary = x.Summary});
-
-            Items = new ObservableCollection<ContentListItem>(processedList);
+            Items = new ObservableCollection<ContentListItem>(rawList);
         }
 
         [NotifyPropertyChangedInvocator]

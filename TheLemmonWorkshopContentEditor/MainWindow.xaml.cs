@@ -28,16 +28,24 @@ namespace TheLemmonWorkshopContentEditor
 
             StatusContext = new StatusControlContext();
 
-            UserSettingsUtilities.VerifyAndCreate();
-
-            var db = Db.Context();
-            db.Database.EnsureDeleted();
-            db.Database.EnsureCreated();
-
-            ContextListContext = new ContentListContext(StatusContext);
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
             ToastTestCommand = new RelayCommand(() => StatusContext.ToastWarning("Test"));
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
+        }
+
+        private async Task LoadData()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            UserSettingsUtilities.VerifyAndCreate();
+
+            var db = await Db.Context();
+            //db.Database.EnsureDeleted();
+            db.Database.EnsureCreated();
+
+            ContextListContext = new ContentListContext(StatusContext);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

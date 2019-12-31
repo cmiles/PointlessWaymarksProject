@@ -337,8 +337,8 @@ namespace TheLemmonWorkshopWpfControls.GeoDataPicker
                     try
                     {
                         var elevation = await GoogleElevationService.GetElevation(HttpClient,
-                            UserSettingsUtilities.ReadSettings().GoogleMapsApiKey, possiblePoint.Location.Latitude,
-                            possiblePoint.Location.Longitude);
+                            (await UserSettingsUtilities.ReadSettings()).GoogleMapsApiKey,
+                            possiblePoint.Location.Latitude, possiblePoint.Location.Longitude);
                         newPoint.M = elevation;
                     }
                     catch (Exception e)

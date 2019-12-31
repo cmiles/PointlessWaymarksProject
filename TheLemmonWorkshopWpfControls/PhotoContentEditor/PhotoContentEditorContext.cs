@@ -5,12 +5,16 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Omu.ValueInjecter;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls.ContentIdViewer;
@@ -365,6 +369,18 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
             Tags = new TagsEditorContext(StatusContext, toLoad);
 
+            Aperture = DbEntry.Aperture ?? string.Empty;
+            Iso = DbEntry.Iso;
+            Lens = DbEntry.Lens ?? string.Empty;
+            License = DbEntry.License ?? string.Empty;
+            AltText = DbEntry.AltText ?? string.Empty;
+            CameraMake = DbEntry.CameraMake ?? string.Empty;
+            CameraModel = DbEntry.CameraModel ?? string.Empty;
+            FocalLength = DbEntry.FocalLength ?? string.Empty;
+            ShutterSpeed = DbEntry.ShutterSpeed ?? string.Empty;
+            PhotoCreatedBy = DbEntry.PhotoCreatedBy ?? string.Empty;
+            PhotoCreatedOn = DbEntry.PhotoCreatedOn;
+
             ChooseFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ChooseFile));
             ResizeFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ResizePhoto));
             ViewPhotoMetadataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
@@ -372,9 +388,162 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
         }
 
+        private async Task<List<(bool, string)>> ValidateAll()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            return new List<(bool, string)>
+            {
+                await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
+                await UserSettingsUtilities.ValidateLocalMasterMediaArchive(),
+                await TitleSummarySlugFolder.Validate(),
+                await CreatedAndUpdatedByAndOnDisplay.Validate(),
+                await Validate()
+            };
+        }
+
+
         private async Task SaveAndCreateLocal()
         {
-            var titleSummarySlugFolderValidation = await TitleSummarySlugFolder.Validate();
+            var validationList = await ValidateAll();
+
+            if (validationList.Any(x => !x.Item1))
+            {
+                await StatusContext.ShowMessage("Validation Error",
+                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
+                    new List<string> {"Ok"});
+                return;
+            }
+
+            await SaveToDatabase();
+            await WriteSelectedFileToArchive();
+            await WriteSelectedFileToLocalSite();
+            await WriteHtml();
+        }
+
+        private async Task WriteHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+        }
+
+        private async Task WriteSelectedFileToLocalSite()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var userSettings = await UserSettingsUtilities.ReadSettings();
+
+            var photoDirectory = new DirectoryInfo(Path.Combine(userSettings.LocalSiteRootDirectory, "Photos"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            var folderDirectory =
+                new DirectoryInfo(Path.Combine(photoDirectory.FullName, TitleSummarySlugFolder.Folder));
+            if (!folderDirectory.Exists) folderDirectory.Create();
+
+            var targetDirectory =
+                new DirectoryInfo(Path.Combine(folderDirectory.FullName, TitleSummarySlugFolder.Slug));
+            if (!targetDirectory.Exists) targetDirectory.Create();
+
+            var originalFileInTargetDirectoryFullName = Path.Combine(targetDirectory.FullName, SelectedFile.Name);
+            if (originalFileInTargetDirectoryFullName != SelectedFile.FullName)
+            {
+                SelectedFile.CopyTo(originalFileInTargetDirectoryFullName);
+            }
+
+            var sourceImage = new FileInfo(originalFileInTargetDirectoryFullName);
+
+            ImageResizing.ResizeForDisplayAndSrcset(sourceImage, StatusContext.ProgressTracker());
+        }
+
+        private async Task WriteSelectedFileToArchive()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var userSettings = await UserSettingsUtilities.ReadSettings();
+            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchive, SelectedFile.Name);
+            if (destinationFileName == SelectedFile.FullName) return;
+
+            SelectedFile.CopyTo(destinationFileName);
+        }
+
+        private async Task SaveToDatabase()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newEntry = new PhotoContent();
+
+            if (DbEntry == null)
+            {
+                newEntry.ContentId = Guid.NewGuid();
+                newEntry.CreatedOn = DateTime.Now;
+            }
+            else
+            {
+                newEntry.ContentId = DbEntry.ContentId;
+                newEntry.LastUpdatedOn = DateTime.Now;
+                newEntry.LastUpdatedBy = CreatedAndUpdatedByAndOnDisplay.UpdatedBy;
+            }
+
+            newEntry.Aperture = Aperture;
+            newEntry.Folder = TitleSummarySlugFolder.Folder;
+            newEntry.Iso = Iso;
+            newEntry.Lens = Lens;
+            newEntry.License = License;
+            newEntry.Slug = TitleSummarySlugFolder.Slug;
+            newEntry.Summary = TitleSummarySlugFolder.Summary;
+            newEntry.Tags = Tags.Tags;
+            newEntry.Title = TitleSummarySlugFolder.Title;
+            newEntry.AltText = AltText;
+            newEntry.CameraMake = CameraMake;
+            newEntry.CameraModel = CameraModel;
+            newEntry.CreatedBy = CreatedAndUpdatedByAndOnDisplay.CreatedBy;
+            newEntry.FocalLength = FocalLength;
+            newEntry.ShutterSpeed = ShutterSpeed;
+            newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
+            newEntry.OriginalFileName = SelectedFile.Name;
+            newEntry.PhotoCreatedBy = PhotoCreatedBy;
+            newEntry.PhotoCreatedOn = PhotoCreatedOn;
+            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
+
+            var context = await Db.Context();
+
+            var toHistoric = await context.PhotoContents.Where(x => x.ContentId == DbEntry.ContentId).ToListAsync();
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricPhotoContent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                await context.HistoricPhotoContents.AddAsync(newHistoric);
+                context.PhotoContents.Remove(loopToHistoric);
+            }
+
+            context.PhotoContents.Add(newEntry);
+
+            await context.SaveChangesAsync(true);
+
+            DbEntry = newEntry;
+
+            await LoadData(newEntry);
+        }
+
+        private async Task<(bool, string)> Validate()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            SelectedFile.Refresh();
+
+            if (!SelectedFile.Exists)
+            {
+                return (false, "File doesn't exist?");
+            }
+
+            if (!(SelectedFile.Extension.ToLower().Contains("jpg") ||
+                  (SelectedFile.Extension.ToLower().Contains("jpeg"))))
+            {
+                return (false, "The file doesn't appear to be a supported file type.");
+            }
+
+            return (true, string.Empty);
         }
 
         public RelayCommand SaveAndCreateLocalCommand { get; set; }
