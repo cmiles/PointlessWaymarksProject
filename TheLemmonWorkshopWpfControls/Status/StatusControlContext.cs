@@ -16,15 +16,10 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
 {
     public class StatusControlContext : INotifyPropertyChanged
     {
-        private readonly ManualResetEvent _messageBoxMre = new ManualResetEvent(false);
-        private readonly ManualResetEvent _stringEntryMre = new ManualResetEvent(false);
         private bool _blockUi;
         private int _countOfRunningBlockingTasks;
         private int _countOfRunningNonBlockingTasks;
         private List<string> _messageBoxButtonList;
-        private string _messageBoxButtonOneText;
-        private string _messageBoxButtonThreeText;
-        private string _messageBoxButtonTwoText;
         private string _messageBoxMessage;
         private string _messageBoxTitle;
         private bool _messageBoxVisible;
@@ -91,39 +86,6 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             {
                 if (Equals(value, _messageBoxButtonList)) return;
                 _messageBoxButtonList = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string MessageBoxButtonOneText
-        {
-            get => _messageBoxButtonOneText;
-            set
-            {
-                if (value == _messageBoxButtonOneText) return;
-                _messageBoxButtonOneText = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string MessageBoxButtonThreeText
-        {
-            get => _messageBoxButtonThreeText;
-            set
-            {
-                if (value == _messageBoxButtonThreeText) return;
-                _messageBoxButtonThreeText = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string MessageBoxButtonTwoText
-        {
-            get => _messageBoxButtonTwoText;
-            set
-            {
-                if (value == _messageBoxButtonTwoText) return;
-                _messageBoxButtonTwoText = value;
                 OnPropertyChanged();
             }
         }

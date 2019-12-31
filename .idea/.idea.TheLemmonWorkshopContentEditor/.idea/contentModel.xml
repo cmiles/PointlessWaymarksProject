@@ -97,11 +97,6 @@
           <e p="ContentListItem.cs" t="Include" />
         </e>
         <e p="ContentUpdateEditor" t="Include" />
-        <e p="ControlStatus" t="Include">
-          <e p="StatusControl.xaml" t="Include" />
-          <e p="StatusControl.xaml.cs" t="Include" />
-          <e p="StatusControlContext.cs" t="Include" />
-        </e>
         <e p="CreatedAndUpdatedByAndOnDisplay" t="Include">
           <e p="CreatedAndUpdatedByAndOnDisplayContext.cs" t="Include" />
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml" t="Include" />
@@ -211,6 +206,11 @@
           <e p="PhotoContentEditorControl.xaml.cs" t="Include" />
           <e p="PhotoContentEditorWindow.xaml" t="Include" />
           <e p="PhotoContentEditorWindow.xaml.cs" t="Include" />
+        </e>
+        <e p="Status" t="Include">
+          <e p="StatusControl.xaml" t="Include" />
+          <e p="StatusControl.xaml.cs" t="Include" />
+          <e p="StatusControlContext.cs" t="Include" />
         </e>
         <e p="TagsEditor" t="Include">
           <e p="TagsEditorContext.cs" t="Include" />
