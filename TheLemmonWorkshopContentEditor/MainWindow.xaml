@@ -21,7 +21,7 @@
         <StackPanel Grid.Column="1">
             <Button Command="{Binding NewContentCommand}">New Content</Button>
             <Button Command="{Binding NewPhotoContentCommand}">New Photo Content</Button>
-            <Button Command="{Binding ToastTestCommand}">Test Toast</Button>
+            <Button Command="{Binding EditPhotoContentCommand}">Edit Selected Photo Content</Button>
         </StackPanel>
         <controlStatus:StatusControl
             Grid.Row="0"

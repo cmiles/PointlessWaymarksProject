@@ -14,6 +14,8 @@ namespace TheLemmonWorkshopWpfControls.ContentList
     public class ContentListContext : INotifyPropertyChanged
     {
         private StatusControlContext _statusContext;
+        private ObservableCollection<ContentListItem> _items;
+        private ContentListItem _selectedItem;
 
         public ContentListContext(StatusControlContext statusContext)
         {
@@ -24,7 +26,16 @@ namespace TheLemmonWorkshopWpfControls.ContentList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ObservableCollection<ContentListItem> Items { get; set; }
+        public ObservableCollection<ContentListItem> Items
+        {
+            get => _items;
+            set
+            {
+                if (Equals(value, _items)) return;
+                _items = value;
+                OnPropertyChanged();
+            }
+        }
 
         public StatusControlContext StatusContext
         {
@@ -33,6 +44,17 @@ namespace TheLemmonWorkshopWpfControls.ContentList
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentListItem SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                if (Equals(value, _selectedItem)) return;
+                _selectedItem = value;
                 OnPropertyChanged();
             }
         }
@@ -53,6 +75,7 @@ namespace TheLemmonWorkshopWpfControls.ContentList
                 new ContentListItem {ContentType = "Post", SummaryInfo = (ITitleSummarySlugFolder) x}).ToList());
 
             Items = new ObservableCollection<ContentListItem>(rawList);
+            if(Items.Any()) SelectedItem = Items.First();
         }
 
         [NotifyPropertyChangedInvocator]

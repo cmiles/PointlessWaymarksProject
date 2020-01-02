@@ -1,5 +1,8 @@
-﻿<#@ template language="C#" #>
+﻿<#@ template language="C#" debug="true" #>
 <#@ import namespace="TheLemmonWorkshopData.Models" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
 
 <!doctype html>
 
@@ -7,7 +10,7 @@
 <head>
 <meta charset="utf-8">
 
-    <title><#=DbEntry.Title #></title>i
+    <title><#=DbEntry.Title #></title>
     <meta name="description" content="<#=DbEntry.Summary #>">
     <meta name="author" content="<#=DbEntry.CreatedBy #>">
     <meta name="keywords" content="HTML, CSS, XML, JavaScript">
@@ -15,6 +18,7 @@
     <meta property="og:site_name" content="<#=SiteName #>" />
     <meta property="og:url" content="<#=PageUrl #>" />
     <meta property="og:type" content="<#=SiteUrl #>" />
+
     <meta property="og:title" content="<#=DbEntry.Title #>" />
     <meta property="og:description" content="<#= DbEntry.Summary #>" />
     <meta property="og:image" content="http:<#=DisplayImage.SiteUrl #>" />
@@ -26,18 +30,44 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<style>
+    .photo-page-details-container {
+      display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .photo-page-details-item {
+      margin: 1.2em;
+    }
+
+    .photo-page-title-container {
+        text-align: center;
+    }
+</style>
+
 </head>
 
 <body>
-    <img src="<#=DisplayImage.SiteUrl #>" srcset="<#
-    SrcSetString(); #>" loading="lazy" width="100%"/>
-    <div>Aperature <#=DbEntry.Aperture #></div>
-    <div>Shutter Speed <#=DbEntry.ShutterSpeed #></div>
-    <div>Lens <#=DbEntry.Lens #></div>
-    <div>Camera <#=DbEntry.CameraMake #>  <#=DbEntry.CameraModel #> </div>
-    <div>Photographer <#=DbEntry.PhotoCreatedBy #></div>
-    <div>Taken On <#=DbEntry.PhotoCreatedOn #></div>
-    <div>License <#=DbEntry.License #></div>
+    <h1 class="photo-page-title-container"><#=DbEntry.Title #></h1>
+    <figure>
+        <img 
+            src="<#=DisplayImage.SiteUrl #>" 
+            srcset="<#=SrcSetString() #>" 
+            loading="lazy" width="98%"
+            alt="<#=DbEntry.AltText #>"/>
+    </figure>
+    <div class="photo-page-summary-div">
+        <#=DbEntry.Summary #>
+    </div>
+    <div class="photo-page-details-container">
+        <div class="photo-page-details-item">Aperature <#=DbEntry.Aperture #></div>
+        <div class="photo-page-details-item">Shutter Speed <#=DbEntry.ShutterSpeed #></div>
+        <div class="photo-page-details-item">Lens <#=DbEntry.Lens #></div>
+        <div class="photo-page-details-item">Camera <#=DbEntry.CameraMake #>  <#=DbEntry.CameraModel #> </div>
+        <div class="photo-page-details-item">Photographer <#=DbEntry.PhotoCreatedBy #></div>
+        <div class="photo-page-details-item">Taken On <#=DbEntry.PhotoCreatedOn #></div>
+        <div class="photo-page-details-item"><#=DbEntry.License #></div>
+    </div>
 </body>
 
 </html>

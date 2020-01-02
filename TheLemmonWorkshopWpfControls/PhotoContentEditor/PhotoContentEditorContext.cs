@@ -85,17 +85,6 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             }
         }
 
-        public string OriginalFileName
-        {
-            get => _originalFileName;
-            set
-            {
-                if (value == _originalFileName) return;
-                _originalFileName = value;
-                OnPropertyChanged();
-            }
-        }
-
         public string CameraMake
         {
             get => _cameraMake;
@@ -339,6 +328,8 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
+            StatusContext.Progress("Starting image load.");
+
             var dialog = new Ookii.Dialogs.Wpf.VistaOpenFileDialog();
 
             if (!(dialog.ShowDialog() ?? false)) return;
@@ -355,6 +346,8 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 
             SelectedFile = newFile;
 
+            StatusContext.Progress($"Image load - {SelectedFile.FullName} ");
+
             if (loadMetadata) await ProcessSelectedFile();
         }
 
@@ -368,6 +361,13 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
             Tags = new TagsEditorContext(StatusContext, toLoad);
+
+            if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
+            {
+                var settings = await UserSettingsUtilities.ReadSettings();
+                var archiveFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchive, toLoad.OriginalFileName));
+                if (archiveFile.Exists) SelectedFile = archiveFile;
+            }
 
             Aperture = DbEntry.Aperture ?? string.Empty;
             Iso = DbEntry.Iso;
@@ -386,10 +386,13 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             ChooseFileCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
             ResizeFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ResizePhoto));
+            GenerateHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateHtml));
             ViewPhotoMetadataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
 
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
         }
+
+        public RelayCommand GenerateHtmlCommand { get; set; }
 
         public RelayCommand ChooseFileCommand { get; set; }
 
@@ -583,6 +586,8 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            StatusContext.Progress("Starting Metadata Processing");
+
             SelectedFile.Refresh();
 
             if (!SelectedFile.Exists)
@@ -590,6 +595,8 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
                 StatusContext.ToastError("File doesn't exist?");
                 return;
             }
+
+            StatusContext.Progress("Getting Directories");
 
             var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName)
                 .OfType<ExifSubIfdDirectory>().FirstOrDefault();
@@ -652,16 +659,28 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 
             var htmlContext = new TheLemmonWorkshopData.TextTransforms.SinglePhotoPage
             {
-                DbEntry = DbEntry, SiteName = settings.SiteName, SiteUrl = settings.SiteUrl
+                DbEntry = DbEntry,
+                SiteName = settings.SiteName,
+                SiteUrl = settings.SiteUrl,
+                PageUrl =
+                    $"//{settings.SiteName}/Photos/{TitleSummarySlugFolder.Folder}/{TitleSummarySlugFolder.Slug}/{TitleSummarySlugFolder.Slug}.html"
             };
 
             htmlContext.ProcessPhotosInDirectory(LocalContentDirectory(settings));
 
             var htmlString = htmlContext.TransformText();
 
-            File.WriteAllText(
-                $"{Path.Combine(LocalContentDirectory(settings).FullName, TitleSummarySlugFolder.Slug)}.html",
-                htmlString);
+            var htmlFileInfo =
+                new FileInfo(
+                    $"{Path.Combine(LocalContentDirectory(settings).FullName, TitleSummarySlugFolder.Slug)}.html");
+
+            if (htmlFileInfo.Exists)
+            {
+                htmlFileInfo.Delete();
+                htmlFileInfo.Refresh();
+            }
+
+            File.WriteAllText(htmlFileInfo.FullName, htmlString);
         }
 
         private async Task ViewPhotoMetadata()

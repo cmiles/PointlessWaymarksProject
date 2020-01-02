@@ -12,6 +12,18 @@ namespace TheLemmonWorkshopData.TextTransforms
 using TheLemmonWorkshopData.Models;
     #line default
     #line hidden
+    #line 3 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+using System.Linq;
+    #line default
+    #line hidden
+    #line 4 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+using System.Text;
+    #line default
+    #line hidden
+    #line 5 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+using System.Collections.Generic;
+    #line default
+    #line hidden
     
     /// <summary>
     /// Class to produce the template output
@@ -30,166 +42,187 @@ using TheLemmonWorkshopData.Models;
             
             this.Write("\r\n<!doctype html>\r\n\r\n<html lang=\"en\">\r\n<head>\r\n<meta charset=\"utf-8\">\r\n\r\n    <title>");
             
-            #line 10 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 13 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
             
             #line default
             #line hidden
-            this.Write("</title>i\r\n    <meta name=\"description\" content=\"");
+            this.Write("</title>\r\n    <meta name=\"description\" content=\"");
             
-            #line 11 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 14 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Summary));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"author\" content=\"");
             
-            #line 12 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 15 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"keywords\" content=\"HTML, CSS, XML, JavaScript\">\r\n\r\n    <meta property=\"og:site_name\" content=\"");
             
-            #line 15 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 18 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:url\" content=\"");
             
-            #line 16 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 19 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:type\" content=\"");
             
-            #line 17 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 20 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteUrl));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:title\" content=\"");
+            this.Write("\" />\r\n\r\n    <meta property=\"og:title\" content=\"");
             
-            #line 18 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 22 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:description\" content=\"");
             
-            #line 19 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 23 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Summary));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image\" content=\"http:");
             
-            #line 20 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 24 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DisplayImage.SiteUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:secure_url\" content=\"https:");
             
-            #line 21 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 25 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DisplayImage.SiteUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:type\" content=\"image/jpeg\" />\r\n    <meta property=\"og:image:width\" content=\"");
             
-            #line 23 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 27 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DisplayImage.Width));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:height\" content=\"");
             
-            #line 24 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 28 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DisplayImage.Height));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:alt\" content=\"");
             
-            #line 25 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 29 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.AltText));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n</head>\r\n\r\n<body>\r\n    <img src=\"");
+            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n<style>\r\n    .photo-page-details-container {\r\n      display: flex;\r\n        justify-content: center;\r\n        flex-wrap: wrap;\r\n    }\r\n    .photo-page-details-item {\r\n      margin: 1.2em;\r\n    }\r\n\r\n    .photo-page-title-container {\r\n        text-align: center;\r\n    }\r\n</style>\r\n\r\n</head>\r\n\r\n<body>\r\n    <h1 class=\"photo-page-title-container\">");
             
-            #line 32 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 51 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
+            
+            #line default
+            #line hidden
+            this.Write("</h1>\r\n    <figure>\r\n        <img \r\n            src=\"");
+            
+            #line 54 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DisplayImage.SiteUrl));
             
             #line default
             #line hidden
-            this.Write("\" srcset=\"");
-            #line 32 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
-
-    SrcSetString(); 
+            this.Write("\" \r\n            srcset=\"");
+            
+            #line 55 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SrcSetString()));
             
             #line default
             #line hidden
-            this.Write("\" loading=\"lazy\" width=\"100%\"/>\r\n    <div>Aperature ");
+            this.Write("\" \r\n            loading=\"lazy\" width=\"98%\"\r\n            alt=\"");
             
-            #line 34 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 57 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.AltText));
+            
+            #line default
+            #line hidden
+            this.Write("\"/>\r\n    </figure>\r\n    <div class=\"photo-page-summary-div\">\r\n        ");
+            
+            #line 60 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Summary));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    </div>\r\n    <div class=\"photo-page-details-container\">\r\n        <div class=\"photo-page-details-item\">Aperature ");
+            
+            #line 63 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Aperture));
             
             #line default
             #line hidden
-            this.Write("</div>\r\n    <div>Shutter Speed ");
+            this.Write("</div>\r\n        <div class=\"photo-page-details-item\">Shutter Speed ");
             
-            #line 35 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 64 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ShutterSpeed));
             
             #line default
             #line hidden
-            this.Write("</div>\r\n    <div>Lens ");
+            this.Write("</div>\r\n        <div class=\"photo-page-details-item\">Lens ");
             
-            #line 36 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 65 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Lens));
             
             #line default
             #line hidden
-            this.Write("</div>\r\n    <div>Camera ");
+            this.Write("</div>\r\n        <div class=\"photo-page-details-item\">Camera ");
             
-            #line 37 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 66 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CameraMake));
             
             #line default
             #line hidden
             this.Write("  ");
             
-            #line 37 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 66 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CameraModel));
             
             #line default
             #line hidden
-            this.Write(" </div>\r\n    <div>Photographer ");
+            this.Write(" </div>\r\n        <div class=\"photo-page-details-item\">Photographer ");
             
-            #line 38 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 67 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.PhotoCreatedBy));
             
             #line default
             #line hidden
-            this.Write("</div>\r\n    <div>Taken On ");
+            this.Write("</div>\r\n        <div class=\"photo-page-details-item\">Taken On ");
             
-            #line 39 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 68 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.PhotoCreatedOn));
             
             #line default
             #line hidden
-            this.Write("</div>\r\n    <div>License ");
+            this.Write("</div>\r\n        <div class=\"photo-page-details-item\">");
             
-            #line 40 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 69 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.License));
             
             #line default
             #line hidden
-            this.Write("</div>\r\n</body>\r\n\r\n</html>");
+            this.Write("</div>\r\n    </div>\r\n</body>\r\n\r\n</html>");
             return this.GenerationEnvironment.ToString();
         }
     }

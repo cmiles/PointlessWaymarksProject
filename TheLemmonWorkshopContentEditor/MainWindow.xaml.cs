@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls;
 using TheLemmonWorkshopWpfControls.ContentList;
 using TheLemmonWorkshopWpfControls.ControlStatus;
@@ -30,10 +31,35 @@ namespace TheLemmonWorkshopContentEditor
 
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
-            ToastTestCommand = new RelayCommand(() => StatusContext.ToastWarning("Test"));
-
+EditPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(EditPhotoContent));
+            
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
+
+        private async Task EditPhotoContent()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (ContextListContext.SelectedItem == null)
+            {
+                StatusContext.ToastWarning("Nothing Selected?");
+                return;
+            }
+            
+            if(ContextListContext.SelectedItem.ContentType != "Photo")
+            {
+                StatusContext.ToastWarning("Photo not Selected.");
+                return;
+            }
+
+            var photo = (PhotoContent)ContextListContext.SelectedItem.SummaryInfo;
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+            
+            var newContentWindow = new PhotoContentEditorWindow(photo) {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+
+        public RelayCommand EditPhotoContentCommand { get; set; }
 
         private async Task LoadData()
         {
@@ -42,7 +68,7 @@ namespace TheLemmonWorkshopContentEditor
             UserSettingsUtilities.VerifyAndCreate();
 
             var db = await Db.Context();
-            db.Database.EnsureDeleted();
+            //db.Database.EnsureDeleted();
             db.Database.EnsureCreated();
 
             ContextListContext = new ContentListContext(StatusContext);
@@ -74,8 +100,6 @@ namespace TheLemmonWorkshopContentEditor
                 OnPropertyChanged();
             }
         }
-
-        public RelayCommand ToastTestCommand { get; set; }
 
         public async Task CreateHtmlDoc()
         {
