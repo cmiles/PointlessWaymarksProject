@@ -1,4 +1,5 @@
 ﻿<#@ template language="C#" #>
+<#@ import namespace="TheLemmonWorkshopData.Models" #>
 
 <!doctype html>
 
@@ -6,37 +7,37 @@
 <head>
 <meta charset="utf-8">
 
-    <title><#=PageTitle #></title>i
-    <meta name="description" content="<#=Description #>">
-    <meta name="author" content="<#=TakenBy #>">
+    <title><#=DbEntry.Title #></title>i
+    <meta name="description" content="<#=DbEntry.Summary #>">
+    <meta name="author" content="<#=DbEntry.CreatedBy #>">
     <meta name="keywords" content="HTML, CSS, XML, JavaScript">
 
     <meta property="og:site_name" content="<#=SiteName #>" />
     <meta property="og:url" content="<#=PageUrl #>" />
     <meta property="og:type" content="<#=SiteUrl #>" />
-    <meta property="og:title" content="<#=PageTitle #>" />
-    <meta property="og:description" content="<#= Description #>" />
-    <meta property="og:image" content="http:<#=DisplayImageUrl #>" />
-    <meta property="og:image:secure_url" content="https:<#=DisplayImageUrl #>" />
+    <meta property="og:title" content="<#=DbEntry.Title #>" />
+    <meta property="og:description" content="<#= DbEntry.Summary #>" />
+    <meta property="og:image" content="http:<#=DisplayImage.SiteUrl #>" />
+    <meta property="og:image:secure_url" content="https:<#=DisplayImage.SiteUrl #>" />
     <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:image:width" content="<#=DisplayImageWidth #>" />
-    <meta property="og:image:height" content="<#=DisplayImageHeight #>" />
-    <meta property="og:image:alt" content="<#=ImageAlt #>" />
+    <meta property="og:image:width" content="<#=DisplayImage.Width #>" />
+    <meta property="og:image:height" content="<#=DisplayImage.Height #>" />
+    <meta property="og:image:alt" content="<#=DbEntry.AltText #>" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 </head>
 
 <body>
-    <img src="<#=DisplayImageUrl #>" srcset="<#
+    <img src="<#=DisplayImage.SiteUrl #>" srcset="<#
     SrcSetString(); #>" loading="lazy" width="100%"/>
-    <div>Aperature <#=Aperture #></div>
-    <div>Shutter Speed <#=ShutterSpeed #></div>
-    <div>Lens <#=Lens #></div>
-    <div>Camera <#=Camera #></div>
-    <div>Photographer <#=TakenBy #></div>
-    <div>Taken On <#=TakenOn #></div>
-    <div>License <#=License #></div>
+    <div>Aperature <#=DbEntry.Aperture #></div>
+    <div>Shutter Speed <#=DbEntry.ShutterSpeed #></div>
+    <div>Lens <#=DbEntry.Lens #></div>
+    <div>Camera <#=DbEntry.CameraMake #>  <#=DbEntry.CameraModel #> </div>
+    <div>Photographer <#=DbEntry.PhotoCreatedBy #></div>
+    <div>Taken On <#=DbEntry.PhotoCreatedOn #></div>
+    <div>License <#=DbEntry.License #></div>
 </body>
 
 </html>

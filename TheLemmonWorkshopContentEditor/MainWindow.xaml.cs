@@ -42,7 +42,7 @@ namespace TheLemmonWorkshopContentEditor
             UserSettingsUtilities.VerifyAndCreate();
 
             var db = await Db.Context();
-            //db.Database.EnsureDeleted();
+            db.Database.EnsureDeleted();
             db.Database.EnsureCreated();
 
             ContextListContext = new ContentListContext(StatusContext);

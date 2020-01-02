@@ -35,7 +35,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
         private string _originalFileName;
         private string _cameraMake;
         private string _cameraModel;
-        private RelayCommand _chooseFileCommand;
+        private RelayCommand _chooseFileAndFillMetadataCommand;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdAndUpdatedByAndOnDisplay;
         private PhotoContent _dbEntry;
@@ -118,13 +118,13 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             }
         }
 
-        public RelayCommand ChooseFileCommand
+        public RelayCommand ChooseFileAndFillMetadataCommand
         {
-            get => _chooseFileCommand;
+            get => _chooseFileAndFillMetadataCommand;
             set
             {
-                if (Equals(value, _chooseFileCommand)) return;
-                _chooseFileCommand = value;
+                if (Equals(value, _chooseFileAndFillMetadataCommand)) return;
+                _chooseFileAndFillMetadataCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -335,7 +335,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
                 $"1/{Math.Round(Math.Pow(2, (double) toProcess.Value.Numerator / toProcess.Value.Denominator), 1):N0}";
         }
 
-        public async Task ChooseFile()
+        public async Task ChooseFile(bool loadMetadata)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -355,7 +355,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 
             SelectedFile = newFile;
 
-            await ProcessSelectedFile();
+            if (loadMetadata) await ProcessSelectedFile();
         }
 
         public async Task LoadData(PhotoContent toLoad)
@@ -381,12 +381,17 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             PhotoCreatedBy = DbEntry.PhotoCreatedBy ?? string.Empty;
             PhotoCreatedOn = DbEntry.PhotoCreatedOn;
 
-            ChooseFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ChooseFile));
+            ChooseFileAndFillMetadataCommand =
+                new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile(true)));
+            ChooseFileCommand =
+                new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
             ResizeFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ResizePhoto));
             ViewPhotoMetadataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
 
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
         }
+
+        public RelayCommand ChooseFileCommand { get; set; }
 
         private async Task<List<(bool, string)>> ValidateAll()
         {
@@ -416,14 +421,31 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             }
 
             await SaveToDatabase();
-            await WriteSelectedFileToArchive();
+            await WriteSelectedFileToMasterMediaArchive();
             await WriteSelectedFileToLocalSite();
-            await WriteHtml();
+            await GenerateHtml();
         }
 
-        private async Task WriteHtml()
+        private DirectoryInfo LocalFolderDirectory(UserSettings settings)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            var folderDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
+                TitleSummarySlugFolder.Folder));
+            if (!folderDirectory.Exists) folderDirectory.Create();
+
+            folderDirectory.Refresh();
+
+            return folderDirectory;
+        }
+
+        private DirectoryInfo LocalContentDirectory(UserSettings settings)
+        {
+            var photoDirectory =
+                new DirectoryInfo(Path.Combine(LocalFolderDirectory(settings).FullName, TitleSummarySlugFolder.Slug));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
         }
 
         private async Task WriteSelectedFileToLocalSite()
@@ -432,35 +454,33 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 
             var userSettings = await UserSettingsUtilities.ReadSettings();
 
-            var photoDirectory = new DirectoryInfo(Path.Combine(userSettings.LocalSiteRootDirectory, "Photos"));
-            if (!photoDirectory.Exists) photoDirectory.Create();
-
-            var folderDirectory =
-                new DirectoryInfo(Path.Combine(photoDirectory.FullName, TitleSummarySlugFolder.Folder));
-            if (!folderDirectory.Exists) folderDirectory.Create();
-
-            var targetDirectory =
-                new DirectoryInfo(Path.Combine(folderDirectory.FullName, TitleSummarySlugFolder.Slug));
-            if (!targetDirectory.Exists) targetDirectory.Create();
+            var targetDirectory = LocalContentDirectory(userSettings);
 
             var originalFileInTargetDirectoryFullName = Path.Combine(targetDirectory.FullName, SelectedFile.Name);
-            if (originalFileInTargetDirectoryFullName != SelectedFile.FullName)
-            {
-                SelectedFile.CopyTo(originalFileInTargetDirectoryFullName);
-            }
 
             var sourceImage = new FileInfo(originalFileInTargetDirectoryFullName);
+
+            if (originalFileInTargetDirectoryFullName != SelectedFile.FullName)
+            {
+                if (sourceImage.Exists) sourceImage.Delete();
+                SelectedFile.CopyTo(originalFileInTargetDirectoryFullName);
+                sourceImage.Refresh();
+            }
 
             ImageResizing.ResizeForDisplayAndSrcset(sourceImage, StatusContext.ProgressTracker());
         }
 
-        private async Task WriteSelectedFileToArchive()
+        private async Task WriteSelectedFileToMasterMediaArchive()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var userSettings = await UserSettingsUtilities.ReadSettings();
             var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchive, SelectedFile.Name);
             if (destinationFileName == SelectedFile.FullName) return;
+
+            var destinationFile = new FileInfo(destinationFileName);
+
+            if (destinationFile.Exists) destinationFile.Delete();
 
             SelectedFile.CopyTo(destinationFileName);
         }
@@ -471,7 +491,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 
             var newEntry = new PhotoContent();
 
-            if (DbEntry == null)
+            if (DbEntry == null || DbEntry.Id < 1)
             {
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
@@ -506,7 +526,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 
             var context = await Db.Context();
 
-            var toHistoric = await context.PhotoContents.Where(x => x.ContentId == DbEntry.ContentId).ToListAsync();
+            var toHistoric = await context.PhotoContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
 
             foreach (var loopToHistoric in toHistoric)
             {
@@ -541,6 +561,11 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
                   (SelectedFile.Extension.ToLower().Contains("jpeg"))))
             {
                 return (false, "The file doesn't appear to be a supported file type.");
+            }
+
+            if (await (await Db.Context()).PhotoFilenameExistsInDatabase(SelectedFile.Name))
+            {
+                return (false, "This filename already exists in the database - photo file names must be unique.");
             }
 
             return (true, string.Empty);
@@ -619,15 +644,35 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             ImageResizing.ResizeForDisplayAndSrcset(SelectedFile, StatusContext.ProgressTracker());
         }
 
+        private async Task GenerateHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var settings = await UserSettingsUtilities.ReadSettings();
+
+            var htmlContext = new TheLemmonWorkshopData.TextTransforms.SinglePhotoPage
+            {
+                DbEntry = DbEntry, SiteName = settings.SiteName, SiteUrl = settings.SiteUrl
+            };
+
+            htmlContext.ProcessPhotosInDirectory(LocalContentDirectory(settings));
+
+            var htmlString = htmlContext.TransformText();
+
+            File.WriteAllText(
+                $"{Path.Combine(LocalContentDirectory(settings).FullName, TitleSummarySlugFolder.Slug)}.html",
+                htmlString);
+        }
+
         private async Task ViewPhotoMetadata()
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             if (SelectedFile == null)
             {
                 StatusContext.ToastError("No photo...");
                 return;
             }
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
 
             SelectedFile.Refresh();
 

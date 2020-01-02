@@ -17,33 +17,28 @@
         <utility:BindingProxy x:Key="proxy" Data="{Binding}" />
     </UserControl.Resources>
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="12*" />
-            <ColumnDefinition Width="1*" />
-        </Grid.ColumnDefinitions>
         <Rectangle
             Grid.Column="0"
-            Grid.ColumnSpan="3"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             Fill="LightGray"
             Opacity=".4"
             Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
-        <ListBox
-            Grid.Column="1"
-            Margin="0,12,0,12"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            utility:ListBoxBehavior.ScrollOnNewItem="True"
-            Background="White"
-            BorderThickness="0"
-            ItemsSource="{Binding StatusLog}"
-            Opacity=".7"
-            Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
+        <Border CornerRadius="5" Margin="2" BorderThickness="2" BorderBrush="LightGray" Background="White"
+                Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+            <ListBox
+                Margin="24"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                utility:ListBoxBehavior.ScrollOnNewItem="True"
+                BorderThickness="0"
+                ItemsSource="{Binding StatusLog}"
+                Opacity=".7"
+                Cursor="Wait"
+                Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
+        </Border>
         <Grid
             Grid.Column="0"
-            Grid.ColumnSpan="3"
             Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Border Background="White" CornerRadius="8">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -85,7 +80,6 @@
         </Grid>
         <Grid
             Grid.Column="0"
-            Grid.ColumnSpan="3"
             Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Border Background="White" CornerRadius="8">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -122,7 +116,6 @@
         </Grid>
         <StackPanel
             Grid.Column="0"
-            Grid.ColumnSpan="3"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Vertical">

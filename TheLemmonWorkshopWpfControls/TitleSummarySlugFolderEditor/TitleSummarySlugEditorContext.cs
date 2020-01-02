@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -90,8 +91,6 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
                 return false;
             }
 
-            ;
-
             return true;
         }
 
@@ -117,12 +116,15 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
                 Summary = string.Empty;
                 Title = string.Empty;
                 Slug = string.Empty;
+                Folder = string.Empty;
+
                 return;
             }
 
             Summary = DbEntry.Summary ?? string.Empty;
             Title = DbEntry.Title ?? string.Empty;
             Slug = DbEntry.Slug ?? string.Empty;
+            Folder = DbEntry.Folder ?? string.Empty;
         }
 
         public ITitleSummarySlugFolder DbEntry

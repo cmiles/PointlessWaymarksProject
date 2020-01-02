@@ -55,6 +55,17 @@ namespace TheLemmonWorkshopData
             return lineCheck && photoCheck && pointCheck && postCheck && trailCheck;
         }
 
+        public static async Task<bool> PhotoFilenameExistsInDatabase(this LemmonWorkshopContext context,
+            string filename)
+        {
+            if (string.IsNullOrWhiteSpace(filename)) return false;
+
+            var photoCheck =
+                await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+
+            return photoCheck;
+        }
+
         public static string Create(bool toLower, params string[] values)
         {
             return Create(toLower, string.Join("-", values));

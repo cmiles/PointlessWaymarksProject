@@ -65,10 +65,10 @@
         <e p="Slug.cs" t="Include" />
         <e p="SpatialHelpers.cs" t="Include" />
         <e p="TextTransforms" t="Include">
+          <e p="ImageFileInformation.cs" t="Include" />
           <e p="SinglePhotoPage.cs" t="Include" />
           <e p="SinglePhotoPage.tt" t="Include" />
           <e p="SinglePhotoPageCode.cs" t="Include" />
-          <e p="SrcSetImage.cs" t="Include" />
         </e>
         <e p="TheLemmonWorkshopData.csproj" t="IncludeRecursive" />
       </e>

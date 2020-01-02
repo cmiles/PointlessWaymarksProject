@@ -13,5 +13,9 @@
         public string LocalSiteRootDirectory { get; set; }
 
         public string LocalMasterMediaArchive { get; set; }
+
+        public string SiteName { get; set; }
+
+        public string SiteUrl { get; set; }
     }
 }

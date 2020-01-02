@@ -47,6 +47,36 @@ namespace TheLemmonWorkshopWpfControls
             return (true, string.Empty);
         }
 
+        public static DirectoryInfo LocalSitePhotoDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
+        public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(settings.LocalSiteRootDirectory);
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
+        public static DirectoryInfo LocalSiteMasterMediaArchiveDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(settings.LocalMasterMediaArchive);
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
         public static async Task<(bool, string)> ValidateLocalMasterMediaArchive()
         {
             var settings = await ReadSettings();

@@ -181,10 +181,14 @@ namespace TheLemmonWorkshopWpfControls.Utility
                     var naturalWidth = image.Width;
 
                     var newHeight = (int) (image.Height * ((decimal) width / naturalWidth));
-                    newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
-                        $"{Path.GetFileNameWithoutExtension(toResize.Name)}--For-Display.jpg");
 
                     image.Mutate(ctx => ctx.Resize(width, newHeight, KnownResamplers.Bicubic));
+
+                    newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
+                        $"{Path.GetFileNameWithoutExtension(toResize.Name)}--For-Display--{image.Width}w--{image.Height}h.jpg");
+
+                    var newFileInfo = new FileInfo(newFile);
+                    if (newFileInfo.Exists) newFileInfo.Delete();
 
                     using var outImage = File.Create(newFile);
                     image.SaveAsJpeg(outImage, new JpegEncoder {Quality = quality});
@@ -208,7 +212,10 @@ namespace TheLemmonWorkshopWpfControls.Utility
                     image.Mutate(ctx => ctx.Resize(width, newHeight, KnownResamplers.Bicubic));
 
                     newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
-                        $"{Path.GetFileNameWithoutExtension(toResize.Name)}--{image.Width}w--{image.Height}h.jpg");
+                        $"{Path.GetFileNameWithoutExtension(toResize.Name)}--Sized--{image.Width}w--{image.Height}h.jpg");
+
+                    var newFileInfo = new FileInfo(newFile);
+                    if (newFileInfo.Exists) newFileInfo.Delete();
 
                     using var outImage = File.Create(newFile);
                     image.SaveAsJpeg(outImage, new JpegEncoder {Quality = quality});
