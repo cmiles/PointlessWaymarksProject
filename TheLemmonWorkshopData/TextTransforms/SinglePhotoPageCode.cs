@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using HtmlTags;
+using HtmlTags.Extended.TagBuilders;
 using TheLemmonWorkshopData.Models;
 
 namespace TheLemmonWorkshopData.TextTransforms
@@ -26,29 +27,12 @@ namespace TheLemmonWorkshopData.TextTransforms
                 SrcsetImages.OrderByDescending(x => x.Width).Select(x => $"{x.FileName} {x.Width}w"));
         }
 
-        public HtmlTag TagsDiv()
-        {
-            var outerContainer = new DivTag();
-            outerContainer.AddClass("tags-container");
-            
-            if(string.IsNullOrWhiteSpace(DbEntry.Tags)) return HtmlTag.Empty();
-
-            var tags = DbEntry.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
-
-            if (!tags.Any()) return HtmlTag.Empty();
-            
-            foreach (var loopTag in tags)
-            {
-                outerContainer.Children.Add(InfoDivTag(loopTag, "tag-detail", "tag", loopTag));
-            }
-
-            return outerContainer;
-        }
-
         public HtmlTag PhotoDetailsDiv()
         {
             var outerContainer = new DivTag();
             outerContainer.AddClass("photo-details-container");
+            
+            outerContainer.Children.Add(new DivTag().AddClass("photo-detail-label-tag").Text("Details:"));
 
             outerContainer.Children.Add(InfoDivTag(DbEntry.Aperture, "photo-detail", "aperture", DbEntry.Aperture));
             outerContainer.Children.Add(InfoDivTag(DbEntry.ShutterSpeed, "photo-detail", "shutter-speed",
@@ -93,6 +77,74 @@ namespace TheLemmonWorkshopData.TextTransforms
             imageTag.AddClass("single-photo");
 
             return imageTag;
+        }
+
+        public HtmlTag TagsDiv()
+        {
+            var tagsContainer = new DivTag().AddClass("tags-container");
+            
+            if(string.IsNullOrWhiteSpace(DbEntry.Tags)) return HtmlTag.Empty();
+
+            tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
+
+            var tags = DbEntry.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
+
+            if (!tags.Any()) return HtmlTag.Empty();
+            
+            foreach (var loopTag in tags)
+            {
+                tagsContainer.Children.Add(InfoDivTag(loopTag, "tag-detail", "tag", loopTag));
+            }
+
+            return tagsContainer;
+        }
+
+        public HtmlTag CreatedDiv()
+        {
+            var createdByDiv = new DivTag();
+            createdByDiv.AddClass("created-by-container");
+            
+            createdByDiv.Children.Add(new DivTag().AddClass("created-by-content").Text(
+                $"Created by {DbEntry.CreatedBy} on {DbEntry.CreatedOn:M/d/yyyy}."));
+
+            return createdByDiv;
+        }
+        
+        public HtmlTag SiteNameDiv()
+        {
+            var createdByDiv = new DivTag();
+            createdByDiv.AddClass("site-name-container");
+            
+            createdByDiv.Children.Add(new DivTag().AddClass("created-by-content").Text(
+                $"{SiteName}"));
+
+            return createdByDiv;
+        }
+        
+        public HtmlTag UpdateDiv()
+        {
+            if(string.IsNullOrWhiteSpace(DbEntry.UpdateNotes)) return HtmlTag.Empty();
+
+            var updateNotesDiv = new DivTag();
+            updateNotesDiv.AddClass("update-notes-container");
+            
+            var headingTag = new HtmlTags.HtmlTag("h3");
+            headingTag.AddClass("update-notes-title");
+            headingTag.Text("Update History");
+            
+            var updateNotesContentContainer = new HtmlTags.DivTag();
+            updateNotesContentContainer.AddClass("update-notes-content");
+
+            var updateNotesHtml = ContentProcessor.ContentHtml(DbEntry.UpdateNotesFormat, DbEntry.UpdateNotes);
+            if (updateNotesHtml.success)
+            {
+                updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
+            }
+
+            updateNotesDiv.Children.Add(headingTag);
+            updateNotesDiv.Children.Add(updateNotesContentContainer);
+
+            return updateNotesDiv;
         }
 
         public HtmlTag PhotoFigCaptionTag()

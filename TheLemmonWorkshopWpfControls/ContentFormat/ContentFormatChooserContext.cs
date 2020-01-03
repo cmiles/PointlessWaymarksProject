@@ -53,11 +53,15 @@ namespace TheLemmonWorkshopWpfControls.ContentFormat
             get => _selectedContentFormat;
             set
             {
-                if (value == _selectedContentFormat) return;
-                _selectedContentFormat = value;
-                OnPropertyChanged();
+                if (value != _selectedContentFormat)
+                {
+                    _selectedContentFormat = value;
+                    OnPropertyChanged();
 
-                OnSelectedValueChanged?.Invoke(this, Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat));
+                    OnSelectedValueChanged?.Invoke(this,
+                        Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat));
+                }
+
                 SelectedContentFormatAsString =
                     Enum.GetName(typeof(ContentFormatEnum), SelectedContentFormat) ?? string.Empty;
             }

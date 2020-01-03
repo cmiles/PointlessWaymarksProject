@@ -145,7 +145,8 @@
                         Command="{Binding ResizeFileCommand}">
                         Resize
                     </Button>
-                    <Button Height="40" Margin="4" Command="{Binding SaveAndCreateLocalCommand}">Save and Create Local</Button>
+                    <Button Height="40" Margin="4" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Create Local</Button>
+                    <Button Height="40" Margin="4" Command="{Binding SaveUpdateDatabaseCommand}">Update Db</Button>
                     <Button Height="40" Margin="4" Command="{Binding GenerateHtmlCommand}">Generate Html</Button>
                 </StackPanel>
             </TabItem>

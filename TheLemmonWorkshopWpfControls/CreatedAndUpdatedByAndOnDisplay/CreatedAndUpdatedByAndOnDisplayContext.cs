@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -17,6 +18,8 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
         private bool _showUpdatedByEditor;
         private string _createdBy;
         private string _updatedBy;
+        private DateTime? _createdOn;
+        private DateTime? _updatedOn;
 
         public CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
             ICreatedAndLastUpdateOnAndBy dbEntry)
@@ -78,6 +81,10 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DbEntry = toLoad;
+            CreatedBy = toLoad?.CreatedBy ?? string.Empty;
+            UpdatedBy = toLoad?.LastUpdatedBy ?? string.Empty;
+            CreatedOn = toLoad?.CreatedOn;
+            UpdatedOn = toLoad?.LastUpdatedOn;
 
             var newStringParts = new List<string>();
 
@@ -108,6 +115,28 @@ namespace TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay
             if (DbEntry.LastUpdatedOn != null) newStringParts.Add($"On {DbEntry.LastUpdatedOn:g}");
 
             CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
+        }
+
+        public DateTime? UpdatedOn
+        {
+            get => _updatedOn;
+            set
+            {
+                if (Nullable.Equals(value, _updatedOn)) return;
+                _updatedOn = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime? CreatedOn
+        {
+            get => _createdOn;
+            set
+            {
+                if (Nullable.Equals(value, _createdOn)) return;
+                _createdOn = value;
+                OnPropertyChanged();
+            }
         }
 
         public bool ShowUpdatedByEditor

@@ -32,7 +32,6 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
     {
         private string _altText;
         private string _aperture;
-        private string _originalFileName;
         private string _cameraMake;
         private string _cameraModel;
         private RelayCommand _chooseFileAndFillMetadataCommand;
@@ -390,7 +389,10 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             ViewPhotoMetadataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
 
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDatabase));
         }
+
+        public RelayCommand SaveUpdateDatabaseCommand { get; set; }
 
         public RelayCommand GenerateHtmlCommand { get; set; }
 
@@ -502,6 +504,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             else
             {
                 newEntry.ContentId = DbEntry.ContentId;
+                newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
                 newEntry.LastUpdatedBy = CreatedAndUpdatedByAndOnDisplay.UpdatedBy;
             }
@@ -522,10 +525,10 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             newEntry.FocalLength = FocalLength;
             newEntry.ShutterSpeed = ShutterSpeed;
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
+            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
             newEntry.PhotoCreatedBy = PhotoCreatedBy;
             newEntry.PhotoCreatedOn = PhotoCreatedOn;
-            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
 
             var context = await Db.Context();
 

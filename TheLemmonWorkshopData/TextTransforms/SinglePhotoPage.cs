@@ -131,38 +131,52 @@ using System.Collections.Generic;
             
             #line default
             #line hidden
-            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n<style>\r\n    .single-photo-container {\r\n        text-align: center;\r\n    }\r\n\r\n    .single-photo {\r\n        width: 100vw;\r\n    }\r\n\r\n    .photo-caption {\r\n        text-align: center;\r\n        margin: 6px;\r\n    }\r\n\r\n    .photo-details-container {\r\n        display: flex;\r\n        justify-content: center;\r\n        flex-wrap: wrap;\r\n    }\r\n\r\n    .photo-detail {\r\n        margin: 3px;\r\n        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);\r\n        transition: all 0.3s cubic-bezier(.25,.8,.25,1);\r\n    }\r\n\r\n    .photo-detail-content {\r\n        margin: 6px;\r\n    }\r\n\r\n    .tags-container {\r\n        display: flex;\r\n        justify-content: center;\r\n        flex-wrap: wrap;\r\n    }\r\n\r\n    .tag-detail {\r\n        margin: 3px;\r\n        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);\r\n        transition: all 0.3s cubic-bezier(.25,.8,.25,1);\r\n    }\r\n\r\n    .tag-detail-content {\r\n        margin: 6px;\r\n    }\r\n\r\n    .photo-page-title-container {\r\n        text-align: center;\r\n    }\r\n\r\n</style>\r\n\r\n</head>\r\n\r\n<body>\r\n    <h1 class=\"photo-page-title-container\">");
+            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n<style>\r\n    body {\r\n        font-family: Geneva, ‘Lucida Sans’, ‘Lucida Grande’, ‘Lucida Sans Unicode’, Verdana, sans-serif;\r\n        color: rgb(220, 220, 220);\r\n    }\r\n\r\n    .single-photo-container {\r\n        text-align: center;\r\n    }\r\n\r\n    .single-photo {\r\n        width: auto;\r\n        height: auto;\r\n        max-width: 100%;\r\n        max-height: 90vh;\r\n    }\r\n\r\n    .photo-caption {\r\n        text-align: center;\r\n        margin-top: 1rem;\r\n    }\r\n\r\n    .photo-details-container {\r\n        display: flex;\r\n        justify-content: center;\r\n        flex-wrap: wrap;\r\n        align-items: center;\r\n        margin-top: 1rem;\r\n    }\r\n\r\n    .photo-detail {\r\n        margin: 3px;\r\n        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);\r\n        transition: all 0.3s cubic-bezier(.25,.8,.25,1);\r\n        border-radius: 4px;\r\n    }\r\n\r\n    .photo-detail-content {\r\n        margin: 6px;\r\n    }\r\n\r\n    .tags-container {\r\n        display: flex;\r\n        justify-content: center;\r\n        flex-wrap: wrap;\r\n        align-items: center;\r\n        margin-top: 1rem;\r\n    }\r\n\r\n    .tag-detail {\r\n        margin: 3px;\r\n        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);\r\n        transition: all 0.3s cubic-bezier(.25,.8,.25,1);\r\n        border-radius: 4px;\r\n    }\r\n\r\n    .tag-detail-content {\r\n        margin: 6px;\r\n    }\r\n\r\n    .photo-page-title-container {\r\n        text-align: center;\r\n    }\r\n\r\n    .update-notes-container {\r\n        margin: 2.5rem;\r\n        text-align: center;\r\n    }\r\n\r\n    .created-by-container {\r\n        margin: 2.5rem;\r\n        text-align: center;\r\n    }\r\n\r\n    .site-name-container {\r\n        margin: 2.5rem;\r\n        text-align: center;\r\n    }\r\n\r\n</style>\r\n\r\n</head>\r\n\r\n<body>\r\n    <figure class=\"single-photo-container\">\r\n    ");
             
-            #line 88 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
-            
-            #line default
-            #line hidden
-            this.Write("</h1>\r\n    <figure class=\"single-photo-container\">\r\n    ");
-            
-            #line 90 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 118 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PhotoImageTag().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 91 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 119 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PhotoFigCaptionTag().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 92 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 120 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PhotoDetailsDiv().ToString()));
             
             #line default
             #line hidden
-            this.Write("\r\n    </figure>\r\n    <h3>Tags</h3>\r\n    ");
+            this.Write("\r\n    </figure>\r\n    ");
             
-            #line 95 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            #line 122 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(TagsDiv().ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 123 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(UpdateDiv().ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 124 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(CreatedDiv().ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 125 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteNameDiv().ToString()));
             
             #line default
             #line hidden
