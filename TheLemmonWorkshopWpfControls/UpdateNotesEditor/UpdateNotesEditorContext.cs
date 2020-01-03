@@ -85,7 +85,7 @@ namespace TheLemmonWorkshopWpfControls.UpdateNotesEditor
 
             DbEntry = toLoad;
 
-            if (toLoad == null)
+            if (toLoad == null || string.IsNullOrWhiteSpace(toLoad.UpdateNotesFormat))
             {
                 UpdateNotes = string.Empty;
                 UpdateNotesFormat.SelectedContentFormat = UpdateNotesFormat.ContentFormatChoices.First();

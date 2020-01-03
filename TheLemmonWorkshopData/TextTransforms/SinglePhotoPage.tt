@@ -1,5 +1,5 @@
 ﻿<#@ template language="C#" debug="true" #>
-<#@ import namespace="TheLemmonWorkshopData.Models" #>
+<#@ import namespace="Models" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
@@ -31,43 +31,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-    .photo-page-details-container {
-      display: flex;
+    .single-photo-container {
+        text-align: center;
+    }
+
+    .single-photo {
+        width: 100vw;
+    }
+
+    .photo-caption {
+        text-align: center;
+        margin: 6px;
+    }
+
+    .photo-details-container {
+        display: flex;
         justify-content: center;
         flex-wrap: wrap;
     }
-    .photo-page-details-item {
-      margin: 1.2em;
+
+    .photo-detail {
+        margin: 3px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    }
+
+    .photo-detail-content {
+        margin: 6px;
+    }
+
+    .tags-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .tag-detail {
+        margin: 3px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    }
+
+    .tag-detail-content {
+        margin: 6px;
     }
 
     .photo-page-title-container {
         text-align: center;
     }
+
 </style>
 
 </head>
 
 <body>
-    <h1 class="photo-page-title-container"><#=DbEntry.Title #></h1>
-    <figure>
-        <img 
-            src="<#=DisplayImage.SiteUrl #>" 
-            srcset="<#=SrcSetString() #>" 
-            loading="lazy" width="98%"
-            alt="<#=DbEntry.AltText #>"/>
+    <figure class="single-photo-container">
+    <#= PhotoImageTag().ToString() #>
+    <#= PhotoFigCaptionTag().ToString() #>
+    <#= PhotoDetailsDiv().ToString() #>
     </figure>
-    <div class="photo-page-summary-div">
-        <#=DbEntry.Summary #>
-    </div>
-    <div class="photo-page-details-container">
-        <div class="photo-page-details-item">Aperature <#=DbEntry.Aperture #></div>
-        <div class="photo-page-details-item">Shutter Speed <#=DbEntry.ShutterSpeed #></div>
-        <div class="photo-page-details-item">Lens <#=DbEntry.Lens #></div>
-        <div class="photo-page-details-item">Camera <#=DbEntry.CameraMake #>  <#=DbEntry.CameraModel #> </div>
-        <div class="photo-page-details-item">Photographer <#=DbEntry.PhotoCreatedBy #></div>
-        <div class="photo-page-details-item">Taken On <#=DbEntry.PhotoCreatedOn #></div>
-        <div class="photo-page-details-item"><#=DbEntry.License #></div>
-    </div>
+    <h5>Tags</h5>
+    <#= TagsDiv().ToString() #>
 </body>
 
 </html>

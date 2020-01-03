@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HtmlTags;
 using TheLemmonWorkshopData.Models;
 
 namespace TheLemmonWorkshopData.TextTransforms
@@ -23,6 +24,100 @@ namespace TheLemmonWorkshopData.TextTransforms
         {
             return string.Join(", ",
                 SrcsetImages.OrderByDescending(x => x.Width).Select(x => $"{x.FileName} {x.Width}w"));
+        }
+
+        public HtmlTag TagsDiv()
+        {
+            var outerContainer = new DivTag();
+            outerContainer.AddClass("tags-container");
+            
+            if(string.IsNullOrWhiteSpace(DbEntry.Tags)) return HtmlTag.Empty();
+
+            var tags = DbEntry.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
+
+            if (!tags.Any()) return HtmlTag.Empty();
+            
+            foreach (var loopTag in tags)
+            {
+                outerContainer.Children.Add(InfoDivTag(loopTag, "tag-detail", "tag", loopTag));
+            }
+
+            return outerContainer;
+        }
+
+        public HtmlTag PhotoDetailsDiv()
+        {
+            var outerContainer = new DivTag();
+            outerContainer.AddClass("photo-details-container");
+
+            outerContainer.Children.Add(InfoDivTag(DbEntry.Aperture, "photo-detail", "aperture", DbEntry.Aperture));
+            outerContainer.Children.Add(InfoDivTag(DbEntry.ShutterSpeed, "photo-detail", "shutter-speed",
+                DbEntry.ShutterSpeed));
+            outerContainer.Children.Add(InfoDivTag($"ISO {DbEntry.Iso?.ToString("F0")}", "photo-detail", "iso",
+                DbEntry.Iso?.ToString("F0")));
+            outerContainer.Children.Add(InfoDivTag(DbEntry.FocalLength, "photo-detail", "focal-length",
+                DbEntry.FocalLength));
+            outerContainer.Children.Add(InfoDivTag(DbEntry.CameraMake, "photo-detail", "camera-make",
+                DbEntry.CameraMake));
+            outerContainer.Children.Add(InfoDivTag(DbEntry.CameraModel, "photo-detail", "camera-model",
+                DbEntry.CameraModel));
+            outerContainer.Children.Add(InfoDivTag(DbEntry.Lens, "photo-detail", "lens", DbEntry.Lens));
+            outerContainer.Children.Add(InfoDivTag(DbEntry.License, "photo-detail", "license", DbEntry.License));
+
+            return outerContainer;
+        }
+
+        public HtmlTag InfoDivTag(string contents, string className, string dataType, string dataValue)
+        {
+            if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();
+            var divTag = new HtmlTag("div");
+            divTag.AddClass(className);
+
+            var spanTag = new HtmlTag("div");
+            spanTag.Text(contents.Trim());
+            spanTag.AddClass($"{className}-content");
+            spanTag.Data(dataType, dataValue);
+
+            divTag.Children.Add(spanTag);
+
+            return divTag;
+        }
+
+        public HtmlTag PhotoImageTag()
+        {
+            var imageTag = new HtmlTag("img");
+            imageTag.Attr("srcset", SrcSetString());
+            imageTag.Attr("src", SiteUrl);
+            imageTag.Attr("loading", "lazy");
+            if(!string.IsNullOrWhiteSpace(DbEntry.AltText)) imageTag.Attr("alt", DbEntry.AltText);
+            imageTag.AddClass("single-photo");
+
+            return imageTag;
+        }
+
+        public HtmlTag PhotoFigCaptionTag()
+        {
+            if (string.IsNullOrWhiteSpace(DbEntry.Summary)) return HtmlTag.Empty();
+
+            var figCaptionTag = new HtmlTag("figcaption");
+            figCaptionTag.AddClass("photo-caption");
+
+            var summaryStringList = new List<string>();
+
+            summaryStringList.Add($"{DbEntry.Title}.");
+            
+            if (!string.IsNullOrWhiteSpace(DbEntry.Summary))
+            {
+                if (!DbEntry.Summary.Trim().EndsWith(".")) summaryStringList.Add($"{DbEntry.Summary.Trim()}.");
+                else summaryStringList.Add($"{DbEntry.Summary.Trim()}");
+            }
+
+            summaryStringList.Add($"{DbEntry.PhotoCreatedBy}.");
+            summaryStringList.Add($"{DbEntry.PhotoCreatedOn:M/d/yyyy}.");
+
+            figCaptionTag.Text(string.Join(" ", summaryStringList));
+
+            return figCaptionTag;
         }
 
         public void ProcessPhotosInDirectory(DirectoryInfo directoryInfo)
