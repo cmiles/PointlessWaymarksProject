@@ -40,7 +40,10 @@
 
     .single-photo-container {
         text-align: center;
+        display: table;
         margin-top: 1vh;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .single-photo {
@@ -53,6 +56,8 @@
     .photo-caption {
         text-align: center;
         margin-top: 1rem;
+        display: table-caption;
+        caption-side: bottom;
     }
 
     .photo-details-container {
@@ -132,8 +137,8 @@
     <figure class="single-photo-container">
     <#= PhotoImageTag().ToString() #>
     <#= PhotoFigCaptionTag().ToString() #>
-    <#= PhotoDetailsDiv().ToString() #>
     </figure>
+    <#= PhotoDetailsDiv().ToString() #>
     <#= TagsDiv().ToString() #>
     <#= UpdateDiv().ToString() #>
     <#= CreatedDiv().ToString() #>

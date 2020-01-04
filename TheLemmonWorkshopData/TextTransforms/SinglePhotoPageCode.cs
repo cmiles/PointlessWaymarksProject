@@ -109,7 +109,7 @@ namespace TheLemmonWorkshopData.TextTransforms
             var createdByDiv = new DivTag();
             createdByDiv.AddClass("created-by-container");
             
-            createdByDiv.Children.Add(new HtmlTags.HtmlTag("div").AddClass("created-title").Text("Created:"));
+            createdByDiv.Children.Add(new HtmlTag("div").AddClass("created-title").Text("Created:"));
             
             createdByDiv.Children.Add(new HtmlTag("p").AddClass("created-by-content").Text(
                 $"{DbEntry.CreatedBy}, {DbEntry.CreatedOn:M/d/yyyy}"));
@@ -130,20 +130,25 @@ namespace TheLemmonWorkshopData.TextTransforms
         
         public HtmlTag UpdateDiv()
         {
-            if(string.IsNullOrWhiteSpace(DbEntry.UpdateNotes)) return HtmlTag.Empty();
+            if(DbEntry.LastUpdatedOn == null) return HtmlTag.Empty();
 
             var updateNotesDiv = new DivTag().AddClass("update-notes-container");
             
             updateNotesDiv.Children.Add(StandardHorizontalRule());
             
-            var headingTag = new HtmlTags.HtmlTag("div").AddClass("update-notes-title").Text("Updates:");
+            var headingTag = new HtmlTag("div").AddClass("update-notes-title").Text("Updates:");
             
-            var updateNotesContentContainer = new HtmlTags.DivTag().AddClass("update-notes-content");
+            var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 
-            var updateNotesHtml = ContentProcessor.ContentHtml(DbEntry.UpdateNotesFormat, DbEntry.UpdateNotes);
-            if (updateNotesHtml.success)
+            updateNotesContentContainer.Children.Add(new HtmlTag("p").AddClass("update-by-and-on-content").Text($"{DbEntry.LastUpdatedBy}, {DbEntry.LastUpdatedOn.Value:M/d/yyyy}"));
+
+            if (!string.IsNullOrWhiteSpace(DbEntry.UpdateNotes))
             {
-                updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
+                var updateNotesHtml = ContentProcessor.ContentHtml(DbEntry.UpdateNotesFormat, DbEntry.UpdateNotes);
+                if (updateNotesHtml.success)
+                {
+                    updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
+                }
             }
 
             updateNotesDiv.Children.Add(headingTag);

@@ -6,8 +6,8 @@
     xmlns:local="clr-namespace:TheLemmonWorkshopWpfControls.PhotoContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="PhotoContentEditorWindow"
-    Width="800"
-    Height="450"
+    Width="900"
+    Height="650"
     d:DataContext="{d:DesignInstance local:PhotoContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
