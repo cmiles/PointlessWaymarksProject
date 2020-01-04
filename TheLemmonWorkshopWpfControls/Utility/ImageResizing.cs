@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TheLemmonWorkshopData;
 
 namespace TheLemmonWorkshopWpfControls.Utility
 {
@@ -165,6 +166,20 @@ namespace TheLemmonWorkshopWpfControls.Utility
                     progress.Report("Resize: 400, 72");
 
                     returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 400, 72));
+                }
+                
+                if (originalWidth > 200)
+                {
+                    progress.Report("Resize: 200, 72");
+
+                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 200, 72));
+                }
+                
+                if (originalWidth > 100)
+                {
+                    progress.Report("Resize: 100, 72");
+
+                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 100, 72));
                 }
 
                 return returnList;

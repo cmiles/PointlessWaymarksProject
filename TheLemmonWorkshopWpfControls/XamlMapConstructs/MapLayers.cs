@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 using MapControl;
+using TheLemmonWorkshopData;
 
 namespace TheLemmonWorkshopWpfControls.XamlMapConstructs
 {

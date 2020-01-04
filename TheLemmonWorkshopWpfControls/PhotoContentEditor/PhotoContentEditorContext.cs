@@ -385,16 +385,24 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             ChooseFileCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
             ResizeFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ResizePhoto));
-            GenerateHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateHtml));
+            SaveAndGenerateHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
             ViewPhotoMetadataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
 
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDatabase));
         }
 
+        public async Task SaveAndGenerateHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            await SaveToDatabase();
+            await GenerateHtml();
+        }
+
         public RelayCommand SaveUpdateDatabaseCommand { get; set; }
 
-        public RelayCommand GenerateHtmlCommand { get; set; }
+        public RelayCommand SaveAndGenerateHtmlCommand { get; set; }
 
         public RelayCommand ChooseFileCommand { get; set; }
 
@@ -658,32 +666,9 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var htmlContext = new TheLemmonWorkshopData.TextTransforms.SinglePhotoPage(DbEntry);
 
-            var htmlContext = new TheLemmonWorkshopData.TextTransforms.SinglePhotoPage
-            {
-                DbEntry = DbEntry,
-                SiteName = settings.SiteName,
-                SiteUrl = settings.SiteUrl,
-                PageUrl =
-                    $"//{settings.SiteName}/Photos/{TitleSummarySlugFolder.Folder}/{TitleSummarySlugFolder.Slug}/{TitleSummarySlugFolder.Slug}.html"
-            };
-
-            htmlContext.ProcessPhotosInDirectory(LocalContentDirectory(settings));
-
-            var htmlString = htmlContext.TransformText();
-
-            var htmlFileInfo =
-                new FileInfo(
-                    $"{Path.Combine(LocalContentDirectory(settings).FullName, TitleSummarySlugFolder.Slug)}.html");
-
-            if (htmlFileInfo.Exists)
-            {
-                htmlFileInfo.Delete();
-                htmlFileInfo.Refresh();
-            }
-
-            File.WriteAllText(htmlFileInfo.FullName, htmlString);
+            htmlContext.WriteLocalHtml();
         }
 
         private async Task ViewPhotoMetadata()

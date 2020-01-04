@@ -139,7 +139,7 @@
                     <updateNotesEditor:UpdateNotesEditorHorizontalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
             </TabItem>
-            <TabItem Header="Upload and Save">
+            <TabItem Header="Save and Generate">
                 <StackPanel>
                     <Button
                         Height="40"
@@ -148,8 +148,8 @@
                         Resize
                     </Button>
                     <Button Height="40" Margin="4" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Create Local</Button>
-                    <Button Height="40" Margin="4" Command="{Binding SaveUpdateDatabaseCommand}">Update Db</Button>
-                    <Button Height="40" Margin="4" Command="{Binding GenerateHtmlCommand}">Generate Html</Button>
+                    <Button Height="40" Margin="4" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                    <Button Height="40" Margin="4" Command="{Binding SaveAndGenerateHtmlCommand}">Save, Generate Html</Button>
                 </StackPanel>
             </TabItem>
         </TabControl>

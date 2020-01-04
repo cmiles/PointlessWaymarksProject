@@ -19,7 +19,7 @@
         </Grid.ColumnDefinitions>
         <contentList:ContentListControl DataContext="{Binding ContextListContext}" />
         <StackPanel Grid.Column="1">
-            <Button Command="{Binding NewContentCommand}">New Content</Button>
+            <Button Command="{Binding PhotoListWindowCommand}">Photo List</Button>
             <Button Command="{Binding NewPhotoContentCommand}">New Photo Content</Button>
             <Button Command="{Binding EditPhotoContentCommand}">Edit Selected Photo Content</Button>
         </StackPanel>

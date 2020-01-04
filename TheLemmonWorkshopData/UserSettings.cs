@@ -1,4 +1,4 @@
-﻿namespace TheLemmonWorkshopWpfControls
+﻿namespace TheLemmonWorkshopData
 {
     public class UserSettings
     {

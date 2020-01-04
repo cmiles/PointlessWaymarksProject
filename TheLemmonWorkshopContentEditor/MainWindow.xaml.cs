@@ -3,12 +3,14 @@ using JetBrains.Annotations;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls;
 using TheLemmonWorkshopWpfControls.ContentList;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.ItemContentEditor;
 using TheLemmonWorkshopWpfControls.PhotoContentEditor;
+using TheLemmonWorkshopWpfControls.PhotoList;
 using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopContentEditor
@@ -31,10 +33,13 @@ namespace TheLemmonWorkshopContentEditor
 
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
-EditPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(EditPhotoContent));
+            EditPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(EditPhotoContent));
+            PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
             
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
+
+        public RelayCommand PhotoListWindowCommand { get; set; }
 
         private async Task EditPhotoContent()
         {
@@ -124,6 +129,14 @@ EditPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTas
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newContentWindow = new PhotoContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+        
+        private async Task NewPhotoList()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PhotoListWindow() {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
     }

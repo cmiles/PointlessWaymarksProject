@@ -99,28 +99,28 @@ using System.Collections.Generic;
             this.Write("\" />\r\n    <meta property=\"og:image\" content=\"http:");
             
             #line 24 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DisplayImage.SiteUrl));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Photos.DisplayImage.SiteUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:secure_url\" content=\"https:");
             
             #line 25 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DisplayImage.SiteUrl));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Photos.DisplayImage.SiteUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:type\" content=\"image/jpeg\" />\r\n    <meta property=\"og:image:width\" content=\"");
             
             #line 27 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DisplayImage.Width));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Photos.DisplayImage.Width));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:height\" content=\"");
             
             #line 28 "C:\Code\TheLemmonWorkshop02\TheLemmonWorkshopData\TextTransforms\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DisplayImage.Height));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Photos.DisplayImage.Height));
             
             #line default
             #line hidden

@@ -2,8 +2,9 @@
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TheLemmonWorkshopData.Models;
 
-namespace TheLemmonWorkshopWpfControls
+namespace TheLemmonWorkshopData
 {
     public static class UserSettingsUtilities
     {
@@ -47,6 +48,11 @@ namespace TheLemmonWorkshopWpfControls
             return (true, string.Empty);
         }
 
+        public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
+        {
+            return $"//{settings.SiteName}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
         public static DirectoryInfo LocalSitePhotoDirectory(this UserSettings settings)
         {
             var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos"));
@@ -55,6 +61,16 @@ namespace TheLemmonWorkshopWpfControls
             photoDirectory.Refresh();
 
             return photoDirectory;
+        }
+
+        public static DirectoryInfo LocalSitePhotoContentDirectory(this UserSettings settings, PhotoContent content)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName, content.Folder, content.Slug));
+            if(!contentDirectory.Exists) contentDirectory.Create();
+            
+            contentDirectory.Refresh();
+
+            return contentDirectory;
         }
 
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)

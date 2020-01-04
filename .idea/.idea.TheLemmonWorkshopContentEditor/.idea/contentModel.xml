@@ -66,11 +66,15 @@
         <e p="SpatialHelpers.cs" t="Include" />
         <e p="TextTransforms" t="Include">
           <e p="ImageFileInformation.cs" t="Include" />
+          <e p="PhotoDirectoryContentsInformation.cs" t="Include" />
+          <e p="PhotoFiles.cs" t="Include" />
           <e p="SinglePhotoPage.cs" t="Include" />
           <e p="SinglePhotoPage.tt" t="Include" />
           <e p="SinglePhotoPageCode.cs" t="Include" />
         </e>
         <e p="TheLemmonWorkshopData.csproj" t="IncludeRecursive" />
+        <e p="UserSettings.cs" t="Include" />
+        <e p="UserSettingsUtilities.cs" t="Include" />
       </e>
       <e p="TheLemmonWorkshopWpfControls" t="IncludeRecursive">
         <e p="AssemblyInfo.cs" t="Include" />
@@ -207,6 +211,14 @@
           <e p="PhotoContentEditorWindow.xaml" t="Include" />
           <e p="PhotoContentEditorWindow.xaml.cs" t="Include" />
         </e>
+        <e p="PhotoList" t="Include">
+          <e p="PhotoListContext.cs" t="Include" />
+          <e p="PhotoListControl.xaml" t="Include" />
+          <e p="PhotoListControl.xaml.cs" t="Include" />
+          <e p="PhotoListListItem.cs" t="Include" />
+          <e p="PhotoListWindow.xaml" t="Include" />
+          <e p="PhotoListWindow.xaml.cs" t="Include" />
+        </e>
         <e p="Status" t="Include">
           <e p="StatusControl.xaml" t="Include" />
           <e p="StatusControl.xaml.cs" t="Include" />
@@ -239,8 +251,6 @@
           <e p="UpdateNotesEditorVerticalControl.xaml" t="Include" />
           <e p="UpdateNotesEditorVerticalControl.xaml.cs" t="Include" />
         </e>
-        <e p="UserSettings.cs" t="Include" />
-        <e p="UserSettingsUtilities.cs" t="Include" />
         <e p="Utility" t="Include">
           <e p="BindingProxy.cs" t="Include" />
           <e p="BooleanNotToVisibilityConverter.cs" t="Include" />
