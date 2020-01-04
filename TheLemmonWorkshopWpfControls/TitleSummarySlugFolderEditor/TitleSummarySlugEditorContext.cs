@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.Command;
 using JetBrains.Annotations;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Models;
@@ -21,6 +22,7 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
         private ITitleSummarySlugFolder _dbEntry;
         private StatusControlContext _statusContext;
         private string _folder;
+        private RelayCommand _titleToSlugCommand;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
@@ -109,6 +111,8 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            TitleToSlugCommand = new RelayCommand(() => StatusContext.RunBlockingAction(() => Slug = TheLemmonWorkshopData.Slug.Create(true, Title)));
+            
             DbEntry = dbEntry;
 
             if (DbEntry == null)
@@ -125,6 +129,18 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
             Title = DbEntry.Title ?? string.Empty;
             Slug = DbEntry.Slug ?? string.Empty;
             Folder = DbEntry.Folder ?? string.Empty;
+
+        }
+
+        public RelayCommand TitleToSlugCommand
+        {
+            get => _titleToSlugCommand;
+            set
+            {
+                if (Equals(value, _titleToSlugCommand)) return;
+                _titleToSlugCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public ITitleSummarySlugFolder DbEntry

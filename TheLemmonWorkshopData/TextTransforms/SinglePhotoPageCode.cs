@@ -39,13 +39,13 @@ namespace TheLemmonWorkshopData.TextTransforms
                 DbEntry.ShutterSpeed));
             outerContainer.Children.Add(InfoDivTag($"ISO {DbEntry.Iso?.ToString("F0")}", "photo-detail", "iso",
                 DbEntry.Iso?.ToString("F0")));
+            outerContainer.Children.Add(InfoDivTag(DbEntry.Lens, "photo-detail", "lens", DbEntry.Lens));
             outerContainer.Children.Add(InfoDivTag(DbEntry.FocalLength, "photo-detail", "focal-length",
                 DbEntry.FocalLength));
             outerContainer.Children.Add(InfoDivTag(DbEntry.CameraMake, "photo-detail", "camera-make",
                 DbEntry.CameraMake));
             outerContainer.Children.Add(InfoDivTag(DbEntry.CameraModel, "photo-detail", "camera-model",
                 DbEntry.CameraModel));
-            outerContainer.Children.Add(InfoDivTag(DbEntry.Lens, "photo-detail", "lens", DbEntry.Lens));
             outerContainer.Children.Add(InfoDivTag(DbEntry.License, "photo-detail", "license", DbEntry.License));
 
             return outerContainer;
@@ -71,7 +71,7 @@ namespace TheLemmonWorkshopData.TextTransforms
         {
             var imageTag = new HtmlTag("img");
             imageTag.Attr("srcset", SrcSetString());
-            imageTag.Attr("src", SiteUrl);
+            imageTag.Attr("src", DisplayImage.SiteUrl);
             imageTag.Attr("loading", "lazy");
             if(!string.IsNullOrWhiteSpace(DbEntry.AltText)) imageTag.Attr("alt", DbEntry.AltText);
             imageTag.AddClass("single-photo");
@@ -99,23 +99,30 @@ namespace TheLemmonWorkshopData.TextTransforms
             return tagsContainer;
         }
 
+        public HtmlTag StandardHorizontalRule()
+        {
+            return new HtmlTag("hr").AddClass("standard-rule");
+        }
+        
         public HtmlTag CreatedDiv()
         {
             var createdByDiv = new DivTag();
             createdByDiv.AddClass("created-by-container");
             
-            createdByDiv.Children.Add(new DivTag().AddClass("created-by-content").Text(
-                $"Created by {DbEntry.CreatedBy} on {DbEntry.CreatedOn:M/d/yyyy}."));
+            createdByDiv.Children.Add(new HtmlTags.HtmlTag("div").AddClass("created-title").Text("Created:"));
+            
+            createdByDiv.Children.Add(new HtmlTag("p").AddClass("created-by-content").Text(
+                $"{DbEntry.CreatedBy}, {DbEntry.CreatedOn:M/d/yyyy}"));
 
             return createdByDiv;
         }
         
         public HtmlTag SiteNameDiv()
         {
-            var createdByDiv = new DivTag();
-            createdByDiv.AddClass("site-name-container");
+            var createdByDiv = new DivTag().AddClass("site-name-container");
+            createdByDiv.Children.Add(StandardHorizontalRule());
             
-            createdByDiv.Children.Add(new DivTag().AddClass("created-by-content").Text(
+            createdByDiv.Children.Add(new DivTag().AddClass("site-name-content").Text(
                 $"{SiteName}"));
 
             return createdByDiv;
@@ -125,15 +132,13 @@ namespace TheLemmonWorkshopData.TextTransforms
         {
             if(string.IsNullOrWhiteSpace(DbEntry.UpdateNotes)) return HtmlTag.Empty();
 
-            var updateNotesDiv = new DivTag();
-            updateNotesDiv.AddClass("update-notes-container");
+            var updateNotesDiv = new DivTag().AddClass("update-notes-container");
             
-            var headingTag = new HtmlTags.HtmlTag("h3");
-            headingTag.AddClass("update-notes-title");
-            headingTag.Text("Update History");
+            updateNotesDiv.Children.Add(StandardHorizontalRule());
             
-            var updateNotesContentContainer = new HtmlTags.DivTag();
-            updateNotesContentContainer.AddClass("update-notes-content");
+            var headingTag = new HtmlTags.HtmlTag("div").AddClass("update-notes-title").Text("Updates:");
+            
+            var updateNotesContentContainer = new HtmlTags.DivTag().AddClass("update-notes-content");
 
             var updateNotesHtml = ContentProcessor.ContentHtml(DbEntry.UpdateNotesFormat, DbEntry.UpdateNotes);
             if (updateNotesHtml.success)
@@ -156,13 +161,16 @@ namespace TheLemmonWorkshopData.TextTransforms
 
             var summaryStringList = new List<string>();
 
-            summaryStringList.Add($"{DbEntry.Title}.");
+            var titleSummaryString = DbEntry.Title;
             
             if (!string.IsNullOrWhiteSpace(DbEntry.Summary))
             {
-                if (!DbEntry.Summary.Trim().EndsWith(".")) summaryStringList.Add($"{DbEntry.Summary.Trim()}.");
-                else summaryStringList.Add($"{DbEntry.Summary.Trim()}");
+                titleSummaryString += ": ";
+                if (!DbEntry.Summary.Trim().EndsWith(".")) titleSummaryString += $"{DbEntry.Summary.Trim()}.";
+                else titleSummaryString += $"{DbEntry.Summary.Trim()}";
             }
+            
+            summaryStringList.Add(titleSummaryString);
 
             summaryStringList.Add($"{DbEntry.PhotoCreatedBy}.");
             summaryStringList.Add($"{DbEntry.PhotoCreatedOn:M/d/yyyy}.");
@@ -183,12 +191,6 @@ namespace TheLemmonWorkshopData.TextTransforms
             DisplayImage = new ImageFileInformation
             {
                 FileName = displayImageFile.Name,
-                Height =
-                    int.Parse(Regex.Match(displayImageFile.Name, @".*--(?<height>\d*)h.*", RegexOptions.Singleline)
-                        .Groups["height"].Value),
-                Width = int.Parse(Regex
-                    .Match(displayImageFile.Name, @".*--(?<width>\d*)w.*", RegexOptions.Singleline).Groups["width"]
-                    .Value),
                 SiteUrl = $@"//{SiteUrl}/Photos/{DbEntry.Folder}/{DbEntry.Slug}/{displayImageFile.Name}"
             };
 

@@ -34,17 +34,20 @@
     body {
         font-family: Geneva, ‘Lucida Sans’, ‘Lucida Grande’, ‘Lucida Sans Unicode’, Verdana, sans-serif;
         color: rgb(220, 220, 220);
+        margin-top: 0;
+        font-size: 16px;
     }
 
     .single-photo-container {
         text-align: center;
+        margin-top: 1vh;
     }
 
     .single-photo {
         width: auto;
         height: auto;
         max-width: 100%;
-        max-height: 90vh;
+        max-height: 98vh;
     }
 
     .photo-caption {
@@ -107,6 +110,18 @@
     .site-name-container {
         margin: 2.5rem;
         text-align: center;
+    }
+
+    .standard-rule {
+        border-radius: 4px;
+        color: rgb(220, 220, 220);
+        opacity: .2;
+        max-width: 60%;
+        margin-bottom: 1rem;
+    }
+
+    .site-name-content {
+        color: black;
     }
 
 </style>

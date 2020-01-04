@@ -12,19 +12,20 @@
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Vertical">
-                <TextBlock>Title</TextBlock>
+                <Label>Title</Label>
                 <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Command="{Binding TitleToSlugCommand}">Title to Slug</Button>
             </StackPanel>
             <StackPanel Orientation="Vertical">
-                <TextBlock>Slug</TextBlock>
+                <Label>Slug</Label>
                 <TextBox Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Orientation="Vertical">
-                <TextBlock>Folder</TextBlock>
+                <Label>Folder</Label>
                 <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Orientation="Vertical">
-                <TextBlock>Summary</TextBlock>
+                <Label>Summary</Label>
                 <TextBox
                     AcceptsReturn="True"
                     Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}"

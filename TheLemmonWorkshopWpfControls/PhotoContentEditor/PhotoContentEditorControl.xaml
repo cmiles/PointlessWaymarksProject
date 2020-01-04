@@ -94,7 +94,8 @@
                         <StackPanel Margin="4">
                             <StackPanel Orientation="Vertical">
                                 <Label>Alt Text</Label>
-                                <TextBox Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox AcceptsReturn="True" MinLines="2" MaxLines="2" TextWrapping="Wrap"
+                                         Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <Label>Photo Created By</Label>
