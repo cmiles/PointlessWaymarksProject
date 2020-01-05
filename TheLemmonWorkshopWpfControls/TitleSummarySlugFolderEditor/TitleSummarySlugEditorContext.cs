@@ -111,8 +111,9 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            TitleToSlugCommand = new RelayCommand(() => StatusContext.RunBlockingAction(() => Slug = TheLemmonWorkshopData.Slug.Create(true, Title)));
-            
+            TitleToSlugCommand = new RelayCommand(() =>
+                StatusContext.RunBlockingAction(() => Slug = TheLemmonWorkshopData.Slug.Create(true, Title)));
+
             DbEntry = dbEntry;
 
             if (DbEntry == null)
@@ -129,7 +130,6 @@ namespace TheLemmonWorkshopWpfControls.TitleSummarySlugEditor
             Title = DbEntry.Title ?? string.Empty;
             Slug = DbEntry.Slug ?? string.Empty;
             Folder = DbEntry.Folder ?? string.Empty;
-
         }
 
         public RelayCommand TitleToSlugCommand

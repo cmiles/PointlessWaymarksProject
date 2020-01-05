@@ -15,11 +15,12 @@ namespace TheLemmonWorkshopData.TextTransforms
 
             return ProcessPhotosInDirectory(dbEntry, contentDirectory, settings.SiteUrl);
         }
-        
-        public static PhotoDirectoryContentsInformation ProcessPhotosInDirectory(PhotoContent dbEntry, DirectoryInfo directoryInfo, string siteUrl)
-                 {
-                     var toReturn = new PhotoDirectoryContentsInformation();
-                     
+
+        public static PhotoDirectoryContentsInformation ProcessPhotosInDirectory(PhotoContent dbEntry,
+            DirectoryInfo directoryInfo, string siteUrl)
+        {
+            var toReturn = new PhotoDirectoryContentsInformation();
+
             var baseFileNameList = dbEntry.OriginalFileName.Split(".").ToList();
             var baseFileName = string.Join("", baseFileNameList.Take(baseFileNameList.Count - 1));
 
@@ -50,8 +51,6 @@ namespace TheLemmonWorkshopData.TextTransforms
             toReturn.SmallImage = toReturn.SrcsetImages.OrderBy(x => Math.Max(x.Height, x.Width)).First();
 
             return toReturn;
-                 }
-
-
+        }
     }
 }

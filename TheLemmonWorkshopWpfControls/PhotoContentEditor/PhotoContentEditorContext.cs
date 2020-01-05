@@ -420,7 +420,6 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             };
         }
 
-
         private async Task SaveAndCreateLocal()
         {
             var validationList = await ValidateAll();

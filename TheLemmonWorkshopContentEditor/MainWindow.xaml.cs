@@ -11,6 +11,7 @@ using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.ItemContentEditor;
 using TheLemmonWorkshopWpfControls.PhotoContentEditor;
 using TheLemmonWorkshopWpfControls.PhotoList;
+using TheLemmonWorkshopWpfControls.PostContentEditor;
 using TheLemmonWorkshopWpfControls.Utility;
 
 namespace TheLemmonWorkshopContentEditor
@@ -31,13 +32,15 @@ namespace TheLemmonWorkshopContentEditor
 
             StatusContext = new StatusControlContext();
 
-            NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
+            //NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
             EditPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(EditPhotoContent));
             PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
-            
+            NewPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostContent));
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
+
+        public RelayCommand NewPostContentCommand { get; set; }
 
         public RelayCommand PhotoListWindowCommand { get; set; }
 
@@ -49,17 +52,17 @@ namespace TheLemmonWorkshopContentEditor
                 StatusContext.ToastWarning("Nothing Selected?");
                 return;
             }
-            
-            if(ContextListContext.SelectedItem.ContentType != "Photo")
+
+            if (ContextListContext.SelectedItem.ContentType != "Photo")
             {
                 StatusContext.ToastWarning("Photo not Selected.");
                 return;
             }
 
-            var photo = (PhotoContent)ContextListContext.SelectedItem.SummaryInfo;
+            var photo = (PhotoContent) ContextListContext.SelectedItem.SummaryInfo;
 
             await ThreadSwitcher.ResumeForegroundAsync();
-            
+
             var newContentWindow = new PhotoContentEditorWindow(photo) {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
@@ -131,7 +134,15 @@ namespace TheLemmonWorkshopContentEditor
             var newContentWindow = new PhotoContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
-        
+
+        private async Task NewPostContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PostContentEditorWindow() {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+
         private async Task NewPhotoList()
         {
             await ThreadSwitcher.ResumeForegroundAsync();

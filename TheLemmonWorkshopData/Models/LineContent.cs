@@ -19,9 +19,8 @@ namespace TheLemmonWorkshopData.Models
         [Column(TypeName = "geometry")] public Geometry LocationData { get; set; }
 
         public string LocationDataType { get; set; }
-        public string MainImage { get; set; }
+        public Guid? MainImage { get; set; }
 
-        public string MainImageFormat { get; set; }
         public string Slug { get; set; }
         public string Summary { get; set; }
         public string Tags { get; set; }

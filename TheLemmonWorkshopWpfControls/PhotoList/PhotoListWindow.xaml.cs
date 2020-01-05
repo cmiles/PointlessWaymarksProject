@@ -25,7 +25,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
 
             GenerateSelectedHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
             EditSelectedContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            
+
             DataContext = this;
         }
 
@@ -48,7 +48,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
                 htmlContext.WriteLocalHtml();
             }
         }
-        
+
         private async Task EditSelectedContent()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -63,10 +63,11 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var newContentWindow = new PhotoContentEditorWindow(loopSelected.DbEntry) {Left = Left + 4, Top = Top + 4};
-                
+                var newContentWindow =
+                    new PhotoContentEditorWindow(loopSelected.DbEntry) {Left = Left + 4, Top = Top + 4};
+
                 newContentWindow.Show();
-                
+
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
         }

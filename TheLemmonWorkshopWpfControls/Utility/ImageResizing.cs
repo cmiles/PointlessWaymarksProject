@@ -167,14 +167,14 @@ namespace TheLemmonWorkshopWpfControls.Utility
 
                     returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 400, 72));
                 }
-                
+
                 if (originalWidth > 200)
                 {
                     progress.Report("Resize: 200, 72");
 
                     returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 200, 72));
                 }
-                
+
                 if (originalWidth > 100)
                 {
                     progress.Report("Resize: 100, 72");

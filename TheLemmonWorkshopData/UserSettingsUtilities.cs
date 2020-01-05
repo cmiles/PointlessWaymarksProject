@@ -65,9 +65,10 @@ namespace TheLemmonWorkshopData
 
         public static DirectoryInfo LocalSitePhotoContentDirectory(this UserSettings settings, PhotoContent content)
         {
-            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName, content.Folder, content.Slug));
-            if(!contentDirectory.Exists) contentDirectory.Create();
-            
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
+                content.Folder, content.Slug));
+            if (!contentDirectory.Exists) contentDirectory.Create();
+
             contentDirectory.Refresh();
 
             return contentDirectory;

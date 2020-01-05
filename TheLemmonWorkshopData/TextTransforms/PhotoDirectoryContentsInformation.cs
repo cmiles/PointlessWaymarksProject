@@ -12,7 +12,7 @@ namespace TheLemmonWorkshopData.TextTransforms
         public List<ImageFileInformation> SrcsetImages { get; set; }
 
         public ImageFileInformation DisplayImage { get; set; }
-        
+
         public string SrcSetString()
         {
             return string.Join(", ",

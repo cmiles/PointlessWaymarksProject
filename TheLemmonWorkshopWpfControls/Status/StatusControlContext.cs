@@ -257,7 +257,7 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
         {
             Task.Run(toRun).ContinueWith(FireAndForgetTaskWithToastErrorReturnCompleted);
         }
-        
+
         public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
         {
             BlockUi = true;

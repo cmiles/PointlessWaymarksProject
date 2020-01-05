@@ -14,9 +14,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
         {
             if (DataContext == null) return;
             var viewmodel = (PhotoListContext) DataContext;
-            viewmodel.SelectedItems = PhotoListBox?.SelectedItems
-                .Cast<PhotoListListItem>()
-                .ToList();
+            viewmodel.SelectedItems = PhotoListBox?.SelectedItems.Cast<PhotoListListItem>().ToList();
         }
     }
 }

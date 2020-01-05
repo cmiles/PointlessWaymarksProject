@@ -219,6 +219,13 @@
           <e p="PhotoListWindow.xaml" t="Include" />
           <e p="PhotoListWindow.xaml.cs" t="Include" />
         </e>
+        <e p="PostContentEditor" t="Include">
+          <e p="PostContentEditorContext.cs" t="Include" />
+          <e p="PostContentEditorControl.xaml" t="Include" />
+          <e p="PostContentEditorControl.xaml.cs" t="Include" />
+          <e p="PostContentEditorWindow.xaml" t="Include" />
+          <e p="PostContentEditorWindow.xaml.cs" t="Include" />
+        </e>
         <e p="Status" t="Include">
           <e p="StatusControl.xaml" t="Include" />
           <e p="StatusControl.xaml.cs" t="Include" />

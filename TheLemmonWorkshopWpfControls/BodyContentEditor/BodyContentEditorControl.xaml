@@ -26,6 +26,7 @@
                     AcceptsReturn="True"
                     Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap"
+                    BorderThickness="0"
                     VerticalScrollBarVisibility="Visible" />
             </GroupBox>
             <GroupBox Grid.Column="1" Header="Preview">

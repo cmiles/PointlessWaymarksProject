@@ -75,7 +75,7 @@ namespace TheLemmonWorkshopWpfControls.ContentList
                 new ContentListItem {ContentType = "Post", SummaryInfo = (ITitleSummarySlugFolder) x}).ToList());
 
             Items = new ObservableCollection<ContentListItem>(rawList);
-            if(Items.Any()) SelectedItem = Items.First();
+            if (Items.Any()) SelectedItem = Items.First();
         }
 
         [NotifyPropertyChangedInvocator]

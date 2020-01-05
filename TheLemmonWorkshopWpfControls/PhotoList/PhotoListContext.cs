@@ -56,19 +56,19 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
             var settings = await UserSettingsUtilities.ReadSettings();
 
             var photoDirectory = settings.LocalSitePhotoDirectory();
-            
+
             var dbItems = db.PhotoContents.ToList();
             var listItems = new List<PhotoListListItem>();
-            
+
             foreach (var loopItems in dbItems)
             {
-                listItems.Add( new PhotoListListItem
+                listItems.Add(new PhotoListListItem
                 {
                     DbEntry = loopItems,
                     SmallImageUrl = PhotoFiles.ProcessPhotosInDirectory(loopItems).SmallImage?.File.FullName
                 });
             }
-            
+
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Items = new ObservableRangeCollection<PhotoListListItem>(listItems);

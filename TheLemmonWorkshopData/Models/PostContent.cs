@@ -15,9 +15,8 @@ namespace TheLemmonWorkshopData.Models
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
 
-        public string MainImage { get; set; }
+        public Guid? MainImage { get; set; }
 
-        public string MainImageFormat { get; set; }
         public string Slug { get; set; }
         public string Summary { get; set; }
         public string Tags { get; set; }

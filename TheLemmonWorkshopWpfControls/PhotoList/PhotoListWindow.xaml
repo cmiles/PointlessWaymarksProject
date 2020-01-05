@@ -9,8 +9,8 @@
         Title="PhotoListWindow" Height="800" Width="800" d:DataContext="{d:DesignInstance local:PhotoListWindow}">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <local:PhotoListControl DataContext="{Binding ListContext}" />
         <StackPanel Grid.Row="1" Margin="4" HorizontalAlignment="Center" Orientation="Horizontal">

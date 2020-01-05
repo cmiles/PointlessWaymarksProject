@@ -9,7 +9,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
     {
         private PhotoContent _dbEntry;
         private string _smallImageUrl;
-        
+
         public PhotoContent DbEntry
         {
             get => _dbEntry;

@@ -90,7 +90,7 @@ namespace TheLemmonWorkshopData.TextTransforms
 
             var htmlString = htmlContext.TransformText();
 
-            var htmlFileInfo = 
+            var htmlFileInfo =
                 new FileInfo(
                     $"{Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
 

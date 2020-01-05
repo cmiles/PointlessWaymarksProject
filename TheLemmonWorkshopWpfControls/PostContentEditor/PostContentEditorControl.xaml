@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="TheLemmonWorkshopWpfControls.PostContentEditor.PostContentEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TheLemmonWorkshopWpfControls.PostContentEditor"
+             xmlns:contentIdViewer="clr-namespace:TheLemmonWorkshopWpfControls.ContentIdViewer"
+             xmlns:updatesByAndOnDisplay="clr-namespace:TheLemmonWorkshopWpfControls.UpdatesByAndOnDisplay"
+             xmlns:titleSummarySlugEditor="clr-namespace:TheLemmonWorkshopWpfControls.TitleSummarySlugEditor"
+             xmlns:tagsEditor="clr-namespace:TheLemmonWorkshopWpfControls.TagsEditor"
+             xmlns:updateNotesEditor="clr-namespace:TheLemmonWorkshopWpfControls.UpdateNotesEditor"
+             xmlns:bodyContentEditor="clr-namespace:TheLemmonWorkshopWpfControls.BodyContentEditor"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:PostContentEditorContext}">
+    <Grid>
+        <TabControl>
+            <TabItem Header="Summary">
+                <Grid>
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="4" CanHorizontallyScroll="False">
+                            <titleSummarySlugEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding Tags}" />
+                            <updatesByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedAndUpdatedByAndOnDisplay}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Post Body">
+                <Grid>
+                    <bodyContentEditor:BodyContentEditorControl DataContext="{Binding BodyContent}" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Update Notes">
+                <Grid>
+                    <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
