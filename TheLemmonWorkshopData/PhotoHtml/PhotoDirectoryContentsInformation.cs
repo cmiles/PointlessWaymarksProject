@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace TheLemmonWorkshopData.TextTransforms
+namespace TheLemmonWorkshopData.PhotoHtml
 {
     public class PhotoDirectoryContentsInformation
     {

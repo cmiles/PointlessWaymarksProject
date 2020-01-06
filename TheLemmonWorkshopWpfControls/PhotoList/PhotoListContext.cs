@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers;
 using TheLemmonWorkshopData;
-using TheLemmonWorkshopData.TextTransforms;
+using TheLemmonWorkshopData.PhotoHtml;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
 
@@ -53,20 +54,18 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
 
             var db = await Db.Context();
 
-            var settings = await UserSettingsUtilities.ReadSettings();
-
-            var photoDirectory = settings.LocalSitePhotoDirectory();
-
             var dbItems = db.PhotoContents.ToList();
             var listItems = new List<PhotoListListItem>();
 
             foreach (var loopItems in dbItems)
             {
-                listItems.Add(new PhotoListListItem
+                var newPhotoItem = new PhotoListListItem
                 {
                     DbEntry = loopItems,
                     SmallImageUrl = PhotoFiles.ProcessPhotosInDirectory(loopItems).SmallImage?.File.FullName
-                });
+                };
+
+                listItems.Add(newPhotoItem);
             }
 
             await ThreadSwitcher.ResumeForegroundAsync();

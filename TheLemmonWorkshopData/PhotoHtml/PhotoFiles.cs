@@ -2,9 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using SixLabors.ImageSharp;
 using TheLemmonWorkshopData.Models;
 
-namespace TheLemmonWorkshopData.TextTransforms
+namespace TheLemmonWorkshopData.PhotoHtml
 {
     public static class PhotoFiles
     {
@@ -26,13 +27,24 @@ namespace TheLemmonWorkshopData.TextTransforms
 
             var fileVariants = directoryInfo.GetFiles().Where(x => x.Name.StartsWith($"{baseFileName}--")).ToList();
 
-            var displayImageFile = fileVariants.Single(x => x.Name.Contains("--For-Display"));
-            toReturn.DisplayImage = new ImageFileInformation
+            var displayImageFile = fileVariants.SingleOrDefault(x => x.Name.Contains("--For-Display"));
+
+            if (displayImageFile != null && displayImageFile.Exists)
             {
-                FileName = displayImageFile.Name,
-                SiteUrl = $@"//{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
-                File = displayImageFile
-            };
+                toReturn.DisplayImage = new ImageFileInformation
+                {
+                    FileName = displayImageFile.Name,
+                    SiteUrl = $@"//{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
+                    File = displayImageFile,
+                    Height =
+                        int.Parse(Regex
+                            .Match(displayImageFile.Name, @".*--(?<height>\d*)h.*", RegexOptions.Singleline)
+                            .Groups["height"].Value),
+                    Width = int.Parse(Regex
+                        .Match(displayImageFile.Name, @".*--(?<width>\d*)w.*", RegexOptions.Singleline)
+                        .Groups["width"].Value),
+                };
+            }
 
             var srcsetImageFiles = fileVariants.Where(x => x.Name.Contains("--Sized"));
             toReturn.SrcsetImages = srcsetImageFiles.Select(x => new ImageFileInformation

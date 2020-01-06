@@ -200,7 +200,7 @@ namespace TheLemmonWorkshopWpfControls.Utility
                     image.Mutate(ctx => ctx.Resize(width, newHeight, KnownResamplers.Bicubic));
 
                     newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
-                        $"{Path.GetFileNameWithoutExtension(toResize.Name)}--For-Display.jpg");
+                        $"{Path.GetFileNameWithoutExtension(toResize.Name)}--For-Display--{image.Width}w--{image.Height}h.jpg");
 
                     var newFileInfo = new FileInfo(newFile);
                     if (newFileInfo.Exists) newFileInfo.Delete();

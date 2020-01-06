@@ -17,6 +17,7 @@ using Microsoft.Extensions.Options;
 using Omu.ValueInjecter;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Models;
+using TheLemmonWorkshopData.PhotoHtml;
 using TheLemmonWorkshopWpfControls.ContentIdViewer;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.TagsEditor;
@@ -665,7 +666,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var htmlContext = new TheLemmonWorkshopData.TextTransforms.SinglePhotoPage(DbEntry);
+            var htmlContext = new SinglePhotoPage(DbEntry);
 
             htmlContext.WriteLocalHtml();
         }

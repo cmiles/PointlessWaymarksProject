@@ -53,6 +53,21 @@ namespace TheLemmonWorkshopData
             return $"//{settings.SiteName}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
+        public static string PostPageUrl(this UserSettings settings, PostContent content)
+        {
+            return $"//{settings.SiteName}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static DirectoryInfo LocalSitePostDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Posts"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
         public static DirectoryInfo LocalSitePhotoDirectory(this UserSettings settings)
         {
             var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos"));
@@ -66,6 +81,17 @@ namespace TheLemmonWorkshopData
         public static DirectoryInfo LocalSitePhotoContentDirectory(this UserSettings settings, PhotoContent content)
         {
             var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
+                content.Folder, content.Slug));
+            if (!contentDirectory.Exists) contentDirectory.Create();
+
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+        public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePostDirectory().FullName,
                 content.Folder, content.Slug));
             if (!contentDirectory.Exists) contentDirectory.Create();
 

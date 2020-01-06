@@ -23,7 +23,11 @@
       <e p="TheLemmonWorkshopContentEditor.sln" t="IncludeFlat" />
       <e p="TheLemmonWorkshopData" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
+        <e p="CommonHtml" t="Include">
+          <e p="Styles.cs" t="Include" />
+        </e>
         <e p="ContentProcessor.cs" t="Include" />
+        <e p="Db.cs" t="Include" />
         <e p="DistanceHelpers.cs" t="Include" />
         <e p="Elevation" t="Include">
           <e p="GoogleElevationResponse.cs" t="Include" />
@@ -62,16 +66,21 @@
             </e>
           </e>
         </e>
-        <e p="Slug.cs" t="Include" />
-        <e p="SpatialHelpers.cs" t="Include" />
-        <e p="TextTransforms" t="Include">
+        <e p="PhotoHtml" t="Include">
           <e p="ImageFileInformation.cs" t="Include" />
+          <e p="PhotoBracketCode.cs" t="Include" />
           <e p="PhotoDirectoryContentsInformation.cs" t="Include" />
           <e p="PhotoFiles.cs" t="Include" />
+          <e p="PhotoStyles.cs" t="Include" />
           <e p="SinglePhotoPage.cs" t="Include" />
           <e p="SinglePhotoPage.tt" t="Include" />
           <e p="SinglePhotoPageCode.cs" t="Include" />
         </e>
+        <e p="PostHtml" t="Include">
+          <e p="SinglePostPageCode.cs" t="Include" />
+        </e>
+        <e p="Slug.cs" t="Include" />
+        <e p="SpatialHelpers.cs" t="Include" />
         <e p="TheLemmonWorkshopData.csproj" t="IncludeRecursive" />
         <e p="UserSettings.cs" t="Include" />
         <e p="UserSettingsUtilities.cs" t="Include" />
@@ -106,7 +115,6 @@
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml" t="Include" />
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml.cs" t="Include" />
         </e>
-        <e p="Db.cs" t="Include" />
         <e p="GeoDataPicker" t="Include">
           <e p="GeoDataMapDisplayObject.cs" t="Include" />
           <e p="GeoDataPickerContext.cs" t="Include" />
@@ -156,9 +164,6 @@
               <e p="ContentList" t="Include">
                 <e p="ContentListControl.g.cs" t="Include" />
               </e>
-              <e p="ControlStatus" t="Include">
-                <e p="StatusControl.g.cs" t="Include" />
-              </e>
               <e p="CreatedAndUpdatedByAndOnDisplay" t="Include">
                 <e p="CreatedAndUpdatedByAndOnDisplayControl.g.cs" t="Include" />
               </e>
@@ -183,6 +188,17 @@
               <e p="PhotoContentEditor" t="Include">
                 <e p="PhotoContentEditorControl.g.cs" t="Include" />
                 <e p="PhotoContentEditorWindow.g.cs" t="Include" />
+              </e>
+              <e p="PhotoList" t="Include">
+                <e p="PhotoListControl.g.cs" t="Include" />
+                <e p="PhotoListWindow.g.cs" t="Include" />
+              </e>
+              <e p="PostContentEditor" t="Include">
+                <e p="PostContentEditorControl.g.cs" t="Include" />
+                <e p="PostContentEditorWindow.g.cs" t="Include" />
+              </e>
+              <e p="Status" t="Include">
+                <e p="StatusControl.g.cs" t="Include" />
               </e>
               <e p="TagsEditor" t="Include">
                 <e p="TagsEditorControl.g.cs" t="Include" />

@@ -255,13 +255,28 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
 
         public void RunFireAndForgetTaskWithUiToastErrorReturn(Func<Task> toRun)
         {
-            Task.Run(toRun).ContinueWith(FireAndForgetTaskWithToastErrorReturnCompleted);
+            try
+            {
+                Task.Run(async () => await toRun()).ContinueWith(FireAndForgetTaskWithToastErrorReturnCompleted);
+            }
+            catch (Exception e)
+            {
+                ToastError($"Error: {e.Message}");
+            }
         }
 
         public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
         {
-            BlockUi = true;
-            Task.Run(toRun).ContinueWith(FireAndForgetBlockingTaskWithUiMessageReturnCompleted);
+            try
+            {
+                BlockUi = true;
+                Task.Run(async () => await toRun()).ContinueWith(FireAndForgetBlockingTaskWithUiMessageReturnCompleted);
+            }
+            catch (Exception e)
+            {
+                ShowMessage("Error", e.ToString(), new List<string> {"Ok"}).Wait();
+                BlockUi = false;
+            }
         }
 
         public async Task<string> ShowMessage(string title, string body, List<string> buttons)
@@ -417,7 +432,8 @@ namespace TheLemmonWorkshopWpfControls.ControlStatus
             if (obj.IsCanceled) return;
 
             if (obj.IsFaulted) await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
-            else BlockUi = false;
+
+            BlockUi = false;
         }
 
         private void ProgressTrackerChange(object sender, string e)

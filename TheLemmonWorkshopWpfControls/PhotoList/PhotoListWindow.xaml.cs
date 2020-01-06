@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using System.Windows;
 using System.Windows.Documents;
 using GalaSoft.MvvmLight.Command;
 using JetBrains.Annotations;
+using TheLemmonWorkshopData.PhotoHtml;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.PhotoContentEditor;
 using TheLemmonWorkshopWpfControls.Utility;
@@ -21,13 +23,40 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
-            ListContext = new PhotoListContext(null);
+            ListContext = new PhotoListContext(StatusContext);
 
             GenerateSelectedHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
             EditSelectedContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            PhotoCodesToClipboardForSelectedCommand =
+                new RelayCommand(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
 
             DataContext = this;
         }
+
+        private async Task PhotoCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = string.Empty;
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+            {
+                finalString +=
+                    @$"{{{{photo {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+        }
+
+        public RelayCommand PhotoCodesToClipboardForSelectedCommand { get; set; }
 
         public RelayCommand EditSelectedContentCommand { get; set; }
 
@@ -43,7 +72,7 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
 
             foreach (var loopSelected in ListContext.SelectedItems)
             {
-                var htmlContext = new TheLemmonWorkshopData.TextTransforms.SinglePhotoPage(loopSelected.DbEntry);
+                var htmlContext = new SinglePhotoPage(loopSelected.DbEntry);
 
                 htmlContext.WriteLocalHtml();
             }

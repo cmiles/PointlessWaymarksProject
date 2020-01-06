@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Models;
+using TheLemmonWorkshopData.PhotoHtml;
 using TheLemmonWorkshopWpfControls.ContentFormat;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 using TheLemmonWorkshopWpfControls.Utility;
@@ -114,8 +115,14 @@ namespace TheLemmonWorkshopWpfControls.BodyContentEditor
 
             try
             {
-                var processResults = ContentProcessor.ContentHtml(BodyContentFormat.SelectedContentFormat, BodyContent);
-                BodyContentHtmlOutput = processResults.ToHtmlDocument("Update Notes", string.Empty);
+                var preprocessResults = PhotoBracketCode.LocalMarkdownPreprocessedForSitePhotoTags(BodyContent);
+                var processResults =
+                    ContentProcessor.ContentHtml(BodyContentFormat.SelectedContentFormat, preprocessResults);
+
+                var styleBlock = TheLemmonWorkshopData.CommonHtml.Styles.BodyStyle();
+                styleBlock += PhotoStyles.SinglePhotoStyles();
+
+                BodyContentHtmlOutput = processResults.ToHtmlDocument("Body Content", styleBlock);
             }
             catch (Exception e)
             {

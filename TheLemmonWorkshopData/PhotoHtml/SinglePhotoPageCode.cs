@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using HtmlTags;
-using HtmlTags.Extended.TagBuilders;
 using TheLemmonWorkshopData.Models;
 
-namespace TheLemmonWorkshopData.TextTransforms
+namespace TheLemmonWorkshopData.PhotoHtml
 {
     public partial class SinglePhotoPage
     {
@@ -72,14 +70,38 @@ namespace TheLemmonWorkshopData.TextTransforms
 
         public HtmlTag PhotoImageTag()
         {
-            var imageTag = new HtmlTag("img");
-            imageTag.Attr("srcset", Photos.SrcSetString());
-            imageTag.Attr("src", Photos.DisplayImage.SiteUrl);
-            imageTag.Attr("loading", "lazy");
+            var imageTag = new HtmlTag("img").AddClass("single-photo").Attr("srcset", Photos.SrcSetString())
+                .Attr("src", Photos.DisplayImage.SiteUrl).Attr("loading", "lazy");
+
             if (!string.IsNullOrWhiteSpace(DbEntry.AltText)) imageTag.Attr("alt", DbEntry.AltText);
-            imageTag.AddClass("single-photo");
 
             return imageTag;
+        }
+
+        public HtmlTag LocalDisplayPhotoImageTag()
+        {
+            var imageTag = new HtmlTag("img").AddClass("single-photo")
+                .Attr("src", $"file://{Photos.DisplayImage.File.FullName}").Attr("loading", "lazy");
+
+            if (!string.IsNullOrWhiteSpace(DbEntry.AltText)) imageTag.Attr("alt", DbEntry.AltText);
+
+            return imageTag;
+        }
+
+        public HtmlTag LocalPhotoFigureTag()
+        {
+            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
+            figureTag.Children.Add(LocalDisplayPhotoImageTag());
+            figureTag.Children.Add(PhotoFigCaptionTag());
+            return figureTag;
+        }
+
+        public HtmlTag PhotoFigureTag()
+        {
+            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
+            figureTag.Children.Add(PhotoImageTag());
+            figureTag.Children.Add(PhotoFigCaptionTag());
+            return figureTag;
         }
 
         public void WriteLocalHtml()
@@ -133,20 +155,20 @@ namespace TheLemmonWorkshopData.TextTransforms
             var createdByDiv = new DivTag();
             createdByDiv.AddClass("created-by-container");
 
-            createdByDiv.Children.Add(new HtmlTag("div").AddClass("created-title").Text("Page Created:"));
+            createdByDiv.Children.Add(new HtmlTag("div").AddClass("created-title"));
 
             createdByDiv.Children.Add(new HtmlTag("p").AddClass("created-by-content").Text(
-                $"{DbEntry.CreatedBy}, {DbEntry.CreatedOn:M/d/yyyy}"));
+                $"Page Created by {DbEntry.CreatedBy}, {DbEntry.CreatedOn:M/d/yyyy}"));
 
             return createdByDiv;
         }
 
-        public HtmlTag SiteNameDiv()
+        public HtmlTag SiteNameFooterDiv()
         {
-            var createdByDiv = new DivTag().AddClass("site-name-container");
+            var createdByDiv = new DivTag().AddClass("site-name-footer-container");
             createdByDiv.Children.Add(StandardHorizontalRule());
 
-            createdByDiv.Children.Add(new DivTag().AddClass("site-name-content").Text($"{SiteName}"));
+            createdByDiv.Children.Add(new DivTag().AddClass("site-name-footer-content").Text($"{SiteName}"));
 
             return createdByDiv;
         }
@@ -185,20 +207,22 @@ namespace TheLemmonWorkshopData.TextTransforms
             return updateNotesDiv;
         }
 
+
         public HtmlTag PhotoFigCaptionTag()
         {
             if (string.IsNullOrWhiteSpace(DbEntry.Summary)) return HtmlTag.Empty();
 
             var figCaptionTag = new HtmlTag("figcaption");
-            figCaptionTag.AddClass("photo-caption");
+            figCaptionTag.AddClass("single-photo-caption");
 
             var summaryStringList = new List<string>();
 
-            var titleSummaryString = DbEntry.Title;
+            //var titleSummaryString = DbEntry.Title;
+            var titleSummaryString = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(DbEntry.Summary))
             {
-                titleSummaryString += ": ";
+                //titleSummaryString += ": ";
                 if (!DbEntry.Summary.Trim().EndsWith(".")) titleSummaryString += $"{DbEntry.Summary.Trim()}.";
                 else titleSummaryString += $"{DbEntry.Summary.Trim()}";
             }
