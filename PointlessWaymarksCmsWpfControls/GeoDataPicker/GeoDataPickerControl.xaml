@@ -1,0 +1,127 @@
+﻿<UserControl
+    x:Class="PointlessWaymarksCmsWpfControls.GeoDataPicker.GeoDataPickerControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:io="clr-namespace:NetTopologySuite.IO;assembly=NetTopologySuite.IO.GPX"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:xamlMapConstructs="clr-namespace:PointlessWaymarksCmsWpfControls.XamlMapConstructs"
+    xmlns:geoDataPicker="clr-namespace:PointlessWaymarksCmsWpfControls.GeoDataPicker"
+    d:DataContext="{d:DesignInstance geoDataPicker:GeoDataPickerContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <GroupBox Header="Data List">
+            <Grid Width="200">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Button Margin="2" Command="{Binding StartLoadCommand}">Load File</Button>
+                <Button
+                    Grid.Row="1"
+                    Margin="2"
+                    Command="{Binding ClearItemsCommand}">
+                    Clear All Data
+                </Button>
+                <GroupBox Grid.Row="2" Header="Points">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ListBox
+                            x:Name="PointsList"
+                            ItemsSource="{Binding StandardMapContext.Points}"
+                            SelectedItem="{Binding SelectedPoint}"
+                            SelectionMode="Extended">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding PointsListSelectionChangedCommand}"
+                                                           CommandParameter="{Binding ElementName=PointsList, Path=SelectedItems}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="xamlMapConstructs:MapDisplayPoint">
+                                    <TextBlock Text="{Binding Name}">
+                                        <TextBlock.InputBindings>
+                                            <MouseBinding
+                                                Command="{Binding Data.RenamePointCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding .}"
+                                                MouseAction="LeftDoubleClick" />
+                                        </TextBlock.InputBindings>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Button Grid.Row="1" Command="{Binding StandardMapContext.ClearPointsSelectionCommand}">Clear Selection</Button>
+                        <GroupBox Grid.Row="2" Header="Details">
+                            <TextBox
+                                BorderThickness="0"
+                                IsReadOnly="True"
+                                Text="{Binding SelectedPoint.ExtendedDescription}"
+                                TextWrapping="Wrap" />
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Grid.Row="3" Header="Lines">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ListBox
+                            x:Name="LinesList"
+                            ItemsSource="{Binding StandardMapContext.Polylines}"
+                            SelectedItem="{Binding SelectedPolyline}"
+                            SelectionMode="Extended">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="xamlMapConstructs:MapDisplayPolyline">
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding PolylinesListSelectionChangedCommand}"
+                                                           CommandParameter="{Binding ElementName=LinesList, Path=SelectedItems}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ListBox>
+                        <Button Grid.Row="1" Command="{Binding StandardMapContext.ClearPolylinesSelectionCommand}">Clear Selection</Button>
+                        <GroupBox Grid.Row="2" Header="Details">
+                            <TextBox
+                                BorderThickness="0"
+                                IsReadOnly="True"
+                                Text="{Binding SelectedPolyline.ExtendedDescription}"
+                                TextWrapping="Wrap" />
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </GroupBox>
+        <xamlMapConstructs:StandardMapControl
+            Grid.Row="0"
+            Grid.Column="1"
+            DataContext="{Binding StandardMapContext}" />
+    </Grid>
+</UserControl>

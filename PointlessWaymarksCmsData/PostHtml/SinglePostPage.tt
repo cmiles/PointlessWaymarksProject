@@ -1,0 +1,119 @@
+﻿<#@ template language="C#" debug="true"#>
+<#@ import namespace="PointlessWaymarksCmsData.PhotoHtml" #>
+
+
+<!doctype html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+
+    <title><#=DbEntry.Title #></title>
+    <meta name="description" content="<#=DbEntry.Summary #>">
+    <meta name="author" content="<#=DbEntry.CreatedBy #>">
+    <meta name="keywords" content="<#= DbEntry.Tags #>" >
+
+    <meta property="og:site_name" content="<#=SiteName #>" />
+    <meta property="og:url" content="<#=PageUrl #>" />
+    <meta property="og:type" content="<#=SiteUrl #>" />
+
+    <meta property="og:title" content="<#=DbEntry.Title #>" />
+    <meta property="og:description" content="<#= DbEntry.Summary #>" />
+    <meta property="og:image" content="http:<#=MainImage.SiteUrl #>" />
+    <meta property="og:image:secure_url" content="https:<#=MainImage.SiteUrl #>" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="<#=MainImage.Photos.DisplayImage.Width #>" />
+    <meta property="og:image:height" content="<#=MainImage.Photos.DisplayImage.Height #>" />
+    <meta property="og:image:alt" content="<#=MainImage.DbEntry.AltText #>" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+    <#= CommonHtml.Styles.BodyStyle() #>
+    <#= PhotoStyles.SinglePhotoStyles() #>
+    <#= CommonHtml.Styles.TagsContainerStyles() #>
+    <#= CommonHtml.Styles.SiteNameFooterStyles() #>
+
+    .update-notes-container {
+        margin: 2.5rem;
+        text-align: center;
+    }
+
+    .created-by-container {
+        margin: 2.5rem;
+        text-align: center;
+    }
+
+    .post-title-content {
+        text-align: center;
+        font-weight: normal;
+        color: black;
+        font-size: 2rem;
+        margin-bottom: 0;
+    }
+
+    .title-area-created-and-updated-content { 
+        font-weight: normal;
+        font-size: 1.1rem;
+        text-align: center;
+        margin-top: .5rem;
+        color: rgb(220,220,220);
+    }
+
+    .single-photo-caption {
+        color: rgb(220,220,220);
+    }
+
+    .tags-container {
+        color: rgb(220,220,220);
+    }
+
+    .post-body-container {
+        margin-bottom: 1.8rem;
+        margin-top: 2rem;
+    }
+
+    .post-related-posts-link-container {
+        margin: 3px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        border-radius: 4px;
+    }
+
+    .post-related-posts-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 1rem;
+        color: rgb(220,220,220);
+    }
+
+    .post-related-posts-link 
+    {
+        margin: 6px;
+        display: block;
+        color: rgb(220,220,220);
+    }
+
+    <#= CommonHtml.Styles.StandardRuleStyles() #>
+
+</style>
+
+</head>
+
+<body>
+    <#= TitleDiv().ToString() #>
+    <#= CreatedByAndUpdatedOnDiv().ToString() #>
+    <#= PostBodyDiv().ToString() #>
+    <#= CommonHtml.HorizontalRule.StandardRule() #>
+    <#=
+                CommonHtml.Tags.TagList(DbEntry).ToString() #>
+    <#= CommonHtml.HorizontalRule.StandardRule() #>
+    <#= RelatedPostsDiv() #>
+    <#= UpdateDiv().ToString() #>
+    <#= CommonHtml.Footer.SiteTitleDiv() #>
+</body>
+
+</html>

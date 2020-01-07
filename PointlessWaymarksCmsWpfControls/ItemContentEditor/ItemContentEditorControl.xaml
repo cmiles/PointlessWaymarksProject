@@ -1,0 +1,147 @@
+﻿<UserControl
+    x:Class="PointlessWaymarksCmsWpfControls.ItemContentEditor.ItemContentEditorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:mainImageFormat="clr-namespace:PointlessWaymarksCmsWpfControls.MainImageFormat"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
+    xmlns:contentFormat="clr-namespace:PointlessWaymarksCmsWpfControls.ContentFormat"
+    xmlns:geoDataPicker="clr-namespace:PointlessWaymarksCmsWpfControls.GeoDataPicker"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    xmlns:itemContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ItemContentEditor"
+    d:DataContext="{d:DesignInstance itemContentEditor:ItemContentEditorContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <Grid>
+        <TabControl>
+            <TabItem Header="Overview">
+                <StackPanel>
+                    <Label>Code</Label>
+                    <TextBox Text="{Binding UserContent.Code, UpdateSourceTrigger=PropertyChanged}" />
+                    <Label>Title</Label>
+                    <TextBox Text="{Binding UserContent.Title}" />
+                    <Label>Content Type</Label>
+                    <TextBox Text="{Binding UserContent.ContentType}" />
+                    <Label>Created On</Label>
+                    <TextBox Text="{Binding UserContent.CreatedOn, UpdateSourceTrigger=PropertyChanged}" />
+                    <Label>Created By</Label>
+                    <TextBox Text="{Binding UserContent.CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                    <Label>Last Updated On</Label>
+                    <TextBox Text="{Binding UserContent.LastUpdatedOn, UpdateSourceTrigger=PropertyChanged}" />
+                    <Label>Last Updated By</Label>
+                    <TextBox Text="{Binding UserContent.LastUpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Main Image">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="Image Text">
+                        <TextBox Text="{Binding UserContent.MainImage, Delay=500, UpdateSourceTrigger=PropertyChanged}" />
+                    </GroupBox>
+                    <GroupBox Grid.Row="1" Header="Image Format">
+                        <mainImageFormat:MainImageFormatChooser DataContext="{Binding MainImageFormatContext}" />
+                    </GroupBox>
+                    <GroupBox Grid.Row="2" Header="Image">
+                        <WebBrowser wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UserContent.MainImageHtmlOutput}" />
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Body Content">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="Summary">
+                        <TextBox Text="{Binding UserContent.Summary}" />
+                    </GroupBox>
+                    <GroupBox Grid.Row="1" Header="Format Type">
+                        <contentFormat:ContentFormatChooserControl DataContext="{Binding BodyContentFormatContext}" />
+                    </GroupBox>
+                    <Grid Grid.Row="2" Margin="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <GroupBox Header="Content">
+                            <TextBox
+                                AcceptsReturn="True"
+                                Text="{Binding UserContent.BodyContent, UpdateSourceTrigger=PropertyChanged}"
+                                TextWrapping="Wrap"
+                                VerticalScrollBarVisibility="Visible" />
+                        </GroupBox>
+                        <GroupBox Grid.Column="1" Header="Preview">
+                            <WebBrowser
+                                wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UserContent.BodyContentHtmlOutput}" />
+                        </GroupBox>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Update Notes">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <GroupBox Grid.Row="0" Header="Format Type">
+                        <contentFormat:ContentFormatChooserControl DataContext="{Binding UpdateNotesFormatContext}" />
+                    </GroupBox>
+                    <Grid Grid.Row="1" Margin="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <GroupBox Header="Content">
+                            <TextBox
+                                AcceptsReturn="True"
+                                Text="{Binding UserContent.UpdateNotes, UpdateSourceTrigger=PropertyChanged}"
+                                TextWrapping="Wrap"
+                                VerticalScrollBarVisibility="Visible" />
+                        </GroupBox>
+                        <GroupBox Grid.Column="1" Header="Preview">
+                            <WebBrowser
+                                wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UserContent.UpdateNotesHtmlOutput}" />
+                        </GroupBox>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Location Picker">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="42" />
+                    </Grid.RowDefinitions>
+                    <geoDataPicker:GeoDataPickerControl DataContext="{Binding GeoDataPickerContext}" />
+                    <Border
+                        Grid.Row="1"
+                        BorderBrush="LightGray"
+                        BorderThickness="1"
+                        CornerRadius="2"
+                        Margin="4">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="4">
+                            <Button Command="{Binding SelectGeoDataCommand}" Width="180" Margin="2">Choose Current Map Selection</Button>
+                            <TextBlock
+                                Text="{Binding UserContent.LocationDataType, StringFormat='Selected Data Type: {0}'}"
+                                Margin="24,2,2,2" Width="240" VerticalAlignment="Center" />
+                            <Button Command="{Binding UpdateSelectedGeoDataElevation}" Width="120" Margin="12,2,2,2">Update Elevation</Button>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Save">
+                <Grid>
+                    <Button Command="{Binding SaveContentCommand}">Save</Button>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <status:StatusControl d:IsHidden="true" DataContext="{Binding StatusContext}" />
+    </Grid>
+</UserControl>

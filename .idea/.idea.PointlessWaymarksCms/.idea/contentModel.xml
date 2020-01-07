@@ -3,6 +3,7 @@
   <component name="ContentModelStore">
     <e p="C:\Code\TheLemmonWorkshop02" t="IncludeFlat">
       <e p="packages" t="ExcludeRecursive" />
+      <e p="PointlessWaymarksCms.sln" t="IncludeFlat" />
       <e p="PointlessWaymarksCmsContentEditor" t="IncludeRecursive">
         <e p="App.xaml" t="Include" />
         <e p="App.xaml.cs" t="Include" />
@@ -13,6 +14,7 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
+              <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -310,9 +312,8 @@
           <e p="StandardMapViewModel.cs" t="Include" />
         </e>
       </e>
-      <e p="TheLemmonWorkshopContentEditor.sln" t="IncludeFlat" />
     </e>
     <e p="C:\Users\charl\.Rider2019.3\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\charl\.Rider2019.3\system\resharper-host\local\Transient\ReSharperHost\v193\SolutionCaches\_TheLemmonWorkshopContentEditor.-1830832476.00" t="ExcludeRecursive" />
+    <e p="C:\Users\charl\.Rider2019.3\system\resharper-host\local\Transient\ReSharperHost\v193\SolutionCaches\_PointlessWaymarksCms.-2047120681.00" t="ExcludeRecursive" />
   </component>
 </project>

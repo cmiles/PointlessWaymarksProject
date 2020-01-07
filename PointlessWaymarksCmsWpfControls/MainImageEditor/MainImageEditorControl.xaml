@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="PointlessWaymarksCmsWpfControls.MainImageEditor.MainImageEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mainImageFormat="clr-namespace:PointlessWaymarksCmsWpfControls.MainImageFormat"
+             xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Image Text">
+            <TextBox Text="{Binding MainImage, Delay=500, UpdateSourceTrigger=PropertyChanged}" />
+        </GroupBox>
+        <GroupBox Grid.Row="1" Header="Image Format">
+            <mainImageFormat:MainImageFormatChooser DataContext="{Binding MainImageFormatContext}" />
+        </GroupBox>
+        <GroupBox Grid.Row="2" Header="Image">
+            <WebBrowser wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UserContent.MainImageHtmlOutput}" />
+        </GroupBox>
+    </Grid>
+</UserControl>
