@@ -22,14 +22,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TextTransforms\SinglePhotoPage.tt">
+    <None Update="PostHtml\SinglePostPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SinglePhotoPage.cs</LastGenOutput>
-      <CustomToolNamespace>TheLemmonWorkshopData.PhotoHtml</CustomToolNamespace>
+      <LastGenOutput>SinglePostPage.cs</LastGenOutput>
+      <CustomToolNamespace>TheLemmonWorkshopData.PostHtml</CustomToolNamespace>
     </None>
     <None Update="PhotoHtml\SinglePhotoPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SinglePhotoPage.cs</LastGenOutput>
+      <CustomToolNamespace>TheLemmonWorkshopData.PhotoHtml</CustomToolNamespace>
     </None>
   </ItemGroup>
 
@@ -38,13 +39,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="TextTransforms\SinglePhotoPage.cs">
+    <Compile Update="PostHtml\SinglePostPage.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>SinglePhotoPage.tt</DependentUpon>
+      <DependentUpon>SinglePostPage.tt</DependentUpon>
     </Compile>
     <Compile Update="PhotoHtml\SinglePhotoPage.cs">
       <DependentUpon>SinglePhotoPage.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
   </ItemGroup>
 

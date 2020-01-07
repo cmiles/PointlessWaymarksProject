@@ -50,12 +50,12 @@ namespace TheLemmonWorkshopData
 
         public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
         {
-            return $"//{settings.SiteName}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
+            return $"//{settings.SiteUrl}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
         public static string PostPageUrl(this UserSettings settings, PostContent content)
         {
-            return $"//{settings.SiteName}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
+            return $"//{settings.SiteUrl}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
         public static DirectoryInfo LocalSitePostDirectory(this UserSettings settings)

@@ -13,7 +13,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Omu.ValueInjecter;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Models;
@@ -53,6 +52,10 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
         private TagsEditorContext _tags;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
+        private RelayCommand _viewPhotoMetadataCommand;
+        private RelayCommand _saveUpdateDatabaseCommand;
+        private RelayCommand _saveAndGenerateHtmlCommand;
+        private RelayCommand _chooseFileCommand;
 
         public PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent toLoad)
         {
@@ -308,7 +311,16 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             }
         }
 
-        public RelayCommand ViewPhotoMetadataCommand { get; set; }
+        public RelayCommand ViewPhotoMetadataCommand
+        {
+            get => _viewPhotoMetadataCommand;
+            set
+            {
+                if (Equals(value, _viewPhotoMetadataCommand)) return;
+                _viewPhotoMetadataCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public static string ShutterSpeedToHumanReadableString(Rational? toProcess)
         {
@@ -388,9 +400,8 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             ResizeFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ResizePhoto));
             SaveAndGenerateHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
             ViewPhotoMetadataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
-
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDatabase));
+            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
         }
 
         public async Task SaveAndGenerateHtml()
@@ -399,13 +410,41 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 
             await SaveToDatabase();
             await GenerateHtml();
+            await WriteLocalDbJson();
         }
 
-        public RelayCommand SaveUpdateDatabaseCommand { get; set; }
+        public RelayCommand SaveUpdateDatabaseCommand
+        {
+            get => _saveUpdateDatabaseCommand;
+            set
+            {
+                if (Equals(value, _saveUpdateDatabaseCommand)) return;
+                _saveUpdateDatabaseCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public RelayCommand SaveAndGenerateHtmlCommand { get; set; }
+        public RelayCommand SaveAndGenerateHtmlCommand
+        {
+            get => _saveAndGenerateHtmlCommand;
+            set
+            {
+                if (Equals(value, _saveAndGenerateHtmlCommand)) return;
+                _saveAndGenerateHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public RelayCommand ChooseFileCommand { get; set; }
+        public RelayCommand ChooseFileCommand
+        {
+            get => _chooseFileCommand;
+            set
+            {
+                if (Equals(value, _chooseFileCommand)) return;
+                _chooseFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         private async Task<List<(bool, string)>> ValidateAll()
         {
@@ -421,8 +460,27 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             };
         }
 
+        private async Task SaveToDbWithValidation()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var validationList = await ValidateAll();
+
+            if (validationList.Any(x => !x.Item1))
+            {
+                await StatusContext.ShowMessage("Validation Error",
+                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
+                    new List<string> {"Ok"});
+                return;
+            }
+
+            await SaveToDatabase();
+        }
+
         private async Task SaveAndCreateLocal()
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             var validationList = await ValidateAll();
 
             if (validationList.Any(x => !x.Item1))
@@ -437,6 +495,37 @@ namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
             await WriteSelectedFileToMasterMediaArchive();
             await WriteSelectedFileToLocalSite();
             await GenerateHtml();
+            await WriteLocalDbJson();
+        }
+
+        private async Task WriteLocalDbJson()
+        {
+            var settings = await UserSettingsUtilities.ReadSettings();
+            var db = await Db.Context();
+            var jsonDbEntry = System.Text.Json.JsonSerializer.Serialize(DbEntry);
+
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName,
+                $"{DbEntry.ContentId}.json"));
+
+            if (jsonFile.Exists) jsonFile.Delete();
+            jsonFile.Refresh();
+
+            File.WriteAllText(jsonFile.FullName, jsonDbEntry);
+
+            var latestHistoricEntries = db.HistoricPhotoContents.Where(x => x.ContentId == DbEntry.ContentId)
+                .OrderByDescending(x => x.LastUpdatedOn).Take(10);
+
+            if (!latestHistoricEntries.Any()) return;
+
+            var jsonHistoricDbEntry = System.Text.Json.JsonSerializer.Serialize(latestHistoricEntries);
+
+            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName,
+                $"{DbEntry.ContentId}-Historic.json"));
+
+            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
+            jsonHistoricFile.Refresh();
+
+            File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
         private DirectoryInfo LocalFolderDirectory(UserSettings settings)

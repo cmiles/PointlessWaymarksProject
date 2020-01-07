@@ -14,7 +14,7 @@
             <TextBlock>Tags (Comma Separated)</TextBlock>
             <TextBox
                 AcceptsReturn="True"
-                MinLines="6"
+                VerticalScrollBarVisibility="Visible"
                 Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged}"
                 TextWrapping="Wrap" />
         </StackPanel>

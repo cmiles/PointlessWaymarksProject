@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using TheLemmonWorkshopData;
 using TheLemmonWorkshopData.Models;
+using TheLemmonWorkshopData.PhotoHtml;
+using TheLemmonWorkshopData.PostHtml;
 using TheLemmonWorkshopWpfControls.BodyContentEditor;
 using TheLemmonWorkshopWpfControls.ContentIdViewer;
 using TheLemmonWorkshopWpfControls.ControlStatus;
@@ -29,6 +33,8 @@ namespace TheLemmonWorkshopWpfControls.PostContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private TagsEditorContext _tags;
         private BodyContentEditorContext _bodyContent;
+        private RelayCommand _saveUpdateDatabaseCommand;
+        private RelayCommand _saveAndCreateLocalCommand;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public PostContentEditorContext(StatusControlContext statusContext, PostContent postContent)
@@ -51,6 +57,102 @@ namespace TheLemmonWorkshopWpfControls.PostContentEditor
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
             Tags = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
+
+            SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+        }
+
+        public RelayCommand SaveUpdateDatabaseCommand
+        {
+            get => _saveUpdateDatabaseCommand;
+            set
+            {
+                if (Equals(value, _saveUpdateDatabaseCommand)) return;
+                _saveUpdateDatabaseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand SaveAndCreateLocalCommand
+        {
+            get => _saveAndCreateLocalCommand;
+            set
+            {
+                if (Equals(value, _saveAndCreateLocalCommand)) return;
+                _saveAndCreateLocalCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private async Task SaveToDatabase()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newEntry = new PostContent();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                newEntry.ContentId = Guid.NewGuid();
+                newEntry.CreatedOn = DateTime.Now;
+            }
+            else
+            {
+                newEntry.ContentId = DbEntry.ContentId;
+                newEntry.CreatedOn = DbEntry.CreatedOn;
+                newEntry.LastUpdatedOn = DateTime.Now;
+                newEntry.LastUpdatedBy = CreatedAndUpdatedByAndOnDisplay.UpdatedBy;
+            }
+
+            newEntry.Folder = TitleSummarySlugFolder.Folder;
+            newEntry.Slug = TitleSummarySlugFolder.Slug;
+            newEntry.Summary = TitleSummarySlugFolder.Summary;
+            newEntry.Tags = Tags.Tags;
+            newEntry.Title = TitleSummarySlugFolder.Title;
+            newEntry.CreatedBy = CreatedAndUpdatedByAndOnDisplay.CreatedBy;
+            newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
+            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
+            newEntry.BodyContent = BodyContent.BodyContent;
+            newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
+
+            newEntry.MainImage = PhotoBracketCode.FirstPhotoId(newEntry.BodyContent);
+
+            var context = await Db.Context();
+
+            var toHistoric = await context.PostContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricPostContent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                await context.HistoricPostContents.AddAsync(newHistoric);
+                context.PostContents.Remove(loopToHistoric);
+            }
+
+            context.PostContents.Add(newEntry);
+
+            await context.SaveChangesAsync(true);
+
+            DbEntry = newEntry;
+
+            await LoadData(newEntry);
+        }
+
+        private async Task SaveToDbWithValidation()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var validationList = await ValidateAll();
+
+            if (validationList.Any(x => !x.Item1))
+            {
+                await StatusContext.ShowMessage("Validation Error",
+                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
+                    new List<string> {"Ok"});
+                return;
+            }
+
+            await SaveToDatabase();
         }
 
         public BodyContentEditorContext BodyContent
@@ -157,58 +259,37 @@ namespace TheLemmonWorkshopWpfControls.PostContentEditor
 
             await SaveToDatabase();
             await GenerateHtml();
+            await WriteLocalDbJson();
         }
 
-        private async Task SaveToDatabase()
+        private async Task WriteLocalDbJson()
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            var settings = await UserSettingsUtilities.ReadSettings();
+            var db = await Db.Context();
+            var jsonDbEntry = System.Text.Json.JsonSerializer.Serialize(DbEntry);
 
-            var newEntry = new PostContent();
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(DbEntry).FullName,
+                $"{DbEntry.ContentId}.json"));
 
-            if (DbEntry == null || DbEntry.Id < 1)
-            {
-                newEntry.ContentId = Guid.NewGuid();
-                newEntry.CreatedOn = DateTime.Now;
-            }
-            else
-            {
-                newEntry.ContentId = DbEntry.ContentId;
-                newEntry.CreatedOn = DbEntry.CreatedOn;
-                newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedAndUpdatedByAndOnDisplay.UpdatedBy;
-            }
+            if (jsonFile.Exists) jsonFile.Delete();
+            jsonFile.Refresh();
 
-            newEntry.Folder = TitleSummarySlugFolder.Folder;
-            newEntry.BodyContent = BodyContent.BodyContent;
-            newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.Slug = TitleSummarySlugFolder.Slug;
-            newEntry.Summary = TitleSummarySlugFolder.Summary;
-            newEntry.Tags = Tags.Tags;
-            newEntry.Title = TitleSummarySlugFolder.Title;
-            newEntry.CreatedBy = CreatedAndUpdatedByAndOnDisplay.CreatedBy;
-            newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
-            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
+            File.WriteAllText(jsonFile.FullName, jsonDbEntry);
 
-            var context = await Db.Context();
+            var latestHistoricEntries = db.HistoricPostContents.Where(x => x.ContentId == DbEntry.ContentId)
+                .OrderByDescending(x => x.LastUpdatedOn).Take(10);
 
-            var toHistoric = await context.PostContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
+            if (!latestHistoricEntries.Any()) return;
 
-            foreach (var loopToHistoric in toHistoric)
-            {
-                var newHistoric = new HistoricPostContent();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                await context.HistoricPostContents.AddAsync(newHistoric);
-                context.PostContents.Remove(loopToHistoric);
-            }
+            var jsonHistoricDbEntry = System.Text.Json.JsonSerializer.Serialize(latestHistoricEntries);
 
-            context.PostContents.Add(newEntry);
+            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(DbEntry).FullName,
+                $"{DbEntry.ContentId}-Historic.json"));
 
-            await context.SaveChangesAsync(true);
+            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
+            jsonHistoricFile.Refresh();
 
-            DbEntry = newEntry;
-
-            await LoadData(newEntry);
+            File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
         private async Task<(bool, string)> Validate()
@@ -222,9 +303,9 @@ namespace TheLemmonWorkshopWpfControls.PostContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            // var htmlContext = new TheLemmonWorkshopData.TextTransforms.SinglePhotoPage(DbEntry);
-            //
-            // htmlContext.WriteLocalHtml();
+            var htmlContext = new SinglePostPage(DbEntry);
+
+            htmlContext.WriteLocalHtml();
         }
 
         [NotifyPropertyChangedInvocator]

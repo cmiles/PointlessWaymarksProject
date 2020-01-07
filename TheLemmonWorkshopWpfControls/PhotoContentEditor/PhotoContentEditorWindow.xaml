@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:TheLemmonWorkshopWpfControls.PhotoContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controlStatus="clr-namespace:TheLemmonWorkshopWpfControls.ControlStatus"
     Title="PhotoContentEditorWindow"
     Width="900"
     Height="650"
@@ -12,5 +13,7 @@
     mc:Ignorable="d">
     <Grid>
         <local:PhotoContentEditorControl DataContext="{Binding PhotoContentEditor}" />
+        <controlStatus:StatusControl d:IsHidden="true"
+                                     DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

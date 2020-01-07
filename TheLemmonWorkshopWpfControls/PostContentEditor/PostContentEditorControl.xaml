@@ -38,6 +38,12 @@
                     <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
             </TabItem>
+            <TabItem Header="Save and Generate">
+                <StackPanel>
+                    <Button Height="40" Margin="4" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                    <Button Height="40" Margin="4" Command="{Binding SaveAndCreateLocalCommand}">Save, Generate Html</Button>
+                </StackPanel>
+            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>

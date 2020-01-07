@@ -35,37 +35,23 @@ namespace TheLemmonWorkshopData.PhotoHtml
 
             outerContainer.Children.Add(new DivTag().AddClass("photo-detail-label-tag").Text("Details:"));
 
-            outerContainer.Children.Add(InfoDivTag(DbEntry.Aperture, "photo-detail", "aperture", DbEntry.Aperture));
-            outerContainer.Children.Add(InfoDivTag(DbEntry.ShutterSpeed, "photo-detail", "shutter-speed",
-                DbEntry.ShutterSpeed));
-            outerContainer.Children.Add(InfoDivTag($"ISO {DbEntry.Iso?.ToString("F0")}", "photo-detail", "iso",
-                DbEntry.Iso?.ToString("F0")));
-            outerContainer.Children.Add(InfoDivTag(DbEntry.Lens, "photo-detail", "lens", DbEntry.Lens));
-            outerContainer.Children.Add(InfoDivTag(DbEntry.FocalLength, "photo-detail", "focal-length",
+            outerContainer.Children.Add(CommonHtml.Tags.InfoDivTag(DbEntry.Aperture, "photo-detail", "aperture",
+                DbEntry.Aperture));
+            outerContainer.Children.Add(CommonHtml.Tags.InfoDivTag(DbEntry.ShutterSpeed, "photo-detail",
+                "shutter-speed", DbEntry.ShutterSpeed));
+            outerContainer.Children.Add(CommonHtml.Tags.InfoDivTag($"ISO {DbEntry.Iso?.ToString("F0")}", "photo-detail",
+                "iso", DbEntry.Iso?.ToString("F0")));
+            outerContainer.Children.Add(CommonHtml.Tags.InfoDivTag(DbEntry.Lens, "photo-detail", "lens", DbEntry.Lens));
+            outerContainer.Children.Add(CommonHtml.Tags.InfoDivTag(DbEntry.FocalLength, "photo-detail", "focal-length",
                 DbEntry.FocalLength));
-            outerContainer.Children.Add(InfoDivTag(DbEntry.CameraMake, "photo-detail", "camera-make",
+            outerContainer.Children.Add(CommonHtml.Tags.InfoDivTag(DbEntry.CameraMake, "photo-detail", "camera-make",
                 DbEntry.CameraMake));
-            outerContainer.Children.Add(InfoDivTag(DbEntry.CameraModel, "photo-detail", "camera-model",
+            outerContainer.Children.Add(CommonHtml.Tags.InfoDivTag(DbEntry.CameraModel, "photo-detail", "camera-model",
                 DbEntry.CameraModel));
-            outerContainer.Children.Add(InfoDivTag(DbEntry.License, "photo-detail", "license", DbEntry.License));
+            outerContainer.Children.Add(CommonHtml.Tags.InfoDivTag(DbEntry.License, "photo-detail", "license",
+                DbEntry.License));
 
             return outerContainer;
-        }
-
-        public HtmlTag InfoDivTag(string contents, string className, string dataType, string dataValue)
-        {
-            if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();
-            var divTag = new HtmlTag("div");
-            divTag.AddClass(className);
-
-            var spanTag = new HtmlTag("div");
-            spanTag.Text(contents.Trim());
-            spanTag.AddClass($"{className}-content");
-            spanTag.Data(dataType, dataValue);
-
-            divTag.Children.Add(spanTag);
-
-            return divTag;
         }
 
         public HtmlTag PhotoImageTag()
@@ -96,6 +82,16 @@ namespace TheLemmonWorkshopData.PhotoHtml
             return figureTag;
         }
 
+        public HtmlTag PhotoFigureWithLinkToPageTag()
+        {
+            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
+            var linkTag = new LinkTag(string.Empty, PageUrl);
+            linkTag.Children.Add(PhotoImageTag());
+            figureTag.Children.Add(linkTag);
+            figureTag.Children.Add(PhotoFigCaptionTag());
+            return figureTag;
+        }
+
         public HtmlTag PhotoFigureTag()
         {
             var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
@@ -106,11 +102,9 @@ namespace TheLemmonWorkshopData.PhotoHtml
 
         public void WriteLocalHtml()
         {
-            var htmlContext = new SinglePhotoPage(DbEntry);
-
             var settings = UserSettingsUtilities.ReadSettings().Result;
 
-            var htmlString = htmlContext.TransformText();
+            var htmlString = TransformText();
 
             var htmlFileInfo =
                 new FileInfo(
@@ -123,31 +117,6 @@ namespace TheLemmonWorkshopData.PhotoHtml
             }
 
             File.WriteAllText(htmlFileInfo.FullName, htmlString);
-        }
-
-        public HtmlTag TagsDiv()
-        {
-            var tagsContainer = new DivTag().AddClass("tags-container");
-
-            if (string.IsNullOrWhiteSpace(DbEntry.Tags)) return HtmlTag.Empty();
-
-            tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
-
-            var tags = DbEntry.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
-
-            if (!tags.Any()) return HtmlTag.Empty();
-
-            foreach (var loopTag in tags)
-            {
-                tagsContainer.Children.Add(InfoDivTag(loopTag, "tag-detail", "tag", loopTag));
-            }
-
-            return tagsContainer;
-        }
-
-        public HtmlTag StandardHorizontalRule()
-        {
-            return new HtmlTag("hr").AddClass("standard-rule");
         }
 
         public HtmlTag CreatedDiv()
@@ -166,7 +135,7 @@ namespace TheLemmonWorkshopData.PhotoHtml
         public HtmlTag SiteNameFooterDiv()
         {
             var createdByDiv = new DivTag().AddClass("site-name-footer-container");
-            createdByDiv.Children.Add(StandardHorizontalRule());
+            createdByDiv.Children.Add(CommonHtml.HorizontalRule.StandardRule());
 
             createdByDiv.Children.Add(new DivTag().AddClass("site-name-footer-content").Text($"{SiteName}"));
 
@@ -183,7 +152,7 @@ namespace TheLemmonWorkshopData.PhotoHtml
 
             var updateNotesDiv = new DivTag().AddClass("update-notes-container");
 
-            updateNotesDiv.Children.Add(StandardHorizontalRule());
+            updateNotesDiv.Children.Add(CommonHtml.HorizontalRule.StandardRule());
 
             var headingTag = new HtmlTag("div").AddClass("update-notes-title").Text("Updates:");
 

@@ -16,7 +16,7 @@ namespace TheLemmonWorkshopData.PhotoHtml
         public string SrcSetString()
         {
             return string.Join(", ",
-                SrcsetImages.OrderByDescending(x => x.Width).Select(x => $"{x.FileName} {x.Width}w"));
+                SrcsetImages.OrderByDescending(x => x.Width).Select(x => $"{x.SiteUrl} {x.Width}w"));
         }
     }
 }

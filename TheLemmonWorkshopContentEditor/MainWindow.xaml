@@ -21,8 +21,9 @@
         <StackPanel Grid.Column="1">
             <Button Command="{Binding PhotoListWindowCommand}">Photo List</Button>
             <Button Command="{Binding NewPhotoContentCommand}">New Photo Content</Button>
-            <Button Command="{Binding EditPhotoContentCommand}">Edit Selected Photo Content</Button>
+            <Button Command="{Binding EditPhotoContentCommand}">Edit Selected Photo</Button>
             <Button Command="{Binding NewPostContentCommand}">New Post</Button>
+            <Button Command="{Binding EditPostContentCommand}">Edit Selected Post</Button>
         </StackPanel>
         <controlStatus:StatusControl
             Grid.Row="0"

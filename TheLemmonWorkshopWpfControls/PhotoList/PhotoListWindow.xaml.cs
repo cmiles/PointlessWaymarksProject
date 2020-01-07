@@ -18,6 +18,9 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
     {
         private PhotoListContext _listContext;
         private StatusControlContext _statusContext;
+        private RelayCommand _photoCodesToClipboardForSelectedCommand;
+        private RelayCommand _editSelectedContentCommand;
+        private RelayCommand _generateSelectedHtmlCommand;
 
         public PhotoListWindow()
         {
@@ -56,9 +59,27 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
             Clipboard.SetText(finalString);
         }
 
-        public RelayCommand PhotoCodesToClipboardForSelectedCommand { get; set; }
+        public RelayCommand PhotoCodesToClipboardForSelectedCommand
+        {
+            get => _photoCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _photoCodesToClipboardForSelectedCommand)) return;
+                _photoCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public RelayCommand EditSelectedContentCommand { get; set; }
+        public RelayCommand EditSelectedContentCommand
+        {
+            get => _editSelectedContentCommand;
+            set
+            {
+                if (Equals(value, _editSelectedContentCommand)) return;
+                _editSelectedContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         private async Task GenerateSelectedHtml()
         {
@@ -102,7 +123,16 @@ namespace TheLemmonWorkshopWpfControls.PhotoList
         }
 
 
-        public RelayCommand GenerateSelectedHtmlCommand { get; set; }
+        public RelayCommand GenerateSelectedHtmlCommand
+        {
+            get => _generateSelectedHtmlCommand;
+            set
+            {
+                if (Equals(value, _generateSelectedHtmlCommand)) return;
+                _generateSelectedHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public StatusControlContext StatusContext
         {

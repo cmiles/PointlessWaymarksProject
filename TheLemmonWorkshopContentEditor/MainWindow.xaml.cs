@@ -32,17 +32,42 @@ namespace TheLemmonWorkshopContentEditor
 
             StatusContext = new StatusControlContext();
 
-            //NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
             EditPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(EditPhotoContent));
+            EditPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(EditPostContent));
             PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
             NewPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostContent));
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
 
+        public RelayCommand EditPostContentCommand { get; set; }
+
         public RelayCommand NewPostContentCommand { get; set; }
 
         public RelayCommand PhotoListWindowCommand { get; set; }
+
+        private async Task EditPostContent()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (ContextListContext.SelectedItem == null)
+            {
+                StatusContext.ToastWarning("Nothing Selected?");
+                return;
+            }
+
+            if (ContextListContext.SelectedItem.ContentType != "Post")
+            {
+                StatusContext.ToastWarning("Post not Selected.");
+                return;
+            }
+
+            var post = (PostContent) ContextListContext.SelectedItem.SummaryInfo;
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PostContentEditorWindow(post) {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
 
         private async Task EditPhotoContent()
         {
@@ -95,7 +120,6 @@ namespace TheLemmonWorkshopContentEditor
             }
         }
 
-        public RelayCommand NewContentCommand { get; set; }
         public RelayCommand NewPhotoContentCommand { get; set; }
 
         public StatusControlContext StatusContext
@@ -139,7 +163,7 @@ namespace TheLemmonWorkshopContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PostContentEditorWindow() {Left = Left + 4, Top = Top + 4};
+            var newContentWindow = new PostContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 

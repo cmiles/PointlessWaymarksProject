@@ -2,18 +2,34 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using TheLemmonWorkshopData.Models;
+using TheLemmonWorkshopWpfControls.ControlStatus;
 
 namespace TheLemmonWorkshopWpfControls.PhotoContentEditor
 {
     public partial class PhotoContentEditorWindow : INotifyPropertyChanged
     {
         private PhotoContentEditorContext _photoContentEditor;
+        private StatusControlContext _statusContext;
 
         public PhotoContentEditorWindow(PhotoContent toLoad)
         {
             InitializeComponent();
-            PhotoContentEditor = new PhotoContentEditorContext(null, toLoad);
+
+            StatusContext = new StatusControlContext();
+            PhotoContentEditor = new PhotoContentEditorContext(StatusContext, toLoad);
+
             DataContext = this;
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

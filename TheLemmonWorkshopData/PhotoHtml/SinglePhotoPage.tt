@@ -1,8 +1,4 @@
 ﻿<#@ template language="C#" debug="true" #>
-<#@ import namespace="Models" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Text" #>
-<#@ import namespace="System.Collections.Generic" #>
 
 <!doctype html>
 
@@ -57,7 +53,8 @@
 <body>
     <#= PhotoFigureTag().ToString() #>
     <#= PhotoDetailsDiv().ToString() #>
-    <#= TagsDiv().ToString() #>
+    <#=
+                    CommonHtml.Tags.TagList(DbEntry).ToString() #>
     <#= UpdateDiv().ToString() #>
     <#= CreatedDiv().ToString() #>
     <#= SiteNameFooterDiv().ToString() #>

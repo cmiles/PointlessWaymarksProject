@@ -24,7 +24,10 @@
       <e p="TheLemmonWorkshopData" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
         <e p="CommonHtml" t="Include">
+          <e p="Footer.cs" t="Include" />
+          <e p="HorizontalRule.cs" t="Include" />
           <e p="Styles.cs" t="Include" />
+          <e p="Tags.cs" t="Include" />
         </e>
         <e p="ContentProcessor.cs" t="Include" />
         <e p="Db.cs" t="Include" />
@@ -77,6 +80,8 @@
           <e p="SinglePhotoPageCode.cs" t="Include" />
         </e>
         <e p="PostHtml" t="Include">
+          <e p="SinglePostPage.cs" t="Include" />
+          <e p="SinglePostPage.tt" t="Include" />
           <e p="SinglePostPageCode.cs" t="Include" />
         </e>
         <e p="Slug.cs" t="Include" />

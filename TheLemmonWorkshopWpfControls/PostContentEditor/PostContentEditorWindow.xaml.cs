@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Windows;
 using JetBrains.Annotations;
+using TheLemmonWorkshopData.Models;
 using TheLemmonWorkshopWpfControls.ControlStatus;
 
 namespace TheLemmonWorkshopWpfControls.PostContentEditor
@@ -11,11 +12,11 @@ namespace TheLemmonWorkshopWpfControls.PostContentEditor
         private PostContentEditorContext _postContent;
         private StatusControlContext _statusContext;
 
-        public PostContentEditorWindow()
+        public PostContentEditorWindow(PostContent toLoad)
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
-            PostContent = new PostContentEditorContext(StatusContext, null);
+            PostContent = new PostContentEditorContext(StatusContext, toLoad);
 
             DataContext = this;
         }
