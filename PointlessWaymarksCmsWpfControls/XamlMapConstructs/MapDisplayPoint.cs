@@ -61,6 +61,12 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
             }
         }
 
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public bool IsSelected
@@ -72,12 +78,6 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
                 _isSelected = value;
                 OnPropertyChanged();
             }
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

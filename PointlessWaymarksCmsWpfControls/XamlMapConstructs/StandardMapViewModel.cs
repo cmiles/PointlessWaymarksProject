@@ -72,20 +72,6 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public event EventHandler<List<MapDisplayPoint>> ListPointSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPolyline>> ListPolylineSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> ListPushpinSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> MapPointSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPolyline>> MapPolylineSelectionRequest;
-
-        public event EventHandler<List<MapDisplayPoint>> MapPushpinSelectionRequest;
-
         public async void CreateLocation(Point getPosition)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -101,27 +87,6 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Points.Add(newMapPoint);
-        }
-
-        public void OnMapPointSelectionRequest(object sender, List<MapDisplayPoint> toRequest)
-        {
-            MapPointSelectionRequest?.Invoke(sender, toRequest);
-        }
-
-        public void OnMapPolylineSelectionRequest(object sender, List<MapDisplayPolyline> toRequest)
-        {
-            MapPolylineSelectionRequest?.Invoke(sender, toRequest);
-        }
-
-        public void OnMapPushPinSelectionRequest(object sender, List<MapDisplayPoint> toRequest)
-        {
-            MapPushpinSelectionRequest?.Invoke(sender, toRequest);
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void MapsPointsSelectionChanged(IList pointList)
@@ -163,5 +128,40 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
 
             ListPolylineSelectionRequest?.Invoke(this, finalList);
         }
+
+        public void OnMapPointSelectionRequest(object sender, List<MapDisplayPoint> toRequest)
+        {
+            MapPointSelectionRequest?.Invoke(sender, toRequest);
+        }
+
+        public void OnMapPolylineSelectionRequest(object sender, List<MapDisplayPolyline> toRequest)
+        {
+            MapPolylineSelectionRequest?.Invoke(sender, toRequest);
+        }
+
+        public void OnMapPushPinSelectionRequest(object sender, List<MapDisplayPoint> toRequest)
+        {
+            MapPushpinSelectionRequest?.Invoke(sender, toRequest);
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<List<MapDisplayPoint>> ListPointSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPolyline>> ListPolylineSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> ListPushpinSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> MapPointSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPolyline>> MapPolylineSelectionRequest;
+
+        public event EventHandler<List<MapDisplayPoint>> MapPushpinSelectionRequest;
     }
 }

@@ -14,7 +14,6 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
-              <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -86,6 +85,10 @@
         </e>
         <e p="PointlessWaymarksCmsData.csproj" t="IncludeRecursive" />
         <e p="PostHtml" t="Include">
+          <e p="PostParts.cs" t="Include" />
+          <e p="SinglePostDiv.cs" t="Include" />
+          <e p="SinglePostDiv.tt" t="Include" />
+          <e p="SinglePostDivCode.cs" t="Include" />
           <e p="SinglePostPage.cs" t="Include" />
           <e p="SinglePostPage.tt" t="Include" />
           <e p="SinglePostPageCode.cs" t="Include" />

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
@@ -26,16 +27,16 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 {
     public class PostContentEditorContext : INotifyPropertyChanged
     {
-        private PostContent _dbEntry;
-        private TitleSummarySlugEditorContext _titleSummarySlugFolder;
-        private CreatedAndUpdatedByAndOnDisplayContext _createdAndUpdatedByAndOnDisplay;
-        private ContentIdViewerControlContext _contentId;
-        private UpdateNotesEditorContext _updateNotes;
-        private TagsEditorContext _tags;
         private BodyContentEditorContext _bodyContent;
-        private RelayCommand _saveUpdateDatabaseCommand;
+        private ContentIdViewerControlContext _contentId;
+        private CreatedAndUpdatedByAndOnDisplayContext _createdAndUpdatedByAndOnDisplay;
+        private PostContent _dbEntry;
         private RelayCommand _saveAndCreateLocalCommand;
-        public event PropertyChangedEventHandler PropertyChanged;
+        private RelayCommand _saveUpdateDatabaseCommand;
+        private bool _showInPostFeed;
+        private TagsEditorContext _tags;
+        private TitleSummarySlugEditorContext _titleSummarySlugFolder;
+        private UpdateNotesEditorContext _updateNotes;
 
         public PostContentEditorContext(StatusControlContext statusContext, PostContent postContent)
         {
@@ -44,31 +45,46 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(postContent));
         }
 
-        public StatusControlContext StatusContext { get; set; }
-
-        public async Task LoadData(PostContent toLoad)
+        public BodyContentEditorContext BodyContent
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            DbEntry = toLoad ?? new PostContent();
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
-            CreatedAndUpdatedByAndOnDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
-            UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
-            Tags = new TagsEditorContext(StatusContext, toLoad);
-            BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
-
-            SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-        }
-
-        public RelayCommand SaveUpdateDatabaseCommand
-        {
-            get => _saveUpdateDatabaseCommand;
+            get => _bodyContent;
             set
             {
-                if (Equals(value, _saveUpdateDatabaseCommand)) return;
-                _saveUpdateDatabaseCommand = value;
+                if (Equals(value, _bodyContent)) return;
+                _bodyContent = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentIdViewerControlContext ContentId
+        {
+            get => _contentId;
+            set
+            {
+                if (Equals(value, _contentId)) return;
+                _contentId = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public CreatedAndUpdatedByAndOnDisplayContext CreatedAndUpdatedByAndOnDisplay
+        {
+            get => _createdAndUpdatedByAndOnDisplay;
+            set
+            {
+                if (Equals(value, _createdAndUpdatedByAndOnDisplay)) return;
+                _createdAndUpdatedByAndOnDisplay = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PostContent DbEntry
+        {
+            get => _dbEntry;
+            set
+            {
+                if (Equals(value, _dbEntry)) return;
+                _dbEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -82,6 +98,113 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 _saveAndCreateLocalCommand = value;
                 OnPropertyChanged();
             }
+        }
+
+        public RelayCommand SaveUpdateDatabaseCommand
+        {
+            get => _saveUpdateDatabaseCommand;
+            set
+            {
+                if (Equals(value, _saveUpdateDatabaseCommand)) return;
+                _saveUpdateDatabaseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowInPostFeed
+        {
+            get => _showInPostFeed;
+            set
+            {
+                if (value == _showInPostFeed) return;
+                _showInPostFeed = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StatusControlContext StatusContext { get; set; }
+
+        public TagsEditorContext Tags
+        {
+            get => _tags;
+            set
+            {
+                if (Equals(value, _tags)) return;
+                _tags = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public TitleSummarySlugEditorContext TitleSummarySlugFolder
+        {
+            get => _titleSummarySlugFolder;
+            set
+            {
+                if (Equals(value, _titleSummarySlugFolder)) return;
+                _titleSummarySlugFolder = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public UpdateNotesEditorContext UpdateNotes
+        {
+            get => _updateNotes;
+            set
+            {
+                if (Equals(value, _updateNotes)) return;
+                _updateNotes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private async Task GenerateHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var htmlContext = new SinglePostPage(DbEntry);
+
+            htmlContext.WriteLocalHtml();
+        }
+
+        public async Task LoadData(PostContent toLoad)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            DbEntry = toLoad ?? new PostContent();
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
+            CreatedAndUpdatedByAndOnDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
+            ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
+            UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
+            Tags = new TagsEditorContext(StatusContext, toLoad);
+            BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
+
+            ShowInPostFeed = toLoad?.ShowInPostFeed ?? true;
+
+            SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task SaveAndCreateLocal()
+        {
+            var validationList = await ValidateAll();
+
+            if (validationList.Any(x => !x.Item1))
+            {
+                await StatusContext.ShowMessage("Validation Error",
+                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
+                    new List<string> {"Ok"});
+                return;
+            }
+
+            await SaveToDatabase();
+            await GenerateHtml();
+            await WriteLocalDbJson();
         }
 
         private async Task SaveToDatabase()
@@ -113,6 +236,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
+            newEntry.ShowInPostFeed = ShowInPostFeed;
 
             newEntry.MainImage = PhotoBracketCode.FirstPhotoId(newEntry.BodyContent);
 
@@ -155,81 +279,11 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             await SaveToDatabase();
         }
 
-        public BodyContentEditorContext BodyContent
+        private async Task<(bool, string)> Validate()
         {
-            get => _bodyContent;
-            set
-            {
-                if (Equals(value, _bodyContent)) return;
-                _bodyContent = value;
-                OnPropertyChanged();
-            }
-        }
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
-        public TagsEditorContext Tags
-        {
-            get => _tags;
-            set
-            {
-                if (Equals(value, _tags)) return;
-                _tags = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public UpdateNotesEditorContext UpdateNotes
-        {
-            get => _updateNotes;
-            set
-            {
-                if (Equals(value, _updateNotes)) return;
-                _updateNotes = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ContentIdViewerControlContext ContentId
-        {
-            get => _contentId;
-            set
-            {
-                if (Equals(value, _contentId)) return;
-                _contentId = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public CreatedAndUpdatedByAndOnDisplayContext CreatedAndUpdatedByAndOnDisplay
-        {
-            get => _createdAndUpdatedByAndOnDisplay;
-            set
-            {
-                if (Equals(value, _createdAndUpdatedByAndOnDisplay)) return;
-                _createdAndUpdatedByAndOnDisplay = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public TitleSummarySlugEditorContext TitleSummarySlugFolder
-        {
-            get => _titleSummarySlugFolder;
-            set
-            {
-                if (Equals(value, _titleSummarySlugFolder)) return;
-                _titleSummarySlugFolder = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public PostContent DbEntry
-        {
-            get => _dbEntry;
-            set
-            {
-                if (Equals(value, _dbEntry)) return;
-                _dbEntry = value;
-                OnPropertyChanged();
-            }
+            return (true, string.Empty);
         }
 
         private async Task<List<(bool, string)>> ValidateAll()
@@ -245,28 +299,11 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             };
         }
 
-        private async Task SaveAndCreateLocal()
-        {
-            var validationList = await ValidateAll();
-
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
-                return;
-            }
-
-            await SaveToDatabase();
-            await GenerateHtml();
-            await WriteLocalDbJson();
-        }
-
         private async Task WriteLocalDbJson()
         {
             var settings = await UserSettingsUtilities.ReadSettings();
             var db = await Db.Context();
-            var jsonDbEntry = System.Text.Json.JsonSerializer.Serialize(DbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(DbEntry).FullName,
                 $"{DbEntry.ContentId}.json"));
@@ -281,7 +318,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             if (!latestHistoricEntries.Any()) return;
 
-            var jsonHistoricDbEntry = System.Text.Json.JsonSerializer.Serialize(latestHistoricEntries);
+            var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(DbEntry).FullName,
                 $"{DbEntry.ContentId}-Historic.json"));
@@ -292,26 +329,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
-        private async Task<(bool, string)> Validate()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            return (true, string.Empty);
-        }
-
-        private async Task GenerateHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var htmlContext = new SinglePostPage(DbEntry);
-
-            htmlContext.WriteLocalHtml();
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.CommandWpf;
 using HtmlTableHelper;
@@ -14,17 +15,19 @@ using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.PictureHelper02.Controls.ImageLoader;
-using PointlessWaymarksCmsData.PhotoHtml;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
@@ -35,6 +38,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private string _cameraMake;
         private string _cameraModel;
         private RelayCommand _chooseFileAndFillMetadataCommand;
+        private RelayCommand _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdAndUpdatedByAndOnDisplay;
         private PhotoContent _dbEntry;
@@ -45,6 +49,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private string _photoCreatedBy;
         private DateTime _photoCreatedOn;
         private RelayCommand _resizeFileCommand;
+        private RelayCommand _saveAndGenerateHtmlCommand;
+        private RelayCommand _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
         private string _shutterSpeed;
@@ -53,9 +59,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private RelayCommand _viewPhotoMetadataCommand;
-        private RelayCommand _saveUpdateDatabaseCommand;
-        private RelayCommand _saveAndGenerateHtmlCommand;
-        private RelayCommand _chooseFileCommand;
 
         public PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent toLoad)
         {
@@ -63,8 +66,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public string AltText
         {
@@ -117,6 +118,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             {
                 if (Equals(value, _chooseFileAndFillMetadataCommand)) return;
                 _chooseFileAndFillMetadataCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand ChooseFileCommand
+        {
+            get => _chooseFileCommand;
+            set
+            {
+                if (Equals(value, _chooseFileCommand)) return;
+                _chooseFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -231,6 +243,30 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public RelayCommand SaveAndCreateLocalCommand { get; set; }
+
+        public RelayCommand SaveAndGenerateHtmlCommand
+        {
+            get => _saveAndGenerateHtmlCommand;
+            set
+            {
+                if (Equals(value, _saveAndGenerateHtmlCommand)) return;
+                _saveAndGenerateHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand SaveUpdateDatabaseCommand
+        {
+            get => _saveUpdateDatabaseCommand;
+            set
+            {
+                if (Equals(value, _saveUpdateDatabaseCommand)) return;
+                _saveUpdateDatabaseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public FileInfo SelectedFile
         {
             get => _selectedFile;
@@ -322,27 +358,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public static string ShutterSpeedToHumanReadableString(Rational? toProcess)
-        {
-            if (toProcess == null) return string.Empty;
-
-            if (toProcess.Value.Numerator < 0)
-            {
-                return Math.Round(Math.Pow(2, (double) -1 * toProcess.Value.Numerator / toProcess.Value.Denominator), 1)
-                    .ToString("N1");
-            }
-
-            return
-                $"1/{Math.Round(Math.Pow(2, (double) toProcess.Value.Numerator / toProcess.Value.Denominator), 1):N0}";
-        }
-
         public async Task ChooseFile(bool loadMetadata)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
             StatusContext.Progress("Starting image load.");
 
-            var dialog = new Ookii.Dialogs.Wpf.VistaOpenFileDialog();
+            var dialog = new VistaOpenFileDialog();
 
             if (!(dialog.ShowDialog() ?? false)) return;
 
@@ -361,6 +383,15 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             StatusContext.Progress($"Image load - {SelectedFile.FullName} ");
 
             if (loadMetadata) await ProcessSelectedFile();
+        }
+
+        private async Task GenerateHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var htmlContext = new SinglePhotoPage(DbEntry);
+
+            htmlContext.WriteLocalHtml();
         }
 
         public async Task LoadData(PhotoContent toLoad)
@@ -404,77 +435,98 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
         }
 
-        public async Task SaveAndGenerateHtml()
+        private DirectoryInfo LocalContentDirectory(UserSettings settings)
+        {
+            var photoDirectory =
+                new DirectoryInfo(Path.Combine(LocalFolderDirectory(settings).FullName, TitleSummarySlugFolder.Slug));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
+        private DirectoryInfo LocalFolderDirectory(UserSettings settings)
+        {
+            var folderDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
+                TitleSummarySlugFolder.Folder));
+            if (!folderDirectory.Exists) folderDirectory.Create();
+
+            folderDirectory.Refresh();
+
+            return folderDirectory;
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task ProcessSelectedFile()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            await SaveToDatabase();
-            await GenerateHtml();
-            await WriteLocalDbJson();
-        }
+            StatusContext.Progress("Starting Metadata Processing");
 
-        public RelayCommand SaveUpdateDatabaseCommand
-        {
-            get => _saveUpdateDatabaseCommand;
-            set
+            SelectedFile.Refresh();
+
+            if (!SelectedFile.Exists)
             {
-                if (Equals(value, _saveUpdateDatabaseCommand)) return;
-                _saveUpdateDatabaseCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public RelayCommand SaveAndGenerateHtmlCommand
-        {
-            get => _saveAndGenerateHtmlCommand;
-            set
-            {
-                if (Equals(value, _saveAndGenerateHtmlCommand)) return;
-                _saveAndGenerateHtmlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public RelayCommand ChooseFileCommand
-        {
-            get => _chooseFileCommand;
-            set
-            {
-                if (Equals(value, _chooseFileCommand)) return;
-                _chooseFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private async Task<List<(bool, string)>> ValidateAll()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            return new List<(bool, string)>
-            {
-                await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
-                await UserSettingsUtilities.ValidateLocalMasterMediaArchive(),
-                await TitleSummarySlugFolder.Validate(),
-                await CreatedAndUpdatedByAndOnDisplay.Validate(),
-                await Validate()
-            };
-        }
-
-        private async Task SaveToDbWithValidation()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var validationList = await ValidateAll();
-
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
+                StatusContext.ToastError("File doesn't exist?");
                 return;
             }
 
-            await SaveToDatabase();
+            StatusContext.Progress("Getting Directories");
+
+            var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName)
+                .OfType<ExifSubIfdDirectory>().FirstOrDefault();
+            var exifDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<ExifIfd0Directory>()
+                .FirstOrDefault();
+            var iptcDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<IptcDirectory>()
+                .FirstOrDefault();
+
+            PhotoCreatedBy = exifDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
+            PhotoCreatedOn =
+                DateTime.ParseExact(exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal),
+                    "yyyy:MM:dd HH:mm:ss", CultureInfo.InvariantCulture);
+            TitleSummarySlugFolder.Folder = PhotoCreatedOn.Year.ToString("F0");
+
+            var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
+            if (!string.IsNullOrWhiteSpace(isoString)) Iso = int.Parse(isoString);
+
+            CameraMake = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+            CameraModel = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
+            FocalLength = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagFocalLength) ?? string.Empty;
+            Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
+            if (Lens == "----") Lens = string.Empty;
+            Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
+            License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
+            ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
+            TitleSummarySlugFolder.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
+            TitleSummarySlugFolder.Slug = Slug.Create(true, TitleSummarySlugFolder.Title);
+            Tags.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords).Replace(";", ",") ?? string.Empty;
+        }
+
+        private async Task ResizePhoto()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null)
+            {
+                StatusContext.ToastError("Can't Resize - No File?");
+                return;
+            }
+
+            SelectedFile.Refresh();
+
+            if (!SelectedFile.Exists)
+            {
+                StatusContext.ToastError("Can't Resize - No File?");
+                return;
+            }
+
+            ImageResizing.ResizeForDisplayAndSrcset(SelectedFile, StatusContext.ProgressTracker());
         }
 
         private async Task SaveAndCreateLocal()
@@ -498,93 +550,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             await WriteLocalDbJson();
         }
 
-        private async Task WriteLocalDbJson()
-        {
-            var settings = await UserSettingsUtilities.ReadSettings();
-            var db = await Db.Context();
-            var jsonDbEntry = System.Text.Json.JsonSerializer.Serialize(DbEntry);
-
-            var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName,
-                $"{DbEntry.ContentId}.json"));
-
-            if (jsonFile.Exists) jsonFile.Delete();
-            jsonFile.Refresh();
-
-            File.WriteAllText(jsonFile.FullName, jsonDbEntry);
-
-            var latestHistoricEntries = db.HistoricPhotoContents.Where(x => x.ContentId == DbEntry.ContentId)
-                .OrderByDescending(x => x.LastUpdatedOn).Take(10);
-
-            if (!latestHistoricEntries.Any()) return;
-
-            var jsonHistoricDbEntry = System.Text.Json.JsonSerializer.Serialize(latestHistoricEntries);
-
-            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName,
-                $"{DbEntry.ContentId}-Historic.json"));
-
-            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
-            jsonHistoricFile.Refresh();
-
-            File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
-        }
-
-        private DirectoryInfo LocalFolderDirectory(UserSettings settings)
-        {
-            var folderDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
-                TitleSummarySlugFolder.Folder));
-            if (!folderDirectory.Exists) folderDirectory.Create();
-
-            folderDirectory.Refresh();
-
-            return folderDirectory;
-        }
-
-        private DirectoryInfo LocalContentDirectory(UserSettings settings)
-        {
-            var photoDirectory =
-                new DirectoryInfo(Path.Combine(LocalFolderDirectory(settings).FullName, TitleSummarySlugFolder.Slug));
-            if (!photoDirectory.Exists) photoDirectory.Create();
-
-            photoDirectory.Refresh();
-
-            return photoDirectory;
-        }
-
-        private async Task WriteSelectedFileToLocalSite()
+        public async Task SaveAndGenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var userSettings = await UserSettingsUtilities.ReadSettings();
-
-            var targetDirectory = LocalContentDirectory(userSettings);
-
-            var originalFileInTargetDirectoryFullName = Path.Combine(targetDirectory.FullName, SelectedFile.Name);
-
-            var sourceImage = new FileInfo(originalFileInTargetDirectoryFullName);
-
-            if (originalFileInTargetDirectoryFullName != SelectedFile.FullName)
-            {
-                if (sourceImage.Exists) sourceImage.Delete();
-                SelectedFile.CopyTo(originalFileInTargetDirectoryFullName);
-                sourceImage.Refresh();
-            }
-
-            ImageResizing.ResizeForDisplayAndSrcset(sourceImage, StatusContext.ProgressTracker());
-        }
-
-        private async Task WriteSelectedFileToMasterMediaArchive()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var userSettings = await UserSettingsUtilities.ReadSettings();
-            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchive, SelectedFile.Name);
-            if (destinationFileName == SelectedFile.FullName) return;
-
-            var destinationFile = new FileInfo(destinationFileName);
-
-            if (destinationFile.Exists) destinationFile.Delete();
-
-            SelectedFile.CopyTo(destinationFileName);
+            await SaveToDatabase();
+            await GenerateHtml();
+            await WriteLocalDbJson();
         }
 
         private async Task SaveToDatabase()
@@ -649,115 +621,65 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             await LoadData(newEntry);
         }
 
+        private async Task SaveToDbWithValidation()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var validationList = await ValidateAll();
+
+            if (validationList.Any(x => !x.Item1))
+            {
+                await StatusContext.ShowMessage("Validation Error",
+                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
+                    new List<string> {"Ok"});
+                return;
+            }
+
+            await SaveToDatabase();
+        }
+
+        public static string ShutterSpeedToHumanReadableString(Rational? toProcess)
+        {
+            if (toProcess == null) return string.Empty;
+
+            if (toProcess.Value.Numerator < 0)
+                return Math.Round(Math.Pow(2, (double) -1 * toProcess.Value.Numerator / toProcess.Value.Denominator), 1)
+                    .ToString("N1");
+
+            return
+                $"1/{Math.Round(Math.Pow(2, (double) toProcess.Value.Numerator / toProcess.Value.Denominator), 1):N0}";
+        }
+
         private async Task<(bool, string)> Validate()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             SelectedFile.Refresh();
 
-            if (!SelectedFile.Exists)
-            {
-                return (false, "File doesn't exist?");
-            }
+            if (!SelectedFile.Exists) return (false, "File doesn't exist?");
 
             if (!(SelectedFile.Extension.ToLower().Contains("jpg") ||
-                  (SelectedFile.Extension.ToLower().Contains("jpeg"))))
-            {
+                  SelectedFile.Extension.ToLower().Contains("jpeg")))
                 return (false, "The file doesn't appear to be a supported file type.");
-            }
 
             if (await (await Db.Context()).PhotoFilenameExistsInDatabase(SelectedFile.Name))
-            {
                 return (false, "This filename already exists in the database - photo file names must be unique.");
-            }
 
             return (true, string.Empty);
         }
 
-        public RelayCommand SaveAndCreateLocalCommand { get; set; }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async Task ProcessSelectedFile()
+        private async Task<List<(bool, string)>> ValidateAll()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            StatusContext.Progress("Starting Metadata Processing");
-
-            SelectedFile.Refresh();
-
-            if (!SelectedFile.Exists)
+            return new List<(bool, string)>
             {
-                StatusContext.ToastError("File doesn't exist?");
-                return;
-            }
-
-            StatusContext.Progress("Getting Directories");
-
-            var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName)
-                .OfType<ExifSubIfdDirectory>().FirstOrDefault();
-            var exifDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<ExifIfd0Directory>()
-                .FirstOrDefault();
-            var iptcDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<IptcDirectory>()
-                .FirstOrDefault();
-
-            PhotoCreatedBy = exifDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
-            PhotoCreatedOn =
-                DateTime.ParseExact(exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal),
-                    "yyyy:MM:dd HH:mm:ss", CultureInfo.InvariantCulture);
-            TitleSummarySlugFolder.Folder = PhotoCreatedOn.Year.ToString("F0");
-
-            var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
-            if (!string.IsNullOrWhiteSpace(isoString))
-            {
-                Iso = int.Parse(isoString);
-            }
-
-            CameraMake = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
-            CameraModel = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
-            FocalLength = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagFocalLength) ?? string.Empty;
-            Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
-            if (Lens == "----") Lens = string.Empty;
-            Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
-            License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
-            ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
-            TitleSummarySlugFolder.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
-            TitleSummarySlugFolder.Slug = Slug.Create(true, TitleSummarySlugFolder.Title);
-            Tags.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords).Replace(";", ",") ?? string.Empty;
-        }
-
-        private async Task ResizePhoto()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedFile == null)
-            {
-                StatusContext.ToastError("Can't Resize - No File?");
-                return;
-            }
-
-            SelectedFile.Refresh();
-
-            if (!SelectedFile.Exists)
-            {
-                StatusContext.ToastError("Can't Resize - No File?");
-                return;
-            }
-
-            ImageResizing.ResizeForDisplayAndSrcset(SelectedFile, StatusContext.ProgressTracker());
-        }
-
-        private async Task GenerateHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var htmlContext = new SinglePhotoPage(DbEntry);
-
-            htmlContext.WriteLocalHtml();
+                await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
+                await UserSettingsUtilities.ValidateLocalMasterMediaArchive(),
+                await TitleSummarySlugFolder.Validate(),
+                await CreatedAndUpdatedByAndOnDisplay.Validate(),
+                await Validate()
+            };
         }
 
         private async Task ViewPhotoMetadata()
@@ -791,8 +713,77 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var viewerWindow = new HtmlViewer.HtmlViewerWindow(tagHtml);
+            var viewerWindow = new HtmlViewerWindow(tagHtml);
             viewerWindow.Show();
         }
+
+        private async Task WriteLocalDbJson()
+        {
+            var settings = await UserSettingsUtilities.ReadSettings();
+            var db = await Db.Context();
+            var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
+
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName,
+                $"{DbEntry.ContentId}.json"));
+
+            if (jsonFile.Exists) jsonFile.Delete();
+            jsonFile.Refresh();
+
+            File.WriteAllText(jsonFile.FullName, jsonDbEntry);
+
+            var latestHistoricEntries = db.HistoricPhotoContents.Where(x => x.ContentId == DbEntry.ContentId)
+                .OrderByDescending(x => x.LastUpdatedOn).Take(10);
+
+            if (!latestHistoricEntries.Any()) return;
+
+            var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
+
+            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName,
+                $"{DbEntry.ContentId}-Historic.json"));
+
+            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
+            jsonHistoricFile.Refresh();
+
+            File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+        }
+
+        private async Task WriteSelectedFileToLocalSite()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var userSettings = await UserSettingsUtilities.ReadSettings();
+
+            var targetDirectory = LocalContentDirectory(userSettings);
+
+            var originalFileInTargetDirectoryFullName = Path.Combine(targetDirectory.FullName, SelectedFile.Name);
+
+            var sourceImage = new FileInfo(originalFileInTargetDirectoryFullName);
+
+            if (originalFileInTargetDirectoryFullName != SelectedFile.FullName)
+            {
+                if (sourceImage.Exists) sourceImage.Delete();
+                SelectedFile.CopyTo(originalFileInTargetDirectoryFullName);
+                sourceImage.Refresh();
+            }
+
+            ImageResizing.ResizeForDisplayAndSrcset(sourceImage, StatusContext.ProgressTracker());
+        }
+
+        private async Task WriteSelectedFileToMasterMediaArchive()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var userSettings = await UserSettingsUtilities.ReadSettings();
+            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchive, SelectedFile.Name);
+            if (destinationFileName == SelectedFile.FullName) return;
+
+            var destinationFile = new FileInfo(destinationFileName);
+
+            if (destinationFile.Exists) destinationFile.Delete();
+
+            SelectedFile.CopyTo(destinationFileName);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

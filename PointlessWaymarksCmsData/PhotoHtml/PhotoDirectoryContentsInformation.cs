@@ -5,13 +5,12 @@ namespace PointlessWaymarksCmsData.PhotoHtml
 {
     public class PhotoDirectoryContentsInformation
     {
-        public ImageFileInformation SmallImage { get; set; }
+        public ImageFileInformation DisplayImage { get; set; }
 
         public ImageFileInformation LargeImage { get; set; }
+        public ImageFileInformation SmallImage { get; set; }
 
         public List<ImageFileInformation> SrcsetImages { get; set; }
-
-        public ImageFileInformation DisplayImage { get; set; }
 
         public string SrcSetString()
         {

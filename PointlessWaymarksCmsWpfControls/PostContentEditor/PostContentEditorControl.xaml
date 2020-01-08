@@ -11,7 +11,8 @@
              xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
              xmlns:postContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PostContentEditor"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance postContentEditor:PostContentEditorContext}">
+             d:DesignHeight="300" d:DesignWidth="300"
+             d:DataContext="{d:DesignInstance postContentEditor:PostContentEditorContext}">
     <Grid>
         <TabControl>
             <TabItem Header="Summary">
@@ -20,10 +21,11 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
+                            <CheckBox Margin="0,8,0,8" IsChecked="{Binding ShowInPostFeed}">Show Post in Feed</CheckBox>
                             <tagsEditor:TagsEditorControl DataContext="{Binding Tags}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                                 DataContext="{Binding CreatedAndUpdatedByAndOnDisplay}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" />
+                            <contentIdViewer:ContentIdViewerControl Margin="0,8,0,0" DataContext="{Binding ContentId}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

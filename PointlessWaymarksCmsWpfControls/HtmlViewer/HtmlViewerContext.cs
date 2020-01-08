@@ -7,9 +7,23 @@ namespace PointlessWaymarksCmsWpfControls.HtmlViewer
 {
     public class HtmlViewerContext : INotifyPropertyChanged
     {
+        private string _htmlString;
+        private StatusControlContext _statusContext;
+
         public HtmlViewerContext()
         {
             StatusContext = new StatusControlContext();
+        }
+
+        public string HtmlString
+        {
+            get => _htmlString;
+            set
+            {
+                if (value == _htmlString) return;
+                _htmlString = value;
+                OnPropertyChanged();
+            }
         }
 
         public StatusControlContext StatusContext
@@ -23,26 +37,12 @@ namespace PointlessWaymarksCmsWpfControls.HtmlViewer
             }
         }
 
-        private string _htmlString;
-        private StatusControlContext _statusContext;
-
-        public string HtmlString
-        {
-            get => _htmlString;
-            set
-            {
-                if (value == _htmlString) return;
-                _htmlString = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

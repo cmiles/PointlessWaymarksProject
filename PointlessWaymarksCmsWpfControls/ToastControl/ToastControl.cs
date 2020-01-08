@@ -49,16 +49,14 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
             set => SetValue(NotificationProperty, value);
         }
 
-        public event RoutedEventHandler NotificationClosed
+        private void CloseButtonClicked(object sender, RoutedEventArgs e)
         {
-            add => AddHandler(NotificationClosedEvent, value);
-            remove => RemoveHandler(NotificationClosedEvent, value);
-        }
+            if (_isClosing || _isClosed)
+                return;
 
-        public event RoutedEventHandler NotificationClosing
-        {
-            add => AddHandler(NotificationClosingEvent, value);
-            remove => RemoveHandler(NotificationClosingEvent, value);
+            _isClosed = true;
+
+            RaiseEvent(new RoutedEventArgs(NotificationClosedEvent));
         }
 
         public void InvokeHideAnimation()
@@ -71,14 +69,6 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
             RaiseEvent(new RoutedEventArgs(NotificationClosingEvent));
         }
 
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-
-            if (GetTemplateChild("CloseButton") is Button closeButton)
-                closeButton.Click += CloseButtonClicked;
-        }
-
         private static void NotificationChanged(DependencyObject dependencyObject,
             DependencyPropertyChangedEventArgs eventArgs)
         {
@@ -88,20 +78,30 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
             notification.InvokeHideAnimation = control.InvokeHideAnimation;
         }
 
-        private void CloseButtonClicked(object sender, RoutedEventArgs e)
+        public override void OnApplyTemplate()
         {
-            if (_isClosing || _isClosed)
-                return;
+            base.OnApplyTemplate();
 
-            _isClosed = true;
-
-            RaiseEvent(new RoutedEventArgs(NotificationClosedEvent));
+            if (GetTemplateChild("CloseButton") is Button closeButton)
+                closeButton.Click += CloseButtonClicked;
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
             if (GetTemplateChild("CloseButton") is Button closeButton)
                 closeButton.Click -= CloseButtonClicked;
+        }
+
+        public event RoutedEventHandler NotificationClosed
+        {
+            add => AddHandler(NotificationClosedEvent, value);
+            remove => RemoveHandler(NotificationClosedEvent, value);
+        }
+
+        public event RoutedEventHandler NotificationClosing
+        {
+            add => AddHandler(NotificationClosingEvent, value);
+            remove => RemoveHandler(NotificationClosingEvent, value);
         }
     }
 }

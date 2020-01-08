@@ -23,17 +23,6 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
             ItemContentEditorContext = new ItemContentEditorContext();
         }
 
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
         public ItemContentEditorContext ItemContentEditorContext
         {
             get => _itemContentEditorContext;
@@ -45,12 +34,23 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

@@ -49,8 +49,6 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
         public TimeSpan NotificationLifeTime { get; set; }
         public ObservableCollection<ToastViewModel> NotificationMessages { get; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public void Hide(Guid id)
         {
             var n = NotificationMessages.SingleOrDefault(x => x.Id == id);
@@ -62,6 +60,42 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
             var timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(200), Tag = n};
             timer.Tick += RemoveNotificationsTimer_OnTick;
             timer.Start();
+        }
+
+        private void InternalStartTimer()
+        {
+            _timer.Tick += TimerOnTick;
+            _timer.Start();
+        }
+
+        private void InternalStopTimer()
+        {
+            _timer.Stop();
+            _timer.Tick -= TimerOnTick;
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void RemoveNotificationsTimer_OnTick(object sender, EventArgs eventArgs)
+        {
+            if (!(sender is DispatcherTimer timer)) return;
+
+            // Stop the timer and cleanup for GC
+            timer.Tick += RemoveNotificationsTimer_OnTick;
+            timer.Stop();
+
+            if (!(timer.Tag is ToastViewModel n)) return;
+
+            NotificationMessages.Remove(n);
+
+            if (NotificationMessages.Any()) return;
+
+            InternalStopTimer();
+            IsOpen = false;
         }
 
         public void Show(string message, ToastType type)
@@ -86,42 +120,6 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
             NotificationMessages.Add(new ToastViewModel {Message = message, Type = type});
         }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void InternalStartTimer()
-        {
-            _timer.Tick += TimerOnTick;
-            _timer.Start();
-        }
-
-        private void InternalStopTimer()
-        {
-            _timer.Stop();
-            _timer.Tick -= TimerOnTick;
-        }
-
-        private void RemoveNotificationsTimer_OnTick(object sender, EventArgs eventArgs)
-        {
-            if (!(sender is DispatcherTimer timer)) return;
-
-            // Stop the timer and cleanup for GC
-            timer.Tick += RemoveNotificationsTimer_OnTick;
-            timer.Stop();
-
-            if (!(timer.Tag is ToastViewModel n)) return;
-
-            NotificationMessages.Remove(n);
-
-            if (NotificationMessages.Any()) return;
-
-            InternalStopTimer();
-            IsOpen = false;
-        }
-
         private void TimerOnTick(object sender, EventArgs eventArgs)
         {
             if (NotificationLifeTime == NeverEndingNotification)
@@ -133,5 +131,7 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
 
             foreach (var id in itemsToRemove) Hide(id);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

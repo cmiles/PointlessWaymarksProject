@@ -16,25 +16,14 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
         private List<ContentFormatEnum> _contentFormatChoices;
 
         private ContentFormatEnum _selectedContentFormat;
-        private StatusControlContext _statusContext;
         private string _selectedContentFormatAsString;
+        private StatusControlContext _statusContext;
 
         public ContentFormatChooserContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             ContentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum)).Cast<ContentFormatEnum>().ToList();
             SelectedContentFormat = ContentFormatChoices.First();
-        }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
         }
 
         public List<ContentFormatEnum> ContentFormatChoices
@@ -78,7 +67,22 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public async Task<bool> TrySelectContentChoice(string contentChoice)
         {
@@ -91,12 +95,8 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             return toSelect;
         }
 
-        public event EventHandler<string> OnSelectedValueChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public event EventHandler<string> OnSelectedValueChanged;
     }
 }

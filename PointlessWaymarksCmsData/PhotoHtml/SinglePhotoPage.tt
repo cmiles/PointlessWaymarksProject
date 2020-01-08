@@ -1,4 +1,5 @@
 ﻿<#@ template language="C#" debug="true" #>
+<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 
 <!doctype html>
 
@@ -31,8 +32,8 @@
     <#= PhotoStyles.PhotoBodyStyle() #>
     <#= PhotoStyles.SinglePhotoStyles() #>
     <#= PhotoStyles.PhotoDetailsStyles() #>
-    <#= CommonHtml.Styles.TagsContainerStyles() #>
-    <#= CommonHtml.Styles.SiteNameFooterStyles() #>
+    <#= Styles.TagsContainerStyles() #>
+    <#= Styles.SiteNameFooterStyles() #>
 
     .update-notes-container {
         margin: 2.5rem;
@@ -44,7 +45,7 @@
         text-align: center;
     }
 
-    <#= CommonHtml.Styles.StandardRuleStyles() #>
+    <#= Styles.StandardRuleStyles() #>
 
 </style>
 
@@ -54,7 +55,7 @@
     <#= PhotoFigureTag().ToString() #>
     <#= PhotoDetailsDiv().ToString() #>
     <#=
-                CommonHtml.Tags.TagList(DbEntry).ToString() #>
+                Tags.TagList(DbEntry).ToString() #>
     <#= UpdateDiv().ToString() #>
     <#= CreatedDiv().ToString() #>
     <#= SiteNameFooterDiv().ToString() #>

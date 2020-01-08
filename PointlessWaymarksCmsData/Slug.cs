@@ -9,61 +9,41 @@ namespace PointlessWaymarksCmsData
 {
     public static class Slug
     {
-        public static (bool isValid, string explanation) FolderAndSlugCreateValidUri(List<string> folderList,
-            string slug)
+        private static string ConvertEdgeCases(char c, bool toLower)
         {
-            var isValid = true;
-            var explanation = string.Empty;
-
-            if (string.IsNullOrWhiteSpace(slug))
+            string swap = null;
+            switch (c)
             {
-                isValid = false;
-                explanation = "Folder and Slug must only use lower case.";
+                case 'ı':
+                    swap = "i";
+                    break;
+
+                case 'ł':
+                    swap = "l";
+                    break;
+
+                case 'Ł':
+                    swap = toLower ? "l" : "L";
+                    break;
+
+                case 'đ':
+                    swap = "d";
+                    break;
+
+                case 'ß':
+                    swap = "ss";
+                    break;
+
+                case 'ø':
+                    swap = "o";
+                    break;
+
+                case 'Þ':
+                    swap = "th";
+                    break;
             }
 
-            if (!isValid) return (isValid, explanation);
-
-            if (slug.Any(char.IsUpper) || folderList.Any(x => x.Any(char.IsUpper)))
-            {
-                isValid = false;
-                explanation = "Folder and Slug must only use lower case.";
-            }
-
-            if (!isValid) return (isValid, explanation);
-
-            var uriToCheck = $@"//{string.Join("/", folderList)}{(folderList.Any() ? "/" : "")}{slug}";
-
-            if (!Uri.IsWellFormedUriString(uriToCheck, UriKind.RelativeOrAbsolute))
-            {
-                isValid = false;
-                explanation = "Folders and Slug do not form a legal uri - illegal characters?";
-            }
-
-            return (isValid, explanation);
-        }
-
-        public static async Task<bool> SlugExistsInDatabase(this LemmonWorkshopContext context, string slug)
-        {
-            if (string.IsNullOrWhiteSpace(slug)) return false;
-
-            var lineCheck = await context.LineContents.AnyAsync(x => x.Slug == slug);
-            var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug);
-            var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug);
-            var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug);
-            var trailCheck = await context.TrailSegments.AnyAsync(x => x.Slug == slug);
-
-            return lineCheck && photoCheck && pointCheck && postCheck && trailCheck;
-        }
-
-        public static async Task<bool> PhotoFilenameExistsInDatabase(this LemmonWorkshopContext context,
-            string filename)
-        {
-            if (string.IsNullOrWhiteSpace(filename)) return false;
-
-            var photoCheck =
-                await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
-
-            return photoCheck;
+            return swap;
         }
 
         public static string Create(bool toLower, params string[] values)
@@ -150,41 +130,61 @@ namespace PointlessWaymarksCmsData
             return sb.ToString();
         }
 
-        private static string ConvertEdgeCases(char c, bool toLower)
+        public static (bool isValid, string explanation) FolderAndSlugCreateValidUri(List<string> folderList,
+            string slug)
         {
-            string swap = null;
-            switch (c)
+            var isValid = true;
+            var explanation = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(slug))
             {
-                case 'ı':
-                    swap = "i";
-                    break;
-
-                case 'ł':
-                    swap = "l";
-                    break;
-
-                case 'Ł':
-                    swap = toLower ? "l" : "L";
-                    break;
-
-                case 'đ':
-                    swap = "d";
-                    break;
-
-                case 'ß':
-                    swap = "ss";
-                    break;
-
-                case 'ø':
-                    swap = "o";
-                    break;
-
-                case 'Þ':
-                    swap = "th";
-                    break;
+                isValid = false;
+                explanation = "Folder and Slug must only use lower case.";
             }
 
-            return swap;
+            if (!isValid) return (isValid, explanation);
+
+            if (slug.Any(char.IsUpper) || folderList.Any(x => x.Any(char.IsUpper)))
+            {
+                isValid = false;
+                explanation = "Folder and Slug must only use lower case.";
+            }
+
+            if (!isValid) return (isValid, explanation);
+
+            var uriToCheck = $@"//{string.Join("/", folderList)}{(folderList.Any() ? "/" : "")}{slug}";
+
+            if (!Uri.IsWellFormedUriString(uriToCheck, UriKind.RelativeOrAbsolute))
+            {
+                isValid = false;
+                explanation = "Folders and Slug do not form a legal uri - illegal characters?";
+            }
+
+            return (isValid, explanation);
+        }
+
+        public static async Task<bool> PhotoFilenameExistsInDatabase(this LemmonWorkshopContext context,
+            string filename)
+        {
+            if (string.IsNullOrWhiteSpace(filename)) return false;
+
+            var photoCheck =
+                await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+
+            return photoCheck;
+        }
+
+        public static async Task<bool> SlugExistsInDatabase(this LemmonWorkshopContext context, string slug)
+        {
+            if (string.IsNullOrWhiteSpace(slug)) return false;
+
+            var lineCheck = await context.LineContents.AnyAsync(x => x.Slug == slug);
+            var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug);
+            var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug);
+            var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug);
+            var trailCheck = await context.TrailSegments.AnyAsync(x => x.Slug == slug);
+
+            return lineCheck && photoCheck && pointCheck && postCheck && trailCheck;
         }
     }
 }

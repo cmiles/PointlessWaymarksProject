@@ -44,8 +44,6 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
 
         public UIElement SeamarksLayer => mapLayers["Seamarks"];
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private Dictionary<string, UIElement> CreateMapLayers()
         {
             var settings = UserSettingsUtilities.ReadSettings().Result;
@@ -191,5 +189,7 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
 
             return toReturn;
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

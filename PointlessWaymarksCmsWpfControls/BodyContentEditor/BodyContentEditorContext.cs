@@ -20,8 +20,8 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         private ContentFormatChooserContext _bodyContentFormat;
         private string _bodyContentHtmlOutput;
         private IBodyContent _dbEntry;
-        private string _userBodyContent = string.Empty;
         private StatusControlContext _statusContext;
+        private string _userBodyContent = string.Empty;
 
         public BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry)
         {
@@ -30,14 +30,16 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
-        public StatusControlContext StatusContext
+        public string BodyContent
         {
-            get => _statusContext;
+            get => _userBodyContent;
             set
             {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
+                if (value == _userBodyContent) return;
+                _userBodyContent = value;
                 OnPropertyChanged();
+
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
             }
         }
 
@@ -54,16 +56,14 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
         }
 
-        public string BodyContent
+        public string BodyContentHtmlOutput
         {
-            get => _userBodyContent;
+            get => _bodyContentHtmlOutput;
             set
             {
-                if (value == _userBodyContent) return;
-                _userBodyContent = value;
+                if (value == _bodyContentHtmlOutput) return;
+                _bodyContentHtmlOutput = value;
                 OnPropertyChanged();
-
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
             }
         }
 
@@ -78,18 +78,16 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
         }
 
-        public string BodyContentHtmlOutput
+        public StatusControlContext StatusContext
         {
-            get => _bodyContentHtmlOutput;
+            get => _statusContext;
             set
             {
-                if (value == _bodyContentHtmlOutput) return;
-                _bodyContentHtmlOutput = value;
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
                 OnPropertyChanged();
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task LoadData(IBodyContent toLoad)
         {
@@ -108,6 +106,12 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             var setUpdateFormatOk = await BodyContentFormat.TrySelectContentChoice(toLoad.BodyContentFormat);
 
             if (!setUpdateFormatOk) StatusContext.ToastWarning("Trouble loading Format from Db...");
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public async Task UpdateUpdateNotesContentHtml()
@@ -131,10 +135,6 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
         }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

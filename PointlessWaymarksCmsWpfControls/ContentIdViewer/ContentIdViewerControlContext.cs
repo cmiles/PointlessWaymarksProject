@@ -10,15 +10,26 @@ namespace PointlessWaymarksCmsWpfControls.ContentIdViewer
 {
     public class ContentIdViewerControlContext : INotifyPropertyChanged
     {
-        private StatusControlContext _statusContext;
         private string _contentIdInformation;
         private IContentId _dbEntry;
+        private StatusControlContext _statusContext;
 
         public ContentIdViewerControlContext(StatusControlContext statusContext, IContentId dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
+        }
+
+        public string ContentIdInformation
+        {
+            get => _contentIdInformation;
+            set
+            {
+                if (value == _contentIdInformation) return;
+                _contentIdInformation = value;
+                OnPropertyChanged();
+            }
         }
 
         public IContentId DbEntry
@@ -28,6 +39,17 @@ namespace PointlessWaymarksCmsWpfControls.ContentIdViewer
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
                 OnPropertyChanged();
             }
         }
@@ -47,34 +69,12 @@ namespace PointlessWaymarksCmsWpfControls.ContentIdViewer
             ContentIdInformation = $"Id: {dbEntry.Id} Fingerprint: {dbEntry.ContentId}";
         }
 
-        public string ContentIdInformation
-        {
-            get => _contentIdInformation;
-            set
-            {
-                if (value == _contentIdInformation) return;
-                _contentIdInformation = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

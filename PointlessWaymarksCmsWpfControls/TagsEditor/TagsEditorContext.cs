@@ -8,6 +8,11 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 {
     public class TagsEditorContext : INotifyPropertyChanged
     {
+        private ITag _dbEntry;
+        private StatusControlContext _statusContext;
+
+        private string _tags;
+
         public TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
@@ -37,11 +42,6 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
-        private string _tags;
-        private StatusControlContext _statusContext;
-        private ITag _dbEntry;
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public string Tags
         {
             get => _tags;
@@ -58,5 +58,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

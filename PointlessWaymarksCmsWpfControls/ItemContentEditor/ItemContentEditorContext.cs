@@ -59,8 +59,6 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
                 Enum.GetName(typeof(ContentFormatEnum), MainImageFormatContext.SelectedContentFormat);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public ContentFormatChooserContext BodyContentFormatContext
         {
             get => _bodyContentFormatContext;
@@ -295,5 +293,7 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
             if (UserContent.LocationDataType == LocationDataTypeConsts.Line)
                 await UpdateLineElevation(StatusContext.ProgressTracker());
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

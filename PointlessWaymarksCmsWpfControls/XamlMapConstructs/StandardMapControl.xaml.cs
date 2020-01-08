@@ -20,11 +20,6 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
             DataContextChanged += OnDataContextChanged;
         }
 
-        public StandardMapViewModel Model()
-        {
-            return (StandardMapViewModel) DataContext;
-        }
-
         private void MapItemTouchDown(object sender, TouchEventArgs e)
         {
             var mapItem = (MapItem) sender;
@@ -88,6 +83,11 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
             {
                 //map.ZoomMap(e.GetPosition(map), Math.Ceiling(map.ZoomLevel - 1.5));
             }
+        }
+
+        public StandardMapViewModel Model()
+        {
+            return (StandardMapViewModel) DataContext;
         }
 
         private void ModelOnListPointSelectionRequest(object sender, List<MapDisplayPoint> e)

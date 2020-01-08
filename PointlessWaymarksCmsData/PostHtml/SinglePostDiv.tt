@@ -1,0 +1,7 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+
+<div class="post-container">
+    <#= TitleDiv() #>
+    <#= PostParts.PostBodyDiv(DbEntry) #>
+</div>

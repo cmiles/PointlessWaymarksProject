@@ -15,14 +15,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
     public class PhotoListContext : INotifyPropertyChanged
     {
         private ObservableRangeCollection<PhotoListListItem> _items;
-        private StatusControlContext _statusContext;
         private List<PhotoListListItem> _selectedItems;
-        public event PropertyChangedEventHandler PropertyChanged;
+        private StatusControlContext _statusContext;
 
         public PhotoListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public ObservableRangeCollection<PhotoListListItem> Items
+        {
+            get => _items;
+            set
+            {
+                if (Equals(value, _items)) return;
+                _items = value;
+                OnPropertyChanged();
+            }
         }
 
         public List<PhotoListListItem> SelectedItems
@@ -72,21 +82,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             Items = new ObservableRangeCollection<PhotoListListItem>(listItems);
         }
 
-        public ObservableRangeCollection<PhotoListListItem> Items
-        {
-            get => _items;
-            set
-            {
-                if (Equals(value, _items)) return;
-                _items = value;
-                OnPropertyChanged();
-            }
-        }
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

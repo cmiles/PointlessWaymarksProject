@@ -46,14 +46,14 @@ namespace PointlessWaymarksCmsWpfControls.MainImageFormat
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public event EventHandler<string> OnSelectedValueChanged;
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<string> OnSelectedValueChanged;
     }
 }

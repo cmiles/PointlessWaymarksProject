@@ -5,25 +5,17 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace PointlessWaymarksCmsData.IndexHtml
+namespace PointlessWaymarksCmsData.PostHtml
 {
     using System;
-    #line 3 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-using PointlessWaymarksCmsData.CommonHtml;
-    #line default
-    #line hidden
-    #line 4 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-using PointlessWaymarksCmsData.PhotoHtml;
-    #line default
-    #line hidden
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+    #line 1 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("JetBrains.ForTea.TextTemplating", "42.42.42.42")]
-    public partial class IndexPage : IndexPageBase
+    public partial class SinglePostDiv : SinglePostDivBase
     {
 #line hidden
         /// <summary>
@@ -32,168 +24,21 @@ using PointlessWaymarksCmsData.PhotoHtml;
         public virtual string TransformText()
         {
             
-            this.Write("\r\n<!doctype html>\r\n\r\n<html lang=\"en\">\r\n<head>\r\n<meta charset=\"utf-8\">\r\n\r\n    <title>");
+            this.Write("\r\n<div class=\"post-container\">\r\n    ");
             
-            #line 12 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
-            
-            #line default
-            #line hidden
-            this.Write("</title>\r\n    <meta name=\"description\" content=\"");
-            
-            #line 13 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary));
-            
-            #line default
-            #line hidden
-            this.Write("\">\r\n    <meta name=\"author\" content=\"");
-            
-            #line 14 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors));
-            
-            #line default
-            #line hidden
-            this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
-            
-            #line 15 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteKeywords));
-            
-            #line default
-            #line hidden
-            this.Write("\" >\r\n\r\n    <meta property=\"og:site_name\" content=\"");
-            
-            #line 17 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"");
-            
-            #line 18 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:type\" content=\"");
-            
-            #line 19 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteUrl));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n\r\n    <meta property=\"og:title\" content=\"");
-            
-            #line 21 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:description\" content=\"");
-            
-            #line 22 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image\" content=\"http:");
-            
-            #line 23 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.SiteUrl));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image:secure_url\" content=\"https:");
-            
-            #line 24 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.SiteUrl));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image:type\" content=\"image/jpeg\" />\r\n    <meta property=\"og:image:width\" content=\"");
-            
-            #line 26 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Photos.DisplayImage.Width));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image:height\" content=\"");
-            
-            #line 27 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Photos.DisplayImage.Height));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image:alt\" content=\"");
-            
-            #line 28 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.DbEntry.AltText));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n<style>\r\n\r\n    ");
-            
-            #line 34 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Styles.BodyStyle()));
+            #line 5 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(TitleDiv()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 35 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoStyles.SinglePhotoStyles()));
+            #line 6 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(PostParts.PostBodyDiv(DbEntry)));
             
             #line default
             #line hidden
-            this.Write("\r\n    ");
-            
-            #line 36 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Styles.TagsContainerStyles()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 37 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Styles.SiteNameFooterStyles()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n    .update-notes-container {\r\n        margin: 2.5rem;\r\n        text-align: center;\r\n    }\r\n\r\n    .created-by-container {\r\n        margin: 2.5rem;\r\n        text-align: center;\r\n    }\r\n\r\n    .index-title-content {\r\n        text-align: center;\r\n        font-weight: normal;\r\n        font-size: 2rem;\r\n        margin-bottom: 0;\r\n    }\r\n\r\n    .index-title-summary-content {\r\n        color: rgb(220,220,220);\r\n        text-align: center;\r\n        margin: 1rem;\r\n        font-weight: normal;\r\n        font-size: .9rem;\r\n    }\r\n\r\n    .index-posts-content {\r\n        margin: 4rem;\r\n    }\r\n\r\n    .post-title-link-content {\r\n        text-align: center;\r\n        font-weight: normal;\r\n        color: black;\r\n        font-size: 2rem;\r\n        margin-bottom: 0;\r\n    }\r\n\r\n    .post-title-area-created-and-updated-content { \r\n        font-weight: normal;\r\n        font-size: 1.1rem;\r\n        text-align: center;\r\n        margin-top: .5rem;\r\n        color: rgb(220,220,220);\r\n    }\r\n\r\n    .single-photo-caption {\r\n        color: rgb(220,220,220);\r\n    }\r\n\r\n    .tags-container {\r\n        color: rgb(220,220,220);\r\n    }\r\n\r\n    .post-body-container {\r\n        margin-bottom: 1.8rem;\r\n        margin-top: 2rem;\r\n    }\r\n\r\n    .post-related-posts-link-container {\r\n        margin: 3px;\r\n        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);\r\n        transition: all 0.3s cubic-bezier(.25,.8,.25,1);\r\n        border-radius: 4px;\r\n    }\r\n\r\n    .post-related-posts-container {\r\n        display: flex;\r\n        justify-content: center;\r\n        flex-wrap: wrap;\r\n        align-items: center;\r\n        margin-top: 1rem;\r\n        color: rgb(220,220,220);\r\n    }\r\n\r\n    .post-related-posts-link \r\n    {\r\n        margin: 6px;\r\n        display: block;\r\n        color: rgb(220,220,220);\r\n    }\r\n\r\n    ");
-            
-            #line 120 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Styles.StandardRuleStyles()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n</style>\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
-            
-            #line 127 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Title().ToString()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 128 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 129 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(IndexPosts()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 130 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.SiteTitleDiv()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n</body>\r\n\r\n</html>");
+            this.Write("\r\n</div>");
             return this.GenerationEnvironment.ToString();
         }
     }
@@ -205,7 +50,7 @@ using PointlessWaymarksCmsData.PhotoHtml;
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("JetBrains.ForTea.TextTemplating", "42.42.42.42")]
-    public class IndexPageBase
+    public class SinglePostDivBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

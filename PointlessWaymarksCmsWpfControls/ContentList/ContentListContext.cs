@@ -14,9 +14,9 @@ namespace PointlessWaymarksCmsWpfControls.ContentList
 {
     public class ContentListContext : INotifyPropertyChanged
     {
-        private StatusControlContext _statusContext;
         private ObservableCollection<ContentListItem> _items;
         private ContentListItem _selectedItem;
+        private StatusControlContext _statusContext;
 
         public ContentListContext(StatusControlContext statusContext)
         {
@@ -24,8 +24,6 @@ namespace PointlessWaymarksCmsWpfControls.ContentList
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadAllContent);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<ContentListItem> Items
         {
@@ -38,17 +36,6 @@ namespace PointlessWaymarksCmsWpfControls.ContentList
             }
         }
 
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
         public ContentListItem SelectedItem
         {
             get => _selectedItem;
@@ -56,6 +43,17 @@ namespace PointlessWaymarksCmsWpfControls.ContentList
             {
                 if (Equals(value, _selectedItem)) return;
                 _selectedItem = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
                 OnPropertyChanged();
             }
         }
@@ -84,5 +82,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentList
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

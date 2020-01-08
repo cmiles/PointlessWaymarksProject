@@ -50,8 +50,6 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
             StandardMapContext = new StandardMapViewModel(statusContext);
         }
 
-        public RelayCommand<MapDisplayPoint> RenamePointCommand { get; set; }
-
         public RelayCommand ClearItemsCommand { get; set; }
         public RelayCommand ClearSelectionCommand { get; set; }
 
@@ -68,6 +66,8 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
 
         public RelayCommand<IList> PointsListSelectionChangedCommand { get; set; }
         public RelayCommand<IList> PolylinesListSelectionChangedCommand { get; set; }
+
+        public RelayCommand<MapDisplayPoint> RenamePointCommand { get; set; }
 
         public List<MapDisplayPolyline> SelectedLines
         {
@@ -143,10 +143,6 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public event EventHandler<SelectedGeoData> GeoDataSelected;
-
         public async Task ClearList(IProgress<string> progress)
         {
             progress.Report("Clearing List");
@@ -157,12 +153,6 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
             StandardMapContext.Polylines.Clear();
 
             progress.Report("Cleared List Items");
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private async Task LoadFile(IProgress<string> progress)
@@ -272,6 +262,12 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
             }
         }
 
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private void PointsListSelectionChanged(IList listOfPoints)
         {
             if (listOfPoints == null || listOfPoints.Count == 0)
@@ -362,5 +358,9 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
                     new SelectedGeoData {GeoType = LocationDataTypeConsts.Line, GeoData = ntsLineString});
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<SelectedGeoData> GeoDataSelected;
     }
 }

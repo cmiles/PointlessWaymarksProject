@@ -21,6 +21,31 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             return (bool) obj.GetValue(ScrollOnNewItemProperty);
         }
 
+        private static void ListBox_ItemsSourceChanged(object sender, EventArgs e)
+        {
+            var listBox = (ListBox) sender;
+            if (Associations.ContainsKey(listBox))
+                Associations[listBox].Dispose();
+            Associations[listBox] = new Capture(listBox);
+        }
+
+        private static void ListBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var listBox = (ListBox) sender;
+            var incc = listBox.Items as INotifyCollectionChanged;
+            if (incc == null) return;
+            listBox.Loaded -= ListBox_Loaded;
+            Associations[listBox] = new Capture(listBox);
+        }
+
+        private static void ListBox_Unloaded(object sender, RoutedEventArgs e)
+        {
+            var listBox = (ListBox) sender;
+            if (Associations.ContainsKey(listBox))
+                Associations[listBox].Dispose();
+            listBox.Unloaded -= ListBox_Unloaded;
+        }
+
         public static void OnScrollOnNewItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var listBox = d as ListBox;
@@ -50,31 +75,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             obj.SetValue(ScrollOnNewItemProperty, value);
         }
 
-        private static void ListBox_ItemsSourceChanged(object sender, EventArgs e)
-        {
-            var listBox = (ListBox) sender;
-            if (Associations.ContainsKey(listBox))
-                Associations[listBox].Dispose();
-            Associations[listBox] = new Capture(listBox);
-        }
-
-        private static void ListBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            var listBox = (ListBox) sender;
-            var incc = listBox.Items as INotifyCollectionChanged;
-            if (incc == null) return;
-            listBox.Loaded -= ListBox_Loaded;
-            Associations[listBox] = new Capture(listBox);
-        }
-
-        private static void ListBox_Unloaded(object sender, RoutedEventArgs e)
-        {
-            var listBox = (ListBox) sender;
-            if (Associations.ContainsKey(listBox))
-                Associations[listBox].Dispose();
-            listBox.Unloaded -= ListBox_Unloaded;
-        }
-
         private class Capture : IDisposable
         {
             private readonly INotifyCollectionChanged incc;
@@ -87,12 +87,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 if (incc != null) incc.CollectionChanged += incc_CollectionChanged;
             }
 
-            public void Dispose()
-            {
-                if (incc != null)
-                    incc.CollectionChanged -= incc_CollectionChanged;
-            }
-
             private void incc_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
@@ -100,6 +94,12 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     listBox.ScrollIntoView(e.NewItems[0]);
                     listBox.SelectedItem = e.NewItems[0];
                 }
+            }
+
+            public void Dispose()
+            {
+                if (incc != null)
+                    incc.CollectionChanged -= incc_CollectionChanged;
             }
         }
     }

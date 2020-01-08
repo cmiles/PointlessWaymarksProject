@@ -7,6 +7,17 @@ namespace PointlessWaymarksCmsData.PhotoHtml
 {
     public static class PhotoBracketCode
     {
+        public static Guid? FirstPhotoId(string toProcess)
+        {
+            if (string.IsNullOrWhiteSpace(toProcess)) return null;
+
+            var regexObj = new Regex(@"{{photo (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
+            var matchResult = regexObj.Match(toProcess);
+            if (matchResult.Success) return Guid.Parse(matchResult.Groups["siteGuid"].Value);
+
+            return null;
+        }
+
         public static string LocalMarkdownPreprocessedForSitePhotoTags(string toProcess)
         {
             return MarkdownPreprocessedForSitePhotoTags(toProcess, page => page.LocalPhotoFigureTag().ToString());
@@ -16,20 +27,6 @@ namespace PointlessWaymarksCmsData.PhotoHtml
         {
             return MarkdownPreprocessedForSitePhotoTags(toProcess,
                 page => page.PhotoFigureWithLinkToPageTag().ToString());
-        }
-
-        public static Guid? FirstPhotoId(string toProcess)
-        {
-            if (string.IsNullOrWhiteSpace(toProcess)) return null;
-
-            var regexObj = new Regex(@"{{photo (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
-            var matchResult = regexObj.Match(toProcess);
-            if (matchResult.Success)
-            {
-                return Guid.Parse(matchResult.Groups["siteGuid"].Value);
-            }
-
-            return null;
         }
 
         private static string MarkdownPreprocessedForSitePhotoTags(string toProcess,

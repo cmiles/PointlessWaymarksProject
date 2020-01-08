@@ -8,96 +8,9 @@ namespace PointlessWaymarksCmsData
 {
     public static class UserSettingsUtilities
     {
-        public static async Task<UserSettings> ReadSettings()
+        public static string IndexPageUrl(this UserSettings settings)
         {
-            var currentFile = SettingsFile();
-            if (!currentFile.Exists)
-            {
-                await WriteSettings(new UserSettings());
-                currentFile.Refresh();
-            }
-
-            return await JsonSerializer.DeserializeAsync<UserSettings>(File.OpenRead(currentFile.FullName));
-        }
-
-        public static FileInfo SettingsFile()
-        {
-            return new FileInfo(Path.Combine(StorageDirectory().FullName, "HikeLemmonWorkshopSettings.json"));
-        }
-
-        public static async Task<(bool, string)> ValidateLocalSiteRootDirectory()
-        {
-            var settings = await ReadSettings();
-
-            if (string.IsNullOrWhiteSpace(settings.LocalSiteRootDirectory))
-            {
-                return (false, "No Local File Root User Setting Found");
-            }
-
-            try
-            {
-                var directory = new DirectoryInfo(settings.LocalSiteRootDirectory);
-                if (!directory.Exists) directory.Create();
-                directory.Refresh();
-            }
-            catch (Exception e)
-            {
-                return (false, "Trouble with Local File Root Directory.");
-            }
-
-            return (true, string.Empty);
-        }
-
-        public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
-        {
-            return $"//{settings.SiteUrl}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
-        }
-
-        public static string PostPageUrl(this UserSettings settings, PostContent content)
-        {
-            return $"//{settings.SiteUrl}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
-        }
-
-        public static DirectoryInfo LocalSitePostDirectory(this UserSettings settings)
-        {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Posts"));
-            if (!photoDirectory.Exists) photoDirectory.Create();
-
-            photoDirectory.Refresh();
-
-            return photoDirectory;
-        }
-
-        public static DirectoryInfo LocalSitePhotoDirectory(this UserSettings settings)
-        {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos"));
-            if (!photoDirectory.Exists) photoDirectory.Create();
-
-            photoDirectory.Refresh();
-
-            return photoDirectory;
-        }
-
-        public static DirectoryInfo LocalSitePhotoContentDirectory(this UserSettings settings, PhotoContent content)
-        {
-            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
-                content.Folder, content.Slug));
-            if (!contentDirectory.Exists) contentDirectory.Create();
-
-            contentDirectory.Refresh();
-
-            return contentDirectory;
-        }
-
-        public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content)
-        {
-            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePostDirectory().FullName,
-                content.Folder, content.Slug));
-            if (!contentDirectory.Exists) contentDirectory.Create();
-
-            contentDirectory.Refresh();
-
-            return contentDirectory;
+            return $"//{settings.SiteUrl}/index.html";
         }
 
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
@@ -120,14 +33,94 @@ namespace PointlessWaymarksCmsData
             return photoDirectory;
         }
 
+        public static DirectoryInfo LocalSitePhotoContentDirectory(this UserSettings settings, PhotoContent content)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
+                content.Folder, content.Slug));
+            if (!contentDirectory.Exists) contentDirectory.Create();
+
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+        public static DirectoryInfo LocalSitePhotoDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
+        public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePostDirectory().FullName,
+                content.Folder, content.Slug));
+            if (!contentDirectory.Exists) contentDirectory.Create();
+
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+        public static DirectoryInfo LocalSitePostDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Posts"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
+        public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
+        {
+            return $"//{settings.SiteUrl}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static string PostPageUrl(this UserSettings settings, PostContent content)
+        {
+            return $"//{settings.SiteUrl}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static async Task<UserSettings> ReadSettings()
+        {
+            var currentFile = SettingsFile();
+            if (!currentFile.Exists)
+            {
+                await WriteSettings(new UserSettings());
+                currentFile.Refresh();
+            }
+
+            return await JsonSerializer.DeserializeAsync<UserSettings>(File.OpenRead(currentFile.FullName));
+        }
+
+        public static FileInfo SettingsFile()
+        {
+            return new FileInfo(Path.Combine(StorageDirectory().FullName, "HikeLemmonWorkshopSettings.json"));
+        }
+
+        public static DirectoryInfo StorageDirectory()
+        {
+            var storageDirectory =
+                new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "HikeLemmon Workshop"));
+
+            if (!storageDirectory.Exists) storageDirectory.Create();
+
+            storageDirectory.Refresh();
+
+            return storageDirectory;
+        }
+
         public static async Task<(bool, string)> ValidateLocalMasterMediaArchive()
         {
             var settings = await ReadSettings();
 
             if (string.IsNullOrWhiteSpace(settings.LocalMasterMediaArchive))
-            {
                 return (false, "No Local File Root User Setting Found");
-            }
 
             try
             {
@@ -143,17 +136,25 @@ namespace PointlessWaymarksCmsData
             return (true, string.Empty);
         }
 
-        public static DirectoryInfo StorageDirectory()
+        public static async Task<(bool, string)> ValidateLocalSiteRootDirectory()
         {
-            var storageDirectory =
-                new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "HikeLemmon Workshop"));
+            var settings = await ReadSettings();
 
-            if (!storageDirectory.Exists) storageDirectory.Create();
+            if (string.IsNullOrWhiteSpace(settings.LocalSiteRootDirectory))
+                return (false, "No Local File Root User Setting Found");
 
-            storageDirectory.Refresh();
+            try
+            {
+                var directory = new DirectoryInfo(settings.LocalSiteRootDirectory);
+                if (!directory.Exists) directory.Create();
+                directory.Refresh();
+            }
+            catch (Exception e)
+            {
+                return (false, "Trouble with Local File Root Directory.");
+            }
 
-            return storageDirectory;
+            return (true, string.Empty);
         }
 
         public static void VerifyAndCreate()

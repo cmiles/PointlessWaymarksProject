@@ -1,4 +1,5 @@
 ﻿<#@ template language="C#" debug="true"#>
+<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarksCmsData.PhotoHtml" #>
 
 
@@ -30,10 +31,10 @@
 
 <style>
 
-    <#= CommonHtml.Styles.BodyStyle() #>
+    <#= Styles.BodyStyle() #>
     <#= PhotoStyles.SinglePhotoStyles() #>
-    <#= CommonHtml.Styles.TagsContainerStyles() #>
-    <#= CommonHtml.Styles.SiteNameFooterStyles() #>
+    <#= Styles.TagsContainerStyles() #>
+    <#= Styles.SiteNameFooterStyles() #>
 
     .update-notes-container {
         margin: 2.5rem;
@@ -53,7 +54,7 @@
         margin-bottom: 0;
     }
 
-    .title-area-created-and-updated-content { 
+    .post-title-area-created-and-updated-content { 
         font-weight: normal;
         font-size: 1.1rem;
         text-align: center;
@@ -97,7 +98,7 @@
         color: rgb(220,220,220);
     }
 
-    <#= CommonHtml.Styles.StandardRuleStyles() #>
+    <#= Styles.StandardRuleStyles() #>
 
 </style>
 
@@ -105,15 +106,16 @@
 
 <body>
     <#= TitleDiv().ToString() #>
-    <#= CreatedByAndUpdatedOnDiv().ToString() #>
-    <#= PostBodyDiv().ToString() #>
-    <#= CommonHtml.HorizontalRule.StandardRule() #>
     <#=
-                CommonHtml.Tags.TagList(DbEntry).ToString() #>
-    <#= CommonHtml.HorizontalRule.StandardRule() #>
+                    PostParts.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#=
+                    PostParts.PostBodyDiv(DbEntry).ToString() #>
+    <#= HorizontalRule.StandardRule() #>
+    <#= Tags.TagList(DbEntry).ToString() #>
+    <#= HorizontalRule.StandardRule() #>
     <#= RelatedPostsDiv() #>
     <#= UpdateDiv().ToString() #>
-    <#= CommonHtml.Footer.SiteTitleDiv() #>
+    <#= Footer.SiteTitleDiv() #>
 </body>
 
 </html>

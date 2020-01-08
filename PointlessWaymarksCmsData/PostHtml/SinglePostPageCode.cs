@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using HtmlTags;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
 
@@ -25,34 +25,59 @@ namespace PointlessWaymarksCmsData.PostHtml
             {
                 var dbImage = db.PhotoContents.SingleOrDefault(x => x.ContentId == DbEntry.MainImage.Value);
 
-                if (dbImage != null)
-                {
-                    MainImage = new SinglePhotoPage(dbImage);
-                }
+                if (dbImage != null) MainImage = new SinglePhotoPage(dbImage);
             }
 
-            var previousPosts = db.PostContents.Where(x => x.CreatedOn < DbEntry.CreatedOn)
+            PreviousPosts = db.PostContents.Where(x => x.CreatedOn < DbEntry.CreatedOn)
                 .OrderByDescending(x => x.CreatedOn).Take(3).ToList();
 
-            var nextPosts = db.PostContents.Where(x => x.CreatedOn > DbEntry.CreatedOn).OrderBy(x => x.CreatedOn)
-                .Take(3).ToList();
-
-            RelatedPosts = previousPosts.Concat(nextPosts).OrderBy(x => x.CreatedOn).ToList();
+            LaterPosts = db.PostContents.Where(x => x.CreatedOn > DbEntry.CreatedOn).OrderBy(x => x.CreatedOn).Take(3)
+                .ToList();
         }
 
-        public List<PostContent> RelatedPosts { get; set; }
+        public PostContent DbEntry { get; set; }
+
+        public List<PostContent> LaterPosts { get; set; }
+
+        public SinglePhotoPage MainImage { get; set; }
+
+        public string PageUrl { get; set; }
+
+        public List<PostContent> PreviousPosts { get; set; }
+
+        public string SiteName { get; set; }
+
+        public string SiteUrl { get; set; }
 
         public HtmlTag RelatedPostsDiv()
         {
-            if (RelatedPosts == null || !RelatedPosts.Any()) return HtmlTag.Empty();
+            if (!LaterPosts.Any() && !PreviousPosts.Any()) return HtmlTag.Empty();
 
             var settings = UserSettingsUtilities.ReadSettings().Result;
 
+            var hasPreviousPosts = PreviousPosts.Any();
+            var hasLaterPosts = PreviousPosts.Any();
+            var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
+
             var relatedPostsContainer = new DivTag().AddClass("post-related-posts-container");
-            relatedPostsContainer.Children.Add(new DivTag().Text("Posts Before/After:")
+            relatedPostsContainer.Children.Add(new DivTag()
+                .Text($"Posts {(hasPreviousPosts ? "Before" : "")}" +
+                      $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")
                 .AddClass("post-related-posts-label-tag"));
 
-            foreach (var loopPosts in RelatedPosts)
+            foreach (var loopPosts in PreviousPosts)
+            {
+                var linkDiv = new DivTag().AddClass("post-related-posts-link-container");
+                linkDiv.Children.Add(
+                    new LinkTag($"{loopPosts.CreatedOn:M/d/yyyy} {loopPosts.Title}", settings.PostPageUrl(loopPosts))
+                        .AddClass("post-related-posts-link"));
+                relatedPostsContainer.Children.Add(linkDiv);
+            }
+
+            if (hasBothEarlierAndLaterPosts)
+                relatedPostsContainer.Children.Add(new DivTag().Text("/").AddClass("post-related-posts-label-tag"));
+
+            foreach (var loopPosts in LaterPosts)
             {
                 var linkDiv = new DivTag().AddClass("post-related-posts-link-container");
                 linkDiv.Children.Add(
@@ -71,47 +96,19 @@ namespace PointlessWaymarksCmsData.PostHtml
             return titleContainer;
         }
 
-        public HtmlTag CreatedByAndUpdatedOnDiv()
-        {
-            var titleContainer = new HtmlTag("div").AddClass("title-area-created-and-updated-container");
-            titleContainer.Children.Add(new HtmlTag("h3").AddClass("title-area-created-and-updated-content")
-                .Text(CreatedByAndUpdatedOnString()));
-            return titleContainer;
-        }
-
-        public HtmlTag PostBodyDiv()
-        {
-            var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
-
-            var bodyText = PhotoBracketCode.MarkdownPreprocessedForSitePhotoTags(DbEntry.BodyContent);
-
-            var bodyHtmlProcessing = ContentProcessor.ContentHtml(DbEntry.BodyContentFormat, bodyText);
-
-            if (bodyHtmlProcessing.success)
-            {
-                bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false)
-                    .Text(bodyHtmlProcessing.output));
-            }
-
-            return bodyContainer;
-        }
-
         public HtmlTag UpdateDiv()
         {
             if (string.IsNullOrWhiteSpace(DbEntry.UpdateNotes)) return HtmlTag.Empty();
 
             var updateNotesDiv = new DivTag().AddClass("update-notes-container");
 
-            updateNotesDiv.Children.Add(CommonHtml.HorizontalRule.StandardRule());
+            updateNotesDiv.Children.Add(HorizontalRule.StandardRule());
 
             var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 
             var updateNotesHtml = ContentProcessor.ContentHtml(DbEntry.UpdateNotesFormat, DbEntry.UpdateNotes);
 
-            if (updateNotesHtml.success)
-            {
-                updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
-            }
+            if (updateNotesHtml.success) updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
 
             updateNotesDiv.Children.Add(updateNotesContentContainer);
 
@@ -136,59 +133,5 @@ namespace PointlessWaymarksCmsData.PostHtml
 
             File.WriteAllText(htmlFileInfo.FullName, htmlString);
         }
-
-
-        public String CreatedByAndUpdatedOnString()
-        {
-            var createdUpdatedString = string.Empty;
-
-            var onlyCreated = false;
-
-            if (DbEntry.LastUpdatedOn != null && DbEntry.CreatedOn.Date == DbEntry.LastUpdatedOn.Value.Date)
-            {
-                if (string.Compare(DbEntry.CreatedBy, DbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) != 0)
-                {
-                    createdUpdatedString += $"Created by {DbEntry.CreatedBy} and {DbEntry.LastUpdatedBy} ";
-                    onlyCreated = true;
-                }
-                else
-                {
-                    createdUpdatedString += $"Created by {DbEntry.CreatedBy} ";
-                }
-            }
-
-            createdUpdatedString += $"on {DbEntry.CreatedOn:M/d/yyyy}. ";
-
-            if (onlyCreated) return createdUpdatedString;
-
-            if (string.IsNullOrWhiteSpace(DbEntry.LastUpdatedBy) && DbEntry.LastUpdatedOn == null)
-                return createdUpdatedString;
-
-            if (DbEntry.LastUpdatedOn != null && DbEntry.CreatedOn.Date == DbEntry.LastUpdatedOn.Value.Date)
-                return createdUpdatedString;
-
-            var updatedString = "Updated";
-
-            if (!string.IsNullOrWhiteSpace(DbEntry.LastUpdatedBy)) updatedString += $" by {DbEntry.LastUpdatedBy}";
-
-            if (DbEntry.LastUpdatedOn != null)
-            {
-                updatedString += $" on {DbEntry.LastUpdatedOn.Value:M/d/yyyy}";
-            }
-
-            updatedString += ".";
-
-            return (createdUpdatedString + updatedString).Trim();
-        }
-
-        public SinglePhotoPage MainImage { get; set; }
-
-        public string PageUrl { get; set; }
-
-        public string SiteName { get; set; }
-
-        public string SiteUrl { get; set; }
-
-        public PostContent DbEntry { get; set; }
     }
 }

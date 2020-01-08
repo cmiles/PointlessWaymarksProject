@@ -29,7 +29,6 @@ namespace PointlessWaymarksCmsData.PhotoHtml
             var displayImageFile = fileVariants.SingleOrDefault(x => x.Name.Contains("--For-Display"));
 
             if (displayImageFile != null && displayImageFile.Exists)
-            {
                 toReturn.DisplayImage = new ImageFileInformation
                 {
                     FileName = displayImageFile.Name,
@@ -41,9 +40,8 @@ namespace PointlessWaymarksCmsData.PhotoHtml
                             .Groups["height"].Value),
                     Width = int.Parse(Regex
                         .Match(displayImageFile.Name, @".*--(?<width>\d*)w.*", RegexOptions.Singleline)
-                        .Groups["width"].Value),
+                        .Groups["width"].Value)
                 };
-            }
 
             var srcsetImageFiles = fileVariants.Where(x => x.Name.Contains("--Sized"));
             toReturn.SrcsetImages = srcsetImageFiles.Select(x => new ImageFileInformation

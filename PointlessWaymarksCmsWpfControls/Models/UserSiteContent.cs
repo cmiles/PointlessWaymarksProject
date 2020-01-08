@@ -275,8 +275,6 @@ namespace PointlessWaymarksCmsWpfControls.Models
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public void CleanStrings()
         {
             BodyContent = CoalesceTrim(BodyContent);
@@ -292,6 +290,18 @@ namespace PointlessWaymarksCmsWpfControls.Models
             Title = CoalesceTrim(Title);
             UpdateNotes = CoalesceTrim(UpdateNotes);
             UpdateNotesFormat = CoalesceTrim(UpdateNotesFormat);
+        }
+
+        private static string CoalesceTrim(string toModify)
+        {
+            if (string.IsNullOrWhiteSpace(toModify)) return string.Empty;
+            return toModify.Trim();
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public void UpdateBodyContentHtml()
@@ -330,16 +340,6 @@ namespace PointlessWaymarksCmsWpfControls.Models
             UpdateNotesHtmlOutput = "<h2>Not able to process input</h2>".ToHtmlDocument("Invalid", string.Empty);
         }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private static string CoalesceTrim(string toModify)
-        {
-            if (string.IsNullOrWhiteSpace(toModify)) return string.Empty;
-            return toModify.Trim();
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

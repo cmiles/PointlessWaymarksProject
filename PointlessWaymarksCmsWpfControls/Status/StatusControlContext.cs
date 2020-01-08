@@ -19,6 +19,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
         private bool _blockUi;
         private int _countOfRunningBlockingTasks;
         private int _countOfRunningNonBlockingTasks;
+
+        private CancellationTokenSource _currentFullScreenCancellationSource;
         private List<string> _messageBoxButtonList;
         private string _messageBoxMessage;
         private string _messageBoxTitle;
@@ -101,8 +103,6 @@ namespace PointlessWaymarksCmsWpfControls.Status
             }
         }
 
-        public string ShowMessageResponse { get; set; }
-
         public string MessageBoxTitle
         {
             get => _messageBoxTitle;
@@ -135,6 +135,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
                 OnPropertyChanged();
             }
         }
+
+        public string ShowMessageResponse { get; set; }
 
         public ObservableCollection<string> StatusLog
         {
@@ -217,13 +219,74 @@ namespace PointlessWaymarksCmsWpfControls.Status
         public RelayCommand UserStringEntryApprovedResponseCommand { get; set; }
         public RelayCommand UserStringEntryCancelledResponseCommand { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private void BlockTaskCompleted(Task obj)
+        {
+            CountOfRunningBlockingTasks--;
+
+            if (obj.IsCanceled)
+            {
+                ToastWarning("Cancelled Task");
+                return;
+            }
+
+            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
+        }
+
+        private async void FireAndForgetBlockingTaskWithUiMessageReturnCompleted(Task obj)
+        {
+            if (obj.IsCanceled) return;
+
+            if (obj.IsFaulted) await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
+
+            BlockUi = false;
+        }
+
+        private void FireAndForgetTaskWithToastErrorReturnCompleted(Task obj)
+        {
+            if (obj.IsCanceled) return;
+
+            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
+        }
+
+        private void NonBlockTaskCompleted(Task obj)
+        {
+            CountOfRunningNonBlockingTasks--;
+
+            if (obj.IsCanceled)
+            {
+                ToastWarning("Cancelled Task");
+                return;
+            }
+
+            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Progress(string e)
+        {
+            Application.Current.Dispatcher?.InvokeAsync(() =>
+            {
+                StatusLog.Add(e);
+
+                if (StatusLog.Count > 20) StatusLog.Remove(StatusLog.First());
+            });
+        }
 
         public IProgress<string> ProgressTracker()
         {
             var toReturn = new Progress<string>();
             toReturn.ProgressChanged += ProgressTrackerChange;
             return toReturn;
+        }
+
+        private void ProgressTrackerChange(object sender, string e)
+        {
+            Progress(e);
         }
 
         public void RunBlockingAction(Action toRun)
@@ -242,15 +305,18 @@ namespace PointlessWaymarksCmsWpfControls.Status
             Task.Run(toRun).ContinueWith(BlockTaskCompleted);
         }
 
-        public void RunNonBlockingAction(Action toRun)
+        public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
         {
-            RunNonBlockingTask(() => Task.Run(toRun));
-        }
-
-        public void RunNonBlockingTask(Func<Task> toRun)
-        {
-            CountOfRunningNonBlockingTasks++;
-            Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
+            try
+            {
+                BlockUi = true;
+                Task.Run(async () => await toRun()).ContinueWith(FireAndForgetBlockingTaskWithUiMessageReturnCompleted);
+            }
+            catch (Exception e)
+            {
+                ShowMessage("Error", e.ToString(), new List<string> {"Ok"}).Wait();
+                BlockUi = false;
+            }
         }
 
         public void RunFireAndForgetTaskWithUiToastErrorReturn(Func<Task> toRun)
@@ -265,18 +331,15 @@ namespace PointlessWaymarksCmsWpfControls.Status
             }
         }
 
-        public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
+        public void RunNonBlockingAction(Action toRun)
         {
-            try
-            {
-                BlockUi = true;
-                Task.Run(async () => await toRun()).ContinueWith(FireAndForgetBlockingTaskWithUiMessageReturnCompleted);
-            }
-            catch (Exception e)
-            {
-                ShowMessage("Error", e.ToString(), new List<string> {"Ok"}).Wait();
-                BlockUi = false;
-            }
+            RunNonBlockingTask(() => Task.Run(toRun));
+        }
+
+        public void RunNonBlockingTask(Func<Task> toRun)
+        {
+            CountOfRunningNonBlockingTasks++;
+            Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
         }
 
         public async Task<string> ShowMessage(string title, string body, List<string> buttons)
@@ -298,10 +361,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             }
             catch (Exception e)
             {
-                if (!(e is OperationCanceledException))
-                {
-                    Progress($"ShowMessage Exception {e.Message}");
-                }
+                if (!(e is OperationCanceledException)) Progress($"ShowMessage Exception {e.Message}");
             }
             finally
             {
@@ -319,14 +379,6 @@ namespace PointlessWaymarksCmsWpfControls.Status
             MessageBoxVisible = false;
 
             return toReturn;
-        }
-
-        private CancellationTokenSource _currentFullScreenCancellationSource;
-
-
-        public void StateForceDismissFullScreenMessage()
-        {
-            _currentFullScreenCancellationSource?.Cancel();
         }
 
         public async Task<(bool, string)> ShowStringEntry(string title, string body, string initialUserString)
@@ -347,10 +399,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             }
             catch (Exception e)
             {
-                if (!(e is OperationCanceledException))
-                {
-                    Progress($"ShowMessage Exception {e.Message}");
-                }
+                if (!(e is OperationCanceledException)) Progress($"ShowMessage Exception {e.Message}");
             }
             finally
             {
@@ -373,6 +422,12 @@ namespace PointlessWaymarksCmsWpfControls.Status
             return (approved, toReturn);
         }
 
+
+        public void StateForceDismissFullScreenMessage()
+        {
+            _currentFullScreenCancellationSource?.Cancel();
+        }
+
         public void ToastError(string toastText)
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Error));
@@ -386,69 +441,6 @@ namespace PointlessWaymarksCmsWpfControls.Status
         public void ToastWarning(string toastText)
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void BlockTaskCompleted(Task obj)
-        {
-            CountOfRunningBlockingTasks--;
-
-            if (obj.IsCanceled)
-            {
-                ToastWarning("Cancelled Task");
-                return;
-            }
-
-            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
-        }
-
-        private void NonBlockTaskCompleted(Task obj)
-        {
-            CountOfRunningNonBlockingTasks--;
-
-            if (obj.IsCanceled)
-            {
-                ToastWarning("Cancelled Task");
-                return;
-            }
-
-            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
-        }
-
-        private void FireAndForgetTaskWithToastErrorReturnCompleted(Task obj)
-        {
-            if (obj.IsCanceled) return;
-
-            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
-        }
-
-        private async void FireAndForgetBlockingTaskWithUiMessageReturnCompleted(Task obj)
-        {
-            if (obj.IsCanceled) return;
-
-            if (obj.IsFaulted) await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
-
-            BlockUi = false;
-        }
-
-        private void ProgressTrackerChange(object sender, string e)
-        {
-            Progress(e);
-        }
-
-        public void Progress(string e)
-        {
-            Application.Current.Dispatcher?.InvokeAsync(() =>
-            {
-                StatusLog.Add(e);
-
-                if (StatusLog.Count > 20) StatusLog.Remove(StatusLog.First());
-            });
         }
 
         private void UserMessageBoxResponse(string responseString)
@@ -469,5 +461,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             StringEntryApproved = false;
             _currentFullScreenCancellationSource?.Cancel();
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

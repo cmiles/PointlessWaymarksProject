@@ -17,11 +17,6 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             return (string) d.GetValue(HtmlProperty);
         }
 
-        public static void SetHtml(WebBrowser d, string value)
-        {
-            d.SetValue(HtmlProperty, value);
-        }
-
         private static async void OnHtmlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is WebBrowser wb)
@@ -29,6 +24,11 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
                 await ThreadSwitcher.ResumeForegroundAsync();
                 wb.NavigateToString(e.NewValue as string ?? "<h2>Loading...</h2>".ToHtmlDocument("...", string.Empty));
             }
+        }
+
+        public static void SetHtml(WebBrowser d, string value)
+        {
+            d.SetValue(HtmlProperty, value);
         }
     }
 }

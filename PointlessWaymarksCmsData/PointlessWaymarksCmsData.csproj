@@ -23,9 +23,14 @@
 
   <ItemGroup>
     <None Update="IndexHtml\IndexPage.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>IndexPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.IndexHtml</CustomToolNamespace>
+    </None>
+    <None Update="PostHtml\SinglePostDiv.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SinglePostDiv.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.PostHtml</CustomToolNamespace>
     </None>
     <None Update="PostHtml\SinglePostPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
@@ -48,6 +53,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>IndexPage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PostHtml\SinglePostDiv.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SinglePostDiv.tt</DependentUpon>
     </Compile>
     <Compile Update="PostHtml\SinglePostPage.cs">
       <DesignTime>True</DesignTime>

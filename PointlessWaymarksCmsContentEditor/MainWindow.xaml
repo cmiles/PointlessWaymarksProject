@@ -19,6 +19,7 @@
         </Grid.ColumnDefinitions>
         <contentList:ContentListControl DataContext="{Binding ContextListContext}" />
         <StackPanel Grid.Column="1">
+            <Button Command="{Binding GenerateIndexCommand}">Generate Index</Button>
             <Button Command="{Binding PhotoListWindowCommand}">Photo List</Button>
             <Button Command="{Binding NewPhotoContentCommand}">New Photo Content</Button>
             <Button Command="{Binding EditPhotoContentCommand}">Edit Selected Photo</Button>

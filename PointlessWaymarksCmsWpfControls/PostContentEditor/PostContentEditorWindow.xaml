@@ -6,10 +6,10 @@
         xmlns:postContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PostContentEditor"
         xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
         mc:Ignorable="d"
-        Title="PostContentEditorWindow" Height="450" Width="800">
+        Title="Post" Height="600" Width="800">
     <Grid>
         <postContentEditor:PostContentEditorControl DataContext="{Binding PostContent}" />
-        <status:StatusControl Grid.Column="0" Grid.ColumnSpan="2" d:IsHidden="true"
+        <status:StatusControl Grid.Column="0" d:IsHidden="true"
                               DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

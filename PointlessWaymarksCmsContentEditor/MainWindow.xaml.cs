@@ -1,9 +1,10 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
-using JetBrains.Annotations;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.CommandWpf;
+using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.IndexHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.ContentList;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
@@ -35,36 +36,42 @@ namespace PointlessWaymarksCmsContentEditor
             EditPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(EditPostContent));
             PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
             NewPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostContent));
+            GenerateIndexCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(GenerateIndex));
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
 
+        public ContentListContext ContextListContext
+        {
+            get => _contextListContext;
+            set
+            {
+                if (Equals(value, _contextListContext)) return;
+                _contextListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand EditPhotoContentCommand { get; set; }
+
         public RelayCommand EditPostContentCommand { get; set; }
+
+        public RelayCommand GenerateIndexCommand { get; set; }
+
+        public RelayCommand NewPhotoContentCommand { get; set; }
 
         public RelayCommand NewPostContentCommand { get; set; }
 
         public RelayCommand PhotoListWindowCommand { get; set; }
 
-        private async Task EditPostContent()
+        public StatusControlContext StatusContext
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-            if (ContextListContext.SelectedItem == null)
+            get => _statusContext;
+            set
             {
-                StatusContext.ToastWarning("Nothing Selected?");
-                return;
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
             }
-
-            if (ContextListContext.SelectedItem.ContentType != "Post")
-            {
-                StatusContext.ToastWarning("Post not Selected.");
-                return;
-            }
-
-            var post = (PostContent) ContextListContext.SelectedItem.SummaryInfo;
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PostContentEditorWindow(post) {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
         }
 
         private async Task EditPhotoContent()
@@ -90,7 +97,36 @@ namespace PointlessWaymarksCmsContentEditor
             newContentWindow.Show();
         }
 
-        public RelayCommand EditPhotoContentCommand { get; set; }
+        private async Task EditPostContent()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (ContextListContext.SelectedItem == null)
+            {
+                StatusContext.ToastWarning("Nothing Selected?");
+                return;
+            }
+
+            if (ContextListContext.SelectedItem.ContentType != "Post")
+            {
+                StatusContext.ToastWarning("Post not Selected.");
+                return;
+            }
+
+            var post = (PostContent) ContextListContext.SelectedItem.SummaryInfo;
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PostContentEditorWindow(post) {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+
+        private async Task GenerateIndex()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var index = new IndexPage();
+            index.WriteLocalHtml();
+        }
 
         private async Task LoadData()
         {
@@ -105,43 +141,19 @@ namespace PointlessWaymarksCmsContentEditor
             ContextListContext = new ContentListContext(StatusContext);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public ContentListContext ContextListContext
-        {
-            get => _contextListContext;
-            set
-            {
-                if (Equals(value, _contextListContext)) return;
-                _contextListContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public RelayCommand NewPhotoContentCommand { get; set; }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         private async Task NewPhotoContent()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newContentWindow = new PhotoContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+
+        private async Task NewPhotoList()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PhotoListWindow {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 
@@ -153,12 +165,12 @@ namespace PointlessWaymarksCmsContentEditor
             newContentWindow.Show();
         }
 
-        private async Task NewPhotoList()
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PhotoListWindow() {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

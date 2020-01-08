@@ -13,12 +13,12 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
     public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged
     {
         private string _createdAndUpdatedByAndOn;
+        private string _createdBy;
+        private DateTime? _createdOn;
         private ICreatedAndLastUpdateOnAndBy _dbEntry;
         private bool _showCreatedByEditor;
         private bool _showUpdatedByEditor;
-        private string _createdBy;
         private string _updatedBy;
-        private DateTime? _createdOn;
         private DateTime? _updatedOn;
 
         public CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
@@ -28,13 +28,13 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
-        public string UpdatedBy
+        public string CreatedAndUpdatedByAndOn
         {
-            get => _updatedBy;
+            get => _createdAndUpdatedByAndOn;
             set
             {
-                if (value == _updatedBy) return;
-                _updatedBy = value;
+                if (value == _createdAndUpdatedByAndOn) return;
+                _createdAndUpdatedByAndOn = value;
                 OnPropertyChanged();
             }
         }
@@ -50,15 +50,13 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public string CreatedAndUpdatedByAndOn
+        public DateTime? CreatedOn
         {
-            get => _createdAndUpdatedByAndOn;
+            get => _createdOn;
             set
             {
-                if (value == _createdAndUpdatedByAndOn) return;
-                _createdAndUpdatedByAndOn = value;
+                if (Nullable.Equals(value, _createdOn)) return;
+                _createdOn = value;
                 OnPropertyChanged();
             }
         }
@@ -74,7 +72,51 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
+        public bool ShowCreatedByEditor
+        {
+            get => _showCreatedByEditor;
+            set
+            {
+                if (value == _showCreatedByEditor) return;
+                _showCreatedByEditor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowUpdatedByEditor
+        {
+            get => _showUpdatedByEditor;
+            set
+            {
+                if (value == _showUpdatedByEditor) return;
+                _showUpdatedByEditor = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext { get; set; }
+
+        public string UpdatedBy
+        {
+            get => _updatedBy;
+            set
+            {
+                if (value == _updatedBy) return;
+                _updatedBy = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime? UpdatedOn
+        {
+            get => _updatedOn;
+            set
+            {
+                if (Nullable.Equals(value, _updatedOn)) return;
+                _updatedOn = value;
+                OnPropertyChanged();
+            }
+        }
 
         public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)
         {
@@ -96,11 +138,9 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
                 ShowUpdatedByEditor = false;
                 return;
             }
-            else
-            {
-                ShowCreatedByEditor = false;
-                ShowUpdatedByEditor = true;
-            }
+
+            ShowCreatedByEditor = false;
+            ShowUpdatedByEditor = true;
 
             if (!string.IsNullOrWhiteSpace(DbEntry.CreatedBy))
                 newStringParts.Add($"Created By {DbEntry.CreatedBy.Trim()}");
@@ -117,50 +157,6 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
         }
 
-        public DateTime? UpdatedOn
-        {
-            get => _updatedOn;
-            set
-            {
-                if (Nullable.Equals(value, _updatedOn)) return;
-                _updatedOn = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DateTime? CreatedOn
-        {
-            get => _createdOn;
-            set
-            {
-                if (Nullable.Equals(value, _createdOn)) return;
-                _createdOn = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool ShowUpdatedByEditor
-        {
-            get => _showUpdatedByEditor;
-            set
-            {
-                if (value == _showUpdatedByEditor) return;
-                _showUpdatedByEditor = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool ShowCreatedByEditor
-        {
-            get => _showCreatedByEditor;
-            set
-            {
-                if (value == _showCreatedByEditor) return;
-                _showCreatedByEditor = value;
-                OnPropertyChanged();
-            }
-        }
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -172,16 +168,14 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             if (DbEntry == null && string.IsNullOrWhiteSpace(CreatedBy))
-            {
                 return (false, "Created by can not be blank for a new entry.");
-            }
 
             if (DbEntry != null && string.IsNullOrWhiteSpace(UpdatedBy))
-            {
                 return (false, "Updated by can not be blank when updating an entry");
-            }
 
             return (true, string.Empty);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

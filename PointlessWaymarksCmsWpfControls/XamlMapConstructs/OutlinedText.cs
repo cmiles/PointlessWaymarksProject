@@ -102,21 +102,6 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
             set => SetValue(TextProperty, value);
         }
 
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            return CheckGlyphRun() ? _outline.Bounds.Size : new Size();
-        }
-
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-            if (!CheckGlyphRun()) return;
-
-            var location = _outline.Bounds.Location;
-            drawingContext.PushTransform(new TranslateTransform(-location.X, -location.Y));
-            drawingContext.DrawGeometry(Background, null, _outline);
-            drawingContext.DrawGlyphRun(Foreground, _glyphRun);
-        }
-
         private bool CheckGlyphRun()
         {
             if (_glyphRun != null) return true;
@@ -143,6 +128,21 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
             _outline = _glyphRun.BuildGeometry().GetWidenedPathGeometry(new Pen(null, OutlineThickness * 2d));
 
             return true;
+        }
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            return CheckGlyphRun() ? _outline.Bounds.Size : new Size();
+        }
+
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            if (!CheckGlyphRun()) return;
+
+            var location = _outline.Bounds.Location;
+            drawingContext.PushTransform(new TranslateTransform(-location.X, -location.Y));
+            drawingContext.DrawGeometry(Background, null, _outline);
+            drawingContext.DrawGlyphRun(Foreground, _glyphRun);
         }
     }
 }

@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 using System.Windows;
 using GalaSoft.MvvmLight.Command;
 using JetBrains.Annotations;
+using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
-using PointlessWaymarksCmsData.PhotoHtml;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoList
 {
     public partial class PhotoListWindow : INotifyPropertyChanged
     {
-        private PhotoListContext _listContext;
-        private StatusControlContext _statusContext;
-        private RelayCommand _photoCodesToClipboardForSelectedCommand;
         private RelayCommand _editSelectedContentCommand;
         private RelayCommand _generateSelectedHtmlCommand;
+        private PhotoListContext _listContext;
+        private RelayCommand _photoCodesToClipboardForSelectedCommand;
+        private StatusControlContext _statusContext;
 
         public PhotoListWindow()
         {
@@ -35,27 +35,38 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             DataContext = this;
         }
 
-        private async Task PhotoCodesToClipboardForSelected()
+        public RelayCommand EditSelectedContentCommand
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            get => _editSelectedContentCommand;
+            set
             {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
+                if (Equals(value, _editSelectedContentCommand)) return;
+                _editSelectedContentCommand = value;
+                OnPropertyChanged();
             }
+        }
 
-            var finalString = string.Empty;
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+        public RelayCommand GenerateSelectedHtmlCommand
+        {
+            get => _generateSelectedHtmlCommand;
+            set
             {
-                finalString +=
-                    @$"{{{{photo {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+                if (Equals(value, _generateSelectedHtmlCommand)) return;
+                _generateSelectedHtmlCommand = value;
+                OnPropertyChanged();
             }
+        }
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
+        public PhotoListContext ListContext
+        {
+            get => _listContext;
+            set
+            {
+                if (Equals(value, _listContext)) return;
+                _listContext = value;
+                OnPropertyChanged();
+            }
         }
 
         public RelayCommand PhotoCodesToClipboardForSelectedCommand
@@ -69,32 +80,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public RelayCommand EditSelectedContentCommand
+        public StatusControlContext StatusContext
         {
-            get => _editSelectedContentCommand;
+            get => _statusContext;
             set
             {
-                if (Equals(value, _editSelectedContentCommand)) return;
-                _editSelectedContentCommand = value;
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
                 OnPropertyChanged();
-            }
-        }
-
-        private async Task GenerateSelectedHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            foreach (var loopSelected in ListContext.SelectedItems)
-            {
-                var htmlContext = new SinglePhotoPage(loopSelected.DbEntry);
-
-                htmlContext.WriteLocalHtml();
             }
         }
 
@@ -121,46 +114,51 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-
-        public RelayCommand GenerateSelectedHtmlCommand
+        private async Task GenerateSelectedHtml()
         {
-            get => _generateSelectedHtmlCommand;
-            set
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
             {
-                if (Equals(value, _generateSelectedHtmlCommand)) return;
-                _generateSelectedHtmlCommand = value;
-                OnPropertyChanged();
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+            {
+                var htmlContext = new SinglePhotoPage(loopSelected.DbEntry);
+
+                htmlContext.WriteLocalHtml();
             }
         }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public PhotoListContext ListContext
-        {
-            get => _listContext;
-            set
-            {
-                if (Equals(value, _listContext)) return;
-                _listContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        private async Task PhotoCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = string.Empty;
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+                finalString +=
+                    @$"{{{{photo {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

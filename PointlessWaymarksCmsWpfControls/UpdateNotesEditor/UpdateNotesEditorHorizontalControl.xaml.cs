@@ -3,7 +3,7 @@
 namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 {
     /// <summary>
-    /// Interaction logic for UpdateNotesEditorHorizontalControl.xaml
+    ///     Interaction logic for UpdateNotesEditorHorizontalControl.xaml
     /// </summary>
     public partial class UpdateNotesEditorHorizontalControl : UserControl
     {

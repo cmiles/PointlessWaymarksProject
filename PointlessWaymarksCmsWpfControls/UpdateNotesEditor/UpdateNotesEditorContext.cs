@@ -27,20 +27,18 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
-        public StatusControlContext StatusContext { get; set; }
-
-        public ContentFormatChooserContext UpdateNotesFormat
+        public IUpdateNotes DbEntry
         {
-            get => _updateNotesFormat;
+            get => _dbEntry;
             set
             {
-                if (Equals(value, _updateNotesFormat)) return;
-                _updateNotesFormat = value;
+                if (Equals(value, _dbEntry)) return;
+                _dbEntry = value;
                 OnPropertyChanged();
-
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
             }
         }
+
+        public StatusControlContext StatusContext { get; set; }
 
         public string UpdateNotes
         {
@@ -55,14 +53,16 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             }
         }
 
-        public IUpdateNotes DbEntry
+        public ContentFormatChooserContext UpdateNotesFormat
         {
-            get => _dbEntry;
+            get => _updateNotesFormat;
             set
             {
-                if (Equals(value, _dbEntry)) return;
-                _dbEntry = value;
+                if (Equals(value, _updateNotesFormat)) return;
+                _updateNotesFormat = value;
                 OnPropertyChanged();
+
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
             }
         }
 
@@ -76,8 +76,6 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
                 OnPropertyChanged();
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task LoadData(IUpdateNotes toLoad)
         {
@@ -98,6 +96,12 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             if (!setUpdateFormatOk) StatusContext.ToastWarning("Trouble loading Format from Db...");
         }
 
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public async Task UpdateUpdateNotesContentHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -113,10 +117,6 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             }
         }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

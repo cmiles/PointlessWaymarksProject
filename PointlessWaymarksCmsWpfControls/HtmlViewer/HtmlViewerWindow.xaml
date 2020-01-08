@@ -6,7 +6,8 @@
         xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
         xmlns:htmlViewer="clr-namespace:PointlessWaymarksCmsWpfControls.HtmlViewer"
         mc:Ignorable="d"
-        Title="HtmlViewerWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance htmlViewer:HtmlViewerContext}">
+        Title="HtmlViewerWindow" Height="450" Width="800"
+        d:DataContext="{d:DesignInstance htmlViewer:HtmlViewerContext}">
     <Grid>
         <WebBrowser wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding HtmlString}" />
     </Grid>

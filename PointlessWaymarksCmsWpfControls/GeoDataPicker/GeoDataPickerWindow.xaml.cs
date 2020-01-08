@@ -40,8 +40,6 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public async Task AddLine(List<(double latitude, double longitude)> line, string name, string description,
             bool protectFromUserClearing)
         {
@@ -77,5 +75,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
