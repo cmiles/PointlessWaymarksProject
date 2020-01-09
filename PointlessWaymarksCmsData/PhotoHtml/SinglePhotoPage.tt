@@ -1,9 +1,6 @@
 ﻿<#@ template language="C#" debug="true" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
-
-<!doctype html>
-
-<html lang="en">
+ang="en">
 <head>
 <meta charset="utf-8">
 

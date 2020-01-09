@@ -8,6 +8,21 @@ namespace PointlessWaymarksCmsData.PhotoHtml
 {
     public static class PhotoFiles
     {
+        public static PhotoDirectoryContentsInformation ProcessPhotosInDirectory(Guid photoContentId)
+        {
+            var db = Db.Context().Result;
+
+            var content = db.PhotoContents.SingleOrDefault(x => x.ContentId == photoContentId);
+
+            if (content == null) return null;
+
+            var settings = UserSettingsUtilities.ReadSettings().Result;
+
+            var contentDirectory = settings.LocalSitePhotoContentDirectory(content);
+
+            return ProcessPhotosInDirectory(content, contentDirectory, settings.SiteUrl);
+        }
+
         public static PhotoDirectoryContentsInformation ProcessPhotosInDirectory(PhotoContent dbEntry)
         {
             var settings = UserSettingsUtilities.ReadSettings().Result;

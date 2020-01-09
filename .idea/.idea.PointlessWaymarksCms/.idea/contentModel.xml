@@ -14,6 +14,7 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
+              <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -211,6 +212,10 @@
                 <e p="PostContentEditorControl.g.cs" t="Include" />
                 <e p="PostContentEditorWindow.g.cs" t="Include" />
               </e>
+              <e p="PostList" t="Include">
+                <e p="PostListControl.g.cs" t="Include" />
+                <e p="PostListWindow.g.cs" t="Include" />
+              </e>
               <e p="Status" t="Include">
                 <e p="StatusControl.g.cs" t="Include" />
               </e>
@@ -256,6 +261,14 @@
           <e p="PostContentEditorWindow.xaml" t="Include" />
           <e p="PostContentEditorWindow.xaml.cs" t="Include" />
         </e>
+        <e p="PostList" t="Include">
+          <e p="PostListContext.cs" t="Include" />
+          <e p="PostListControl.xaml" t="Include" />
+          <e p="PostListControl.xaml.cs" t="Include" />
+          <e p="PostListListItem.cs" t="Include" />
+          <e p="PostListWindow.xaml" t="Include" />
+          <e p="PostListWindow.xaml.cs" t="Include" />
+        </e>
         <e p="Status" t="Include">
           <e p="StatusControl.xaml" t="Include" />
           <e p="StatusControl.xaml.cs" t="Include" />
@@ -298,6 +311,7 @@
           <e p="UiThreadHelper.cs" t="Include" />
         </e>
         <e p="Views" t="Include" />
+        <e p="WpfControlsResourceDictionary.xaml" t="Include" />
         <e p="WpfHtml" t="Include">
           <e p="BrowserHtmlBindingBehavior.cs" t="Include" />
           <e p="WpfHtmlDocument.cs" t="Include" />

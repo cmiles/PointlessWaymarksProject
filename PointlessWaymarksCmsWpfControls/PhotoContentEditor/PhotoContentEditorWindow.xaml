@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:photoContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PhotoContentEditor"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
-    Title="PhotoContentEditorWindow"
+    Title="Photo Editor"
     Width="900"
     Height="650"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorWindow}"

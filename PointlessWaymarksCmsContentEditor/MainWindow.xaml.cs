@@ -10,6 +10,7 @@ using PointlessWaymarksCmsWpfControls.ContentList;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
+using PointlessWaymarksCmsWpfControls.PostList;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -37,6 +38,8 @@ namespace PointlessWaymarksCmsContentEditor
             PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
             NewPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostContent));
             GenerateIndexCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(GenerateIndex));
+            PostListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostList));
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
 
@@ -62,6 +65,8 @@ namespace PointlessWaymarksCmsContentEditor
         public RelayCommand NewPostContentCommand { get; set; }
 
         public RelayCommand PhotoListWindowCommand { get; set; }
+
+        public RelayCommand PostListWindowCommand { get; set; }
 
         public StatusControlContext StatusContext
         {
@@ -162,6 +167,14 @@ namespace PointlessWaymarksCmsContentEditor
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newContentWindow = new PostContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+
+        private async Task NewPostList()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PostListWindow {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 

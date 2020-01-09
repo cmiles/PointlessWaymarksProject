@@ -7,29 +7,28 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:contentList="clr-namespace:PointlessWaymarksCmsWpfControls.ContentList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status;assembly=PointlessWaymarksCmsWpfControls"
-    Title="MainWindow"
-    Width="1200"
+    Title="Pointless Waymarks CMS"
+    Width="600"
     Height="600"
     d:DataContext="{d:DesignInstance local:MainWindow}"
     mc:Ignorable="d">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Height" Value="40" />
+        </Style>
+    </Window.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <contentList:ContentListControl DataContext="{Binding ContextListContext}" />
-        <StackPanel Grid.Column="1">
+        <StackPanel Margin="6">
             <Button Command="{Binding GenerateIndexCommand}">Generate Index</Button>
+            <Button Command="{Binding PostListWindowCommand}">Post List</Button>
+            <Button Command="{Binding NewPostContentCommand}">New Post</Button>
             <Button Command="{Binding PhotoListWindowCommand}">Photo List</Button>
             <Button Command="{Binding NewPhotoContentCommand}">New Photo Content</Button>
-            <Button Command="{Binding EditPhotoContentCommand}">Edit Selected Photo</Button>
-            <Button Command="{Binding NewPostContentCommand}">New Post</Button>
-            <Button Command="{Binding EditPostContentCommand}">Edit Selected Post</Button>
         </StackPanel>
         <status:StatusControl
             Grid.Row="0"
             Grid.Column="0"
-            Grid.ColumnSpan="2"
             DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

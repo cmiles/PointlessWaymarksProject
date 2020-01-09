@@ -1,11 +1,7 @@
 ﻿<#@ template language="C#" debug="true"#>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarksCmsData.PhotoHtml" #>
-
-
-<!doctype html>
-
-<html lang="en">
+lang="en">
 <head>
 <meta charset="utf-8">
 
@@ -107,9 +103,9 @@
 <body>
     <#= TitleDiv().ToString() #>
     <#=
-                    PostParts.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+                PostParts.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#=
-                    PostParts.PostBodyDiv(DbEntry).ToString() #>
+                PostParts.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TagList(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>

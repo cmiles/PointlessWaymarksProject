@@ -2,10 +2,7 @@
 <#@ assembly name="System.Core" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarksCmsData.PhotoHtml" #>
-
-<!doctype html>
-
-<html lang="en">
+ang="en">
 <head>
 <meta charset="utf-8">
 

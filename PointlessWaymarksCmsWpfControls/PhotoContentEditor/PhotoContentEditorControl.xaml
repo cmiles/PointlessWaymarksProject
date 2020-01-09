@@ -14,6 +14,13 @@
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -141,14 +148,13 @@
             <TabItem Header="Save and Generate">
                 <StackPanel>
                     <Button
-                        Height="40"
-                        Margin="4"
+                        Style="{StaticResource LargerButton}"
                         Command="{Binding ResizeFileCommand}">
                         Resize
                     </Button>
-                    <Button Height="40" Margin="4" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Create Local</Button>
-                    <Button Height="40" Margin="4" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
-                    <Button Height="40" Margin="4" Command="{Binding SaveAndGenerateHtmlCommand}">Save, Generate Html</Button>
+                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Create Local</Button>
+                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveAndGenerateHtmlCommand}">Save, Generate Html</Button>
                 </StackPanel>
             </TabItem>
         </TabControl>
