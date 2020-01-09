@@ -6,6 +6,12 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class Tags
     {
+        public static string CssStyleFileString()
+        {
+            var settings = UserSettingsUtilities.ReadSettings().Result;
+            return $"<link rel=\"stylesheet\" href={settings.CssMainStyleFileUrl()}?v=1.0\">";
+        }
+        
         public static HtmlTag InfoDivTag(string contents, string className, string dataType, string dataValue)
         {
             if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();

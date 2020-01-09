@@ -662,7 +662,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                   SelectedFile.Extension.ToLower().Contains("jpeg")))
                 return (false, "The file doesn't appear to be a supported file type.");
 
-            if (await (await Db.Context()).PhotoFilenameExistsInDatabase(SelectedFile.Name))
+            if (await (await Db.Context()).PhotoFilenameExistsInDatabase(SelectedFile.Name, DbEntry?.ContentId))
                 return (false, "This filename already exists in the database - photo file names must be unique.");
 
             return (true, string.Empty);

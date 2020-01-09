@@ -13,6 +13,11 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/index.html";
         }
 
+        public static string CssMainStyleFileUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/styles.css";
+        }
+        
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
         {
             var photoDirectory = new DirectoryInfo(settings.LocalSiteRootDirectory);

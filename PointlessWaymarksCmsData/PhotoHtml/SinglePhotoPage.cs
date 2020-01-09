@@ -28,7 +28,7 @@ using PointlessWaymarksCmsData.CommonHtml;
         public virtual string TransformText()
         {
             
-            this.Write("ang=\"en\">\r\n<head>\r\n<meta charset=\"utf-8\">\r\n\r\n    <title>");
+            this.Write("<html lang=\"en\">\r\n<head>\r\n<meta charset=\"utf-8\">\r\n\r\n    <title>");
             
             #line 7 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
@@ -126,87 +126,59 @@ using PointlessWaymarksCmsData.CommonHtml;
             
             #line default
             #line hidden
-            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n<style>\r\n\r\n    ");
+            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
             
-            #line 29 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoStyles.PhotoBodyStyle()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 30 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoStyles.SinglePhotoStyles()));
+            #line 27 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.CssStyleFileString()));
             
             #line default
             #line hidden
-            this.Write("\r\n    ");
-            
-            #line 31 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoStyles.PhotoDetailsStyles()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
+            this.Write("\r\n\r\n</head>\r\n\r\n<body class=\"single-photo-body\">\r\n    ");
             
             #line 32 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Styles.TagsContainerStyles()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 33 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Styles.SiteNameFooterStyles()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n    .update-notes-container {\r\n        margin: 2.5rem;\r\n        text-align: center;\r\n    }\r\n\r\n    .created-by-container {\r\n        margin: 2.5rem;\r\n        text-align: center;\r\n    }\r\n\r\n    ");
-            
-            #line 45 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Styles.StandardRuleStyles()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n</style>\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
-            
-            #line 52 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PhotoFigureTag().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 53 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
+            #line 33 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PhotoDetailsDiv().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 54 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
+            #line 34 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 56 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
+            #line 36 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UpdateDiv().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 57 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
+            #line 37 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CreatedDiv().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 58 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteNameFooterDiv().ToString()));
+            #line 38 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 39 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.SiteTitleDiv()));
             
             #line default
             #line hidden

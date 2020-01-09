@@ -173,6 +173,26 @@ namespace PointlessWaymarksCmsData
 
             return photoCheck;
         }
+        
+        public static async Task<bool> PhotoFilenameExistsInDatabase(this LemmonWorkshopContext context,
+            string filename, Guid? exceptInThisContent)
+        {
+            if (string.IsNullOrWhiteSpace(filename)) return false;
+
+            var photoCheck = false;
+
+            if (exceptInThisContent == null)
+            {
+                photoCheck = await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+            }
+            else
+            {
+                photoCheck = await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower()
+                                                                       && x.ContentId != exceptInThisContent.Value);
+            }
+            
+            return photoCheck;
+        }
 
         public static async Task<bool> SlugExistsInDatabase(this LemmonWorkshopContext context, string slug)
         {

@@ -1,6 +1,6 @@
 ﻿<#@ template language="C#" debug="true" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
-ang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 
@@ -24,38 +24,19 @@ ang="en">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-
-    <#= PhotoStyles.PhotoBodyStyle() #>
-    <#= PhotoStyles.SinglePhotoStyles() #>
-    <#= PhotoStyles.PhotoDetailsStyles() #>
-    <#= Styles.TagsContainerStyles() #>
-    <#= Styles.SiteNameFooterStyles() #>
-
-    .update-notes-container {
-        margin: 2.5rem;
-        text-align: center;
-    }
-
-    .created-by-container {
-        margin: 2.5rem;
-        text-align: center;
-    }
-
-    <#= Styles.StandardRuleStyles() #>
-
-</style>
+    <#= CommonHtml.Tags.CssStyleFileString() #>
 
 </head>
 
-<body>
+<body class="single-photo-body">
     <#= PhotoFigureTag().ToString() #>
     <#= PhotoDetailsDiv().ToString() #>
     <#=
                 Tags.TagList(DbEntry).ToString() #>
     <#= UpdateDiv().ToString() #>
     <#= CreatedDiv().ToString() #>
-    <#= SiteNameFooterDiv().ToString() #>
+    <#= HorizontalRule.StandardRule() #>
+    <#= Footer.SiteTitleDiv() #>
 </body>
 
 </html>

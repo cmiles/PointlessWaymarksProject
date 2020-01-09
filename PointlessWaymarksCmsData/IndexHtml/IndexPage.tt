@@ -2,7 +2,7 @@
 <#@ assembly name="System.Core" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarksCmsData.PhotoHtml" #>
-ang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 
@@ -26,97 +26,7 @@ ang="en">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-
-    <#= Styles.BodyStyle() #>
-    <#= PhotoStyles.SinglePhotoStyles() #>
-    <#= Styles.TagsContainerStyles() #>
-    <#= Styles.SiteNameFooterStyles() #>
-
-    .update-notes-container {
-        margin: 2.5rem;
-        text-align: center;
-    }
-
-    .created-by-container {
-        margin: 2.5rem;
-        text-align: center;
-    }
-
-    .index-title-content {
-        text-align: center;
-        font-weight: normal;
-        font-size: 2rem;
-        margin-bottom: 0;
-    }
-
-    .index-title-summary-content {
-        color: rgb(220,220,220);
-        text-align: center;
-        margin: 1rem;
-        font-weight: normal;
-        font-size: .9rem;
-    }
-
-    .index-posts-content {
-        margin: 4rem;
-    }
-
-    .post-title-link-content {
-        text-align: center;
-        font-weight: normal;
-        color: black;
-        font-size: 2rem;
-        margin-bottom: 0;
-    }
-
-    .post-title-area-created-and-updated-content { 
-        font-weight: normal;
-        font-size: 1.1rem;
-        text-align: center;
-        margin-top: .5rem;
-        color: rgb(220,220,220);
-    }
-
-    .single-photo-caption {
-        color: rgb(220,220,220);
-    }
-
-    .tags-container {
-        color: rgb(220,220,220);
-    }
-
-    .post-body-container {
-        margin-bottom: 1.8rem;
-        margin-top: 2rem;
-    }
-
-    .post-related-posts-link-container {
-        margin: 3px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-        border-radius: 4px;
-    }
-
-    .post-related-posts-container {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        align-items: center;
-        margin-top: 1rem;
-        color: rgb(220,220,220);
-    }
-
-    .post-related-posts-link 
-    {
-        margin: 6px;
-        display: block;
-        color: rgb(220,220,220);
-    }
-
-    <#= Styles.StandardRuleStyles() #>
-
-</style>
+    <#= Tags.CssStyleFileString() #>
 
 </head>
 

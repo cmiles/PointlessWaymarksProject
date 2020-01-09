@@ -129,6 +129,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 var htmlContext = new SinglePhotoPage(loopSelected.DbEntry);
 
                 htmlContext.WriteLocalHtml();
+                
+                StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
             }
         }
 
@@ -157,6 +159,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To ClipboardL {finalString}");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
