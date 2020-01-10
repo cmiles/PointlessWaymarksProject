@@ -1,10 +1,7 @@
 ﻿<#@ template language="C#" debug="true" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
-<#@ import namespace="PointlessWaymarksCmsData.PhotoHtml" #>
-<html lang="en">
-<head>
-<meta charset="utf-8">
+meta charset="utf-8">
 
     <title><#=SiteName #></title>
     <meta name="description" content="<#= SiteSummary #>">
@@ -27,6 +24,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <#= Tags.CssStyleFileString() #>
+    <#= Tags.FavIconFileString() #>
+
 
 </head>
 

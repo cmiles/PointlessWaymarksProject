@@ -9,9 +9,15 @@ namespace PointlessWaymarksCmsData.CommonHtml
         public static string CssStyleFileString()
         {
             var settings = UserSettingsUtilities.ReadSettings().Result;
-            return $"<link rel=\"stylesheet\" href={settings.CssMainStyleFileUrl()}?v=1.0\">";
+            return $"<link rel=\"stylesheet\" href=\"{settings.CssMainStyleFileUrl()}?v=1.0\">";
         }
-        
+
+        public static string FavIconFileString()
+        {
+            var settings = UserSettingsUtilities.ReadSettings().Result;
+            return $"<link rel=\"shortcut icon\" href=\"{settings.FaviconUrl()}\">";
+        }
+
         public static HtmlTag InfoDivTag(string contents, string className, string dataType, string dataValue)
         {
             if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();

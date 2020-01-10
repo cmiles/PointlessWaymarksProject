@@ -8,16 +8,21 @@ namespace PointlessWaymarksCmsData
 {
     public static class UserSettingsUtilities
     {
+        public static string CssMainStyleFileUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/styles.css";
+        }
+
+        public static string FaviconUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/favicon.ico";
+        }
+
         public static string IndexPageUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/index.html";
         }
 
-        public static string CssMainStyleFileUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/styles.css";
-        }
-        
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
         {
             var photoDirectory = new DirectoryInfo(settings.LocalSiteRootDirectory);

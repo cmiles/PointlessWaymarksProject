@@ -129,7 +129,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 var htmlContext = new SinglePhotoPage(loopSelected.DbEntry);
 
                 htmlContext.WriteLocalHtml();
-                
+
                 StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
             }
         }

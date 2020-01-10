@@ -8,13 +8,15 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             var settings = UserSettingsUtilities.ReadSettings().Result;
 
-            var createdByDiv = new DivTag().AddClass("site-name-footer-container");
-            //createdByDiv.Children.Add(HorizontalRule.StandardRule());
+            var footerDiv = new HtmlTag("footer").AddClass("site-name-footer-container");
 
-            createdByDiv.Children.Add(
+            footerDiv.Children.Add(
                 new LinkTag(settings.SiteName, @$"//{settings.SiteUrl}").AddClass("site-name-footer-content"));
+            if (!string.IsNullOrWhiteSpace(settings.SiteEmailTo))
+                footerDiv.Children.Add(new HtmlTag("address").AddClass("site-name-footer-email")
+                    .Text(settings.SiteEmailTo));
 
-            return createdByDiv;
+            return footerDiv;
         }
     }
 }

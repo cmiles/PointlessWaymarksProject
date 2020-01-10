@@ -131,7 +131,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             var index = new IndexPage();
             index.WriteLocalHtml();
-            
+
             StatusContext.ToastSuccess($"Generated {index.PageUrl}");
         }
 

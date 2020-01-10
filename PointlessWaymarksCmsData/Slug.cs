@@ -173,7 +173,7 @@ namespace PointlessWaymarksCmsData
 
             return photoCheck;
         }
-        
+
         public static async Task<bool> PhotoFilenameExistsInDatabase(this LemmonWorkshopContext context,
             string filename, Guid? exceptInThisContent)
         {
@@ -182,15 +182,12 @@ namespace PointlessWaymarksCmsData
             var photoCheck = false;
 
             if (exceptInThisContent == null)
-            {
-                photoCheck = await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
-            }
+                photoCheck =
+                    await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
             else
-            {
-                photoCheck = await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower()
-                                                                       && x.ContentId != exceptInThisContent.Value);
-            }
-            
+                photoCheck = await context.PhotoContents.AnyAsync(x =>
+                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
+
             return photoCheck;
         }
 

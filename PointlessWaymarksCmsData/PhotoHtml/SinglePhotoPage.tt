@@ -1,8 +1,6 @@
 ﻿<#@ template language="C#" debug="true" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
-<html lang="en">
-<head>
-<meta charset="utf-8">
+meta charset="utf-8">
 
     <title><#=DbEntry.Title #></title>
     <meta name="description" content="<#=DbEntry.Summary #>">
@@ -24,7 +22,8 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <#= CommonHtml.Tags.CssStyleFileString() #>
+    <#= Tags.CssStyleFileString() #>
+    <#= Tags.FavIconFileString() #>
 
 </head>
 

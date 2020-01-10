@@ -14,6 +14,7 @@
 
         public string LocalSiteRootDirectory { get; set; }
         public string SiteAuthors { get; set; }
+        public string SiteEmailTo { get; set; }
         public string SiteKeywords { get; set; }
 
         public string SiteName { get; set; }
