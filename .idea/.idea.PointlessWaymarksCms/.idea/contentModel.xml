@@ -14,6 +14,7 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
+              <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -137,7 +138,6 @@
           <e p="ContentListControl.xaml.cs" t="Include" />
           <e p="ContentListItem.cs" t="Include" />
         </e>
-        <e p="ContentUpdateEditor" t="Include" />
         <e p="CreatedAndUpdatedByAndOnDisplay" t="Include">
           <e p="CreatedAndUpdatedByAndOnDisplayContext.cs" t="Include" />
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml" t="Include" />
@@ -232,6 +232,10 @@
               <e p="ImageContentEditor" t="Include">
                 <e p="ImageContentEditorControl.g.cs" t="Include" />
                 <e p="ImageContentEditorWindow.g.cs" t="Include" />
+              </e>
+              <e p="ImageList" t="Include">
+                <e p="ImageListControl.g.cs" t="Include" />
+                <e p="ImageListWindow.g.cs" t="Include" />
               </e>
               <e p="ItemContentEditor" t="Include">
                 <e p="ItemContentEditorControl.g.cs" t="Include" />
@@ -354,7 +358,6 @@
           <e p="ThreadSwitcher.cs" t="Include" />
           <e p="UiThreadHelper.cs" t="Include" />
         </e>
-        <e p="Views" t="Include" />
         <e p="WpfControlsResourceDictionary.xaml" t="Include" />
         <e p="WpfHtml" t="Include">
           <e p="BrowserHtmlBindingBehavior.cs" t="Include" />

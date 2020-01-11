@@ -29,6 +29,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
     {
         private string _altText;
         private RelayCommand _chooseFileCommand;
+        private ContentIdViewerControlContext _contentId;
+        private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private ImageContent _dbEntry;
         private string _imageSourceNotes;
         private RelayCommand _resizeFileCommand;
@@ -38,6 +40,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
         private StatusControlContext _statusContext;
+        private TagsEditorContext _tagEdit;
+        private TitleSummarySlugEditorContext _titleSummarySlugFolder;
+        private UpdateNotesEditorContext _updateNotes;
 
         public ImageContentEditorContext(StatusControlContext statusContext, ImageContent toLoad)
         {
@@ -68,9 +73,27 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public ContentIdViewerControlContext ContentId { get; set; }
+        public ContentIdViewerControlContext ContentId
+        {
+            get => _contentId;
+            set
+            {
+                if (Equals(value, _contentId)) return;
+                _contentId = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public CreatedAndUpdatedByAndOnDisplayContext CreatedAndUpdatedByAndOnDisplay { get; set; }
+        public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
+        {
+            get => _createdUpdatedDisplay;
+            set
+            {
+                if (Equals(value, _createdUpdatedDisplay)) return;
+                _createdUpdatedDisplay = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ImageContent DbEntry
         {
@@ -174,11 +197,38 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public TagsEditorContext Tags { get; set; }
+        public TagsEditorContext TagEdit
+        {
+            get => _tagEdit;
+            set
+            {
+                if (Equals(value, _tagEdit)) return;
+                _tagEdit = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public TitleSummarySlugEditorContext TitleSummarySlugFolder { get; set; }
+        public TitleSummarySlugEditorContext TitleSummarySlugFolder
+        {
+            get => _titleSummarySlugFolder;
+            set
+            {
+                if (Equals(value, _titleSummarySlugFolder)) return;
+                _titleSummarySlugFolder = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public UpdateNotesEditorContext UpdateNotes { get; set; }
+        public UpdateNotesEditorContext UpdateNotes
+        {
+            get => _updateNotes;
+            set
+            {
+                if (Equals(value, _updateNotes)) return;
+                _updateNotes = value;
+                OnPropertyChanged();
+            }
+        }
 
         public async Task ChooseFile()
         {
@@ -220,10 +270,10 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             DbEntry = toLoad ?? new ImageContent();
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
-            CreatedAndUpdatedByAndOnDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
-            Tags = new TagsEditorContext(StatusContext, toLoad);
+            TagEdit = new TagsEditorContext(StatusContext, toLoad);
 
             if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
@@ -339,16 +389,16 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedAndUpdatedByAndOnDisplay.UpdatedBy;
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 
             newEntry.Folder = TitleSummarySlugFolder.Folder;
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
-            newEntry.Tags = Tags.Tags;
+            newEntry.Tags = TagEdit.Tags;
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.AltText = AltText;
-            newEntry.CreatedBy = CreatedAndUpdatedByAndOnDisplay.CreatedBy;
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
@@ -420,7 +470,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
                 await UserSettingsUtilities.ValidateLocalMasterMediaArchive(),
                 await TitleSummarySlugFolder.Validate(),
-                await CreatedAndUpdatedByAndOnDisplay.Validate(),
+                await CreatedUpdatedDisplay.Validate(),
                 await Validate()
             };
         }

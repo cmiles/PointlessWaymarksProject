@@ -40,7 +40,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private RelayCommand _chooseFileAndFillMetadataCommand;
         private RelayCommand _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
-        private CreatedAndUpdatedByAndOnDisplayContext _createdAndUpdatedByAndOnDisplay;
+        private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PhotoContent _dbEntry;
         private string _focalLength;
         private int? _iso;
@@ -55,7 +55,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private string _selectedFileFullPath;
         private string _shutterSpeed;
         private StatusControlContext _statusContext;
-        private TagsEditorContext _tags;
+        private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private RelayCommand _viewPhotoMetadataCommand;
@@ -144,13 +144,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public CreatedAndUpdatedByAndOnDisplayContext CreatedAndUpdatedByAndOnDisplay
+        public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
         {
-            get => _createdAndUpdatedByAndOnDisplay;
+            get => _createdUpdatedDisplay;
             set
             {
-                if (Equals(value, _createdAndUpdatedByAndOnDisplay)) return;
-                _createdAndUpdatedByAndOnDisplay = value;
+                if (Equals(value, _createdUpdatedDisplay)) return;
+                _createdUpdatedDisplay = value;
                 OnPropertyChanged();
             }
         }
@@ -314,13 +314,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public TagsEditorContext Tags
+        public TagsEditorContext TagEdit
         {
-            get => _tags;
+            get => _tagEdit;
             set
             {
-                if (Equals(value, _tags)) return;
-                _tags = value;
+                if (Equals(value, _tagEdit)) return;
+                _tagEdit = value;
                 OnPropertyChanged();
             }
         }
@@ -400,10 +400,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             DbEntry = toLoad ?? new PhotoContent();
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
-            CreatedAndUpdatedByAndOnDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
-            Tags = new TagsEditorContext(StatusContext, toLoad);
+            TagEdit = new TagsEditorContext(StatusContext, toLoad);
 
             if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
@@ -506,7 +506,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
             TitleSummarySlugFolder.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
             TitleSummarySlugFolder.Slug = Slug.Create(true, TitleSummarySlugFolder.Title);
-            Tags.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords).Replace(";", ",") ?? string.Empty;
+            TagEdit.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords).Replace(";", ",") ?? string.Empty;
         }
 
         private async Task ResizePhoto()
@@ -576,7 +576,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedAndUpdatedByAndOnDisplay.UpdatedBy;
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 
             newEntry.Aperture = Aperture;
@@ -586,12 +586,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.License = License;
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
-            newEntry.Tags = Tags.Tags;
+            newEntry.Tags = TagEdit.Tags;
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.AltText = AltText;
             newEntry.CameraMake = CameraMake;
             newEntry.CameraModel = CameraModel;
-            newEntry.CreatedBy = CreatedAndUpdatedByAndOnDisplay.CreatedBy;
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.FocalLength = FocalLength;
             newEntry.ShutterSpeed = ShutterSpeed;
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
@@ -678,7 +678,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
                 await UserSettingsUtilities.ValidateLocalMasterMediaArchive(),
                 await TitleSummarySlugFolder.Validate(),
-                await CreatedAndUpdatedByAndOnDisplay.Validate(),
+                await CreatedUpdatedDisplay.Validate(),
                 await Validate()
             };
         }

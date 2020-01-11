@@ -68,7 +68,7 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding Tags}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                             <StackPanel Orientation="Vertical">
                                 <Label>Alt Text</Label>
                                 <TextBox AcceptsReturn="True" MinLines="2" MaxLines="2" TextWrapping="Wrap"
@@ -82,7 +82,7 @@
                                          VerticalScrollBarVisibility="Visible" />
                             </StackPanel>
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedAndUpdatedByAndOnDisplay}" />
+                                DataContext="{Binding CreatedUpdatedDisplay}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" />
                         </StackPanel>
                     </ScrollViewer>

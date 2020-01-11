@@ -29,9 +29,9 @@
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
                             <CheckBox Margin="0,8,0,8" IsChecked="{Binding ShowInPostFeed}">Show Post in Feed</CheckBox>
-                            <tagsEditor:TagsEditorControl DataContext="{Binding Tags}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedAndUpdatedByAndOnDisplay}" />
+                                DataContext="{Binding CreatedUpdatedDisplay}" />
                             <contentIdViewer:ContentIdViewerControl Margin="0,8,0,0" DataContext="{Binding ContentId}" />
                         </StackPanel>
                     </ScrollViewer>

@@ -86,9 +86,9 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding Tags}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedAndUpdatedByAndOnDisplay}" />
+                                DataContext="{Binding CreatedUpdatedDisplay}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" />
                         </StackPanel>
                     </ScrollViewer>

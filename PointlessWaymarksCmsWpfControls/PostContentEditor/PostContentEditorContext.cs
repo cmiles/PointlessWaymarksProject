@@ -29,12 +29,12 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
     {
         private BodyContentEditorContext _bodyContent;
         private ContentIdViewerControlContext _contentId;
-        private CreatedAndUpdatedByAndOnDisplayContext _createdAndUpdatedByAndOnDisplay;
+        private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PostContent _dbEntry;
         private RelayCommand _saveAndCreateLocalCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
         private bool _showInPostFeed;
-        private TagsEditorContext _tags;
+        private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
 
@@ -67,13 +67,13 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public CreatedAndUpdatedByAndOnDisplayContext CreatedAndUpdatedByAndOnDisplay
+        public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
         {
-            get => _createdAndUpdatedByAndOnDisplay;
+            get => _createdUpdatedDisplay;
             set
             {
-                if (Equals(value, _createdAndUpdatedByAndOnDisplay)) return;
-                _createdAndUpdatedByAndOnDisplay = value;
+                if (Equals(value, _createdUpdatedDisplay)) return;
+                _createdUpdatedDisplay = value;
                 OnPropertyChanged();
             }
         }
@@ -124,13 +124,13 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
         public StatusControlContext StatusContext { get; set; }
 
-        public TagsEditorContext Tags
+        public TagsEditorContext TagEdit
         {
-            get => _tags;
+            get => _tagEdit;
             set
             {
-                if (Equals(value, _tags)) return;
-                _tags = value;
+                if (Equals(value, _tagEdit)) return;
+                _tagEdit = value;
                 OnPropertyChanged();
             }
         }
@@ -172,10 +172,10 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             DbEntry = toLoad ?? new PostContent();
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
-            CreatedAndUpdatedByAndOnDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
-            Tags = new TagsEditorContext(StatusContext, toLoad);
+            TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
 
             ShowInPostFeed = toLoad?.ShowInPostFeed ?? true;
@@ -223,15 +223,15 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedAndUpdatedByAndOnDisplay.UpdatedBy;
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 
             newEntry.Folder = TitleSummarySlugFolder.Folder;
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
-            newEntry.Tags = Tags.Tags;
+            newEntry.Tags = TagEdit.Tags;
             newEntry.Title = TitleSummarySlugFolder.Title;
-            newEntry.CreatedBy = CreatedAndUpdatedByAndOnDisplay.CreatedBy;
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent;
@@ -294,7 +294,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
                 await TitleSummarySlugFolder.Validate(),
-                await CreatedAndUpdatedByAndOnDisplay.Validate(),
+                await CreatedUpdatedDisplay.Validate(),
                 await Validate()
             };
         }

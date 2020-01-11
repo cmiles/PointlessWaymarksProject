@@ -77,6 +77,27 @@ namespace PointlessWaymarksCmsData
             return photoDirectory;
         }
 
+        public static DirectoryInfo LocalSiteFileContentDirectory(this UserSettings settings, FileContent content)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteFileDirectory().FullName,
+                content.Folder, content.Slug));
+            if (!contentDirectory.Exists) contentDirectory.Create();
+
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+        public static DirectoryInfo LocalSiteFileDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Files"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
         public static DirectoryInfo LocalSiteImageContentDirectory(this UserSettings settings, ImageContent content)
         {
             var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteImageDirectory().FullName,
@@ -121,7 +142,7 @@ namespace PointlessWaymarksCmsData
 
         public static DirectoryInfo LocalSitePhotoDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Images"));
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos"));
             if (!photoDirectory.Exists) photoDirectory.Create();
 
             photoDirectory.Refresh();
