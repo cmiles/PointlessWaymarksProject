@@ -1,7 +1,5 @@
 ﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ import namespace="PointlessWaymarksCmsData.PostHtml" #>
-
 <div class="post-container">
     <#= TitleDiv() #>
     <#= PostParts.PostBodyDiv(DbEntry) #>

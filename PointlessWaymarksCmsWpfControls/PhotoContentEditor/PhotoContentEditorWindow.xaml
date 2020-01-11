@@ -12,7 +12,7 @@
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
-        <photoContentEditor:PhotoContentEditorControl DataContext="{Binding PhotoContentEditor}" />
+        <photoContentEditor:PhotoContentEditorControl DataContext="{Binding PhotoEditor}" />
         <status:StatusControl d:IsHidden="true"
                               DataContext="{Binding StatusContext}" />
     </Grid>

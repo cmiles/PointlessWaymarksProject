@@ -7,6 +7,8 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.IndexHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.ContentList;
+using PointlessWaymarksCmsWpfControls.ImageContentEditor;
+using PointlessWaymarksCmsWpfControls.ImageList;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
@@ -22,6 +24,8 @@ namespace PointlessWaymarksCmsContentEditor
     public partial class MainWindow : INotifyPropertyChanged
     {
         private ContentListContext _contextListContext;
+        private RelayCommand _imageListWindowCommand;
+        private RelayCommand _newImageContentCommand;
         private StatusControlContext _statusContext;
 
         public MainWindow()
@@ -32,13 +36,16 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext = new StatusControlContext();
 
-            NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
-            EditPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(EditPhotoContent));
-            EditPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(EditPostContent));
-            PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
-            NewPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostContent));
             GenerateIndexCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(GenerateIndex));
+
+            PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
+            NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
+
             PostListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostList));
+            NewPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostContent));
+
+            ImageListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewImageList));
+            NewImageContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewImageContent));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
@@ -59,6 +66,28 @@ namespace PointlessWaymarksCmsContentEditor
         public RelayCommand EditPostContentCommand { get; set; }
 
         public RelayCommand GenerateIndexCommand { get; set; }
+
+        public RelayCommand ImageListWindowCommand
+        {
+            get => _imageListWindowCommand;
+            set
+            {
+                if (Equals(value, _imageListWindowCommand)) return;
+                _imageListWindowCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand NewImageContentCommand
+        {
+            get => _newImageContentCommand;
+            set
+            {
+                if (Equals(value, _newImageContentCommand)) return;
+                _newImageContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public RelayCommand NewPhotoContentCommand { get; set; }
 
@@ -146,6 +175,22 @@ namespace PointlessWaymarksCmsContentEditor
             db.Database.EnsureCreated();
 
             ContextListContext = new ContentListContext(StatusContext);
+        }
+
+        private async Task NewImageContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new ImageContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+
+        private async Task NewImageList()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new ImageListWindow {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
         }
 
         private async Task NewPhotoContent()

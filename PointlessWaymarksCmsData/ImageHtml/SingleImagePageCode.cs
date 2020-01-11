@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.PhotoHtml;
 
 namespace PointlessWaymarksCmsData.ImageHtml
@@ -25,9 +22,9 @@ namespace PointlessWaymarksCmsData.ImageHtml
         }
 
         public ImageContent DbEntry { get; set; }
-        public string PageUrl { get; set; }
 
         public ImageDirectoryContentsInformation Images { get; set; }
+        public string PageUrl { get; set; }
         public string SiteName { get; set; }
         public string SiteUrl { get; set; }
 
@@ -42,24 +39,6 @@ namespace PointlessWaymarksCmsData.ImageHtml
                 $"Page Created by {DbEntry.CreatedBy}, {DbEntry.CreatedOn:M/d/yyyy}"));
 
             return createdByDiv;
-        }
-
-        public HtmlTag LocalDisplayImageImageTag()
-        {
-            var imageTag = new HtmlTag("img").AddClass("single-image")
-                .Attr("src", $"file://{Images.DisplayImage.File.FullName}").Attr("loading", "lazy");
-
-            if (!string.IsNullOrWhiteSpace(DbEntry.AltText)) imageTag.Attr("alt", DbEntry.AltText);
-
-            return imageTag;
-        }
-
-        public HtmlTag LocalImageFigureTag()
-        {
-            var figureTag = new HtmlTag("figure").AddClass("single-image-container");
-            figureTag.Children.Add(LocalDisplayImageImageTag());
-            figureTag.Children.Add(ImageFigCaptionTag());
-            return figureTag;
         }
 
         public HtmlTag ImageFigCaptionTag()
@@ -114,6 +93,24 @@ namespace PointlessWaymarksCmsData.ImageHtml
             if (!string.IsNullOrWhiteSpace(DbEntry.AltText)) imageTag.Attr("alt", DbEntry.AltText);
 
             return imageTag;
+        }
+
+        public HtmlTag LocalDisplayImageImageTag()
+        {
+            var imageTag = new HtmlTag("img").AddClass("single-image")
+                .Attr("src", $"file://{Images.DisplayImage.File.FullName}").Attr("loading", "lazy");
+
+            if (!string.IsNullOrWhiteSpace(DbEntry.AltText)) imageTag.Attr("alt", DbEntry.AltText);
+
+            return imageTag;
+        }
+
+        public HtmlTag LocalImageFigureTag()
+        {
+            var figureTag = new HtmlTag("figure").AddClass("single-image-container");
+            figureTag.Children.Add(LocalDisplayImageImageTag());
+            figureTag.Children.Add(ImageFigCaptionTag());
+            return figureTag;
         }
 
         public HtmlTag SiteNameFooterDiv()
@@ -175,6 +172,5 @@ namespace PointlessWaymarksCmsData.ImageHtml
 
             File.WriteAllText(htmlFileInfo.FullName, htmlString);
         }
-
     }
 }

@@ -8,7 +8,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
     public partial class PhotoContentEditorWindow : INotifyPropertyChanged
     {
-        private PhotoContentEditorContext _photoContentEditor;
+        private PhotoContentEditorContext _photoEditor;
         private StatusControlContext _statusContext;
 
         public PhotoContentEditorWindow(PhotoContent toLoad)
@@ -16,18 +16,18 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             InitializeComponent();
 
             StatusContext = new StatusControlContext();
-            PhotoContentEditor = new PhotoContentEditorContext(StatusContext, toLoad);
+            PhotoEditor = new PhotoContentEditorContext(StatusContext, toLoad);
 
             DataContext = this;
         }
 
-        public PhotoContentEditorContext PhotoContentEditor
+        public PhotoContentEditorContext PhotoEditor
         {
-            get => _photoContentEditor;
+            get => _photoEditor;
             set
             {
-                if (Equals(value, _photoContentEditor)) return;
-                _photoContentEditor = value;
+                if (Equals(value, _photoEditor)) return;
+                _photoEditor = value;
                 OnPropertyChanged();
             }
         }

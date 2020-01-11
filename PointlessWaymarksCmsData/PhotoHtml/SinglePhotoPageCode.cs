@@ -21,9 +21,9 @@ namespace PointlessWaymarksCmsData.PhotoHtml
         }
 
         public PhotoContent DbEntry { get; set; }
-        public string PageUrl { get; set; }
 
         public ImageDirectoryContentsInformation Images { get; set; }
+        public string PageUrl { get; set; }
         public string SiteName { get; set; }
         public string SiteUrl { get; set; }
 

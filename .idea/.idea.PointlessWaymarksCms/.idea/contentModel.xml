@@ -14,7 +14,6 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
-              <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -39,7 +38,18 @@
           <e p="GoogleLocation.cs" t="Include" />
         </e>
         <e p="ExifHelpers.cs" t="Include" />
+        <e p="FileHtml" t="Include">
+          <e p="SingleFilePage.cs" t="Include" />
+          <e p="SingleFilePage.tt" t="Include" />
+          <e p="SingleFilePageCode.cs" t="Include" />
+        </e>
         <e p="FormatTypeEnum.cs" t="Include" />
+        <e p="ImageHtml" t="Include">
+          <e p="ImageFiles.cs" t="Include" />
+          <e p="SingleImagePage.cs" t="Include" />
+          <e p="SingleImagePage.tt" t="Include" />
+          <e p="SingleImagePageCode.cs" t="Include" />
+        </e>
         <e p="IndexHtml" t="Include">
           <e p="IndexPage.cs" t="Include" />
           <e p="IndexPage.tt" t="Include" />
@@ -78,9 +88,9 @@
           </e>
         </e>
         <e p="PhotoHtml" t="Include">
+          <e p="ImageDirectoryContentsInformation.cs" t="Include" />
           <e p="ImageFileInformation.cs" t="Include" />
           <e p="PhotoBracketCode.cs" t="Include" />
-          <e p="PhotoDirectoryContentsInformation.cs" t="Include" />
           <e p="PhotoFiles.cs" t="Include" />
           <e p="PhotoStyles.cs" t="Include" />
           <e p="SinglePhotoPage.cs" t="Include" />
@@ -161,6 +171,14 @@
           <e p="ImageContentEditorWindow.xaml" t="Include" />
           <e p="ImageContentEditorWindow.xaml.cs" t="Include" />
         </e>
+        <e p="ImageList" t="Include">
+          <e p="ImageListContext.cs" t="Include" />
+          <e p="ImageListControl.xaml" t="Include" />
+          <e p="ImageListControl.xaml.cs" t="Include" />
+          <e p="ImageListListItem.cs" t="Include" />
+          <e p="ImageListWindow.xaml" t="Include" />
+          <e p="ImageListWindow.xaml.cs" t="Include" />
+        </e>
         <e p="ItemContentEditor" t="Include">
           <e p="ItemContentEditorContext.cs" t="Include" />
           <e p="ItemContentEditorControl.xaml" t="Include" />
@@ -199,6 +217,10 @@
               <e p="CreatedAndUpdatedByAndOnDisplay" t="Include">
                 <e p="CreatedAndUpdatedByAndOnDisplayControl.g.cs" t="Include" />
               </e>
+              <e p="FileContentEditor" t="Include">
+                <e p="FileContentEditorControl.g.cs" t="Include" />
+                <e p="FileContentEditorWindow.g.cs" t="Include" />
+              </e>
               <e p="GeneratedInternalTypeHelper.g.cs" t="Include" />
               <e p="GeoDataPicker" t="Include">
                 <e p="GeoDataPickerControl.g.cs" t="Include" />
@@ -206,6 +228,10 @@
               </e>
               <e p="HtmlViewer" t="Include">
                 <e p="HtmlViewerWindow.g.cs" t="Include" />
+              </e>
+              <e p="ImageContentEditor" t="Include">
+                <e p="ImageContentEditorControl.g.cs" t="Include" />
+                <e p="ImageContentEditorWindow.g.cs" t="Include" />
               </e>
               <e p="ItemContentEditor" t="Include">
                 <e p="ItemContentEditorControl.g.cs" t="Include" />

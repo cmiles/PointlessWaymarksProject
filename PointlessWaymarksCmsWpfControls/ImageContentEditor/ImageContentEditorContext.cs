@@ -36,6 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private RelayCommand _saveAndGenerateHtmlCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
+        private string _selectedFileFullPath;
         private StatusControlContext _statusContext;
 
         public ImageContentEditorContext(StatusControlContext statusContext, ImageContent toLoad)
@@ -144,6 +145,20 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 if (Equals(value, _selectedFile)) return;
                 _selectedFile = value;
+                OnPropertyChanged();
+
+                if (SelectedFile == null) return;
+                SelectedFileFullPath = SelectedFile.FullName;
+            }
+        }
+
+        public string SelectedFileFullPath
+        {
+            get => _selectedFileFullPath;
+            set
+            {
+                if (value == _selectedFileFullPath) return;
+                _selectedFileFullPath = value;
                 OnPropertyChanged();
             }
         }

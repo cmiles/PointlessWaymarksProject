@@ -18,6 +18,16 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/favicon.ico";
         }
 
+        public static string FilePageUrl(this UserSettings settings, FileContent content)
+        {
+            return $"//{settings.SiteUrl}/Files/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static string ImagePageUrl(this UserSettings settings, ImageContent content)
+        {
+            return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
         public static string IndexPageUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/index.html";
@@ -143,16 +153,6 @@ namespace PointlessWaymarksCmsData
         public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
         {
             return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
-        }
-
-        public static string ImagePageUrl(this UserSettings settings, ImageContent content)
-        {
-            return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
-        }
-
-        public static string FilePageUrl(this UserSettings settings, FileContent content)
-        {
-            return $"//{settings.SiteUrl}/Files/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
         public static string PostPageUrl(this UserSettings settings, PostContent content)

@@ -47,7 +47,7 @@
                     Grid.ColumnSpan="2"
                     Height="28"
                     Margin="4"
-                    Command="{Binding ChooseFileAndFillMetadataCommand}">
+                    Command="{Binding ChooseFileCommand}">
                     Choose Photo
                 </Button>
                 <GroupBox
