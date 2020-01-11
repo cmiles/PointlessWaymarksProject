@@ -45,10 +45,12 @@
           <e p="IndexPage.tt" t="Include" />
           <e p="IndexPageCode.cs" t="Include" />
         </e>
-        <e p="LemmonWorkshopContext.cs" t="Include" />
         <e p="LocationDataTypeConsts.cs" t="Include" />
         <e p="MainImageProcessor.cs" t="Include" />
         <e p="Models" t="Include">
+          <e p="FileContent.cs" t="Include" />
+          <e p="HistoricFileContent.cs" t="Include" />
+          <e p="HistoricImageContent.cs" t="Include" />
           <e p="HistoricLineContent.cs" t="Include" />
           <e p="HistoricPhotoContent.cs" t="Include" />
           <e p="HistoricPointContent.cs" t="Include" />
@@ -57,6 +59,7 @@
           <e p="IBodyContent.cs" t="Include" />
           <e p="IContentId.cs" t="Include" />
           <e p="ICreatedAndLastUpdateOnAndBy.cs" t="Include" />
+          <e p="ImageContent.cs" t="Include" />
           <e p="IMainImage.cs" t="Include" />
           <e p="ITags.cs" t="Include" />
           <e p="ITitleSummarySlugFolder.cs" t="Include" />
@@ -85,6 +88,7 @@
           <e p="SinglePhotoPageCode.cs" t="Include" />
         </e>
         <e p="PointlessWaymarksCmsData.csproj" t="IncludeRecursive" />
+        <e p="PointlessWaymarksContext.cs" t="Include" />
         <e p="PostHtml" t="Include">
           <e p="PostParts.cs" t="Include" />
           <e p="SinglePostDiv.cs" t="Include" />
@@ -129,6 +133,13 @@
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml" t="Include" />
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml.cs" t="Include" />
         </e>
+        <e p="FileContentEditor" t="Include">
+          <e p="FileContentEditorContext.cs" t="Include" />
+          <e p="FileContentEditorControl.xaml" t="Include" />
+          <e p="FileContentEditorControl.xaml.cs" t="Include" />
+          <e p="FileContentEditorWindow.xaml" t="Include" />
+          <e p="FileContentEditorWindow.xaml.cs" t="Include" />
+        </e>
         <e p="GeoDataPicker" t="Include">
           <e p="GeoDataMapDisplayObject.cs" t="Include" />
           <e p="GeoDataPickerContext.cs" t="Include" />
@@ -142,6 +153,13 @@
           <e p="HtmlViewerContext.cs" t="Include" />
           <e p="HtmlViewerWindow.xaml" t="Include" />
           <e p="HtmlViewerWindow.xaml.cs" t="Include" />
+        </e>
+        <e p="ImageContentEditor" t="Include">
+          <e p="ImageContentEditorContext.cs" t="Include" />
+          <e p="ImageContentEditorControl.xaml" t="Include" />
+          <e p="ImageContentEditorControl.xaml.cs" t="Include" />
+          <e p="ImageContentEditorWindow.xaml" t="Include" />
+          <e p="ImageContentEditorWindow.xaml.cs" t="Include" />
         </e>
         <e p="ItemContentEditor" t="Include">
           <e p="ItemContentEditorContext.cs" t="Include" />

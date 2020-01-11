@@ -1,26 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.ImageHtml;
+using PointlessWaymarksCmsData.PhotoHtml;
 
-namespace PointlessWaymarksCmsData.PhotoHtml
+namespace PointlessWaymarksCmsData.ImageHtml
 {
-    public partial class SinglePhotoPage
+    public partial class SingleImagePage
     {
-        public SinglePhotoPage(PhotoContent dbEntry)
+        public SingleImagePage(ImageContent dbEntry)
         {
             DbEntry = dbEntry;
 
             var settings = UserSettingsUtilities.ReadSettings().Result;
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
-            PageUrl = settings.PhotoPageUrl(DbEntry);
+            PageUrl = settings.ImagePageUrl(DbEntry);
 
-            Images = PhotoFiles.ProcessPhotosInDirectory(DbEntry);
+            Images = ImageFiles.ProcessImagesInDirectory(DbEntry);
         }
 
-        public PhotoContent DbEntry { get; set; }
+        public ImageContent DbEntry { get; set; }
         public string PageUrl { get; set; }
 
         public ImageDirectoryContentsInformation Images { get; set; }
@@ -40,9 +44,9 @@ namespace PointlessWaymarksCmsData.PhotoHtml
             return createdByDiv;
         }
 
-        public HtmlTag LocalDisplayPhotoImageTag()
+        public HtmlTag LocalDisplayImageImageTag()
         {
-            var imageTag = new HtmlTag("img").AddClass("single-photo")
+            var imageTag = new HtmlTag("img").AddClass("single-image")
                 .Attr("src", $"file://{Images.DisplayImage.File.FullName}").Attr("loading", "lazy");
 
             if (!string.IsNullOrWhiteSpace(DbEntry.AltText)) imageTag.Attr("alt", DbEntry.AltText);
@@ -50,46 +54,20 @@ namespace PointlessWaymarksCmsData.PhotoHtml
             return imageTag;
         }
 
-        public HtmlTag LocalPhotoFigureTag()
+        public HtmlTag LocalImageFigureTag()
         {
-            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
-            figureTag.Children.Add(LocalDisplayPhotoImageTag());
-            figureTag.Children.Add(PhotoFigCaptionTag());
+            var figureTag = new HtmlTag("figure").AddClass("single-image-container");
+            figureTag.Children.Add(LocalDisplayImageImageTag());
+            figureTag.Children.Add(ImageFigCaptionTag());
             return figureTag;
         }
 
-        public HtmlTag PhotoDetailsDiv()
-        {
-            var outerContainer = new DivTag();
-            outerContainer.AddClass("photo-details-container");
-
-            outerContainer.Children.Add(new DivTag().AddClass("photo-detail-label-tag").Text("Details:"));
-
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.Aperture, "photo-detail", "aperture",
-                DbEntry.Aperture));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.ShutterSpeed, "photo-detail", "shutter-speed",
-                DbEntry.ShutterSpeed));
-            outerContainer.Children.Add(Tags.InfoDivTag($"ISO {DbEntry.Iso?.ToString("F0")}", "photo-detail", "iso",
-                DbEntry.Iso?.ToString("F0")));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.Lens, "photo-detail", "lens", DbEntry.Lens));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.FocalLength, "photo-detail", "focal-length",
-                DbEntry.FocalLength));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.CameraMake, "photo-detail", "camera-make",
-                DbEntry.CameraMake));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.CameraModel, "photo-detail", "camera-model",
-                DbEntry.CameraModel));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.License, "photo-detail", "license", DbEntry.License));
-
-            return outerContainer;
-        }
-
-
-        public HtmlTag PhotoFigCaptionTag()
+        public HtmlTag ImageFigCaptionTag()
         {
             if (string.IsNullOrWhiteSpace(DbEntry.Summary)) return HtmlTag.Empty();
 
             var figCaptionTag = new HtmlTag("figcaption");
-            figCaptionTag.AddClass("single-photo-caption");
+            figCaptionTag.AddClass("single-image-caption");
 
             var summaryStringList = new List<string>();
 
@@ -105,35 +83,32 @@ namespace PointlessWaymarksCmsData.PhotoHtml
 
             summaryStringList.Add(titleSummaryString);
 
-            summaryStringList.Add($"{DbEntry.PhotoCreatedBy}.");
-            summaryStringList.Add($"{DbEntry.PhotoCreatedOn:M/d/yyyy}.");
-
             figCaptionTag.Text(string.Join(" ", summaryStringList));
 
             return figCaptionTag;
         }
 
-        public HtmlTag PhotoFigureTag()
+        public HtmlTag ImageFigureTag()
         {
-            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
-            figureTag.Children.Add(PhotoImageTag());
-            figureTag.Children.Add(PhotoFigCaptionTag());
+            var figureTag = new HtmlTag("figure").AddClass("single-image-container");
+            figureTag.Children.Add(ImageImageTag());
+            figureTag.Children.Add(ImageFigCaptionTag());
             return figureTag;
         }
 
-        public HtmlTag PhotoFigureWithLinkToPageTag()
+        public HtmlTag ImageFigureWithLinkToPageTag()
         {
-            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
+            var figureTag = new HtmlTag("figure").AddClass("single-image-container");
             var linkTag = new LinkTag(string.Empty, PageUrl);
-            linkTag.Children.Add(PhotoImageTag());
+            linkTag.Children.Add(ImageImageTag());
             figureTag.Children.Add(linkTag);
-            figureTag.Children.Add(PhotoFigCaptionTag());
+            figureTag.Children.Add(ImageFigCaptionTag());
             return figureTag;
         }
 
-        public HtmlTag PhotoImageTag()
+        public HtmlTag ImageImageTag()
         {
-            var imageTag = new HtmlTag("img").AddClass("single-photo").Attr("srcset", Images.SrcSetString())
+            var imageTag = new HtmlTag("img").AddClass("single-image").Attr("srcset", Images.SrcSetString())
                 .Attr("src", Images.DisplayImage.SiteUrl).Attr("loading", "lazy");
 
             if (!string.IsNullOrWhiteSpace(DbEntry.AltText)) imageTag.Attr("alt", DbEntry.AltText);
@@ -190,7 +165,7 @@ namespace PointlessWaymarksCmsData.PhotoHtml
 
             var htmlFileInfo =
                 new FileInfo(
-                    $"{Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
+                    $"{Path.Combine(settings.LocalSiteImageContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
 
             if (htmlFileInfo.Exists)
             {
@@ -200,5 +175,6 @@ namespace PointlessWaymarksCmsData.PhotoHtml
 
             File.WriteAllText(htmlFileInfo.FullName, htmlString);
         }
+
     }
 }

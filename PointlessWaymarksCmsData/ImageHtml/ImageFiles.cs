@@ -3,35 +3,36 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.PhotoHtml;
 
-namespace PointlessWaymarksCmsData.PhotoHtml
+namespace PointlessWaymarksCmsData.ImageHtml
 {
-    public static class PhotoFiles
+    public static class ImageFiles
     {
-        public static ImageDirectoryContentsInformation ProcessPhotosInDirectory(Guid photoContentId)
+        public static ImageDirectoryContentsInformation ProcessImagesInDirectory(Guid imageContentId)
         {
             var db = Db.Context().Result;
 
-            var content = db.PhotoContents.SingleOrDefault(x => x.ContentId == photoContentId);
+            var content = db.ImageContents.SingleOrDefault(x => x.ContentId == imageContentId);
 
             if (content == null) return null;
 
             var settings = UserSettingsUtilities.ReadSettings().Result;
 
-            var contentDirectory = settings.LocalSitePhotoContentDirectory(content);
+            var contentDirectory = settings.LocalSiteImageContentDirectory(content);
 
-            return ProcessPhotosInDirectory(content, contentDirectory, settings.SiteUrl);
+            return ProcessImagesInDirectory(content, contentDirectory, settings.SiteUrl);
         }
 
-        public static ImageDirectoryContentsInformation ProcessPhotosInDirectory(PhotoContent dbEntry)
+        public static ImageDirectoryContentsInformation ProcessImagesInDirectory(ImageContent dbEntry)
         {
             var settings = UserSettingsUtilities.ReadSettings().Result;
-            var contentDirectory = settings.LocalSitePhotoContentDirectory(dbEntry);
+            var contentDirectory = settings.LocalSiteImageContentDirectory(dbEntry);
 
-            return ProcessPhotosInDirectory(dbEntry, contentDirectory, settings.SiteUrl);
+            return ProcessImagesInDirectory(dbEntry, contentDirectory, settings.SiteUrl);
         }
 
-        public static ImageDirectoryContentsInformation ProcessPhotosInDirectory(PhotoContent dbEntry,
+        public static ImageDirectoryContentsInformation ProcessImagesInDirectory(ImageContent dbEntry,
             DirectoryInfo directoryInfo, string siteUrl)
         {
             var toReturn = new ImageDirectoryContentsInformation();

@@ -408,7 +408,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
                 var settings = await UserSettingsUtilities.ReadSettings();
-                var archiveFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchive, toLoad.OriginalFileName));
+                var archiveFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchivePhotoDirectory().FullName,
+                    toLoad.OriginalFileName));
                 if (archiveFile.Exists) SelectedFile = archiveFile;
             }
 
@@ -774,7 +775,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var userSettings = await UserSettingsUtilities.ReadSettings();
-            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchive, SelectedFile.Name);
+            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchivePhotoDirectory().FullName,
+                SelectedFile.Name);
             if (destinationFileName == SelectedFile.FullName) return;
 
             var destinationFile = new FileInfo(destinationFileName);

@@ -5,11 +5,11 @@ namespace PointlessWaymarksCmsData
 {
     public static class Db
     {
-        public static async Task<LemmonWorkshopContext> Context()
+        public static async Task<PointlessWaymarksContext> Context()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<LemmonWorkshopContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<PointlessWaymarksContext>();
             var dbPath = (await UserSettingsUtilities.ReadSettings()).DatabaseName;
-            return new LemmonWorkshopContext(optionsBuilder
+            return new PointlessWaymarksContext(optionsBuilder
                 .UseSqlServer(
                     $"Server = (localdb)\\mssqllocaldb; Database={dbPath}; Trusted_Connection=True; MultipleActiveResultSets=true",
                     x => x.UseNetTopologySuite()).Options);

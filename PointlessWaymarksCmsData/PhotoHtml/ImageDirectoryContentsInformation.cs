@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace PointlessWaymarksCmsData.PhotoHtml
 {
-    public class PhotoDirectoryContentsInformation
+    public class ImageDirectoryContentsInformation
     {
         public ImageFileInformation DisplayImage { get; set; }
 

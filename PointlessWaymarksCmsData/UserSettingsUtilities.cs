@@ -23,9 +23,64 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/index.html";
         }
 
+        public static DirectoryInfo LocalMasterMediaArchiveFileDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Files"));
+
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
+        public static DirectoryInfo LocalMasterMediaArchiveImageDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Images"));
+
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
+
+        public static DirectoryInfo LocalMasterMediaArchivePhotoDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Images"));
+
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
         {
             var photoDirectory = new DirectoryInfo(settings.LocalSiteRootDirectory);
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
+        public static DirectoryInfo LocalSiteImageContentDirectory(this UserSettings settings, ImageContent content)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteImageDirectory().FullName,
+                content.Folder, content.Slug));
+            if (!contentDirectory.Exists) contentDirectory.Create();
+
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+        public static DirectoryInfo LocalSiteImageDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Images"));
             if (!photoDirectory.Exists) photoDirectory.Create();
 
             photoDirectory.Refresh();
@@ -56,7 +111,7 @@ namespace PointlessWaymarksCmsData
 
         public static DirectoryInfo LocalSitePhotoDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos"));
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Images"));
             if (!photoDirectory.Exists) photoDirectory.Create();
 
             photoDirectory.Refresh();
@@ -87,7 +142,17 @@ namespace PointlessWaymarksCmsData
 
         public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
         {
-            return $"//{settings.SiteUrl}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
+            return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static string ImagePageUrl(this UserSettings settings, ImageContent content)
+        {
+            return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static string FilePageUrl(this UserSettings settings, FileContent content)
+        {
+            return $"//{settings.SiteUrl}/Files/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
         public static string PostPageUrl(this UserSettings settings, PostContent content)
@@ -140,7 +205,7 @@ namespace PointlessWaymarksCmsData
             }
             catch (Exception e)
             {
-                return (false, "Trouble with Local Mast Image Archive Directory.");
+                return (false, "Trouble with Local Master Media Archive Directory.");
             }
 
             return (true, string.Empty);

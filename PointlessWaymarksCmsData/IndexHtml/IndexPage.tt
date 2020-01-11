@@ -1,8 +1,10 @@
-﻿<#@ template language="C#" debug="true" #>
+﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
-meta charset="utf-8">
+<#@ import namespace="CommonHtml" #>
 
+<html lang="en">
+<head>
+    <meta charset="utf-8">
     <title><#=SiteName #></title>
     <meta name="description" content="<#= SiteSummary #>">
     <meta name="author" content="<#= SiteAuthors #>">
@@ -17,8 +19,8 @@ meta charset="utf-8">
     <meta property="og:image" content="http:<#=MainImage.SiteUrl #>" />
     <meta property="og:image:secure_url" content="https:<#=MainImage.SiteUrl #>" />
     <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:image:width" content="<#=MainImage.Photos.DisplayImage.Width #>" />
-    <meta property="og:image:height" content="<#=MainImage.Photos.DisplayImage.Height #>" />
+    <meta property="og:image:width" content="<#=MainImage.Images.DisplayImage.Width #>" />
+    <meta property="og:image:height" content="<#=MainImage.Images.DisplayImage.Height #>" />
     <meta property="og:image:alt" content="<#=MainImage.DbEntry.AltText #>" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

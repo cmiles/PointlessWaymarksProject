@@ -163,7 +163,35 @@ namespace PointlessWaymarksCmsData
             return (isValid, explanation);
         }
 
-        public static async Task<bool> PhotoFilenameExistsInDatabase(this LemmonWorkshopContext context,
+        public static async Task<bool> ImageFilenameExistsInDatabase(this PointlessWaymarksContext context,
+            string filename)
+        {
+            if (string.IsNullOrWhiteSpace(filename)) return false;
+
+            var imageCheck =
+                await context.ImageContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+
+            return imageCheck;
+        }
+
+        public static async Task<bool> ImageFilenameExistsInDatabase(this PointlessWaymarksContext context,
+            string filename, Guid? exceptInThisContent)
+        {
+            if (string.IsNullOrWhiteSpace(filename)) return false;
+
+            var imageCheck = false;
+
+            if (exceptInThisContent == null)
+                imageCheck =
+                    await context.ImageContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+            else
+                imageCheck = await context.ImageContents.AnyAsync(x =>
+                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
+
+            return imageCheck;
+        }
+
+        public static async Task<bool> PhotoFilenameExistsInDatabase(this PointlessWaymarksContext context,
             string filename)
         {
             if (string.IsNullOrWhiteSpace(filename)) return false;
@@ -174,7 +202,7 @@ namespace PointlessWaymarksCmsData
             return photoCheck;
         }
 
-        public static async Task<bool> PhotoFilenameExistsInDatabase(this LemmonWorkshopContext context,
+        public static async Task<bool> PhotoFilenameExistsInDatabase(this PointlessWaymarksContext context,
             string filename, Guid? exceptInThisContent)
         {
             if (string.IsNullOrWhiteSpace(filename)) return false;
@@ -191,7 +219,7 @@ namespace PointlessWaymarksCmsData
             return photoCheck;
         }
 
-        public static async Task<bool> SlugExistsInDatabase(this LemmonWorkshopContext context, string slug)
+        public static async Task<bool> SlugExistsInDatabase(this PointlessWaymarksContext context, string slug)
         {
             if (string.IsNullOrWhiteSpace(slug)) return false;
 
