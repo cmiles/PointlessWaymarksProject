@@ -27,6 +27,8 @@
             <Button Command="{Binding NewPhotoContentCommand}">New Photo Content</Button>
             <Button Command="{Binding ImageListWindowCommand}">Image List</Button>
             <Button Command="{Binding NewImageContentCommand}">New Image Content</Button>
+            <Button Command="{Binding FileListWindowCommand}">File List</Button>
+            <Button Command="{Binding NewFileContentCommand}">New File Content</Button>
         </StackPanel>
         <status:StatusControl
             Grid.Row="0"

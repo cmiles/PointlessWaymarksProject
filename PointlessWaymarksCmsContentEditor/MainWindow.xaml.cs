@@ -7,6 +7,8 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.IndexHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.ContentList;
+using PointlessWaymarksCmsWpfControls.FileContentEditor;
+using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.ImageList;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
@@ -24,7 +26,9 @@ namespace PointlessWaymarksCmsContentEditor
     public partial class MainWindow : INotifyPropertyChanged
     {
         private ContentListContext _contextListContext;
+        private RelayCommand _fileListWindowCommand;
         private RelayCommand _imageListWindowCommand;
+        private RelayCommand _newFileContentCommand;
         private RelayCommand _newImageContentCommand;
         private StatusControlContext _statusContext;
 
@@ -47,6 +51,9 @@ namespace PointlessWaymarksCmsContentEditor
             ImageListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewImageList));
             NewImageContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewImageContent));
 
+            FileListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewFileList));
+            NewFileContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewFileContent));
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
 
@@ -61,9 +68,16 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand EditPhotoContentCommand { get; set; }
-
-        public RelayCommand EditPostContentCommand { get; set; }
+        public RelayCommand FileListWindowCommand
+        {
+            get => _fileListWindowCommand;
+            set
+            {
+                if (Equals(value, _fileListWindowCommand)) return;
+                _fileListWindowCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public RelayCommand GenerateIndexCommand { get; set; }
 
@@ -74,6 +88,17 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _imageListWindowCommand)) return;
                 _imageListWindowCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand NewFileContentCommand
+        {
+            get => _newFileContentCommand;
+            set
+            {
+                if (Equals(value, _newFileContentCommand)) return;
+                _newFileContentCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -175,6 +200,22 @@ namespace PointlessWaymarksCmsContentEditor
             db.Database.EnsureCreated();
 
             ContextListContext = new ContentListContext(StatusContext);
+        }
+
+        private async Task NewFileContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new FileContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+
+        private async Task NewFileList()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new FileListWindow {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
         }
 
         private async Task NewImageContent()

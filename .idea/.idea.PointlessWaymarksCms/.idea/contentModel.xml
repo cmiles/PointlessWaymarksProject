@@ -150,6 +150,14 @@
           <e p="FileContentEditorWindow.xaml" t="Include" />
           <e p="FileContentEditorWindow.xaml.cs" t="Include" />
         </e>
+        <e p="FileList" t="Include">
+          <e p="FileListContext.cs" t="Include" />
+          <e p="FileListControl.xaml" t="Include" />
+          <e p="FileListControl.xaml.cs" t="Include" />
+          <e p="FileListListItem.cs" t="Include" />
+          <e p="FileListWindow.xaml" t="Include" />
+          <e p="FileListWindow.xaml.cs" t="Include" />
+        </e>
         <e p="GeoDataPicker" t="Include">
           <e p="GeoDataMapDisplayObject.cs" t="Include" />
           <e p="GeoDataPickerContext.cs" t="Include" />
