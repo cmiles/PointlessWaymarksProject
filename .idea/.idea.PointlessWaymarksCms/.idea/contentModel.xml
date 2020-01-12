@@ -24,8 +24,10 @@
       <e p="PointlessWaymarksCmsData" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
         <e p="CommonHtml" t="Include">
+          <e p="BracketCodes.cs" t="Include" />
           <e p="Footer.cs" t="Include" />
           <e p="HorizontalRule.cs" t="Include" />
+          <e p="PhotoAndImageFiles.cs" t="Include" />
           <e p="Styles.cs" t="Include" />
           <e p="Tags.cs" t="Include" />
         </e>
@@ -91,8 +93,6 @@
         <e p="PhotoHtml" t="Include">
           <e p="ImageDirectoryContentsInformation.cs" t="Include" />
           <e p="ImageFileInformation.cs" t="Include" />
-          <e p="PhotoBracketCode.cs" t="Include" />
-          <e p="PhotoFiles.cs" t="Include" />
           <e p="PhotoStyles.cs" t="Include" />
           <e p="SinglePhotoPage.cs" t="Include" />
           <e p="SinglePhotoPage.tt" t="Include" />
@@ -228,6 +228,10 @@
               <e p="FileContentEditor" t="Include">
                 <e p="FileContentEditorControl.g.cs" t="Include" />
                 <e p="FileContentEditorWindow.g.cs" t="Include" />
+              </e>
+              <e p="FileList" t="Include">
+                <e p="FileListControl.g.cs" t="Include" />
+                <e p="FileListWindow.g.cs" t="Include" />
               </e>
               <e p="GeneratedInternalTypeHelper.g.cs" t="Include" />
               <e p="GeoDataPicker" t="Include">

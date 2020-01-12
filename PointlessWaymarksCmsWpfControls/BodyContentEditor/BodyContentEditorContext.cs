@@ -120,7 +120,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
             try
             {
-                var preprocessResults = PhotoBracketCode.LocalMarkdownPreprocessedForSitePhotoTags(BodyContent);
+                var preprocessResults = BracketCodes.PhotoCodeProcessForDirectLocalAccess(BodyContent);
                 var processResults =
                     ContentProcessor.ContentHtml(BodyContentFormat.SelectedContentFormat, preprocessResults);
 

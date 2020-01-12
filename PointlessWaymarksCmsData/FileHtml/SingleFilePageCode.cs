@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
@@ -21,8 +20,6 @@ namespace PointlessWaymarksCmsData.FileHtml
         }
 
         public FileContent DbEntry { get; set; }
-
-        public List<FileContent> LaterFiles { get; set; }
 
         public string PageUrl { get; set; }
 

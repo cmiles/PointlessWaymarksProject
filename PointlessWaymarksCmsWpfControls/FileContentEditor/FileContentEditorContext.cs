@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
@@ -32,6 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private FileContent _dbEntry;
+        private RelayCommand _openSelectedFileDirectoryCommand;
         private RelayCommand _saveAndCreateLocalCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
@@ -99,6 +102,19 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand OpenSelectedFileCommand { get; set; }
+
+        public RelayCommand OpenSelectedFileDirectoryCommand
+        {
+            get => _openSelectedFileDirectoryCommand;
+            set
+            {
+                if (Equals(value, _openSelectedFileDirectoryCommand)) return;
+                _openSelectedFileDirectoryCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -224,6 +240,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            StatusContext.Progress("Generating Html...");
+
             var htmlContext = new SingleFilePage(DbEntry);
 
             htmlContext.WriteLocalHtml();
@@ -233,6 +251,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            StatusContext.Progress("Loading Data...");
+
             DbEntry = toLoad ?? new FileContent();
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
@@ -241,15 +261,61 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
 
+            if (!string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
+            {
+                var settings = await UserSettingsUtilities.ReadSettings();
+                var possibleFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchiveFileDirectory().FullName,
+                    DbEntry.OriginalFileName));
+
+                if (possibleFile.Exists) SelectedFile = possibleFile;
+            }
+
             ChooseFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            SaveUpdateDatabaseCommand =
+                new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidationAndArchiveMedia));
+            OpenSelectedFileDirectoryCommand =
+                new RelayCommand(() => StatusContext.RunBlockingTask(OpenSelectedFileDirectory));
+            OpenSelectedFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(OpenSelectedFile));
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task OpenSelectedFile()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null || !SelectedFile.Exists || SelectedFile.Directory == null ||
+                !SelectedFile.Directory.Exists)
+            {
+                StatusContext.ToastError("No Selected File or Selected File no longer exists?");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Process.Start(SelectedFile.FullName);
+        }
+
+        private async Task OpenSelectedFileDirectory()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null || !SelectedFile.Exists || SelectedFile.Directory == null ||
+                !SelectedFile.Directory.Exists)
+            {
+                StatusContext.ToastWarning("No Selected File or Selected File no longer exists?");
+                return;
+            }
+
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Process.Start(SelectedFile.Directory.FullName);
         }
 
         private async Task SaveAndCreateLocal()
@@ -265,6 +331,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
 
             await SaveToDatabase();
+            await WriteSelectedFileToMasterMediaArchive();
             await GenerateHtml();
             await WriteLocalDbJson();
         }
@@ -273,6 +340,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private async Task SaveToDatabase()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.Progress("Starting File Content Save to Database");
 
             var newEntry = new FileContent();
 
@@ -299,6 +368,9 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
+            newEntry.OriginalFileName = SelectedFile.Name;
+
+            newEntry.MainImage = BracketCodes.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             var context = await Db.Context();
 
@@ -322,7 +394,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             await LoadData(newEntry);
         }
 
-        private async Task SaveToDbWithValidation()
+        private async Task SaveToDbWithValidationAndArchiveMedia()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -337,11 +409,15 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
 
             await SaveToDatabase();
+            await WriteSelectedFileToMasterMediaArchive();
         }
 
         private async Task<(bool, string)> Validate()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null || !SelectedFile.Exists)
+                return (false, "No Selected File?");
 
             return (true, string.Empty);
         }
@@ -349,6 +425,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private async Task<List<(bool, string)>> ValidateAll()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.Progress("Running Validations");
 
             return new List<(bool, string)>
             {
@@ -361,6 +439,10 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
         private async Task WriteLocalDbJson()
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.Progress("Writing Db Entry to Json");
+
             var settings = await UserSettingsUtilities.ReadSettings();
             var db = await Db.Context();
             var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
@@ -373,10 +455,14 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             File.WriteAllText(jsonFile.FullName, jsonDbEntry);
 
+            StatusContext.Progress("Writing Historic Db Entries to Json");
+
             var latestHistoricEntries = db.HistoricFileContents.Where(x => x.ContentId == DbEntry.ContentId)
-                .OrderByDescending(x => x.LastUpdatedOn).Take(10);
+                .OrderByDescending(x => x.LastUpdatedOn).Take(10).ToList();
 
             if (!latestHistoricEntries.Any()) return;
+
+            StatusContext.Progress($" Archiving last {latestHistoricEntries.Count} Historic File Content Entries");
 
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
@@ -387,6 +473,25 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             jsonHistoricFile.Refresh();
 
             File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+        }
+
+
+        private async Task WriteSelectedFileToMasterMediaArchive()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.Progress("Saving File to Archive");
+
+            var userSettings = await UserSettingsUtilities.ReadSettings();
+            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchivePhotoDirectory().FullName,
+                SelectedFile.Name);
+            if (destinationFileName == SelectedFile.FullName) return;
+
+            var destinationFile = new FileInfo(destinationFileName);
+
+            if (destinationFile.Exists) destinationFile.Delete();
+
+            SelectedFile.CopyTo(destinationFileName);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

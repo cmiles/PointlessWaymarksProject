@@ -35,19 +35,19 @@ namespace PointlessWaymarksCmsData.PostHtml
                 .ToList();
         }
 
-        public PostContent DbEntry { get; set; }
+        public PostContent DbEntry { get; }
 
-        public List<PostContent> LaterPosts { get; set; }
+        public List<PostContent> LaterPosts { get; }
 
-        public SinglePhotoPage MainImage { get; set; }
+        public SinglePhotoPage MainImage { get; }
 
-        public string PageUrl { get; set; }
+        public string PageUrl { get; }
 
-        public List<PostContent> PreviousPosts { get; set; }
+        public List<PostContent> PreviousPosts { get; }
 
-        public string SiteName { get; set; }
+        public string SiteName { get; }
 
-        public string SiteUrl { get; set; }
+        public string SiteUrl { get; }
 
         public HtmlTag RelatedPostsDiv()
         {

@@ -72,8 +72,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                 var newPhotoItem = new PostListListItem {DbEntry = loopItems};
 
                 if (loopItems.MainImage != null)
-                    newPhotoItem.SmallImageUrl = PhotoFiles.ProcessPhotosInDirectory(loopItems.MainImage.Value)
-                        .SmallImage?.File.FullName;
+                    newPhotoItem.SmallImageUrl = PhotoAndImageFiles
+                        .ProcessImageOrPhotoDirectory(loopItems.MainImage.Value).SmallImage?.File.FullName;
 
                 listItems.Add(newPhotoItem);
             }

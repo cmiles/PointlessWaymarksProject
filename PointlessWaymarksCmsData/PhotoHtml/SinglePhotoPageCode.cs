@@ -17,7 +17,7 @@ namespace PointlessWaymarksCmsData.PhotoHtml
             SiteName = settings.SiteName;
             PageUrl = settings.PhotoPageUrl(DbEntry);
 
-            Images = PhotoFiles.ProcessPhotosInDirectory(DbEntry);
+            Images = PhotoAndImageFiles.ProcessPhotoDirectory(DbEntry);
         }
 
         public PhotoContent DbEntry { get; set; }

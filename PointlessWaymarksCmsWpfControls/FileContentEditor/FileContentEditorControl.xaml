@@ -26,7 +26,12 @@
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <Button Style="{StaticResource LargerButton}" Command="{Binding ChooseFileCommand}">Choose File</Button>
-                            <TextBlock Text="{Binding SelectedFileFullPath}" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Vertical">
+                                <Label>Selected File</Label>
+                                <TextBlock Text="{Binding SelectedFileFullPath}" />
+                                <Button Command="{Binding OpenSelectedFileCommand}">Open File</Button>
+                                <Button Command="{Binding OpenSelectedFileDirectoryCommand}">Open Directory</Button>
+                            </StackPanel>
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />

@@ -556,6 +556,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             await SaveToDatabase();
+            await WriteSelectedFileToMasterMediaArchive();
             await GenerateHtml();
             await WriteLocalDbJson();
         }
@@ -637,6 +638,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
 
             await SaveToDatabase();
+            await WriteSelectedFileToMasterMediaArchive();
         }
 
         public static string ShutterSpeedToHumanReadableString(Rational? toProcess)

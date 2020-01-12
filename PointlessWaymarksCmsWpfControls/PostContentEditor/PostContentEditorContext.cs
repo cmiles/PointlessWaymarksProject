@@ -11,8 +11,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
@@ -238,7 +238,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
             newEntry.ShowInPostFeed = ShowInPostFeed;
 
-            newEntry.MainImage = PhotoBracketCode.FirstPhotoId(newEntry.BodyContent);
+            newEntry.MainImage = BracketCodes.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             var context = await Db.Context();
 

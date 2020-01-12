@@ -128,13 +128,13 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             foreach (var loopSelected in ListContext.SelectedItems)
                 finalString +=
-                    @$"{{{{photo {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+                    @$"{{{{filelink {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Clipboard.SetText(finalString);
 
-            StatusContext.ToastSuccess($"To ClipboardL {finalString}");
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         private async Task GenerateSelectedHtml()

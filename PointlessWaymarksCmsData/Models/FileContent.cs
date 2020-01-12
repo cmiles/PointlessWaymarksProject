@@ -3,7 +3,7 @@
 namespace PointlessWaymarksCmsData.Models
 {
     public class FileContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes, ITag,
-        IBodyContent
+        IBodyContent, IMainImage
     {
         public string OriginalFileName { get; set; }
         public string BodyContent { get; set; }
@@ -15,6 +15,8 @@ namespace PointlessWaymarksCmsData.Models
         public DateTime CreatedOn { get; set; }
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
+
+        public Guid? MainImage { get; set; }
         public string Tags { get; set; }
         public string Folder { get; set; }
         public string Slug { get; set; }

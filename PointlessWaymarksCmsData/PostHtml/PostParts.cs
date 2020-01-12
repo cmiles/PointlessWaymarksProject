@@ -1,7 +1,7 @@
 ﻿using System;
 using HtmlTags;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PhotoHtml;
 
 namespace PointlessWaymarksCmsData.PostHtml
 {
@@ -59,7 +59,7 @@ namespace PointlessWaymarksCmsData.PostHtml
         {
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
-            var bodyText = PhotoBracketCode.MarkdownPreprocessedForSitePhotoTags(dbEntry.BodyContent);
+            var bodyText = BracketCodes.PhotoCodeProcessToFigure(dbEntry.BodyContent);
 
             var bodyHtmlProcessing = ContentProcessor.ContentHtml(dbEntry.BodyContentFormat, bodyText);
 
