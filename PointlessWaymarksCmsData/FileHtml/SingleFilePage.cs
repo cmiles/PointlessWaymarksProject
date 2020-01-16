@@ -8,6 +8,10 @@
 namespace PointlessWaymarksCmsData.FileHtml
 {
     using System;
+    #line 3 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+using PointlessWaymarksCmsData.CommonHtml;
+    #line default
+    #line hidden
     
     /// <summary>
     /// Class to produce the template output
@@ -24,6 +28,175 @@ namespace PointlessWaymarksCmsData.FileHtml
         public virtual string TransformText()
         {
             
+            this.Write("\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title>");
+            
+            #line 8 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
+            
+            #line default
+            #line hidden
+            this.Write("</title>\r\n    <meta name=\"description\" content=\"");
+            
+            #line 9 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Summary));
+            
+            #line default
+            #line hidden
+            this.Write("\">\r\n    <meta name=\"author\" content=\"");
+            
+            #line 10 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy));
+            
+            #line default
+            #line hidden
+            this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
+            
+            #line 11 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Tags));
+            
+            #line default
+            #line hidden
+            this.Write("\" >\r\n\r\n    <meta property=\"og:site_name\" content=\"");
+            
+            #line 13 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"");
+            
+            #line 14 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n    <meta property=\"og:type\" content=\"");
+            
+            #line 15 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteUrl));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n\r\n    <meta property=\"og:title\" content=\"");
+            
+            #line 17 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n    <meta property=\"og:description\" content=\"");
+            
+            #line 18 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Summary));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n    <meta property=\"og:image\" content=\"http:");
+            
+            #line 19 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.SiteUrl));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n    <meta property=\"og:image:secure_url\" content=\"https:");
+            
+            #line 20 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.SiteUrl));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n    <meta property=\"og:image:type\" content=\"image/jpeg\" />\r\n    <meta property=\"og:image:width\" content=\"");
+            
+            #line 22 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.Width));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n    <meta property=\"og:image:height\" content=\"");
+            
+            #line 23 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.Height));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n    <meta property=\"og:image:alt\" content=\"");
+            
+            #line 24 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.AltText));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
+            
+            #line 28 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 29 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
+            
+            #line 34 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostTitleDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 35 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 37 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostBodyDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 38 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 39 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 40 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 41 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateDiv(DbEntry, DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 42 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n</body>\r\n\r\n</html>");
             return this.GenerationEnvironment.ToString();
         }
     }

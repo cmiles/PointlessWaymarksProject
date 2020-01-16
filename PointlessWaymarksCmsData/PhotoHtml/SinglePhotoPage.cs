@@ -94,28 +94,28 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\" />\r\n    <meta property=\"og:image\" content=\"http:");
             
             #line 18 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Images.DisplayImage.SiteUrl));
+            this.Write(this.ToStringHelper.ToStringWithCulture(PictureAsset.Pictures.DisplayPicture.SiteUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:secure_url\" content=\"https:");
             
             #line 19 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Images.DisplayImage.SiteUrl));
+            this.Write(this.ToStringHelper.ToStringWithCulture(PictureAsset.Pictures.DisplayPicture.SiteUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:type\" content=\"image/jpeg\" />\r\n    <meta property=\"og:image:width\" content=\"");
             
             #line 21 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Images.DisplayImage.Width));
+            this.Write(this.ToStringHelper.ToStringWithCulture(PictureAsset.Pictures.DisplayPicture.Width));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:image:height\" content=\"");
             
             #line 22 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Images.DisplayImage.Height));
+            this.Write(this.ToStringHelper.ToStringWithCulture(PictureAsset.Pictures.DisplayPicture.Height));
             
             #line default
             #line hidden
@@ -143,7 +143,7 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n\r\n</head>\r\n\r\n<body class=\"single-photo-body\">\r\n    ");
             
             #line 33 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoFigureTag().ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(PictureAsset.PictureFigureTag()));
             
             #line default
             #line hidden
@@ -164,14 +164,14 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n    ");
             
             #line 37 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UpdateDiv().ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateDiv(DbEntry, DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 38 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(CreatedDiv().ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PageCreatedDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
@@ -185,7 +185,7 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n    ");
             
             #line 40 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.SiteTitleDiv()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
             #line hidden

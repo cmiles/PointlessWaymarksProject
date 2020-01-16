@@ -8,8 +8,10 @@ namespace PointlessWaymarksCmsData.Models
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
 
-        public string ImageSourceNotes { get; set; }
+        public Guid? MainImage { get; set; }
         public string OriginalFileName { get; set; }
+
+        public bool PublicDownloadLink { get; set; }
         public Guid ContentId { get; set; }
         public int Id { get; set; }
         public string CreatedBy { get; set; }

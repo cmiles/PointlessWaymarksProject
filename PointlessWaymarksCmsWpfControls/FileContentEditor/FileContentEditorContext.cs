@@ -35,6 +35,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private FileContent _dbEntry;
         private RelayCommand _openSelectedFileDirectoryCommand;
+        private bool _publicDownloadLink = true;
         private RelayCommand _saveAndCreateLocalCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
@@ -115,6 +116,17 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             {
                 if (Equals(value, _openSelectedFileDirectoryCommand)) return;
                 _openSelectedFileDirectoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool PublicDownloadLink
+        {
+            get => _publicDownloadLink;
+            set
+            {
+                if (value == _publicDownloadLink) return;
+                _publicDownloadLink = value;
                 OnPropertyChanged();
             }
         }
@@ -369,8 +381,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
-
-            newEntry.MainImage = BracketCodes.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
+            newEntry.PublicDownloadLink = PublicDownloadLink;
+            newEntry.MainPicture = BracketCodes.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             var context = await Db.Context();
 

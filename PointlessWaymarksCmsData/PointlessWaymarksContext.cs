@@ -24,5 +24,18 @@ namespace PointlessWaymarksCmsData
         public DbSet<PointContent> PointContents { get; set; }
         public DbSet<PostContent> PostContents { get; set; }
         public DbSet<TrailSegment> TrailSegments { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<FileContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<ImageContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<LineContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<PhotoContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<PointContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<PostContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<TrailSegment>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<PostContent>().HasIndex(b => b.ContentId).IsUnique();
+        }
     }
 }

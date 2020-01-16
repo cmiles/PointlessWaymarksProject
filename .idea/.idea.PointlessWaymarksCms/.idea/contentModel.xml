@@ -14,7 +14,6 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
-              <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -27,8 +26,10 @@
           <e p="BracketCodes.cs" t="Include" />
           <e p="Footer.cs" t="Include" />
           <e p="HorizontalRule.cs" t="Include" />
-          <e p="PhotoAndImageFiles.cs" t="Include" />
-          <e p="Styles.cs" t="Include" />
+          <e p="PictureAssetInformation.cs" t="Include" />
+          <e p="PictureAssetProcessing.cs" t="Include" />
+          <e p="PictureFileInformation.cs" t="Include" />
+          <e p="PictureSiteInformation.cs" t="Include" />
           <e p="Tags.cs" t="Include" />
         </e>
         <e p="ContentProcessor.cs" t="Include" />
@@ -48,7 +49,6 @@
         </e>
         <e p="FormatTypeEnum.cs" t="Include" />
         <e p="ImageHtml" t="Include">
-          <e p="ImageFiles.cs" t="Include" />
           <e p="SingleImagePage.cs" t="Include" />
           <e p="SingleImagePage.tt" t="Include" />
           <e p="SingleImagePageCode.cs" t="Include" />
@@ -91,9 +91,6 @@
           </e>
         </e>
         <e p="PhotoHtml" t="Include">
-          <e p="ImageDirectoryContentsInformation.cs" t="Include" />
-          <e p="ImageFileInformation.cs" t="Include" />
-          <e p="PhotoStyles.cs" t="Include" />
           <e p="SinglePhotoPage.cs" t="Include" />
           <e p="SinglePhotoPage.tt" t="Include" />
           <e p="SinglePhotoPageCode.cs" t="Include" />

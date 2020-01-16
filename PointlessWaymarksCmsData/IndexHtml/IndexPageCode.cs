@@ -4,7 +4,6 @@ using System.Linq;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.PostHtml;
 
 namespace PointlessWaymarksCmsData.IndexHtml
@@ -25,17 +24,12 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
             Posts = db.PostContents.OrderByDescending(x => x.CreatedOn).Take(8).ToList();
 
-            var mainImageGuid = Posts.FirstOrDefault(x => x.MainImage != null)?.MainImage;
+            var mainImageGuid = Posts.FirstOrDefault(x => x.MainPicture != null)?.MainPicture;
 
-            if (mainImageGuid != null)
-            {
-                var dbImage = db.PhotoContents.SingleOrDefault(x => x.ContentId == mainImageGuid);
-
-                if (dbImage != null) MainImage = new SinglePhotoPage(dbImage);
-            }
+            if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid.Value);
         }
 
-        public SinglePhotoPage MainImage { get; set; }
+        public PictureSiteInformation MainImage { get; set; }
 
         public string PageUrl { get; set; }
 

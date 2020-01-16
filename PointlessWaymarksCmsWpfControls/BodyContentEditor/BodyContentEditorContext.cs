@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -118,14 +117,15 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            var settings = await UserSettingsUtilities.ReadSettings();
+
             try
             {
                 var preprocessResults = BracketCodes.PhotoCodeProcessForDirectLocalAccess(BodyContent);
                 var processResults =
                     ContentProcessor.ContentHtml(BodyContentFormat.SelectedContentFormat, preprocessResults);
 
-                var styleBlock = Styles.BodyStyle();
-                styleBlock += PhotoStyles.SinglePhotoStyles();
+                var styleBlock = settings.CssMainStyleFileUrl();
 
                 BodyContentHtmlOutput = processResults.ToHtmlDocument("Body Content", styleBlock);
             }

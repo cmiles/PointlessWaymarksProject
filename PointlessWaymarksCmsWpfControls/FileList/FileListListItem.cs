@@ -8,6 +8,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
     public class FileListListItem : INotifyPropertyChanged
     {
         private FileContent _dbEntry;
+        private string _smallImageUrl;
 
         public FileContent DbEntry
         {
@@ -16,6 +17,17 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SmallImageUrl
+        {
+            get => _smallImageUrl;
+            set
+            {
+                if (value == _smallImageUrl) return;
+                _smallImageUrl = value;
                 OnPropertyChanged();
             }
         }

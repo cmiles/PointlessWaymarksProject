@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using HtmlTags;
+﻿using HtmlTags;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PhotoHtml;
 
 namespace PointlessWaymarksCmsData.PostHtml
 {
@@ -17,18 +15,9 @@ namespace PointlessWaymarksCmsData.PostHtml
             PageUrl = settings.PostPageUrl(DbEntry);
 
             var db = Db.Context().Result;
-
-            if (DbEntry.MainImage != null)
-            {
-                var dbImage = db.PhotoContents.SingleOrDefault(x => x.ContentId == DbEntry.MainImage.Value);
-
-                if (dbImage != null) MainImage = new SinglePhotoPage(dbImage);
-            }
         }
 
         public PostContent DbEntry { get; set; }
-
-        public SinglePhotoPage MainImage { get; set; }
 
         public string PageUrl { get; set; }
 

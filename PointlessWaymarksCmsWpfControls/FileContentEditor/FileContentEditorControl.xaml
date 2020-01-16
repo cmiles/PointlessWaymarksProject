@@ -32,6 +32,7 @@
                                 <Button Command="{Binding OpenSelectedFileCommand}">Open File</Button>
                                 <Button Command="{Binding OpenSelectedFileDirectoryCommand}">Open Directory</Button>
                             </StackPanel>
+                            <CheckBox IsChecked="{Binding PublicDownloadLink}">Show Public Download Link</CheckBox>
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />

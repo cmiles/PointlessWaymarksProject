@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.PhotoHtml;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -71,7 +71,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 var newPhotoItem = new PhotoListListItem
                 {
                     DbEntry = loopItems,
-                    SmallImageUrl = PhotoAndImageFiles.ProcessPhotoDirectory(loopItems).SmallImage?.File.FullName
+                    SmallImageUrl = PictureAssetProcessing.ProcessPhotoDirectory(loopItems).SmallPicture?.File
+                        .FullName
                 };
 
                 listItems.Add(newPhotoItem);

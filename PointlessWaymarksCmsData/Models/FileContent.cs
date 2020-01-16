@@ -6,8 +6,9 @@ namespace PointlessWaymarksCmsData.Models
         IBodyContent, IMainImage
     {
         public string OriginalFileName { get; set; }
-        public string BodyContent { get; set; }
 
+        public bool PublicDownloadLink { get; set; }
+        public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
         public Guid ContentId { get; set; }
         public int Id { get; set; }
@@ -16,7 +17,7 @@ namespace PointlessWaymarksCmsData.Models
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
 
-        public Guid? MainImage { get; set; }
+        public Guid? MainPicture { get; set; }
         public string Tags { get; set; }
         public string Folder { get; set; }
         public string Slug { get; set; }

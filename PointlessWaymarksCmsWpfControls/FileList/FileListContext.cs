@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -68,6 +69,10 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             foreach (var loopItems in dbItems)
             {
                 var newFileItem = new FileListListItem {DbEntry = loopItems};
+
+                if (loopItems.MainPicture != null)
+                    newFileItem.SmallImageUrl = PictureAssetProcessing
+                        .ProcessPictureDirectory(loopItems.MainPicture.Value).SmallPicture?.File.FullName;
 
                 listItems.Add(newFileItem);
             }

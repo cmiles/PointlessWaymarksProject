@@ -1,2 +1,42 @@
 ﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
+<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title><#=DbEntry.Title #></title>
+    <meta name="description" content="<#=DbEntry.Summary #>">
+    <meta name="author" content="<#=DbEntry.CreatedBy #>">
+    <meta name="keywords" content="<#= DbEntry.Tags #>" >
+
+    <meta property="og:site_name" content="<#=SiteName #>" />
+    <meta property="og:url" content="<#=PageUrl #>" />
+    <meta property="og:type" content="<#=SiteUrl #>" />
+
+    <meta property="og:title" content="<#=DbEntry.Title #>" />
+    <meta property="og:description" content="<#= DbEntry.Summary #>" />
+    <meta property="og:image" content="http:<#=PictureAsset.Pictures.DisplayPicture.SiteUrl #>" />
+    <meta property="og:image:secure_url" content="https:<#=PictureAsset.Pictures.DisplayPicture.SiteUrl #>" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="<#=PictureAsset.Pictures.DisplayPicture.Width #>" />
+    <meta property="og:image:height" content="<#=PictureAsset.Pictures.DisplayPicture.Height #>" />
+    <meta property="og:image:alt" content="<#=DbEntry.AltText #>" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <#= Tags.CssStyleFileString() #>
+    <#= Tags.FavIconFileString() #>
+
+</head>
+
+<body class="single-photo-body">
+    <#= PictureAsset.PictureFigureTag() #>
+    <#=
+                Tags.TagList(DbEntry).ToString() #>
+    <#= Tags.UpdateDiv(DbEntry, DbEntry) #>
+    <#= Tags.PageCreatedDiv(DbEntry).ToString() #>
+    <#= HorizontalRule.StandardRule() #>
+    <#= Footer.StandardFooterDiv() #>
+</body>
+
+</html>

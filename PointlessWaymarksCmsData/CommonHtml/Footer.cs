@@ -4,7 +4,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class Footer
     {
-        public static HtmlTag SiteTitleDiv()
+        public static HtmlTag StandardFooterDiv()
         {
             var settings = UserSettingsUtilities.ReadSettings().Result;
 

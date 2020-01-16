@@ -34,7 +34,7 @@ namespace PointlessWaymarksCmsData.PostHtml
             this.Write("\r\n    ");
             
             #line 5 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PostParts.PostBodyDiv(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostBodyDiv(DbEntry)));
             
             #line default
             #line hidden

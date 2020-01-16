@@ -4,6 +4,6 @@ namespace PointlessWaymarksCmsData.Models
 {
     public interface IMainImage
     {
-        public Guid? MainImage { get; set; }
+        public Guid? MainPicture { get; set; }
     }
 }

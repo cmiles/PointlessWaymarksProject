@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using PointlessWaymarksCmsData.Models;
@@ -176,6 +177,19 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
+        public static string PicturePageUrl(this UserSettings settings, Guid contentGuid)
+        {
+            var db = Db.Context().Result;
+
+            var possiblePhotoContent = db.PhotoContents.SingleOrDefault(x => x.ContentId == contentGuid);
+            if (possiblePhotoContent != null) return settings.PhotoPageUrl(possiblePhotoContent);
+
+            var possibleImageContent = db.ImageContents.SingleOrDefault(x => x.ContentId == contentGuid);
+            if (possibleImageContent != null) return settings.ImagePageUrl(possibleImageContent);
+
+            return string.Empty;
+        }
+
         public static string PostPageUrl(this UserSettings settings, PostContent content)
         {
             return $"//{settings.SiteUrl}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
@@ -209,6 +223,17 @@ namespace PointlessWaymarksCmsData
             storageDirectory.Refresh();
 
             return storageDirectory;
+        }
+
+        public static string StylesCssFromLocalSiteRootDirectory()
+        {
+            var settings = ReadSettings().Result;
+
+            var possibleFile = new FileInfo(Path.Combine(settings.LocalSiteRootDirectory, "styles.css"));
+
+            if (!possibleFile.Exists) return string.Empty;
+
+            return File.ReadAllText(possibleFile.FullName);
         }
 
         public static async Task<(bool, string)> ValidateLocalMasterMediaArchive()
