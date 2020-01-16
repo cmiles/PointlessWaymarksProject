@@ -174,7 +174,7 @@ namespace PointlessWaymarksCmsData
 
         public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
         {
-            return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
+            return $"//{settings.SiteUrl}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
         public static string PicturePageUrl(this UserSettings settings, Guid contentGuid)

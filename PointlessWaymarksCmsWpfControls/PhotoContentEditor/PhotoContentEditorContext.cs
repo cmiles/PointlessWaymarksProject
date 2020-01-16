@@ -389,6 +389,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            StatusContext.Progress("Photo Content - Generate HTML");
+
             var htmlContext = new SinglePhotoPage(DbEntry);
 
             htmlContext.WriteLocalHtml();

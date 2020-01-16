@@ -52,7 +52,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
         /// <returns></returns>
         public static string PhotoCodeProcessForDirectLocalAccess(string toProcess)
         {
-            return PhotoCodeProcess(toProcess, page => page.PictureAsset.LocalDisplayPhotoImageTag().ToString());
+            return PhotoCodeProcess(toProcess, page => page.PictureAsset.LocalPictureFigureTag().ToString());
         }
 
         /// <summary>
@@ -60,9 +60,10 @@ namespace PointlessWaymarksCmsData.CommonHtml
         /// </summary>
         /// <param name="toProcess"></param>
         /// <returns></returns>
-        public static string PhotoCodeProcessToFigure(string toProcess)
+        public static string PhotoCodeProcessToFigureWithLink(string toProcess)
         {
-            return PhotoCodeProcess(toProcess, page => page.PictureAsset.LocalPictureFigureTag().ToString());
+            return PhotoCodeProcess(toProcess,
+                page => page.PictureAsset.PictureFigureWithLinkToPicturePageTag().ToString());
         }
 
         /// <summary>

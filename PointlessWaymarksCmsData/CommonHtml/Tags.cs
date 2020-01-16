@@ -154,7 +154,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
-            var bodyText = BracketCodes.PhotoCodeProcessToFigure(dbEntry.BodyContent);
+            var bodyText = BracketCodes.PhotoCodeProcessToFigureWithLink(dbEntry.BodyContent);
 
             var bodyHtmlProcessing = ContentProcessor.ContentHtml(dbEntry.BodyContentFormat, bodyText);
 
