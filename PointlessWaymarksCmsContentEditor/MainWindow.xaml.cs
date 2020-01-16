@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.CommandWpf;
@@ -30,6 +31,7 @@ namespace PointlessWaymarksCmsContentEditor
         private RelayCommand _imageListWindowCommand;
         private RelayCommand _newFileContentCommand;
         private RelayCommand _newImageContentCommand;
+        private RelayCommand _openIndexUrlCommand;
         private StatusControlContext _statusContext;
 
         public MainWindow()
@@ -41,6 +43,7 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext = new StatusControlContext();
 
             GenerateIndexCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(GenerateIndex));
+            OpenIndexUrlCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenIndexUrl));
 
             PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
             NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
@@ -117,6 +120,17 @@ namespace PointlessWaymarksCmsContentEditor
         public RelayCommand NewPhotoContentCommand { get; set; }
 
         public RelayCommand NewPostContentCommand { get; set; }
+
+        public RelayCommand OpenIndexUrlCommand
+        {
+            get => _openIndexUrlCommand;
+            set
+            {
+                if (Equals(value, _openIndexUrlCommand)) return;
+                _openIndexUrlCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public RelayCommand PhotoListWindowCommand { get; set; }
 
@@ -270,6 +284,18 @@ namespace PointlessWaymarksCmsContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task OpenIndexUrl()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var settings = await UserSettingsUtilities.ReadSettings();
+
+            var url = $@"http://{settings.SiteUrl}";
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -2,5 +2,7 @@
 <#@ assembly name="System.Core" #>
 <div class="post-container">
     <#= TitleDiv() #>
+    <#=
+                CommonHtml.Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= CommonHtml.Tags.PostBodyDiv(DbEntry) #>
 </div>

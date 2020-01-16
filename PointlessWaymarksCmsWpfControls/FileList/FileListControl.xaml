@@ -19,6 +19,7 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
+                            <Image Source="{Binding SmallImageUrl}" Margin="2" />
                             <StackPanel Orientation="Vertical" Grid.Column="1" Margin="2">
                                 <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Title}" />
                                 <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Summary}" />

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
+using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -19,6 +21,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         private RelayCommand _generateSelectedHtmlCommand;
         private RelayCommand _imageCodesToClipboardForSelectedCommand;
         private ImageListContext _listContext;
+        private RelayCommand _openUrlForSelectedCommand;
         private StatusControlContext _statusContext;
 
         public ImageListWindow()
@@ -31,6 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             EditSelectedContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(EditSelectedContent));
             ImageCodesToClipboardForSelectedCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(ImageCodesToClipboardForSelected));
+            OpenUrlForSelectedCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
 
             DataContext = this;
         }
@@ -79,6 +83,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
+        public RelayCommand OpenUrlForSelectedCommand
+        {
+            get => _openUrlForSelectedCommand;
+            set
+            {
+                if (Equals(value, _openUrlForSelectedCommand)) return;
+                _openUrlForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -123,13 +138,21 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 return;
             }
 
+            var loopCount = 1;
+            var totalCount = ListContext.SelectedItems.Count;
+
             foreach (var loopSelected in ListContext.SelectedItems)
             {
+                StatusContext.Progress(
+                    $"Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
+
                 var htmlContext = new SingleImagePage(loopSelected.DbEntry);
 
                 htmlContext.WriteLocalHtml();
 
                 StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+
+                loopCount++;
             }
         }
 
@@ -160,6 +183,27 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task OpenUrlForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var settings = await UserSettingsUtilities.ReadSettings();
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+            {
+                var url = $@"http://{settings.ImagePageUrl(loopSelected.DbEntry)}";
+
+                var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+                Process.Start(ps);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

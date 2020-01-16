@@ -14,22 +14,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var onlyCreated = false;
 
+            createdUpdatedString += $"Created by {dbEntry.CreatedBy}";
+
             if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
-            {
                 if (string.Compare(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) != 0)
                 {
-                    createdUpdatedString += $"Created by {dbEntry.CreatedBy} and {dbEntry.LastUpdatedBy} ";
+                    createdUpdatedString += $" and {dbEntry.LastUpdatedBy} ";
                     onlyCreated = true;
                 }
-                else
-                {
-                    createdUpdatedString += $"Created by {dbEntry.CreatedBy} ";
-                }
-            }
 
-            createdUpdatedString += $"on {dbEntry.CreatedOn:M/d/yyyy}. ";
+            createdUpdatedString += $" on {dbEntry.CreatedOn:M/d/yyyy}.";
 
-            if (onlyCreated) return createdUpdatedString;
+            if (onlyCreated) return createdUpdatedString.Trim();
 
             if (string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy) && dbEntry.LastUpdatedOn == null)
                 return createdUpdatedString;
@@ -37,7 +33,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
                 return createdUpdatedString;
 
-            var updatedString = "Updated";
+            var updatedString = " Updated";
 
             if (!string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy)) updatedString += $" by {dbEntry.LastUpdatedBy}";
 
@@ -203,7 +199,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             if (createdEntry.CreatedOn.Date == createdEntry.LastUpdatedOn.Value.Date &&
                 string.IsNullOrWhiteSpace(updateEntry.UpdateNotes) &&
-                createdEntry.CreatedBy == createdEntry.LastUpdatedBy) return HtmlTag.Empty();
+                (createdEntry.CreatedBy == createdEntry.LastUpdatedBy ||
+                 string.IsNullOrWhiteSpace(createdEntry.LastUpdatedBy))) return HtmlTag.Empty();
 
             var updateNotesDiv = new DivTag().AddClass("update-notes-container");
 

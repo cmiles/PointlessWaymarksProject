@@ -34,6 +34,13 @@ namespace PointlessWaymarksCmsData.PostHtml
             this.Write("\r\n    ");
             
             #line 5 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 7 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostBodyDiv(DbEntry)));
             
             #line default

@@ -14,7 +14,7 @@
     mc:Ignorable="d">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolTrueVisibleFalseCollapsed" />
-        <utility:BindingProxy x:Key="proxy" Data="{Binding}" />
+        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
     </UserControl.Resources>
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Rectangle
@@ -106,7 +106,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Content="{Binding .}"
-                                        Command="{Binding Data.UserMessageBoxResponseCommand, Source={StaticResource proxy}}"
+                                        Command="{Binding Data.UserMessageBoxResponseCommand, Source={StaticResource Proxy}}"
                                         CommandParameter="{Binding .}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -122,6 +122,7 @@
             <xctk:BusyIndicator
                 BusyContent="Background Task Running"
                 IsBusy="True"
+                Height="60"
                 Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
             <toastControl:ToastTray DataContext="{Binding Toast}" />
         </StackPanel>

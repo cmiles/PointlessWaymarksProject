@@ -59,7 +59,7 @@ namespace PointlessWaymarksCmsData
 
         public static DirectoryInfo LocalMasterMediaArchivePhotoDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Images"));
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Photos"));
 
             if (!photoDirectory.Exists) photoDirectory.Create();
 
