@@ -6,7 +6,7 @@ using PointlessWaymarksCmsData.PhotoHtml;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
-    public static class BracketCodes
+    public static class BracketCodePhotos
     {
         /// <summary>
         ///     Processes {{photo guid;human_identifier}} with a specified function - best use may be for easily building
@@ -64,22 +64,6 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             return PhotoCodeProcess(toProcess,
                 page => page.PictureAsset.PictureFigureWithLinkToPicturePageTag().ToString());
-        }
-
-        /// <summary>
-        ///     Extracts the Guid from the first {{(photo|image) guid;human_identifier}} in the string.
-        /// </summary>
-        /// <param name="toProcess"></param>
-        /// <returns></returns>
-        public static Guid? PhotoOrImageCodeFirstIdInContent(string toProcess)
-        {
-            if (string.IsNullOrWhiteSpace(toProcess)) return null;
-
-            var regexObj = new Regex(@"{{(?:photo|image) (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
-            var matchResult = regexObj.Match(toProcess);
-            if (matchResult.Success) return Guid.Parse(matchResult.Groups["siteGuid"].Value);
-
-            return null;
         }
     }
 }

@@ -56,20 +56,20 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return $"<link rel=\"shortcut icon\" href=\"{settings.FaviconUrl()}\">";
         }
 
-        public static HtmlTag ImageFigCaptionTag(ImageContent DbEntry)
+        public static HtmlTag ImageFigCaptionTag(ImageContent dbEntry)
         {
-            if (string.IsNullOrWhiteSpace(DbEntry.Summary)) return HtmlTag.Empty();
+            if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
 
             var figCaptionTag = new HtmlTag("figcaption");
             figCaptionTag.AddClass("single-image-caption");
 
             var summaryString = string.Empty;
 
-            if (!string.IsNullOrWhiteSpace(DbEntry.Summary))
+            if (!string.IsNullOrWhiteSpace(dbEntry.Summary))
             {
                 //titleSummaryString += ": ";
-                if (!DbEntry.Summary.Trim().EndsWith(".")) summaryString += $"{DbEntry.Summary.Trim()}.";
-                else summaryString += $"{DbEntry.Summary.Trim()}";
+                if (!dbEntry.Summary.Trim().EndsWith(".")) summaryString += $"{dbEntry.Summary.Trim()}.";
+                else summaryString += $"{dbEntry.Summary.Trim()}";
             }
 
             figCaptionTag.Text(string.Join(" ", summaryString));
@@ -91,6 +91,25 @@ namespace PointlessWaymarksCmsData.CommonHtml
             divTag.Children.Add(spanTag);
 
             return divTag;
+        }
+
+        public static string OpenGraphImageMetaTags(PictureSiteInformation mainImage)
+        {
+            if (mainImage?.Pictures == null) return string.Empty;
+
+            var metaString = "";
+            metaString +=
+                $"<meta property=\"og:image\" content=\"http:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
+            metaString +=
+                $"<meta property=\"og:image:secure_url\" content=\"https:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
+            metaString += "<meta property=\"og:image:type\" content=\"image/jpeg\" />";
+            metaString += $"<meta property=\"og:image:width\" content=\"{mainImage.Pictures.DisplayPicture.Width}\" />";
+            metaString +=
+                $"<meta property=\"og:image:height\" content=\"{mainImage.Pictures.DisplayPicture.Height}\" />";
+            metaString +=
+                $"<meta property=\"og:image:alt]\" content=\"{mainImage.Pictures.DisplayPicture.AltText}\" />";
+
+            return metaString;
         }
 
         public static HtmlTag PageCreatedDiv(ICreatedAndLastUpdateOnAndBy createdBy)
@@ -150,7 +169,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
-            var bodyText = BracketCodes.PhotoCodeProcessToFigureWithLink(dbEntry.BodyContent);
+            var bodyText = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(dbEntry.BodyContent);
 
             var bodyHtmlProcessing = ContentProcessor.ContentHtml(dbEntry.BodyContentFormat, bodyText);
 

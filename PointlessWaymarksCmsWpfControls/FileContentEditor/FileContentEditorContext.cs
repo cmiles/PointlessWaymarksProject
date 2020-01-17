@@ -382,7 +382,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
             newEntry.PublicDownloadLink = PublicDownloadLink;
-            newEntry.MainPicture = BracketCodes.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
+            newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             var context = await Db.Context();
 

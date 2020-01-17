@@ -24,7 +24,9 @@
       <e p="PointlessWaymarksCmsData" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
         <e p="CommonHtml" t="Include">
-          <e p="BracketCodes.cs" t="Include" />
+          <e p="BracketCodeCommon.cs" t="Include" />
+          <e p="BracketCodeImages.cs" t="Include" />
+          <e p="BracketCodePhotos.cs" t="Include" />
           <e p="Footer.cs" t="Include" />
           <e p="HorizontalRule.cs" t="Include" />
           <e p="PictureAssetInformation.cs" t="Include" />

@@ -121,7 +121,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
             try
             {
-                var preprocessResults = BracketCodes.PhotoCodeProcessForDirectLocalAccess(BodyContent);
+                var preprocessResults = BracketCodeCommon.ProcessCodesForLocalDisplay(BodyContent);
                 var processResults =
                     ContentProcessor.ContentHtml(BodyContentFormat.SelectedContentFormat, preprocessResults);
 
@@ -131,7 +131,8 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
             catch (Exception e)
             {
-                BodyContentHtmlOutput = "<h2>Not able to process input</h2>".ToHtmlDocument("Invalid", string.Empty);
+                BodyContentHtmlOutput =
+                    $"<h2>Not able to process input</h2><p>{e}</p>".ToHtmlDocument("Invalid", string.Empty);
             }
         }
 

@@ -238,7 +238,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
             newEntry.ShowInPostFeed = ShowInPostFeed;
 
-            newEntry.MainPicture = BracketCodes.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
+            newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             var context = await Db.Context();
 

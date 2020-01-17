@@ -4,9 +4,13 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.FileHtml;
+using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.IndexHtml;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.PhotoHtml;
+using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsWpfControls.ContentList;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.FileList;
@@ -28,6 +32,12 @@ namespace PointlessWaymarksCmsContentEditor
     {
         private ContentListContext _contextListContext;
         private RelayCommand _fileListWindowCommand;
+        private RelayCommand _generateAllHtmlCommand;
+        private RelayCommand _generateHtmlForAllFileContentCommand;
+        private RelayCommand _generateHtmlForAllImageContentCommand;
+        private RelayCommand _generateHtmlForAllPhotoContentCommand;
+        private RelayCommand _generateHtmlForAllPostContentCommand;
+        private RelayCommand _generateIndexCommand;
         private RelayCommand _imageListWindowCommand;
         private RelayCommand _newFileContentCommand;
         private RelayCommand _newImageContentCommand;
@@ -44,18 +54,27 @@ namespace PointlessWaymarksCmsContentEditor
 
             GenerateIndexCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(GenerateIndex));
             OpenIndexUrlCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenIndexUrl));
+            GenerateAllHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllHtml));
 
             PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
             NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
+            GenerateHtmlForAllPhotoContentCommand =
+                new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllPhotoHtml));
 
             PostListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostList));
             NewPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostContent));
+            GenerateHtmlForAllPostContentCommand =
+                new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllPostHtml));
 
             ImageListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewImageList));
             NewImageContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewImageContent));
+            GenerateHtmlForAllImageContentCommand =
+                new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllImageHtml));
 
             FileListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewFileList));
             NewFileContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewFileContent));
+            GenerateHtmlForAllFileContentCommand =
+                new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllFileHtml));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
@@ -82,7 +101,72 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand GenerateIndexCommand { get; set; }
+        public RelayCommand GenerateAllHtmlCommand
+        {
+            get => _generateAllHtmlCommand;
+            set
+            {
+                if (Equals(value, _generateAllHtmlCommand)) return;
+                _generateAllHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand GenerateHtmlForAllFileContentCommand
+        {
+            get => _generateHtmlForAllFileContentCommand;
+            set
+            {
+                if (Equals(value, _generateHtmlForAllFileContentCommand)) return;
+                _generateHtmlForAllFileContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public RelayCommand GenerateHtmlForAllImageContentCommand
+        {
+            get => _generateHtmlForAllImageContentCommand;
+            set
+            {
+                if (Equals(value, _generateHtmlForAllImageContentCommand)) return;
+                _generateHtmlForAllImageContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand GenerateHtmlForAllPhotoContentCommand
+        {
+            get => _generateHtmlForAllPhotoContentCommand;
+            set
+            {
+                if (Equals(value, _generateHtmlForAllPhotoContentCommand)) return;
+                _generateHtmlForAllPhotoContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand GenerateHtmlForAllPostContentCommand
+        {
+            get => _generateHtmlForAllPostContentCommand;
+            set
+            {
+                if (Equals(value, _generateHtmlForAllPostContentCommand)) return;
+                _generateHtmlForAllPostContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand GenerateIndexCommand
+        {
+            get => _generateIndexCommand;
+            set
+            {
+                if (Equals(value, _generateIndexCommand)) return;
+                _generateIndexCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public RelayCommand ImageListWindowCommand
         {
@@ -147,50 +231,109 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        private async Task EditPhotoContent()
+        private async Task GenerateAllFileHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-            if (ContextListContext.SelectedItem == null)
+
+            var db = await Db.Context();
+
+            var allItems = await db.FileContents.ToListAsync();
+
+            var loopCount = 0;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Files to Generate");
+
+            foreach (var loopItem in allItems)
             {
-                StatusContext.ToastWarning("Nothing Selected?");
-                return;
+                StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var htmlModel = new SingleFilePage(loopItem);
+                htmlModel.WriteLocalHtml();
+
+                loopCount++;
             }
-
-            if (ContextListContext.SelectedItem.ContentType != "Photo")
-            {
-                StatusContext.ToastWarning("Photo not Selected.");
-                return;
-            }
-
-            var photo = (PhotoContent) ContextListContext.SelectedItem.SummaryInfo;
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PhotoContentEditorWindow(photo) {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
         }
 
-        private async Task EditPostContent()
+        private async Task GenerateAllHtml()
+        {
+            await GenerateAllFileHtml();
+            await GenerateAllImageHtml();
+            await GenerateAllPhotoHtml();
+            await GenerateAllPostHtml();
+            await GenerateIndex();
+        }
+
+        private async Task GenerateAllImageHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-            if (ContextListContext.SelectedItem == null)
+
+            var db = await Db.Context();
+
+            var allItems = await db.ImageContents.ToListAsync();
+
+            var loopCount = 0;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Images to Generate");
+
+            foreach (var loopItem in allItems)
             {
-                StatusContext.ToastWarning("Nothing Selected?");
-                return;
-            }
+                StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-            if (ContextListContext.SelectedItem.ContentType != "Post")
+                var htmlModel = new SingleImagePage(loopItem);
+                htmlModel.WriteLocalHtml();
+
+                loopCount++;
+            }
+        }
+
+        private async Task GenerateAllPhotoHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            var allItems = await db.PhotoContents.ToListAsync();
+
+            var loopCount = 0;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Photos to Generate");
+
+            foreach (var loopItem in allItems)
             {
-                StatusContext.ToastWarning("Post not Selected.");
-                return;
+                StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var htmlModel = new SinglePhotoPage(loopItem);
+                htmlModel.WriteLocalHtml();
+
+                loopCount++;
             }
+        }
 
-            var post = (PostContent) ContextListContext.SelectedItem.SummaryInfo;
+        private async Task GenerateAllPostHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
+            var db = await Db.Context();
 
-            var newContentWindow = new PostContentEditorWindow(post) {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
+            var allItems = await db.PostContents.ToListAsync();
+
+            var loopCount = 0;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Posts to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var htmlModel = new SinglePostPage(loopItem);
+                htmlModel.WriteLocalHtml();
+
+                loopCount++;
+            }
         }
 
         private async Task GenerateIndex()

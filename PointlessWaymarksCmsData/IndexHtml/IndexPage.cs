@@ -70,100 +70,65 @@ using PointlessWaymarksCmsData.CommonHtml;
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:type\" content=\"");
+            this.Write("\" />\r\n    <meta property=\"og:type\" content=\"website\" />\r\n    <meta property=\"og:title\" content=\"");
             
-            #line 14 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteUrl));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n\r\n    <meta property=\"og:title\" content=\"");
-            
-            #line 16 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+            #line 15 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:description\" content=\"");
             
-            #line 17 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+            #line 16 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image\" content=\"http:");
+            this.Write("\" />\r\n\r\n    ");
             
             #line 18 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.SiteUrl));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.OpenGraphImageMetaTags(MainImage)));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image:secure_url\" content=\"https:");
-            
-            #line 19 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.SiteUrl));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image:type\" content=\"image/jpeg\" />\r\n    <meta property=\"og:image:width\" content=\"");
-            
-            #line 21 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.Width));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image:height\" content=\"");
+            this.Write("\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
             
             #line 22 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.Height));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:image:alt\" content=\"");
-            
-            #line 23 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(MainImage.Pictures.DisplayPicture.AltText));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
-            
-            #line 27 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 28 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+            #line 23 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 34 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+            #line 29 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Title().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 35 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+            #line 30 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 36 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+            #line 31 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(IndexPosts()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 37 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+            #line 32 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
