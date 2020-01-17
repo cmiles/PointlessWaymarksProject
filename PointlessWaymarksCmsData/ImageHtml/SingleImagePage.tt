@@ -26,6 +26,7 @@
 
 <body class="single-photo-body">
     <#= PictureAsset.PictureFigureTag() #>
+    <#= ImageSourceNotesDivTag() #>
     <#=
                 Tags.TagList(DbEntry).ToString() #>
     <#= Tags.UpdateDiv(DbEntry, DbEntry) #>

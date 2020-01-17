@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Markdig;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
@@ -21,18 +22,21 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return null;
         }
 
+        public static string ProcessCodesAndMarkdownForSite(string input)
+        {
+            input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input);
+            input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input);
+
+            var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+            var markdownOut = Markdown.ToHtml(input, pipeline);
+
+            return markdownOut;
+        }
+
         public static string ProcessCodesForLocalDisplay(string input)
         {
             input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input);
             input = BracketCodeImages.ImageCodeProcessForDirectLocalAccess(input);
-
-            return input;
-        }
-
-        public static string ProcessCodesForSite(string input)
-        {
-            input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input);
-            input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input);
 
             return input;
         }

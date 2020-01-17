@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 
@@ -24,6 +25,18 @@ namespace PointlessWaymarksCmsData.ImageHtml
         public string SiteName { get; }
         public string SiteUrl { get; }
 
+
+        public HtmlTag ImageSourceNotesDivTag()
+        {
+            if (string.IsNullOrWhiteSpace(DbEntry.ImageSourceNotes)) return HtmlTag.Empty();
+
+            var sourceNotesContainer = new DivTag().AddClass("image-source-notes-container");
+            var sourceNotes = new DivTag().Encoded(false)
+                .Text(BracketCodeCommon.ProcessCodesAndMarkdownForSite($"Source: {DbEntry.ImageSourceNotes}"));
+            sourceNotesContainer.Children.Add(sourceNotes);
+
+            return sourceNotesContainer;
+        }
 
         public void WriteLocalHtml()
         {

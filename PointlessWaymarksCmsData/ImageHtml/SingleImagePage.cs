@@ -115,34 +115,41 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n    ");
             
             #line 29 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(ImageSourceNotesDivTag()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 30 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 31 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 32 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateDiv(DbEntry, DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 32 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 33 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PageCreatedDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 33 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 34 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 34 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 35 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

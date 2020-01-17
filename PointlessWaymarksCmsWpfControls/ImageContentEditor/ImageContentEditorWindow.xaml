@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.ImageContentEditor"
         xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
         mc:Ignorable="d"
-        Title="Image Content Editor" Height="650" Width="900">
+        Title="Image Content Editor" Height="650" Width="900"
+        d:DataContext="{d:DesignInstance local:ImageContentEditorWindow}">
     <Grid>
-        <local:ImageContentEditorControl DataContext="{Binding PhotoEditor}" />
+        <local:ImageContentEditorControl DataContext="{Binding ImageEditor}" />
         <status:StatusControl d:IsHidden="true"
                               DataContext="{Binding StatusContext}" />
     </Grid>
