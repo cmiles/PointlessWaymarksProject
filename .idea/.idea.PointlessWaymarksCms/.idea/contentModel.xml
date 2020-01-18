@@ -364,6 +364,7 @@
           <e p="BindingProxy.cs" t="Include" />
           <e p="BooleanNotToVisibilityConverter.cs" t="Include" />
           <e p="DispatcherThreadSwitcher.cs" t="Include" />
+          <e p="ImageCacheConverter.cs" t="Include" />
           <e p="ImageResizing.cs" t="Include" />
           <e p="ListBoxBehavior.cs" t="Include" />
           <e p="ThreadPoolThreadSwitcher.cs" t="Include" />

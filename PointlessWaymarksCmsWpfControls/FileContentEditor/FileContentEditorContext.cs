@@ -384,6 +384,26 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.PublicDownloadLink = PublicDownloadLink;
             newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
+            if (DbEntry != null && DbEntry.Id > 0)
+                if (DbEntry.Slug != newEntry.Slug)
+                {
+                    var settings = await UserSettingsUtilities.ReadSettings();
+                    var existingDirectory = settings.LocalSiteFileContentDirectory(DbEntry, false);
+
+                    if (existingDirectory.Exists)
+                    {
+                        var newDirectory =
+                            new DirectoryInfo(settings.LocalSiteFileContentDirectory(newEntry, false).FullName);
+                        existingDirectory.MoveTo(settings.LocalSiteFileContentDirectory(newEntry, false).FullName);
+                        newDirectory.Refresh();
+
+                        var possibleOldHtmlFile =
+                            new FileInfo($"{Path.Combine(newDirectory.FullName, DbEntry.Slug)}.html");
+                        if (possibleOldHtmlFile.Exists)
+                            possibleOldHtmlFile.MoveTo(settings.LocalSiteFileHtmlFile(newEntry).FullName);
+                    }
+                }
+
             var context = await Db.Context();
 
             var toHistoric = await context.FileContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();

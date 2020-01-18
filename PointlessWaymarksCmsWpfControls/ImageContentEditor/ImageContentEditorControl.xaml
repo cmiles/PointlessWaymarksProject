@@ -10,6 +10,7 @@
              xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
              xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
              xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
+             xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:ImageContentEditorContext}">
@@ -18,6 +19,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:ImageCacheConverter x:Key="ImageCache" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -51,7 +53,7 @@
                             <RowDefinition />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Image Source="{Binding SelectedFileFullPath}" />
+                        <Image Source="{Binding SelectedFileFullPath, Converter={StaticResource ImageCache}}" />
                         <TextBlock
                             Grid.Row="1"
                             HorizontalAlignment="Center"

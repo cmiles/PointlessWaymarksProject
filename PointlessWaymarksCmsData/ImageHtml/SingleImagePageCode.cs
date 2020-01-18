@@ -31,7 +31,7 @@ namespace PointlessWaymarksCmsData.ImageHtml
             if (string.IsNullOrWhiteSpace(DbEntry.ImageSourceNotes)) return HtmlTag.Empty();
 
             var sourceNotesContainer = new DivTag().AddClass("image-source-notes-container");
-            var sourceNotes = new DivTag().Encoded(false)
+            var sourceNotes = new DivTag().AddClass("image-source-notes-content").Encoded(false)
                 .Text(BracketCodeCommon.ProcessCodesAndMarkdownForSite($"Source: {DbEntry.ImageSourceNotes}"));
             sourceNotesContainer.Children.Add(sourceNotes);
 
@@ -44,9 +44,7 @@ namespace PointlessWaymarksCmsData.ImageHtml
 
             var htmlString = TransformText();
 
-            var htmlFileInfo =
-                new FileInfo(
-                    $"{Path.Combine(settings.LocalSiteImageContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
+            var htmlFileInfo = settings.LocalSiteImageHtmlFile(DbEntry);
 
             if (htmlFileInfo.Exists)
             {

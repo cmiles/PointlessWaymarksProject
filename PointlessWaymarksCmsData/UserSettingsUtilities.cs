@@ -78,12 +78,15 @@ namespace PointlessWaymarksCmsData
             return photoDirectory;
         }
 
-        public static DirectoryInfo LocalSiteFileContentDirectory(this UserSettings settings, FileContent content)
+        public static DirectoryInfo LocalSiteFileContentDirectory(this UserSettings settings, FileContent content,
+            bool createDirectoryIfNotFound = true)
         {
             var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteFileDirectory().FullName,
                 content.Folder, content.Slug));
-            if (!contentDirectory.Exists) contentDirectory.Create();
 
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
             contentDirectory.Refresh();
 
             return contentDirectory;
@@ -99,12 +102,21 @@ namespace PointlessWaymarksCmsData
             return photoDirectory;
         }
 
-        public static DirectoryInfo LocalSiteImageContentDirectory(this UserSettings settings, ImageContent content)
+        public static FileInfo LocalSiteFileHtmlFile(this UserSettings settings, FileContent content)
+        {
+            var directory = settings.LocalSiteFileContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
+        public static DirectoryInfo LocalSiteImageContentDirectory(this UserSettings settings, ImageContent content,
+            bool createDirectoryIfNotFound = true)
         {
             var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteImageDirectory().FullName,
                 content.Folder, content.Slug));
-            if (!contentDirectory.Exists) contentDirectory.Create();
 
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
             contentDirectory.Refresh();
 
             return contentDirectory;
@@ -120,6 +132,12 @@ namespace PointlessWaymarksCmsData
             return photoDirectory;
         }
 
+        public static FileInfo LocalSiteImageHtmlFile(this UserSettings settings, ImageContent content)
+        {
+            var directory = settings.LocalSiteImageContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
         public static DirectoryInfo LocalSiteMasterMediaArchiveDirectory(this UserSettings settings)
         {
             var photoDirectory = new DirectoryInfo(settings.LocalMasterMediaArchive);
@@ -130,12 +148,15 @@ namespace PointlessWaymarksCmsData
             return photoDirectory;
         }
 
-        public static DirectoryInfo LocalSitePhotoContentDirectory(this UserSettings settings, PhotoContent content)
+        public static DirectoryInfo LocalSitePhotoContentDirectory(this UserSettings settings, PhotoContent content,
+            bool createDirectoryIfNotFound = true)
         {
             var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
                 content.Folder, content.Slug));
-            if (!contentDirectory.Exists) contentDirectory.Create();
 
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
             contentDirectory.Refresh();
 
             return contentDirectory;
@@ -151,12 +172,21 @@ namespace PointlessWaymarksCmsData
             return photoDirectory;
         }
 
-        public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content)
+        public static FileInfo LocalSitePhotoHtmlFile(this UserSettings settings, PhotoContent content)
+        {
+            var directory = settings.LocalSitePhotoContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
+        public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content,
+            bool createDirectoryIfNotFound = true)
         {
             var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePostDirectory().FullName,
                 content.Folder, content.Slug));
-            if (!contentDirectory.Exists) contentDirectory.Create();
 
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
             contentDirectory.Refresh();
 
             return contentDirectory;
@@ -170,6 +200,12 @@ namespace PointlessWaymarksCmsData
             photoDirectory.Refresh();
 
             return photoDirectory;
+        }
+
+        public static FileInfo LocalSitePostHtmlFile(this UserSettings settings, PostContent content)
+        {
+            var directory = settings.LocalSitePostContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
         public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)

@@ -404,6 +404,26 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             newEntry.OriginalFileName = SelectedFile.Name;
             newEntry.ImageSourceNotes = ImageSourceNotes;
 
+            if (DbEntry != null && DbEntry.Id > 0)
+                if (DbEntry.Slug != newEntry.Slug)
+                {
+                    var settings = await UserSettingsUtilities.ReadSettings();
+                    var existingDirectory = settings.LocalSiteImageContentDirectory(DbEntry, false);
+
+                    if (existingDirectory.Exists)
+                    {
+                        var newDirectory =
+                            new DirectoryInfo(settings.LocalSiteImageContentDirectory(newEntry, false).FullName);
+                        existingDirectory.MoveTo(settings.LocalSiteImageContentDirectory(newEntry, false).FullName);
+                        newDirectory.Refresh();
+
+                        var possibleOldHtmlFile =
+                            new FileInfo($"{Path.Combine(newDirectory.FullName, DbEntry.Slug)}.html");
+                        if (possibleOldHtmlFile.Exists)
+                            possibleOldHtmlFile.MoveTo(settings.LocalSiteImageHtmlFile(newEntry).FullName);
+                    }
+                }
+
             var context = await Db.Context();
 
             var toHistoric = await context.ImageContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();

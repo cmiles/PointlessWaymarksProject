@@ -4,8 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.FileList"
+             xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <utility:ImageCacheConverter x:Key="ImageCache" />
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Items}"
                  SelectionChanged="Selector_OnSelectionChanged" Name="FileListBox"
@@ -19,7 +28,7 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <Image Source="{Binding SmallImageUrl}" Margin="2" />
+                            <Image Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" Margin="2" />
                             <StackPanel Orientation="Vertical" Grid.Column="1" Margin="2">
                                 <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Title}" />
                                 <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Summary}" />

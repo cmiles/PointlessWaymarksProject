@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.FileContentEditor"
         xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
         mc:Ignorable="d"
-        Title="FileContentEditorWindow" Height="450" Width="800">
+        Title="FileContentEditorWindow" Height="450" Width="800"
+        d:DataContext="{d:DesignInstance local:FileContentEditorWindow}">
     <Grid>
-        <local:FileContentEditorControl DataContext="{Binding PostContent}" />
+        <local:FileContentEditorControl DataContext="{Binding FileContent}" />
         <status:StatusControl Grid.Column="0" d:IsHidden="true"
                               DataContext="{Binding StatusContext}" />
     </Grid>

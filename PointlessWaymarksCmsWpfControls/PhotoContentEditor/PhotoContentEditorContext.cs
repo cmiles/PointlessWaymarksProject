@@ -603,6 +603,26 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.PhotoCreatedBy = PhotoCreatedBy;
             newEntry.PhotoCreatedOn = PhotoCreatedOn;
 
+            if (DbEntry != null && DbEntry.Id > 0)
+                if (DbEntry.Slug != newEntry.Slug)
+                {
+                    var settings = await UserSettingsUtilities.ReadSettings();
+                    var existingDirectory = settings.LocalSitePhotoContentDirectory(DbEntry, false);
+
+                    if (existingDirectory.Exists)
+                    {
+                        var newDirectory =
+                            new DirectoryInfo(settings.LocalSitePhotoContentDirectory(newEntry, false).FullName);
+                        existingDirectory.MoveTo(settings.LocalSitePhotoContentDirectory(newEntry, false).FullName);
+                        newDirectory.Refresh();
+
+                        var possibleOldHtmlFile =
+                            new FileInfo($"{Path.Combine(newDirectory.FullName, DbEntry.Slug)}.html");
+                        if (possibleOldHtmlFile.Exists)
+                            possibleOldHtmlFile.MoveTo(settings.LocalSitePhotoHtmlFile(newEntry).FullName);
+                    }
+                }
+
             var context = await Db.Context();
 
             var toHistoric = await context.PhotoContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
