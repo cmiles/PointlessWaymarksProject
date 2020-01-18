@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -43,6 +44,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
+        private RelayCommand _viewOnSiteCommand;
 
         public ImageContentEditorContext(StatusControlContext statusContext, ImageContent toLoad)
         {
@@ -230,6 +232,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
+        public RelayCommand ViewOnSiteCommand
+        {
+            get => _viewOnSiteCommand;
+            set
+            {
+                if (Equals(value, _viewOnSiteCommand)) return;
+                _viewOnSiteCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public async Task ChooseFile()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -291,6 +304,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             SaveAndGenerateHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
         }
 
         private DirectoryInfo LocalContentDirectory(UserSettings settings)
@@ -493,6 +507,24 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()
             };
+        }
+
+        private async Task ViewOnSite()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Please save the content first...");
+                return;
+            }
+
+            var settings = await UserSettingsUtilities.ReadSettings();
+
+            var url = $@"http://{settings.ImagePageUrl(DbEntry)}";
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
 
         private async Task WriteLocalDbJson()

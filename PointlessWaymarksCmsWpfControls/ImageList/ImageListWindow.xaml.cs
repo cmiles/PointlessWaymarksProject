@@ -21,6 +21,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         private RelayCommand _generateSelectedHtmlCommand;
         private RelayCommand _imageCodesToClipboardForSelectedCommand;
         private ImageListContext _listContext;
+        private RelayCommand _newContentCommand;
         private RelayCommand _openUrlForSelectedCommand;
         private StatusControlContext _statusContext;
 
@@ -35,6 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             ImageCodesToClipboardForSelectedCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(ImageCodesToClipboardForSelected));
             OpenUrlForSelectedCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
+            NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
 
             DataContext = this;
         }
@@ -83,6 +85,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
+        public RelayCommand NewContentCommand
+        {
+            get => _newContentCommand;
+            set
+            {
+                if (Equals(value, _newContentCommand)) return;
+                _newContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public RelayCommand OpenUrlForSelectedCommand
         {
             get => _openUrlForSelectedCommand;
@@ -123,8 +136,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                     new ImageContentEditorWindow(loopSelected.DbEntry) {Left = Left + 4, Top = Top + 4};
 
                 newContentWindow.Show();
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
             }
         }
 
@@ -177,6 +188,15 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             Clipboard.SetText(finalString);
 
             StatusContext.ToastSuccess($"To ClipboardL {finalString}");
+        }
+
+        private async Task NewContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new ImageContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+
+            newContentWindow.Show();
         }
 
         [NotifyPropertyChangedInvocator]

@@ -25,6 +25,7 @@
             <Button Style="{StaticResource LargerButton}" Command="{Binding GenerateSelectedHtmlCommand}">Generate Html</Button>
             <Button Style="{StaticResource LargerButton}" Command="{Binding PhotoCodesToClipboardForSelectedCommand}">Photo Code to Clipboard</Button>
             <Button Style="{StaticResource LargerButton}" Command="{Binding OpenUrlForSelectedCommand}">Open Selected in Browser</Button>
+            <Button Style="{StaticResource LargerButton}" Command="{Binding NewContentCommand}">New Content</Button>
         </StackPanel>
         <status:StatusControl Grid.Column="0" Grid.ColumnSpan="2" d:IsHidden="true"
                               DataContext="{Binding StatusContext}" />

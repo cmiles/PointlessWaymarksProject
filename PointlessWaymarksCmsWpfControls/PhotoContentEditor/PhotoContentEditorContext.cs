@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -58,6 +59,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
+        private RelayCommand _viewOnSiteCommand;
         private RelayCommand _viewPhotoMetadataCommand;
 
         public PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent toLoad)
@@ -347,6 +349,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public RelayCommand ViewOnSiteCommand
+        {
+            get => _viewOnSiteCommand;
+            set
+            {
+                if (Equals(value, _viewOnSiteCommand)) return;
+                _viewOnSiteCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public RelayCommand ViewPhotoMetadataCommand
         {
             get => _viewPhotoMetadataCommand;
@@ -436,6 +449,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ViewPhotoMetadataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
         }
 
         private DirectoryInfo LocalContentDirectory(UserSettings settings)
@@ -705,6 +719,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()
             };
+        }
+
+        private async Task ViewOnSite()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Please save the content first...");
+                return;
+            }
+
+            var settings = await UserSettingsUtilities.ReadSettings();
+
+            var url = $@"http://{settings.PhotoPageUrl(DbEntry)}";
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
 
         private async Task ViewPhotoMetadata()

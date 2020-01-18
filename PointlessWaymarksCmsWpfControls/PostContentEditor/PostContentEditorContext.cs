@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -37,6 +38,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
+        private RelayCommand _viewOnSiteCommand;
 
         public PostContentEditorContext(StatusControlContext statusContext, PostContent postContent)
         {
@@ -157,6 +159,17 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
+        public RelayCommand ViewOnSiteCommand
+        {
+            get => _viewOnSiteCommand;
+            set
+            {
+                if (Equals(value, _viewOnSiteCommand)) return;
+                _viewOnSiteCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         private async Task GenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -182,6 +195,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
         }
 
         [NotifyPropertyChangedInvocator]
@@ -317,6 +331,24 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()
             };
+        }
+
+        private async Task ViewOnSite()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Please save the content first...");
+                return;
+            }
+
+            var settings = await UserSettingsUtilities.ReadSettings();
+
+            var url = $@"http://{settings.PostPageUrl(DbEntry)}";
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
 
         private async Task WriteLocalDbJson()

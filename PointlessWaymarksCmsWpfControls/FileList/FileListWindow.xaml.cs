@@ -20,6 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private RelayCommand _editSelectedContentCommand;
         private RelayCommand _generateSelectedHtmlCommand;
         private FileListContext _listContext;
+        private RelayCommand _newContentCommand;
         private RelayCommand _openUrlForSelectedCommand;
         private RelayCommand _photoCodesToClipboardForSelectedCommand;
         private StatusControlContext _statusContext;
@@ -35,6 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             FileCodesToClipboardForSelectedCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(FileCodesToClipboardForSelected));
             OpenUrlForSelectedCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
+            NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
 
             DataContext = this;
         }
@@ -80,6 +82,17 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             {
                 if (Equals(value, _listContext)) return;
                 _listContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand NewContentCommand
+        {
+            get => _newContentCommand;
+            set
+            {
+                if (Equals(value, _newContentCommand)) return;
+                _newContentCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -178,6 +191,15 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
                 loopCount++;
             }
+        }
+
+        private async Task NewContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new FileContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+
+            newContentWindow.Show();
         }
 
         [NotifyPropertyChangedInvocator]

@@ -152,9 +152,10 @@
                         Command="{Binding ResizeFileCommand}">
                         Resize
                     </Button>
-                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Create Local</Button>
-                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Generate Html</Button>
                     <Button Style="{StaticResource LargerButton}" Command="{Binding SaveAndGenerateHtmlCommand}">Save, Generate Html</Button>
+                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                    <Button Style="{StaticResource LargerButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
                 </StackPanel>
             </TabItem>
         </TabControl>

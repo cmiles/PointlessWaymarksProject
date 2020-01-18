@@ -20,6 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         private RelayCommand _editSelectedContentCommand;
         private RelayCommand _generateSelectedHtmlCommand;
         private PostListContext _listContext;
+        private RelayCommand _newContentCommand;
         private RelayCommand _openUrlForSelectedCommand;
         private RelayCommand _postCodesToClipboardForSelectedCommand;
         private StatusControlContext _statusContext;
@@ -35,6 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             PostCodesToClipboardForSelectedCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
             OpenUrlForSelectedCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
+            NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
 
             DataContext = this;
         }
@@ -68,6 +70,17 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             {
                 if (Equals(value, _listContext)) return;
                 _listContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand NewContentCommand
+        {
+            get => _newContentCommand;
+            set
+            {
+                if (Equals(value, _newContentCommand)) return;
+                _newContentCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -156,6 +169,15 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             }
         }
 
+        private async Task NewContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PostContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+
+            newContentWindow.Show();
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -197,7 +219,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             foreach (var loopSelected in ListContext.SelectedItems)
                 finalString +=
-                    @$"{{{{post {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+                    @$"{{{{postlink {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

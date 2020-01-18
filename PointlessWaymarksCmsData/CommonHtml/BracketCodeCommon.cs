@@ -37,6 +37,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input);
             input = BracketCodeImages.ImageCodeProcessForDirectLocalAccess(input);
+            input = BracketCodeFileLink.FileLinkCodeProcess(input);
+            input = BracketCodePostLink.FilePostCodeProcess(input);
 
             return input;
         }

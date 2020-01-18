@@ -57,6 +57,7 @@
                 <StackPanel>
                     <Button Style="{StaticResource LargerButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
                     <Button Style="{StaticResource LargerButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Generate Html</Button>
+                    <Button Style="{StaticResource LargerButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
                 </StackPanel>
             </TabItem>
         </TabControl>

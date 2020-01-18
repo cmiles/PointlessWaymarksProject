@@ -44,6 +44,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
+        private RelayCommand _viewOnSiteCommand;
 
         public FileContentEditorContext(StatusControlContext statusContext, FileContent toLoad)
         {
@@ -223,6 +224,17 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public RelayCommand ViewOnSiteCommand
+        {
+            get => _viewOnSiteCommand;
+            set
+            {
+                if (Equals(value, _viewOnSiteCommand)) return;
+                _viewOnSiteCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public async Task ChooseFile()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -289,6 +301,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             OpenSelectedFileDirectoryCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(OpenSelectedFileDirectory));
             OpenSelectedFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(OpenSelectedFile));
+            ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
         }
 
         [NotifyPropertyChangedInvocator]
@@ -469,6 +482,24 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             };
         }
 
+        private async Task ViewOnSite()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Please save the content first...");
+                return;
+            }
+
+            var settings = await UserSettingsUtilities.ReadSettings();
+
+            var url = $@"http://{settings.FilePageUrl(DbEntry)}";
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
+        }
+
         private async Task WriteLocalDbJson()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -515,7 +546,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             StatusContext.Progress("Saving File to Archive");
 
             var userSettings = await UserSettingsUtilities.ReadSettings();
-            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchivePhotoDirectory().FullName,
+            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchiveFileDirectory().FullName,
                 SelectedFile.Name);
             if (destinationFileName == SelectedFile.FullName) return;
 
