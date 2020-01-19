@@ -211,8 +211,27 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             return tagsContainer;
         }
+        
+        public static HtmlTag UpdateNotesDiv(IUpdateNotes dbEntry)
+        {
+            if (string.IsNullOrWhiteSpace(dbEntry.UpdateNotes)) return HtmlTag.Empty();
 
-        public static HtmlTag UpdateDiv(ICreatedAndLastUpdateOnAndBy createdEntry, IUpdateNotes updateEntry)
+            var updateNotesDiv = new DivTag().AddClass("update-notes-container");
+
+            updateNotesDiv.Children.Add(HorizontalRule.StandardRule());
+
+            var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
+
+            var updateNotesHtml = ContentProcessor.ContentHtml(dbEntry.UpdateNotesFormat, dbEntry.UpdateNotes);
+
+            if (updateNotesHtml.success) updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
+
+            updateNotesDiv.Children.Add(updateNotesContentContainer);
+
+            return updateNotesDiv;
+        }
+
+        public static HtmlTag UpdateByAndOnAndNotesDiv(ICreatedAndLastUpdateOnAndBy createdEntry, IUpdateNotes updateEntry)
         {
             if (createdEntry.LastUpdatedOn == null) return HtmlTag.Empty();
 

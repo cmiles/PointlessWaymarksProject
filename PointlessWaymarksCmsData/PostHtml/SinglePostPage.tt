@@ -34,7 +34,7 @@
     <#= Tags.TagList(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= RelatedPostsDiv() #>
-    <#= UpdateDiv().ToString() #>
+    <#= CommonHtml.Tags.UpdateNotesDiv(DbEntry).ToString() #>
     <#= Footer.StandardFooterDiv() #>
 </body>
 

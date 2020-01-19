@@ -29,7 +29,7 @@
     <#= PhotoDetailsDiv().ToString() #>
     <#=
                 Tags.TagList(DbEntry).ToString() #>
-    <#= Tags.UpdateDiv(DbEntry, DbEntry) #>
+    <#= Tags.UpdateByAndOnAndNotesDiv(DbEntry, DbEntry) #>
     <#= Tags.PageCreatedDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>

@@ -129,7 +129,7 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n    ");
             
             #line 32 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateDiv(DbEntry, DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateByAndOnAndNotesDiv(DbEntry, DbEntry)));
             
             #line default
             #line hidden

@@ -34,7 +34,7 @@
     <#= DownloadLinkTag() #>
     <#= HorizontalRule.StandardRuleIfNotEmptyTag(DownloadLinkTag()) #>
     <#= Tags.TagList(DbEntry).ToString() #>
-    <#= Tags.UpdateDiv(DbEntry, DbEntry).ToString() #>
+    <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
     <#= Footer.StandardFooterDiv() #>
 </body>
 

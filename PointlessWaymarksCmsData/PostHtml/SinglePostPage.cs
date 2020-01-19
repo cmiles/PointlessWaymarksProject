@@ -157,7 +157,7 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n    ");
             
             #line 37 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UpdateDiv().ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.UpdateNotesDiv(DbEntry).ToString()));
             
             #line default
             #line hidden

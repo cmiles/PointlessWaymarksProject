@@ -90,25 +90,6 @@ namespace PointlessWaymarksCmsData.PostHtml
             return titleContainer;
         }
 
-        public HtmlTag UpdateDiv()
-        {
-            if (string.IsNullOrWhiteSpace(DbEntry.UpdateNotes)) return HtmlTag.Empty();
-
-            var updateNotesDiv = new DivTag().AddClass("update-notes-container");
-
-            updateNotesDiv.Children.Add(HorizontalRule.StandardRule());
-
-            var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
-
-            var updateNotesHtml = ContentProcessor.ContentHtml(DbEntry.UpdateNotesFormat, DbEntry.UpdateNotes);
-
-            if (updateNotesHtml.success) updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
-
-            updateNotesDiv.Children.Add(updateNotesContentContainer);
-
-            return updateNotesDiv;
-        }
-
         public void WriteLocalHtml()
         {
             var settings = UserSettingsUtilities.ReadSettings().Result;
