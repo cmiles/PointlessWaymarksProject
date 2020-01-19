@@ -136,27 +136,34 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n    ");
             
             #line 34 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(DownloadLinkTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 35 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRuleIfNotEmptyTag(DownloadLinkTag())));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 36 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateDiv(DbEntry, DbEntry).ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 37 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateDiv(DbEntry, DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 38 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

@@ -24,6 +24,7 @@
             </Grid.ColumnDefinitions>
             <GroupBox Header="Content">
                 <TextBox
+                    SpellCheck.IsEnabled="True"
                     AcceptsReturn="True"
                     Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap"

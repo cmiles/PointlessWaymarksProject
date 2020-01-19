@@ -13,20 +13,21 @@
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Vertical">
                 <Label>Title</Label>
-                <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" SpellCheck.IsEnabled="True" />
                 <Button Command="{Binding TitleToSlugCommand}">Title to Slug</Button>
             </StackPanel>
             <StackPanel Orientation="Vertical">
                 <Label>Slug</Label>
-                <TextBox Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}" SpellCheck.IsEnabled="True" />
             </StackPanel>
             <StackPanel Orientation="Vertical">
                 <Label>Folder</Label>
-                <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" SpellCheck.IsEnabled="True" />
             </StackPanel>
             <StackPanel Orientation="Vertical">
                 <Label>Summary</Label>
                 <TextBox
+                    SpellCheck.IsEnabled="True"
                     AcceptsReturn="True"
                     Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap"

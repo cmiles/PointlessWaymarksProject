@@ -27,6 +27,7 @@
                 </Grid.ColumnDefinitions>
                 <GroupBox Header="Content">
                     <TextBox
+                        SpellCheck.IsEnabled="True"
                         AcceptsReturn="True"
                         BorderThickness="0"
                         Text="{Binding UpdateNotes, UpdateSourceTrigger=PropertyChanged}"

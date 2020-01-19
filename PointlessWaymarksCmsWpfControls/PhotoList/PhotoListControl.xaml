@@ -17,7 +17,7 @@
     </UserControl.Resources>
     <Grid>
         <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Items}"
-                 SelectionChanged="Selector_OnSelectionChanged" Name="PhotoListBox"
+                 SelectionChanged="Selector_OnSelectionChanged" Name="PhotoListBox" SelectionMode="Extended"
                  HorizontalContentAlignment="Stretch">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="photoList:PhotoListListItem">

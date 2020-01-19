@@ -221,6 +221,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             await WriteLocalDbJson();
         }
 
+
         private async Task SaveToDatabase()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -255,7 +256,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             if (DbEntry != null && DbEntry.Id > 0)
-                if (DbEntry.Slug != newEntry.Slug)
+                if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
                     var settings = await UserSettingsUtilities.ReadSettings();
                     var existingDirectory = settings.LocalSitePostContentDirectory(DbEntry, false);

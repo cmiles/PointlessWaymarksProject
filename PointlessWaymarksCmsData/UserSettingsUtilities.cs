@@ -19,6 +19,11 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/favicon.ico";
         }
 
+        public static string FileDownloadUrl(this UserSettings settings, FileContent content)
+        {
+            return $"//{settings.SiteUrl}/Files/{content.Folder}/{content.Slug}/{content.OriginalFileName}";
+        }
+
         public static string FilePageUrl(this UserSettings settings, FileContent content)
         {
             return $"//{settings.SiteUrl}/Files/{content.Folder}/{content.Slug}/{content.Slug}.html";

@@ -31,8 +31,9 @@
                 CommonHtml.Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= CommonHtml.Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
+    <#= DownloadLinkTag() #>
+    <#= HorizontalRule.StandardRuleIfNotEmptyTag(DownloadLinkTag()) #>
     <#= Tags.TagList(DbEntry).ToString() #>
-    <#= HorizontalRule.StandardRule() #>
     <#= Tags.UpdateDiv(DbEntry, DbEntry).ToString() #>
     <#= Footer.StandardFooterDiv() #>
 </body>

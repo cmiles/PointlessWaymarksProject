@@ -452,17 +452,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
         }
 
-        private DirectoryInfo LocalContentDirectory(UserSettings settings)
-        {
-            var photoDirectory =
-                new DirectoryInfo(Path.Combine(LocalFolderDirectory(settings).FullName, TitleSummarySlugFolder.Slug));
-            if (!photoDirectory.Exists) photoDirectory.Create();
-
-            photoDirectory.Refresh();
-
-            return photoDirectory;
-        }
-
         private DirectoryInfo LocalFolderDirectory(UserSettings settings)
         {
             var folderDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
@@ -618,7 +607,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.PhotoCreatedOn = PhotoCreatedOn;
 
             if (DbEntry != null && DbEntry.Id > 0)
-                if (DbEntry.Slug != newEntry.Slug)
+                if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
                     var settings = await UserSettingsUtilities.ReadSettings();
                     var existingDirectory = settings.LocalSitePhotoContentDirectory(DbEntry, false);
@@ -810,7 +799,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             var userSettings = await UserSettingsUtilities.ReadSettings();
 
-            var targetDirectory = LocalContentDirectory(userSettings);
+            var targetDirectory = userSettings.LocalSitePhotoContentDirectory(DbEntry);
 
             var originalFileInTargetDirectoryFullName = Path.Combine(targetDirectory.FullName, SelectedFile.Name);
 

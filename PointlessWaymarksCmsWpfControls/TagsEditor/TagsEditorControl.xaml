@@ -13,6 +13,7 @@
         <StackPanel Orientation="Vertical">
             <TextBlock>Tags (Comma Separated)</TextBlock>
             <TextBox
+                SpellCheck.IsEnabled="True"
                 AcceptsReturn="True"
                 VerticalScrollBarVisibility="Visible"
                 Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged}"

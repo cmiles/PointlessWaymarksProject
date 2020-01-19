@@ -357,6 +357,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             await SaveToDatabase();
             await WriteSelectedFileToMasterMediaArchive();
+            await WriteSelectedFileToLocalSite();
             await GenerateHtml();
             await WriteLocalDbJson();
         }
@@ -398,7 +399,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             if (DbEntry != null && DbEntry.Id > 0)
-                if (DbEntry.Slug != newEntry.Slug)
+                if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
                     var settings = await UserSettingsUtilities.ReadSettings();
                     var existingDirectory = settings.LocalSiteFileContentDirectory(DbEntry, false);
@@ -536,6 +537,26 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             jsonHistoricFile.Refresh();
 
             File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+        }
+
+        private async Task WriteSelectedFileToLocalSite()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var userSettings = await UserSettingsUtilities.ReadSettings();
+
+            var targetDirectory = userSettings.LocalSiteFileContentDirectory(DbEntry);
+
+            var originalFileInTargetDirectoryFullName = Path.Combine(targetDirectory.FullName, SelectedFile.Name);
+
+            var sourceFile = new FileInfo(originalFileInTargetDirectoryFullName);
+
+            if (originalFileInTargetDirectoryFullName != SelectedFile.FullName)
+            {
+                if (sourceFile.Exists) sourceFile.Delete();
+                SelectedFile.CopyTo(originalFileInTargetDirectoryFullName);
+                sourceFile.Refresh();
+            }
         }
 
 

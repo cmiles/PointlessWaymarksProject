@@ -419,7 +419,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             newEntry.ImageSourceNotes = ImageSourceNotes;
 
             if (DbEntry != null && DbEntry.Id > 0)
-                if (DbEntry.Slug != newEntry.Slug)
+                if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
                     var settings = await UserSettingsUtilities.ReadSettings();
                     var existingDirectory = settings.LocalSiteImageContentDirectory(DbEntry, false);

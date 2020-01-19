@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 
@@ -29,6 +30,20 @@ namespace PointlessWaymarksCmsData.FileHtml
         public string SiteName { get; set; }
 
         public string SiteUrl { get; set; }
+
+        public HtmlTag DownloadLinkTag()
+        {
+            if (!DbEntry.PublicDownloadLink) return HtmlTag.Empty();
+
+            var downloadLinkContainer = new DivTag().AddClass("file-download-container");
+
+            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var downloadLink =
+                new LinkTag("Download", settings.FileDownloadUrl(DbEntry)).AddClass("file-download-link");
+            downloadLinkContainer.Children.Add(downloadLink);
+
+            return downloadLinkContainer;
+        }
 
         public void WriteLocalHtml()
         {

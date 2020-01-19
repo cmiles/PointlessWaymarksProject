@@ -18,7 +18,7 @@
     <Grid>
         <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Items}"
                  SelectionChanged="Selector_OnSelectionChanged" Name="PhotoListBox"
-                 HorizontalContentAlignment="Stretch">
+                 HorizontalContentAlignment="Stretch" SelectionMode="Extended">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="local:ImageListListItem">
                     <Border

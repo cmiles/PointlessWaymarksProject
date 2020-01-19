@@ -159,6 +159,9 @@
           <e p="FileListListItem.cs" t="Include" />
           <e p="FileListWindow.xaml" t="Include" />
           <e p="FileListWindow.xaml.cs" t="Include" />
+          <e p="FileListWithActionsContext.cs" t="Include" />
+          <e p="FileListWithActionsControl.xaml" t="Include" />
+          <e p="FileListWithActionsControl.xaml.cs" t="Include" />
         </e>
         <e p="GeoDataPicker" t="Include">
           <e p="GeoDataMapDisplayObject.cs" t="Include" />
@@ -188,6 +191,9 @@
           <e p="ImageListListItem.cs" t="Include" />
           <e p="ImageListWindow.xaml" t="Include" />
           <e p="ImageListWindow.xaml.cs" t="Include" />
+          <e p="ImageListWithActionsContext.cs" t="Include" />
+          <e p="ImageListWithActionsControl.xaml" t="Include" />
+          <e p="ImageListWithActionsControl.xaml.cs" t="Include" />
         </e>
         <e p="ItemContentEditor" t="Include">
           <e p="ItemContentEditorContext.cs" t="Include" />
@@ -314,6 +320,9 @@
           <e p="PhotoListListItem.cs" t="Include" />
           <e p="PhotoListWindow.xaml" t="Include" />
           <e p="PhotoListWindow.xaml.cs" t="Include" />
+          <e p="PhotoListWithActionsContext.cs" t="Include" />
+          <e p="PhotoListWithActionsControl.xaml" t="Include" />
+          <e p="PhotoListWithActionsControl.xaml.cs" t="Include" />
         </e>
         <e p="PointlessWaymarksCmsWpfControls.csproj" t="IncludeRecursive" />
         <e p="PostContentEditor" t="Include">
@@ -330,6 +339,9 @@
           <e p="PostListListItem.cs" t="Include" />
           <e p="PostListWindow.xaml" t="Include" />
           <e p="PostListWindow.xaml.cs" t="Include" />
+          <e p="PostListWithActionsContext.cs" t="Include" />
+          <e p="PostListWithActionsControl.xaml" t="Include" />
+          <e p="PostListWithActionsControl.xaml.cs" t="Include" />
         </e>
         <e p="Status" t="Include">
           <e p="StatusControl.xaml" t="Include" />

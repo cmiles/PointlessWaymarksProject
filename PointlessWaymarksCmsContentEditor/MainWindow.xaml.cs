@@ -43,6 +43,10 @@ namespace PointlessWaymarksCmsContentEditor
         private RelayCommand _newImageContentCommand;
         private RelayCommand _openIndexUrlCommand;
         private StatusControlContext _statusContext;
+        private FileListWithActionsContext _tabFileListContext;
+        private ImageListWithActionsContext _tabImageListContext;
+        private PhotoListWithActionsContext _tabPhotoListContext;
+        private PostListWithActionsContext _tabPostListContext;
 
         public MainWindow()
         {
@@ -231,6 +235,50 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        public FileListWithActionsContext TabFileListContext
+        {
+            get => _tabFileListContext;
+            set
+            {
+                if (Equals(value, _tabFileListContext)) return;
+                _tabFileListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ImageListWithActionsContext TabImageListContext
+        {
+            get => _tabImageListContext;
+            set
+            {
+                if (Equals(value, _tabImageListContext)) return;
+                _tabImageListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PhotoListWithActionsContext TabPhotoListContext
+        {
+            get => _tabPhotoListContext;
+            set
+            {
+                if (Equals(value, _tabPhotoListContext)) return;
+                _tabPhotoListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PostListWithActionsContext TabPostListContext
+        {
+            get => _tabPostListContext;
+            set
+            {
+                if (Equals(value, _tabPostListContext)) return;
+                _tabPostListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
         private async Task GenerateAllFileHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -349,6 +397,11 @@ namespace PointlessWaymarksCmsContentEditor
         private async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            TabImageListContext = new ImageListWithActionsContext(null);
+            TabFileListContext = new FileListWithActionsContext(null);
+            TabPhotoListContext = new PhotoListWithActionsContext(null);
+            TabPostListContext = new PostListWithActionsContext(null);
 
             UserSettingsUtilities.VerifyAndCreate();
 
