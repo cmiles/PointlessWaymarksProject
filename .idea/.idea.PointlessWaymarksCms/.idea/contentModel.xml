@@ -35,6 +35,7 @@
           <e p="PictureAssetProcessing.cs" t="Include" />
           <e p="PictureFileInformation.cs" t="Include" />
           <e p="PictureSiteInformation.cs" t="Include" />
+          <e p="RelatedPostContent.cs" t="Include" />
           <e p="Tags.cs" t="Include" />
         </e>
         <e p="ContentProcessor.cs" t="Include" />
@@ -306,7 +307,7 @@
                 <e p="UpdateNotesEditorVerticalControl.g.cs" t="Include" />
               </e>
               <e p="UserSettingsEditor" t="Include">
-                <e p="UserSettingsControl.g.cs" t="Include" />
+                <e p="UserSettingsEditorControl.g.cs" t="Include" />
               </e>
               <e p="XamlMapConstructs" t="Include">
                 <e p="StandardMapControl.g.cs" t="Include" />

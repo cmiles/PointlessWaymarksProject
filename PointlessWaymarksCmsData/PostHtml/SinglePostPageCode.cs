@@ -43,7 +43,7 @@ namespace PointlessWaymarksCmsData.PostHtml
 
         public string SiteUrl { get; }
 
-        public HtmlTag RelatedPostsDiv()
+        public HtmlTag PreviousAndNextPostsDiv()
         {
             if (!LaterPosts.Any() && !PreviousPosts.Any()) return HtmlTag.Empty();
 

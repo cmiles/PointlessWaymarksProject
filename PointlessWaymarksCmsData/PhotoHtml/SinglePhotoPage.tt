@@ -29,6 +29,7 @@
     <#= PhotoDetailsDiv().ToString() #>
     <#=
                 Tags.TagList(DbEntry).ToString() #>
+    <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>
     <#= Tags.UpdateByAndOnAndNotesDiv(DbEntry, DbEntry) #>
     <#= Tags.PageCreatedDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>

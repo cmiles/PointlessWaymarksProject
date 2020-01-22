@@ -8,6 +8,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class Tags
     {
+        public static DateTime? LatestCreatedOnOrUpdatedOn(ICreatedAndLastUpdateOnAndBy dbEntry)
+        {
+            if (dbEntry == null) return null;
+
+            return dbEntry.LastUpdatedOn ?? dbEntry.CreatedOn;
+        }
+
         private static string CreatedByAndUpdatedOnString(ICreatedAndLastUpdateOnAndBy dbEntry)
         {
             var createdUpdatedString = string.Empty;
@@ -158,6 +165,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("srcset", pictureDirectoryInfo.SrcSetString())
                 .Attr("src", pictureDirectoryInfo.DisplayPicture.SiteUrl).Attr("loading", "lazy");
+
+            if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
+                imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
+
+            return imageTag;
+        }
+        
+        public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAssetInformation pictureDirectoryInfo)
+        {
+            var imageTag = new HtmlTag("img").AddClass("thumb-photo")
+                .Attr("srcset", pictureDirectoryInfo.SrcSetString())
+                .Attr("src", pictureDirectoryInfo.SmallPicture.SiteUrl).Attr("loading", "lazy");
 
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
