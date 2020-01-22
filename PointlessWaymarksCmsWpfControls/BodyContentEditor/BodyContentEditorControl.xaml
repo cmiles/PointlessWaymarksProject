@@ -32,8 +32,16 @@
                     VerticalScrollBarVisibility="Visible" />
             </GroupBox>
             <GroupBox Grid.Column="1" Header="Preview">
-                <WebBrowser
-                    wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding BodyContentHtmlOutput}" />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Button Command="{Binding RefreshPreviewCommand}">Refresh Preview</Button>
+                    <WebBrowser
+                        Grid.Row="1"
+                        wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding BodyContentHtmlOutput}" />
+                </Grid>
             </GroupBox>
         </Grid>
     </Grid>

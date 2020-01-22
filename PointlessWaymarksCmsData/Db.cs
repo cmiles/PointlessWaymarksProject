@@ -8,7 +8,7 @@ namespace PointlessWaymarksCmsData
         public static async Task<PointlessWaymarksContext> Context()
         {
             var optionsBuilder = new DbContextOptionsBuilder<PointlessWaymarksContext>();
-            var dbPath = (await UserSettingsUtilities.ReadSettings()).DatabaseName;
+            var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseName;
             return new PointlessWaymarksContext(optionsBuilder
                 .UseSqlServer(
                     $"Server = (localdb)\\mssqllocaldb; Database={dbPath}; Trusted_Connection=True; MultipleActiveResultSets=true",

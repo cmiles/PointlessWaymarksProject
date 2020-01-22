@@ -162,7 +162,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 return;
             }
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var possibleContentDirectory = settings.LocalSitePhotoContentDirectory(selectedItem.DbEntry, false);
             if (possibleContentDirectory.Exists) possibleContentDirectory.Delete(true);
@@ -277,7 +277,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 return;
             }
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             foreach (var loopSelected in ListContext.SelectedItems)
             {

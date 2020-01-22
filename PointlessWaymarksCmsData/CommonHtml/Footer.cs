@@ -6,7 +6,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
     {
         public static HtmlTag StandardFooterDiv()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var footerDiv = new HtmlTag("footer").AddClass("site-name-footer-container");
 

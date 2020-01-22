@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData.ImageHtml
         {
             DbEntry = dbEntry;
 
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.ImagePageUrl(DbEntry);
@@ -40,7 +40,7 @@ namespace PointlessWaymarksCmsData.ImageHtml
 
         public void WriteLocalHtml()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var htmlString = TransformText();
 

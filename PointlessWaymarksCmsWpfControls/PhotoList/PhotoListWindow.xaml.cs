@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.PhotoHtml;
@@ -195,7 +195,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 return;
             }
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             foreach (var loopSelected in ListContext.SelectedItems)
             {

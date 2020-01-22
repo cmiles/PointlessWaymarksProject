@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsData.PostHtml
         {
             DbEntry = dbEntry;
 
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.PostPageUrl(DbEntry);
@@ -47,7 +47,7 @@ namespace PointlessWaymarksCmsData.PostHtml
         {
             if (!LaterPosts.Any() && !PreviousPosts.Any()) return HtmlTag.Empty();
 
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var hasPreviousPosts = PreviousPosts.Any();
             var hasLaterPosts = PreviousPosts.Any();
@@ -92,7 +92,7 @@ namespace PointlessWaymarksCmsData.PostHtml
 
         public void WriteLocalHtml()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var htmlString = TransformText();
 

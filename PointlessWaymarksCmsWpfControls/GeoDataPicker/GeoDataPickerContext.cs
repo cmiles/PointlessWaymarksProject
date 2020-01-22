@@ -333,8 +333,8 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
                     try
                     {
                         var elevation = await GoogleElevationService.GetElevation(HttpClient,
-                            (await UserSettingsUtilities.ReadSettings()).GoogleMapsApiKey,
-                            possiblePoint.Location.Latitude, possiblePoint.Location.Longitude);
+                            UserSettingsSingleton.CurrentSettings().GoogleMapsApiKey, possiblePoint.Location.Latitude,
+                            possiblePoint.Location.Longitude);
                         newPoint.M = elevation;
                     }
                     catch (Exception e)

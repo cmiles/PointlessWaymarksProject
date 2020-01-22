@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Code\TheLemmonWorkshop02" t="IncludeFlat">
+    <e p="C:\Code\PointlessWaymarksCms" t="IncludeFlat">
       <e p="packages" t="ExcludeRecursive" />
       <e p="PointlessWaymarksCms.sln" t="IncludeFlat" />
       <e p="PointlessWaymarksCmsContentEditor" t="IncludeRecursive">
@@ -114,6 +114,7 @@
         <e p="Slug.cs" t="Include" />
         <e p="SpatialHelpers.cs" t="Include" />
         <e p="UserSettings.cs" t="Include" />
+        <e p="UserSettingsSingleton.cs" t="Include" />
         <e p="UserSettingsUtilities.cs" t="Include" />
       </e>
       <e p="PointlessWaymarksCmsWpfControls" t="IncludeRecursive">
@@ -240,6 +241,7 @@
               <e p="FileList" t="Include">
                 <e p="FileListControl.g.cs" t="Include" />
                 <e p="FileListWindow.g.cs" t="Include" />
+                <e p="FileListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="GeneratedInternalTypeHelper.g.cs" t="Include" />
               <e p="GeoDataPicker" t="Include">
@@ -256,6 +258,7 @@
               <e p="ImageList" t="Include">
                 <e p="ImageListControl.g.cs" t="Include" />
                 <e p="ImageListWindow.g.cs" t="Include" />
+                <e p="ImageListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="ItemContentEditor" t="Include">
                 <e p="ItemContentEditorControl.g.cs" t="Include" />
@@ -274,6 +277,7 @@
               <e p="PhotoList" t="Include">
                 <e p="PhotoListControl.g.cs" t="Include" />
                 <e p="PhotoListWindow.g.cs" t="Include" />
+                <e p="PhotoListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="PointlessWaymarksCmsWpfControls.AssemblyInfo.cs" t="Include" />
               <e p="PostContentEditor" t="Include">
@@ -283,6 +287,7 @@
               <e p="PostList" t="Include">
                 <e p="PostListControl.g.cs" t="Include" />
                 <e p="PostListWindow.g.cs" t="Include" />
+                <e p="PostListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="Status" t="Include">
                 <e p="StatusControl.g.cs" t="Include" />
@@ -299,6 +304,9 @@
               <e p="UpdateNotesEditor" t="Include">
                 <e p="UpdateNotesEditorHorizontalControl.g.cs" t="Include" />
                 <e p="UpdateNotesEditorVerticalControl.g.cs" t="Include" />
+              </e>
+              <e p="UserSettingsEditor" t="Include">
+                <e p="UserSettingsControl.g.cs" t="Include" />
               </e>
               <e p="XamlMapConstructs" t="Include">
                 <e p="StandardMapControl.g.cs" t="Include" />
@@ -374,6 +382,11 @@
           <e p="UpdateNotesEditorVerticalControl.xaml" t="Include" />
           <e p="UpdateNotesEditorVerticalControl.xaml.cs" t="Include" />
         </e>
+        <e p="UserSettingsEditor" t="Include">
+          <e p="UserSettingsControl.xaml.cs" t="Include" />
+          <e p="UserSettingsEditorContext.cs" t="Include" />
+          <e p="UserSettingsEditorControl.xaml" t="Include" />
+        </e>
         <e p="Utility" t="Include">
           <e p="BindingProxy.cs" t="Include" />
           <e p="BooleanNotToVisibilityConverter.cs" t="Include" />
@@ -405,6 +418,6 @@
       </e>
     </e>
     <e p="C:\Users\charl\.Rider2019.3\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\charl\.Rider2019.3\system\resharper-host\local\Transient\ReSharperHost\v193\SolutionCaches\_PointlessWaymarksCms.-2047120681.00" t="ExcludeRecursive" />
+    <e p="C:\Users\charl\.Rider2019.3\system\resharper-host\local\Transient\ReSharperHost\v193\SolutionCaches\_PointlessWaymarksCms.451256358.00" t="ExcludeRecursive" />
   </component>
 </project>

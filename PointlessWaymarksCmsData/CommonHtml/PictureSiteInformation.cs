@@ -8,7 +8,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
     {
         public PictureSiteInformation(Guid toLoad)
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             Pictures = PictureAssetProcessing.ProcessPictureDirectory(toLoad);
             PageUrl = settings.PicturePageUrl(toLoad);

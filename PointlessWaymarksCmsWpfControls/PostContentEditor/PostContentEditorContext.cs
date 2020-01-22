@@ -258,7 +258,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             if (DbEntry != null && DbEntry.Id > 0)
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
-                    var settings = await UserSettingsUtilities.ReadSettings();
+                    var settings = UserSettingsSingleton.CurrentSettings();
                     var existingDirectory = settings.LocalSitePostContentDirectory(DbEntry, false);
 
                     if (existingDirectory.Exists)
@@ -344,7 +344,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 return;
             }
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var url = $@"http://{settings.PostPageUrl(DbEntry)}";
 
@@ -354,7 +354,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
         private async Task WriteLocalDbJson()
         {
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
             var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
 

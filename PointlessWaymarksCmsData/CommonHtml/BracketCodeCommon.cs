@@ -26,6 +26,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input);
             input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input);
+            input = BracketCodeFileLink.FileLinkCodeProcess(input);
+            input = BracketCodePostLink.FilePostCodeProcess(input);
 
             var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
             var markdownOut = Markdown.ToHtml(input, pipeline);

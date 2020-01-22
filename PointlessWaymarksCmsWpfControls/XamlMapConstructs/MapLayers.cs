@@ -46,7 +46,7 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
 
         private Dictionary<string, UIElement> CreateMapLayers()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var toReturn = new Dictionary<string, UIElement>();
 

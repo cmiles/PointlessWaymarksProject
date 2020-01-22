@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
@@ -19,6 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         private ContentFormatChooserContext _bodyContentFormat;
         private string _bodyContentHtmlOutput;
         private IBodyContent _dbEntry;
+        private RelayCommand _refreshPreviewCommand;
         private StatusControlContext _statusContext;
         private string _userBodyContent = string.Empty;
 
@@ -37,8 +39,6 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 if (value == _userBodyContent) return;
                 _userBodyContent = value;
                 OnPropertyChanged();
-
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
             }
         }
 
@@ -51,7 +51,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 _bodyContentFormat = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateContentHtml);
             }
         }
 
@@ -77,6 +77,17 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
         }
 
+        public RelayCommand RefreshPreviewCommand
+        {
+            get => _refreshPreviewCommand;
+            set
+            {
+                if (Equals(value, _refreshPreviewCommand)) return;
+                _refreshPreviewCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -94,6 +105,8 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
             DbEntry = toLoad;
 
+            RefreshPreviewCommand = new RelayCommand(() => StatusContext.RunBlockingTask(UpdateContentHtml));
+
             if (toLoad == null)
             {
                 BodyContent = string.Empty;
@@ -102,6 +115,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
 
             BodyContent = toLoad.BodyContent;
+
             var setUpdateFormatOk = await BodyContentFormat.TrySelectContentChoice(toLoad.BodyContentFormat);
 
             if (!setUpdateFormatOk) StatusContext.ToastWarning("Trouble loading Format from Db...");
@@ -113,11 +127,11 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public async Task UpdateUpdateNotesContentHtml()
+        public async Task UpdateContentHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             try
             {

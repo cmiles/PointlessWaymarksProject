@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 
@@ -17,7 +18,7 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
         private readonly DispatcherTimer _timer;
         private bool _isOpen;
 
-        public ToastSource() : this(Dispatcher.CurrentDispatcher)
+        public ToastSource() : this(Application.Current.Dispatcher)
         {
         }
 

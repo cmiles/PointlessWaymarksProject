@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData.FileHtml
         {
             DbEntry = dbEntry;
 
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.FilePageUrl(DbEntry);
@@ -37,7 +37,7 @@ namespace PointlessWaymarksCmsData.FileHtml
 
             var downloadLinkContainer = new DivTag().AddClass("file-download-container");
 
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             var downloadLink =
                 new LinkTag("Download", settings.FileDownloadUrl(DbEntry)).AddClass("file-download-link");
             downloadLinkContainer.Children.Add(downloadLink);
@@ -47,7 +47,7 @@ namespace PointlessWaymarksCmsData.FileHtml
 
         public void WriteLocalHtml()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var htmlString = TransformText();
 

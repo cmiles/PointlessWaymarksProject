@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;

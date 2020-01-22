@@ -244,7 +244,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             {
                 if (bucketSubdirectoryList == null) bucketSubdirectoryList = new List<string>();
 
-                var settings = await UserSettingsUtilities.ReadSettings();
+                var settings = UserSettingsSingleton.CurrentSettings();
 
                 var finalBucketName = bucketSubdirectoryList.Aggregate(settings.AmazonS3Bucket,
                     (current, loopSubDirs) => $@"{current}/{loopSubDirs}");

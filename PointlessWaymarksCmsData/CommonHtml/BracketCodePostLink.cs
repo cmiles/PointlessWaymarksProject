@@ -35,7 +35,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                     var dbContent = context.PostContents.FirstOrDefault(x => x.ContentId == contentGuid);
                     if (dbContent == null) continue;
 
-                    var settings = UserSettingsUtilities.ReadSettings().Result;
+                    var settings = UserSettingsSingleton.CurrentSettings();
 
                     var linkTag = new LinkTag(dbContent.Title, settings.PostPageUrl(dbContent), "post-page-link");
 

@@ -9,7 +9,7 @@ namespace PointlessWaymarksCmsData.PostHtml
         {
             DbEntry = dbEntry;
 
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.PostPageUrl(DbEntry);
@@ -27,7 +27,7 @@ namespace PointlessWaymarksCmsData.PostHtml
 
         public HtmlTag TitleDiv()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var titleContainer = new HtmlTag("div").AddClass("post-title-link-container");
 

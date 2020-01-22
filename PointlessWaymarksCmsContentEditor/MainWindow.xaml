@@ -11,6 +11,7 @@
     xmlns:fileList="clr-namespace:PointlessWaymarksCmsWpfControls.FileList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:photoList="clr-namespace:PointlessWaymarksCmsWpfControls.PhotoList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:postList="clr-namespace:PointlessWaymarksCmsWpfControls.PostList;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarksCmsWpfControls"
     Title="Pointless Waymarks CMS"
     Width="700"
     Height="600"
@@ -36,6 +37,9 @@
             <TabItem Header="Files">
                 <fileList:FileListWithActionsControl DataContext="{Binding TabFileListContext}" />
             </TabItem>
+            <TabItem Header="Settings">
+                <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />
+            </TabItem>
             <TabItem Header="General">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -51,9 +55,7 @@
         </TabControl>
         <status:StatusControl
             Grid.Row="0"
-            Grid.RowSpan="4"
             Grid.Column="0"
-            Grid.ColumnSpan="3"
             DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

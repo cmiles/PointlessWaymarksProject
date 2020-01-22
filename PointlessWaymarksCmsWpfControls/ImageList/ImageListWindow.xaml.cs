@@ -215,7 +215,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 return;
             }
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             foreach (var loopSelected in ListContext.SelectedItems)
             {

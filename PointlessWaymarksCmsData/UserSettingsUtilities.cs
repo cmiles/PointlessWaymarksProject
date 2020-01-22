@@ -250,14 +250,14 @@ namespace PointlessWaymarksCmsData
 
         public static FileInfo SettingsFile()
         {
-            return new FileInfo(Path.Combine(StorageDirectory().FullName, "HikeLemmonWorkshopSettings.json"));
+            return new FileInfo(Path.Combine(StorageDirectory().FullName, "PointlessWaymarksCmsSettings.json"));
         }
 
         public static DirectoryInfo StorageDirectory()
         {
             var storageDirectory =
                 new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "HikeLemmon Workshop"));
+                    "Pointless Waymarks Cms"));
 
             if (!storageDirectory.Exists) storageDirectory.Create();
 
@@ -268,7 +268,7 @@ namespace PointlessWaymarksCmsData
 
         public static string StylesCssFromLocalSiteRootDirectory()
         {
-            var settings = ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var possibleFile = new FileInfo(Path.Combine(settings.LocalSiteRootDirectory, "styles.css"));
 
@@ -279,7 +279,7 @@ namespace PointlessWaymarksCmsData
 
         public static async Task<(bool, string)> ValidateLocalMasterMediaArchive()
         {
-            var settings = await ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             if (string.IsNullOrWhiteSpace(settings.LocalMasterMediaArchive))
                 return (false, "No Local File Root User Setting Found");
@@ -300,7 +300,7 @@ namespace PointlessWaymarksCmsData
 
         public static async Task<(bool, string)> ValidateLocalSiteRootDirectory()
         {
-            var settings = await ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             if (string.IsNullOrWhiteSpace(settings.LocalSiteRootDirectory))
                 return (false, "No Local File Root User Setting Found");

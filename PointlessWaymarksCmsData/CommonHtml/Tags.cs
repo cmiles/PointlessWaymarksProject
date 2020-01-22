@@ -46,13 +46,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string CssStyleFileString()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             return $"<link rel=\"stylesheet\" href=\"{settings.CssMainStyleFileUrl()}?v=1.0\">";
         }
 
         public static string FavIconFileString()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             return $"<link rel=\"shortcut icon\" href=\"{settings.FaviconUrl()}\">";
         }
 
@@ -211,27 +211,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             return tagsContainer;
         }
-        
-        public static HtmlTag UpdateNotesDiv(IUpdateNotes dbEntry)
-        {
-            if (string.IsNullOrWhiteSpace(dbEntry.UpdateNotes)) return HtmlTag.Empty();
 
-            var updateNotesDiv = new DivTag().AddClass("update-notes-container");
-
-            updateNotesDiv.Children.Add(HorizontalRule.StandardRule());
-
-            var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
-
-            var updateNotesHtml = ContentProcessor.ContentHtml(dbEntry.UpdateNotesFormat, dbEntry.UpdateNotes);
-
-            if (updateNotesHtml.success) updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
-
-            updateNotesDiv.Children.Add(updateNotesContentContainer);
-
-            return updateNotesDiv;
-        }
-
-        public static HtmlTag UpdateByAndOnAndNotesDiv(ICreatedAndLastUpdateOnAndBy createdEntry, IUpdateNotes updateEntry)
+        public static HtmlTag UpdateByAndOnAndNotesDiv(ICreatedAndLastUpdateOnAndBy createdEntry,
+            IUpdateNotes updateEntry)
         {
             if (createdEntry.LastUpdatedOn == null) return HtmlTag.Empty();
 
@@ -259,6 +241,25 @@ namespace PointlessWaymarksCmsData.CommonHtml
             }
 
             updateNotesDiv.Children.Add(headingTag);
+            updateNotesDiv.Children.Add(updateNotesContentContainer);
+
+            return updateNotesDiv;
+        }
+
+        public static HtmlTag UpdateNotesDiv(IUpdateNotes dbEntry)
+        {
+            if (string.IsNullOrWhiteSpace(dbEntry.UpdateNotes)) return HtmlTag.Empty();
+
+            var updateNotesDiv = new DivTag().AddClass("update-notes-container");
+
+            updateNotesDiv.Children.Add(HorizontalRule.StandardRule());
+
+            var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
+
+            var updateNotesHtml = ContentProcessor.ContentHtml(dbEntry.UpdateNotesFormat, dbEntry.UpdateNotes);
+
+            if (updateNotesHtml.success) updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
+
             updateNotesDiv.Children.Add(updateNotesContentContainer);
 
             return updateNotesDiv;

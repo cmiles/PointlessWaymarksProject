@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var content = db.ImageContents.SingleOrDefault(x => x.ContentId == photoOrImageContentId);
 
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var contentDirectory = settings.LocalSiteImageContentDirectory(content);
 
@@ -23,7 +23,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static PictureAssetInformation ProcessImageDirectory(ImageContent dbEntry)
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             var contentDirectory = settings.LocalSiteImageContentDirectory(dbEntry);
 
             return ProcessImageDirectory(dbEntry, contentDirectory, settings.SiteUrl);
@@ -83,7 +83,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var content = db.PhotoContents.SingleOrDefault(x => x.ContentId == photoOrImageContentId);
 
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var contentDirectory = settings.LocalSitePhotoContentDirectory(content);
 
@@ -92,7 +92,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static PictureAssetInformation ProcessPhotoDirectory(PhotoContent dbEntry)
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             var contentDirectory = settings.LocalSitePhotoContentDirectory(dbEntry);
 
             return ProcessPhotoDirectory(dbEntry, contentDirectory, settings.SiteUrl);

@@ -208,7 +208,7 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
 
                 if (point.Elevation == null)
                     elevation = await GoogleElevationService.GetElevation(_httpClient,
-                        (await UserSettingsUtilities.ReadSettings()).GoogleMapsApiKey, point.Longitude, point.Latitude);
+                        UserSettingsSingleton.CurrentSettings().GoogleMapsApiKey, point.Longitude, point.Latitude);
                 else
                     elevation = point.Elevation.Value;
 
@@ -247,7 +247,7 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
                     $"lat {loopCoordinate.Y} long {loopCoordinate.X}");
 
                 var elevation = await GoogleElevationService.GetElevation(_httpClient,
-                    (await UserSettingsUtilities.ReadSettings()).GoogleMapsApiKey, loopCoordinate.Y, loopCoordinate.X);
+                    UserSettingsSingleton.CurrentSettings().GoogleMapsApiKey, loopCoordinate.Y, loopCoordinate.X);
 
                 progress.Report($"Found {elevation}m");
 
@@ -271,7 +271,7 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
                 $"Querying for Elevation - existing elevation is {point.Z}m - lat {point.Y} long {point.X}");
 
             var elevation = await GoogleElevationService.GetElevation(_httpClient,
-                (await UserSettingsUtilities.ReadSettings()).GoogleMapsApiKey, point.Y, point.X);
+                UserSettingsSingleton.CurrentSettings().GoogleMapsApiKey, point.Y, point.X);
 
             progress.Report($"Found {elevation}m");
 

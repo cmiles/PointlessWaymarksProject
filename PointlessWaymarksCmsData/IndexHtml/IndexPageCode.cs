@@ -12,7 +12,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
     {
         public IndexPage()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             SiteKeywords = settings.SiteKeywords;
@@ -74,7 +74,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
         public void WriteLocalHtml()
         {
-            var settings = UserSettingsUtilities.ReadSettings().Result;
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var htmlString = TransformText();
 

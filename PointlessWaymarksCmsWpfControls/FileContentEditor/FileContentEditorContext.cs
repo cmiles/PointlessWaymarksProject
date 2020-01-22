@@ -287,7 +287,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             if (!string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                var settings = await UserSettingsUtilities.ReadSettings();
+                var settings = UserSettingsSingleton.CurrentSettings();
                 var possibleFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchiveFileDirectory().FullName,
                     DbEntry.OriginalFileName));
 
@@ -401,7 +401,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             if (DbEntry != null && DbEntry.Id > 0)
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
-                    var settings = await UserSettingsUtilities.ReadSettings();
+                    var settings = UserSettingsSingleton.CurrentSettings();
                     var existingDirectory = settings.LocalSiteFileContentDirectory(DbEntry, false);
 
                     if (existingDirectory.Exists)
@@ -493,7 +493,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var url = $@"http://{settings.FilePageUrl(DbEntry)}";
 
@@ -507,7 +507,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             StatusContext.Progress("Writing Db Entry to Json");
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
             var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
 
@@ -543,7 +543,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var userSettings = await UserSettingsUtilities.ReadSettings();
+            var userSettings = UserSettingsSingleton.CurrentSettings();
 
             var targetDirectory = userSettings.LocalSiteFileContentDirectory(DbEntry);
 
@@ -566,7 +566,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             StatusContext.Progress("Saving File to Archive");
 
-            var userSettings = await UserSettingsUtilities.ReadSettings();
+            var userSettings = UserSettingsSingleton.CurrentSettings();
             var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchiveFileDirectory().FullName,
                 SelectedFile.Name);
             if (destinationFileName == SelectedFile.FullName) return;

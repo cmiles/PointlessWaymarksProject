@@ -21,6 +21,7 @@ using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.PostList;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsContentEditor
@@ -42,6 +43,7 @@ namespace PointlessWaymarksCmsContentEditor
         private RelayCommand _newFileContentCommand;
         private RelayCommand _newImageContentCommand;
         private RelayCommand _openIndexUrlCommand;
+        private UserSettingsEditorContext _settingsEditorContext;
         private StatusControlContext _statusContext;
         private FileListWithActionsContext _tabFileListContext;
         private ImageListWithActionsContext _tabImageListContext;
@@ -224,6 +226,17 @@ namespace PointlessWaymarksCmsContentEditor
 
         public RelayCommand PostListWindowCommand { get; set; }
 
+        public UserSettingsEditorContext SettingsEditorContext
+        {
+            get => _settingsEditorContext;
+            set
+            {
+                if (Equals(value, _settingsEditorContext)) return;
+                _settingsEditorContext = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -402,6 +415,8 @@ namespace PointlessWaymarksCmsContentEditor
             TabFileListContext = new FileListWithActionsContext(null);
             TabPhotoListContext = new PhotoListWithActionsContext(null);
             TabPostListContext = new PostListWithActionsContext(null);
+            SettingsEditorContext =
+                new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
 
             UserSettingsUtilities.VerifyAndCreate();
 
@@ -486,7 +501,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var url = $@"http://{settings.SiteUrl}";
 

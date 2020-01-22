@@ -1,0 +1,99 @@
+﻿<UserControl x:Class="PointlessWaymarksCmsWpfControls.UserSettingsEditor.UserSettingsEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300"
+             d:DataContext="{d:DesignInstance userSettingsEditor:UserSettingsEditorContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Vertical">
+                <Button Style="{StaticResource LargerButton}">Save</Button>
+                <StackPanel Orientation="Vertical">
+                    <Label>Local Site Root Directory</Label>
+                    <TextBox
+                        Text="{Binding EditorSettings.LocalSiteRootDirectory, UpdateSourceTrigger=PropertyChanged}"
+                        SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Local Master Media Archive</Label>
+                    <TextBox
+                        Text="{Binding EditorSettings.LocalMasterMediaArchive, UpdateSourceTrigger=PropertyChanged}"
+                        SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Url</Label>
+                    <TextBox Text="{Binding EditorSettings.SiteUrl, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Site Name</Label>
+                    <TextBox Text="{Binding EditorSettings.SiteName, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Site Authors</Label>
+                    <TextBox Text="{Binding EditorSettings.SiteAuthors, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Site Keywords</Label>
+                    <TextBox Text="{Binding EditorSettings.SiteKeywords, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Site Summary</Label>
+                    <TextBox Text="{Binding EditorSettings.SiteSummary, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Site Email To</Label>
+                    <TextBox Text="{Binding EditorSettings.SiteEmailTo, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical">
+                    <Label>Bing Maps Api Key</Label>
+                    <TextBox Text="{Binding EditorSettings.BingApiKey, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>CalTopo Maps Api Key</Label>
+                    <TextBox Text="{Binding EditorSettings.CalTopoApiKey, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Google Maps Api Key</Label>
+                    <TextBox Text="{Binding EditorSettings.GoogleMapsApiKey, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical">
+                    <Label>Amazon S3 Bucket</Label>
+                    <TextBox Text="{Binding EditorSettings.AmazonS3Bucket, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Amazon S3 Access Key</Label>
+                    <TextBox Text="{Binding EditorSettings.AmazonS3AccessKey, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label>Amazon S3 Secret Key</Label>
+                    <TextBox Text="{Binding EditorSettings.AmazonS3SecretKey, UpdateSourceTrigger=PropertyChanged}"
+                             SpellCheck.IsEnabled="True" />
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</UserControl>

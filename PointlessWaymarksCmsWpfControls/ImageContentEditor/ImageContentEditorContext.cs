@@ -290,7 +290,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                var settings = await UserSettingsUtilities.ReadSettings();
+                var settings = UserSettingsSingleton.CurrentSettings();
                 var archiveFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchiveImageDirectory().FullName,
                     toLoad.OriginalFileName));
                 if (archiveFile.Exists) SelectedFile = archiveFile;
@@ -421,7 +421,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             if (DbEntry != null && DbEntry.Id > 0)
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
-                    var settings = await UserSettingsUtilities.ReadSettings();
+                    var settings = UserSettingsSingleton.CurrentSettings();
                     var existingDirectory = settings.LocalSiteImageContentDirectory(DbEntry, false);
 
                     if (existingDirectory.Exists)
@@ -519,7 +519,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             var url = $@"http://{settings.ImagePageUrl(DbEntry)}";
 
@@ -529,7 +529,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
         private async Task WriteLocalDbJson()
         {
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
             var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
 
@@ -561,7 +561,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var userSettings = await UserSettingsUtilities.ReadSettings();
+            var userSettings = UserSettingsSingleton.CurrentSettings();
 
             var targetDirectory = LocalContentDirectory(userSettings);
 
@@ -583,7 +583,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var userSettings = await UserSettingsUtilities.ReadSettings();
+            var userSettings = UserSettingsSingleton.CurrentSettings();
             var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchiveImageDirectory().FullName,
                 SelectedFile.Name);
             if (destinationFileName == SelectedFile.FullName) return;
