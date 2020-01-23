@@ -35,7 +35,7 @@ namespace PointlessWaymarksCmsData
             var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("related-post-text-content-title-container");
             var relatedPostMainTextTitleLink =
                 new LinkTag(post.Title, UserSettingsSingleton.CurrentSettings().PostPageUrl(post)).AddClass(
-                    "related-post-text-content-title-container");
+                    "related-post-text-content-title-link");
             relatedPostMainTextTitleTextDiv.Children.Add(relatedPostMainTextTitleLink);
 
             var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("related-post-text-content-date")
