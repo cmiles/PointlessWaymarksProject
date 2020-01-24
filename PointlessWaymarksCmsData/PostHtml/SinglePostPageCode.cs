@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AngleSharp.Html;
+using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
@@ -47,10 +49,8 @@ namespace PointlessWaymarksCmsData.PostHtml
         {
             if (!LaterPosts.Any() && !PreviousPosts.Any()) return HtmlTag.Empty();
 
-            var settings = UserSettingsSingleton.CurrentSettings();
-
             var hasPreviousPosts = PreviousPosts.Any();
-            var hasLaterPosts = PreviousPosts.Any();
+            var hasLaterPosts = LaterPosts.Any();
             var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
 
             var relatedPostsContainer = new DivTag().AddClass("post-related-posts-container");
@@ -60,25 +60,10 @@ namespace PointlessWaymarksCmsData.PostHtml
                 .AddClass("post-related-posts-label-tag"));
 
             foreach (var loopPosts in PreviousPosts)
-            {
-                var linkDiv = new DivTag().AddClass("post-related-posts-link-container");
-                linkDiv.Children.Add(
-                    new LinkTag($"{loopPosts.CreatedOn:M/d/yyyy} {loopPosts.Title}", settings.PostPageUrl(loopPosts))
-                        .AddClass("post-related-posts-link"));
-                relatedPostsContainer.Children.Add(linkDiv);
-            }
-
-            if (hasBothEarlierAndLaterPosts)
-                relatedPostsContainer.Children.Add(new DivTag().Text("/").AddClass("post-related-posts-label-tag"));
+                relatedPostsContainer.Children.Add(RelatedPostContent.RelatedPostDiv(loopPosts));
 
             foreach (var loopPosts in LaterPosts)
-            {
-                var linkDiv = new DivTag().AddClass("post-related-posts-link-container");
-                linkDiv.Children.Add(
-                    new LinkTag($"{loopPosts.CreatedOn:M/d/yyyy} {loopPosts.Title}", settings.PostPageUrl(loopPosts))
-                        .AddClass("post-related-posts-link"));
-                relatedPostsContainer.Children.Add(linkDiv);
-            }
+                relatedPostsContainer.Children.Add(RelatedPostContent.RelatedPostDiv(loopPosts));
 
             return relatedPostsContainer;
         }
@@ -94,7 +79,13 @@ namespace PointlessWaymarksCmsData.PostHtml
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var htmlString = TransformText();
+            var parser = new HtmlParser();
+            var htmlDoc = parser.ParseDocument(TransformText());
+
+            var stringWriter = new StringWriter();
+            htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
+
+            var htmlString = stringWriter.ToString();
 
             var htmlFileInfo =
                 new FileInfo(

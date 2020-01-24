@@ -560,6 +560,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            var validationList = await ValidateAll();
+
+            if (validationList.Any(x => !x.Item1))
+            {
+                await StatusContext.ShowMessage("Validation Error",
+                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
+                    new List<string> {"Ok"});
+                return;
+            }
+
             await SaveToDatabase();
             await WriteSelectedFileToMasterMediaArchive();
             await GenerateHtml();

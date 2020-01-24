@@ -32,7 +32,6 @@
                 CommonHtml.Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TagList(DbEntry).ToString() #>
-    <#= HorizontalRule.StandardRule() #>
     <#= PreviousAndNextPostsDiv() #>
     <#= CommonHtml.Tags.UpdateNotesDiv(DbEntry).ToString() #>
     <#= Footer.StandardFooterDiv() #>

@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using AngleSharp.Html;
+using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
@@ -42,7 +44,13 @@ namespace PointlessWaymarksCmsData.ImageHtml
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var htmlString = TransformText();
+            var parser = new HtmlParser();
+            var htmlDoc = parser.ParseDocument(TransformText());
+
+            var stringWriter = new StringWriter();
+            htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
+
+            var htmlString = stringWriter.ToString();
 
             var htmlFileInfo = settings.LocalSiteImageHtmlFile(DbEntry);
 
