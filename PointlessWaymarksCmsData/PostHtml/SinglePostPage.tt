@@ -26,14 +26,15 @@
 
 <body>
     <#= TitleDiv().ToString() #>
-    <#=
-                CommonHtml.Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
-    <#=
-                CommonHtml.Tags.PostBodyDiv(DbEntry).ToString() #>
+    <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
-    <#= Tags.TagList(DbEntry).ToString() #>
-    <#= PreviousAndNextPostsDiv() #>
-    <#= CommonHtml.Tags.UpdateNotesDiv(DbEntry).ToString() #>
+    <div class="information-section">
+        <#= Tags.TagList(DbEntry).ToString() #>
+        <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>
+        <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
+    </div>
+    <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>
 </body>
 

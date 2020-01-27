@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using MvvmHelpers;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
+using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 

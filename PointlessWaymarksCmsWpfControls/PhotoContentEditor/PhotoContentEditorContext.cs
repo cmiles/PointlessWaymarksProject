@@ -595,6 +595,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 
+            newEntry.MainPicture = newEntry.ContentId;
             newEntry.Aperture = Aperture;
             newEntry.Folder = TitleSummarySlugFolder.Folder;
             newEntry.Iso = Iso;

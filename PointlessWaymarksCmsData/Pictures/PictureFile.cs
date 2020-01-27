@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-namespace PointlessWaymarksCmsData.CommonHtml
+namespace PointlessWaymarksCmsData.Pictures
 {
-    public class PictureFileInformation
+    public class PictureFile
     {
         public string AltText { get; set; }
         public FileInfo File { get; set; }

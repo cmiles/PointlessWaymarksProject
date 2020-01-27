@@ -4,6 +4,7 @@ using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData.ImageHtml
 {
@@ -18,12 +19,12 @@ namespace PointlessWaymarksCmsData.ImageHtml
             SiteName = settings.SiteName;
             PageUrl = settings.ImagePageUrl(DbEntry);
 
-            PictureAsset = new PictureSiteInformation(DbEntry.ContentId);
+            PictureInformation = new PictureSiteInformation(DbEntry.ContentId);
         }
 
         public ImageContent DbEntry { get; }
         public string PageUrl { get; }
-        public PictureSiteInformation PictureAsset { get; }
+        public PictureSiteInformation PictureInformation { get; }
         public string SiteName { get; }
         public string SiteUrl { get; }
 

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData
@@ -183,6 +184,12 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
+        public static FileInfo LocalSitePhotoListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSitePhotoDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "PhotoList")}.html");
+        }
+
         public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content,
             bool createDirectoryIfNotFound = true)
         {
@@ -218,6 +225,11 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
+        public static string PhotoListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Photos/PhotoList.html";
+        }
+
         public static string PicturePageUrl(this UserSettings settings, Guid contentGuid)
         {
             var db = Db.Context().Result;
@@ -234,6 +246,25 @@ namespace PointlessWaymarksCmsData
         public static string PostPageUrl(this UserSettings settings, PostContent content)
         {
             return $"//{settings.SiteUrl}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
+        {
+            var db = await Db.Context();
+
+            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possiblePost != null) return settings.PostPageUrl(possiblePost);
+
+            var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possibleFile != null) return settings.FilePageUrl(possibleFile);
+
+            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possiblePhoto != null) return settings.PhotoPageUrl(possiblePhoto);
+
+            var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possibleImage != null) return settings.ImagePageUrl(possibleImage);
+
+            return string.Empty;
         }
 
         public static async Task<UserSettings> ReadSettings()

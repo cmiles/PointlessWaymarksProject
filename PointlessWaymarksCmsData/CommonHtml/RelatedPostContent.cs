@@ -6,6 +6,7 @@ using HtmlTags;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData
 {
@@ -17,18 +18,17 @@ namespace PointlessWaymarksCmsData
 
             var relatedPostContainerDiv = new DivTag().AddClass("related-post-container");
 
-            var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");
+            if (post.MainPicture != null)
+            {
+                var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");
 
-            var image = new PictureSiteInformation(post.MainPicture.Value);
-            var postImgLink = new LinkTag(string.Empty, UserSettingsSingleton.CurrentSettings().PostPageUrl(post));
-            var imgTag = Tags.PictureImgTagWithSmallestDefaultSrc(image.Pictures);
+                var image = new PictureSiteInformation(post.MainPicture.Value);
 
-            imgTag.Style(
-                image.Pictures.SmallPicture.Height > image.Pictures.SmallPicture.Width ? "max-width" : "max-height",
-                "100px");
+                relatedPostMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(image.Pictures,
+                    UserSettingsSingleton.CurrentSettings().PostPageUrl(post)));
 
-            postImgLink.Children.Add(imgTag);
-            relatedPostMainPictureContentDiv.Children.Add(postImgLink);
+                relatedPostContainerDiv.Children.Add(relatedPostMainPictureContentDiv);
+            }
 
             var relatedPostMainTextContentDiv = new DivTag().AddClass("related-post-text-content-container");
 
@@ -44,7 +44,6 @@ namespace PointlessWaymarksCmsData
             relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextTitleTextDiv);
             relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextCreatedOrUpdatedTextDiv);
 
-            relatedPostContainerDiv.Children.Add(relatedPostMainPictureContentDiv);
             relatedPostContainerDiv.Children.Add(relatedPostMainTextContentDiv);
 
             return relatedPostContainerDiv;

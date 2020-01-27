@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using AngleSharp.Html;
+using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
+using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData.PhotoListHtml
 {
     public partial class PhotoListPage
     {
-        public static HtmlTag PhotoTableTag()
+        public HtmlTag PhotoTableTag()
         {
             var db = Db.Context().Result;
 
@@ -24,13 +28,37 @@ namespace PointlessWaymarksCmsData.PhotoListHtml
                 photoListPhotoEntryDiv.Data("tags", loopPhotos.Tags);
                 photoListPhotoEntryDiv.Data("summary", loopPhotos.Summary);
                 photoListPhotoEntryDiv.Data("alttext", loopPhotos.AltText);
+                photoListPhotoEntryDiv.Data("contenttype", "photo");
 
-                var pictureInfo =  new PictureSiteInformation(loopPhotos.ContentId);
+                photoListPhotoEntryDiv.Children.Add(ContentCompact.FromContent(loopPhotos));
 
-                Tags.PictureImgTagWithSmallestDefaultSrc(pictureInfo.Pictures);
+                photoListContainer.Children.Add(photoListPhotoEntryDiv);
             }
 
             return photoListContainer;
+        }
+
+        public void WriteLocalHtml()
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var parser = new HtmlParser();
+            var htmlDoc = parser.ParseDocument(TransformText());
+
+            var stringWriter = new StringWriter();
+            htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
+
+            var htmlString = stringWriter.ToString();
+
+            var htmlFileInfo = settings.LocalSitePhotoListFile();
+
+            if (htmlFileInfo.Exists)
+            {
+                htmlFileInfo.Delete();
+                htmlFileInfo.Refresh();
+            }
+
+            File.WriteAllText(htmlFileInfo.FullName, htmlString);
         }
     }
 }

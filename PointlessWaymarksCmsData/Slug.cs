@@ -61,24 +61,23 @@ namespace PointlessWaymarksCmsData
         ///     https://stackoverflow.com/questions/3769457/how-can-i-remove-accents-on-a-string
         /// </summary>
         /// <param name="toLower"></param>
-        /// <param name="normalised"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
         public static string Create(bool toLower, string value)
         {
             if (value == null)
                 return "";
 
-            var normalised = value.Normalize(NormalizationForm.FormKD);
+            var normalized = value.Normalize(NormalizationForm.FormKD);
 
-            const int maxlen = 80;
-            var len = normalised.Length;
+            const int maxlength = 80;
+            var len = normalized.Length;
             var prevDash = false;
             var sb = new StringBuilder(len);
-            char c;
 
             for (var i = 0; i < len; i++)
             {
-                c = normalised[i];
+                var c = normalized[i];
                 if (c >= 'a' && c <= 'z' || c >= '0' && c <= '9')
                 {
                     if (prevDash)
@@ -123,7 +122,7 @@ namespace PointlessWaymarksCmsData
                     }
                 }
 
-                if (sb.Length == maxlen)
+                if (sb.Length == maxlength)
                     break;
             }
 
@@ -142,7 +141,7 @@ namespace PointlessWaymarksCmsData
                 explanation = "Folder and Slug must only use lower case.";
             }
 
-            if (!isValid) return (isValid, explanation);
+            if (!isValid) return (false, explanation);
 
             if (slug.Any(char.IsUpper) || folderList.Any(x => x.Any(char.IsUpper)))
             {
@@ -150,7 +149,7 @@ namespace PointlessWaymarksCmsData
                 explanation = "Folder and Slug must only use lower case.";
             }
 
-            if (!isValid) return (isValid, explanation);
+            if (!isValid) return (false, explanation);
 
             var uriToCheck = $@"//{string.Join("/", folderList)}{(folderList.Any() ? "/" : "")}{slug}";
 
@@ -179,7 +178,7 @@ namespace PointlessWaymarksCmsData
         {
             if (string.IsNullOrWhiteSpace(filename)) return false;
 
-            var imageCheck = false;
+            bool imageCheck;
 
             if (exceptInThisContent == null)
                 imageCheck =
@@ -207,7 +206,7 @@ namespace PointlessWaymarksCmsData
         {
             if (string.IsNullOrWhiteSpace(filename)) return false;
 
-            var photoCheck = false;
+            bool photoCheck;
 
             if (exceptInThisContent == null)
                 photoCheck =

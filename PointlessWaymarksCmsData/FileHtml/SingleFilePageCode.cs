@@ -4,6 +4,7 @@ using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData.FileHtml
 {

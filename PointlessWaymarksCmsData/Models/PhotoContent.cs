@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarksCmsData.Models
 {
-    public class PhotoContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes, ITag
+    public class PhotoContent : IUpdateNotes, IContentCommon
     {
         public string AltText { get; set; }
         public string Aperture { get; set; }
@@ -29,5 +29,6 @@ namespace PointlessWaymarksCmsData.Models
         public string Title { get; set; }
         public string UpdateNotes { get; set; }
         public string UpdateNotesFormat { get; set; }
+        public Guid? MainPicture { get; set; }
     }
 }

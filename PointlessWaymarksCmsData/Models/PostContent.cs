@@ -2,8 +2,8 @@
 
 namespace PointlessWaymarksCmsData.Models
 {
-    public class PostContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes,
-        IMainImage, IBodyContent, ITag
+    public class PostContent :  IUpdateNotes,
+         IBodyContent, IContentCommon
     {
         public bool ShowInPostFeed { get; set; }
         public string BodyContent { get; set; }

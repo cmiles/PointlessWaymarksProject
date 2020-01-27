@@ -1,6 +1,8 @@
 ﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
+<#@ import namespace="PointlessWaymarksCmsData.Pictures" #>
+
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -15,7 +17,7 @@
     <meta property="og:title" content="<#=DbEntry.Title #>" />
     <meta property="og:description" content="<#= DbEntry.Summary #>" />
 
-    <#= Tags.OpenGraphImageMetaTags(PictureAsset) #>
+    <#= Tags.OpenGraphImageMetaTags(PictureInformation) #>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -25,13 +27,14 @@
 </head>
 
 <body class="single-photo-body">
-    <#= PictureAsset.PictureFigureTag() #>
+    <#= PictureInformation.PictureFigureTag() #>
     <#= ImageSourceNotesDivTag() #>
-    <#=
-                Tags.TagList(DbEntry).ToString() #>
-    <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>
-    <#= Tags.UpdateByAndOnAndNotesDiv(DbEntry, DbEntry) #>
-    <#= Tags.PageCreatedDiv(DbEntry).ToString() #>
+    <div class="information-section">
+        <#= Tags.TagList(DbEntry).ToString() #>
+        <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>
+        <#= Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+        <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
+    </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>
 </body>

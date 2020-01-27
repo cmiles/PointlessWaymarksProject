@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using PointlessWaymarksCmsData.Models;
 
-namespace PointlessWaymarksCmsData.CommonHtml
+namespace PointlessWaymarksCmsData.Pictures
 {
     public static class PictureAssetProcessing
     {
-        public static PictureAssetInformation ProcessImageDirectory(Guid photoOrImageContentId)
+        public static PictureAsset ProcessImageDirectory(Guid photoOrImageContentId)
         {
             var db = Db.Context().Result;
 
@@ -21,7 +21,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return ProcessImageDirectory(content, contentDirectory, settings.SiteUrl);
         }
 
-        public static PictureAssetInformation ProcessImageDirectory(ImageContent dbEntry)
+        public static PictureAsset ProcessImageDirectory(ImageContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var contentDirectory = settings.LocalSiteImageContentDirectory(dbEntry);
@@ -29,10 +29,10 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return ProcessImageDirectory(dbEntry, contentDirectory, settings.SiteUrl);
         }
 
-        public static PictureAssetInformation ProcessImageDirectory(ImageContent dbEntry, DirectoryInfo directoryInfo,
+        public static PictureAsset ProcessImageDirectory(ImageContent dbEntry, DirectoryInfo directoryInfo,
             string siteUrl)
         {
-            var toReturn = new PictureAssetInformation {DbEntry = dbEntry};
+            var toReturn = new PictureAsset {DbEntry = dbEntry};
 
             var baseFileNameList = dbEntry.OriginalFileName.Split(".").ToList();
             var baseFileName = string.Join("", baseFileNameList.Take(baseFileNameList.Count - 1));
@@ -42,7 +42,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var displayImageFile = fileVariants.SingleOrDefault(x => x.Name.Contains("--For-Display"));
 
             if (displayImageFile != null && displayImageFile.Exists)
-                toReturn.DisplayPicture = new PictureFileInformation
+                toReturn.DisplayPicture = new PictureFile
                 {
                     FileName = displayImageFile.Name,
                     SiteUrl = $@"//{siteUrl}/Images/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
@@ -58,7 +58,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 };
 
             var srcsetImageFiles = fileVariants.Where(x => x.Name.Contains("--Sized"));
-            toReturn.SrcsetImages = srcsetImageFiles.Select(x => new PictureFileInformation
+            toReturn.SrcsetImages = srcsetImageFiles.Select(x => new PictureFile
             {
                 FileName = x.Name,
                 Height =
@@ -77,7 +77,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return toReturn;
         }
 
-        public static PictureAssetInformation ProcessPhotoDirectory(Guid photoOrImageContentId)
+        public static PictureAsset ProcessPhotoDirectory(Guid photoOrImageContentId)
         {
             var db = Db.Context().Result;
 
@@ -90,7 +90,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return ProcessPhotoDirectory(content, contentDirectory, settings.SiteUrl);
         }
 
-        public static PictureAssetInformation ProcessPhotoDirectory(PhotoContent dbEntry)
+        public static PictureAsset ProcessPhotoDirectory(PhotoContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var contentDirectory = settings.LocalSitePhotoContentDirectory(dbEntry);
@@ -98,10 +98,10 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return ProcessPhotoDirectory(dbEntry, contentDirectory, settings.SiteUrl);
         }
 
-        public static PictureAssetInformation ProcessPhotoDirectory(PhotoContent dbEntry, DirectoryInfo directoryInfo,
+        public static PictureAsset ProcessPhotoDirectory(PhotoContent dbEntry, DirectoryInfo directoryInfo,
             string siteUrl)
         {
-            var toReturn = new PictureAssetInformation {DbEntry = dbEntry};
+            var toReturn = new PictureAsset {DbEntry = dbEntry};
 
             var baseFileNameList = dbEntry.OriginalFileName.Split(".").ToList();
             var baseFileName = string.Join("", baseFileNameList.Take(baseFileNameList.Count - 1));
@@ -111,7 +111,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var displayImageFile = fileVariants.SingleOrDefault(x => x.Name.Contains("--For-Display"));
 
             if (displayImageFile != null && displayImageFile.Exists)
-                toReturn.DisplayPicture = new PictureFileInformation
+                toReturn.DisplayPicture = new PictureFile
                 {
                     FileName = displayImageFile.Name,
                     SiteUrl = $@"//{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
@@ -127,7 +127,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 };
 
             var srcsetImageFiles = fileVariants.Where(x => x.Name.Contains("--Sized"));
-            toReturn.SrcsetImages = srcsetImageFiles.Select(x => new PictureFileInformation
+            toReturn.SrcsetImages = srcsetImageFiles.Select(x => new PictureFile
             {
                 FileName = x.Name,
                 SiteUrl = $@"//{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{x.Name}",
@@ -146,7 +146,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return toReturn;
         }
 
-        public static PictureAssetInformation ProcessPictureDirectory(Guid photoOrImageContentId)
+        public static PictureAsset ProcessPictureDirectory(Guid photoOrImageContentId)
         {
             var db = Db.Context().Result;
 

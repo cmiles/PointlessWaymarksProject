@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HtmlTags;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
@@ -21,14 +22,20 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var onlyCreated = false;
 
-            createdUpdatedString += $"Created by {dbEntry.CreatedBy}";
 
             if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
+            {
+
                 if (string.Compare(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) != 0)
                 {
-                    createdUpdatedString += $" and {dbEntry.LastUpdatedBy} ";
+                    createdUpdatedString += $"Created and Updated by {dbEntry.LastUpdatedBy} ";
                     onlyCreated = true;
                 }
+            }
+            else
+            {
+                createdUpdatedString += $"Created by {dbEntry.CreatedBy}";
+            }
 
             createdUpdatedString += $" on {dbEntry.CreatedOn:M/d/yyyy}.";
 
@@ -160,11 +167,14 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return figCaptionTag;
         }
 
-        public static HtmlTag PictureImgTag(PictureAssetInformation pictureDirectoryInfo)
+        public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo)
         {
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("srcset", pictureDirectoryInfo.SrcSetString())
-                .Attr("src", pictureDirectoryInfo.DisplayPicture.SiteUrl).Attr("loading", "lazy");
+                .Attr("src", pictureDirectoryInfo.DisplayPicture.SiteUrl)
+                .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
+                .Attr("width", pictureDirectoryInfo.DisplayPicture.Width)
+                .Attr("loading", "lazy");
 
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
@@ -172,16 +182,46 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return imageTag;
         }
         
-        public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAssetInformation pictureDirectoryInfo)
+        public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAsset pictureAsset)
         {
-            var imageTag = new HtmlTag("img").AddClass("thumb-photo")
-                .Attr("srcset", pictureDirectoryInfo.SrcSetString())
-                .Attr("src", pictureDirectoryInfo.SmallPicture.SiteUrl).Attr("loading", "lazy");
+            if (pictureAsset == null) return HtmlTag.Empty();
 
-            if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
-                imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
+            var imageTag = new HtmlTag("img").AddClass("thumb-photo")
+                .Attr("srcset", pictureAsset.SrcSetString())
+                .Attr("src", pictureAsset.SmallPicture.SiteUrl)
+                .Attr("height", pictureAsset.SmallPicture.Height)
+                .Attr("width", pictureAsset.SmallPicture.Width)
+                .Attr("loading", "lazy");
+
+            if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture.AltText))
+                imageTag.Attr("alt", pictureAsset.DisplayPicture.AltText);
 
             return imageTag;
+        }
+
+        public static bool IsEmpty(this HtmlTag toCheck)
+        {
+            return string.IsNullOrWhiteSpace(toCheck.ToHtmlString());
+        }
+
+        public static HtmlTag PictureImgThumbWithLink(PictureAsset pictureAsset, string linkTo)
+        {
+            if(pictureAsset == null) return HtmlTag.Empty();
+
+            var imgTag = PictureImgTagWithSmallestDefaultSrc(pictureAsset);
+
+            if (imgTag.IsEmpty()) return HtmlTag.Empty();
+
+            imgTag.AddClass(pictureAsset.SmallPicture.Height > pictureAsset.SmallPicture.Width
+                ? "thumb-vertical"
+                : "thumb-horizontal");
+
+            if (string.IsNullOrWhiteSpace(linkTo)) return imgTag;
+
+            var outerLink = new LinkTag(string.Empty, linkTo);
+            outerLink.Children.Add(imgTag);
+
+            return outerLink;
         }
 
         public static HtmlTag PostBodyDiv(IBodyContent dbEntry)
@@ -203,6 +243,14 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             var titleContainer = new HtmlTag("div").AddClass("post-title-area-created-and-updated-container");
             titleContainer.Children.Add(new HtmlTag("h3").AddClass("post-title-area-created-and-updated-content")
+                .Text(CreatedByAndUpdatedOnString(dbEntry)));
+            return titleContainer;
+        }
+
+        public static HtmlTag CreatedByAndUpdatedOnDiv(ICreatedAndLastUpdateOnAndBy dbEntry)
+        {
+            var titleContainer = new DivTag().AddClass("created-and-updated-container");
+            titleContainer.Children.Add(new DivTag().AddClass("created-and-updated-content")
                 .Text(CreatedByAndUpdatedOnString(dbEntry)));
             return titleContainer;
         }
@@ -271,7 +319,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var updateNotesDiv = new DivTag().AddClass("update-notes-container");
 
-            updateNotesDiv.Children.Add(HorizontalRule.StandardRule());
+            updateNotesDiv.Children.Add(new DivTag().AddClass("update-notes-title").Text("Updates:"));
 
             var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 

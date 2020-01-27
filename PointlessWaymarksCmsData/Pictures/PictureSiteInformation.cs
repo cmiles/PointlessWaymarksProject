@@ -1,8 +1,9 @@
 ﻿using System;
 using HtmlTags;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 
-namespace PointlessWaymarksCmsData.CommonHtml
+namespace PointlessWaymarksCmsData.Pictures
 {
     public class PictureSiteInformation
     {
@@ -16,7 +17,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public string PageUrl { get; set; }
 
-        public PictureAssetInformation Pictures { get; set; }
+        public PictureAsset Pictures { get; set; }
 
         public HtmlTag ImageFigureTag(ImageContent dbEntry)
         {
@@ -39,7 +40,10 @@ namespace PointlessWaymarksCmsData.CommonHtml
         public HtmlTag LocalDisplayPhotoImageTag()
         {
             var imageTag = new HtmlTag("img").AddClass("single-photo")
-                .Attr("src", $"file://{Pictures.DisplayPicture.File.FullName}").Attr("loading", "lazy");
+                .Attr("src", $"file://{Pictures.DisplayPicture.File.FullName}")
+                .Attr("height", Pictures.DisplayPicture.Height)
+                .Attr("width", Pictures.DisplayPicture.Width)
+                .Attr("loading", "lazy");
 
             if (!string.IsNullOrWhiteSpace(Pictures.DisplayPicture.AltText))
                 imageTag.Attr("alt", Pictures.DisplayPicture.AltText);
