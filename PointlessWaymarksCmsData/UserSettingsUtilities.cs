@@ -190,6 +190,30 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, "PhotoList")}.html");
         }
 
+        public static FileInfo LocalSiteAllContentListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteRootDirectory;
+            return new FileInfo($"{Path.Combine(directory, "AllContentList")}.html");
+        }
+
+        public static FileInfo LocalSiteImageListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteImageDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "ImageList")}.html");
+        }
+
+        public static FileInfo LocalSiteFileListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteFileDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "FileList")}.html");
+        }
+
+        public static FileInfo LocalSitePostListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSitePostDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "PostList")}.html");
+        }
+
         public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content,
             bool createDirectoryIfNotFound = true)
         {
@@ -228,6 +252,26 @@ namespace PointlessWaymarksCmsData
         public static string PhotoListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Photos/PhotoList.html";
+        }
+
+        public static string FileListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Files/FileList.html";
+        }
+
+        public static string ImageListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Images/ImageList.html";
+        }
+
+        public static string PostsListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Posts/PostList.html";
+        }
+
+        public static string AllContentListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/AllContentList.html";
         }
 
         public static string PicturePageUrl(this UserSettings settings, Guid contentGuid)

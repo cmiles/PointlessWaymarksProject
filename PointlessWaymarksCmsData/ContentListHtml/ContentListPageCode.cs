@@ -7,35 +7,37 @@ using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
+using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 
-namespace PointlessWaymarksCmsData.PhotoListHtml
+namespace PointlessWaymarksCmsData.ContentListHtml
 {
-    public partial class PhotoListPage
+    public partial class ContentListPage
     {
-        public HtmlTag PhotoTableTag()
+        public Func<List<IContentCommon>> ContentFunction { get; set; }
+        public string ListTitle { get; set; }
+
+        public HtmlTag ContentTableTag()
         {
             var db = Db.Context().Result;
 
-            var allPhotosByName = db.PhotoContents.OrderBy(x => x.Title).ToList();
+            var allContent = ContentFunction();
 
-            var photoListContainer = new DivTag().AddClass("photo-list-list-container");
+            var allContentContainer = new DivTag().AddClass("content-list-container");
 
-            foreach (var loopPhotos in allPhotosByName)
+            foreach (var loopPhotos in allContent)
             {
-                var photoListPhotoEntryDiv = new DivTag().AddClass("photo-list-list-item-container");
+                var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
                 photoListPhotoEntryDiv.Data("title", loopPhotos.Title);
                 photoListPhotoEntryDiv.Data("tags", loopPhotos.Tags);
                 photoListPhotoEntryDiv.Data("summary", loopPhotos.Summary);
-                photoListPhotoEntryDiv.Data("alttext", loopPhotos.AltText);
-                photoListPhotoEntryDiv.Data("contenttype", "photo");
 
                 photoListPhotoEntryDiv.Children.Add(ContentCompact.FromContent(loopPhotos));
 
-                photoListContainer.Children.Add(photoListPhotoEntryDiv);
+                allContentContainer.Children.Add(photoListPhotoEntryDiv);
             }
 
-            return photoListContainer;
+            return allContentContainer;
         }
 
         public void WriteLocalHtml()

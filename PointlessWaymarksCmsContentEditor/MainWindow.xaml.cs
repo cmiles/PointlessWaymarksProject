@@ -322,6 +322,7 @@ namespace PointlessWaymarksCmsContentEditor
             await GenerateAllImageHtml();
             await GenerateAllPhotoHtml();
             await GenerateAllPostHtml();
+            await GenerateAllListHtml();
             await GenerateIndex();
         }
 
@@ -347,6 +348,17 @@ namespace PointlessWaymarksCmsContentEditor
 
                 loopCount++;
             }
+        }
+
+        private async Task GenerateAllListHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WriteAllContentListHtml();
+            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WriteFileContentListHtml();
+            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WriteImageContentListHtml();
+            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WritePhotoContentListHtml();
+            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WritePostContentListHtml();
         }
 
         private async Task GenerateAllPhotoHtml()

@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace PointlessWaymarksCmsData.PhotoListHtml
+namespace PointlessWaymarksCmsData.ContentListHtml
 {
     using System.Linq;
     using System.Text;
@@ -19,9 +19,9 @@ namespace PointlessWaymarksCmsData.PhotoListHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoListHtml\PhotoListPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public partial class PhotoListPage : PhotoListPageBase
+    public partial class ContentListPage : ContentListPageBase
     {
 #line hidden
         /// <summary>
@@ -29,42 +29,54 @@ namespace PointlessWaymarksCmsData.PhotoListHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\n");
-            this.Write("\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title>Photo List</ti" +
-                    "tle>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0" +
-                    "\">\r\n\r\n    ");
+            this.Write("\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
-            #line 14 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoListHtml\PhotoListPage.tt"
+            #line 11 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));
+            
+            #line default
+            #line hidden
+            this.Write("</title>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=" +
+                    "1.0\">\r\n\r\n    ");
+            
+            #line 15 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 15 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoListHtml\PhotoListPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    <h1 class=\"index-title-content\">");
             
-            #line 19 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoListHtml\PhotoListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture($"{UserSettingsSingleton.CurrentSettings().SiteName} Photo List"));
+            #line 20 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture($"{UserSettingsSingleton.CurrentSettings().SiteName} {ListTitle}"));
             
             #line default
             #line hidden
             this.Write("</h1>\r\n    <div class=\"search-input-container\">\r\n        <input type=\"text\" class" +
                     "=\"search-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Searc" +
-                    "h photos..\">\r\n    </div>\r\n    ");
+                    "h ");
             
-            #line 23 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoListHtml\PhotoListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoTableTag()));
+            #line 22 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));
+            
+            #line default
+            #line hidden
+            this.Write("...\">\r\n    </div>\r\n    ");
+            
+            #line 24 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(ContentTableTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 24 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoListHtml\PhotoListPage.tt"
+            #line 25 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
@@ -77,15 +89,13 @@ namespace PointlessWaymarksCmsData.PhotoListHtml
       var input, filterText, contentDivs, loopDiv, i, divDataText;
       input = document.getElementById('userSearchText');
       filterText = input.value.toUpperCase();
-      contentDivs = document.getElementsByClassName('photo-list-list-item-container');
+      contentDivs = document.getElementsByClassName('content-list-item-container');
 
       // Loop through all list items, and hide those who don't match the search query
       for (i = 0; i < contentDivs.length; i++) {
         loopDiv = contentDivs[i];
 	    divDataText = loopDiv.getAttribute('data-title').concat(
 		    loopDiv.getAttribute('data-summary'),
-		    loopDiv.getAttribute('data-alttext'),
-		    loopDiv.getAttribute('data-contenttype'),
 		    loopDiv.getAttribute('data-tags')).toUpperCase();
 
         if (divDataText.indexOf(filterText) > -1) {
@@ -112,7 +122,7 @@ namespace PointlessWaymarksCmsData.PhotoListHtml
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public class PhotoListPageBase
+    public class ContentListPageBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

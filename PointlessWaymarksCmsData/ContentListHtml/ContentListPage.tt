@@ -8,7 +8,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Photo List</title>
+    <title><#= ListTitle #></title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -17,11 +17,11 @@
 </head>
 
 <body>
-    <h1 class="index-title-content"><#= $"{UserSettingsSingleton.CurrentSettings().SiteName} Photo List" #></h1>
+    <h1 class="index-title-content"><#= $"{UserSettingsSingleton.CurrentSettings().SiteName} {ListTitle}" #></h1>
     <div class="search-input-container">
-        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search photos..">
+        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search <#= ListTitle #>...">
     </div>
-    <#= PhotoTableTag() #>
+    <#= ContentTableTag() #>
     <#= Footer.StandardFooterDiv() #>
 
 <script>
@@ -30,15 +30,13 @@
       var input, filterText, contentDivs, loopDiv, i, divDataText;
       input = document.getElementById('userSearchText');
       filterText = input.value.toUpperCase();
-      contentDivs = document.getElementsByClassName('photo-list-list-item-container');
+      contentDivs = document.getElementsByClassName('content-list-item-container');
 
       // Loop through all list items, and hide those who don't match the search query
       for (i = 0; i < contentDivs.length; i++) {
         loopDiv = contentDivs[i];
 	    divDataText = loopDiv.getAttribute('data-title').concat(
 		    loopDiv.getAttribute('data-summary'),
-		    loopDiv.getAttribute('data-alttext'),
-		    loopDiv.getAttribute('data-contenttype'),
 		    loopDiv.getAttribute('data-tags')).toUpperCase();
 
         if (divDataText.indexOf(filterText) > -1) {

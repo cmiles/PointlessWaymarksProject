@@ -271,7 +271,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var list = new PointlessWaymarksCmsData.PhotoListHtml.PhotoListPage();
+            var list = new PointlessWaymarksCmsData.ContentListHtml.ContentListPage();
 
             list.WriteLocalHtml();
         }

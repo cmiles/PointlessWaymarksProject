@@ -416,6 +416,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 
+            newEntry.MainPicture = newEntry.ContentId;
             newEntry.Folder = TitleSummarySlugFolder.Folder;
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;

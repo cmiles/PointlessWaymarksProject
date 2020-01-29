@@ -39,10 +39,10 @@
       <LastGenOutput>IndexPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.IndexHtml</CustomToolNamespace>
     </None>
-    <None Update="PhotoListHtml\PhotoListPage.tt">
+    <None Update="ContentListHtml\ContentListPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>PhotoListPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarksCmsData.PhotoListHtml</CustomToolNamespace>
+      <LastGenOutput>ContentListPage.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.ContentListHtml</CustomToolNamespace>
     </None>
     <None Update="PostHtml\SinglePostDiv.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
@@ -81,10 +81,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>IndexPage.tt</DependentUpon>
     </Compile>
-    <Compile Update="PhotoListHtml\PhotoListPage.cs">
+    <Compile Update="ContentListHtml\ContentListPage.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>PhotoListPage.tt</DependentUpon>
+      <DependentUpon>ContentListPage.tt</DependentUpon>
     </Compile>
     <Compile Update="PostHtml\SinglePostDiv.cs">
       <DesignTime>True</DesignTime>
