@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.13.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.3.110.18" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.110.19" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.7.0" />
     <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
@@ -33,6 +33,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarksCmsData\PointlessWaymarksCmsData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="NoteList" />
   </ItemGroup>
 
 </Project>

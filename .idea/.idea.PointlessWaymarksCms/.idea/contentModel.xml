@@ -29,14 +29,17 @@
           <e p="BracketCodeImages.cs" t="Include" />
           <e p="BracketCodePhotos.cs" t="Include" />
           <e p="BracketCodePostLink.cs" t="Include" />
+          <e p="ContentCompact.cs" t="Include" />
           <e p="Footer.cs" t="Include" />
           <e p="HorizontalRule.cs" t="Include" />
-          <e p="PictureAssetInformation.cs" t="Include" />
-          <e p="PictureAssetProcessing.cs" t="Include" />
-          <e p="PictureFileInformation.cs" t="Include" />
-          <e p="PictureSiteInformation.cs" t="Include" />
           <e p="RelatedPostContent.cs" t="Include" />
           <e p="Tags.cs" t="Include" />
+        </e>
+        <e p="ContentListHtml" t="Include">
+          <e p="ContentListPage.cs" t="Include" />
+          <e p="ContentListPage.tt" t="Include" />
+          <e p="ContentListPageCode.cs" t="Include" />
+          <e p="ContentListPageGenerators.cs" t="Include" />
         </e>
         <e p="ContentProcessor.cs" t="Include" />
         <e p="Db.cs" t="Include" />
@@ -53,6 +56,7 @@
           <e p="SingleFilePage.tt" t="Include" />
           <e p="SingleFilePageCode.cs" t="Include" />
         </e>
+        <e p="FolderFileUtility.cs" t="Include" />
         <e p="FormatTypeEnum.cs" t="Include" />
         <e p="ImageHtml" t="Include">
           <e p="SingleImagePage.cs" t="Include" />
@@ -71,23 +75,32 @@
           <e p="HistoricFileContent.cs" t="Include" />
           <e p="HistoricImageContent.cs" t="Include" />
           <e p="HistoricLineContent.cs" t="Include" />
+          <e p="HistoricNoteContent.cs" t="Include" />
           <e p="HistoricPhotoContent.cs" t="Include" />
           <e p="HistoricPointContent.cs" t="Include" />
           <e p="HistoricPostContent.cs" t="Include" />
           <e p="HistoricTrailSegment.cs" t="Include" />
           <e p="IBodyContent.cs" t="Include" />
+          <e p="IContentCommon.cs" t="Include" />
           <e p="IContentId.cs" t="Include" />
           <e p="ICreatedAndLastUpdateOnAndBy.cs" t="Include" />
           <e p="ImageContent.cs" t="Include" />
           <e p="IMainImage.cs" t="Include" />
+          <e p="IShowInSiteFeed.cs" t="Include" />
           <e p="ITags.cs" t="Include" />
           <e p="ITitleSummarySlugFolder.cs" t="Include" />
           <e p="IUpdateNotes.cs" t="Include" />
           <e p="LineContent.cs" t="Include" />
+          <e p="NoteContent.cs" t="Include" />
           <e p="PhotoContent.cs" t="Include" />
           <e p="PointContent.cs" t="Include" />
           <e p="PostContent.cs" t="Include" />
           <e p="TrailSegment.cs" t="Include" />
+        </e>
+        <e p="NoteHtml" t="Include">
+          <e p="SingleNotePage.cs" t="Include" />
+          <e p="SingleNotePage.tt" t="Include" />
+          <e p="SingleNotePageCode.cs" t="Include" />
         </e>
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
@@ -101,6 +114,12 @@
           <e p="SinglePhotoPage.tt" t="Include" />
           <e p="SinglePhotoPageCode.cs" t="Include" />
         </e>
+        <e p="Pictures" t="Include">
+          <e p="PictureAsset.cs" t="Include" />
+          <e p="PictureAssetProcessing.cs" t="Include" />
+          <e p="PictureFile.cs" t="Include" />
+          <e p="PictureSiteInformation.cs" t="Include" />
+        </e>
         <e p="PointlessWaymarksCmsData.csproj" t="IncludeRecursive" />
         <e p="PointlessWaymarksContext.cs" t="Include" />
         <e p="PostHtml" t="Include">
@@ -112,7 +131,7 @@
           <e p="SinglePostPage.tt" t="Include" />
           <e p="SinglePostPageCode.cs" t="Include" />
         </e>
-        <e p="Slug.cs" t="Include" />
+        <e p="SlugUtility.cs" t="Include" />
         <e p="SpatialHelpers.cs" t="Include" />
         <e p="UserSettings.cs" t="Include" />
         <e p="UserSettingsSingleton.cs" t="Include" />
@@ -217,6 +236,14 @@
         <e p="Models" t="Include">
           <e p="UserSiteContent.cs" t="Include" />
         </e>
+        <e p="NoteContentEditor" t="Include">
+          <e p="NoteContentEditorContext.cs" t="Include" />
+          <e p="NoteContentEditorControl.xaml" t="Include" />
+          <e p="NoteContentEditorControl.xaml.cs" t="Include" />
+          <e p="NoteContentEditorWindow.xaml" t="Include" />
+          <e p="NoteContentEditorWindow.xaml.cs" t="Include" />
+        </e>
+        <e p="NoteList" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
@@ -270,6 +297,10 @@
               </e>
               <e p="MainImageFormat" t="Include">
                 <e p="MainImageFormatChooser.g.cs" t="Include" />
+              </e>
+              <e p="NoteContentEditor" t="Include">
+                <e p="NoteContentEditorControl.g.cs" t="Include" />
+                <e p="NoteContentEditorWindow.g.cs" t="Include" />
               </e>
               <e p="PhotoContentEditor" t="Include">
                 <e p="PhotoContentEditorControl.g.cs" t="Include" />

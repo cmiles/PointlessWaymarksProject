@@ -15,6 +15,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var contentListDiv = new DivTag().AddClass("footer-content-lists-container");
             contentListDiv.Children.Add(
+                new DivTag().AddClass("footer-content-list").Text("List/Search:"));
+            contentListDiv.Children.Add(
                 new LinkTag("All Content", @$"//{settings.AllContentListUrl()}").AddClass("footer-content-list"));
             contentListDiv.Children.Add(
                 new LinkTag("Posts", @$"//{settings.PostsListUrl()}").AddClass("footer-content-list"));

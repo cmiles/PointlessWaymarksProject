@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.CommandWpf;
@@ -14,7 +15,7 @@ using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PostHtml;
+using PointlessWaymarksCmsData.NoteHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -24,27 +25,39 @@ using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 
-namespace PointlessWaymarksCmsWpfControls.PostContentEditor
+namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 {
-    public class PostContentEditorContext : INotifyPropertyChanged
+    public class NoteContentEditorContext : INotifyPropertyChanged
     {
         private BodyContentEditorContext _bodyContent;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-        private PostContent _dbEntry;
+        private NoteContent _dbEntry;
         private RelayCommand _saveAndCreateLocalCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
-        private bool _showInPostFeed;
+        private bool _showInSiteFeed;
         private TagsEditorContext _tagEdit;
-        private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private RelayCommand _viewOnSiteCommand;
+        private string _folder;
+        private string _slug;
 
-        public PostContentEditorContext(StatusControlContext statusContext, PostContent postContent)
+        public string Folder
+        {
+            get => _folder;
+            set
+            {
+                if (value == _folder) return;
+                _folder = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public NoteContentEditorContext(StatusControlContext statusContext, NoteContent noteContent)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(postContent));
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(noteContent));
         }
 
         public BodyContentEditorContext BodyContent
@@ -80,7 +93,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public PostContent DbEntry
+        public NoteContent DbEntry
         {
             get => _dbEntry;
             set
@@ -113,13 +126,13 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public bool ShowInPostFeed
+        public bool ShowInSiteFeed
         {
-            get => _showInPostFeed;
+            get => _showInSiteFeed;
             set
             {
-                if (value == _showInPostFeed) return;
-                _showInPostFeed = value;
+                if (value == _showInSiteFeed) return;
+                _showInSiteFeed = value;
                 OnPropertyChanged();
             }
         }
@@ -133,17 +146,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 if (Equals(value, _tagEdit)) return;
                 _tagEdit = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public TitleSummarySlugEditorContext TitleSummarySlugFolder
-        {
-            get => _titleSummarySlugFolder;
-            set
-            {
-                if (Equals(value, _titleSummarySlugFolder)) return;
-                _titleSummarySlugFolder = value;
                 OnPropertyChanged();
             }
         }
@@ -174,24 +176,24 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var htmlContext = new SinglePostPage(DbEntry);
+            var htmlContext = new SingleNotePage(DbEntry);
 
             htmlContext.WriteLocalHtml();
         }
 
-        public async Task LoadData(PostContent toLoad)
+        public async Task LoadData(NoteContent toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new PostContent();
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
+            DbEntry = toLoad ?? new NoteContent();
+            Folder = toLoad?.Folder ?? string.Empty;
+            Slug = toLoad?.Slug ?? string.Empty;
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
-            UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
 
-            ShowInPostFeed = toLoad?.ShowInSiteFeed ?? true;
+            ShowInSiteFeed = toLoad?.ShowInSiteFeed ?? true;
 
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
@@ -212,7 +214,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 await StatusContext.ShowMessage("Validation Error",
                     string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
+                    new List<string> { "Ok" });
                 return;
             }
 
@@ -221,17 +223,41 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             await WriteLocalDbJson();
         }
 
+        public string Slug
+        {
+            get => _slug;
+            set
+            {
+                if (value == _slug) return;
+                _slug = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         private async Task SaveToDatabase()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var newEntry = new PostContent();
+            var newEntry = new NoteContent();
 
             if (DbEntry == null || DbEntry.Id < 1)
             {
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
+                var possibleSlug = SlugUtility.RandomLowerCaseString(6);
+
+                var db = await Db.Context();
+
+                async Task<bool> SlugAlreadyExists(string slug)
+                {
+                    return await db.NoteContents.AnyAsync(x => x.Slug == slug);
+                }
+
+                while (await SlugAlreadyExists(possibleSlug))
+                {
+                    possibleSlug = SlugUtility.RandomLowerCaseString(6);
+                }
             }
             else
             {
@@ -239,56 +265,50 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
+                newEntry.Slug = Slug;
             }
 
-            newEntry.Folder = TitleSummarySlugFolder.Folder;
-            newEntry.Slug = TitleSummarySlugFolder.Slug;
-            newEntry.Summary = TitleSummarySlugFolder.Summary;
+            newEntry.Folder = Folder;
             newEntry.Tags = TagEdit.Tags;
-            newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
-            newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
-            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.ShowInSiteFeed = ShowInPostFeed;
-
-            newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
+            newEntry.ShowInSiteFeed = ShowInSiteFeed;
 
             if (DbEntry != null && DbEntry.Id > 0)
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
                     var settings = UserSettingsSingleton.CurrentSettings();
-                    var existingDirectory = settings.LocalSitePostContentDirectory(DbEntry, false);
+                    var existingDirectory = settings.LocalSiteNoteContentDirectory(DbEntry, false);
 
                     if (existingDirectory.Exists)
                     {
                         var newDirectory =
-                            new DirectoryInfo(settings.LocalSitePostContentDirectory(newEntry, false).FullName);
-                        existingDirectory.MoveTo(settings.LocalSitePostContentDirectory(newEntry, false).FullName);
+                            new DirectoryInfo(settings.LocalSiteNoteContentDirectory(newEntry, false).FullName);
+                        existingDirectory.MoveTo(settings.LocalSiteNoteContentDirectory(newEntry, false).FullName);
                         newDirectory.Refresh();
 
                         var possibleOldHtmlFile =
                             new FileInfo($"{Path.Combine(newDirectory.FullName, DbEntry.Slug)}.html");
                         if (possibleOldHtmlFile.Exists)
-                            possibleOldHtmlFile.MoveTo(settings.LocalSitePostHtmlFile(newEntry).FullName);
+                            possibleOldHtmlFile.MoveTo(settings.LocalSiteNoteHtmlFile(newEntry).FullName);
                     }
                 }
 
             var context = await Db.Context();
 
-            var toHistoric = await context.PostContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
+            var toHistoric = await context.NoteContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
 
             foreach (var loopToHistoric in toHistoric)
             {
-                var newHistoric = new HistoricPostContent();
+                var newHistoric = new HistoricNoteContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
-                await context.HistoricPostContents.AddAsync(newHistoric);
-                context.PostContents.Remove(loopToHistoric);
+                await context.HistoricNoteContents.AddAsync(newHistoric);
+                context.NoteContents.Remove(loopToHistoric);
             }
 
-            context.PostContents.Add(newEntry);
+            context.NoteContents.Add(newEntry);
 
             await context.SaveChangesAsync(true);
 
@@ -307,7 +327,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 await StatusContext.ShowMessage("Validation Error",
                     string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
+                    new List<string> { "Ok" });
                 return;
             }
 
@@ -318,7 +338,38 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            return (true, string.Empty);
+            var isValid = true;
+            var errorMessage = string.Empty;
+            
+            if (string.IsNullOrWhiteSpace(Slug))
+            {
+                isValid = false;
+                errorMessage += "Slug can not be blank.";
+            }
+
+            if (string.IsNullOrWhiteSpace(Folder))
+            {
+                isValid = false;
+                errorMessage += "Folder can not be blank.";
+            }
+            
+            if (!isValid) return (false, errorMessage);
+
+            if (!FolderFileUtility.IsValidFilename(Folder))
+            {
+                isValid = false;
+                errorMessage += "Folders have illegal characters...";
+            }
+
+            if (!isValid) return (false, errorMessage);
+
+            if (await (await Db.Context()).SlugExistsInDatabase(Slug))
+            {
+                isValid = false;
+                errorMessage += "Slug already exists in Database";
+            }
+
+            return (isValid, errorMessage);
         }
 
         private async Task<List<(bool, string)>> ValidateAll()
@@ -328,7 +379,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             return new List<(bool, string)>
             {
                 await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
-                await TitleSummarySlugFolder.Validate(),
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()
             };
@@ -346,9 +396,9 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var url = $@"http://{settings.PostPageUrl(DbEntry)}";
+            var url = $@"http://{settings.NotePageUrl(DbEntry)}";
 
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
             Process.Start(ps);
         }
 
@@ -358,7 +408,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             var db = await Db.Context();
             var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
 
-            var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(DbEntry).FullName,
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(DbEntry).FullName,
                 $"{DbEntry.ContentId}.json"));
 
             if (jsonFile.Exists) jsonFile.Delete();
@@ -366,14 +416,14 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             File.WriteAllText(jsonFile.FullName, jsonDbEntry);
 
-            var latestHistoricEntries = db.HistoricPostContents.Where(x => x.ContentId == DbEntry.ContentId)
+            var latestHistoricEntries = db.HistoricNoteContents.Where(x => x.ContentId == DbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
 
             if (!latestHistoricEntries.Any()) return;
 
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
-            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(DbEntry).FullName,
+            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(DbEntry).FullName,
                 $"{DbEntry.ContentId}-Historic.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();

@@ -107,21 +107,14 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
-        private bool IsValidFilename(string testName)
-        {
-            //https://stackoverflow.com/questions/62771/how-do-i-check-if-a-given-string-is-a-legal-valid-file-name-under-windows
-            var containsABadCharacter = new Regex($"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()))}]");
-            if (containsABadCharacter.IsMatch(testName)) return false;
 
-            return true;
-        }
 
         public async Task LoadData(ITitleSummarySlugFolder dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             TitleToSlugCommand = new RelayCommand(() =>
-                StatusContext.RunBlockingAction(() => Slug = PointlessWaymarksCmsData.Slug.Create(true, Title)));
+                StatusContext.RunBlockingAction(() => Slug = PointlessWaymarksCmsData.SlugUtility.Create(true, Title)));
 
             DbEntry = dbEntry;
 
@@ -180,9 +173,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             if (!isValid) return (isValid, errorMessage);
 
-            var folderList = Folder.Split(",").ToList();
-
-            if (folderList.Any(x => !IsValidFilename(x)))
+            if (!FolderFileUtility.IsValidFilename(Folder))
             {
                 isValid = false;
                 errorMessage += "Folders have illegal characters...";

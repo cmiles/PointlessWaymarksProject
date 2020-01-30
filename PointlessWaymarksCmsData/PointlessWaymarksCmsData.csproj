@@ -44,6 +44,11 @@
       <LastGenOutput>ContentListPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.ContentListHtml</CustomToolNamespace>
     </None>
+    <None Update="NoteHtml\SingleNotePage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SingleNotePage.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.NoteHtml</CustomToolNamespace>
+    </None>
     <None Update="PostHtml\SinglePostDiv.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SinglePostDiv.cs</LastGenOutput>
@@ -85,6 +90,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>ContentListPage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="NoteHtml\SingleNotePage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SingleNotePage.tt</DependentUpon>
     </Compile>
     <Compile Update="PostHtml\SinglePostDiv.cs">
       <DesignTime>True</DesignTime>

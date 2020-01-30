@@ -35,6 +35,11 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
+        public static string NotePageUrl(this UserSettings settings, NoteContent content)
+        {
+            return $"//{settings.SiteUrl}/Notes/{content.Folder}/{content.Slug}.html";
+        }
+        
         public static string IndexPageUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/index.html";
@@ -42,46 +47,46 @@ namespace PointlessWaymarksCmsData
 
         public static DirectoryInfo LocalMasterMediaArchiveFileDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Files"));
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Files"));
 
-            if (!photoDirectory.Exists) photoDirectory.Create();
+            if (!localDirectory.Exists) localDirectory.Create();
 
-            photoDirectory.Refresh();
+            localDirectory.Refresh();
 
-            return photoDirectory;
+            return localDirectory;
         }
 
         public static DirectoryInfo LocalMasterMediaArchiveImageDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Images"));
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Images"));
 
-            if (!photoDirectory.Exists) photoDirectory.Create();
+            if (!localDirectory.Exists) localDirectory.Create();
 
-            photoDirectory.Refresh();
+            localDirectory.Refresh();
 
-            return photoDirectory;
+            return localDirectory;
         }
 
 
         public static DirectoryInfo LocalMasterMediaArchivePhotoDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Photos"));
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Photos"));
 
-            if (!photoDirectory.Exists) photoDirectory.Create();
+            if (!localDirectory.Exists) localDirectory.Create();
 
-            photoDirectory.Refresh();
+            localDirectory.Refresh();
 
-            return photoDirectory;
+            return localDirectory;
         }
 
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(settings.LocalSiteRootDirectory);
-            if (!photoDirectory.Exists) photoDirectory.Create();
+            var localDirectory = new DirectoryInfo(settings.LocalSiteRootDirectory);
+            if (!localDirectory.Exists) localDirectory.Create();
 
-            photoDirectory.Refresh();
+            localDirectory.Refresh();
 
-            return photoDirectory;
+            return localDirectory;
         }
 
         public static DirectoryInfo LocalSiteFileContentDirectory(this UserSettings settings, FileContent content,
@@ -100,12 +105,12 @@ namespace PointlessWaymarksCmsData
 
         public static DirectoryInfo LocalSiteFileDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Files"));
-            if (!photoDirectory.Exists) photoDirectory.Create();
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Files"));
+            if (!localDirectory.Exists) localDirectory.Create();
 
-            photoDirectory.Refresh();
+            localDirectory.Refresh();
 
-            return photoDirectory;
+            return localDirectory;
         }
 
         public static FileInfo LocalSiteFileHtmlFile(this UserSettings settings, FileContent content)
@@ -228,19 +233,50 @@ namespace PointlessWaymarksCmsData
             return contentDirectory;
         }
 
+        public static DirectoryInfo LocalSiteNoteContentDirectory(this UserSettings settings, NoteContent content,
+            bool createDirectoryIfNotFound = true)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteNoteDirectory().FullName,
+                content.Folder));
+
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+
         public static DirectoryInfo LocalSitePostDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Posts"));
-            if (!photoDirectory.Exists) photoDirectory.Create();
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Posts"));
+            if (!localDirectory.Exists) localDirectory.Create();
 
-            photoDirectory.Refresh();
+            localDirectory.Refresh();
 
-            return photoDirectory;
+            return localDirectory;
+        }
+
+        public static DirectoryInfo LocalSiteNoteDirectory(this UserSettings settings)
+        {
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Notes"));
+            if (!localDirectory.Exists) localDirectory.Create();
+
+            localDirectory.Refresh();
+
+            return localDirectory;
         }
 
         public static FileInfo LocalSitePostHtmlFile(this UserSettings settings, PostContent content)
         {
             var directory = settings.LocalSitePostContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
+        public static FileInfo LocalSiteNoteHtmlFile(this UserSettings settings, NoteContent content)
+        {
+            var directory = settings.LocalSiteNoteContentDirectory(content, false);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 

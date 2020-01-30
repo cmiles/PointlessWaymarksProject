@@ -7,8 +7,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PointlessWaymarksCmsData
 {
-    public static class Slug
+    public static class SlugUtility
     {
+        public static string RandomLowerCaseString(int length)
+        {
+            var chars = "abcdefghijklmnopqrstuvwxyz";
+            var stringChars = new char[length];
+            var random = new Random();
+
+            for (int i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new String(stringChars);
+        }
+
         private static string ConvertEdgeCases(char c, bool toLower)
         {
             string swap = null;
