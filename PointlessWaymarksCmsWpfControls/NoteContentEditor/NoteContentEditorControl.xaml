@@ -27,7 +27,16 @@
                                 <Label>Folder</Label>
                                 <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" SpellCheck.IsEnabled="True" />
                             </StackPanel>
-                            <CheckBox Margin="0,8,0,8" IsChecked="{Binding ShowInPostFeed}">Show Post in Feed</CheckBox>
+                            <StackPanel Orientation="Vertical">
+                                <Label>Summary</Label>
+                                <TextBox
+                                    SpellCheck.IsEnabled="True"
+                                    AcceptsReturn="True"
+                                    Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}"
+                                    TextWrapping="Wrap"
+                                    VerticalScrollBarVisibility="Visible" />
+                            </StackPanel>
+                            <CheckBox Margin="0,8,0,8" IsChecked="{Binding ShowInSiteFeed}">Show Post in Feed</CheckBox>
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                                 DataContext="{Binding CreatedUpdatedDisplay}" />

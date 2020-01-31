@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.CommandWpf;
@@ -13,7 +12,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.NoteHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
@@ -21,7 +19,6 @@ using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
-using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -33,25 +30,15 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private NoteContent _dbEntry;
+        private string _folder;
         private RelayCommand _saveAndCreateLocalCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
         private bool _showInSiteFeed;
+        private string _slug;
         private TagsEditorContext _tagEdit;
         private UpdateNotesEditorContext _updateNotes;
         private RelayCommand _viewOnSiteCommand;
-        private string _folder;
-        private string _slug;
-
-        public string Folder
-        {
-            get => _folder;
-            set
-            {
-                if (value == _folder) return;
-                _folder = value;
-                OnPropertyChanged();
-            }
-        }
+        private string _summary;
 
         public NoteContentEditorContext(StatusControlContext statusContext, NoteContent noteContent)
         {
@@ -104,6 +91,17 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
+        public string Folder
+        {
+            get => _folder;
+            set
+            {
+                if (value == _folder) return;
+                _folder = value;
+                OnPropertyChanged();
+            }
+        }
+
         public RelayCommand SaveAndCreateLocalCommand
         {
             get => _saveAndCreateLocalCommand;
@@ -133,6 +131,17 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             {
                 if (value == _showInSiteFeed) return;
                 _showInSiteFeed = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Slug
+        {
+            get => _slug;
+            set
+            {
+                if (value == _slug) return;
+                _slug = value;
                 OnPropertyChanged();
             }
         }
@@ -187,17 +196,47 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
             DbEntry = toLoad ?? new NoteContent();
             Folder = toLoad?.Folder ?? string.Empty;
-            Slug = toLoad?.Slug ?? string.Empty;
+            Summary = toLoad?.Summary ?? string.Empty;
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
-
             ShowInSiteFeed = toLoad?.ShowInSiteFeed ?? true;
+
+            if (string.IsNullOrWhiteSpace(toLoad?.Slug))
+            {
+                var possibleSlug = SlugUtility.RandomLowerCaseString(6);
+
+                var db = await Db.Context();
+
+                async Task<bool> SlugAlreadyExists(string slug)
+                {
+                    return await db.NoteContents.AnyAsync(x => x.Slug == slug);
+                }
+
+                while (await SlugAlreadyExists(possibleSlug)) possibleSlug = SlugUtility.RandomLowerCaseString(6);
+
+                Slug = possibleSlug;
+            }
+            else
+            {
+                Slug = toLoad.Slug;
+            }
 
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
+        }
+
+        public string Summary
+        {
+            get => _summary;
+            set
+            {
+                if (value == _summary) return;
+                _summary = value;
+                OnPropertyChanged();
+            }
         }
 
         [NotifyPropertyChangedInvocator]
@@ -214,24 +253,13 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             {
                 await StatusContext.ShowMessage("Validation Error",
                     string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> { "Ok" });
+                    new List<string> {"Ok"});
                 return;
             }
 
             await SaveToDatabase();
             await GenerateHtml();
             await WriteLocalDbJson();
-        }
-
-        public string Slug
-        {
-            get => _slug;
-            set
-            {
-                if (value == _slug) return;
-                _slug = value;
-                OnPropertyChanged();
-            }
         }
 
 
@@ -245,19 +273,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             {
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
-                var possibleSlug = SlugUtility.RandomLowerCaseString(6);
-
-                var db = await Db.Context();
-
-                async Task<bool> SlugAlreadyExists(string slug)
-                {
-                    return await db.NoteContents.AnyAsync(x => x.Slug == slug);
-                }
-
-                while (await SlugAlreadyExists(possibleSlug))
-                {
-                    possibleSlug = SlugUtility.RandomLowerCaseString(6);
-                }
             }
             else
             {
@@ -265,10 +280,11 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
-                newEntry.Slug = Slug;
             }
 
+            newEntry.Slug = Slug;
             newEntry.Folder = Folder;
+            newEntry.Summary = Summary;
             newEntry.Tags = TagEdit.Tags;
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.BodyContent = BodyContent.BodyContent;
@@ -327,7 +343,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             {
                 await StatusContext.ShowMessage("Validation Error",
                     string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> { "Ok" });
+                    new List<string> {"Ok"});
                 return;
             }
 
@@ -340,7 +356,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
             var isValid = true;
             var errorMessage = string.Empty;
-            
+
             if (string.IsNullOrWhiteSpace(Slug))
             {
                 isValid = false;
@@ -351,6 +367,12 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             {
                 isValid = false;
                 errorMessage += "Folder can not be blank.";
+            }
+
+            if (string.IsNullOrWhiteSpace(Summary))
+            {
+                isValid = false;
+                errorMessage += "Summary can not be blank.";
             }
             
             if (!isValid) return (false, errorMessage);
@@ -398,7 +420,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
             var url = $@"http://{settings.NotePageUrl(DbEntry)}";
 
-            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
 

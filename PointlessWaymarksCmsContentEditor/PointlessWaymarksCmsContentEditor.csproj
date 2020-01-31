@@ -24,6 +24,7 @@
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.1-beta" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
     <PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="4.7.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
     <PackageReference Include="XAML.MapControl" Version="4.16.0" />

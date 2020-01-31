@@ -25,14 +25,14 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 
             var allContentContainer = new DivTag().AddClass("content-list-container");
 
-            foreach (var loopPhotos in allContent)
+            foreach (var loopContent in allContent)
             {
                 var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
-                photoListPhotoEntryDiv.Data("title", loopPhotos.Title);
-                photoListPhotoEntryDiv.Data("tags", loopPhotos.Tags);
-                photoListPhotoEntryDiv.Data("summary", loopPhotos.Summary);
+                photoListPhotoEntryDiv.Data("title", loopContent.Title);
+                photoListPhotoEntryDiv.Data("tags", loopContent.Tags);
+                photoListPhotoEntryDiv.Data("summary", loopContent.Summary);
 
-                photoListPhotoEntryDiv.Children.Add(ContentCompact.FromContent(loopPhotos));
+                photoListPhotoEntryDiv.Children.Add(ContentCompact.FromContent(loopContent));
 
                 allContentContainer.Children.Add(photoListPhotoEntryDiv);
             }

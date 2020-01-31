@@ -16,25 +16,19 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return dbEntry.LastUpdatedOn ?? dbEntry.CreatedOn;
         }
 
-        private static string CreatedByAndUpdatedOnString(ICreatedAndLastUpdateOnAndBy dbEntry)
+        public static string CreatedByAndUpdatedOnString(ICreatedAndLastUpdateOnAndBy dbEntry)
         {
-            var createdUpdatedString = string.Empty;
+            var createdUpdatedString = $"Created by {dbEntry.CreatedBy}";
 
             var onlyCreated = false;
 
-
             if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
             {
-
                 if (string.Compare(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) != 0)
                 {
-                    createdUpdatedString += $"Created and Updated by {dbEntry.LastUpdatedBy} ";
+                    createdUpdatedString = $"Created and Updated by {dbEntry.LastUpdatedBy} ";
                     onlyCreated = true;
                 }
-            }
-            else
-            {
-                createdUpdatedString += $"Created by {dbEntry.CreatedBy}";
             }
 
             createdUpdatedString += $" on {dbEntry.CreatedOn:M/d/yyyy}.";

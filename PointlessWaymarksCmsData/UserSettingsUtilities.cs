@@ -194,11 +194,23 @@ namespace PointlessWaymarksCmsData
             var directory = settings.LocalSitePhotoDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "PhotoList")}.html");
         }
+        
+        public static FileInfo LocalSiteNoteListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteNoteDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "NoteList")}.html");
+        }
 
         public static FileInfo LocalSiteAllContentListFile(this UserSettings settings)
         {
             var directory = settings.LocalSiteRootDirectory;
             return new FileInfo($"{Path.Combine(directory, "AllContentList")}.html");
+        }
+        
+        public static FileInfo LocalSiteRssIndexFeedListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteRootDirectory;
+            return new FileInfo($"{Path.Combine(directory, "RssIndexFeed")}.xml");
         }
 
         public static FileInfo LocalSiteImageListFile(this UserSettings settings)
@@ -294,6 +306,11 @@ namespace PointlessWaymarksCmsData
         {
             return $"//{settings.SiteUrl}/Files/FileList.html";
         }
+        
+        public static string NoteListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Notes/NoteList.html";
+        }
 
         public static string ImageListUrl(this UserSettings settings)
         {
@@ -308,6 +325,11 @@ namespace PointlessWaymarksCmsData
         public static string AllContentListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/AllContentList.html";
+        }
+        
+        public static string RssIndexFeedUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/RssIndexFeed.rss";
         }
 
         public static string PicturePageUrl(this UserSettings settings, Guid contentGuid)
@@ -344,6 +366,9 @@ namespace PointlessWaymarksCmsData
             var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
             if (possibleImage != null) return settings.ImagePageUrl(possibleImage);
 
+            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possibleNote != null) return settings.NotePageUrl(possibleNote);
+            
             return string.Empty;
         }
 

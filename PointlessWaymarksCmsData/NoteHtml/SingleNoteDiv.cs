@@ -8,20 +8,16 @@
 namespace PointlessWaymarksCmsData.NoteHtml
 {
     using System;
-    #line 3 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+    #line 3 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
 using System.Linq;
     #line default
     #line hidden
-    #line 4 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+    #line 4 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
 using System.Text;
     #line default
     #line hidden
-    #line 5 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+    #line 5 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
 using System.Collections.Generic;
-    #line default
-    #line hidden
-    #line 6 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-using PointlessWaymarksCmsData.CommonHtml;
     #line default
     #line hidden
     
@@ -29,9 +25,9 @@ using PointlessWaymarksCmsData.CommonHtml;
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("JetBrains.ForTea.TextTemplating", "42.42.42.42")]
-    public partial class SingleNotePage : SingleNotePageBase
+    public partial class SingleNoteDiv : SingleNoteDivBase
     {
 #line hidden
         /// <summary>
@@ -40,105 +36,21 @@ using PointlessWaymarksCmsData.CommonHtml;
         public virtual string TransformText()
         {
             
-            this.Write("<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title>");
+            this.Write("\r\n<div class=\"note-container\">\r\n    ");
             
-            #line 10 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Title));
-            
-            #line default
-            #line hidden
-            this.Write("</title>\r\n    <meta name=\"author\" content=\"");
-            
-            #line 11 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy));
-            
-            #line default
-            #line hidden
-            this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
-            
-            #line 12 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Tags));
-            
-            #line default
-            #line hidden
-            this.Write("\" >\r\n\r\n    <meta property=\"og:site_name\" content=\"");
-            
-            #line 14 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"");
-            
-            #line 15 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:type\" content=\"article\" />\r\n    <meta property=\"og:title\" content=\"");
-            
-            #line 17 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Title));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
-            
-            #line 21 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 22 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
-            
-            #line 27 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 8 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(NoteParts.TitleDiv(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 28 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
+            #line 9 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostBodyDiv(DbEntry)));
             
             #line default
             #line hidden
-            this.Write("\r\n    ");
-            
-            #line 29 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    <div class=\"information-section\">\r\n        ");
-            
-            #line 31 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    </div>\r\n    ");
-            
-            #line 33 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 34 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n</body>\r\n\r\n</html>\r\n");
+            this.Write("\r\n</div>\r\n");
             return this.GenerationEnvironment.ToString();
         }
     }
@@ -150,7 +62,7 @@ using PointlessWaymarksCmsData.CommonHtml;
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("JetBrains.ForTea.TextTemplating", "42.42.42.42")]
-    public class SingleNotePageBase
+    public class SingleNoteDivBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

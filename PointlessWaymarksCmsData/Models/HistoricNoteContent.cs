@@ -16,5 +16,6 @@ namespace PointlessWaymarksCmsData.Models
         public bool ShowInSiteFeed { get; set; }
         public string Folder { get; set; }
         public string Slug { get; set; }
+        public string Summary { get; set; }
     }
 }

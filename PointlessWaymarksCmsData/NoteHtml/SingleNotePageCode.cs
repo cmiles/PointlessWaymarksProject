@@ -19,8 +19,10 @@ namespace PointlessWaymarksCmsData.NoteHtml
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.NotePageUrl(DbEntry);
-
+            Title = $"Note - {CommonHtml.Tags.CreatedByAndUpdatedOnString(DbEntry)}";
         }
+
+        public string Title { get; }
 
         public void WriteLocalHtml()
         {

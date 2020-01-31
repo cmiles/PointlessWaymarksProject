@@ -6,6 +6,7 @@ using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.IndexHtml;
@@ -16,6 +17,7 @@ using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.ImageList;
+using PointlessWaymarksCmsWpfControls.NoteList;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
@@ -47,6 +49,7 @@ namespace PointlessWaymarksCmsContentEditor
         private StatusControlContext _statusContext;
         private FileListWithActionsContext _tabFileListContext;
         private ImageListWithActionsContext _tabImageListContext;
+        private NoteListWithActionsContext _tabNoteListContext;
         private PhotoListWithActionsContext _tabPhotoListContext;
         private PostListWithActionsContext _tabPostListContext;
 
@@ -270,6 +273,17 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        public NoteListWithActionsContext TabNoteListContext
+        {
+            get => _tabNoteListContext;
+            set
+            {
+                if (Equals(value, _tabNoteListContext)) return;
+                _tabNoteListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
         public PhotoListWithActionsContext TabPhotoListContext
         {
             get => _tabPhotoListContext;
@@ -354,11 +368,12 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WriteAllContentListHtml();
-            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WriteFileContentListHtml();
-            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WriteImageContentListHtml();
-            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WritePhotoContentListHtml();
-            PointlessWaymarksCmsData.ContentListHtml.ContentListPageGenerators.WritePostContentListHtml();
+            ContentListPageGenerators.WriteAllContentListHtml();
+            ContentListPageGenerators.WriteFileContentListHtml();
+            ContentListPageGenerators.WriteImageContentListHtml();
+            ContentListPageGenerators.WritePhotoContentListHtml();
+            ContentListPageGenerators.WritePostContentListHtml();
+            ContentListPageGenerators.WriteNoteContentListHtml();
         }
 
         private async Task GenerateAllPhotoHtml()
@@ -427,6 +442,7 @@ namespace PointlessWaymarksCmsContentEditor
             TabFileListContext = new FileListWithActionsContext(null);
             TabPhotoListContext = new PhotoListWithActionsContext(null);
             TabPostListContext = new PostListWithActionsContext(null);
+            TabNoteListContext = new NoteListWithActionsContext(null);
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
 

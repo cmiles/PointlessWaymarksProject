@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsData.PostHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("JetBrains.ForTea.TextTemplating", "42.42.42.42")]
     public partial class SinglePostDiv : SinglePostDivBase
     {
@@ -26,21 +26,21 @@ namespace PointlessWaymarksCmsData.PostHtml
             
             this.Write("<div class=\"post-container\">\r\n    ");
             
-            #line 4 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
+            #line 4 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(TitleDiv()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 5 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
+            #line 5 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 7 "C:\Code\TheLemmonWorkshop02\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
+            #line 6 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostBodyDiv(DbEntry)));
             
             #line default

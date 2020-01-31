@@ -3,3 +3,35 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title><#=Title #></title>
+    <meta name="author" content="<#=DbEntry.CreatedBy #>">
+    <meta name="keywords" content="<#= DbEntry.Tags #>" >
+
+    <meta property="og:site_name" content="<#=SiteName #>" />
+    <meta property="og:url" content="<#=PageUrl #>" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="<#=Title #>" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <#= Tags.CssStyleFileString() #>
+    <#= Tags.FavIconFileString() #>
+
+</head>
+
+<body>
+    <#= NoteParts.TitleDiv(DbEntry) #>
+    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
+    <#= HorizontalRule.StandardRule() #>
+    <div class="information-section">
+        <#= Tags.TagList(DbEntry).ToString() #>
+    </div>
+    <#= HorizontalRule.StandardRule() #>
+    <#= Footer.StandardFooterDiv() #>
+</body>
+
+</html>

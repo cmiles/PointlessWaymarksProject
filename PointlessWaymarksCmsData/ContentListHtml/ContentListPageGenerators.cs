@@ -6,6 +6,7 @@ using System.Text;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.NoteHtml;
 
 namespace PointlessWaymarksCmsData.ContentListHtml
 {
@@ -16,12 +17,13 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             List<IContentCommon> ContentList()
             {
                 var db = Db.Context().Result;
-                var fileContent = db.FileContents.OrderBy(x => x.Title).Cast<IContentCommon>().ToList();
-                var photoContent = db.PhotoContents.OrderBy(x => x.Title).Cast<IContentCommon>().ToList();
-                var imageContent = db.ImageContents.OrderBy(x => x.Title).Cast<IContentCommon>().ToList();
-                var postContent = db.PostContents.OrderBy(x => x.Title).Cast<IContentCommon>().ToList();
+                var fileContent = db.FileContents.Cast<IContentCommon>().ToList();
+                var photoContent = db.PhotoContents.Cast<IContentCommon>().ToList();
+                var imageContent = db.ImageContents.Cast<IContentCommon>().ToList();
+                var postContent = db.PostContents.Cast<IContentCommon>().ToList();
+                var noteContent = db.NoteContents.ToList().Select(x => x.NoteToCommonContent()).Cast<IContentCommon>().ToList();
 
-                return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).OrderBy(x => x.Title)
+                return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent).OrderBy(x => x.Title)
                     .ToList();
             }
 
@@ -81,6 +83,39 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "Photos");
+        }
+
+        public static ContentCommon NoteToCommonContent(this NoteContent toTransform)
+        {
+            return new ContentCommon
+            {
+                ContentId = toTransform.ContentId,
+                CreatedBy = toTransform.CreatedBy,
+                CreatedOn = toTransform.CreatedOn,
+                Folder = toTransform.Folder,
+                Id = toTransform.Id,
+                LastUpdatedBy = toTransform.LastUpdatedBy,
+                LastUpdatedOn = toTransform.LastUpdatedOn,
+                MainPicture = null,
+                Slug = toTransform.Slug,
+                Summary = toTransform.Summary,
+                Tags = toTransform.Tags,
+                Title = NoteParts.TitleString(toTransform)
+            };
+        }
+
+        public static void WriteNoteContentListHtml()
+        {
+            List<IContentCommon> ContentList()
+            {
+                var db = Db.Context().Result;
+                return db.NoteContents.ToList().Select(x => x.NoteToCommonContent()).Cast<IContentCommon>()
+                    .OrderByDescending(x => x.Title).ToList();
+            }
+
+            var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteNoteListFile();
+
+            WriteContentListHtml(ContentList, fileInfo, "Notes");
         }
 
         public static void WriteContentListHtml(Func<List<IContentCommon>> dbFunc, FileInfo fileInfo, string titleAdd)

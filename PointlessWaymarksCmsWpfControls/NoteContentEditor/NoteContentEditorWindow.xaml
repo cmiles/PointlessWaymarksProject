@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.NoteContentEditor"
         xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
         mc:Ignorable="d"
-        Title="Note Editor" Height="450" Width="800">
+        Title="Note Editor" Height="450" Width="800" d:DataContext="{d:DesignInstance local:NoteContentEditorWindow}">
         <Grid>
-            <local:NoteContentEditorControl DataContext="{Binding PostContent}" />
+            <local:NoteContentEditorControl DataContext="{Binding NoteContent}" />
             <status:StatusControl Grid.Column="0" d:IsHidden="true"
                                   DataContext="{Binding StatusContext}" />
         </Grid>

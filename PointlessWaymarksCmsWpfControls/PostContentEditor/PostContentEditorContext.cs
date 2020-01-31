@@ -34,7 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private PostContent _dbEntry;
         private RelayCommand _saveAndCreateLocalCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
-        private bool _showInPostFeed;
+        private bool _showInSiteFeed;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
@@ -113,13 +113,13 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public bool ShowInPostFeed
+        public bool ShowInSiteFeed
         {
-            get => _showInPostFeed;
+            get => _showInSiteFeed;
             set
             {
-                if (value == _showInPostFeed) return;
-                _showInPostFeed = value;
+                if (value == _showInSiteFeed) return;
+                _showInSiteFeed = value;
                 OnPropertyChanged();
             }
         }
@@ -191,7 +191,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
 
-            ShowInPostFeed = toLoad?.ShowInSiteFeed ?? true;
+            ShowInSiteFeed = toLoad?.ShowInSiteFeed ?? true;
 
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
@@ -251,7 +251,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.ShowInSiteFeed = ShowInPostFeed;
+            newEntry.ShowInSiteFeed = ShowInSiteFeed;
 
             newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 

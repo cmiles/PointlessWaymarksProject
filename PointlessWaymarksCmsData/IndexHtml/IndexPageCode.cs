@@ -1,11 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.ServiceModel.Syndication;
+using System.Text;
+using System.Xml;
+using AngleSharp;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.NoteHtml;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsData.PostHtml;
 
@@ -25,18 +31,23 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
             var db = Db.Context().Result;
 
-            Posts = db.PostContents.OrderByDescending(x => x.CreatedOn).Take(8).ToList();
+            var posts = db.PostContents.OrderByDescending(x => x.CreatedOn).Cast<dynamic>().Take(20).ToList();
+            var notes = db.NoteContents.OrderByDescending(x => x.CreatedOn).Cast<dynamic>().Take(20).ToList();
+            IndexContent = posts.Concat(notes).OrderByDescending(x => x.CreatedOn).Take(8).ToList();
 
-            var mainImageGuid = Posts.FirstOrDefault(x => x.MainPicture != null)?.MainPicture;
+            var mainImageGuid = IndexContent
+                .FirstOrDefault(x => x.GetType() == typeof(PostContent) && x.MainPicture != null)?.MainPicture;
 
-            if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid.Value);
+            if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid);
         }
+
+        public List<dynamic> IndexContent { get; set; }
+
 
         public PictureSiteInformation MainImage { get; set; }
 
         public string PageUrl { get; set; }
 
-        public List<PostContent> Posts { get; set; }
         public string SiteAuthors { get; set; }
         public string SiteKeywords { get; set; }
 
@@ -47,17 +58,29 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
         public HtmlTag IndexPosts()
         {
-            if (!Posts.Any()) return HtmlTag.Empty();
+            if (!IndexContent.Any()) return HtmlTag.Empty();
 
             var indexBodyContainer = new DivTag().AddClass("index-posts-container");
 
-            foreach (var loopPosts in Posts)
+            foreach (var loopPosts in IndexContent)
             {
-                var post = new SinglePostDiv(loopPosts);
-                var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
-                indexPostContentDiv.Encoded(false).Text(post.TransformText());
-                indexBodyContainer.Children.Add(indexPostContentDiv);
-                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+                if (loopPosts.GetType() == typeof(PostContent))
+                {
+                    var post = new SinglePostDiv(loopPosts);
+                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                    indexBodyContainer.Children.Add(indexPostContentDiv);
+                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+                }
+
+                if (loopPosts.GetType() == typeof(NoteContent))
+                {
+                    var post = new SingleNoteDiv(loopPosts);
+                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                    indexBodyContainer.Children.Add(indexPostContentDiv);
+                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+                }
             }
 
             return indexBodyContainer;
@@ -75,9 +98,64 @@ namespace PointlessWaymarksCmsData.IndexHtml
             return titleContainer;
         }
 
-        public void WriteLocalHtml()
+        public void WriteRss()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
+
+            var feed = new SyndicationFeed(SiteName, SiteSummary, new Url(SiteUrl),
+                UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl(), DateTime.Now);
+            feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {SiteAuthors}");
+
+            var items = new List<SyndicationItem>();
+
+            foreach (var loopPosts in IndexContent)
+            {
+                if (loopPosts.GetType() == typeof(PostContent))
+                {
+                    var post = new SinglePostDiv(loopPosts);
+                    items.Add(new SyndicationItem(post.DbEntry.Title, post.DbEntry.Summary,
+                        new Uri($"https:{post.PageUrl}"), post.DbEntry.Slug, post.DbEntry.CreatedOn));
+                }
+
+                if (loopPosts.GetType() == typeof(NoteContent))
+                {
+                    var post = new SingleNoteDiv(loopPosts);
+                    items.Add(new SyndicationItem(NoteParts.TitleString(post.DbEntry), post.DbEntry.Summary,
+                        new Uri($"https:{post.PageUrl}"), post.DbEntry.Slug, post.DbEntry.CreatedOn));
+                }
+            }
+
+            feed.Items = items;
+
+            var xmlSettings = new XmlWriterSettings
+            {
+                Encoding = Encoding.UTF8,
+                NewLineHandling = NewLineHandling.Entitize,
+                NewLineOnAttributes = true,
+                Indent = true
+            };
+
+            using var stream = new MemoryStream();
+
+            var localIndexFile = UserSettingsSingleton.CurrentSettings().LocalSiteRssIndexFeedListFile();
+
+            if (localIndexFile.Exists)
+            {
+                localIndexFile.Delete();
+                localIndexFile.Refresh();
+            }
+
+            using (var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings))
+            {
+                var rssFormatter = new Rss20FeedFormatter(feed, false);
+                rssFormatter.WriteTo(xmlWriter);
+                xmlWriter.Flush();
+            }
+        }
+
+        public void WriteLocalHtml()
+        {
+            WriteRss();
 
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());
@@ -87,7 +165,8 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
             var htmlString = stringWriter.ToString();
 
-            var htmlFileInfo = new FileInfo($@"{settings.LocalSiteRootDirectory}\index.html");
+            var htmlFileInfo =
+                new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory}\index.html");
 
             if (htmlFileInfo.Exists)
             {

@@ -12,6 +12,7 @@
     xmlns:photoList="clr-namespace:PointlessWaymarksCmsWpfControls.PhotoList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:postList="clr-namespace:PointlessWaymarksCmsWpfControls.PostList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:noteList="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList;assembly=PointlessWaymarksCmsWpfControls"
     Title="Pointless Waymarks CMS"
     Width="700"
     Height="600"
@@ -36,6 +37,9 @@
             </TabItem>
             <TabItem Header="Files">
                 <fileList:FileListWithActionsControl DataContext="{Binding TabFileListContext}" />
+            </TabItem>
+            <TabItem Header="Notes">
+                <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />
             </TabItem>
             <TabItem Header="Settings">
                 <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />

@@ -71,6 +71,7 @@
         <e p="LocationDataTypeConsts.cs" t="Include" />
         <e p="MainImageProcessor.cs" t="Include" />
         <e p="Models" t="Include">
+          <e p="ContentCommon.cs" t="Include" />
           <e p="FileContent.cs" t="Include" />
           <e p="HistoricFileContent.cs" t="Include" />
           <e p="HistoricImageContent.cs" t="Include" />
@@ -98,6 +99,10 @@
           <e p="TrailSegment.cs" t="Include" />
         </e>
         <e p="NoteHtml" t="Include">
+          <e p="NoteParts.cs" t="Include" />
+          <e p="SingleNoteDiv.cs" t="Include" />
+          <e p="SingleNoteDiv.tt" t="Include" />
+          <e p="SingleNoteDivCode.cs" t="Include" />
           <e p="SingleNotePage.cs" t="Include" />
           <e p="SingleNotePage.tt" t="Include" />
           <e p="SingleNotePageCode.cs" t="Include" />
@@ -243,7 +248,17 @@
           <e p="NoteContentEditorWindow.xaml" t="Include" />
           <e p="NoteContentEditorWindow.xaml.cs" t="Include" />
         </e>
-        <e p="NoteList" t="Include" />
+        <e p="NoteList" t="Include">
+          <e p="NoteListContext.cs" t="Include" />
+          <e p="NoteListControl.xaml" t="Include" />
+          <e p="NoteListControl.xaml.cs" t="Include" />
+          <e p="NoteListListItem.cs" t="Include" />
+          <e p="NoteListWindow.xaml" t="Include" />
+          <e p="NoteListWindow.xaml.cs" t="Include" />
+          <e p="NoteListWithActionsContext.cs" t="Include" />
+          <e p="NoteListWithActionsControl.xaml" t="Include" />
+          <e p="NoteListWithActionsControl.xaml.cs" t="Include" />
+        </e>
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
@@ -301,6 +316,11 @@
               <e p="NoteContentEditor" t="Include">
                 <e p="NoteContentEditorControl.g.cs" t="Include" />
                 <e p="NoteContentEditorWindow.g.cs" t="Include" />
+              </e>
+              <e p="NoteList" t="Include">
+                <e p="NoteListControl.g.cs" t="Include" />
+                <e p="NoteListWindow.g.cs" t="Include" />
+                <e p="NoteListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="PhotoContentEditor" t="Include">
                 <e p="PhotoContentEditorControl.g.cs" t="Include" />
