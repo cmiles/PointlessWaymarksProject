@@ -190,9 +190,15 @@ namespace PointlessWaymarksCmsData
         }
 
         public static FileInfo LocalSitePhotoListFile(this UserSettings settings)
+                 {
+                     var directory = settings.LocalSitePhotoDirectory();
+                     return new FileInfo($"{Path.Combine(directory.FullName, "PhotoList")}.html");
+                 }
+        
+        public static FileInfo LocalSitePhotoRssFile(this UserSettings settings)
         {
             var directory = settings.LocalSitePhotoDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "PhotoList")}.html");
+            return new FileInfo($"{Path.Combine(directory.FullName, "PhotoRss")}.xml");
         }
         
         public static FileInfo LocalSiteNoteListFile(this UserSettings settings)
@@ -200,11 +206,23 @@ namespace PointlessWaymarksCmsData
             var directory = settings.LocalSiteNoteDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "NoteList")}.html");
         }
+        
+        public static FileInfo LocalSiteNoteRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteNoteDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "NoteRss")}.xml");
+        }
 
         public static FileInfo LocalSiteAllContentListFile(this UserSettings settings)
+                 {
+                     var directory = settings.LocalSiteRootDirectory;
+                     return new FileInfo($"{Path.Combine(directory, "AllContentList")}.html");
+                 }
+        
+        public static FileInfo LocalSiteAllContentRssFile(this UserSettings settings)
         {
             var directory = settings.LocalSiteRootDirectory;
-            return new FileInfo($"{Path.Combine(directory, "AllContentList")}.html");
+            return new FileInfo($"{Path.Combine(directory, "AllContentRss")}.xml");
         }
         
         public static FileInfo LocalSiteRssIndexFeedListFile(this UserSettings settings)
@@ -218,17 +236,35 @@ namespace PointlessWaymarksCmsData
             var directory = settings.LocalSiteImageDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "ImageList")}.html");
         }
+        
+        public static FileInfo LocalSiteImageRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteImageDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "ImageRss")}.xml");
+        }
 
         public static FileInfo LocalSiteFileListFile(this UserSettings settings)
         {
             var directory = settings.LocalSiteFileDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "FileList")}.html");
         }
+        
+        public static FileInfo LocalSiteFileRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteFileDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "FileRss")}.xml");
+        }
 
         public static FileInfo LocalSitePostListFile(this UserSettings settings)
         {
             var directory = settings.LocalSitePostDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "PostList")}.html");
+        }
+        
+        public static FileInfo LocalSitePostRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSitePostDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "PostRss")}.xml");
         }
 
         public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content,
@@ -301,30 +337,60 @@ namespace PointlessWaymarksCmsData
         {
             return $"//{settings.SiteUrl}/Photos/PhotoList.html";
         }
-
+        
+        public static string PhotoRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Photos/PhotoRss.html";
+        }
+        
         public static string FileListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Files/FileList.html";
+        }
+        
+        public static string FileRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Files/FileRss.html";
         }
         
         public static string NoteListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Notes/NoteList.html";
         }
+        
+        public static string NoteRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Notes/NoteRss.html";
+        }
 
         public static string ImageListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Images/ImageList.html";
+        }
+        
+        public static string ImageRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Images/ImageRss.xml";
         }
 
         public static string PostsListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Posts/PostList.html";
         }
+        
+        public static string PostsRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Posts/PostRss.xml";
+        }
 
         public static string AllContentListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/AllContentList.html";
+        }
+        
+        public static string AllContentRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/AllContentRss.xml";
         }
         
         public static string RssIndexFeedUrl(this UserSettings settings)

@@ -103,7 +103,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var feed = new SyndicationFeed(SiteName, SiteSummary, new Url(SiteUrl),
-                UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl(), DateTime.Now);
+                $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}", DateTime.Now);
             feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {SiteAuthors}");
 
             var items = new List<SyndicationItem>();

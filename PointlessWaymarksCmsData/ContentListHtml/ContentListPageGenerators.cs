@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.ServiceModel.Syndication;
 using System.Text;
+using System.Xml;
+using AngleSharp;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.NoteHtml;
+using PointlessWaymarksCmsData.PostHtml;
 
 namespace PointlessWaymarksCmsData.ContentListHtml
 {
@@ -21,15 +25,18 @@ namespace PointlessWaymarksCmsData.ContentListHtml
                 var photoContent = db.PhotoContents.Cast<IContentCommon>().ToList();
                 var imageContent = db.ImageContents.Cast<IContentCommon>().ToList();
                 var postContent = db.PostContents.Cast<IContentCommon>().ToList();
-                var noteContent = db.NoteContents.ToList().Select(x => x.NoteToCommonContent()).Cast<IContentCommon>().ToList();
-
-                return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent).OrderBy(x => x.Title)
+                var noteContent = db.NoteContents.ToList().Select(x => x.NoteToCommonContent()).Cast<IContentCommon>()
                     .ToList();
+
+                return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
+                    .OrderBy(x => x.Title).ToList();
             }
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteAllContentListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "All Content");
+            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteAllContentRssFile(),
+                "All Content", UserSettingsSingleton.CurrentSettings().AllContentRssUrl());
         }
 
         public static void WriteFileContentListHtml()
@@ -43,6 +50,8 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteFileListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "Files");
+            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteFileRssFile(),
+                "Files", UserSettingsSingleton.CurrentSettings().FileRssUrl());
         }
 
 
@@ -57,6 +66,8 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteImageListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "Images");
+            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteImageRssFile(),
+                "Images", UserSettingsSingleton.CurrentSettings().ImageRssUrl());
         }
 
         public static void WritePostContentListHtml()
@@ -70,6 +81,8 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePostListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "Posts");
+            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSitePostRssFile(),
+                "Posts", UserSettingsSingleton.CurrentSettings().PostsRssUrl());
         }
 
         public static void WritePhotoContentListHtml()
@@ -83,6 +96,8 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "Photos");
+            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSitePhotoRssFile(),
+                "Photos", UserSettingsSingleton.CurrentSettings().PhotoRssUrl());
         }
 
         public static ContentCommon NoteToCommonContent(this NoteContent toTransform)
@@ -116,6 +131,8 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteNoteListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "Notes");
+            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteNoteRssFile(),
+                "Notes", UserSettingsSingleton.CurrentSettings().NoteRssUrl());
         }
 
         public static void WriteContentListHtml(Func<List<IContentCommon>> dbFunc, FileInfo fileInfo, string titleAdd)
@@ -139,6 +156,52 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             }
 
             File.WriteAllText(fileInfo.FullName, htmlString);
+        }
+
+        public static async void WriteContentListRss(List<IContentCommon> content, FileInfo fileInfo, string titleAdd,
+            string rssFileUrl)
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var feed = new SyndicationFeed(settings.SiteName, $"{settings.SiteSummary} - {titleAdd}",
+                new Uri($"https://{settings.SiteUrl}"), $"https:{rssFileUrl}", DateTime.Now);
+            feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {settings.SiteAuthors}");
+
+            var items = new List<SyndicationItem>();
+
+            foreach (var loopPosts in content)
+            {
+                var contentUrl = await settings.ContentUrl(loopPosts.ContentId);
+                items.Add(new SyndicationItem(loopPosts.Title, loopPosts.Summary, new Uri($"https:{contentUrl}"),
+                    loopPosts.Slug, loopPosts.CreatedOn));
+            }
+
+            feed.Items = items;
+
+            var xmlSettings = new XmlWriterSettings
+            {
+                Encoding = Encoding.UTF8,
+                NewLineHandling = NewLineHandling.Entitize,
+                NewLineOnAttributes = true,
+                Indent = true
+            };
+
+            using var stream = new MemoryStream();
+
+            var localIndexFile = fileInfo;
+
+            if (localIndexFile.Exists)
+            {
+                localIndexFile.Delete();
+                localIndexFile.Refresh();
+            }
+
+            using (var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings))
+            {
+                var rssFormatter = new Rss20FeedFormatter(feed, false);
+                rssFormatter.WriteTo(xmlWriter);
+                xmlWriter.Flush();
+            }
         }
     }
 }
