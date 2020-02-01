@@ -16,6 +16,15 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return dbEntry.LastUpdatedOn ?? dbEntry.CreatedOn;
         }
 
+        public static HtmlTag SiteMainRss()
+        {
+            return new HtmlTag("Link")
+                .Attr("rel", "alternate")
+                .Attr("type", "application/rss+xml")
+                .Attr("title", $"Main RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName}")
+                .Attr("href", $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
+        }
+
         public static string CreatedByAndUpdatedOnString(ICreatedAndLastUpdateOnAndBy dbEntry)
         {
             var createdUpdatedString = $"Created by {dbEntry.CreatedBy}";

@@ -14,6 +14,13 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 {
     public partial class ContentListPage
     {
+        public ContentListPage(string rssUrl)
+        {
+            RssUrl = rssUrl;
+        }
+
+        public string RssUrl { get; set; }
+
         public Func<List<IContentCommon>> ContentFunction { get; set; }
         public string ListTitle { get; set; }
 

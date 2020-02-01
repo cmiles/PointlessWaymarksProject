@@ -11,6 +11,11 @@
     <title><#= ListTitle #></title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="alternate" type="application/rss+xml" 
+      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}" #>"     
+      href="https:<#= RssUrl #>" />
+    <#= Tags.SiteMainRss() #>
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>

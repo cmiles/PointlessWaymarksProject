@@ -34,7 +34,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteAllContentListFile();
 
-            WriteContentListHtml(ContentList, fileInfo, "All Content");
+            WriteContentListHtml(ContentList, fileInfo, "All Content", UserSettingsSingleton.CurrentSettings().AllContentRssUrl());
             WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteAllContentRssFile(),
                 "All Content", UserSettingsSingleton.CurrentSettings().AllContentRssUrl());
         }
@@ -49,7 +49,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteFileListFile();
 
-            WriteContentListHtml(ContentList, fileInfo, "Files");
+            WriteContentListHtml(ContentList, fileInfo, "Files", UserSettingsSingleton.CurrentSettings().FileRssUrl());
             WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteFileRssFile(),
                 "Files", UserSettingsSingleton.CurrentSettings().FileRssUrl());
         }
@@ -65,7 +65,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteImageListFile();
 
-            WriteContentListHtml(ContentList, fileInfo, "Images");
+            WriteContentListHtml(ContentList, fileInfo, "Images", UserSettingsSingleton.CurrentSettings().ImageRssUrl());
             WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteImageRssFile(),
                 "Images", UserSettingsSingleton.CurrentSettings().ImageRssUrl());
         }
@@ -80,7 +80,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePostListFile();
 
-            WriteContentListHtml(ContentList, fileInfo, "Posts");
+            WriteContentListHtml(ContentList, fileInfo, "Posts", UserSettingsSingleton.CurrentSettings().PostsRssUrl());
             WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSitePostRssFile(),
                 "Posts", UserSettingsSingleton.CurrentSettings().PostsRssUrl());
         }
@@ -95,7 +95,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoListFile();
 
-            WriteContentListHtml(ContentList, fileInfo, "Photos");
+            WriteContentListHtml(ContentList, fileInfo, "Photos", UserSettingsSingleton.CurrentSettings().PhotoRssUrl());
             WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSitePhotoRssFile(),
                 "Photos", UserSettingsSingleton.CurrentSettings().PhotoRssUrl());
         }
@@ -130,14 +130,14 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteNoteListFile();
 
-            WriteContentListHtml(ContentList, fileInfo, "Notes");
+            WriteContentListHtml(ContentList, fileInfo, "Notes", UserSettingsSingleton.CurrentSettings().NoteRssUrl());
             WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteNoteRssFile(),
                 "Notes", UserSettingsSingleton.CurrentSettings().NoteRssUrl());
         }
 
-        public static void WriteContentListHtml(Func<List<IContentCommon>> dbFunc, FileInfo fileInfo, string titleAdd)
+        public static void WriteContentListHtml(Func<List<IContentCommon>> dbFunc, FileInfo fileInfo, string titleAdd, string rssUrl)
         {
-            var htmlModel = new ContentListPage {ContentFunction = dbFunc, ListTitle = titleAdd};
+            var htmlModel = new ContentListPage(rssUrl) {ContentFunction = dbFunc, ListTitle = titleAdd};
 
             var htmlTransform = htmlModel.TransformText();
 
