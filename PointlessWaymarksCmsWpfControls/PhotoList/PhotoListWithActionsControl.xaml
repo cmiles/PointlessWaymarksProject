@@ -18,32 +18,25 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="240" />
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         <local:PhotoListControl Margin="4,5,4,6" DataContext="{Binding ListContext}" />
-        <StackPanel Grid.Column="1" Orientation="Vertical">
-            <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource LargerButton}">Refresh</Button>
-            <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource LargerButton}">Edit</Button>
-            <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource LargerButton}">Generate Html</Button>
-            <Button Command="{Binding PhotoCodesToClipboardForSelectedCommand}" Style="{StaticResource LargerButton}">Photo Code to Clipboard</Button>
-            <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource LargerButton}">Open Selected in Browser</Button>
-            <Button Command="{Binding GeneratePhotoListCommand}" Style="{StaticResource LargerButton}">Generate Photo List</Button>
-            <Button Command="{Binding OpenUrlForPhotoListCommand}" Style="{StaticResource LargerButton}">Open Photo List in Browser</Button>
-            <Button Command="{Binding NewContentCommand}" Style="{StaticResource LargerButton}">New Content</Button>
-        </StackPanel>
-        <Button
-            Grid.Column="1"
-            Margin="4,4,4,6"
-            VerticalAlignment="Bottom"
-            Command="{Binding DeleteSelectedCommand}"
-            Style="{StaticResource LargerButton}">
-            Delete
-        </Button>
+        <WrapPanel  Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}">Refresh</Button>
+            <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}">Edit</Button>
+            <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}">Generate Html</Button>
+            <Button Command="{Binding PhotoCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButton}">Code to Clipboard</Button>
+            <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}">Open Selected in Browser</Button>
+            <Button Command="{Binding GeneratePhotoListCommand}" Style="{StaticResource ActionPanelButton}">Generate Photo List</Button>
+            <Button Command="{Binding OpenUrlForPhotoListCommand}" Style="{StaticResource ActionPanelButton}">Open List in Browser</Button>
+            <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}">New Content</Button>
+            <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
+        </WrapPanel>
         <status:StatusControl
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
+            Grid.Row="0"
+            Grid.RowSpan="2"
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
     </Grid>

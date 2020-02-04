@@ -126,65 +126,65 @@ using PointlessWaymarksCmsData.CommonHtml;
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
+            this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 33 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 32 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(TitleDiv().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 34 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 33 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 35 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 34 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 36 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 35 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 38 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 37 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 39 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 38 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 40 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 39 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 42 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 41 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 43 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 42 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

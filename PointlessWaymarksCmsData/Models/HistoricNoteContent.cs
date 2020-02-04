@@ -14,8 +14,10 @@ namespace PointlessWaymarksCmsData.Models
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
         public bool ShowInSiteFeed { get; set; }
+
+        public string Summary { get; set; }
+
         public string Folder { get; set; }
         public string Slug { get; set; }
-        public string Summary { get; set; }
     }
 }

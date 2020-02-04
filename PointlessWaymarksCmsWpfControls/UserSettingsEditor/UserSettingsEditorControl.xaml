@@ -17,7 +17,7 @@
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled">
             <StackPanel Orientation="Vertical">
-                <Button Style="{StaticResource LargerButton}">Save</Button>
+                <Button Style="{StaticResource ActionPanelButton}">Save</Button>
                 <StackPanel Orientation="Vertical">
                     <Label>Local Site Root Directory</Label>
                     <TextBox

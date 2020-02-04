@@ -22,14 +22,14 @@
         </Grid.ColumnDefinitions>
         <local:FileListControl DataContext="{Binding ListContext}" Margin="4,5,4,6" />
         <StackPanel Grid.Column="1" Orientation="Vertical">
-            <Button Style="{StaticResource LargerButton}" Command="{Binding RefreshDataCommand}">Refresh</Button>
-            <Button Style="{StaticResource LargerButton}" Command="{Binding EditSelectedContentCommand}">Edit</Button>
-            <Button Style="{StaticResource LargerButton}" Command="{Binding GenerateSelectedHtmlCommand}">Generate Html</Button>
-            <Button Style="{StaticResource LargerButton}" Command="{Binding FileCodesToClipboardForSelectedCommand}">File Link Code to Clipboard</Button>
-            <Button Style="{StaticResource LargerButton}" Command="{Binding OpenUrlForSelectedCommand}">Open Selected in Browser</Button>
-            <Button Style="{StaticResource LargerButton}" Command="{Binding NewContentCommand}">New Content</Button>
+            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding RefreshDataCommand}">Refresh</Button>
+            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding EditSelectedContentCommand}">Edit</Button>
+            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding GenerateSelectedHtmlCommand}">Generate Html</Button>
+            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding FileCodesToClipboardForSelectedCommand}">File Link Code to Clipboard</Button>
+            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding OpenUrlForSelectedCommand}">Open Selected in Browser</Button>
+            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding NewContentCommand}">New Content</Button>
         </StackPanel>
-        <Button Margin="4,4,4,6" Grid.Column="1" VerticalAlignment="Bottom" Style="{StaticResource LargerButton}"
+        <Button Margin="4,4,4,6" Grid.Column="1" VerticalAlignment="Bottom" Style="{StaticResource ActionPanelButton}"
                 Command="{Binding DeleteSelectedCommand}">
             Delete
         </Button>

@@ -125,6 +125,12 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             DbEntry = toLoad;
             CreatedBy = toLoad?.CreatedBy ?? string.Empty;
             UpdatedBy = toLoad?.LastUpdatedBy ?? string.Empty;
+
+            //If this is a 'first update' go ahead and fill in the Created by as the updated by, this
+            //is realistically just a trade off, better for most common workflow - potential mistake
+            //if trading off created/updated authors since you are not 'forcing' an entry
+            if (!string.IsNullOrWhiteSpace(CreatedBy) && string.IsNullOrWhiteSpace(UpdatedBy)) UpdatedBy = CreatedBy;
+
             CreatedOn = toLoad?.CreatedOn;
             UpdatedOn = toLoad?.LastUpdatedOn;
 

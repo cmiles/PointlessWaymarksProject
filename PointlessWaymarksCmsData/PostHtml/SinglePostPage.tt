@@ -26,7 +26,6 @@
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
-
 </head>
 
 <body>

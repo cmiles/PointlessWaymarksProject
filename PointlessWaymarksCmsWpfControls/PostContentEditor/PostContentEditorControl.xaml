@@ -49,9 +49,9 @@
             </TabItem>
             <TabItem Header="Save and Generate">
                 <StackPanel>
-                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Generate Html</Button>
-                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
-                    <Button Style="{StaticResource LargerButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
+                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Generate Html</Button>
+                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
                 </StackPanel>
             </TabItem>
         </TabControl>

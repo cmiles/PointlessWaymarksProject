@@ -27,7 +27,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input);
             input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input);
             input = BracketCodeFileLink.FileLinkCodeProcess(input);
-            input = BracketCodePostLink.FilePostCodeProcess(input);
+            input = BracketCodePostLink.PostLinkCodeProcess(input);
 
             var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
             var markdownOut = Markdown.ToHtml(input, pipeline);
@@ -40,7 +40,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input);
             input = BracketCodeImages.ImageCodeProcessForDirectLocalAccess(input);
             input = BracketCodeFileLink.FileLinkCodeProcess(input);
-            input = BracketCodePostLink.FilePostCodeProcess(input);
+            input = BracketCodePostLink.PostLinkCodeProcess(input);
 
             return input;
         }

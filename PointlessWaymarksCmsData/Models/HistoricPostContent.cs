@@ -5,6 +5,7 @@ namespace PointlessWaymarksCmsData.Models
     public class HistoricPostContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes,
         IMainImage, IBodyContent, ITag
     {
+        public bool ShowInSiteFeed { get; set; }
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
         public Guid ContentId { get; set; }

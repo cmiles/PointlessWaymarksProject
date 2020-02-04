@@ -25,7 +25,7 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <Button Style="{StaticResource LargerButton}" Command="{Binding ChooseFileCommand}">Choose File</Button>
+                            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ChooseFileCommand}">Choose File</Button>
                             <StackPanel Orientation="Vertical">
                                 <Label>Selected File</Label>
                                 <TextBlock Text="{Binding SelectedFileFullPath}" />
@@ -55,9 +55,9 @@
             </TabItem>
             <TabItem Header="Save and Generate">
                 <StackPanel>
-                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
-                    <Button Style="{StaticResource LargerButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Generate Html</Button>
-                    <Button Style="{StaticResource LargerButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
+                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Generate Html</Button>
+                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
                 </StackPanel>
             </TabItem>
         </TabControl>
