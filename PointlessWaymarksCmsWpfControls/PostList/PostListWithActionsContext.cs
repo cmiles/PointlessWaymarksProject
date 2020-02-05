@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -242,6 +243,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             ListContext = new PostListContext(StatusContext);
 
+            await ListContext.LoadData();
+            
             GenerateSelectedHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
             EditSelectedContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(EditSelectedContent));
             PostCodesToClipboardForSelectedCommand =

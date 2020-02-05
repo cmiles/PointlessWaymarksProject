@@ -1,13 +1,15 @@
-﻿<UserControl x:Class="PointlessWaymarksCmsWpfControls.ImageList.ImageListWithActionsControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.ImageList"
-             xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
-             mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance local:ImageListWithActionsContext}">
+﻿<UserControl
+    x:Class="PointlessWaymarksCmsWpfControls.ImageList.ImageListWithActionsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.ImageList"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    d:DataContext="{d:DesignInstance local:ImageListWithActionsContext}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -16,25 +18,27 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="240" />
-        </Grid.ColumnDefinitions>
-        <local:ImageListControl DataContext="{Binding ListContext}" Margin="4,5,4,6" />
-        <StackPanel Grid.Column="1" Orientation="Vertical">
-            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding RefreshDataCommand}">Refresh</Button>
-            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding EditSelectedContentCommand}">Edit</Button>
-            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding GenerateSelectedHtmlCommand}">Generate Html</Button>
-            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ImageCodesToClipboardForSelectedCommand}">Image Code to Clipboard</Button>
-            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding OpenUrlForSelectedCommand}">Open Selected in Browser</Button>
-            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding NewContentCommand}">New Content</Button>
-        </StackPanel>
-        <Button Margin="4,4,4,6" Grid.Column="1" VerticalAlignment="Bottom" Style="{StaticResource ActionPanelButton}"
-                Command="{Binding DeleteSelectedCommand}">
-            Delete
-        </Button>
-
-        <status:StatusControl Grid.Column="0" Grid.ColumnSpan="2" d:IsHidden="true"
-                              DataContext="{Binding StatusContext}" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <local:ImageListControl Margin="4,5,4,6" DataContext="{Binding ListContext}" />
+        <WrapPanel
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal">
+            <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}">Refresh</Button>
+            <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}">Edit</Button>
+            <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}">Generate Html</Button>
+            <Button Command="{Binding ImageCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButton}">Image Code to Clipboard</Button>
+            <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}">Open Selected in Browser</Button>
+            <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
+            <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}">New Content</Button>
+        </WrapPanel>
+        <status:StatusControl
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
     </Grid>
 </UserControl>

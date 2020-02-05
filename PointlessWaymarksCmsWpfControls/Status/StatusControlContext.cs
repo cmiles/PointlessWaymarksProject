@@ -234,11 +234,11 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         private async void FireAndForgetBlockingTaskWithUiMessageReturnCompleted(Task obj)
         {
+            CountOfRunningBlockingTasks--;
+
             if (obj.IsCanceled) return;
 
             if (obj.IsFaulted) await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
-
-            BlockUi = false;
         }
 
         private void FireAndForgetTaskWithToastErrorReturnCompleted(Task obj)
@@ -309,13 +309,13 @@ namespace PointlessWaymarksCmsWpfControls.Status
         {
             try
             {
-                BlockUi = true;
+                CountOfRunningBlockingTasks++;
                 Task.Run(async () => await toRun()).ContinueWith(FireAndForgetBlockingTaskWithUiMessageReturnCompleted);
             }
             catch (Exception e)
             {
                 ShowMessage("Error", e.ToString(), new List<string> {"Ok"}).Wait();
-                BlockUi = false;
+                CountOfRunningBlockingTasks--;
             }
         }
 
@@ -323,16 +323,19 @@ namespace PointlessWaymarksCmsWpfControls.Status
         {
             try
             {
+                CountOfRunningNonBlockingTasks++;
                 Task.Run(async () => await toRun()).ContinueWith(FireAndForgetTaskWithToastErrorReturnCompleted);
             }
             catch (Exception e)
             {
+                CountOfRunningNonBlockingTasks--;
                 ToastError($"Error: {e.Message}");
             }
         }
 
         public void RunNonBlockingAction(Action toRun)
         {
+            CountOfRunningNonBlockingTasks++;
             RunNonBlockingTask(() => Task.Run(toRun));
         }
 
@@ -413,15 +416,14 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             StringEntryTitle = string.Empty;
             StringEntryMessage = string.Empty;
-            ;
+            
             StringEntryUserText = string.Empty;
-            ;
+            
             StringEntryVisible = false;
             StringEntryApproved = false;
 
             return (approved, toReturn);
         }
-
 
         public void StateForceDismissFullScreenMessage()
         {
