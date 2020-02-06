@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Style x:Key="ActionPanelButton" TargetType="Button">
         <Setter Property="Margin" Value="4" />
-        <Setter Property="Height" Value="40" />
+        <Setter Property="Height" Value="24" />
         <Setter Property="Width" Value="150" />
     </Style>
 </ResourceDictionary>

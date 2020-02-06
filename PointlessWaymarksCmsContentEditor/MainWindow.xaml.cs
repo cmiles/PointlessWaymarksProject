@@ -12,7 +12,6 @@ using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.IndexHtml;
 using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.PostHtml;
-using PointlessWaymarksCmsWpfControls.ContentList;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
@@ -33,7 +32,6 @@ namespace PointlessWaymarksCmsContentEditor
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private ContentListContext _contextListContext;
         private RelayCommand _fileListWindowCommand;
         private RelayCommand _generateAllHtmlCommand;
         private RelayCommand _generateHtmlForAllFileContentCommand;
@@ -86,17 +84,6 @@ namespace PointlessWaymarksCmsContentEditor
                 new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllFileHtml));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
-        }
-
-        public ContentListContext ContextListContext
-        {
-            get => _contextListContext;
-            set
-            {
-                if (Equals(value, _contextListContext)) return;
-                _contextListContext = value;
-                OnPropertyChanged();
-            }
         }
 
         public RelayCommand FileListWindowCommand
@@ -451,8 +438,6 @@ namespace PointlessWaymarksCmsContentEditor
             var db = await Db.Context();
             //db.Database.EnsureDeleted();
             db.Database.EnsureCreated();
-
-            ContextListContext = new ContentListContext(StatusContext);
         }
 
         private async Task NewFileContent()

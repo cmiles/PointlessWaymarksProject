@@ -14,6 +14,7 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
+              <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -158,12 +159,6 @@
           <e p="ContentIdViewerControl.xaml" t="Include" />
           <e p="ContentIdViewerControl.xaml.cs" t="Include" />
           <e p="ContentIdViewerControlContext.cs" t="Include" />
-        </e>
-        <e p="ContentList" t="Include">
-          <e p="ContentListContext.cs" t="Include" />
-          <e p="ContentListControl.xaml" t="Include" />
-          <e p="ContentListControl.xaml.cs" t="Include" />
-          <e p="ContentListItem.cs" t="Include" />
         </e>
         <e p="CreatedAndUpdatedByAndOnDisplay" t="Include">
           <e p="CreatedAndUpdatedByAndOnDisplayContext.cs" t="Include" />
@@ -441,6 +436,7 @@
         <e p="Utility" t="Include">
           <e p="BindingProxy.cs" t="Include" />
           <e p="BooleanNotToVisibilityConverter.cs" t="Include" />
+          <e p="BooleanToVisibilityConverter.cs" t="Include" />
           <e p="DispatcherThreadSwitcher.cs" t="Include" />
           <e p="ImageCacheConverter.cs" t="Include" />
           <e p="ImageResizing.cs" t="Include" />
