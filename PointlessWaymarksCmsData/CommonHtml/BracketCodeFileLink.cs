@@ -6,7 +6,7 @@ using HtmlTags;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
-    public class BracketCodeFileLink
+    public static class BracketCodeFileLink
     {
         /// <summary>
         ///     Processes {{filelink guid;human_identifier}} or {{filelink guid;text toDisplay;(optional human_identifier}} to
@@ -52,7 +52,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                     new LinkTag(
                         string.IsNullOrWhiteSpace(loopMatch.displayText)
                             ? dbContent.Title
-                            : loopMatch.displayText.Trim(), dbContent.Title, settings.FilePageUrl(dbContent),
+                            : loopMatch.displayText.Trim(), settings.FilePageUrl(dbContent),
                         "file-page-link");
 
                 toProcess = toProcess.Replace(loopMatch.wholeMatch, linkTag.ToString());

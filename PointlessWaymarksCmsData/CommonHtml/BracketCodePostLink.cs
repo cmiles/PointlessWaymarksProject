@@ -52,7 +52,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                     new LinkTag(
                         string.IsNullOrWhiteSpace(loopMatch.displayText)
                             ? dbContent.Title
-                            : loopMatch.displayText.Trim(), dbContent.Title, settings.PostPageUrl(dbContent),
+                            : loopMatch.displayText.Trim(), settings.PostPageUrl(dbContent),
                         "post-page-link");
 
                 toProcess = toProcess.Replace(loopMatch.wholeMatch, linkTag.ToString());
