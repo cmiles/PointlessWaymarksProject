@@ -5,6 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList"
              xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:command="http://www.galasoft.ch/mvvmlight"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
@@ -13,27 +16,78 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:ImageCacheConverter x:Key="ImageCache" />
+            <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Items}"
-                 SelectionChanged="Selector_OnSelectionChanged" Name="ItemsListBox" SelectionMode="Extended"
-                 HorizontalContentAlignment="Stretch">
-            <ListBox.ItemTemplate>
-                <DataTemplate DataType="local:NoteListListItem">
-                    <Border
-                        BorderBrush="LightGray" Background="White" BorderThickness="1" CornerRadius="5">
-                        <Grid Margin="4">
-                            <StackPanel Orientation="Vertical" Margin="2">
-                                <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Summary}" />
-                                <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Folder}" />
-                                <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Slug}" />
-                                <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.ContentId}" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <GroupBox Header="Filter List">
+                <TextBox MaxLines="1" AcceptsReturn="False" VerticalAlignment="Center"
+                         Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TextChanged">
+                            <command:EventToCommand
+                                Command="{Binding FilterListCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TextBox>
+            </GroupBox>
+            <GroupBox Grid.Column="1" Header="Sort">
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
+                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
+                        <fa:ImageAwesome Icon="ArrowUp" Height="12" Width="8" VerticalAlignment="Center"
+                                         HorizontalAlignment="Center" IsEnabled="{Binding SortDescending}" />
+                    </Button>
+                    <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
+                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
+                        <fa:ImageAwesome Icon="ArrowDown" Height="12" Width="8" VerticalAlignment="Center"
+                                         HorizontalAlignment="Center" />
+                    </Button>
+                    <Button Command="{Binding SortListCommand}" Height="24" Width="90"
+                            CommandParameter="PhotoCreatedOn">
+                        Photo Created
+                    </Button>
+                    <Button Command="{Binding SortListCommand}" Height="24" Width="90"
+                            CommandParameter="CreatedOn">
+                        Page Created
+                    </Button>
+                    <Button Command="{Binding SortListCommand}" Height="24" Width="90"
+                            CommandParameter="Title">
+                        Title
+                    </Button>
+                </WrapPanel>
+            </GroupBox>
+        </Grid>
+        <GroupBox Grid.Row="1" Header="Notes">
+            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Items}"
+                     SelectionChanged="Selector_OnSelectionChanged" Name="ItemsListBox" SelectionMode="Extended"
+                     HorizontalContentAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="local:NoteListListItem">
+                        <Border
+                            BorderBrush="LightGray" Background="White" BorderThickness="1" CornerRadius="5">
+                            <Grid Margin="4">
+                                <StackPanel Orientation="Vertical" Margin="2">
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Summary}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Folder}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Slug}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.ContentId}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
     </Grid>
 </UserControl>

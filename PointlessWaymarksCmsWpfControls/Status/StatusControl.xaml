@@ -123,9 +123,10 @@
             VerticalAlignment="Top"
             Orientation="Vertical">
             <fa:ImageAwesome
-                Height="40"
+                Height="30"
                 Icon="Spinner"
                 Spin="True"
+                Margin="8"
                 SpinDuration="10"
                 Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
             <toastControl:ToastTray DataContext="{Binding Toast}" />

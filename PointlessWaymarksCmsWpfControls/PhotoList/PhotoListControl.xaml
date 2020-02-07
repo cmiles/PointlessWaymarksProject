@@ -68,7 +68,6 @@
                 </WrapPanel>
             </GroupBox>
         </Grid>
-
         <GroupBox Grid.Row="1" Header="Photos">
             <ListBox BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                      ItemsSource="{Binding Items}"

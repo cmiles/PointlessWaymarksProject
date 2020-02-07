@@ -54,33 +54,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
                 OnPropertyChanged();
             }
         }
-
-        public int CountOfRunningBlockingTasks
-        {
-            get => _countOfRunningBlockingTasks;
-            set
-            {
-                if (value == _countOfRunningBlockingTasks) return;
-                _countOfRunningBlockingTasks = value;
-                OnPropertyChanged();
-
-                BlockUi = CountOfRunningBlockingTasks > 0;
-            }
-        }
-
-        public int CountOfRunningNonBlockingTasks
-        {
-            get => _countOfRunningNonBlockingTasks;
-            set
-            {
-                if (value == _countOfRunningNonBlockingTasks) return;
-                _countOfRunningNonBlockingTasks = value;
-                OnPropertyChanged();
-
-                if (CountOfRunningBlockingTasks > 0) NonBlockingTaskAreRunning = true;
-            }
-        }
-
+        
         public List<string> MessageBoxButtonList
         {
             get => _messageBoxButtonList;
@@ -221,7 +195,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         private void BlockTaskCompleted(Task obj)
         {
-            CountOfRunningBlockingTasks--;
+            DecrementBlockingTasks();
 
             if (obj.IsCanceled)
             {
@@ -234,7 +208,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         private async void FireAndForgetBlockingTaskWithUiMessageReturnCompleted(Task obj)
         {
-            CountOfRunningBlockingTasks--;
+            DecrementBlockingTasks();
 
             if (obj.IsCanceled) return;
 
@@ -243,14 +217,42 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         private void FireAndForgetTaskWithToastErrorReturnCompleted(Task obj)
         {
+            DecrementNonBlockingTasks();
+            
             if (obj.IsCanceled) return;
 
             if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
         }
 
+        private void IncrementBlockingTasks()
+        {
+            Interlocked.Increment(ref _countOfRunningBlockingTasks);
+            BlockUi = _countOfRunningBlockingTasks > 0;
+        }
+        
+        private void DecrementBlockingTasks()
+        {
+            Interlocked.Decrement(ref _countOfRunningBlockingTasks);
+            BlockUi = _countOfRunningBlockingTasks > 0;
+        }
+        
+        private void IncrementNonBlockingTasks()
+        {
+            Interlocked.Increment(ref _countOfRunningNonBlockingTasks);
+            NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
+        }
+        
+        private void DecrementNonBlockingTasks()
+        {
+            Interlocked.Decrement(ref _countOfRunningNonBlockingTasks);
+            NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
+        }
+        
         private void NonBlockTaskCompleted(Task obj)
         {
-            CountOfRunningNonBlockingTasks--;
+            
+            DecrementNonBlockingTasks();
+            DecrementNonBlockingTasks();
 
             if (obj.IsCanceled)
             {
@@ -301,7 +303,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public void RunBlockingTask(Func<Task> toRun)
         {
-            CountOfRunningBlockingTasks++;
+            IncrementBlockingTasks();
             Task.Run(toRun).ContinueWith(BlockTaskCompleted);
         }
 
@@ -309,13 +311,13 @@ namespace PointlessWaymarksCmsWpfControls.Status
         {
             try
             {
-                CountOfRunningBlockingTasks++;
+                IncrementBlockingTasks();
                 Task.Run(async () => await toRun()).ContinueWith(FireAndForgetBlockingTaskWithUiMessageReturnCompleted);
             }
             catch (Exception e)
             {
                 ShowMessage("Error", e.ToString(), new List<string> {"Ok"}).Wait();
-                CountOfRunningBlockingTasks--;
+                DecrementBlockingTasks();
             }
         }
 
@@ -323,25 +325,24 @@ namespace PointlessWaymarksCmsWpfControls.Status
         {
             try
             {
-                CountOfRunningNonBlockingTasks++;
+                IncrementNonBlockingTasks();
                 Task.Run(async () => await toRun()).ContinueWith(FireAndForgetTaskWithToastErrorReturnCompleted);
             }
             catch (Exception e)
             {
-                CountOfRunningNonBlockingTasks--;
+                DecrementNonBlockingTasks();
                 ToastError($"Error: {e.Message}");
             }
         }
 
         public void RunNonBlockingAction(Action toRun)
         {
-            CountOfRunningNonBlockingTasks++;
             RunNonBlockingTask(() => Task.Run(toRun));
         }
 
         public void RunNonBlockingTask(Func<Task> toRun)
         {
-            CountOfRunningNonBlockingTasks++;
+            IncrementNonBlockingTasks();
             Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
         }
 

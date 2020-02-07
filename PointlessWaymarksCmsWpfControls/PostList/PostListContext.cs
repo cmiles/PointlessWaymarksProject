@@ -134,11 +134,11 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                 var loweredString = UserFilterText.ToLower();
 
                 if (!(o is PostListListItem pi)) return false;
-                if ((pi.DbEntry.Title ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.Tags ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.Summary ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.CreatedBy ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.LastUpdatedBy ?? string.Empty).Contains(loweredString)) return true;
+                if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.CreatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.LastUpdatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 return false;
             };
         }
@@ -188,6 +188,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             Items = new ObservableRangeCollection<PostListListItem>(listItems);
 
+            SortDescending = true;
             await SortList("CreatedOn");
         }
 

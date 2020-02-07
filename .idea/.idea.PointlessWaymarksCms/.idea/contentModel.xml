@@ -265,9 +265,6 @@
               <e p="ContentIdViewer" t="Include">
                 <e p="ContentIdViewerControl.g.cs" t="Include" />
               </e>
-              <e p="ContentList" t="Include">
-                <e p="ContentListControl.g.cs" t="Include" />
-              </e>
               <e p="CreatedAndUpdatedByAndOnDisplay" t="Include">
                 <e p="CreatedAndUpdatedByAndOnDisplayControl.g.cs" t="Include" />
               </e>

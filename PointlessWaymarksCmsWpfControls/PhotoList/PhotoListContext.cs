@@ -133,15 +133,15 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 var loweredString = UserFilterText.ToLower();
 
                 if (!(o is PhotoListListItem pi)) return false;
-                if ((pi.DbEntry.Title ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.Tags ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.Summary ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.CreatedBy ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.LastUpdatedBy ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.CameraMake ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.CameraModel ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.Aperture ?? string.Empty).Contains(loweredString)) return true;
-                if ((pi.DbEntry.FocalLength ?? string.Empty).Contains(loweredString)) return true;
+                if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.CreatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.LastUpdatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.CameraMake ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.CameraModel ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.Aperture ?? string.Empty).ToLower().Contains(loweredString)) return true;
+                if ((pi.DbEntry.FocalLength ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 return false;
             };
         }
@@ -182,6 +182,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 };
 
                 listItems.Add(newItem);
+
+                currentLoop++;
             }
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -190,6 +192,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             Items = new ObservableRangeCollection<PhotoListListItem>(listItems);
 
+            SortDescending = true;
             await SortList("CreatedOn");
         }
 
