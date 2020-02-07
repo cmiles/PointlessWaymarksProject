@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using HtmlTags;
+﻿using HtmlTags;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 
@@ -19,28 +16,29 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             if (content?.MainPicture != null)
             {
-                var compactContentMainPictureContentDiv = new DivTag().AddClass("content-compact-image-content-container");
+                var compactContentMainPictureContentDiv =
+                    new DivTag().AddClass("content-compact-image-content-container");
 
                 var image = new PictureSiteInformation(content.MainPicture.Value);
 
-                compactContentMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(image.Pictures,
-                    linkTo));
-                
+                compactContentMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(image.Pictures, linkTo));
+
                 compactContentContainerDiv.Children.Add(compactContentMainPictureContentDiv);
             }
 
             var compactContentMainTextContentDiv = new DivTag().AddClass("content-compact-text-content-container");
 
-            var compactContentMainTextTitleTextDiv = new DivTag().AddClass("content-compact-text-content-title-container");
+            var compactContentMainTextTitleTextDiv =
+                new DivTag().AddClass("content-compact-text-content-title-container");
             var compactContentMainTextTitleLink =
-                new LinkTag(content.Title, linkTo).AddClass(
-                    "content-compact-text-content-title-link");
+                new LinkTag(content.Title, linkTo).AddClass("content-compact-text-content-title-link");
             compactContentMainTextTitleTextDiv.Children.Add(compactContentMainTextTitleLink);
 
             var compactContentSummaryTextDiv = new DivTag().AddClass("content-compact-text-content-summary")
                 .Text(content.Summary);
 
-            var compactContentMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("content-compact-text-content-date")
+            var compactContentMainTextCreatedOrUpdatedTextDiv = new DivTag()
+                .AddClass("content-compact-text-content-date")
                 .Text(Tags.LatestCreatedOnOrUpdatedOn(content)?.ToString("M/d/yyyy") ?? string.Empty);
 
             compactContentMainTextContentDiv.Children.Add(compactContentMainTextTitleTextDiv);

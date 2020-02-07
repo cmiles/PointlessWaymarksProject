@@ -27,8 +27,8 @@ namespace PointlessWaymarksCmsData.Models
         public string Slug { get; set; }
         public string Summary { get; set; }
         public string Title { get; set; }
+        public Guid? MainPicture { get; set; }
         public string UpdateNotes { get; set; }
         public string UpdateNotesFormat { get; set; }
-        public Guid? MainPicture { get; set; }
     }
 }

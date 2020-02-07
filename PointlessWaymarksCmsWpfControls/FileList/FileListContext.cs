@@ -8,9 +8,7 @@ using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using MvvmHelpers;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Pictures;
-using PointlessWaymarksCmsWpfControls.PostList;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -18,20 +16,31 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 {
     public class FileListContext : INotifyPropertyChanged
     {
-        private ObservableRangeCollection<FileListListItem> _items;
-        private List<FileListListItem> _selectedItems;
-        private StatusControlContext _statusContext;
-        private string _lastSortColumn;
-        private bool _sortDescending;
-        private RelayCommand _toggleListSortDirectionCommand;
-        private RelayCommand<string> _sortListCommand;
         private RelayCommand _filterListCommand;
+        private ObservableRangeCollection<FileListListItem> _items;
+        private string _lastSortColumn;
+        private List<FileListListItem> _selectedItems;
+        private bool _sortDescending;
+        private RelayCommand<string> _sortListCommand;
+        private StatusControlContext _statusContext;
+        private RelayCommand _toggleListSortDirectionCommand;
         private string _userFilterText;
 
         public FileListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public RelayCommand FilterListCommand
+        {
+            get => _filterListCommand;
+            set
+            {
+                if (Equals(value, _filterListCommand)) return;
+                _filterListCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public ObservableRangeCollection<FileListListItem> Items
@@ -56,6 +65,28 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
+        public bool SortDescending
+        {
+            get => _sortDescending;
+            set
+            {
+                if (value == _sortDescending) return;
+                _sortDescending = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand<string> SortListCommand
+        {
+            get => _sortListCommand;
+            set
+            {
+                if (Equals(value, _sortListCommand)) return;
+                _sortListCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -67,53 +98,26 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public async Task LoadData()
+        public RelayCommand ToggleListSortDirectionCommand
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-            
-            FilterListCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(FilterList));
-            SortListCommand = new RelayCommand<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
-            ToggleListSortDirectionCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(async () =>
+            get => _toggleListSortDirectionCommand;
+            set
             {
-                SortDescending = !SortDescending;
-                await SortList(_lastSortColumn);
-            }));
-            
-            StatusContext.Progress("Connecting to DB");
-
-            var db = await Db.Context();
-
-            StatusContext.Progress("Getting Post Db Entries");
-            var dbItems = db.FileContents.ToList();
-            var listItems = new List<FileListListItem>();
-
-            var totalCount = dbItems.Count;
-            var currentLoop = 1;
-            
-            foreach (var loopItems in dbItems)
-            {
-                if (totalCount == 1 || totalCount % 10 == 0)
-                    StatusContext.Progress($"Processing Post Item {currentLoop} of {totalCount}");
-
-                var newFileItem = new FileListListItem {DbEntry = loopItems};
-
-                if (loopItems.MainPicture != null)
-                    newFileItem.SmallImageUrl = PictureAssetProcessing
-                        .ProcessPictureDirectory(loopItems.MainPicture.Value).SmallPicture?.File.FullName;
-
-                listItems.Add(newFileItem);
-
-                currentLoop++;
+                if (Equals(value, _toggleListSortDirectionCommand)) return;
+                _toggleListSortDirectionCommand = value;
+                OnPropertyChanged();
             }
+        }
 
-            StatusContext.Progress("Displaying Files");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Items = new ObservableRangeCollection<FileListListItem>(listItems);
-            
-            SortDescending = true;
-            await SortList("CreatedOn");
+        public string UserFilterText
+        {
+            get => _userFilterText;
+            set
+            {
+                if (value == _userFilterText) return;
+                _userFilterText = value;
+                OnPropertyChanged();
+            }
         }
 
         private async Task FilterList()
@@ -139,15 +143,59 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             };
         }
 
-        public string UserFilterText
+        public async Task LoadData()
         {
-            get => _userFilterText;
-            set
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            FilterListCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(FilterList));
+            SortListCommand = new RelayCommand<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
+            ToggleListSortDirectionCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(async () =>
             {
-                if (value == _userFilterText) return;
-                _userFilterText = value;
-                OnPropertyChanged();
+                SortDescending = !SortDescending;
+                await SortList(_lastSortColumn);
+            }));
+
+            StatusContext.Progress("Connecting to DB");
+
+            var db = await Db.Context();
+
+            StatusContext.Progress("Getting Post Db Entries");
+            var dbItems = db.FileContents.ToList();
+            var listItems = new List<FileListListItem>();
+
+            var totalCount = dbItems.Count;
+            var currentLoop = 1;
+
+            foreach (var loopItems in dbItems)
+            {
+                if (totalCount == 1 || totalCount % 10 == 0)
+                    StatusContext.Progress($"Processing Post Item {currentLoop} of {totalCount}");
+
+                var newFileItem = new FileListListItem {DbEntry = loopItems};
+
+                if (loopItems.MainPicture != null)
+                    newFileItem.SmallImageUrl = PictureAssetProcessing
+                        .ProcessPictureDirectory(loopItems.MainPicture.Value).SmallPicture?.File.FullName;
+
+                listItems.Add(newFileItem);
+
+                currentLoop++;
             }
+
+            StatusContext.Progress("Displaying Files");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Items = new ObservableRangeCollection<FileListListItem>(listItems);
+
+            SortDescending = true;
+            await SortList("CreatedOn");
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
 
@@ -163,56 +211,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             if (string.IsNullOrWhiteSpace(sortColumn)) return;
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
-        }
-        
-        public bool SortDescending
-        {
-            get => _sortDescending;
-            set
-            {
-                if (value == _sortDescending) return;
-                _sortDescending = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public RelayCommand ToggleListSortDirectionCommand
-        {
-            get => _toggleListSortDirectionCommand;
-            set
-            {
-                if (Equals(value, _toggleListSortDirectionCommand)) return;
-                _toggleListSortDirectionCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public RelayCommand<string> SortListCommand
-        {
-            get => _sortListCommand;
-            set
-            {
-                if (Equals(value, _sortListCommand)) return;
-                _sortListCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public RelayCommand FilterListCommand
-        {
-            get => _filterListCommand;
-            set
-            {
-                if (Equals(value, _filterListCommand)) return;
-                _filterListCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

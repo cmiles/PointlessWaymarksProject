@@ -41,8 +41,7 @@ namespace PointlessWaymarksCmsData.Pictures
         {
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("src", $"file://{Pictures.DisplayPicture.File.FullName}")
-                .Attr("height", Pictures.DisplayPicture.Height)
-                .Attr("width", Pictures.DisplayPicture.Width)
+                .Attr("height", Pictures.DisplayPicture.Height).Attr("width", Pictures.DisplayPicture.Width)
                 .Attr("loading", "lazy");
 
             if (!string.IsNullOrWhiteSpace(Pictures.DisplayPicture.AltText))

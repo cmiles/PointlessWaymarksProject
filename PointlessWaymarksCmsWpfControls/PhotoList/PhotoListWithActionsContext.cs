@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
@@ -22,15 +23,15 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
     {
         private RelayCommand _deleteSelectedCommand;
         private RelayCommand _editSelectedContentCommand;
+        private RelayCommand _generatePhotoListCommand;
         private RelayCommand _generateSelectedHtmlCommand;
         private PhotoListContext _listContext;
         private RelayCommand _newContentCommand;
+        private RelayCommand _openUrlForPhotoListCommand;
         private RelayCommand _openUrlForSelectedCommand;
         private RelayCommand _photoCodesToClipboardForSelectedCommand;
         private RelayCommand _refreshDataCommand;
         private StatusControlContext _statusContext;
-        private RelayCommand _generatePhotoListCommand;
-        private RelayCommand _openUrlForPhotoListCommand;
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
         {
@@ -57,6 +58,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (Equals(value, _editSelectedContentCommand)) return;
                 _editSelectedContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand GeneratePhotoListCommand
+        {
+            get => _generatePhotoListCommand;
+            set
+            {
+                if (Equals(value, _generatePhotoListCommand)) return;
+                _generatePhotoListCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -90,6 +102,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (Equals(value, _newContentCommand)) return;
                 _newContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand OpenUrlForPhotoListCommand
+        {
+            get => _openUrlForPhotoListCommand;
+            set
+            {
+                if (Equals(value, _openUrlForPhotoListCommand)) return;
+                _openUrlForPhotoListCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -210,6 +233,15 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
+        private async Task GeneratePhotoList()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var list = new ContentListPage(UserSettingsSingleton.CurrentSettings().PhotoRssUrl());
+
+            list.WriteLocalHtml();
+        }
+
         private async Task GenerateSelectedHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -256,37 +288,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             GeneratePhotoListCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GeneratePhotoList));
         }
 
-        public RelayCommand OpenUrlForPhotoListCommand
-        {
-            get => _openUrlForPhotoListCommand;
-            set
-            {
-                if (Equals(value, _openUrlForPhotoListCommand)) return;
-                _openUrlForPhotoListCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private async Task GeneratePhotoList()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var list = new PointlessWaymarksCmsData.ContentListHtml.ContentListPage(UserSettingsSingleton.CurrentSettings().PhotoRssUrl());
-
-            list.WriteLocalHtml();
-        }
-
-        public RelayCommand GeneratePhotoListCommand
-        {
-            get => _generatePhotoListCommand;
-            set
-            {
-                if (Equals(value, _generatePhotoListCommand)) return;
-                _generatePhotoListCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         private async Task NewContent()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -300,6 +301,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task OpenUrlForPhotoList()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var url = $@"http://{UserSettingsSingleton.CurrentSettings().PhotoListUrl()}";
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
 
         private async Task OpenUrlForSelected()
@@ -321,16 +332,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
                 Process.Start(ps);
             }
-        }
-
-        private async Task OpenUrlForPhotoList()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var url = $@"http://{UserSettingsSingleton.CurrentSettings().PhotoListUrl()}";
-
-            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
-            Process.Start(ps);
         }
 
         private async Task PhotoCodesToClipboardForSelected()

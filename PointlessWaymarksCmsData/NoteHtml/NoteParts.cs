@@ -6,11 +6,6 @@ namespace PointlessWaymarksCmsData.NoteHtml
 {
     public static class NoteParts
     {
-        public static string TitleString(NoteContent content)
-        {
-            return $"Notes - {NoteCreatedByAndUpdatedOnString(content)}";
-        }
-        
         public static string NoteCreatedByAndUpdatedOnString(ICreatedAndLastUpdateOnAndBy dbEntry)
         {
             var createdUpdatedString = $"{dbEntry.CreatedBy}";
@@ -18,13 +13,11 @@ namespace PointlessWaymarksCmsData.NoteHtml
             var onlyCreated = false;
 
             if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
-            {
                 if (string.Compare(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) != 0)
                 {
                     createdUpdatedString = $"{dbEntry.LastUpdatedBy} ";
                     onlyCreated = true;
                 }
-            }
 
             createdUpdatedString += $" {dbEntry.CreatedOn:M/d/yyyy}";
 
@@ -45,7 +38,7 @@ namespace PointlessWaymarksCmsData.NoteHtml
             return (createdUpdatedString + updatedString).Trim();
         }
 
-        
+
         public static HtmlTag TitleDiv(NoteContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
@@ -60,8 +53,13 @@ namespace PointlessWaymarksCmsData.NoteHtml
 
             return titleContainer;
         }
-        
-        public static string TrimLastCharacter(this String str)
+
+        public static string TitleString(NoteContent content)
+        {
+            return $"Notes - {NoteCreatedByAndUpdatedOnString(content)}";
+        }
+
+        public static string TrimLastCharacter(this string str)
         {
             return string.IsNullOrEmpty(str) ? str : str.TrimEnd(str[^1]);
         }

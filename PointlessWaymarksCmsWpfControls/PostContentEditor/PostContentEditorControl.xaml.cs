@@ -1,6 +1,4 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarksCmsWpfControls.PostContentEditor
+﻿namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 {
     public partial class PostContentEditorControl
     {

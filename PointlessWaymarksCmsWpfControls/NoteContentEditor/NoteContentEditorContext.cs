@@ -35,10 +35,10 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private RelayCommand _saveUpdateDatabaseCommand;
         private bool _showInSiteFeed;
         private string _slug;
+        private string _summary;
         private TagsEditorContext _tagEdit;
         private UpdateNotesEditorContext _updateNotes;
         private RelayCommand _viewOnSiteCommand;
-        private string _summary;
 
         public NoteContentEditorContext(StatusControlContext statusContext, NoteContent noteContent)
         {
@@ -148,6 +148,17 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
         public StatusControlContext StatusContext { get; set; }
 
+        public string Summary
+        {
+            get => _summary;
+            set
+            {
+                if (value == _summary) return;
+                _summary = value;
+                OnPropertyChanged();
+            }
+        }
+
         public TagsEditorContext TagEdit
         {
             get => _tagEdit;
@@ -226,17 +237,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
-        }
-
-        public string Summary
-        {
-            get => _summary;
-            set
-            {
-                if (value == _summary) return;
-                _summary = value;
-                OnPropertyChanged();
-            }
         }
 
         [NotifyPropertyChangedInvocator]
@@ -374,7 +374,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                 isValid = false;
                 errorMessage += "Summary can not be blank.";
             }
-            
+
             if (!isValid) return (false, errorMessage);
 
             if (!FolderFileUtility.IsValidFilename(Folder))

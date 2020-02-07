@@ -43,7 +43,8 @@
                 Opacity=".7"
                 Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
         </Border>
-        <Grid Grid.Column="0" Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+        <Grid Grid.Column="0"
+              Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Border Background="White" CornerRadius="8">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
@@ -82,7 +83,8 @@
                 </Grid>
             </Border>
         </Grid>
-        <Grid Grid.Column="0" Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+        <Grid Grid.Column="0"
+              Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Border Background="White" CornerRadius="8">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>

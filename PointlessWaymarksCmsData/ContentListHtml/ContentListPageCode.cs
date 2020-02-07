@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData.ContentListHtml
 {
@@ -19,10 +16,10 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             RssUrl = rssUrl;
         }
 
-        public string RssUrl { get; set; }
-
         public Func<List<IContentCommon>> ContentFunction { get; set; }
         public string ListTitle { get; set; }
+
+        public string RssUrl { get; set; }
 
         public HtmlTag ContentTableTag()
         {

@@ -54,7 +54,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
                 OnPropertyChanged();
             }
         }
-        
+
         public List<string> MessageBoxButtonList
         {
             get => _messageBoxButtonList;
@@ -206,6 +206,18 @@ namespace PointlessWaymarksCmsWpfControls.Status
             if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
         }
 
+        private void DecrementBlockingTasks()
+        {
+            Interlocked.Decrement(ref _countOfRunningBlockingTasks);
+            BlockUi = _countOfRunningBlockingTasks > 0;
+        }
+
+        private void DecrementNonBlockingTasks()
+        {
+            Interlocked.Decrement(ref _countOfRunningNonBlockingTasks);
+            NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
+        }
+
         private async void FireAndForgetBlockingTaskWithUiMessageReturnCompleted(Task obj)
         {
             DecrementBlockingTasks();
@@ -218,7 +230,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
         private void FireAndForgetTaskWithToastErrorReturnCompleted(Task obj)
         {
             DecrementNonBlockingTasks();
-            
+
             if (obj.IsCanceled) return;
 
             if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
@@ -229,28 +241,15 @@ namespace PointlessWaymarksCmsWpfControls.Status
             Interlocked.Increment(ref _countOfRunningBlockingTasks);
             BlockUi = _countOfRunningBlockingTasks > 0;
         }
-        
-        private void DecrementBlockingTasks()
-        {
-            Interlocked.Decrement(ref _countOfRunningBlockingTasks);
-            BlockUi = _countOfRunningBlockingTasks > 0;
-        }
-        
+
         private void IncrementNonBlockingTasks()
         {
             Interlocked.Increment(ref _countOfRunningNonBlockingTasks);
             NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
         }
-        
-        private void DecrementNonBlockingTasks()
-        {
-            Interlocked.Decrement(ref _countOfRunningNonBlockingTasks);
-            NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
-        }
-        
+
         private void NonBlockTaskCompleted(Task obj)
         {
-            
             DecrementNonBlockingTasks();
             DecrementNonBlockingTasks();
 
@@ -417,9 +416,9 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             StringEntryTitle = string.Empty;
             StringEntryMessage = string.Empty;
-            
+
             StringEntryUserText = string.Empty;
-            
+
             StringEntryVisible = false;
             StringEntryApproved = false;
 

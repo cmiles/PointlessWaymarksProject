@@ -1,8 +1,5 @@
 ﻿using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
@@ -108,13 +105,12 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         }
 
 
-
         public async Task LoadData(ITitleSummarySlugFolder dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             TitleToSlugCommand = new RelayCommand(() =>
-                StatusContext.RunBlockingAction(() => Slug = PointlessWaymarksCmsData.SlugUtility.Create(true, Title)));
+                StatusContext.RunBlockingAction(() => Slug = SlugUtility.Create(true, Title)));
 
             DbEntry = dbEntry;
 

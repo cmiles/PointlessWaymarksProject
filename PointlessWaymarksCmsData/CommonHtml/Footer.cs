@@ -14,8 +14,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 new LinkTag(settings.SiteName, @$"//{settings.SiteUrl}").AddClass("footer-site-link-content"));
 
             var contentListDiv = new DivTag().AddClass("footer-content-lists-container");
-            contentListDiv.Children.Add(
-                new DivTag().AddClass("footer-content-list").Text("List/Search:"));
+            contentListDiv.Children.Add(new DivTag().AddClass("footer-content-list").Text("List/Search:"));
             contentListDiv.Children.Add(
                 new LinkTag("All Content", @$"//{settings.AllContentListUrl()}").AddClass("footer-content-list"));
             contentListDiv.Children.Add(
@@ -32,8 +31,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             footerDiv.Children.Add(contentListDiv);
 
             if (!string.IsNullOrWhiteSpace(settings.SiteEmailTo))
-                footerDiv.Children.Add(new HtmlTag("address").AddClass("footer-site-email")
-                    .Text(settings.SiteEmailTo));
+                footerDiv.Children.Add(new HtmlTag("address").AddClass("footer-site-email").Text(settings.SiteEmailTo));
 
             return footerDiv;
         }

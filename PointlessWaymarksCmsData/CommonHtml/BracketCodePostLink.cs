@@ -10,7 +10,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
     {
         /// <summary>
         ///     Processes {{postlink guid;human_identifier}} or {{postlink guid;text toDisplay;(optional human_identifier}} to
-        /// a link
+        ///     a link
         /// </summary>
         /// <param name="toProcess"></param>
         /// <returns></returns>
@@ -37,9 +37,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 resultList.Add((matchResult.Value, matchResult.Groups["siteGuid"].Value, string.Empty));
                 matchResult = matchResult.NextMatch();
             }
-            
+
             var context = Db.Context().Result;
-            
+
             foreach (var loopMatch in resultList)
             {
                 var contentGuid = Guid.Parse(loopMatch.siteGuidMatch);
@@ -52,8 +52,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                     new LinkTag(
                         string.IsNullOrWhiteSpace(loopMatch.displayText)
                             ? dbContent.Title
-                            : loopMatch.displayText.Trim(), settings.PostPageUrl(dbContent),
-                        "post-page-link");
+                            : loopMatch.displayText.Trim(), settings.PostPageUrl(dbContent), "post-page-link");
 
                 toProcess = toProcess.Replace(loopMatch.wholeMatch, linkTag.ToString());
             }

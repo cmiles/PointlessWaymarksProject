@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData.NoteHtml
 {
     public partial class SingleNotePage
     {
-
         public SingleNotePage(NoteContent dbEntry)
         {
             DbEntry = dbEntry;
@@ -19,8 +16,13 @@ namespace PointlessWaymarksCmsData.NoteHtml
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.NotePageUrl(DbEntry);
-            Title = $"Note - {CommonHtml.Tags.CreatedByAndUpdatedOnString(DbEntry)}";
+            Title = $"Note - {Tags.CreatedByAndUpdatedOnString(DbEntry)}";
         }
+
+        public NoteContent DbEntry { get; }
+        public string PageUrl { get; }
+        public string SiteName { get; }
+        public string SiteUrl { get; }
 
         public string Title { get; }
 
@@ -48,11 +50,5 @@ namespace PointlessWaymarksCmsData.NoteHtml
 
             File.WriteAllText(htmlFileInfo.FullName, htmlString);
         }
-
-        public NoteContent DbEntry { get; }
-        public string PageUrl { get; }
-        public string SiteName { get; }
-        public string SiteUrl { get; }
-
     }
 }

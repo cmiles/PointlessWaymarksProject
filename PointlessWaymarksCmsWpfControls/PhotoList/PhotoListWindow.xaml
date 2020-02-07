@@ -23,7 +23,10 @@
         <StackPanel Grid.Column="1" Orientation="Vertical">
             <Button Style="{StaticResource ActionPanelButton}" Command="{Binding EditSelectedContentCommand}">Edit</Button>
             <Button Style="{StaticResource ActionPanelButton}" Command="{Binding GenerateSelectedHtmlCommand}">Generate Html</Button>
-            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding PhotoCodesToClipboardForSelectedCommand}">Photo Code to Clipboard</Button>
+            <Button Style="{StaticResource ActionPanelButton}"
+                    Command="{Binding PhotoCodesToClipboardForSelectedCommand}">
+                Photo Code to Clipboard
+            </Button>
             <Button Style="{StaticResource ActionPanelButton}" Command="{Binding OpenUrlForSelectedCommand}">Open Selected in Browser</Button>
             <Button Style="{StaticResource ActionPanelButton}" Command="{Binding NewContentCommand}">New Content</Button>
         </StackPanel>

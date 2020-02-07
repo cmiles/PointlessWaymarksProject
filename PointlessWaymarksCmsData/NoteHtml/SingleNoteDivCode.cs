@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using HtmlTags;
-using PointlessWaymarksCmsData.Models;
+﻿using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData.NoteHtml
 {
@@ -27,7 +23,5 @@ namespace PointlessWaymarksCmsData.NoteHtml
         public string SiteName { get; set; }
 
         public string SiteUrl { get; set; }
-
-
     }
 }

@@ -1,4 +1,7 @@
 ﻿namespace PointlessWaymarksCmsData.Models
 {
-    public interface IContentCommon : IContentId, IMainImage, ITag, ITitleSummarySlugFolder, ICreatedAndLastUpdateOnAndBy { }
+    public interface IContentCommon : IContentId, IMainImage, ITag, ITitleSummarySlugFolder,
+        ICreatedAndLastUpdateOnAndBy
+    {
+    }
 }

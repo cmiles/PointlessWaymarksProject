@@ -98,6 +98,30 @@ namespace PointlessWaymarksCmsData.IndexHtml
             return titleContainer;
         }
 
+        public void WriteLocalHtml()
+        {
+            WriteRss();
+
+            var parser = new HtmlParser();
+            var htmlDoc = parser.ParseDocument(TransformText());
+
+            var stringWriter = new StringWriter();
+            htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
+
+            var htmlString = stringWriter.ToString();
+
+            var htmlFileInfo =
+                new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory}\index.html");
+
+            if (htmlFileInfo.Exists)
+            {
+                htmlFileInfo.Delete();
+                htmlFileInfo.Refresh();
+            }
+
+            File.WriteAllText(htmlFileInfo.FullName, htmlString);
+        }
+
         public void WriteRss()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
@@ -151,30 +175,6 @@ namespace PointlessWaymarksCmsData.IndexHtml
                 rssFormatter.WriteTo(xmlWriter);
                 xmlWriter.Flush();
             }
-        }
-
-        public void WriteLocalHtml()
-        {
-            WriteRss();
-
-            var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument(TransformText());
-
-            var stringWriter = new StringWriter();
-            htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
-
-            var htmlString = stringWriter.ToString();
-
-            var htmlFileInfo =
-                new FileInfo($@"{UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory}\index.html");
-
-            if (htmlFileInfo.Exists)
-            {
-                htmlFileInfo.Delete();
-                htmlFileInfo.Refresh();
-            }
-
-            File.WriteAllText(htmlFileInfo.FullName, htmlString);
         }
     }
 }

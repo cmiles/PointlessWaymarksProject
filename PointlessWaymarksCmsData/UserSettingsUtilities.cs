@@ -10,6 +10,38 @@ namespace PointlessWaymarksCmsData
 {
     public static class UserSettingsUtilities
     {
+        public static string AllContentListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/AllContentList.html";
+        }
+
+        public static string AllContentRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/AllContentRss.xml";
+        }
+
+        public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
+        {
+            var db = await Db.Context();
+
+            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possiblePost != null) return settings.PostPageUrl(possiblePost);
+
+            var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possibleFile != null) return settings.FilePageUrl(possibleFile);
+
+            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possiblePhoto != null) return settings.PhotoPageUrl(possiblePhoto);
+
+            var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possibleImage != null) return settings.ImagePageUrl(possibleImage);
+
+            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
+            if (possibleNote != null) return settings.NotePageUrl(possibleNote);
+
+            return string.Empty;
+        }
+
         public static string CssMainStyleFileUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/styles.css";
@@ -25,9 +57,24 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Files/{content.Folder}/{content.Slug}/{content.OriginalFileName}";
         }
 
+        public static string FileListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Files/FileList.html";
+        }
+
         public static string FilePageUrl(this UserSettings settings, FileContent content)
         {
             return $"//{settings.SiteUrl}/Files/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static string FileRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Files/FileRss.html";
+        }
+
+        public static string ImageListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Images/ImageList.html";
         }
 
         public static string ImagePageUrl(this UserSettings settings, ImageContent content)
@@ -35,11 +82,11 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Images/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
-        public static string NotePageUrl(this UserSettings settings, NoteContent content)
+        public static string ImageRssUrl(this UserSettings settings)
         {
-            return $"//{settings.SiteUrl}/Notes/{content.Folder}/{content.Slug}.html";
+            return $"//{settings.SiteUrl}/Images/ImageRss.xml";
         }
-        
+
         public static string IndexPageUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/index.html";
@@ -77,6 +124,18 @@ namespace PointlessWaymarksCmsData
             localDirectory.Refresh();
 
             return localDirectory;
+        }
+
+        public static FileInfo LocalSiteAllContentListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteRootDirectory;
+            return new FileInfo($"{Path.Combine(directory, "AllContentList")}.html");
+        }
+
+        public static FileInfo LocalSiteAllContentRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteRootDirectory;
+            return new FileInfo($"{Path.Combine(directory, "AllContentRss")}.xml");
         }
 
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
@@ -119,6 +178,18 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
+        public static FileInfo LocalSiteFileListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteFileDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "FileList")}.html");
+        }
+
+        public static FileInfo LocalSiteFileRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteFileDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "FileRss")}.xml");
+        }
+
         public static DirectoryInfo LocalSiteImageContentDirectory(this UserSettings settings, ImageContent content,
             bool createDirectoryIfNotFound = true)
         {
@@ -149,6 +220,18 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
+        public static FileInfo LocalSiteImageListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteImageDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "ImageList")}.html");
+        }
+
+        public static FileInfo LocalSiteImageRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteImageDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "ImageRss")}.xml");
+        }
+
         public static DirectoryInfo LocalSiteMasterMediaArchiveDirectory(this UserSettings settings)
         {
             var photoDirectory = new DirectoryInfo(settings.LocalMasterMediaArchive);
@@ -157,6 +240,48 @@ namespace PointlessWaymarksCmsData
             photoDirectory.Refresh();
 
             return photoDirectory;
+        }
+
+        public static DirectoryInfo LocalSiteNoteContentDirectory(this UserSettings settings, NoteContent content,
+            bool createDirectoryIfNotFound = true)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteNoteDirectory().FullName,
+                content.Folder));
+
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+        public static DirectoryInfo LocalSiteNoteDirectory(this UserSettings settings)
+        {
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Notes"));
+            if (!localDirectory.Exists) localDirectory.Create();
+
+            localDirectory.Refresh();
+
+            return localDirectory;
+        }
+
+        public static FileInfo LocalSiteNoteHtmlFile(this UserSettings settings, NoteContent content)
+        {
+            var directory = settings.LocalSiteNoteContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
+        public static FileInfo LocalSiteNoteListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteNoteDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "NoteList")}.html");
+        }
+
+        public static FileInfo LocalSiteNoteRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteNoteDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "NoteRss")}.xml");
         }
 
         public static DirectoryInfo LocalSitePhotoContentDirectory(this UserSettings settings, PhotoContent content,
@@ -190,81 +315,15 @@ namespace PointlessWaymarksCmsData
         }
 
         public static FileInfo LocalSitePhotoListFile(this UserSettings settings)
-                 {
-                     var directory = settings.LocalSitePhotoDirectory();
-                     return new FileInfo($"{Path.Combine(directory.FullName, "PhotoList")}.html");
-                 }
-        
+        {
+            var directory = settings.LocalSitePhotoDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "PhotoList")}.html");
+        }
+
         public static FileInfo LocalSitePhotoRssFile(this UserSettings settings)
         {
             var directory = settings.LocalSitePhotoDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "PhotoRss")}.xml");
-        }
-        
-        public static FileInfo LocalSiteNoteListFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSiteNoteDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "NoteList")}.html");
-        }
-        
-        public static FileInfo LocalSiteNoteRssFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSiteNoteDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "NoteRss")}.xml");
-        }
-
-        public static FileInfo LocalSiteAllContentListFile(this UserSettings settings)
-                 {
-                     var directory = settings.LocalSiteRootDirectory;
-                     return new FileInfo($"{Path.Combine(directory, "AllContentList")}.html");
-                 }
-        
-        public static FileInfo LocalSiteAllContentRssFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSiteRootDirectory;
-            return new FileInfo($"{Path.Combine(directory, "AllContentRss")}.xml");
-        }
-        
-        public static FileInfo LocalSiteRssIndexFeedListFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSiteRootDirectory;
-            return new FileInfo($"{Path.Combine(directory, "RssIndexFeed")}.xml");
-        }
-
-        public static FileInfo LocalSiteImageListFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSiteImageDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "ImageList")}.html");
-        }
-        
-        public static FileInfo LocalSiteImageRssFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSiteImageDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "ImageRss")}.xml");
-        }
-
-        public static FileInfo LocalSiteFileListFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSiteFileDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "FileList")}.html");
-        }
-        
-        public static FileInfo LocalSiteFileRssFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSiteFileDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "FileRss")}.xml");
-        }
-
-        public static FileInfo LocalSitePostListFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSitePostDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "PostList")}.html");
-        }
-        
-        public static FileInfo LocalSitePostRssFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSitePostDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "PostRss")}.xml");
         }
 
         public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content,
@@ -272,20 +331,6 @@ namespace PointlessWaymarksCmsData
         {
             var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePostDirectory().FullName,
                 content.Folder, content.Slug));
-
-            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
-
-            contentDirectory.Create();
-            contentDirectory.Refresh();
-
-            return contentDirectory;
-        }
-
-        public static DirectoryInfo LocalSiteNoteContentDirectory(this UserSettings settings, NoteContent content,
-            bool createDirectoryIfNotFound = true)
-        {
-            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteNoteDirectory().FullName,
-                content.Folder));
 
             if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
 
@@ -306,26 +351,48 @@ namespace PointlessWaymarksCmsData
             return localDirectory;
         }
 
-        public static DirectoryInfo LocalSiteNoteDirectory(this UserSettings settings)
-        {
-            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Notes"));
-            if (!localDirectory.Exists) localDirectory.Create();
-
-            localDirectory.Refresh();
-
-            return localDirectory;
-        }
-
         public static FileInfo LocalSitePostHtmlFile(this UserSettings settings, PostContent content)
         {
             var directory = settings.LocalSitePostContentDirectory(content, false);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
-        public static FileInfo LocalSiteNoteHtmlFile(this UserSettings settings, NoteContent content)
+        public static FileInfo LocalSitePostListFile(this UserSettings settings)
         {
-            var directory = settings.LocalSiteNoteContentDirectory(content, false);
-            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+            var directory = settings.LocalSitePostDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "PostList")}.html");
+        }
+
+        public static FileInfo LocalSitePostRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSitePostDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "PostRss")}.xml");
+        }
+
+        public static FileInfo LocalSiteRssIndexFeedListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteRootDirectory;
+            return new FileInfo($"{Path.Combine(directory, "RssIndexFeed")}.xml");
+        }
+
+        public static string NoteListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Notes/NoteList.html";
+        }
+
+        public static string NotePageUrl(this UserSettings settings, NoteContent content)
+        {
+            return $"//{settings.SiteUrl}/Notes/{content.Folder}/{content.Slug}.html";
+        }
+
+        public static string NoteRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Notes/NoteRss.html";
+        }
+
+        public static string PhotoListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Photos/PhotoList.html";
         }
 
         public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
@@ -333,69 +400,9 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
-        public static string PhotoListUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/Photos/PhotoList.html";
-        }
-        
         public static string PhotoRssUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Photos/PhotoRss.html";
-        }
-        
-        public static string FileListUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/Files/FileList.html";
-        }
-        
-        public static string FileRssUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/Files/FileRss.html";
-        }
-        
-        public static string NoteListUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/Notes/NoteList.html";
-        }
-        
-        public static string NoteRssUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/Notes/NoteRss.html";
-        }
-
-        public static string ImageListUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/Images/ImageList.html";
-        }
-        
-        public static string ImageRssUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/Images/ImageRss.xml";
-        }
-
-        public static string PostsListUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/Posts/PostList.html";
-        }
-        
-        public static string PostsRssUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/Posts/PostRss.xml";
-        }
-
-        public static string AllContentListUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/AllContentList.html";
-        }
-        
-        public static string AllContentRssUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/AllContentRss.xml";
-        }
-        
-        public static string RssIndexFeedUrl(this UserSettings settings)
-        {
-            return $"//{settings.SiteUrl}/RssIndexFeed.rss";
         }
 
         public static string PicturePageUrl(this UserSettings settings, Guid contentGuid)
@@ -416,26 +423,14 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
-        public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
+        public static string PostsListUrl(this UserSettings settings)
         {
-            var db = await Db.Context();
+            return $"//{settings.SiteUrl}/Posts/PostList.html";
+        }
 
-            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
-            if (possiblePost != null) return settings.PostPageUrl(possiblePost);
-
-            var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
-            if (possibleFile != null) return settings.FilePageUrl(possibleFile);
-
-            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
-            if (possiblePhoto != null) return settings.PhotoPageUrl(possiblePhoto);
-
-            var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
-            if (possibleImage != null) return settings.ImagePageUrl(possibleImage);
-
-            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == toLink);
-            if (possibleNote != null) return settings.NotePageUrl(possibleNote);
-            
-            return string.Empty;
+        public static string PostsRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Posts/PostRss.xml";
         }
 
         public static async Task<UserSettings> ReadSettings()
@@ -448,6 +443,11 @@ namespace PointlessWaymarksCmsData
             }
 
             return await JsonSerializer.DeserializeAsync<UserSettings>(File.OpenRead(currentFile.FullName));
+        }
+
+        public static string RssIndexFeedUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/RssIndexFeed.rss";
         }
 
         public static FileInfo SettingsFile()

@@ -9,20 +9,12 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class Tags
     {
-        public static DateTime? LatestCreatedOnOrUpdatedOn(ICreatedAndLastUpdateOnAndBy dbEntry)
+        public static HtmlTag CreatedByAndUpdatedOnDiv(ICreatedAndLastUpdateOnAndBy dbEntry)
         {
-            if (dbEntry == null) return null;
-
-            return dbEntry.LastUpdatedOn ?? dbEntry.CreatedOn;
-        }
-
-        public static HtmlTag SiteMainRss()
-        {
-            return new HtmlTag("Link")
-                .Attr("rel", "alternate")
-                .Attr("type", "application/rss+xml")
-                .Attr("title", $"Main RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName}")
-                .Attr("href", $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
+            var titleContainer = new DivTag().AddClass("created-and-updated-container");
+            titleContainer.Children.Add(new DivTag().AddClass("created-and-updated-content")
+                .Text(CreatedByAndUpdatedOnString(dbEntry)));
+            return titleContainer;
         }
 
         public static string CreatedByAndUpdatedOnString(ICreatedAndLastUpdateOnAndBy dbEntry)
@@ -32,13 +24,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var onlyCreated = false;
 
             if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
-            {
                 if (string.Compare(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) != 0)
                 {
                     createdUpdatedString = $"Created and Updated by {dbEntry.LastUpdatedBy} ";
                     onlyCreated = true;
                 }
-            }
 
             createdUpdatedString += $" on {dbEntry.CreatedOn:M/d/yyyy}.";
 
@@ -110,6 +100,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return divTag;
         }
 
+        public static bool IsEmpty(this HtmlTag toCheck)
+        {
+            return string.IsNullOrWhiteSpace(toCheck.ToHtmlString());
+        }
+
+        public static DateTime? LatestCreatedOnOrUpdatedOn(ICreatedAndLastUpdateOnAndBy dbEntry)
+        {
+            if (dbEntry == null) return null;
+
+            return dbEntry.LastUpdatedOn ?? dbEntry.CreatedOn;
+        }
+
         public static string OpenGraphImageMetaTags(PictureSiteInformation mainImage)
         {
             if (mainImage?.Pictures == null) return string.Empty;
@@ -176,25 +178,21 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 .Attr("srcset", pictureDirectoryInfo.SrcSetString())
                 .Attr("src", pictureDirectoryInfo.DisplayPicture.SiteUrl)
                 .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
-                .Attr("width", pictureDirectoryInfo.DisplayPicture.Width)
-                .Attr("loading", "lazy");
+                .Attr("width", pictureDirectoryInfo.DisplayPicture.Width).Attr("loading", "lazy");
 
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
 
             return imageTag;
         }
-        
+
         public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAsset pictureAsset)
         {
             if (pictureAsset == null) return HtmlTag.Empty();
 
-            var imageTag = new HtmlTag("img").AddClass("thumb-photo")
-                .Attr("srcset", pictureAsset.SrcSetString())
-                .Attr("src", pictureAsset.SmallPicture.SiteUrl)
-                .Attr("height", pictureAsset.SmallPicture.Height)
-                .Attr("width", pictureAsset.SmallPicture.Width)
-                .Attr("loading", "lazy");
+            var imageTag = new HtmlTag("img").AddClass("thumb-photo").Attr("srcset", pictureAsset.SrcSetString())
+                .Attr("src", pictureAsset.SmallPicture.SiteUrl).Attr("height", pictureAsset.SmallPicture.Height)
+                .Attr("width", pictureAsset.SmallPicture.Width).Attr("loading", "lazy");
 
             if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureAsset.DisplayPicture.AltText);
@@ -202,14 +200,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return imageTag;
         }
 
-        public static bool IsEmpty(this HtmlTag toCheck)
-        {
-            return string.IsNullOrWhiteSpace(toCheck.ToHtmlString());
-        }
-
         public static HtmlTag PictureImgThumbWithLink(PictureAsset pictureAsset, string linkTo)
         {
-            if(pictureAsset == null) return HtmlTag.Empty();
+            if (pictureAsset == null) return HtmlTag.Empty();
 
             var imgTag = PictureImgTagWithSmallestDefaultSrc(pictureAsset);
 
@@ -250,19 +243,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return titleContainer;
         }
 
-        public static HtmlTag CreatedByAndUpdatedOnDiv(ICreatedAndLastUpdateOnAndBy dbEntry)
-        {
-            var titleContainer = new DivTag().AddClass("created-and-updated-container");
-            titleContainer.Children.Add(new DivTag().AddClass("created-and-updated-content")
-                .Text(CreatedByAndUpdatedOnString(dbEntry)));
-            return titleContainer;
-        }
-
         public static HtmlTag PostTitleDiv(ITitleSummarySlugFolder content)
         {
             var titleContainer = new HtmlTag("div").AddClass("post-title-container");
             titleContainer.Children.Add(new HtmlTag("h1").AddClass("post-title-content").Text(content.Title));
             return titleContainer;
+        }
+
+        public static HtmlTag SiteMainRss()
+        {
+            return new HtmlTag("Link").Attr("rel", "alternate").Attr("type", "application/rss+xml")
+                .Attr("title", $"Main RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName}").Attr("href",
+                    $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
         }
 
         public static HtmlTag TagList(ITag dbEntry)

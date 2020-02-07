@@ -9,20 +9,6 @@ namespace PointlessWaymarksCmsData
 {
     public static class SlugUtility
     {
-        public static string RandomLowerCaseString(int length)
-        {
-            var chars = "abcdefghijklmnopqrstuvwxyz";
-            var stringChars = new char[length];
-            var random = new Random();
-
-            for (int i = 0; i < stringChars.Length; i++)
-            {
-                stringChars[i] = chars[random.Next(chars.Length)];
-            }
-
-            return new String(stringChars);
-        }
-
         private static string ConvertEdgeCases(char c, bool toLower)
         {
             string swap = null;
@@ -230,6 +216,17 @@ namespace PointlessWaymarksCmsData
                     x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
 
             return photoCheck;
+        }
+
+        public static string RandomLowerCaseString(int length)
+        {
+            var chars = "abcdefghijklmnopqrstuvwxyz";
+            var stringChars = new char[length];
+            var random = new Random();
+
+            for (var i = 0; i < stringChars.Length; i++) stringChars[i] = chars[random.Next(chars.Length)];
+
+            return new string(stringChars);
         }
 
         public static async Task<bool> SlugExistsInDatabase(this PointlessWaymarksContext context, string slug)
