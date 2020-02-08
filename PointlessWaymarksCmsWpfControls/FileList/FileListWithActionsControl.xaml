@@ -27,9 +27,13 @@
             <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}">Refresh</Button>
             <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}">Edit</Button>
             <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}">Generate Html</Button>
-            <Button Command="{Binding FileCodesToClipboardForSelectedCommand}"
+            <Button Command="{Binding FilePageLinkCodesToClipboardForSelectedCommand}"
                     Style="{StaticResource ActionPanelButton}">
-                File Link Code to Clipboard
+                Page Link Code
+            </Button>
+            <Button Command="{Binding FileDownloadLinkCodesToClipboardForSelectedCommand}"
+                    Style="{StaticResource ActionPanelButton}">
+                Download Link Code
             </Button>
             <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}">Open Selected in Browser</Button>
             <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>

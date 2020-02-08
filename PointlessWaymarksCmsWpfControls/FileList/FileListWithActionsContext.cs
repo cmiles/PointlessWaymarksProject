@@ -22,11 +22,12 @@ namespace PointlessWaymarksCmsWpfControls.FileList
     {
         private RelayCommand _deleteSelectedCommand;
         private RelayCommand _editSelectedContentCommand;
+        private RelayCommand _fileDownloadLinkCodesToClipboardForSelectedCommand;
         private RelayCommand _generateSelectedHtmlCommand;
         private FileListContext _listContext;
         private RelayCommand _newContentCommand;
         private RelayCommand _openUrlForSelectedCommand;
-        private RelayCommand _photoCodesToClipboardForSelectedCommand;
+        private RelayCommand _photoPageLinkCodesToClipboardForSelectedCommand;
         private StatusControlContext _statusContext;
 
         public FileListWithActionsContext(StatusControlContext statusContext)
@@ -58,13 +59,24 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public RelayCommand FileCodesToClipboardForSelectedCommand
+        public RelayCommand FileDownloadLinkCodesToClipboardForSelectedCommand
         {
-            get => _photoCodesToClipboardForSelectedCommand;
+            get => _fileDownloadLinkCodesToClipboardForSelectedCommand;
             set
             {
-                if (Equals(value, _photoCodesToClipboardForSelectedCommand)) return;
-                _photoCodesToClipboardForSelectedCommand = value;
+                if (Equals(value, _fileDownloadLinkCodesToClipboardForSelectedCommand)) return;
+                _fileDownloadLinkCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand FilePageLinkCodesToClipboardForSelectedCommand
+        {
+            get => _photoPageLinkCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _photoPageLinkCodesToClipboardForSelectedCommand)) return;
+                _photoPageLinkCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -199,7 +211,30 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        private async Task FileCodesToClipboardForSelected()
+        private async Task FileDownloadLinkCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = string.Empty;
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+                finalString +=
+                    @$"{{{{filedownloadlink {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        private async Task FilePageLinkCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -258,8 +293,10 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             GenerateSelectedHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
             EditSelectedContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            FileCodesToClipboardForSelectedCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(FileCodesToClipboardForSelected));
+            FilePageLinkCodesToClipboardForSelectedCommand = new RelayCommand(() =>
+                StatusContext.RunBlockingTask(FilePageLinkCodesToClipboardForSelected));
+            FileDownloadLinkCodesToClipboardForSelectedCommand = new RelayCommand(() =>
+                StatusContext.RunBlockingTask(FileDownloadLinkCodesToClipboardForSelected));
             OpenUrlForSelectedCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             RefreshDataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ListContext.LoadData));

@@ -20,7 +20,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var resultList = new List<(string wholeMatch, string siteGuidMatch, string displayText)>();
 
-            var withTextMatch = new Regex(@"{{postlink (?<siteGuid>[\dA-Za-z-]*);text (?<displayText>[^};]*);[^}]*}}",
+            var withTextMatch = new Regex(@"{{postlink (?<siteGuid>[\dA-Za-z-]*);\s*text (?<displayText>[^};]*);[^}]*}}",
                 RegexOptions.Singleline);
             var withTextMatchResult = withTextMatch.Match(toProcess);
             while (withTextMatchResult.Success)
