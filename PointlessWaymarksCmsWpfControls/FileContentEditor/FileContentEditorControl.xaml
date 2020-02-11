@@ -19,7 +19,11 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         <TabControl>
             <TabItem Header="Summary">
                 <Grid>
@@ -53,13 +57,13 @@
                     <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
             </TabItem>
-            <TabItem Header="Save and Generate">
-                <StackPanel>
-                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
-                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Generate Html</Button>
-                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
-                </StackPanel>
-            </TabItem>
         </TabControl>
+        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Generate Html</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
+            </WrapPanel>
+        </Border>
     </Grid>
 </UserControl>

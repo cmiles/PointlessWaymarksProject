@@ -1,4 +1,5 @@
-﻿using HtmlTags;
+﻿using System.Linq;
+using HtmlTags;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
@@ -31,7 +32,30 @@ namespace PointlessWaymarksCmsData.CommonHtml
             footerDiv.Children.Add(contentListDiv);
 
             if (!string.IsNullOrWhiteSpace(settings.SiteEmailTo))
-                footerDiv.Children.Add(new HtmlTag("address").AddClass("footer-site-email").Text(settings.SiteEmailTo));
+            {
+                var emailAddress = new HtmlTag("address").AddClass("footer-site-email").Text(settings.SiteEmailTo);
+
+                var emailListDiv = new DivTag().AddClass("footer-content-lists-container");
+                emailListDiv.Children.Add(emailAddress);
+
+                footerDiv.Children.Add(emailListDiv);
+            }
+
+            var db = Db.Context().Result;
+
+            var possibleAbout = db.PostContents.Where(x => x.Title.ToLower() == "about").ToList();
+
+            if (possibleAbout.Count > 0)
+            {
+                var aboutToUse = possibleAbout.OrderByDescending(x => x.CreatedOn).First();
+
+                var aboutLink = new LinkTag("About", settings.PostPageUrl(aboutToUse)).AddClass("footer-site-about");
+
+                var aboutDiv = new DivTag().AddClass("footer-content-lists-container");
+                aboutDiv.Children.Add(aboutLink);
+
+                footerDiv.Children.Add(aboutDiv);
+            }
 
             return footerDiv;
         }

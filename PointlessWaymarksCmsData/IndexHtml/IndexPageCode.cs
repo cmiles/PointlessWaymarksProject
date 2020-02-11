@@ -31,8 +31,10 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
             var db = Db.Context().Result;
 
-            var posts = db.PostContents.OrderByDescending(x => x.CreatedOn).Cast<dynamic>().Take(20).ToList();
-            var notes = db.NoteContents.OrderByDescending(x => x.CreatedOn).Cast<dynamic>().Take(20).ToList();
+            var posts = db.PostContents.Where(x => x.ShowInSiteFeed).OrderByDescending(x => x.CreatedOn).Cast<dynamic>()
+                .Take(20).ToList();
+            var notes = db.NoteContents.Where(x => x.ShowInSiteFeed).OrderByDescending(x => x.CreatedOn).Cast<dynamic>()
+                .Take(20).ToList();
             IndexContent = posts.Concat(notes).OrderByDescending(x => x.CreatedOn).Take(8).ToList();
 
             var mainImageGuid = IndexContent
@@ -124,11 +126,11 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
         public void WriteRss()
         {
-            var settings = UserSettingsSingleton.CurrentSettings();
-
             var feed = new SyndicationFeed(SiteName, SiteSummary, new Url(SiteUrl),
-                $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}", DateTime.Now);
-            feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {SiteAuthors}");
+                $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}", DateTime.Now)
+            {
+                Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {SiteAuthors}")
+            };
 
             var items = new List<SyndicationItem>();
 

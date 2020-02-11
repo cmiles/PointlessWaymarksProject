@@ -22,11 +22,15 @@
             <utility:ImageCacheConverter x:Key="ImageCache" />
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
+    <Grid Margin="4">
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         <GroupBox Margin="4,0,0,4" Header="Photo">
             <Grid>
                 <Grid.RowDefinitions>
@@ -63,7 +67,7 @@
                 </GroupBox>
             </Grid>
         </GroupBox>
-        <TabControl Grid.Column="1" Margin="4,9,4,5">
+        <TabControl Grid.Row="0" Grid.Column="1" Margin="4,9,4,5">
             <TabItem Header="Summary">
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -95,19 +99,19 @@
                     <updateNotesEditor:UpdateNotesEditorHorizontalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
             </TabItem>
-            <TabItem Header="Save and Generate">
-                <StackPanel>
-                    <Button
-                        Style="{StaticResource ActionPanelButton}"
-                        Command="{Binding ResizeFileCommand}">
-                        Resize
-                    </Button>
-                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Generate Html</Button>
-                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}">Save, Generate Html</Button>
-                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
-                    <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
-                </StackPanel>
-            </TabItem>
         </TabControl>
+        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button
+                    Style="{StaticResource ActionPanelButton}"
+                    Command="{Binding ResizeFileCommand}">
+                    Resize
+                </Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Generate Html</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}">Save, Generate Html</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
+            </WrapPanel>
+        </Border>
     </Grid>
 </UserControl>

@@ -23,21 +23,22 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <local:ImageListControl Margin="4,5,4,6" DataContext="{Binding ListContext}" />
-        <WrapPanel
-            Grid.Row="1"
-            HorizontalAlignment="Center"
-            Orientation="Horizontal">
-            <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}">Refresh</Button>
-            <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}">Edit</Button>
-            <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}">Generate Html</Button>
-            <Button Command="{Binding ImageCodesToClipboardForSelectedCommand}"
-                    Style="{StaticResource ActionPanelButton}">
-                Image Code to Clipboard
-            </Button>
-            <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}">Open Selected in Browser</Button>
-            <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
-            <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}">New Content</Button>
-        </WrapPanel>
+        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+            <WrapPanel
+                HorizontalAlignment="Center"
+                Orientation="Horizontal">
+                <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}">Refresh</Button>
+                <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}">Edit</Button>
+                <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}">Generate Html</Button>
+                <Button Command="{Binding ImageCodesToClipboardForSelectedCommand}"
+                        Style="{StaticResource ActionPanelButton}">
+                    Image Code to Clipboard
+                </Button>
+                <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}">Open Selected in Browser</Button>
+                <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
+                <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}">New Content</Button>
+            </WrapPanel>
+        </Border>
         <status:StatusControl
             Grid.Row="0"
             Grid.RowSpan="2"
