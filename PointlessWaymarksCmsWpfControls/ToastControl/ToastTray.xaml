@@ -7,284 +7,290 @@
     xmlns:toast1="clr-namespace:PointlessWaymarksCmsWpfControls.ToastControl"
     d:DataContext="{d:DesignInstance toast1:ToastSource}"
     mc:Ignorable="d">
-
     <UserControl.Resources>
-        <Canvas
-            x:Key="CloseIcon"
-            Width="76"
-            Height="76"
-            Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-            <Path
-                Canvas.Left="22.1666"
-                Canvas.Top="22.1667"
-                Width="31.6666"
-                Height="31.6667"
-                Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z "
-                Fill="#FF000000"
-                Stretch="Fill" />
-        </Canvas>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
 
-        <Style x:Key="NotificationBorder" TargetType="Border">
-            <Setter Property="Padding" Value="10" />
-            <Setter Property="Margin" Value="5" />
-            <Setter Property="Width" Value="250" />
-            <Setter Property="MinHeight" Value="70" />
-        </Style>
+            <Canvas
+                x:Key="CloseIcon"
+                Width="76"
+                Height="76"
+                Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+                <Path
+                    Canvas.Left="22.1666"
+                    Canvas.Top="22.1667"
+                    Width="31.6666"
+                    Height="31.6667"
+                    Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z "
+                    Fill="#FF000000"
+                    Stretch="Fill" />
+            </Canvas>
 
-        <Style x:Key="NotificationPanel" TargetType="StackPanel">
-            <Setter Property="Orientation" Value="Horizontal" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
+            <Style x:Key="NotificationBorder" TargetType="Border">
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="Width" Value="250" />
+                <Setter Property="MinHeight" Value="70" />
+            </Style>
 
-        <Style x:Key="NotificationIcon" TargetType="Rectangle">
-            <Setter Property="Width" Value="24" />
-            <Setter Property="Height" Value="24" />
-            <Setter Property="Margin" Value="0,5,5,5" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Fill" Value="White" />
-        </Style>
+            <Style x:Key="NotificationPanel" TargetType="StackPanel">
+                <Setter Property="Orientation" Value="Horizontal" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
 
-        <Style x:Key="NotificationText" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Width" Value="200" />
-            <Setter Property="TextWrapping" Value="Wrap" />
-        </Style>
+            <Style x:Key="NotificationIcon" TargetType="Rectangle">
+                <Setter Property="Width" Value="24" />
+                <Setter Property="Height" Value="24" />
+                <Setter Property="Margin" Value="0,5,5,5" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Fill" Value="White" />
+            </Style>
 
-        <Style x:Key="NotificationCloseButton" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="Margin" Value="5,-5,-5,0" />
-            <Setter Property="VerticalAlignment" Value="Top" />
-            <Setter Property="HorizontalAlignment" Value="Right" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter
-                                Margin="0,0,0,0"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Content="{TemplateBinding Content}" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="#EEE" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Foreground" Value="#DDD" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <Style x:Key="NotificationText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Width" Value="200" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
 
-        <Style x:Key="CloseButtonIcon" TargetType="Rectangle">
-            <Setter Property="Width" Value="10" />
-            <Setter Property="Height" Value="10" />
-            <Setter Property="Fill"
-                    Value="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}" />
-        </Style>
+            <Style x:Key="NotificationCloseButton" TargetType="{x:Type Button}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="Margin" Value="5,-5,-5,0" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border Background="{TemplateBinding Background}">
+                                <ContentPresenter
+                                    Margin="0,0,0,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Content="{TemplateBinding Content}" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="#EEE" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Foreground" Value="#DDD" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
-        <Style TargetType="{x:Type toast1:ToastControl}">
-            <Setter Property="LayoutTransform">
-                <Setter.Value>
-                    <ScaleTransform x:Name="scaleTransform" ScaleX="0" ScaleY="0" />
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type toast1:ToastControl}">
-                        <Border Background="{TemplateBinding Background}" Style="{StaticResource NotificationBorder}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="30" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+            <Style x:Key="CloseButtonIcon" TargetType="Rectangle">
+                <Setter Property="Width" Value="10" />
+                <Setter Property="Height" Value="10" />
+                <Setter Property="Fill"
+                        Value="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}" />
+            </Style>
 
-                                <Rectangle
-                                    Grid.RowSpan="2"
-                                    Grid.Column="0"
-                                    Style="{StaticResource NotificationIcon}">
-                                    <Rectangle.OpacityMask>
-                                        <VisualBrush Stretch="Fill"
-                                                     Visual="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}" />
-                                    </Rectangle.OpacityMask>
-                                </Rectangle>
+            <Style TargetType="{x:Type toast1:ToastControl}">
+                <Setter Property="LayoutTransform">
+                    <Setter.Value>
+                        <ScaleTransform x:Name="scaleTransform" ScaleX="0" ScaleY="0" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type toast1:ToastControl}">
+                            <Border Background="{TemplateBinding Background}"
+                                    Style="{StaticResource NotificationBorder}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
 
-                                <TextBlock
-                                    Grid.Column="1"
-                                    Style="{StaticResource NotificationText}"
-                                    Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Toast.Message}" />
-
-                                <Button
-                                    x:Name="CloseButton"
-                                    Grid.Column="1"
-                                    Style="{StaticResource NotificationCloseButton}">
-                                    <Rectangle Margin="2" Style="{StaticResource CloseButtonIcon}">
+                                    <Rectangle
+                                        Grid.RowSpan="2"
+                                        Grid.Column="0"
+                                        Style="{StaticResource NotificationIcon}">
                                         <Rectangle.OpacityMask>
-                                            <VisualBrush Stretch="Fill" Visual="{StaticResource CloseIcon}" />
+                                            <VisualBrush Stretch="Fill"
+                                                         Visual="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}" />
                                         </Rectangle.OpacityMask>
                                     </Rectangle>
-                                </Button>
-                            </Grid>
-                        </Border>
 
-                        <ControlTemplate.Triggers>
-                            <EventTrigger RoutedEvent="Loaded">
-                                <EventTrigger.Actions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation
-                                                Storyboard.TargetProperty="Opacity"
-                                                From="0"
-                                                To="1"
-                                                Duration="0:0:.5" />
-                                            <DoubleAnimation
-                                                Storyboard.TargetProperty="LayoutTransform.ScaleX"
-                                                From="0"
-                                                To="1"
-                                                Duration="0:0:.2" />
-                                            <DoubleAnimation
-                                                Storyboard.TargetProperty="LayoutTransform.ScaleY"
-                                                From="0"
-                                                To="1"
-                                                Duration="0:0:.2" />
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger.Actions>
-                            </EventTrigger>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Style="{StaticResource NotificationText}"
+                                        Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Toast.Message}" />
 
-                            <EventTrigger RoutedEvent="NotificationClosing">
-                                <EventTrigger.Actions>
-                                    <BeginStoryboard>
-                                        <Storyboard x:Name="ClosingStoryboard">
-                                            <DoubleAnimation
-                                                Storyboard.TargetProperty="Opacity"
-                                                From="1"
-                                                To="0"
-                                                Duration="0:0:.5" />
-                                            <DoubleAnimation
-                                                Storyboard.TargetProperty="LayoutTransform.ScaleX"
-                                                From="1"
-                                                To="0"
-                                                Duration="0:0:.2" />
-                                            <DoubleAnimation
-                                                Storyboard.TargetProperty="LayoutTransform.ScaleY"
-                                                From="1"
-                                                To="0"
-                                                Duration="0:0:.2" />
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger.Actions>
-                            </EventTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+                                    <Button
+                                        x:Name="CloseButton"
+                                        Grid.Column="1"
+                                        Style="{StaticResource NotificationCloseButton}">
+                                        <Rectangle Margin="2" Style="{StaticResource CloseButtonIcon}">
+                                            <Rectangle.OpacityMask>
+                                                <VisualBrush Stretch="Fill" Visual="{StaticResource CloseIcon}" />
+                                            </Rectangle.OpacityMask>
+                                        </Rectangle>
+                                    </Button>
+                                </Grid>
+                            </Border>
 
-        <Canvas
-            x:Key="InformationIcon"
-            Width="76"
-            Height="76"
-            Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-            <Path
-                Canvas.Left="19"
-                Canvas.Top="19"
-                Width="38"
-                Height="38"
-                Data="F1 M 38,19C 48.4934,19 57,27.5066 57,38C 57,48.4934 48.4934,57 38,57C 27.5066,57 19,48.4934 19,38C 19,27.5066 27.5066,19 38,19 Z M 33.25,33.25L 33.25,36.4167L 36.4166,36.4167L 36.4166,47.5L 33.25,47.5L 33.25,50.6667L 44.3333,50.6667L 44.3333,47.5L 41.1666,47.5L 41.1666,36.4167L 41.1666,33.25L 33.25,33.25 Z M 38.7917,25.3333C 37.48,25.3333 36.4167,26.3967 36.4167,27.7083C 36.4167,29.02 37.48,30.0833 38.7917,30.0833C 40.1033,30.0833 41.1667,29.02 41.1667,27.7083C 41.1667,26.3967 40.1033,25.3333 38.7917,25.3333 Z "
-                Fill="#FF000000"
-                Stretch="Fill" />
-        </Canvas>
+                            <ControlTemplate.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    From="0"
+                                                    To="1"
+                                                    Duration="0:0:.5" />
+                                                <DoubleAnimation
+                                                    Storyboard.TargetProperty="LayoutTransform.ScaleX"
+                                                    From="0"
+                                                    To="1"
+                                                    Duration="0:0:.2" />
+                                                <DoubleAnimation
+                                                    Storyboard.TargetProperty="LayoutTransform.ScaleY"
+                                                    From="0"
+                                                    To="1"
+                                                    Duration="0:0:.2" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
 
-        <Canvas
-            x:Key="SuccessIcon"
-            Width="76"
-            Height="76"
-            Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-            <Path
-                Canvas.Left="19.0001"
-                Canvas.Top="22.1668"
-                Width="37.9998"
-                Height="31.6665"
-                Data="F1 M 23.7501,33.25L 34.8334,44.3333L 52.2499,22.1668L 56.9999,26.9168L 34.8334,53.8333L 19.0001,38L 23.7501,33.25 Z "
-                Fill="#FF000000"
-                Stretch="Fill" />
-        </Canvas>
+                                <EventTrigger RoutedEvent="NotificationClosing">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard>
+                                            <Storyboard x:Name="ClosingStoryboard">
+                                                <DoubleAnimation
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    From="1"
+                                                    To="0"
+                                                    Duration="0:0:.5" />
+                                                <DoubleAnimation
+                                                    Storyboard.TargetProperty="LayoutTransform.ScaleX"
+                                                    From="1"
+                                                    To="0"
+                                                    Duration="0:0:.2" />
+                                                <DoubleAnimation
+                                                    Storyboard.TargetProperty="LayoutTransform.ScaleY"
+                                                    From="1"
+                                                    To="0"
+                                                    Duration="0:0:.2" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
-        <Canvas
-            x:Key="WarningIcon"
-            Width="76"
-            Height="76"
-            Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-            <Path
-                Canvas.Left="16.0256"
-                Canvas.Top="14.4489"
-                Width="43.9488"
-                Height="40.9682"
-                Data="F1 M 58.5832,55.4172L 17.4169,55.4171C 15.5619,53.5621 15.5619,50.5546 17.4168,48.6996L 35.201,15.8402C 37.056,13.9852 40.0635,13.9852 41.9185,15.8402L 58.5832,48.6997C 60.4382,50.5546 60.4382,53.5622 58.5832,55.4172 Z M 34.0417,25.7292L 36.0208,41.9584L 39.9791,41.9583L 41.9583,25.7292L 34.0417,25.7292 Z M 38,44.3333C 36.2511,44.3333 34.8333,45.7511 34.8333,47.5C 34.8333,49.2489 36.2511,50.6667 38,50.6667C 39.7489,50.6667 41.1666,49.2489 41.1666,47.5C 41.1666,45.7511 39.7489,44.3333 38,44.3333 Z "
-                Fill="#FF000000"
-                Stretch="Fill" />
-        </Canvas>
+            <Canvas
+                x:Key="InformationIcon"
+                Width="76"
+                Height="76"
+                Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+                <Path
+                    Canvas.Left="19"
+                    Canvas.Top="19"
+                    Width="38"
+                    Height="38"
+                    Data="F1 M 38,19C 48.4934,19 57,27.5066 57,38C 57,48.4934 48.4934,57 38,57C 27.5066,57 19,48.4934 19,38C 19,27.5066 27.5066,19 38,19 Z M 33.25,33.25L 33.25,36.4167L 36.4166,36.4167L 36.4166,47.5L 33.25,47.5L 33.25,50.6667L 44.3333,50.6667L 44.3333,47.5L 41.1666,47.5L 41.1666,36.4167L 41.1666,33.25L 33.25,33.25 Z M 38.7917,25.3333C 37.48,25.3333 36.4167,26.3967 36.4167,27.7083C 36.4167,29.02 37.48,30.0833 38.7917,30.0833C 40.1033,30.0833 41.1667,29.02 41.1667,27.7083C 41.1667,26.3967 40.1033,25.3333 38.7917,25.3333 Z "
+                    Fill="#FF000000"
+                    Stretch="Fill" />
+            </Canvas>
 
-        <Canvas
-            x:Key="ErrorIcon"
-            Width="76"
-            Height="76"
-            Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-            <Path
-                Canvas.Left="19"
-                Canvas.Top="19"
-                Width="38"
-                Height="38"
-                Data="F1 M 38,19C 48.4934,19 57,27.5066 57,38C 57,48.4934 48.4934,57 38,57C 27.5066,57 19,48.4934 19,38C 19,27.5066 27.5066,19 38,19 Z M 34.0417,25.7292L 36.0208,41.9584L 39.9792,41.9583L 41.9583,25.7292L 34.0417,25.7292 Z M 38,44.3333C 36.2511,44.3333 34.8333,45.7511 34.8333,47.5C 34.8333,49.2489 36.2511,50.6667 38,50.6667C 39.7489,50.6667 41.1667,49.2489 41.1667,47.5C 41.1667,45.7511 39.7489,44.3333 38,44.3333 Z "
-                Fill="#FF000000"
-                Stretch="Fill" />
-        </Canvas>
+            <Canvas
+                x:Key="SuccessIcon"
+                Width="76"
+                Height="76"
+                Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+                <Path
+                    Canvas.Left="19.0001"
+                    Canvas.Top="22.1668"
+                    Width="37.9998"
+                    Height="31.6665"
+                    Data="F1 M 23.7501,33.25L 34.8334,44.3333L 52.2499,22.1668L 56.9999,26.9168L 34.8334,53.8333L 19.0001,38L 23.7501,33.25 Z "
+                    Fill="#FF000000"
+                    Stretch="Fill" />
+            </Canvas>
 
-        <DataTemplate x:Key="InformationTemplate">
-            <toast1:ToastControl
-                Background="RoyalBlue"
-                Icon="{StaticResource InformationIcon}"
-                NotificationClosed="Notification_OnNotificationClosed"
-                Toast="{Binding}" />
-        </DataTemplate>
+            <Canvas
+                x:Key="WarningIcon"
+                Width="76"
+                Height="76"
+                Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+                <Path
+                    Canvas.Left="16.0256"
+                    Canvas.Top="14.4489"
+                    Width="43.9488"
+                    Height="40.9682"
+                    Data="F1 M 58.5832,55.4172L 17.4169,55.4171C 15.5619,53.5621 15.5619,50.5546 17.4168,48.6996L 35.201,15.8402C 37.056,13.9852 40.0635,13.9852 41.9185,15.8402L 58.5832,48.6997C 60.4382,50.5546 60.4382,53.5622 58.5832,55.4172 Z M 34.0417,25.7292L 36.0208,41.9584L 39.9791,41.9583L 41.9583,25.7292L 34.0417,25.7292 Z M 38,44.3333C 36.2511,44.3333 34.8333,45.7511 34.8333,47.5C 34.8333,49.2489 36.2511,50.6667 38,50.6667C 39.7489,50.6667 41.1666,49.2489 41.1666,47.5C 41.1666,45.7511 39.7489,44.3333 38,44.3333 Z "
+                    Fill="#FF000000"
+                    Stretch="Fill" />
+            </Canvas>
 
-        <DataTemplate x:Key="SuccessTemplate">
-            <toast1:ToastControl
-                Background="LimeGreen"
-                Icon="{StaticResource SuccessIcon}"
-                NotificationClosed="Notification_OnNotificationClosed"
-                Toast="{Binding}" />
-        </DataTemplate>
+            <Canvas
+                x:Key="ErrorIcon"
+                Width="76"
+                Height="76"
+                Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+                <Path
+                    Canvas.Left="19"
+                    Canvas.Top="19"
+                    Width="38"
+                    Height="38"
+                    Data="F1 M 38,19C 48.4934,19 57,27.5066 57,38C 57,48.4934 48.4934,57 38,57C 27.5066,57 19,48.4934 19,38C 19,27.5066 27.5066,19 38,19 Z M 34.0417,25.7292L 36.0208,41.9584L 39.9792,41.9583L 41.9583,25.7292L 34.0417,25.7292 Z M 38,44.3333C 36.2511,44.3333 34.8333,45.7511 34.8333,47.5C 34.8333,49.2489 36.2511,50.6667 38,50.6667C 39.7489,50.6667 41.1667,49.2489 41.1667,47.5C 41.1667,45.7511 39.7489,44.3333 38,44.3333 Z "
+                    Fill="#FF000000"
+                    Stretch="Fill" />
+            </Canvas>
 
-        <DataTemplate x:Key="WarningTemplate">
-            <toast1:ToastControl
-                Background="Orange"
-                Icon="{StaticResource WarningIcon}"
-                NotificationClosed="Notification_OnNotificationClosed"
-                Toast="{Binding}" />
-        </DataTemplate>
+            <DataTemplate x:Key="InformationTemplate">
+                <toast1:ToastControl
+                    Background="RoyalBlue"
+                    Icon="{StaticResource InformationIcon}"
+                    NotificationClosed="Notification_OnNotificationClosed"
+                    Toast="{Binding}" />
+            </DataTemplate>
 
-        <DataTemplate x:Key="ErrorTemplate">
-            <toast1:ToastControl
-                Background="OrangeRed"
-                Icon="{StaticResource ErrorIcon}"
-                NotificationClosed="Notification_OnNotificationClosed"
-                Toast="{Binding}" />
-        </DataTemplate>
+            <DataTemplate x:Key="SuccessTemplate">
+                <toast1:ToastControl
+                    Background="LimeGreen"
+                    Icon="{StaticResource SuccessIcon}"
+                    NotificationClosed="Notification_OnNotificationClosed"
+                    Toast="{Binding}" />
+            </DataTemplate>
 
-        <toast1:ToastTypeTemplateSelector
-            x:Key="NotificationTemplateSelector"
-            ErrorTemplate="{StaticResource ErrorTemplate}"
-            InformationTemplate="{StaticResource InformationTemplate}"
-            SuccessTemplate="{StaticResource SuccessTemplate}"
-            WarningTemplate="{StaticResource WarningTemplate}" />
+            <DataTemplate x:Key="WarningTemplate">
+                <toast1:ToastControl
+                    Background="Orange"
+                    Icon="{StaticResource WarningIcon}"
+                    NotificationClosed="Notification_OnNotificationClosed"
+                    Toast="{Binding}" />
+            </DataTemplate>
+
+            <DataTemplate x:Key="ErrorTemplate">
+                <toast1:ToastControl
+                    Background="OrangeRed"
+                    Icon="{StaticResource ErrorIcon}"
+                    NotificationClosed="Notification_OnNotificationClosed"
+                    Toast="{Binding}" />
+            </DataTemplate>
+
+            <toast1:ToastTypeTemplateSelector
+                x:Key="NotificationTemplateSelector"
+                ErrorTemplate="{StaticResource ErrorTemplate}"
+                InformationTemplate="{StaticResource InformationTemplate}"
+                SuccessTemplate="{StaticResource SuccessTemplate}"
+                WarningTemplate="{StaticResource WarningTemplate}" />
+        </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <ListBox

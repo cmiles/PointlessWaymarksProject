@@ -31,7 +31,7 @@
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox Margin="4,0,0,4" Header="Photo">
+        <GroupBox Margin="4,0,0,4" Header="Photo" Style="{StaticResource UiComponentGroupBoxStyle}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -45,13 +45,10 @@
                     Command="{Binding ChooseFileCommand}">
                     Choose Image
                 </Button>
-                <GroupBox
+                <Border
                     Grid.Row="1"
                     Grid.Column="0"
-                    Margin="4"
-                    BorderBrush="LightGray"
-                    BorderThickness="2"
-                    Header="Image">
+                    Style="{StaticResource ActionPanelBorder}">
                     <Grid Margin="4">
                         <Grid.RowDefinitions>
                             <RowDefinition />
@@ -64,7 +61,7 @@
                             Text="{Binding SelectedFile.FullName}"
                             TextWrapping="Wrap" />
                     </Grid>
-                </GroupBox>
+                </Border>
             </Grid>
         </GroupBox>
         <TabControl Grid.Row="0" Grid.Column="1" Margin="4,9,4,5">

@@ -14,171 +14,175 @@
     Stylus.IsPressAndHoldEnabled="False"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <xamlMapConstructs:MapLocationToVisibilityConverter x:Key="LocationToVisibilityConverter" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <xamlMapConstructs:MapLocationToVisibilityConverter x:Key="LocationToVisibilityConverter" />
 
-        <DataTemplate x:Key="PolylineItemTemplate">
-            <map:MapPolyline
-                Locations="{Binding Locations}"
-                Stroke="Red"
-                StrokeThickness="3" />
-        </DataTemplate>
+            <DataTemplate x:Key="PolylineItemTemplate">
+                <map:MapPolyline
+                    Locations="{Binding Locations}"
+                    Stroke="Red"
+                    StrokeThickness="3" />
+            </DataTemplate>
 
-        <Style x:Key="PolylineItemStyle" TargetType="map:MapItem">
-            <EventSetter Event="TouchDown" Handler="MapItemTouchDown" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="map:MapItem">
-                        <map:MapPolyline
-                            x:Name="selectedPath"
-                            Locations="{Binding Locations}"
-                            Stroke="Red"
-                            StrokeThickness="3">
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal" />
-                                    <VisualState x:Name="Disabled" />
-                                    <VisualState x:Name="MouseOver">
-                                        <Storyboard>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="selectedPath"
-                                                Storyboard.TargetProperty="StrokeThickness"
-                                                To="5"
-                                                Duration="0:0:0.1" />
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="SelectionStates">
-                                    <VisualState x:Name="Unselected" />
-                                    <VisualState x:Name="Selected">
-                                        <Storyboard>
-                                            <ColorAnimation
-                                                Storyboard.TargetName="selectedPath"
-                                                Storyboard.TargetProperty="Stroke.Color"
-                                                To="GreenYellow"
-                                                Duration="0:0:0.1" />
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                        </map:MapPolyline>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="PointItemStyle" TargetType="map:MapItem">
-            <EventSetter Event="TouchDown" Handler="MapItemTouchDown" />
-            <Setter Property="map:MapPanel.Location" Value="{Binding Location}" />
-            <Setter Property="Foreground" Value="Black" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="map:MapItem">
-                        <Canvas>
-                            <Path
+            <Style x:Key="PolylineItemStyle" TargetType="map:MapItem">
+                <EventSetter Event="TouchDown" Handler="MapItemTouchDown" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="map:MapItem">
+                            <map:MapPolyline
                                 x:Name="selectedPath"
-                                Fill="White"
-                                Opacity="0">
-                                <Path.Data>
-                                    <EllipseGeometry RadiusX="15" RadiusY="15" />
-                                </Path.Data>
-                            </Path>
-                            <Path Fill="Transparent" StrokeThickness="2">
-                                <Path.Stroke>
-                                    <SolidColorBrush Color="Gray" />
-                                </Path.Stroke>
-                                <Path.Data>
-                                    <EllipseGeometry RadiusX="8" RadiusY="8" />
-                                </Path.Data>
-                            </Path>
-                            <Grid Canvas.Left="15" Canvas.Top="-8">
-                                <Rectangle
-                                    x:Name="labelBackground"
+                                Locations="{Binding Locations}"
+                                Stroke="Red"
+                                StrokeThickness="3">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="Disabled" />
+                                        <VisualState x:Name="MouseOver">
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="selectedPath"
+                                                    Storyboard.TargetProperty="StrokeThickness"
+                                                    To="5"
+                                                    Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                    <VisualStateGroup x:Name="SelectionStates">
+                                        <VisualState x:Name="Unselected" />
+                                        <VisualState x:Name="Selected">
+                                            <Storyboard>
+                                                <ColorAnimation
+                                                    Storyboard.TargetName="selectedPath"
+                                                    Storyboard.TargetProperty="Stroke.Color"
+                                                    To="GreenYellow"
+                                                    Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </map:MapPolyline>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="PointItemStyle" TargetType="map:MapItem">
+                <EventSetter Event="TouchDown" Handler="MapItemTouchDown" />
+                <Setter Property="map:MapPanel.Location" Value="{Binding Location}" />
+                <Setter Property="Foreground" Value="Black" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="map:MapItem">
+                            <Canvas>
+                                <Path
+                                    x:Name="selectedPath"
                                     Fill="White"
-                                    Opacity="0" />
-                                <xamlMapConstructs:OutlinedText
-                                    Margin="1"
-                                    OutlineThickness="1.5"
-                                    Text="{Binding Name}" />
-                            </Grid>
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal" />
-                                    <VisualState x:Name="Disabled" />
-                                    <VisualState x:Name="MouseOver">
-                                        <Storyboard>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="labelBackground"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="0.7"
-                                                Duration="0:0:0.1" />
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="SelectionStates">
-                                    <VisualState x:Name="Unselected" />
-                                    <VisualState x:Name="Selected">
-                                        <Storyboard>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="selectedPath"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="0.7"
-                                                Duration="0:0:0.1" />
-                                            <ColorAnimation
-                                                Storyboard.TargetName="selectedPath"
-                                                Storyboard.TargetProperty="Fill.Color"
-                                                To="GreenYellow"
-                                                Duration="0:0:0.1" />
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                        </Canvas>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Panel.ZIndex" Value="1" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+                                    Opacity="0">
+                                    <Path.Data>
+                                        <EllipseGeometry RadiusX="15" RadiusY="15" />
+                                    </Path.Data>
+                                </Path>
+                                <Path Fill="Transparent" StrokeThickness="2">
+                                    <Path.Stroke>
+                                        <SolidColorBrush Color="Gray" />
+                                    </Path.Stroke>
+                                    <Path.Data>
+                                        <EllipseGeometry RadiusX="8" RadiusY="8" />
+                                    </Path.Data>
+                                </Path>
+                                <Grid Canvas.Left="15" Canvas.Top="-8">
+                                    <Rectangle
+                                        x:Name="labelBackground"
+                                        Fill="White"
+                                        Opacity="0" />
+                                    <xamlMapConstructs:OutlinedText
+                                        Margin="1"
+                                        OutlineThickness="1.5"
+                                        Text="{Binding Name}" />
+                                </Grid>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="Disabled" />
+                                        <VisualState x:Name="MouseOver">
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="labelBackground"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    To="0.7"
+                                                    Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                    <VisualStateGroup x:Name="SelectionStates">
+                                        <VisualState x:Name="Unselected" />
+                                        <VisualState x:Name="Selected">
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="selectedPath"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    To="0.7"
+                                                    Duration="0:0:0.1" />
+                                                <ColorAnimation
+                                                    Storyboard.TargetName="selectedPath"
+                                                    Storyboard.TargetProperty="Fill.Color"
+                                                    To="GreenYellow"
+                                                    Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Canvas>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Panel.ZIndex" Value="1" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
 
-        <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
-            <EventSetter Event="TouchDown" Handler="MapItemTouchDown" />
-            <Setter Property="map:MapPanel.Location" Value="{Binding Location}" />
-            <Setter Property="VerticalAlignment" Value="Bottom" />
-            <Setter Property="Foreground" Value="Black" />
-            <Setter Property="Visibility">
-                <Setter.Value>
-                    <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
-                        <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}" />
-                        <Binding Path="(map:MapPanel.ViewportPosition)" RelativeSource="{RelativeSource Self}" />
-                    </MultiBinding>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="map:MapItem">
-                        <map:Pushpin Content="{Binding Name}" Foreground="{TemplateBinding Foreground}" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Panel.ZIndex" Value="1" />
-                    <Setter Property="Foreground" Value="OrangeRed" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+            <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
+                <EventSetter Event="TouchDown" Handler="MapItemTouchDown" />
+                <Setter Property="map:MapPanel.Location" Value="{Binding Location}" />
+                <Setter Property="VerticalAlignment" Value="Bottom" />
+                <Setter Property="Foreground" Value="Black" />
+                <Setter Property="Visibility">
+                    <Setter.Value>
+                        <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
+                            <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="(map:MapPanel.ViewportPosition)" RelativeSource="{RelativeSource Self}" />
+                        </MultiBinding>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="map:MapItem">
+                            <map:Pushpin Content="{Binding Name}" Foreground="{TemplateBinding Foreground}" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Panel.ZIndex" Value="1" />
+                        <Setter Property="Foreground" Value="OrangeRed" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
 
-        <map:WebMercatorProjection x:Key="WebMercatorProjection" />
-        <map:WorldMercatorProjection x:Key="WorldMercatorProjection" />
-        <map:EquirectangularProjection x:Key="EquirectangularProjection" />
-        <map:OrthographicProjection x:Key="OrthographicProjection" />
-        <map:GnomonicProjection x:Key="GnomonicProjection" />
-        <map:StereographicProjection x:Key="StereographicProjection" />
+            <map:WebMercatorProjection x:Key="WebMercatorProjection" />
+            <map:WorldMercatorProjection x:Key="WorldMercatorProjection" />
+            <map:EquirectangularProjection x:Key="EquirectangularProjection" />
+            <map:OrthographicProjection x:Key="OrthographicProjection" />
+            <map:GnomonicProjection x:Key="GnomonicProjection" />
+            <map:StereographicProjection x:Key="StereographicProjection" />
+        </ResourceDictionary>
     </UserControl.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />

@@ -11,4 +11,10 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="LightBlue" />
     </Style>
+    <Style x:Key="UiComponentGroupBoxStyle" TargetType="GroupBox">
+        <Setter Property="Header" Value="Filter List" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="LightBlue" />
+    </Style>
+
 </ResourceDictionary>

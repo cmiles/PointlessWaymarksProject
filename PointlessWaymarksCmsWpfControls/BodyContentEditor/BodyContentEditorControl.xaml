@@ -9,12 +9,19 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance bodyContentEditor:BodyContentEditorContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <GroupBox Header="Format Type">
+        <GroupBox Header="Format Type" Style="{StaticResource UiComponentGroupBoxStyle}">
             <contentFormat:ContentFormatChooserControl DataContext="{Binding BodyContentFormat}" />
         </GroupBox>
         <Grid Grid.Row="1" Margin="2">
@@ -22,7 +29,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <GroupBox Header="Content">
+            <GroupBox Header="Content" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <TextBox
                     SpellCheck.IsEnabled="True"
                     AcceptsReturn="True"
@@ -31,7 +38,7 @@
                     BorderThickness="0"
                     VerticalScrollBarVisibility="Visible" />
             </GroupBox>
-            <GroupBox Grid.Column="1" Header="Preview">
+            <GroupBox Grid.Column="1" Header="Preview" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />

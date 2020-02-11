@@ -10,6 +10,7 @@ using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.IndexHtml;
+using PointlessWaymarksCmsData.NoteHtml;
 using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
@@ -32,16 +33,16 @@ namespace PointlessWaymarksCmsContentEditor
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private RelayCommand _fileListWindowCommand;
         private RelayCommand _generateAllHtmlCommand;
         private RelayCommand _generateHtmlForAllFileContentCommand;
         private RelayCommand _generateHtmlForAllImageContentCommand;
         private RelayCommand _generateHtmlForAllPhotoContentCommand;
         private RelayCommand _generateHtmlForAllPostContentCommand;
         private RelayCommand _generateIndexCommand;
-        private RelayCommand _imageListWindowCommand;
         private RelayCommand _newFileContentCommand;
         private RelayCommand _newImageContentCommand;
+        private RelayCommand _newPhotoContentCommand;
+        private RelayCommand _newPostContentCommand;
         private RelayCommand _openIndexUrlCommand;
         private UserSettingsEditorContext _settingsEditorContext;
         private StatusControlContext _statusContext;
@@ -63,38 +64,23 @@ namespace PointlessWaymarksCmsContentEditor
             OpenIndexUrlCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenIndexUrl));
             GenerateAllHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllHtml));
 
-            PhotoListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoList));
             NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
             GenerateHtmlForAllPhotoContentCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllPhotoHtml));
 
-            PostListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostList));
             NewPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostContent));
             GenerateHtmlForAllPostContentCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllPostHtml));
 
-            ImageListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewImageList));
             NewImageContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewImageContent));
             GenerateHtmlForAllImageContentCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllImageHtml));
 
-            FileListWindowCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewFileList));
             NewFileContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewFileContent));
             GenerateHtmlForAllFileContentCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllFileHtml));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
-        }
-
-        public RelayCommand FileListWindowCommand
-        {
-            get => _fileListWindowCommand;
-            set
-            {
-                if (Equals(value, _fileListWindowCommand)) return;
-                _fileListWindowCommand = value;
-                OnPropertyChanged();
-            }
         }
 
         public RelayCommand GenerateAllHtmlCommand
@@ -164,17 +150,6 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand ImageListWindowCommand
-        {
-            get => _imageListWindowCommand;
-            set
-            {
-                if (Equals(value, _imageListWindowCommand)) return;
-                _imageListWindowCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public RelayCommand NewFileContentCommand
         {
             get => _newFileContentCommand;
@@ -197,9 +172,27 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand NewPhotoContentCommand { get; set; }
+        public RelayCommand NewPhotoContentCommand
+        {
+            get => _newPhotoContentCommand;
+            set
+            {
+                if (Equals(value, _newPhotoContentCommand)) return;
+                _newPhotoContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public RelayCommand NewPostContentCommand { get; set; }
+        public RelayCommand NewPostContentCommand
+        {
+            get => _newPostContentCommand;
+            set
+            {
+                if (Equals(value, _newPostContentCommand)) return;
+                _newPostContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public RelayCommand OpenIndexUrlCommand
         {
@@ -211,10 +204,6 @@ namespace PointlessWaymarksCmsContentEditor
                 OnPropertyChanged();
             }
         }
-
-        public RelayCommand PhotoListWindowCommand { get; set; }
-
-        public RelayCommand PostListWindowCommand { get; set; }
 
         public UserSettingsEditorContext SettingsEditorContext
         {
@@ -323,6 +312,7 @@ namespace PointlessWaymarksCmsContentEditor
             await GenerateAllImageHtml();
             await GenerateAllPhotoHtml();
             await GenerateAllPostHtml();
+            await GenerateAllNoteHtml();
             await GenerateAllListHtml();
             await GenerateIndex();
         }
@@ -361,6 +351,31 @@ namespace PointlessWaymarksCmsContentEditor
             ContentListPageGenerators.WritePhotoContentListHtml();
             ContentListPageGenerators.WritePostContentListHtml();
             ContentListPageGenerators.WriteNoteContentListHtml();
+        }
+
+        private async Task GenerateAllNoteHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            var allItems = await db.NoteContents.ToListAsync();
+
+            var loopCount = 0;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Posts to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                StatusContext.Progress(
+                    $"Writing HTML for Note Dated {loopItem.CreatedOn:d} - {loopCount} of {totalCount}");
+
+                var htmlModel = new SingleNotePage(loopItem);
+                htmlModel.WriteLocalHtml();
+
+                loopCount++;
+            }
         }
 
         private async Task GenerateAllPhotoHtml()
@@ -448,27 +463,11 @@ namespace PointlessWaymarksCmsContentEditor
             newContentWindow.Show();
         }
 
-        private async Task NewFileList()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new FileListWindow {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
-        }
-
         private async Task NewImageContent()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newContentWindow = new ImageContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
-        }
-
-        private async Task NewImageList()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new ImageListWindow {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 
@@ -480,27 +479,11 @@ namespace PointlessWaymarksCmsContentEditor
             newContentWindow.Show();
         }
 
-        private async Task NewPhotoList()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PhotoListWindow {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
-        }
-
         private async Task NewPostContent()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newContentWindow = new PostContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
-        }
-
-        private async Task NewPostList()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PostListWindow {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 

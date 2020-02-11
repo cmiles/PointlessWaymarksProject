@@ -14,8 +14,13 @@
     d:DesignWidth="800"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolTrueVisibleFalseCollapsed" />
-        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolTrueVisibleFalseCollapsed" />
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        </ResourceDictionary>
     </UserControl.Resources>
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Rectangle

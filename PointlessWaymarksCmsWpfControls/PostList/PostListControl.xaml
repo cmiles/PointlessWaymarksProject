@@ -30,7 +30,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <GroupBox Header="Filter List">
+            <GroupBox Header="Filter List" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <TextBox MaxLines="1" AcceptsReturn="False" VerticalAlignment="Center"
                          Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged}">
                     <i:Interaction.Triggers>
@@ -41,7 +41,7 @@
                     </i:Interaction.Triggers>
                 </TextBox>
             </GroupBox>
-            <GroupBox Grid.Column="1" Header="Sort">
+            <GroupBox Grid.Column="1" Header="Sort" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <WrapPanel HorizontalAlignment="Center">
                     <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
                             Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
@@ -68,8 +68,7 @@
                 </WrapPanel>
             </GroupBox>
         </Grid>
-
-        <GroupBox Grid.Row="1" Header="Posts">
+        <GroupBox Grid.Row="1" Header="Posts" Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Items}"
                      SelectionChanged="Selector_OnSelectionChanged" Name="PhotoListBox" SelectionMode="Extended"
                      HorizontalContentAlignment="Stretch" BorderThickness="0">

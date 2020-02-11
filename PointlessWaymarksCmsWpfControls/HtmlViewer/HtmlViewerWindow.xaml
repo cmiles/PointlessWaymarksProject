@@ -8,6 +8,13 @@
         mc:Ignorable="d"
         Title="HtmlViewerWindow" Height="450" Width="800"
         d:DataContext="{d:DesignInstance htmlViewer:HtmlViewerContext}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <WebBrowser wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding HtmlString}" />
     </Grid>
