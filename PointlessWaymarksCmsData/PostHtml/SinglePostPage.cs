@@ -171,20 +171,27 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n        ");
             
             #line 39 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(PreviousAndNextPostsDiv()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n        ");
+            
+            #line 40 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 42 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 42 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

@@ -36,6 +36,7 @@
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>
+        <#= PreviousAndNextPostsDiv() #>
         <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>

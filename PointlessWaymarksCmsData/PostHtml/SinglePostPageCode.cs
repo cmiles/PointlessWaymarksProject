@@ -24,11 +24,11 @@ namespace PointlessWaymarksCmsData.PostHtml
 
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
 
-            PreviousPosts = db.PostContents.Where(x => x.CreatedOn < DbEntry.CreatedOn)
+            PreviousPosts = db.PostContents.Where(x => x.CreatedOn < DbEntry.CreatedOn && x.ShowInSiteFeed)
                 .OrderByDescending(x => x.CreatedOn).Take(3).ToList();
 
-            LaterPosts = db.PostContents.Where(x => x.CreatedOn > DbEntry.CreatedOn).OrderBy(x => x.CreatedOn).Take(3)
-                .ToList();
+            LaterPosts = db.PostContents.Where(x => x.CreatedOn > DbEntry.CreatedOn && x.ShowInSiteFeed)
+                .OrderBy(x => x.CreatedOn).Take(3).ToList();
         }
 
         public PostContent DbEntry { get; }
