@@ -2,12 +2,11 @@
 
 namespace PointlessWaymarksCmsData.Models
 {
-    public class HistoricPostContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes,
-        IMainImage, IBodyContent, ITag
+    public class HistoricPostContent : IUpdateNotes, IBodyContent, IContentCommon
     {
-        public bool ShowInSiteFeed { get; set; }
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
+        public bool ShowInMainSiteFeed { get; set; }
         public Guid ContentId { get; set; }
         public int Id { get; set; }
         public string CreatedBy { get; set; }

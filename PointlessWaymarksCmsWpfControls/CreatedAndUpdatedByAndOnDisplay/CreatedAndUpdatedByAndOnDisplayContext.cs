@@ -137,6 +137,7 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             var newStringParts = new List<string>();
 
             CreatedAndUpdatedByAndOn = string.Empty;
+
             if (DbEntry == null)
             {
                 CreatedAndUpdatedByAndOn = "New Entry";

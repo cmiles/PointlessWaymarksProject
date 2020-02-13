@@ -171,7 +171,7 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n        ");
             
             #line 39 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PostHtml\SinglePostPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PreviousAndNextPostsDiv()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts)));
             
             #line default
             #line hidden

@@ -23,6 +23,7 @@ using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
+using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -54,6 +55,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private RelayCommand _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
+        private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private string _shutterSpeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
@@ -294,6 +296,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public ShowInMainSiteFeedEditorContext ShowInSiteFeed
+        {
+            get => _showInSiteFeed;
+            set
+            {
+                if (Equals(value, _showInSiteFeed)) return;
+                _showInSiteFeed = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string ShutterSpeed
         {
             get => _shutterSpeed;
@@ -416,6 +429,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             DbEntry = toLoad ?? new PhotoContent();
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
+            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, toLoad, false);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
@@ -603,6 +617,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.License = License;
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
             newEntry.Tags = TagEdit.Tags;
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.AltText = AltText;

@@ -17,6 +17,7 @@ using PointlessWaymarksCmsData.NoteHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
@@ -33,7 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private string _folder;
         private RelayCommand _saveAndCreateLocalCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
-        private bool _showInSiteFeed;
+        private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private string _slug;
         private string _summary;
         private TagsEditorContext _tagEdit;
@@ -124,7 +125,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public bool ShowInSiteFeed
+        public ShowInMainSiteFeedEditorContext ShowInSiteFeed
         {
             get => _showInSiteFeed;
             set
@@ -209,10 +210,10 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             Folder = toLoad?.Folder ?? string.Empty;
             Summary = toLoad?.Summary ?? string.Empty;
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
+            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, toLoad, true);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
-            ShowInSiteFeed = toLoad?.ShowInSiteFeed ?? true;
 
             if (string.IsNullOrWhiteSpace(toLoad?.Slug))
             {
@@ -285,11 +286,12 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             newEntry.Slug = Slug;
             newEntry.Folder = Folder;
             newEntry.Summary = Summary;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
             newEntry.Tags = TagEdit.Tags;
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.ShowInSiteFeed = ShowInSiteFeed;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
 
             if (DbEntry != null && DbEntry.Id > 0)
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)

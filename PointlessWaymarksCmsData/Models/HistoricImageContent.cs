@@ -2,13 +2,14 @@
 
 namespace PointlessWaymarksCmsData.Models
 {
-    public class HistoricImageContent : IContentId, ICreatedAndLastUpdateOnAndBy, ITitleSummarySlugFolder, IUpdateNotes,
-        ITag
+    public class HistoricImageContent : IUpdateNotes, IContentCommon
     {
         public string AltText { get; set; }
         public string ImageSourceNotes { get; set; }
         public string OriginalFileName { get; set; }
         public Guid ContentId { get; set; }
+
+        public Guid? MainPicture { get; set; }
         public int Id { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -19,6 +20,8 @@ namespace PointlessWaymarksCmsData.Models
         public string Slug { get; set; }
         public string Summary { get; set; }
         public string Title { get; set; }
+
+        public bool ShowInMainSiteFeed { get; set; }
         public string UpdateNotes { get; set; }
         public string UpdateNotesFormat { get; set; }
     }

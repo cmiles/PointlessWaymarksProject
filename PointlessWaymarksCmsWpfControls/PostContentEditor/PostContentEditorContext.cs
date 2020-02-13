@@ -18,6 +18,7 @@ using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -34,7 +35,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private PostContent _dbEntry;
         private RelayCommand _saveAndCreateLocalCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
-        private bool _showInSiteFeed;
+        private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
@@ -113,7 +114,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public bool ShowInSiteFeed
+        public ShowInMainSiteFeedEditorContext ShowInSiteFeed
         {
             get => _showInSiteFeed;
             set
@@ -187,12 +188,11 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             DbEntry = toLoad ?? new PostContent();
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
+            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, toLoad, true);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
-
-            ShowInSiteFeed = toLoad?.ShowInSiteFeed ?? true;
 
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
@@ -245,6 +245,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.Folder = TitleSummarySlugFolder.Folder;
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
             newEntry.Tags = TagEdit.Tags;
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
@@ -252,7 +253,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.ShowInSiteFeed = ShowInSiteFeed;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
 
             newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 

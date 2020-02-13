@@ -31,9 +31,11 @@
 <body>
     <#= NoteParts.TitleDiv(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
-    <#= HorizontalRule.StandardRule() #>
+     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
+        <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>
+        <#= RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
     </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using PointlessWaymarksCmsData.CommonHtml;
@@ -17,10 +18,18 @@ namespace PointlessWaymarksCmsData.NoteHtml
             SiteName = settings.SiteName;
             PageUrl = settings.NotePageUrl(DbEntry);
             Title = $"Note - {Tags.CreatedByAndUpdatedOnString(DbEntry)}";
+
+            var previousLater = RelatedPostContent.PreviousAndLaterContent(3, DbEntry.CreatedOn).Result;
+            PreviousPosts = previousLater.previousContent;
+            LaterPosts = previousLater.laterContent;
         }
 
         public NoteContent DbEntry { get; }
+
+        public List<IContentCommon> LaterPosts { get; set; }
         public string PageUrl { get; }
+
+        public List<IContentCommon> PreviousPosts { get; set; }
         public string SiteName { get; }
         public string SiteUrl { get; }
 

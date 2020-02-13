@@ -10,6 +10,7 @@
              xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
              xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
              xmlns:postContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PostContentEditor"
+             xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance postContentEditor:PostContentEditorContext}">
@@ -32,7 +33,8 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
-                            <CheckBox Margin="0,8,0,8" IsChecked="{Binding ShowInSiteFeed}">Show Post in Feed</CheckBox>
+                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
+                                DataContext="{Binding ShowInSiteFeed}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                                 DataContext="{Binding CreatedUpdatedDisplay}" />

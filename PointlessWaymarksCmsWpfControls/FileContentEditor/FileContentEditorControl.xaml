@@ -10,6 +10,7 @@
              xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
              xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
              xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
+             xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:FileContentEditorContext}">
     <UserControl.Resources>
@@ -39,6 +40,8 @@
                             <CheckBox IsChecked="{Binding PublicDownloadLink}">Show Public Download Link</CheckBox>
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
+                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
+                                DataContext="{Binding ShowInSiteFeed}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                                 DataContext="{Binding CreatedUpdatedDisplay}" />

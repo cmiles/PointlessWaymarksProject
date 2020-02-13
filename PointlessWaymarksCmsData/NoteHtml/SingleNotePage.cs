@@ -131,7 +131,7 @@ using PointlessWaymarksCmsData.CommonHtml;
             
             #line default
             #line hidden
-            this.Write("\r\n    ");
+            this.Write("\r\n     ");
             
             #line 34 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
@@ -145,16 +145,30 @@ using PointlessWaymarksCmsData.CommonHtml;
             
             #line default
             #line hidden
-            this.Write("\r\n    </div>\r\n    ");
+            this.Write("\r\n        ");
+            
+            #line 37 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n        ");
             
             #line 38 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    </div>\r\n    ");
+            
+            #line 40 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 39 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 41 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

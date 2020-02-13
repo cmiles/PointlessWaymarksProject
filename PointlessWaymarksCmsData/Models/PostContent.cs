@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsData.Models
         public string Slug { get; set; }
         public string Summary { get; set; }
         public string Title { get; set; }
-        public bool ShowInSiteFeed { get; set; }
+        public bool ShowInMainSiteFeed { get; set; }
         public string UpdateNotes { get; set; }
         public string UpdateNotesFormat { get; set; }
     }

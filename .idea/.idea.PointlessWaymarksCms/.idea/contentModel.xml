@@ -268,7 +268,6 @@
               </e>
               <e p="FileList" t="Include">
                 <e p="FileListControl.g.cs" t="Include" />
-                <e p="FileListWindow.g.cs" t="Include" />
                 <e p="FileListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="GeneratedInternalTypeHelper.g.cs" t="Include" />
@@ -285,7 +284,6 @@
               </e>
               <e p="ImageList" t="Include">
                 <e p="ImageListControl.g.cs" t="Include" />
-                <e p="ImageListWindow.g.cs" t="Include" />
                 <e p="ImageListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="ItemContentEditor" t="Include">
@@ -304,7 +302,6 @@
               </e>
               <e p="NoteList" t="Include">
                 <e p="NoteListControl.g.cs" t="Include" />
-                <e p="NoteListWindow.g.cs" t="Include" />
                 <e p="NoteListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="PhotoContentEditor" t="Include">
@@ -313,7 +310,6 @@
               </e>
               <e p="PhotoList" t="Include">
                 <e p="PhotoListControl.g.cs" t="Include" />
-                <e p="PhotoListWindow.g.cs" t="Include" />
                 <e p="PhotoListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="PointlessWaymarksCmsWpfControls.AssemblyInfo.cs" t="Include" />
@@ -323,7 +319,6 @@
               </e>
               <e p="PostList" t="Include">
                 <e p="PostListControl.g.cs" t="Include" />
-                <e p="PostListWindow.g.cs" t="Include" />
                 <e p="PostListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="Status" t="Include">
@@ -383,6 +378,11 @@
           <e p="PostListWithActionsContext.cs" t="Include" />
           <e p="PostListWithActionsControl.xaml" t="Include" />
           <e p="PostListWithActionsControl.xaml.cs" t="Include" />
+        </e>
+        <e p="ShowInMainSiteFeedEditor" t="Include">
+          <e p="ShowInMainSiteFeedEditorContext.cs" t="Include" />
+          <e p="ShowInMainSiteFeedEditorControl.xaml" t="Include" />
+          <e p="ShowInMainSiteFeeEditorControl.xaml.cs" t="Include" />
         </e>
         <e p="Status" t="Include">
           <e p="StatusControl.xaml" t="Include" />

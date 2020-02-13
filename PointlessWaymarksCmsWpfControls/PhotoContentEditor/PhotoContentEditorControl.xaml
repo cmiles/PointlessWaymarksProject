@@ -10,6 +10,7 @@
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:photoContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PhotoContentEditor"
+    xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -87,6 +88,8 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
+                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
+                                DataContext="{Binding ShowInSiteFeed}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                                 DataContext="{Binding CreatedUpdatedDisplay}" />

@@ -19,6 +19,7 @@ using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -40,6 +41,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private RelayCommand _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
+        private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -180,6 +182,17 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public ShowInMainSiteFeedEditorContext ShowInSiteFeed
+        {
+            get => _showInSiteFeed;
+            set
+            {
+                if (Equals(value, _showInSiteFeed)) return;
+                _showInSiteFeed = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -279,6 +292,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             DbEntry = toLoad ?? new FileContent();
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
+            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, toLoad, false);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
@@ -387,6 +401,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.Folder = TitleSummarySlugFolder.Folder;
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
             newEntry.Tags = TagEdit.Tags;
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;

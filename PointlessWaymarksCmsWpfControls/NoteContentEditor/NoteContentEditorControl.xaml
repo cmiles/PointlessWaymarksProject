@@ -8,6 +8,7 @@
              xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
              xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
              xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
+             xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:NoteContentEditorContext}">
     <UserControl.Resources>
@@ -41,7 +42,8 @@
                                     TextWrapping="Wrap"
                                     VerticalScrollBarVisibility="Visible" />
                             </StackPanel>
-                            <CheckBox Margin="0,8,0,8" IsChecked="{Binding ShowInSiteFeed}">Show Post in Feed</CheckBox>
+                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
+                                DataContext="{Binding ShowInSiteFeed}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                                 DataContext="{Binding CreatedUpdatedDisplay}" />
