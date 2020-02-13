@@ -3,9 +3,8 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
-<#@ import namespace="PointlessWaymarksCmsData.NoteHtml" #>
-
+<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 <div class="content-container">
-    <#= NoteParts.TitleDiv(DbEntry) #>
-    <#= CommonHtml.Tags.PostBodyDiv(DbEntry) #>
+    <#= PictureInformation.PictureFigureTag() #>
+    <#= PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
 </div>

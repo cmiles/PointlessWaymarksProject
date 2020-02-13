@@ -34,7 +34,7 @@
 <body class="single-photo-body">
     <#= PictureInformation.PictureFigureTag() #>
     <div class="information-section">
-        <#= PhotoDetailsDiv().ToString() #>
+        <#= PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
         <#= Tags.TagList(DbEntry).ToString() #>
         <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>
         <#= Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>

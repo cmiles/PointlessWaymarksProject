@@ -243,13 +243,6 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return titleContainer;
         }
 
-        public static HtmlTag PostTitleDiv(ITitleSummarySlugFolder content)
-        {
-            var titleContainer = new HtmlTag("div").AddClass("post-title-container");
-            titleContainer.Children.Add(new HtmlTag("h1").AddClass("post-title-content").Text(content.Title));
-            return titleContainer;
-        }
-
         public static HtmlTag SiteMainRss()
         {
             return new HtmlTag("Link").Attr("rel", "alternate").Attr("type", "application/rss+xml")
@@ -272,6 +265,27 @@ namespace PointlessWaymarksCmsData.CommonHtml
             foreach (var loopTag in tags) tagsContainer.Children.Add(InfoDivTag(loopTag, "tag-detail", "tag", loopTag));
 
             return tagsContainer;
+        }
+
+        public static HtmlTag TitleDiv(ITitleSummarySlugFolder content)
+        {
+            var titleContainer = new HtmlTag("div").AddClass("title-container");
+            titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(content.Title));
+            return titleContainer;
+        }
+
+        public static HtmlTag TitleLinkDiv(ITitleSummarySlugFolder content, IContentId id)
+        {
+            var titleContainer = new HtmlTag("div").AddClass("title-link-container");
+
+            var header = new HtmlTag("h1").AddClass("title-link-content");
+            var linkToFullPost = new LinkTag(content.Title,
+                UserSettingsSingleton.CurrentSettings().ContentUrl(id.ContentId).Result);
+            header.Children.Add(linkToFullPost);
+
+            titleContainer.Children.Add(header);
+
+            return titleContainer;
         }
 
         public static HtmlTag UpdateByAndOnAndNotesDiv(ICreatedAndLastUpdateOnAndBy createdEntry,

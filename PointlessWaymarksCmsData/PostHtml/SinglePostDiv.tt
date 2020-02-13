@@ -1,7 +1,7 @@
 ﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
-<div class="post-container">
-    <#= TitleDiv() #>
+<div class="content-container">
+    <#= CommonHtml.Tags.TitleLinkDiv(DbEntry, DbEntry) #>
     <#= CommonHtml.Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= CommonHtml.Tags.PostBodyDiv(DbEntry) #>
 </div>

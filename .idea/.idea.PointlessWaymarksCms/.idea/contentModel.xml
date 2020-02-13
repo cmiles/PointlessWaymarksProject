@@ -32,6 +32,7 @@
           <e p="ContentCompact.cs" t="Include" />
           <e p="Footer.cs" t="Include" />
           <e p="HorizontalRule.cs" t="Include" />
+          <e p="PhotoDetails.cs" t="Include" />
           <e p="RelatedPostContent.cs" t="Include" />
           <e p="Tags.cs" t="Include" />
         </e>
@@ -52,6 +53,9 @@
         </e>
         <e p="ExifHelpers.cs" t="Include" />
         <e p="FileHtml" t="Include">
+          <e p="SingleFileDiv.cs" t="Include" />
+          <e p="SingleFileDiv.tt" t="Include" />
+          <e p="SingleFileDivCode.cs" t="Include" />
           <e p="SingleFilePage.cs" t="Include" />
           <e p="SingleFilePage.tt" t="Include" />
           <e p="SingleFilePageCode.cs" t="Include" />
@@ -59,6 +63,10 @@
         <e p="FolderFileUtility.cs" t="Include" />
         <e p="FormatTypeEnum.cs" t="Include" />
         <e p="ImageHtml" t="Include">
+          <e p="ImageParts.cs" t="Include" />
+          <e p="SingleImageDiv.cs" t="Include" />
+          <e p="SingleImageDiv.tt" t="Include" />
+          <e p="SingleImageDivCode.cs" t="Include" />
           <e p="SingleImagePage.cs" t="Include" />
           <e p="SingleImagePage.tt" t="Include" />
           <e p="SingleImagePageCode.cs" t="Include" />
@@ -115,6 +123,9 @@
           </e>
         </e>
         <e p="PhotoHtml" t="Include">
+          <e p="SinglePhotoDiv.cs" t="Include" />
+          <e p="SinglePhotoDiv.tt" t="Include" />
+          <e p="SinglePhotoDivCode.cs" t="Include" />
           <e p="SinglePhotoPage.cs" t="Include" />
           <e p="SinglePhotoPage.tt" t="Include" />
           <e p="SinglePhotoPageCode.cs" t="Include" />
@@ -128,7 +139,6 @@
         <e p="PointlessWaymarksCmsData.csproj" t="IncludeRecursive" />
         <e p="PointlessWaymarksContext.cs" t="Include" />
         <e p="PostHtml" t="Include">
-          <e p="PostParts.cs" t="Include" />
           <e p="SinglePostDiv.cs" t="Include" />
           <e p="SinglePostDiv.tt" t="Include" />
           <e p="SinglePostDivCode.cs" t="Include" />
@@ -320,6 +330,9 @@
               <e p="PostList" t="Include">
                 <e p="PostListControl.g.cs" t="Include" />
                 <e p="PostListWithActionsControl.g.cs" t="Include" />
+              </e>
+              <e p="ShowInMainSiteFeedEditor" t="Include">
+                <e p="ShowInMainSiteFeedEditorControl.g.cs" t="Include" />
               </e>
               <e p="Status" t="Include">
                 <e p="StatusControl.g.cs" t="Include" />

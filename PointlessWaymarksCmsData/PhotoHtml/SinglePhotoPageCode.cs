@@ -1,8 +1,6 @@
 ﻿using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
-using HtmlTags;
-using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 
@@ -27,31 +25,6 @@ namespace PointlessWaymarksCmsData.PhotoHtml
         public PictureSiteInformation PictureInformation { get; }
         public string SiteName { get; }
         public string SiteUrl { get; }
-
-
-        public HtmlTag PhotoDetailsDiv()
-        {
-            var outerContainer = new DivTag().AddClass("photo-details-container");
-
-            outerContainer.Children.Add(new DivTag().AddClass("photo-detail-label-tag").Text("Details:"));
-
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.Aperture, "photo-detail", "aperture",
-                DbEntry.Aperture));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.ShutterSpeed, "photo-detail", "shutter-speed",
-                DbEntry.ShutterSpeed));
-            outerContainer.Children.Add(Tags.InfoDivTag($"ISO {DbEntry.Iso?.ToString("F0")}", "photo-detail", "iso",
-                DbEntry.Iso?.ToString("F0")));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.Lens, "photo-detail", "lens", DbEntry.Lens));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.FocalLength, "photo-detail", "focal-length",
-                DbEntry.FocalLength));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.CameraMake, "photo-detail", "camera-make",
-                DbEntry.CameraMake));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.CameraModel, "photo-detail", "camera-model",
-                DbEntry.CameraModel));
-            outerContainer.Children.Add(Tags.InfoDivTag(DbEntry.License, "photo-detail", "license", DbEntry.License));
-
-            return outerContainer;
-        }
 
         public void WriteLocalHtml()
         {

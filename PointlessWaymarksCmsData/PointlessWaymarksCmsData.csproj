@@ -25,10 +25,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="FileHtml\SingleFileDiv.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SingleFileDiv.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.FileHtml</CustomToolNamespace>
+    </None>
     <None Update="FileHtml\SingleFilePage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SingleFilePage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.FileHtml</CustomToolNamespace>
+    </None>
+    <None Update="ImageHtml\SingleImageDiv.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SingleImageDiv.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.ImageHtml</CustomToolNamespace>
     </None>
     <None Update="ImageHtml\SingleImagePage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
@@ -55,6 +65,11 @@
       <LastGenOutput>SingleNotePage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.NoteHtml</CustomToolNamespace>
     </None>
+    <None Update="PhotoHtml\SinglePhotoDiv.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SinglePhotoDiv.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.PhotoHtml</CustomToolNamespace>
+    </None>
     <None Update="PostHtml\SinglePostDiv.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SinglePostDiv.cs</LastGenOutput>
@@ -77,10 +92,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="FileHtml\SingleFileDiv.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SingleFileDiv.tt</DependentUpon>
+    </Compile>
     <Compile Update="FileHtml\SingleFilePage.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SingleFilePage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ImageHtml\SingleImageDiv.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SingleImageDiv.tt</DependentUpon>
     </Compile>
     <Compile Update="ImageHtml\SingleImagePage.cs">
       <DesignTime>True</DesignTime>
@@ -106,6 +131,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SingleNotePage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PhotoHtml\SinglePhotoDiv.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SinglePhotoDiv.tt</DependentUpon>
     </Compile>
     <Compile Update="PostHtml\SinglePostDiv.cs">
       <DesignTime>True</DesignTime>

@@ -3,9 +3,10 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
-<#@ import namespace="PointlessWaymarksCmsData.NoteHtml" #>
+<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 
 <div class="content-container">
-    <#= NoteParts.TitleDiv(DbEntry) #>
-    <#= CommonHtml.Tags.PostBodyDiv(DbEntry) #>
+    <#= Tags.TitleLinkDiv(DbEntry, DbEntry).ToString() #>
+    <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
 </div>

@@ -2,6 +2,7 @@
 <#@ assembly name="System.Core" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarksCmsData.Pictures" #>
+<#@ import namespace="PointlessWaymarksCmsData.ImageHtml" #>
 
 <html lang="en">
 <head>
@@ -33,7 +34,7 @@
 
 <body class="single-photo-body">
     <#= PictureInformation.PictureFigureTag() #>
-    <#= ImageSourceNotesDivTag() #>
+    <#= ImageParts.ImageSourceNotesDivTag(DbEntry) #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>

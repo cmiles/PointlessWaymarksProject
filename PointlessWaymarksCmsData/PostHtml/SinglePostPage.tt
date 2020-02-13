@@ -29,7 +29,7 @@
 </head>
 
 <body>
-    <#= TitleDiv().ToString() #>
+    <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>

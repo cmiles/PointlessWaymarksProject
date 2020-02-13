@@ -1,22 +1,22 @@
 ﻿using PointlessWaymarksCmsData.Models;
 
-namespace PointlessWaymarksCmsData.PostHtml
+namespace PointlessWaymarksCmsData.FileHtml
 {
-    public partial class SinglePostDiv
+    public partial class SingleFileDiv
     {
-        public SinglePostDiv(PostContent dbEntry)
+        public SingleFileDiv(FileContent dbEntry)
         {
             DbEntry = dbEntry;
 
             var settings = UserSettingsSingleton.CurrentSettings();
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
-            PageUrl = settings.PostPageUrl(DbEntry);
+            PageUrl = settings.FilePageUrl(DbEntry);
 
             var db = Db.Context().Result;
         }
 
-        public PostContent DbEntry { get; set; }
+        public FileContent DbEntry { get; set; }
 
         public string PageUrl { get; set; }
 

@@ -2,7 +2,6 @@
 using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
-using HtmlTags;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 
@@ -41,13 +40,6 @@ namespace PointlessWaymarksCmsData.PostHtml
         public string SiteName { get; }
 
         public string SiteUrl { get; }
-
-        public HtmlTag TitleDiv()
-        {
-            var titleContainer = new HtmlTag("div").AddClass("post-title-container");
-            titleContainer.Children.Add(new HtmlTag("h1").AddClass("post-title-content").Text(DbEntry.Title));
-            return titleContainer;
-        }
 
         public void WriteLocalHtml()
         {
