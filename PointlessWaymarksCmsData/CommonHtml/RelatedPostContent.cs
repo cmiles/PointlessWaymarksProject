@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using HtmlTags;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.CommonHtml;
-using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 
@@ -16,55 +15,10 @@ namespace PointlessWaymarksCmsData
         public static async Task<(List<IContentCommon> previousContent, List<IContentCommon> laterContent)>
             PreviousAndLaterContent(int numberOfPreviousAndLater, DateTime createdOn)
         {
-            var db = await Db.Context();
+            var previousContent = Db.MainFeedCommonContentBefore(createdOn, numberOfPreviousAndLater).Result;
+            var laterContent = Db.MainFeedCommonContentAfter(createdOn, numberOfPreviousAndLater).Result;
 
-            var previousNotes = (await db.NoteContents.Where(x => x.CreatedOn < createdOn && x.ShowInMainSiteFeed)
-                    .OrderByDescending(x => x.CreatedOn).Take(numberOfPreviousAndLater).ToListAsync())
-                .Select(x => x.NoteToCommonContent()).Cast<IContentCommon>().ToList();
-
-            var previousPosts = (await db.PostContents
-                .Where(x => x.CreatedOn < createdOn && x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
-                .Take(numberOfPreviousAndLater).ToListAsync()).Cast<IContentCommon>().ToList();
-
-            var previousPhotos = (await db.PhotoContents
-                .Where(x => x.CreatedOn < createdOn && x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
-                .Take(numberOfPreviousAndLater).ToListAsync()).Cast<IContentCommon>().ToList();
-
-            var previousImages = (await db.ImageContents
-                .Where(x => x.CreatedOn < createdOn && x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
-                .Take(numberOfPreviousAndLater).ToListAsync()).Cast<IContentCommon>().ToList();
-
-            var previousFiles = (await db.FileContents
-                .Where(x => x.CreatedOn < createdOn && x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
-                .Take(numberOfPreviousAndLater).ToListAsync()).Cast<IContentCommon>().ToList();
-
-            var previous = previousNotes.Concat(previousPosts).Concat(previousPhotos).Concat(previousImages)
-                .Concat(previousFiles).OrderByDescending(x => x.CreatedOn).Take(numberOfPreviousAndLater).ToList();
-
-            var laterNotes = (await db.NoteContents.Where(x => x.CreatedOn > createdOn && x.ShowInMainSiteFeed)
-                    .OrderBy(x => x.CreatedOn).Take(numberOfPreviousAndLater).ToListAsync())
-                .Select(x => x.NoteToCommonContent()).Cast<IContentCommon>().ToList();
-
-            var laterPosts = (await db.PostContents.Where(x => x.CreatedOn > createdOn && x.ShowInMainSiteFeed)
-                    .OrderBy(x => x.CreatedOn).Take(numberOfPreviousAndLater).ToListAsync()).Cast<IContentCommon>()
-                .ToList();
-
-            var laterPhotos = (await db.PhotoContents.Where(x => x.CreatedOn > createdOn && x.ShowInMainSiteFeed)
-                    .OrderBy(x => x.CreatedOn).Take(numberOfPreviousAndLater).ToListAsync()).Cast<IContentCommon>()
-                .ToList();
-
-            var laterImages = (await db.ImageContents.Where(x => x.CreatedOn > createdOn && x.ShowInMainSiteFeed)
-                    .OrderBy(x => x.CreatedOn).Take(numberOfPreviousAndLater).ToListAsync()).Cast<IContentCommon>()
-                .ToList();
-
-            var laterFiles = (await db.FileContents.Where(x => x.CreatedOn > createdOn && x.ShowInMainSiteFeed)
-                    .OrderBy(x => x.CreatedOn).Take(numberOfPreviousAndLater).ToListAsync()).Cast<IContentCommon>()
-                .ToList();
-
-            var later = laterNotes.Concat(laterPosts).Concat(laterPhotos).Concat(laterImages).Concat(laterFiles)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfPreviousAndLater).ToList();
-
-            return (previous, later);
+            return (previousContent, laterContent);
         }
 
         public static HtmlTag PreviousAndNextPostsDiv(List<IContentCommon> previousPosts,
@@ -112,9 +66,22 @@ namespace PointlessWaymarksCmsData
             var relatedPostMainTextContentDiv = new DivTag().AddClass("related-post-text-content-container");
 
             var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("related-post-text-content-title-container");
-            var relatedPostMainTextTitleLink =
-                new LinkTag(post.Title, UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
-                    .AddClass("related-post-text-content-title-link");
+            
+            HtmlTag relatedPostMainTextTitleLink;
+            
+            if (post.MainPicture == null)
+            {
+                relatedPostMainTextTitleLink =
+                    new LinkTag($"{post.Title} - {post.Summary}", UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
+                        .AddClass("related-post-text-content-title-link");
+            }
+            else
+            {
+                relatedPostMainTextTitleLink =
+                    new LinkTag(post.Title, UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
+                        .AddClass("related-post-text-content-title-link");
+            }
+
             relatedPostMainTextTitleTextDiv.Children.Add(relatedPostMainTextTitleLink);
 
             var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("related-post-text-content-date")

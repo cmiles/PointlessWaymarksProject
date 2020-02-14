@@ -8,31 +8,11 @@ using System.Xml;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.NoteHtml;
 
 namespace PointlessWaymarksCmsData.ContentListHtml
 {
     public static class ContentListPageGenerators
     {
-        public static ContentCommon NoteToCommonContent(this NoteContent toTransform)
-        {
-            return new ContentCommon
-            {
-                ContentId = toTransform.ContentId,
-                CreatedBy = toTransform.CreatedBy,
-                CreatedOn = toTransform.CreatedOn,
-                Folder = toTransform.Folder,
-                Id = toTransform.Id,
-                LastUpdatedBy = toTransform.LastUpdatedBy,
-                LastUpdatedOn = toTransform.LastUpdatedOn,
-                MainPicture = null,
-                Slug = toTransform.Slug,
-                Summary = toTransform.Summary,
-                Tags = toTransform.Tags,
-                Title = NoteParts.TitleString(toTransform)
-            };
-        }
-
         public static void WriteAllContentListHtml()
         {
             List<IContentCommon> ContentList()

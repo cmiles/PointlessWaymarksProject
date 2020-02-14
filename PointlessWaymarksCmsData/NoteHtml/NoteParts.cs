@@ -38,14 +38,21 @@ namespace PointlessWaymarksCmsData.NoteHtml
             return (createdUpdatedString + updatedString).Trim();
         }
 
+        public static HtmlTag NoteTitleDiv(NoteContent dbEntry)
+        {
+            var titleContainer = new HtmlTag("div").AddClass("title-container");
+            titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(TitleString(dbEntry)));
+            return titleContainer;
+        }
 
-        public static HtmlTag TitleDiv(NoteContent dbEntry)
+
+        public static HtmlTag NoteTitleLinkDiv(NoteContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var titleContainer = new HtmlTag("div").AddClass("note-title-link-container");
+            var titleContainer = new HtmlTag("div").AddClass("title-link-container");
 
-            var header = new HtmlTag("h2").AddClass("note-title-link-content");
+            var header = new HtmlTag("h2").AddClass("title-link-content");
             var linkToFullPost = new LinkTag(TitleString(dbEntry), settings.NotePageUrl(dbEntry));
             header.Children.Add(linkToFullPost);
 

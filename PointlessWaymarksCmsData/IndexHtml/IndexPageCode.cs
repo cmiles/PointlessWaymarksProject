@@ -10,8 +10,11 @@ using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
+using PointlessWaymarksCmsData.FileHtml;
+using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.NoteHtml;
+using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsData.PostHtml;
 
@@ -19,6 +22,8 @@ namespace PointlessWaymarksCmsData.IndexHtml
 {
     public partial class IndexPage
     {
+        private int _numberOfContentItemsToDisplay = 5;
+
         public IndexPage()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
@@ -29,13 +34,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
             SiteAuthors = settings.SiteAuthors;
             PageUrl = settings.IndexPageUrl();
 
-            var db = Db.Context().Result;
-
-            var posts = db.PostContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
-                .Cast<dynamic>().Take(20).ToList();
-            var notes = db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
-                .Cast<dynamic>().Take(20).ToList();
-            IndexContent = posts.Concat(notes).OrderByDescending(x => x.CreatedOn).Take(8).ToList();
+            IndexContent = Db.MainFeedRecentDynamicContent(20).Result.OrderByDescending(x => x.CreatedOn).ToList();
 
             var mainImageGuid = IndexContent
                 .FirstOrDefault(x => x.GetType() == typeof(PostContent) && x.MainPicture != null)?.MainPicture;
@@ -43,20 +42,20 @@ namespace PointlessWaymarksCmsData.IndexHtml
             if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid);
         }
 
-        public List<dynamic> IndexContent { get; set; }
+        public List<dynamic> IndexContent { get; }
 
 
-        public PictureSiteInformation MainImage { get; set; }
+        public PictureSiteInformation MainImage { get; }
 
-        public string PageUrl { get; set; }
+        public string PageUrl { get; }
 
-        public string SiteAuthors { get; set; }
-        public string SiteKeywords { get; set; }
+        public string SiteAuthors { get; }
+        public string SiteKeywords { get; }
 
-        public string SiteName { get; set; }
-        public string SiteSummary { get; set; }
+        public string SiteName { get; }
+        public string SiteSummary { get; }
 
-        public string SiteUrl { get; set; }
+        public string SiteUrl { get; }
 
         public HtmlTag IndexPosts()
         {
@@ -64,7 +63,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
             var indexBodyContainer = new DivTag().AddClass("index-posts-container");
 
-            foreach (var loopPosts in IndexContent)
+            foreach (var loopPosts in IndexContent.Take(_numberOfContentItemsToDisplay))
             {
                 if (loopPosts.GetType() == typeof(PostContent))
                 {
@@ -78,6 +77,33 @@ namespace PointlessWaymarksCmsData.IndexHtml
                 if (loopPosts.GetType() == typeof(NoteContent))
                 {
                     var post = new SingleNoteDiv(loopPosts);
+                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                    indexBodyContainer.Children.Add(indexPostContentDiv);
+                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+                }
+                
+                if (loopPosts.GetType() == typeof(PhotoContent))
+                {
+                    var post = new SinglePhotoDiv(loopPosts);
+                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                    indexBodyContainer.Children.Add(indexPostContentDiv);
+                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+                }
+
+                if (loopPosts.GetType() == typeof(ImageContent))
+                {
+                    var post = new SingleImageDiv(loopPosts);
+                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                    indexBodyContainer.Children.Add(indexPostContentDiv);
+                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+                }
+                
+                if (loopPosts.GetType() == typeof(FileContent))
+                {
+                    var post = new SingleFileDiv(loopPosts);
                     var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
                     indexPostContentDiv.Encoded(false).Text(post.TransformText());
                     indexBodyContainer.Children.Add(indexPostContentDiv);
@@ -149,6 +175,27 @@ namespace PointlessWaymarksCmsData.IndexHtml
                     items.Add(new SyndicationItem(NoteParts.TitleString(post.DbEntry), post.DbEntry.Summary,
                         new Uri($"https:{post.PageUrl}"), post.DbEntry.Slug, post.DbEntry.CreatedOn));
                 }
+                
+                if (loopPosts.GetType() == typeof(PhotoContent))
+                {
+                    var post = new SinglePhotoDiv(loopPosts);
+                    items.Add(new SyndicationItem(post.DbEntry.Title, post.DbEntry.Summary,
+                        new Uri($"https:{post.PageUrl}"), post.DbEntry.Slug, post.DbEntry.CreatedOn));
+                }
+                
+                if (loopPosts.GetType() == typeof(ImageContent))
+                {
+                    var post = new SingleImageDiv(loopPosts);
+                    items.Add(new SyndicationItem(post.DbEntry.Title, post.DbEntry.Summary,
+                        new Uri($"https:{post.PageUrl}"), post.DbEntry.Slug, post.DbEntry.CreatedOn));
+                }
+                
+                if (loopPosts.GetType() == typeof(FileContent))
+                {
+                    var post = new SingleFileDiv(loopPosts);
+                    items.Add(new SyndicationItem(post.DbEntry.Title, post.DbEntry.Summary,
+                        new Uri($"https:{post.PageUrl}"), post.DbEntry.Slug, post.DbEntry.CreatedOn));
+                }
             }
 
             feed.Items = items;
@@ -171,12 +218,11 @@ namespace PointlessWaymarksCmsData.IndexHtml
                 localIndexFile.Refresh();
             }
 
-            using (var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings))
-            {
-                var rssFormatter = new Rss20FeedFormatter(feed, false);
-                rssFormatter.WriteTo(xmlWriter);
-                xmlWriter.Flush();
-            }
+            using var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings);
+            
+            var rssFormatter = new Rss20FeedFormatter(feed, false);
+            rssFormatter.WriteTo(xmlWriter);
+            xmlWriter.Flush();
         }
     }
 }

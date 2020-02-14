@@ -29,7 +29,7 @@
 </head>
 
 <body>
-    <#= NoteParts.TitleDiv(DbEntry) #>
+    <#= NoteParts.NoteTitleDiv(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
      <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
