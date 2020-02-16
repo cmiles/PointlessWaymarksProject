@@ -12,6 +12,7 @@
     xmlns:postList="clr-namespace:PointlessWaymarksCmsWpfControls.PostList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:noteList="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:linkStreamList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamList;assembly=PointlessWaymarksCmsWpfControls"
     Title="Pointless Waymarks CMS"
     Width="700"
     Height="600"
@@ -41,9 +42,7 @@
                 <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />
             </TabItem>
             <TabItem Header="Links">
-                <StackPanel>
-                    <Button Command="{Binding NewLinkContentCommand}">New Link</Button>
-                </StackPanel>
+                <linkStreamList:LinkStreamListWithActionsControl DataContext="{Binding LinkStreamContext}" />
             </TabItem>
             <TabItem Header="Settings">
                 <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />

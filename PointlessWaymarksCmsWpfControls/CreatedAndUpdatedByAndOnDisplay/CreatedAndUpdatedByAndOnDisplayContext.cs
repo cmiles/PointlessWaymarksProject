@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -123,7 +124,7 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DbEntry = toLoad;
-            CreatedBy = toLoad?.CreatedBy ?? string.Empty;
+            CreatedBy = toLoad?.CreatedBy ?? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy ?? string.Empty;
             UpdatedBy = toLoad?.LastUpdatedBy ?? string.Empty;
 
             //If this is a 'first update' go ahead and fill in the Created by as the updated by, this

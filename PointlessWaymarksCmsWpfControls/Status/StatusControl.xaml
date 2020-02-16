@@ -94,7 +94,7 @@
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock
@@ -104,12 +104,17 @@
                         FontSize="24"
                         Text="{Binding MessageBoxTitle}"
                         TextWrapping="Wrap" />
-                    <TextBlock
+                    <TextBox
                         Grid.Row="1"
+                        BorderThickness="0"
+                        IsReadOnly="True"
                         MaxWidth="400"
                         Margin="0,12,0,12"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
+                        TextWrapping="Wrap"
+                        VerticalScrollBarVisibility="Visible"
+                        HorizontalScrollBarVisibility="Disabled"
                         Text="{Binding MessageBoxMessage}" />
                     <ItemsControl Grid.Row="2" ItemsSource="{Binding MessageBoxButtonList}">
                         <ItemsControl.ItemTemplate>

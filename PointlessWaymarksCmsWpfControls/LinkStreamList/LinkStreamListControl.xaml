@@ -1,0 +1,96 @@
+﻿<UserControl x:Class="PointlessWaymarksCmsWpfControls.LinkStreamList.LinkStreamListControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamList"
+             xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:command="http://www.galasoft.ch/mvvmlight"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <utility:ImageCacheConverter x:Key="ImageCache" />
+            <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
+                <TextBox MaxLines="1" AcceptsReturn="False" VerticalAlignment="Center"
+                         Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TextChanged">
+                            <command:EventToCommand
+                                Command="{Binding FilterListCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TextBox>
+            </GroupBox>
+            <GroupBox Grid.Column="1" Header="Sort" Style="{StaticResource UiComponentGroupBoxStyle}">
+                <WrapPanel HorizontalAlignment="Center">
+                    <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
+                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
+                        <fa:ImageAwesome Icon="ArrowUp" Height="12" Width="8" VerticalAlignment="Center"
+                                         HorizontalAlignment="Center" IsEnabled="{Binding SortDescending}" />
+                    </Button>
+                    <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
+                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
+                        <fa:ImageAwesome Icon="ArrowDown" Height="12" Width="8" VerticalAlignment="Center"
+                                         HorizontalAlignment="Center" />
+                    </Button>
+                    <Button Command="{Binding SortListCommand}" Height="24" Width="90"
+                            CommandParameter="PhotoCreatedOn">
+                        Photo Created
+                    </Button>
+                    <Button Command="{Binding SortListCommand}" Height="24" Width="90"
+                            CommandParameter="CreatedOn">
+                        Page Created
+                    </Button>
+                    <Button Command="{Binding SortListCommand}" Height="24" Width="90"
+                            CommandParameter="Title">
+                        Title
+                    </Button>
+                </WrapPanel>
+            </GroupBox>
+        </Grid>
+        <GroupBox Grid.Row="1" Header="Notes" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Items}"
+                     SelectionChanged="Selector_OnSelectionChanged" Name="ItemsListBox" SelectionMode="Extended"
+                     HorizontalContentAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="local:LinkStreamListListItem">
+                        <Border
+                            BorderBrush="LightGray" Background="White" BorderThickness="1" CornerRadius="5">
+                            <Grid Margin="4">
+                                <StackPanel Orientation="Vertical" Margin="2">
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Title}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Site}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Author}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Description}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Comments}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Tags}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Url}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
+    </Grid>
+</UserControl>

@@ -20,21 +20,35 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 {
     public class LinkStreamEditorContext : INotifyPropertyChanged
     {
+        private string _author;
         private string _comments;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private LinkStream _dbEntry;
+        private string _description;
         private RelayCommand _extractDataCommand;
-        private string _extractedData;
         private string _linkUrl;
         private RelayCommand _saveUpdateDatabaseCommand;
+        private string _site;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
+        private string _title;
 
         public LinkStreamEditorContext(StatusControlContext statusContext, LinkStream linkContent)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(linkContent));
+        }
+
+        public string Author
+        {
+            get => _author;
+            set
+            {
+                if (value == _author) return;
+                _author = value;
+                OnPropertyChanged();
+            }
         }
 
         public string Comments
@@ -70,6 +84,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public string Description
+        {
+            get => _description;
+            set
+            {
+                if (value == _description) return;
+                _description = value;
+                OnPropertyChanged();
+            }
+        }
+
         public RelayCommand ExtractDataCommand
         {
             get => _extractDataCommand;
@@ -77,17 +102,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             {
                 if (Equals(value, _extractDataCommand)) return;
                 _extractDataCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string ExtractedData
-        {
-            get => _extractedData;
-            set
-            {
-                if (value == _extractedData) return;
-                _extractedData = value;
                 OnPropertyChanged();
             }
         }
@@ -114,6 +128,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public string Site
+        {
+            get => _site;
+            set
+            {
+                if (value == _site) return;
+                _site = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -136,15 +161,79 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                if (value == _title) return;
+                _title = value;
+                OnPropertyChanged();
+            }
+        }
+
         private async Task ExtractDataFromLink()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var config = Configuration.Default.WithDefaultLoader();
+            var config = Configuration.Default.WithDefaultLoader().WithJs();
             var context = BrowsingContext.New(config);
             var document = await context.OpenAsync(LinkUrl);
 
             var titleString = document.Head.Children.FirstOrDefault(x => x.TagName == "TITLE")?.TextContent;
+
+            if (string.IsNullOrWhiteSpace(titleString))
+                titleString = document.QuerySelector("meta[property='og:title']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(titleString))
+                titleString = document.QuerySelector("meta[name='DC.title']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(titleString))
+                titleString = document.QuerySelector("meta[name='twitter:title']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "value")?.Value;
+
+            Title = titleString;
+
+            var authorString = document.QuerySelector("meta[property='og:author']")?.Attributes
+                .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(authorString))
+                authorString = document.QuerySelector("meta[name='DC.contributor']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(authorString))
+                authorString = document.QuerySelector("meta[property='article:author']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(authorString))
+                authorString = document.QuerySelector("meta[name='author']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(authorString))
+                authorString = document.QuerySelector("a[rel~=\"author\"]")?.TextContent;
+
+            if (string.IsNullOrWhiteSpace(authorString))
+                authorString = document.QuerySelector(".author__name")?.TextContent;
+
+            if (string.IsNullOrWhiteSpace(authorString))
+                authorString = document.QuerySelector(".author_name")?.TextContent;
+
+            Author = authorString;
+
+            var siteString = document.QuerySelector("meta[property='og:site_name']")?.Attributes
+                .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(siteString))
+                siteString = document.QuerySelector("meta[name='DC.publisher']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(siteString))
+                siteString = document.QuerySelector("meta[name='twitter:site']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "value")?.Value.Replace("@", "");
+
+            Site = siteString;
 
             var descriptionString = document.QuerySelector("meta[name='description']")?.Attributes
                 .FirstOrDefault(x => x.LocalName == "content")?.Value;
@@ -157,8 +246,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 descriptionString = document.QuerySelector("meta[name='twitter:description']")?.Attributes
                     .FirstOrDefault(x => x.LocalName == "content")?.Value;
 
-            ExtractedData =
-                $"{titleString}{(string.IsNullOrWhiteSpace(descriptionString) ? "" : " - ")}{descriptionString}";
+            Description = descriptionString;
         }
 
         private async Task LoadData(LinkStream toLoad)
@@ -169,7 +257,10 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
             LinkUrl = DbEntry?.Url ?? string.Empty;
             Comments = DbEntry?.Comments ?? string.Empty;
-            ExtractedData = DbEntry?.ExtractedData ?? string.Empty;
+            Title = DbEntry?.Title ?? string.Empty;
+            Site = DbEntry?.Site ?? string.Empty;
+            Author = DbEntry?.Author ?? string.Empty;
+            Description = DbEntry?.Description ?? string.Empty;
 
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
@@ -208,7 +299,10 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.Comments = Comments;
             newEntry.Url = LinkUrl;
-            newEntry.ExtractedData = ExtractedData;
+            newEntry.Title = Title;
+            newEntry.Site = Site;
+            newEntry.Author = Author;
+            newEntry.Description = Description;
 
             var context = await Db.Context();
 

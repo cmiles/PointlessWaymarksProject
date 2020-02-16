@@ -21,6 +21,8 @@ namespace PointlessWaymarksCmsData
         private string _siteName;
         private string _siteSummary;
         private string _siteUrl;
+        private string _defaultCreatedBy;
+
 
         public string AmazonS3AccessKey
         {
@@ -84,6 +86,17 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _databaseName) return;
                 _databaseName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string DefaultCreatedBy
+        {
+            get => _defaultCreatedBy;
+            set
+            {
+                if (value == _defaultCreatedBy) return;
+                _defaultCreatedBy = value;
                 OnPropertyChanged();
             }
         }

@@ -237,6 +237,15 @@
           <e p="LinkStreamEditorWindow.xaml" t="Include" />
           <e p="LinkStreamEditorWindow.xaml.cs" t="Include" />
         </e>
+        <e p="LinkStreamList" t="Include">
+          <e p="LinkStreamListContext.cs" t="Include" />
+          <e p="LinkStreamListControl.xaml" t="Include" />
+          <e p="LinkStreamListControl.xaml.cs" t="Include" />
+          <e p="LinkStreamListListItem.cs" t="Include" />
+          <e p="LinkStreamListWithActionsContext.cs" t="Include" />
+          <e p="LinkStreamListWithActionsControl.xaml" t="Include" />
+          <e p="LinkStreamListWithActionsControl.xaml.cs" t="Include" />
+        </e>
         <e p="MainImageEditor" t="Include">
           <e p="MainImageEditorContext.cs" t="Include" />
           <e p="MainImageEditorControl.xaml" t="Include" />

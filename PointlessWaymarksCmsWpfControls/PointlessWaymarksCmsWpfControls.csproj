@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.14.0-alpha-789" />
+    <PackageReference Include="AngleSharp.Js" Version="0.13.0" />
     <PackageReference Include="AWSSDK.S3" Version="3.5.0-beta" />
     <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
@@ -19,7 +20,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.1" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
-    <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.0.0" />
+    <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.0" />
     <PackageReference Include="ObjectDumper.NET" Version="2.5.20033.1" />
     <PackageReference Include="Ookii.Dialogs.Wpf.NETCore" Version="2.0.0" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.1-beta" />

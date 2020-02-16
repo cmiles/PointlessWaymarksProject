@@ -18,6 +18,7 @@ using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.ImageList;
 using PointlessWaymarksCmsWpfControls.LinkStreamEditor;
+using PointlessWaymarksCmsWpfControls.LinkStreamList;
 using PointlessWaymarksCmsWpfControls.NoteList;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoList;
@@ -40,6 +41,7 @@ namespace PointlessWaymarksCmsContentEditor
         private RelayCommand _generateHtmlForAllPhotoContentCommand;
         private RelayCommand _generateHtmlForAllPostContentCommand;
         private RelayCommand _generateIndexCommand;
+        private LinkStreamListWithActionsContext _linkStreamContext;
         private RelayCommand _newFileContentCommand;
         private RelayCommand _newImageContentCommand;
         private RelayCommand _newLinkContentCommand;
@@ -150,6 +152,17 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _generateIndexCommand)) return;
                 _generateIndexCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public LinkStreamListWithActionsContext LinkStreamContext
+        {
+            get => _linkStreamContext;
+            set
+            {
+                if (Equals(value, _linkStreamContext)) return;
+                _linkStreamContext = value;
                 OnPropertyChanged();
             }
         }
@@ -460,6 +473,7 @@ namespace PointlessWaymarksCmsContentEditor
             TabPhotoListContext = new PhotoListWithActionsContext(null);
             TabPostListContext = new PostListWithActionsContext(null);
             TabNoteListContext = new NoteListWithActionsContext(null);
+            LinkStreamContext = new LinkStreamListWithActionsContext(null);
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
 

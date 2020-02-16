@@ -4,8 +4,13 @@ namespace PointlessWaymarksCmsData.Models
 {
     public class LinkStream : ICreatedAndLastUpdateOnAndBy, ITag, IContentId
     {
+        public string Author { get; set; }
         public string Comments { get; set; }
-        public string ExtractedData { get; set; }
+
+        public string Description { get; set; }
+
+        public string Site { get; set; }
+        public string Title { get; set; }
         public string Url { get; set; }
         public int Id { get; set; }
 
