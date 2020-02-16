@@ -17,6 +17,7 @@ using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.ImageList;
+using PointlessWaymarksCmsWpfControls.LinkStreamEditor;
 using PointlessWaymarksCmsWpfControls.NoteList;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoList;
@@ -41,6 +42,7 @@ namespace PointlessWaymarksCmsContentEditor
         private RelayCommand _generateIndexCommand;
         private RelayCommand _newFileContentCommand;
         private RelayCommand _newImageContentCommand;
+        private RelayCommand _newLinkContentCommand;
         private RelayCommand _newPhotoContentCommand;
         private RelayCommand _newPostContentCommand;
         private RelayCommand _openIndexUrlCommand;
@@ -79,6 +81,8 @@ namespace PointlessWaymarksCmsContentEditor
             NewFileContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewFileContent));
             GenerateHtmlForAllFileContentCommand =
                 new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllFileHtml));
+
+            NewLinkContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewLinkContent));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
@@ -168,6 +172,17 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _newImageContentCommand)) return;
                 _newImageContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand NewLinkContentCommand
+        {
+            get => _newLinkContentCommand;
+            set
+            {
+                if (Equals(value, _newLinkContentCommand)) return;
+                _newLinkContentCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -468,6 +483,14 @@ namespace PointlessWaymarksCmsContentEditor
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newContentWindow = new ImageContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            newContentWindow.Show();
+        }
+
+        private async Task NewLinkContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new LinkStreamEditorWindow(null) {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 

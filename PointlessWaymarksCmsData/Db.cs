@@ -20,24 +20,6 @@ namespace PointlessWaymarksCmsData
                     x => x.UseNetTopologySuite()).Options);
         }
 
-        public static async Task<List<dynamic>> MainFeedDynamicContentAfter(DateTime after, int numberOfEntries)
-        {
-            var db = await Context();
-            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < after)
-                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
-                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
-        }
-
         public static async Task<List<IContentCommon>> MainFeedCommonContentAfter(DateTime after, int numberOfEntries)
         {
             var db = await Context();
@@ -58,24 +40,6 @@ namespace PointlessWaymarksCmsData
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
         }
 
-        public static async Task<List<dynamic>> MainFeedDynamicContentBefore(DateTime before, int numberOfEntries)
-        {
-            var db = await Context();
-            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
-
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
-        }
-
         public static async Task<List<IContentCommon>> MainFeedCommonContentBefore(DateTime before, int numberOfEntries)
         {
             var db = await Context();
@@ -91,6 +55,42 @@ namespace PointlessWaymarksCmsData
                 (await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                     .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToListAsync())
                 .Select(x => x.NoteToCommonContent()).Cast<IContentCommon>().ToList();
+
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
+        }
+
+        public static async Task<List<dynamic>> MainFeedDynamicContentAfter(DateTime after, int numberOfEntries)
+        {
+            var db = await Context();
+            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < after)
+                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
+                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
+        }
+
+        public static async Task<List<dynamic>> MainFeedDynamicContentBefore(DateTime before, int numberOfEntries)
+        {
+            var db = await Context();
+            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
 
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
@@ -115,7 +115,7 @@ namespace PointlessWaymarksCmsData
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
-        
+
         public static async Task<List<dynamic>> MainFeedRecentDynamicContent(int topNumberOfEntries)
         {
             var db = await Context();

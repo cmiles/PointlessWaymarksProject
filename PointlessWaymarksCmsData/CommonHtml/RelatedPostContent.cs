@@ -66,21 +66,18 @@ namespace PointlessWaymarksCmsData
             var relatedPostMainTextContentDiv = new DivTag().AddClass("related-post-text-content-container");
 
             var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("related-post-text-content-title-container");
-            
+
             HtmlTag relatedPostMainTextTitleLink;
-            
+
             if (post.MainPicture == null)
-            {
                 relatedPostMainTextTitleLink =
-                    new LinkTag($"{post.Title} - {post.Summary}", UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
+                    new LinkTag($"{post.Title} - {post.Summary}",
+                            UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
                         .AddClass("related-post-text-content-title-link");
-            }
             else
-            {
                 relatedPostMainTextTitleLink =
                     new LinkTag(post.Title, UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
                         .AddClass("related-post-text-content-title-link");
-            }
 
             relatedPostMainTextTitleTextDiv.Children.Add(relatedPostMainTextTitleLink);
 

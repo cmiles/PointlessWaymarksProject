@@ -22,7 +22,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
 {
     public partial class IndexPage
     {
-        private int _numberOfContentItemsToDisplay = 5;
+        private int _numberOfContentItemsToDisplay = 4;
 
         public IndexPage()
         {
@@ -40,6 +40,12 @@ namespace PointlessWaymarksCmsData.IndexHtml
                 .FirstOrDefault(x => x.GetType() == typeof(PostContent) && x.MainPicture != null)?.MainPicture;
 
             if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid);
+
+            DateTime previousDate = IndexContent.Skip(_numberOfContentItemsToDisplay - 1).Max(x => x.CreatedOn);
+
+            var previousLater = RelatedPostContent.PreviousAndLaterContent(6, previousDate).Result;
+
+            PreviousPosts = previousLater.previousContent;
         }
 
         public List<dynamic> IndexContent { get; }
@@ -48,6 +54,8 @@ namespace PointlessWaymarksCmsData.IndexHtml
         public PictureSiteInformation MainImage { get; }
 
         public string PageUrl { get; }
+
+        public List<IContentCommon> PreviousPosts { get; set; }
 
         public string SiteAuthors { get; }
         public string SiteKeywords { get; }
@@ -82,7 +90,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
                     indexBodyContainer.Children.Add(indexPostContentDiv);
                     indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
                 }
-                
+
                 if (loopPosts.GetType() == typeof(PhotoContent))
                 {
                     var post = new SinglePhotoDiv(loopPosts);
@@ -100,7 +108,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
                     indexBodyContainer.Children.Add(indexPostContentDiv);
                     indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
                 }
-                
+
                 if (loopPosts.GetType() == typeof(FileContent))
                 {
                     var post = new SingleFileDiv(loopPosts);
@@ -175,21 +183,21 @@ namespace PointlessWaymarksCmsData.IndexHtml
                     items.Add(new SyndicationItem(NoteParts.TitleString(post.DbEntry), post.DbEntry.Summary,
                         new Uri($"https:{post.PageUrl}"), post.DbEntry.Slug, post.DbEntry.CreatedOn));
                 }
-                
+
                 if (loopPosts.GetType() == typeof(PhotoContent))
                 {
                     var post = new SinglePhotoDiv(loopPosts);
                     items.Add(new SyndicationItem(post.DbEntry.Title, post.DbEntry.Summary,
                         new Uri($"https:{post.PageUrl}"), post.DbEntry.Slug, post.DbEntry.CreatedOn));
                 }
-                
+
                 if (loopPosts.GetType() == typeof(ImageContent))
                 {
                     var post = new SingleImageDiv(loopPosts);
                     items.Add(new SyndicationItem(post.DbEntry.Title, post.DbEntry.Summary,
                         new Uri($"https:{post.PageUrl}"), post.DbEntry.Slug, post.DbEntry.CreatedOn));
                 }
-                
+
                 if (loopPosts.GetType() == typeof(FileContent))
                 {
                     var post = new SingleFileDiv(loopPosts);
@@ -219,7 +227,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
             }
 
             using var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings);
-            
+
             var rssFormatter = new Rss20FeedFormatter(feed, false);
             rssFormatter.WriteTo(xmlWriter);
             xmlWriter.Flush();

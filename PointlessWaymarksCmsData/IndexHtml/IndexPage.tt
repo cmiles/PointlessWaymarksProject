@@ -32,6 +32,8 @@
     <#= Title().ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= IndexPosts() #>
+    <#= RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()) #>
+    <#= HorizontalRule.StandardRuleIfNotEmptyTag(RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()))#>
     <#= Footer.StandardFooterDiv() #>
 </body>
 

@@ -148,6 +148,20 @@ using PointlessWaymarksCmsData.Models;
             this.Write("\r\n    ");
             
             #line 35 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>())));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 36 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRuleIfNotEmptyTag(RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()))));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 37 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

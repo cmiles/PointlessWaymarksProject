@@ -184,7 +184,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-
             DbEntry = toLoad ?? new PostContent();
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);

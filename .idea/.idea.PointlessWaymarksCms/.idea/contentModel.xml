@@ -84,6 +84,7 @@
           <e p="HistoricFileContent.cs" t="Include" />
           <e p="HistoricImageContent.cs" t="Include" />
           <e p="HistoricLineContent.cs" t="Include" />
+          <e p="HistoricLinkStream.cs" t="Include" />
           <e p="HistoricNoteContent.cs" t="Include" />
           <e p="HistoricPhotoContent.cs" t="Include" />
           <e p="HistoricPointContent.cs" t="Include" />
@@ -100,6 +101,7 @@
           <e p="ITitleSummarySlugFolder.cs" t="Include" />
           <e p="IUpdateNotes.cs" t="Include" />
           <e p="LineContent.cs" t="Include" />
+          <e p="LinkStream.cs" t="Include" />
           <e p="NoteContent.cs" t="Include" />
           <e p="PhotoContent.cs" t="Include" />
           <e p="PointContent.cs" t="Include" />
@@ -227,6 +229,13 @@
           <e p="ItemContentEditorControl.xaml.cs" t="Include" />
           <e p="ItemContentEditorWindow.xaml" t="Include" />
           <e p="ItemContentEditorWindow.xaml.cs" t="Include" />
+        </e>
+        <e p="LinkStreamEditor" t="Include">
+          <e p="LinkStreamEditorContext.cs" t="Include" />
+          <e p="LinkStreamEditorControl.xaml" t="Include" />
+          <e p="LinkStreamEditorControl.xaml.cs" t="Include" />
+          <e p="LinkStreamEditorWindow.xaml" t="Include" />
+          <e p="LinkStreamEditorWindow.xaml.cs" t="Include" />
         </e>
         <e p="MainImageEditor" t="Include">
           <e p="MainImageEditorContext.cs" t="Include" />

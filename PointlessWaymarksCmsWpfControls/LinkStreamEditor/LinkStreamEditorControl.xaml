@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="PointlessWaymarksCmsWpfControls.LinkStreamEditor.LinkStreamEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamEditor"
+             xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
+             xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:LinkStreamEditorContext}">
+    <StackPanel>
+        <StackPanel Orientation="Vertical">
+            <Label>Url</Label>
+            <TextBox Text="{Binding LinkUrl, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical">
+            <Label>Comments</Label>
+            <TextBox Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"
+                     TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" />
+        </StackPanel>
+        <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
+        <Button Command="{Binding ExtractDataCommand}">Try to Extract Data</Button>
+        <StackPanel Orientation="Vertical">
+            <Label>Extracted Data</Label>
+            <TextBox Text="{Binding ExtractedData, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"
+                     TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" />
+        </StackPanel>
+        <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+            DataContext="{Binding CreatedUpdatedDisplay}" />
+        <Button>Save</Button>
+    </StackPanel>
+</UserControl>

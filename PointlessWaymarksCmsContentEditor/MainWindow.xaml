@@ -40,6 +40,11 @@
             <TabItem Header="Notes">
                 <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />
             </TabItem>
+            <TabItem Header="Links">
+                <StackPanel>
+                    <Button Command="{Binding NewLinkContentCommand}">New Link</Button>
+                </StackPanel>
+            </TabItem>
             <TabItem Header="Settings">
                 <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />
             </TabItem>
