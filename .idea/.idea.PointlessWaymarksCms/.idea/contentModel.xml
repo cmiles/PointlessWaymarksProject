@@ -8,6 +8,7 @@
         <e p="App.xaml" t="Include" />
         <e p="App.xaml.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
+        <e p="DevNotes.md" t="Include" />
         <e p="MainWindow.xaml" t="Include" />
         <e p="MainWindow.xaml.cs" t="Include" />
         <e p="obj" t="ExcludeRecursive">
@@ -317,6 +318,14 @@
               <e p="ItemContentEditor" t="Include">
                 <e p="ItemContentEditorControl.g.cs" t="Include" />
                 <e p="ItemContentEditorWindow.g.cs" t="Include" />
+              </e>
+              <e p="LinkStreamEditor" t="Include">
+                <e p="LinkStreamEditorControl.g.cs" t="Include" />
+                <e p="LinkStreamEditorWindow.g.cs" t="Include" />
+              </e>
+              <e p="LinkStreamList" t="Include">
+                <e p="LinkStreamListControl.g.cs" t="Include" />
+                <e p="LinkStreamListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="MainImageEditor" t="Include">
                 <e p="MainImageEditorControl.g.cs" t="Include" />

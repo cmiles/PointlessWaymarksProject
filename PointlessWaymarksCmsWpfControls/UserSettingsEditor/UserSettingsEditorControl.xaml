@@ -22,64 +22,83 @@
                 <Button Style="{StaticResource ActionPanelButton}">Save</Button>
                 <StackPanel Orientation="Vertical">
                     <Label>Local Site Root Directory</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.LocalSiteRootDirectory, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.LocalSiteRootDirectory, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Local Master Media Archive</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.LocalMasterMediaArchive, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.LocalMasterMediaArchive, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Url</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.SiteUrl, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.SiteUrl, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Site Name</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.SiteName, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.SiteName, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Site Authors</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.SiteAuthors, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.SiteAuthors, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Site Keywords</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.SiteKeywords, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.SiteKeywords, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Site Summary</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.SiteSummary, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.SiteSummary, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Site Email To</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.SiteEmailTo, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.SiteEmailTo, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Default Created By Name</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.DefaultCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.DefaultCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Bing Maps Api Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.BingApiKey, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.BingApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>CalTopo Maps Api Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.CalTopoApiKey, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.CalTopoApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Google Maps Api Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.GoogleMapsApiKey, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.GoogleMapsApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
-
+                <StackPanel Orientation="Vertical">
+                    <Label>Pinboard Api Key</Label>
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.PinboardApiToken, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Amazon S3 Bucket</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.AmazonS3Bucket, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.AmazonS3Bucket, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Amazon S3 Access Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.AmazonS3AccessKey, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.AmazonS3AccessKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label>Amazon S3 Secret Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True" Text="{Binding EditorSettings.AmazonS3SecretKey, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox SpellCheck.IsEnabled="True"
+                             Text="{Binding EditorSettings.AmazonS3SecretKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

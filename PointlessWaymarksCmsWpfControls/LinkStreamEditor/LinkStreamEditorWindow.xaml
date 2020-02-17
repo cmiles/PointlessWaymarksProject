@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamEditor"
         xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
         mc:Ignorable="d"
-        Title="Link Editor" Height="600" Width="800" d:DataContext="{d:DesignInstance local:LinkStreamEditorWindow}">
+        Title="Link Editor" Height="660" Width="600" d:DataContext="{d:DesignInstance local:LinkStreamEditorWindow}">
     <Grid>
         <Grid>
             <local:LinkStreamEditorControl DataContext="{Binding EditorContent}" />

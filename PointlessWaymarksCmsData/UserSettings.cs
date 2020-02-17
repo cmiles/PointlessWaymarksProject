@@ -12,17 +12,17 @@ namespace PointlessWaymarksCmsData
         private string _bingApiKey = string.Empty;
         private string _calTopoApiKey = string.Empty;
         private string _databaseName = "PointlessWaymarksDb";
+        private string _defaultCreatedBy;
         private string _googleMapsApiKey = string.Empty;
         private string _localMasterMediaArchive;
         private string _localSiteRootDirectory;
+        private string _pinboardApiToken;
         private string _siteAuthors;
         private string _siteEmailTo;
         private string _siteKeywords;
         private string _siteName;
         private string _siteSummary;
         private string _siteUrl;
-        private string _defaultCreatedBy;
-
 
         public string AmazonS3AccessKey
         {
@@ -130,6 +130,17 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _localSiteRootDirectory) return;
                 _localSiteRootDirectory = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string PinboardApiToken
+        {
+            get => _pinboardApiToken;
+            set
+            {
+                if (value == _pinboardApiToken) return;
+                _pinboardApiToken = value;
                 OnPropertyChanged();
             }
         }

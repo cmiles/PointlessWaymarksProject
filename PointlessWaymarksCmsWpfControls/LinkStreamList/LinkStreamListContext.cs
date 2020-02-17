@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         private RelayCommand _filterListCommand;
         private ObservableRangeCollection<LinkStreamListListItem> _items;
         private string _lastSortColumn;
+        private RelayCommand<string> _openUrlCommand;
         private List<LinkStreamListListItem> _selectedItems;
         private bool _sortDescending;
         private RelayCommand<string> _sortListCommand;
@@ -49,6 +51,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand<string> OpenUrlCommand
+        {
+            get => _openUrlCommand;
+            set
+            {
+                if (Equals(value, _openUrlCommand)) return;
+                _openUrlCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -156,6 +169,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             }));
+            OpenUrlCommand = new RelayCommand<string>(x => StatusContext.RunNonBlockingTask(() => OpenUrl(x)));
 
             StatusContext.Progress("Connecting to DB");
 
@@ -194,6 +208,20 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task OpenUrl(string url)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                StatusContext.ToastError("Link is blank?");
+                return;
+            }
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
 
         private async Task SortList(string sortColumn)

@@ -9,6 +9,8 @@ namespace PointlessWaymarksCmsData.Models
 
         public string Description { get; set; }
 
+        public DateTime? LinkDate { get; set; }
+
         public string Site { get; set; }
         public string Title { get; set; }
         public string Url { get; set; }

@@ -9,6 +9,8 @@ using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
+using pinboard.net;
+using pinboard.net.Models;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -26,6 +28,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         private LinkStream _dbEntry;
         private string _description;
         private RelayCommand _extractDataCommand;
+        private DateTime? _linkDateTime;
         private string _linkUrl;
         private RelayCommand _saveUpdateDatabaseCommand;
         private string _site;
@@ -106,6 +109,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public DateTime? LinkDateTime
+        {
+            get => _linkDateTime;
+            set
+            {
+                if (value.Equals(_linkDateTime)) return;
+                _linkDateTime = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string LinkUrl
         {
             get => _linkUrl;
@@ -172,13 +186,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
-        private async Task ExtractDataFromLink()
+        private async Task ExtractDataFromLink(IProgress<string> progress = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            progress?.Report("Setting up and Downloading Site");
 
             var config = Configuration.Default.WithDefaultLoader().WithJs();
             var context = BrowsingContext.New(config);
             var document = await context.OpenAsync(LinkUrl);
+
+            progress?.Report("Looking for Title");
 
             var titleString = document.Head.Children.FirstOrDefault(x => x.TagName == "TITLE")?.TextContent;
 
@@ -194,7 +212,10 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 titleString = document.QuerySelector("meta[name='twitter:title']")?.Attributes
                     .FirstOrDefault(x => x.LocalName == "value")?.Value;
 
-            Title = titleString;
+            if (!string.IsNullOrWhiteSpace(titleString)) Title = titleString;
+
+            progress?.Report("Looking for Author");
+
 
             var authorString = document.QuerySelector("meta[property='og:author']")?.Attributes
                 .FirstOrDefault(x => x.LocalName == "content")?.Value;
@@ -220,7 +241,48 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             if (string.IsNullOrWhiteSpace(authorString))
                 authorString = document.QuerySelector(".author_name")?.TextContent;
 
-            Author = authorString;
+            if (!string.IsNullOrWhiteSpace(authorString)) Author = authorString;
+
+            progress?.Report($"Looking for Author - Found {Author}");
+
+
+            progress?.Report("Looking for Date Time");
+
+            var linkDateString = document.QuerySelector("meta[property='article:modified_time']")?.Attributes
+                .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(linkDateString))
+                linkDateString = document.QuerySelector("meta[property='og:updated_time']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(linkDateString))
+                linkDateString = document.QuerySelector("meta[property='article:published_time']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(linkDateString))
+                linkDateString = document.QuerySelector("meta[property='article:published_time']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            if (string.IsNullOrWhiteSpace(linkDateString))
+                linkDateString = document.QuerySelector("meta[name='DC.date.created']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
+
+            progress?.Report($"Looking for Date Time - Found {linkDateString}");
+
+            if (!string.IsNullOrWhiteSpace(linkDateString))
+            {
+                if (DateTime.TryParse(linkDateString, out var parsedDateTime))
+                {
+                    LinkDateTime = parsedDateTime;
+                    progress?.Report($"Looking for Date Time - Parsed to {parsedDateTime}");
+                }
+                else
+                {
+                    progress?.Report("Did not parse Date Time");
+                }
+            }
+
+            progress?.Report("Looking for Site Name");
 
             var siteString = document.QuerySelector("meta[property='og:site_name']")?.Attributes
                 .FirstOrDefault(x => x.LocalName == "content")?.Value;
@@ -233,7 +295,12 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 siteString = document.QuerySelector("meta[name='twitter:site']")?.Attributes
                     .FirstOrDefault(x => x.LocalName == "value")?.Value.Replace("@", "");
 
-            Site = siteString;
+            if (!string.IsNullOrWhiteSpace(siteString)) Site = siteString;
+
+            progress?.Report($"Looking for Site Name - Found {Site}");
+
+
+            progress?.Report("Looking for Description");
 
             var descriptionString = document.QuerySelector("meta[name='description']")?.Attributes
                 .FirstOrDefault(x => x.LocalName == "content")?.Value;
@@ -246,7 +313,9 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 descriptionString = document.QuerySelector("meta[name='twitter:description']")?.Attributes
                     .FirstOrDefault(x => x.LocalName == "content")?.Value;
 
-            Description = descriptionString;
+            if (!string.IsNullOrWhiteSpace(descriptionString)) Description = descriptionString;
+
+            progress?.Report($"Looking for Description - Found {Description}");
         }
 
         private async Task LoadData(LinkStream toLoad)
@@ -266,8 +335,10 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
 
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ExtractDataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ExtractDataFromLink));
+            SaveUpdateDatabaseCommand = new RelayCommand(() =>
+                StatusContext.RunBlockingTask(() => SaveToDbWithValidation(StatusContext?.ProgressTracker())));
+            ExtractDataCommand = new RelayCommand(() =>
+                StatusContext.RunBlockingTask(() => ExtractDataFromLink(StatusContext?.ProgressTracker())));
         }
 
         [NotifyPropertyChangedInvocator]
@@ -276,9 +347,11 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private async Task SaveToDatabase()
+        private async Task SaveToDatabase(IProgress<string> progress = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            progress?.Report("Setting up new Entry");
 
             var newEntry = new LinkStream();
 
@@ -303,13 +376,18 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             newEntry.Site = Site;
             newEntry.Author = Author;
             newEntry.Description = Description;
+            newEntry.LinkDate = LinkDateTime;
 
             var context = await Db.Context();
+
+            progress?.Report("Setting up new Historic Entry");
 
             var toHistoric = await context.LinkStreams.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
 
             foreach (var loopToHistoric in toHistoric)
             {
+                progress?.Report("Saving Historic Entry");
+
                 var newHistoric = new HistoricLinkStream();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
@@ -317,7 +395,11 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 context.LinkStreams.Remove(loopToHistoric);
             }
 
+            progress?.Report("Adding new entry");
+
             context.LinkStreams.Add(newEntry);
+
+            progress?.Report("Saving Changes");
 
             await context.SaveChangesAsync(true);
 
@@ -326,7 +408,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             await LoadData(newEntry);
         }
 
-        private async Task SaveToDbWithValidation()
+        private async Task SaveToDbWithValidation(IProgress<string> progress = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -340,7 +422,50 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 return;
             }
 
-            await SaveToDatabase();
+            await SaveToDatabase(progress);
+            await SaveToPinboard(progress);
+        }
+
+        private async Task SaveToPinboard(IProgress<string> progress = null)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
+            {
+                progress?.Report("No Pinboard Api Token...");
+                return;
+            }
+
+            var descriptionFragments = new List<string>();
+            if (!string.IsNullOrWhiteSpace(Site)) descriptionFragments.Add($"Site: {Site}");
+            if (LinkDateTime != null) descriptionFragments.Add($"Date: {LinkDateTime.Value:g}");
+            if (!string.IsNullOrWhiteSpace(Description)) descriptionFragments.Add($"Description: {Description}");
+            if (!string.IsNullOrWhiteSpace(Comments)) descriptionFragments.Add($"Comments: {Comments}");
+            if (!string.IsNullOrWhiteSpace(Author)) descriptionFragments.Add($"Author: {Author}");
+
+            var tagList = TagEdit.TagList();
+            tagList.Add(UserSettingsSingleton.CurrentSettings().SiteName);
+            tagList = tagList.Select(x => x.Replace(" ", "-")).ToList();
+
+            progress?.Report("Setting up Pinboard");
+            using var pb = new PinboardAPI(UserSettingsSingleton.CurrentSettings().PinboardApiToken);
+
+            var bookmark = new Bookmark
+            {
+                Url = LinkUrl,
+                Description = Title,
+                Extended = string.Join(" ;; ", descriptionFragments),
+                Tags = tagList,
+                CreatedDate = DateTime.Now,
+                Shared = true,
+                ToRead = false,
+                Replace = true
+            };
+
+            progress?.Report("Adding Pinboard Bookmark");
+            await pb.Posts.Add(bookmark);
+
+            progress?.Report("Pinboard Bookmark Complete");
         }
 
         private async Task<(bool, string)> Validate()

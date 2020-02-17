@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Models;
@@ -57,6 +59,12 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public List<string> TagList()
+        {
+            if (string.IsNullOrWhiteSpace(Tags)) return new List<string>();
+            return Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

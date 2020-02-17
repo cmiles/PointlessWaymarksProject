@@ -21,7 +21,8 @@
             <StackPanel Orientation="Vertical">
                 <Label>Comments</Label>
                 <TextBox
-                    Height="70"
+                    SpellCheck.IsEnabled="True"
+                    Height="60"
                     AcceptsReturn="True"
                     Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap"
@@ -30,7 +31,8 @@
             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
             <StackPanel Orientation="Vertical">
                 <Label>Title</Label>
-                <TextBox AcceptsReturn="False" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox AcceptsReturn="False" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
+                         SpellCheck.IsEnabled="True" />
             </StackPanel>
             <StackPanel Orientation="Vertical">
                 <Label>Site</Label>
@@ -41,15 +43,21 @@
                 <TextBox AcceptsReturn="False" Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Orientation="Vertical">
+                <Label>Link Date</Label>
+                <TextBox AcceptsReturn="False" Text="{Binding LinkDateTime, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical">
                 <Label>Description</Label>
                 <TextBox
                     Height="90"
                     AcceptsReturn="True"
                     Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap"
-                    VerticalScrollBarVisibility="Visible" />
+                    VerticalScrollBarVisibility="Visible"
+                    SpellCheck.IsEnabled="True" />
             </StackPanel>
-            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" />
+            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                DataContext="{Binding CreatedUpdatedDisplay}" />
             <Button Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
         </StackPanel>
     </ScrollViewer>
