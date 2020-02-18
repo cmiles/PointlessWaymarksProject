@@ -432,7 +432,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
             if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
             {
-                progress?.Report("No Pinboard Api Token...");
+                progress?.Report("No Pinboard Api Token... Skipping save to Pinboard.");
                 return;
             }
 

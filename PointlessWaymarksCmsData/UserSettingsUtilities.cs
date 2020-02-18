@@ -69,7 +69,7 @@ namespace PointlessWaymarksCmsData
 
         public static string FileRssUrl(this UserSettings settings)
         {
-            return $"//{settings.SiteUrl}/Files/FileRss.html";
+            return $"//{settings.SiteUrl}/Files/FileRss.xml";
         }
 
         public static string ImageListUrl(this UserSettings settings)
@@ -265,6 +265,16 @@ namespace PointlessWaymarksCmsData
 
             return localDirectory;
         }
+        
+        public static DirectoryInfo LocalSiteLinkDirectory(this UserSettings settings)
+        {
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Links"));
+            if (!localDirectory.Exists) localDirectory.Create();
+
+            localDirectory.Refresh();
+
+            return localDirectory;
+        }
 
         public static FileInfo LocalSiteNoteHtmlFile(this UserSettings settings, NoteContent content)
         {
@@ -276,6 +286,12 @@ namespace PointlessWaymarksCmsData
         {
             var directory = settings.LocalSiteNoteDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "NoteList")}.html");
+        }
+        
+        public static FileInfo LocalSiteLinkListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteLinkDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "LinkList")}.html");
         }
 
         public static FileInfo LocalSiteNoteRssFile(this UserSettings settings)
@@ -374,10 +390,21 @@ namespace PointlessWaymarksCmsData
             var directory = settings.LocalSiteRootDirectory;
             return new FileInfo($"{Path.Combine(directory, "RssIndexFeed")}.xml");
         }
+        
+        public static FileInfo LocalSiteLinkRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteLinkDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "LinkRss")}.xml");
+        }
 
         public static string NoteListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Notes/NoteList.html";
+        }
+        
+        public static string LinkListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Links/LinkList.html";
         }
 
         public static string NotePageUrl(this UserSettings settings, NoteContent content)
@@ -387,7 +414,12 @@ namespace PointlessWaymarksCmsData
 
         public static string NoteRssUrl(this UserSettings settings)
         {
-            return $"//{settings.SiteUrl}/Notes/NoteRss.html";
+            return $"//{settings.SiteUrl}/Notes/NoteRss.xml";
+        }
+        
+        public static string LinkRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Links/LinkRss.xml";
         }
 
         public static string PhotoListUrl(this UserSettings settings)
@@ -402,7 +434,7 @@ namespace PointlessWaymarksCmsData
 
         public static string PhotoRssUrl(this UserSettings settings)
         {
-            return $"//{settings.SiteUrl}/Photos/PhotoRss.html";
+            return $"//{settings.SiteUrl}/Photos/PhotoRss.xml";
         }
 
         public static string PicturePageUrl(this UserSettings settings, Guid contentGuid)
@@ -447,7 +479,7 @@ namespace PointlessWaymarksCmsData
 
         public static string RssIndexFeedUrl(this UserSettings settings)
         {
-            return $"//{settings.SiteUrl}/RssIndexFeed.rss";
+            return $"//{settings.SiteUrl}/RssIndexFeed.xml";
         }
 
         public static FileInfo SettingsFile()
