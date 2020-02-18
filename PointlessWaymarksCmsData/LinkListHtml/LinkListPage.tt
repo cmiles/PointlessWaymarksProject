@@ -1,0 +1,59 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
+
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title><#= ListTitle #></title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="alternate" type="application/rss+xml" 
+      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}" #>"     
+      href="https:<#= RssUrl #>" />
+    <#= Tags.SiteMainRss() #>
+
+    <#= Tags.CssStyleFileString() #>
+    <#= Tags.FavIconFileString() #>
+</head>
+
+<body>
+    <h1 class="index-title-content"><#= $"{UserSettingsSingleton.CurrentSettings().SiteName} {ListTitle}" #></h1>
+    <div class="search-input-container">
+        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search <#= ListTitle #>...">
+    </div>
+    <#= LinkTableTag() #>
+    <#= Footer.StandardFooterDiv() #>
+
+<script>
+    function searchContent() {
+      // Declare variables
+      var input, filterText, contentDivs, loopDiv, i, divDataText;
+      input = document.getElementById('userSearchText');
+      filterText = input.value.toUpperCase();
+      contentDivs = document.getElementsByClassName('content-list-item-container');
+
+      // Loop through all list items, and hide those who don't match the search query
+      for (i = 0; i < contentDivs.length; i++) {
+        loopDiv = contentDivs[i];
+	    divDataText = loopDiv.getAttribute('data-title').concat(
+		    loopDiv.getAttribute('data-summary'),
+		    loopDiv.getAttribute('data-tags')).toUpperCase();
+
+        if (divDataText.indexOf(filterText) > -1) {
+		    loopDiv.style.display = "";
+        } else {
+		    loopDiv.style.display = "none";
+        }
+      }
+    }
+</script>
+
+</body>
+
+</html>

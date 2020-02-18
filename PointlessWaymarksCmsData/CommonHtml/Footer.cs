@@ -28,6 +28,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 new LinkTag("Files", @$"//{settings.FileListUrl()}").AddClass("footer-content-list"));
             contentListDiv.Children.Add(
                 new LinkTag("Notes", @$"//{settings.NoteListUrl()}").AddClass("footer-content-list"));
+            contentListDiv.Children.Add(
+                new LinkTag("Links", @$"//{settings.LinkListUrl()}").AddClass("footer-content-list"));
 
             footerDiv.Children.Add(contentListDiv);
 

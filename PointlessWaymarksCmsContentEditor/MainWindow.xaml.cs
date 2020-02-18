@@ -10,6 +10,7 @@ using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.IndexHtml;
+using PointlessWaymarksCmsData.LinkListHtml;
 using PointlessWaymarksCmsData.NoteHtml;
 using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.PostHtml;
@@ -369,6 +370,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+
         private async Task GenerateAllListHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -379,6 +381,9 @@ namespace PointlessWaymarksCmsContentEditor
             ContentListPageGenerators.WritePhotoContentListHtml();
             ContentListPageGenerators.WritePostContentListHtml();
             ContentListPageGenerators.WriteNoteContentListHtml();
+
+            var linkListPage = new LinkListPage();
+            linkListPage.WriteLocalHtml();
         }
 
         private async Task GenerateAllNoteHtml()

@@ -77,6 +77,11 @@
           <e p="IndexPage.tt" t="Include" />
           <e p="IndexPageCode.cs" t="Include" />
         </e>
+        <e p="LinkListHtml" t="Include">
+          <e p="LinkListPage.cs" t="Include" />
+          <e p="LinkListPage.tt" t="Include" />
+          <e p="LinkListPageCode.cs" t="Include" />
+        </e>
         <e p="LocationDataTypeConsts.cs" t="Include" />
         <e p="MainImageProcessor.cs" t="Include" />
         <e p="Models" t="Include">

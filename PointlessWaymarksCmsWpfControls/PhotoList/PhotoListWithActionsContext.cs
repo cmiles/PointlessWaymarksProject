@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
@@ -233,15 +232,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        private async Task GeneratePhotoList()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var list = new ContentListPage(UserSettingsSingleton.CurrentSettings().PhotoRssUrl());
-
-            list.WriteLocalHtml();
-        }
-
         private async Task GenerateSelectedHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -285,7 +275,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
             RefreshDataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ListContext.LoadData));
             DeleteSelectedCommand = new RelayCommand(() => StatusContext.RunBlockingTask(Delete));
-            GeneratePhotoListCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GeneratePhotoList));
         }
 
         private async Task NewContent()
