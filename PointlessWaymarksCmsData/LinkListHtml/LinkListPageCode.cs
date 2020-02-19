@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.ServiceModel.Syndication;
+using System.Text;
+using System.Xml;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
@@ -77,6 +81,65 @@ namespace PointlessWaymarksCmsData.LinkListHtml
             return compactContentContainerDiv;
         }
 
+        private static async void WriteContentListRss()
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var db = Db.Context().Result;
+
+            var content = db.LinkStreams.OrderByDescending(x => x.CreatedOn).ToList();
+
+            var feed = new SyndicationFeed(settings.SiteName, $"{settings.SiteSummary} - Links",
+                new Uri($"https://{settings.SiteUrl}"), $"https:{settings.LinkRssUrl()}", DateTime.Now);
+            feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {settings.SiteAuthors}");
+
+            var items = new List<SyndicationItem>();
+
+            foreach (var loopContent in content)
+            {
+                var contentUrl = await settings.ContentUrl(loopContent.ContentId);
+
+                var title = string.IsNullOrWhiteSpace(loopContent.Title) ? loopContent.Url : loopContent.Title;
+
+                var linkParts = new List<string>();
+                if (!string.IsNullOrWhiteSpace(loopContent.Site)) linkParts.Add(loopContent.Site);
+                if (!string.IsNullOrWhiteSpace(loopContent.Author)) linkParts.Add(loopContent.Author);
+                if (loopContent.LinkDate != null) linkParts.Add(loopContent.LinkDate.Value.ToString("M/d/yyyy"));
+                if (!string.IsNullOrWhiteSpace(loopContent.Description)) linkParts.Add(loopContent.Description);
+                if (!string.IsNullOrWhiteSpace(loopContent.Comments)) linkParts.Add(loopContent.Comments);
+
+                items.Add(new SyndicationItem(loopContent.Title, string.Join(" - ", linkParts),
+                    new Uri(loopContent.Url)));
+            }
+
+            feed.Items = items;
+
+            var xmlSettings = new XmlWriterSettings
+            {
+                Encoding = Encoding.UTF8,
+                NewLineHandling = NewLineHandling.Entitize,
+                NewLineOnAttributes = true,
+                Indent = true
+            };
+
+            using var stream = new MemoryStream();
+
+            var localIndexFile = settings.LocalSiteLinkRssFile();
+
+            if (localIndexFile.Exists)
+            {
+                localIndexFile.Delete();
+                localIndexFile.Refresh();
+            }
+
+            using (var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings))
+            {
+                var rssFormatter = new Rss20FeedFormatter(feed, false);
+                rssFormatter.WriteTo(xmlWriter);
+                xmlWriter.Flush();
+            }
+        }
+
         public HtmlTag LinkTableTag()
         {
             var db = Db.Context().Result;
@@ -108,7 +171,7 @@ namespace PointlessWaymarksCmsData.LinkListHtml
             return allContentContainer;
         }
 
-        public void WriteLocalHtml()
+        public void WriteLocalHtmlAndRss()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -129,6 +192,8 @@ namespace PointlessWaymarksCmsData.LinkListHtml
             }
 
             File.WriteAllText(htmlFileInfo.FullName, htmlString);
+
+            WriteContentListRss();
         }
     }
 }
