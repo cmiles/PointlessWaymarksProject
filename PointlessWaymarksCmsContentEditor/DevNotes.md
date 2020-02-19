@@ -1,5 +1,6 @@
 ﻿## Todos
- - Link list on site
+ - Compact Content could use a style similar to related content for no image entries at least on mobile
+ - Style link list
  - JSON Link Backup file in list directory
  - Link RSS Feed
  - RSS Feed main images when appropriate
