@@ -8,7 +8,6 @@ using System.Xml;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
-using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData.LinkListHtml
@@ -31,7 +30,7 @@ namespace PointlessWaymarksCmsData.LinkListHtml
 
             var compactContentContainerDiv = new DivTag().AddClass("content-compact-container");
 
-            var compactContentMainTextContentDiv = new DivTag().AddClass("content-compact-text-content-container");
+            var compactContentMainTextContentDiv = new DivTag().AddClass("link-compact-text-content-container");
 
             var compactContentMainTextTitleTextDiv =
                 new DivTag().AddClass("content-compact-text-content-title-container");
@@ -41,12 +40,12 @@ namespace PointlessWaymarksCmsData.LinkListHtml
 
             compactContentMainTextTitleTextDiv.Children.Add(compactContentMainTextTitleLink);
 
-            var compactContentSummaryTextDiv = new DivTag().AddClass("content-compact-text-content-summary");
+            var compactContentSummaryTextDiv = new DivTag().AddClass("link-compact-text-content-summary");
 
             var itemsPartOne = new List<string>();
-            if (!string.IsNullOrWhiteSpace(content.Site)) itemsPartOne.Add(content.Site);
             if (!string.IsNullOrWhiteSpace(content.Author)) itemsPartOne.Add(content.Author);
             if (content.LinkDate != null) itemsPartOne.Add(content.LinkDate.Value.ToString("M/d/yyyy"));
+            if (content.LinkDate == null) itemsPartOne.Add(content.CreatedOn.ToString($"Saved M/d/yyyy"));
 
             if (itemsPartOne.Any())
             {
@@ -69,19 +68,15 @@ namespace PointlessWaymarksCmsData.LinkListHtml
                 compactContentSummaryTextDiv.Children.Add(textPartTwoDiv);
             }
 
-            var compactContentMainTextCreatedOrUpdatedTextDiv = new DivTag()
-                .AddClass("content-compact-text-content-date")
-                .Text(Tags.LatestCreatedOnOrUpdatedOn(content)?.ToString("M/d/yyyy") ?? string.Empty);
-
-            compactContentMainTextContentDiv.Children.Add(compactContentSummaryTextDiv);
-            compactContentMainTextContentDiv.Children.Add(compactContentMainTextCreatedOrUpdatedTextDiv);
             compactContentMainTextContentDiv.Children.Add(compactContentMainTextTitleTextDiv);
+            compactContentMainTextContentDiv.Children.Add(compactContentSummaryTextDiv);
+
             compactContentContainerDiv.Children.Add(compactContentMainTextContentDiv);
 
             return compactContentContainerDiv;
         }
 
-        private static async void WriteContentListRss()
+        private static void WriteContentListRss()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -90,17 +85,15 @@ namespace PointlessWaymarksCmsData.LinkListHtml
             var content = db.LinkStreams.OrderByDescending(x => x.CreatedOn).ToList();
 
             var feed = new SyndicationFeed(settings.SiteName, $"{settings.SiteSummary} - Links",
-                new Uri($"https://{settings.SiteUrl}"), $"https:{settings.LinkRssUrl()}", DateTime.Now);
-            feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {settings.SiteAuthors}");
+                new Uri($"https://{settings.SiteUrl}"), $"https:{settings.LinkRssUrl()}", DateTime.Now)
+            {
+                Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {settings.SiteAuthors}")
+            };
 
             var items = new List<SyndicationItem>();
 
             foreach (var loopContent in content)
             {
-                var contentUrl = await settings.ContentUrl(loopContent.ContentId);
-
-                var title = string.IsNullOrWhiteSpace(loopContent.Title) ? loopContent.Url : loopContent.Title;
-
                 var linkParts = new List<string>();
                 if (!string.IsNullOrWhiteSpace(loopContent.Site)) linkParts.Add(loopContent.Site);
                 if (!string.IsNullOrWhiteSpace(loopContent.Author)) linkParts.Add(loopContent.Author);
@@ -132,12 +125,11 @@ namespace PointlessWaymarksCmsData.LinkListHtml
                 localIndexFile.Refresh();
             }
 
-            using (var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings))
-            {
-                var rssFormatter = new Rss20FeedFormatter(feed, false);
-                rssFormatter.WriteTo(xmlWriter);
-                xmlWriter.Flush();
-            }
+            using var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings);
+
+            var rssFormatter = new Rss20FeedFormatter(feed, false);
+            rssFormatter.WriteTo(xmlWriter);
+            xmlWriter.Flush();
         }
 
         public HtmlTag LinkTableTag()

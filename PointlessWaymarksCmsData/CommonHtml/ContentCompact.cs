@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
 
-            if (content?.MainPicture != null)
+            if (content.MainPicture != null)
             {
                 var compactContentMainPictureContentDiv =
                     new DivTag().AddClass("content-compact-image-content-container");
@@ -34,8 +34,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 new LinkTag(content.Title, linkTo).AddClass("content-compact-text-content-title-link");
             compactContentMainTextTitleTextDiv.Children.Add(compactContentMainTextTitleLink);
 
-            var compactContentSummaryTextDiv = new DivTag().AddClass("content-compact-text-content-summary")
-                .Text(content.Summary);
+            HtmlTag compactContentSummaryTextDiv;
+
+            if (content.MainPicture == null)
+            {
+                compactContentSummaryTextDiv = new DivTag().AddClass("content-compact-text-content-summary")
+                    .Text(content.Summary);
+            }
+            else
+            {
+                compactContentSummaryTextDiv = new DivTag().AddClass("content-compact-text-content-optional-summary")
+                    .Text(content.Summary);
+            }
 
             var compactContentMainTextCreatedOrUpdatedTextDiv = new DivTag()
                 .AddClass("content-compact-text-content-date")
