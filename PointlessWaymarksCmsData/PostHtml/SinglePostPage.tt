@@ -20,7 +20,6 @@
     <link rel="alternate" type="application/rss+xml" 
       title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Posts" #>"
       href="https:<#= UserSettingsSingleton.CurrentSettings().PostsRssUrl() #>" />
-    <#= Tags.SiteMainRss() #>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 

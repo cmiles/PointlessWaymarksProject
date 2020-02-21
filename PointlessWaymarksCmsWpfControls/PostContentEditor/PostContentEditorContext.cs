@@ -226,6 +226,8 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            StatusContext?.Progress("Setting up new Post Entry");
+
             var newEntry = new PostContent();
 
             if (DbEntry == null || DbEntry.Id < 1)
@@ -254,16 +256,23 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
 
+            StatusContext?.Progress("Getting Main Entry");
+
             newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             if (DbEntry != null && DbEntry.Id > 0)
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
+                    StatusContext?.Progress(
+                        $"New Slug or Folder Found - before {DbEntry.Folder}, {DbEntry.Slug}; after {newEntry.Folder}, {newEntry.Slug}>");
+
                     var settings = UserSettingsSingleton.CurrentSettings();
                     var existingDirectory = settings.LocalSitePostContentDirectory(DbEntry, false);
 
                     if (existingDirectory.Exists)
                     {
+                        StatusContext?.Progress("Moving to New Directory...");
+
                         var newDirectory =
                             new DirectoryInfo(settings.LocalSitePostContentDirectory(newEntry, false).FullName);
                         existingDirectory.MoveTo(settings.LocalSitePostContentDirectory(newEntry, false).FullName);
@@ -278,7 +287,11 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             var context = await Db.Context();
 
+            StatusContext?.Progress("Getting New Historic Entries...");
+
             var toHistoric = await context.PostContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
+
+            StatusContext?.Progress($"Found {toHistoric.Count} versions to archive");
 
             foreach (var loopToHistoric in toHistoric)
             {
@@ -288,6 +301,8 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 await context.HistoricPostContents.AddAsync(newHistoric);
                 context.PostContents.Remove(loopToHistoric);
             }
+
+            StatusContext?.Progress("Saving main post");
 
             context.PostContents.Add(newEntry);
 

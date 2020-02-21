@@ -61,51 +61,44 @@ using PointlessWaymarksCmsData.CommonHtml;
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    ");
+            this.Write("\" />\r\n\r\n    ");
             
-            #line 18 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.SiteMainRss()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n    ");
-            
-            #line 20 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 19 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 21 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 20 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    <h1 class=\"index-title-content\">");
             
-            #line 25 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 24 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"{UserSettingsSingleton.CurrentSettings().SiteName} {ListTitle}"));
             
             #line default
             #line hidden
             this.Write("</h1>\r\n    <div class=\"search-input-container\">\r\n        <input type=\"text\" class=\"search-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Search ");
             
-            #line 27 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 26 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));
             
             #line default
             #line hidden
             this.Write("...\">\r\n    </div>\r\n    ");
             
-            #line 29 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 28 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ContentTableTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 30 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 29 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

@@ -12,7 +12,6 @@
     <link rel="alternate" type="application/rss+xml" 
       title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}" #>"     
       href="https:<#= RssUrl #>" />
-    <#= Tags.SiteMainRss() #>
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>

@@ -16,7 +16,7 @@ namespace PointlessWaymarksCmsData.LinkListHtml
     {
         public LinkListPage()
         {
-            RssUrl = UserSettingsSingleton.CurrentSettings().LinkListUrl();
+            RssUrl = UserSettingsSingleton.CurrentSettings().LinkRssUrl();
             ListTitle = "Links";
         }
 
@@ -45,7 +45,7 @@ namespace PointlessWaymarksCmsData.LinkListHtml
             var itemsPartOne = new List<string>();
             if (!string.IsNullOrWhiteSpace(content.Author)) itemsPartOne.Add(content.Author);
             if (content.LinkDate != null) itemsPartOne.Add(content.LinkDate.Value.ToString("M/d/yyyy"));
-            if (content.LinkDate == null) itemsPartOne.Add(content.CreatedOn.ToString($"Saved M/d/yyyy"));
+            if (content.LinkDate == null) itemsPartOne.Add($"Saved {content.CreatedOn:M/d/yyyy}");
 
             if (itemsPartOne.Any())
             {
@@ -74,6 +74,37 @@ namespace PointlessWaymarksCmsData.LinkListHtml
             compactContentContainerDiv.Children.Add(compactContentMainTextContentDiv);
 
             return compactContentContainerDiv;
+        }
+
+        public HtmlTag LinkTableTag()
+        {
+            var db = Db.Context().Result;
+
+            var allContent = db.LinkStreams.OrderByDescending(x => x.CreatedOn).ToList();
+
+            var allContentContainer = new DivTag().AddClass("content-list-container");
+
+            foreach (var loopContent in allContent)
+            {
+                var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
+
+                var titleList = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(loopContent.Title)) titleList.Add(loopContent.Title);
+                if (!string.IsNullOrWhiteSpace(loopContent.Site)) titleList.Add(loopContent.Site);
+                if (!string.IsNullOrWhiteSpace(loopContent.Author)) titleList.Add(loopContent.Author);
+
+                photoListPhotoEntryDiv.Data("title", string.Join(" - ", titleList));
+                photoListPhotoEntryDiv.Data("tags", loopContent.Tags);
+                photoListPhotoEntryDiv.Data("description", loopContent.Description);
+                photoListPhotoEntryDiv.Data("comment", loopContent.Comments);
+
+                photoListPhotoEntryDiv.Children.Add(LinkListEntry(loopContent));
+
+                allContentContainer.Children.Add(photoListPhotoEntryDiv);
+            }
+
+            return allContentContainer;
         }
 
         private static void WriteContentListRss()
@@ -130,37 +161,6 @@ namespace PointlessWaymarksCmsData.LinkListHtml
             var rssFormatter = new Rss20FeedFormatter(feed, false);
             rssFormatter.WriteTo(xmlWriter);
             xmlWriter.Flush();
-        }
-
-        public HtmlTag LinkTableTag()
-        {
-            var db = Db.Context().Result;
-
-            var allContent = db.LinkStreams.OrderByDescending(x => x.CreatedOn).ToList();
-
-            var allContentContainer = new DivTag().AddClass("content-list-container");
-
-            foreach (var loopContent in allContent)
-            {
-                var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
-
-                var titleList = new List<string>();
-
-                if (!string.IsNullOrWhiteSpace(loopContent.Title)) titleList.Add(loopContent.Title);
-                if (!string.IsNullOrWhiteSpace(loopContent.Site)) titleList.Add(loopContent.Site);
-                if (!string.IsNullOrWhiteSpace(loopContent.Author)) titleList.Add(loopContent.Author);
-
-                photoListPhotoEntryDiv.Data("title", string.Join(" - ", titleList));
-                photoListPhotoEntryDiv.Data("tags", loopContent.Tags);
-                photoListPhotoEntryDiv.Data("description", loopContent.Description);
-                photoListPhotoEntryDiv.Data("comment", loopContent.Comments);
-
-                photoListPhotoEntryDiv.Children.Add(LinkListEntry(loopContent));
-
-                allContentContainer.Children.Add(photoListPhotoEntryDiv);
-            }
-
-            return allContentContainer;
         }
 
         public void WriteLocalHtmlAndRss()

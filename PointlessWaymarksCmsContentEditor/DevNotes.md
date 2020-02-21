@@ -1,4 +1,6 @@
 ﻿## Todos
+ - Appears in Link Rss Feed functionality
+ - Extract links from Content Types - this would allow easy saving of all links to Pinboard
  - RSS - Check Functionality (seemed to work but double check all)
  - JSON Link Backup file in list directory
  - Change Created and Updated style when creator and updater are the same (do via tests!)
