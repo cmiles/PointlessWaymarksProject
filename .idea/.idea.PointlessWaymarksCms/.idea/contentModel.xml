@@ -156,6 +156,7 @@
         </e>
         <e p="SlugUtility.cs" t="Include" />
         <e p="SpatialHelpers.cs" t="Include" />
+        <e p="StringHelper.cs" t="Include" />
         <e p="UserSettings.cs" t="Include" />
         <e p="UserSettingsSingleton.cs" t="Include" />
         <e p="UserSettingsUtilities.cs" t="Include" />
@@ -472,6 +473,7 @@
           <e p="DispatcherThreadSwitcher.cs" t="Include" />
           <e p="ImageCacheConverter.cs" t="Include" />
           <e p="ImageResizing.cs" t="Include" />
+          <e p="LinkExtraction.cs" t="Include" />
           <e p="ListBoxBehavior.cs" t="Include" />
           <e p="ThreadPoolThreadSwitcher.cs" t="Include" />
           <e p="ThreadSwitcher.cs" t="Include" />

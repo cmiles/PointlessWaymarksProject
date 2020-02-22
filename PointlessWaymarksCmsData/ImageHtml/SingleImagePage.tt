@@ -18,6 +18,15 @@
     <meta property="og:title" content="<#=DbEntry.Title #>" />
     <meta property="og:description" content="<#= DbEntry.Summary #>" />
 
+    <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
+    <meta name="DC.Title" content="<#=DbEntry.Title #>">
+    <meta name ="DC.Creator" content="<#=DbEntry.CreatedBy #>">
+    <meta name ="DC.Publisher" content="<#=SiteName #>">
+    <meta name="DC.Description" content="<#=DbEntry.Summary #>">
+    <meta name="DC.Date" content="<#=DbEntry.CreatedOn.ToString("yyyy-MM-dd") #>">
+    <meta name="DC.Format" content="text/html">
+    <meta name="DC.Language" content="en-US">
+
     <#= Tags.OpenGraphImageMetaTags(PictureInformation) #>
 
     <link rel="alternate" type="application/rss+xml" 

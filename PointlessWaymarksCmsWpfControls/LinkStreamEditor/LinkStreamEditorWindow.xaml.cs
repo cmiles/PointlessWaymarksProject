@@ -11,11 +11,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         private LinkStreamEditorContext _editorContent;
         private StatusControlContext _statusContext;
 
-        public LinkStreamEditorWindow(LinkStream toLoad)
+        public LinkStreamEditorWindow(LinkStream toLoad, bool extractDataFromLink = false)
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
-            EditorContent = new LinkStreamEditorContext(StatusContext, toLoad);
+            EditorContent = new LinkStreamEditorContext(StatusContext, toLoad, extractDataFromLink);
+
+            EditorContent.RequestLinkStreamEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
 
             DataContext = this;
         }

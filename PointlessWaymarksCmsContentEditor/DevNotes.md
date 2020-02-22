@@ -1,23 +1,31 @@
 ﻿## Todos
- - Extract links from Content Types - this would allow easy saving of all links to Pinboard
+ - Extract links from Content Types all content types automatically on saving
  - RSS - Check Functionality (seemed to work but double check all)
  - JSON Link Backup file in list directory
  - Change Created and Updated style when creator and updater are the same (do via tests!)
  - Better startup experience when settings file and/or db are missing
  - RSS Feed main images when appropriate
  - Revisit og metadata - used correctly? Other tags that could be included?
- - Look at adding Dublin Core metadata to pages
  - Top of the page search box - maybe pass a query parameter to the all content list page?
  - Should there be a small menu at the top? Ugh.
  - Need to be able to select/switch settings files (and so associated db) - this seems much easier and happier in SQLite? That does have implications for elevation (Z) in Spatialite - but with that functionality minimal so far worth working around. Actually like the current MS Sql setup but painful compared to SQLite in terms of setup...
 
 ## Ideas
+ - WebView2
+ - Better header metadata on list pages
  - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
  - Backup the master media directory and database
  - Restore from JSON
  - Some sort of Master JSON Backup
  - Check in on the Spatialite Z bug in EF Core and/or investigate moving to SQLite (what about an elevation lookup table vs Z values?)
- - WebView2
+
+
+2/22/2020
+Added an Extract New Links for Posts - this should probably expand and maybe become automatic to help you get all your links into the link lists - these are set by default not to appear in the Link RSS feed. Fair comment to note with these links already in content do they need to be in the link list - maybe not but for two reasons: saving links also saves to pinboard if you have an api key set (and this can be incredibly important for archiving) and because in the past I have definitely wanted to just quickly find 'that link' for someone (and while the 'All Content' list/simple search might fail with too much content the link list should be viable for quite some time since it is just divs/links/text...).
+
+Added save and close and open link to the link editor.
+
+Added Dublin Core style metadata to Content Pages.
 
 2/21/2020
 When I started looking at pulling all the json backup files in to recreate the database I realized that only their location in the directory structure defined what type was stored in the file (without analyzing the file anyway) - that might be 'ok' but I wanted a better way to tell the contents/type of the file so added more descriptive names. I considered creating a wrapper type that wrote type with nameof into the file but it seemed needless and harder to see than just changing the file names.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -30,6 +31,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         private RelayCommand _extractDataCommand;
         private DateTime? _linkDateTime;
         private string _linkUrl;
+        private RelayCommand _openUrlInBrowserCommand;
+        private RelayCommand _saveUpdateDatabaseAndCloseCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
         private bool _showInLinkRss;
         private string _site;
@@ -37,11 +40,15 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         private TagsEditorContext _tagEdit;
         private string _title;
 
-        public LinkStreamEditorContext(StatusControlContext statusContext, LinkStream linkContent)
+        public EventHandler RequestLinkStreamEditorWindowClose;
+
+        public LinkStreamEditorContext(StatusControlContext statusContext, LinkStream linkContent,
+            bool extractDataOnLoad = false)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(linkContent));
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+                await LoadData(linkContent, extractDataOnLoad));
         }
 
         public string Author
@@ -128,6 +135,28 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             {
                 if (value == _linkUrl) return;
                 _linkUrl = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand OpenUrlInBrowserCommand
+        {
+            get => _openUrlInBrowserCommand;
+            set
+            {
+                if (Equals(value, _openUrlInBrowserCommand)) return;
+                _openUrlInBrowserCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand SaveUpdateDatabaseAndCloseCommand
+        {
+            get => _saveUpdateDatabaseAndCloseCommand;
+            set
+            {
+                if (Equals(value, _saveUpdateDatabaseAndCloseCommand)) return;
+                _saveUpdateDatabaseAndCloseCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -330,7 +359,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             progress?.Report($"Looking for Description - Found {Description}");
         }
 
-        private async Task LoadData(LinkStream toLoad)
+        private async Task LoadData(LinkStream toLoad, bool extractDataOnLoad = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -350,8 +379,23 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             SaveUpdateDatabaseCommand = new RelayCommand(() =>
                 StatusContext.RunBlockingTask(() => SaveToDbWithValidation(StatusContext?.ProgressTracker())));
+            SaveUpdateDatabaseAndCloseCommand = new RelayCommand(() =>
+                StatusContext.RunBlockingTask(() => SaveToDbWithValidationAndClose(StatusContext?.ProgressTracker())));
             ExtractDataCommand = new RelayCommand(() =>
                 StatusContext.RunBlockingTask(() => ExtractDataFromLink(StatusContext?.ProgressTracker())));
+            OpenUrlInBrowserCommand = new RelayCommand(() =>
+            {
+                try
+                {
+                    var ps = new ProcessStartInfo(LinkUrl) {UseShellExecute = true, Verb = "open"};
+                    Process.Start(ps);
+                }
+                catch (Exception e)
+                {
+                    StatusContext.ToastWarning($"Trouble opening link - {e.Message}");
+                }
+            });
+            if (extractDataOnLoad) await ExtractDataFromLink(StatusContext?.ProgressTracker());
         }
 
         [NotifyPropertyChangedInvocator]
@@ -438,6 +482,26 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
             await SaveToDatabase(progress);
             await SaveToPinboard(progress);
+        }
+
+        private async Task SaveToDbWithValidationAndClose(IProgress<string> progress = null)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var validationList = await ValidateAll();
+
+            if (validationList.Any(x => !x.Item1))
+            {
+                await StatusContext.ShowMessage("Validation Error",
+                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
+                    new List<string> {"Ok"});
+                return;
+            }
+
+            await SaveToDatabase(progress);
+            await SaveToPinboard(progress);
+
+            RequestLinkStreamEditorWindowClose?.Invoke(this, null);
         }
 
         private async Task SaveToPinboard(IProgress<string> progress = null)

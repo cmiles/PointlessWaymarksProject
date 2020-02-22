@@ -18,6 +18,15 @@
 
     <#= Tags.OpenGraphImageMetaTags(MainImage) #>
 
+    <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
+    <meta name="DC.Title" content="<#=DbEntry.Title #>">
+    <meta name ="DC.Creator" content="<#=DbEntry.CreatedBy #>">
+    <meta name ="DC.Publisher" content="<#=SiteName #>">
+    <meta name="DC.Description" content="<#=DbEntry.Summary #>">
+    <meta name="DC.Date" content="<#=DbEntry.CreatedOn.ToString("yyyy-MM-dd") #>">
+    <meta name="DC.Format" content="text/html">
+    <meta name="DC.Language" content="en-US">
+
     <link rel="alternate" type="application/rss+xml" 
       title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Files" #>"
       href="https:<#= UserSettingsSingleton.CurrentSettings().FileRssUrl() #>" />

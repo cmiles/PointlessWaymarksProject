@@ -20,6 +20,14 @@
 
     <#= Tags.OpenGraphImageMetaTags(MainImage) #>
 
+    <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
+    <meta name="DC.Title" content="<#=SiteName #>">
+    <meta name ="DC.Creator" content="<#=SiteAuthors #>">
+    <meta name ="DC.Publisher" content="<#=SiteName #>">
+    <meta name="DC.Description" content="<#=SiteSummary #>">
+    <meta name="DC.Format" content="text/html">
+    <meta name="DC.Language" content="en-US">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <#= Tags.SiteMainRss() #>

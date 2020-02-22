@@ -17,7 +17,14 @@
                 <Label>Url</Label>
                 <TextBox Text="{Binding LinkUrl, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
-            <Button Command="{Binding ExtractDataCommand}">Try to Extract Data</Button>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Button Command="{Binding ExtractDataCommand}">Try to Extract Data</Button>
+                <Button Grid.Column="1" Command="{Binding OpenUrlInBrowserCommand}">Open in Browser</Button>
+            </Grid>
             <StackPanel Orientation="Vertical">
                 <Label>Comments</Label>
                 <TextBox
@@ -62,7 +69,14 @@
             </StackPanel>
             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                 DataContext="{Binding CreatedUpdatedDisplay}" />
-            <Button Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Button Command="{Binding SaveUpdateDatabaseAndCloseCommand}">Save and Close</Button>
+                <Button Grid.Column="1" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -33,6 +33,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PostContent _dbEntry;
+        private RelayCommand _extractNewLinksCommand;
         private RelayCommand _saveAndCreateLocalCommand;
         private RelayCommand _saveUpdateDatabaseCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
@@ -88,6 +89,17 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public RelayCommand ExtractNewLinksCommand
+        {
+            get => _extractNewLinksCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksCommand)) return;
+                _extractNewLinksCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -196,6 +208,9 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new RelayCommand(() => StatusContext.RunBlockingTask(() =>
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
+                    StatusContext.ProgressTracker())));
         }
 
         [NotifyPropertyChangedInvocator]
