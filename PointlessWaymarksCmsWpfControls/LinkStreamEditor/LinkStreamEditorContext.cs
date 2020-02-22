@@ -31,6 +31,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         private DateTime? _linkDateTime;
         private string _linkUrl;
         private RelayCommand _saveUpdateDatabaseCommand;
+        private bool _showInLinkRss;
         private string _site;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
@@ -138,6 +139,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             {
                 if (Equals(value, _saveUpdateDatabaseCommand)) return;
                 _saveUpdateDatabaseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowInLinkRss
+        {
+            get => _showInLinkRss;
+            set
+            {
+                if (value == _showInLinkRss) return;
+                _showInLinkRss = value;
                 OnPropertyChanged();
             }
         }
@@ -330,6 +342,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             Site = DbEntry?.Site ?? string.Empty;
             Author = DbEntry?.Author ?? string.Empty;
             Description = DbEntry?.Description ?? string.Empty;
+            ShowInLinkRss = DbEntry?.ShowInLinkRss ?? true;
 
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
@@ -377,6 +390,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             newEntry.Author = Author;
             newEntry.Description = Description;
             newEntry.LinkDate = LinkDateTime;
+            newEntry.ShowInLinkRss = ShowInLinkRss;
 
             var context = await Db.Context();
 

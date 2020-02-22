@@ -1,5 +1,4 @@
 ﻿## Todos
- - Appears in Link Rss Feed functionality
  - Extract links from Content Types - this would allow easy saving of all links to Pinboard
  - RSS - Check Functionality (seemed to work but double check all)
  - JSON Link Backup file in list directory
@@ -18,6 +17,14 @@
  - Restore from JSON
  - Some sort of Master JSON Backup
  - Check in on the Spatialite Z bug in EF Core and/or investigate moving to SQLite (what about an elevation lookup table vs Z values?)
+ - WebView2
+
+2/21/2020
+When I started looking at pulling all the json backup files in to recreate the database I realized that only their location in the directory structure defined what type was stored in the file (without analyzing the file anyway) - that might be 'ok' but I wanted a better way to tell the contents/type of the file so added more descriptive names. I considered creating a wrapper type that wrote type with nameof into the file but it seemed needless and harder to see than just changing the file names.
+
+I like the auto-saving to Pinboard (most meaningful to an account with auto-archiving...) and thought it would be nice to extract the links from content and bring them up to save as links in the link list (so probably not fully auto at this point anyway) - to support that I added a field to the db structure to indicate whether the link should appear in the Link List RSS (so if you are following the site you are not bombarded twice by the link in a post and then the link in the link list).
+
+I made another quick try at including the new WebView (soon WebView2) control - this time I avoided some initial problems but ended up rolling back because I still ran into System.Interactivity breaking - I believe I have a bit better understanding of which pieces would have to be switched out to use the System.Interactivity replacement but didn't have time to try so rolled back.
 
 2/19/2020
 Updated the Link List generation to alter the structures that are generated and to change some classes where I wanted the structure to be different than the compact content.

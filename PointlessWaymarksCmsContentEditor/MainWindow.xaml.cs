@@ -383,7 +383,7 @@ namespace PointlessWaymarksCmsContentEditor
             ContentListPageGenerators.WriteNoteContentListHtml();
 
             var linkListPage = new LinkListPage();
-            linkListPage.WriteLocalHtmlAndRss();
+            linkListPage.WriteLocalHtmlRssAndJson();
         }
 
         private async Task GenerateAllNoteHtml()

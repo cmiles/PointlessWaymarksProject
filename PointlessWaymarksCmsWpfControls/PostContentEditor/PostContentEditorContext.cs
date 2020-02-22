@@ -375,7 +375,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(DbEntry).FullName,
-                $"{DbEntry.ContentId}.json"));
+                $"Post---{DbEntry.ContentId}.json"));
 
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
@@ -390,7 +390,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(DbEntry).FullName,
-                $"{DbEntry.ContentId}-Historic.json"));
+                $"HistoricPosts---{DbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();

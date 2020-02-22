@@ -796,7 +796,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName,
-                $"{DbEntry.ContentId}.json"));
+                $"Photo---{DbEntry.ContentId}.json"));
 
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
@@ -811,7 +811,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName,
-                $"{DbEntry.ContentId}-Historic.json"));
+                $"HistoricPhoto---{DbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();

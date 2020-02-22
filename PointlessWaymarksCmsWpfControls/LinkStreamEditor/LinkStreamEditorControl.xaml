@@ -56,6 +56,10 @@
                     VerticalScrollBarVisibility="Visible"
                     SpellCheck.IsEnabled="True" />
             </StackPanel>
+            <StackPanel Orientation="Vertical">
+                <Label>Link List RSS</Label>
+                <CheckBox IsChecked="{Binding ShowInLinkRss, UpdateSourceTrigger=PropertyChanged}">Show in RSS</CheckBox>
+            </StackPanel>
             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                 DataContext="{Binding CreatedUpdatedDisplay}" />
             <Button Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
