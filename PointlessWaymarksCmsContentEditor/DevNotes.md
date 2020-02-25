@@ -1,11 +1,9 @@
 ﻿## Todos
  - Extract links from Content Types all content types automatically on saving
- - RSS - Update not the index feeds to the newer string builder generation
  - JSON Link Backup file in list directory
  - Change Created and Updated style when creator and updater are the same (do via tests!)
  - Better startup experience when settings file and/or db are missing
- - RSS Feed main images when appropriate
- - Revisit og metadata - used correctly? Other tags that could be included?
+ - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
  - Top of the page search box - maybe pass a query parameter to the all content list page?
  - Should there be a small menu at the top? Ugh.
  - Need to be able to select/switch settings files (and so associated db) - this seems much easier and happier in SQLite? That does have implications for elevation (Z) in Spatialite - but with that functionality minimal so far worth working around. Actually like the current MS Sql setup but painful compared to SQLite in terms of setup...
@@ -26,6 +24,8 @@ The first version of the RSS Feeds was all simple text with MS's SyndicationFeed
  - I never found a 100% clean believable up to date seems to work in all readers I tried spec doc - a classic example of my confusion might be the sample file http://static.userland.com/gems/backend/rssTwoExample2.xml from  https://validator.w3.org/feed/docs/rss2.html - Newsblur shows no stories... Newsblur is touchy for sure (I had examples where Feedbin read the feed and Newsblur didn't) but it just needs to work so...
  - There were several work arounds in the StackOverflow questions - I had trouble with all of them and with the original code
 So I decided just to go as simple as possible to try to eliminate as much misunderstanding as I could - two string builder methods and a little validation debugging later and it seems to be working as expected. As mentioned above - because I got this working so quickly this way and because of lack of a 'perfect sample' or reference and general confusion I do partly think some of the original solutions (either straight thru the ms api or stackoverflow workarounds) may have worked - but with this easy and working I don't really have any motivation to go back at this point!
+
+Switched the Content/List feeds over to the RSS StringBuilder and refactored that code to a common location.
 
 2/22/2020
 Added an Extract New Links for Posts - this should probably expand and maybe become automatic to help you get all your links into the link lists - these are set by default not to appear in the Link RSS feed. Fair comment to note with these links already in content do they need to be in the link list - maybe not but for two reasons: saving links also saves to pinboard if you have an api key set (and this can be incredibly important for archiving) and because in the past I have definitely wanted to just quickly find 'that link' for someone (and while the 'All Content' list/simple search might fail with too much content the link list should be viable for quite some time since it is just divs/links/text...).

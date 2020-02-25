@@ -154,6 +154,9 @@
           <e p="SinglePostPage.tt" t="Include" />
           <e p="SinglePostPageCode.cs" t="Include" />
         </e>
+        <e p="Rss" t="Include">
+          <e p="RssStringBuilder.cs" t="Include" />
+        </e>
         <e p="SlugUtility.cs" t="Include" />
         <e p="SpatialHelpers.cs" t="Include" />
         <e p="StringHelper.cs" t="Include" />

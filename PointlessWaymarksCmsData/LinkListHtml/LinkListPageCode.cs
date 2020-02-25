@@ -5,11 +5,11 @@ using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Text.Json;
-using System.Xml;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Rss;
 
 namespace PointlessWaymarksCmsData.LinkListHtml
 {
@@ -122,7 +122,7 @@ namespace PointlessWaymarksCmsData.LinkListHtml
                 Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {settings.SiteAuthors}")
             };
 
-            var items = new List<SyndicationItem>();
+            var items = new List<string>();
 
             foreach (var loopContent in content)
             {
@@ -133,21 +133,9 @@ namespace PointlessWaymarksCmsData.LinkListHtml
                 if (!string.IsNullOrWhiteSpace(loopContent.Description)) linkParts.Add(loopContent.Description);
                 if (!string.IsNullOrWhiteSpace(loopContent.Comments)) linkParts.Add(loopContent.Comments);
 
-                items.Add(new SyndicationItem(loopContent.Title, string.Join(" - ", linkParts),
-                    new Uri(loopContent.Url)));
+                items.Add(RssStringBuilder.RssItemString(loopContent.Title, loopContent.Url,
+                    string.Join(" - ", linkParts), loopContent.CreatedOn, loopContent.ContentId.ToString()));
             }
-
-            feed.Items = items;
-
-            var xmlSettings = new XmlWriterSettings
-            {
-                Encoding = Encoding.UTF8,
-                NewLineHandling = NewLineHandling.Entitize,
-                NewLineOnAttributes = true,
-                Indent = true
-            };
-
-            using var stream = new MemoryStream();
 
             var localIndexFile = settings.LocalSiteLinkRssFile();
 
@@ -157,11 +145,9 @@ namespace PointlessWaymarksCmsData.LinkListHtml
                 localIndexFile.Refresh();
             }
 
-            using var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings);
-
-            var rssFormatter = new Rss20FeedFormatter(feed, false);
-            rssFormatter.WriteTo(xmlWriter);
-            xmlWriter.Flush();
+            File.WriteAllText(localIndexFile.FullName,
+                RssStringBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - Link List",
+                    string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }
 
         private void WriteLocalDbJson()
@@ -180,8 +166,7 @@ namespace PointlessWaymarksCmsData.LinkListHtml
 
             File.WriteAllText(jsonFile.FullName, jsonDbEntry);
 
-            var latestHistoricEntries = db.HistoricLinkStreams.GroupBy(x => x.ContentId)
-                .SelectMany(streams => streams.Take(3)).ToList();
+            var latestHistoricEntries = db.HistoricLinkStreams.ToList();
 
             if (!latestHistoricEntries.Any()) return;
 

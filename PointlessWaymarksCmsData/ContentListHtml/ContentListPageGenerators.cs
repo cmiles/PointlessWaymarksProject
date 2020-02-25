@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.ServiceModel.Syndication;
 using System.Text;
-using System.Xml;
+using System.Web;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Pictures;
+using PointlessWaymarksCmsData.Rss;
 
 namespace PointlessWaymarksCmsData.ContentListHtml
 {
@@ -34,7 +36,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             WriteContentListHtml(ContentList, fileInfo, "All Content",
                 UserSettingsSingleton.CurrentSettings().AllContentRssUrl());
             WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteAllContentRssFile(),
-                "All Content", UserSettingsSingleton.CurrentSettings().AllContentRssUrl());
+                "All Content");
         }
 
         public static void WriteContentListHtml(Func<List<IContentCommon>> dbFunc, FileInfo fileInfo, string titleAdd,
@@ -61,35 +63,34 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             File.WriteAllText(fileInfo.FullName, htmlString);
         }
 
-        public static async void WriteContentListRss(List<IContentCommon> content, FileInfo fileInfo, string titleAdd,
-            string rssFileUrl)
+        public static async void WriteContentListRss(List<IContentCommon> content, FileInfo fileInfo, string titleAdd)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var feed = new SyndicationFeed(settings.SiteName, $"{settings.SiteSummary} - {titleAdd}",
-                new Uri($"https://{settings.SiteUrl}"), $"https:{rssFileUrl}", DateTime.Now);
-            feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {settings.SiteAuthors}");
-
-            var items = new List<SyndicationItem>();
+            var items = new List<string>();
 
             foreach (var loopPosts in content)
             {
                 var contentUrl = await settings.ContentUrl(loopPosts.ContentId);
-                items.Add(new SyndicationItem(loopPosts.Title, loopPosts.Summary, new Uri($"https:{contentUrl}"),
-                    loopPosts.Slug, loopPosts.CreatedOn));
+
+                string itemDescription;
+
+                if (loopPosts.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(loopPosts.MainPicture.Value);
+                    itemDescription =
+                        $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
+                        $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+                else
+                {
+                    itemDescription = $"<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
+                                      $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                items.Add(RssStringBuilder.RssItemString(loopPosts.Title, $"https:{contentUrl}", itemDescription,
+                    loopPosts.CreatedOn, loopPosts.ContentId.ToString()));
             }
-
-            feed.Items = items;
-
-            var xmlSettings = new XmlWriterSettings
-            {
-                Encoding = Encoding.UTF8,
-                NewLineHandling = NewLineHandling.Entitize,
-                NewLineOnAttributes = true,
-                Indent = true
-            };
-
-            using var stream = new MemoryStream();
 
             var localIndexFile = fileInfo;
 
@@ -99,12 +100,9 @@ namespace PointlessWaymarksCmsData.ContentListHtml
                 localIndexFile.Refresh();
             }
 
-            using (var xmlWriter = XmlWriter.Create(localIndexFile.FullName, xmlSettings))
-            {
-                var rssFormatter = new Rss20FeedFormatter(feed, false);
-                rssFormatter.WriteTo(xmlWriter);
-                xmlWriter.Flush();
-            }
+            File.WriteAllText(localIndexFile.FullName,
+                RssStringBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - {titleAdd}",
+                    string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }
 
         public static void WriteFileContentListHtml()
@@ -118,8 +116,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteFileListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "Files", UserSettingsSingleton.CurrentSettings().FileRssUrl());
-            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteFileRssFile(), "Files",
-                UserSettingsSingleton.CurrentSettings().FileRssUrl());
+            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteFileRssFile(), "Files");
         }
 
 
@@ -136,7 +133,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             WriteContentListHtml(ContentList, fileInfo, "Images",
                 UserSettingsSingleton.CurrentSettings().ImageRssUrl());
             WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteImageRssFile(),
-                "Images", UserSettingsSingleton.CurrentSettings().ImageRssUrl());
+                "Images");
         }
 
         public static void WriteNoteContentListHtml()
@@ -151,8 +148,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteNoteListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "Notes", UserSettingsSingleton.CurrentSettings().NoteRssUrl());
-            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteNoteRssFile(), "Notes",
-                UserSettingsSingleton.CurrentSettings().NoteRssUrl());
+            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSiteNoteRssFile(), "Notes");
         }
 
         public static void WritePhotoContentListHtml()
@@ -168,7 +164,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             WriteContentListHtml(ContentList, fileInfo, "Photos",
                 UserSettingsSingleton.CurrentSettings().PhotoRssUrl());
             WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSitePhotoRssFile(),
-                "Photos", UserSettingsSingleton.CurrentSettings().PhotoRssUrl());
+                "Photos");
         }
 
         public static void WritePostContentListHtml()
@@ -182,8 +178,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePostListFile();
 
             WriteContentListHtml(ContentList, fileInfo, "Posts", UserSettingsSingleton.CurrentSettings().PostsRssUrl());
-            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSitePostRssFile(), "Posts",
-                UserSettingsSingleton.CurrentSettings().PostsRssUrl());
+            WriteContentListRss(ContentList(), UserSettingsSingleton.CurrentSettings().LocalSitePostRssFile(), "Posts");
         }
     }
 }
