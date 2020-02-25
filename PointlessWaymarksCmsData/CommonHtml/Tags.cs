@@ -186,6 +186,19 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return imageTag;
         }
 
+        public static HtmlTag PictureImgTagDisplayImageOnly(PictureAsset pictureDirectoryInfo)
+        {
+            var imageTag = new HtmlTag("img").AddClass("single-photo")
+                .Attr("src", $"https:{pictureDirectoryInfo.DisplayPicture.SiteUrl}")
+                .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
+                .Attr("width", pictureDirectoryInfo.DisplayPicture.Width);
+
+            if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
+                imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
+
+            return imageTag;
+        }
+
         public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAsset pictureAsset)
         {
             if (pictureAsset == null) return HtmlTag.Empty();
