@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
@@ -15,6 +14,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.FileHtml;
+using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
@@ -373,7 +373,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             await WriteSelectedFileToMasterMediaArchive();
             await WriteSelectedFileToLocalSite();
             await GenerateHtml();
-            await WriteLocalDbJson();
+            await Export.WriteLocalDbJson(DbEntry, StatusContext.ProgressTracker());
         }
 
 
@@ -514,44 +514,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
-        }
-
-        private async Task WriteLocalDbJson()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            StatusContext.Progress("Writing Db Entry to Json");
-
-            var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
-
-            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteFileContentDirectory(DbEntry).FullName,
-                $"File---{DbEntry.ContentId}.json"));
-
-            if (jsonFile.Exists) jsonFile.Delete();
-            jsonFile.Refresh();
-
-            File.WriteAllText(jsonFile.FullName, jsonDbEntry);
-
-            StatusContext.Progress("Writing Historic Db Entries to Json");
-
-            var latestHistoricEntries = db.HistoricFileContents.Where(x => x.ContentId == DbEntry.ContentId)
-                .OrderByDescending(x => x.LastUpdatedOn).Take(10).ToList();
-
-            if (!latestHistoricEntries.Any()) return;
-
-            StatusContext.Progress($" Archiving last {latestHistoricEntries.Count} Historic File Content Entries");
-
-            var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
-
-            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteFileContentDirectory(DbEntry).FullName,
-                $"HistoricFiles---{DbEntry.ContentId}.json"));
-
-            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
-            jsonHistoricFile.Refresh();
-
-            File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
         private async Task WriteSelectedFileToLocalSite()

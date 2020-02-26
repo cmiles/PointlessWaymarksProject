@@ -10,6 +10,7 @@ using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.IndexHtml;
+using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.LinkListHtml;
 using PointlessWaymarksCmsData.NoteHtml;
 using PointlessWaymarksCmsData.PhotoHtml;
@@ -330,6 +331,7 @@ namespace PointlessWaymarksCmsContentEditor
 
                 var htmlModel = new SingleFilePage(loopItem);
                 htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem, StatusContext.ProgressTracker());
 
                 loopCount++;
             }
@@ -365,6 +367,7 @@ namespace PointlessWaymarksCmsContentEditor
 
                 var htmlModel = new SingleImagePage(loopItem);
                 htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
 
                 loopCount++;
             }
@@ -384,6 +387,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             var linkListPage = new LinkListPage();
             linkListPage.WriteLocalHtmlRssAndJson();
+            Export.WriteLinkListJson();
         }
 
         private async Task GenerateAllNoteHtml()
@@ -406,6 +410,7 @@ namespace PointlessWaymarksCmsContentEditor
 
                 var htmlModel = new SingleNotePage(loopItem);
                 htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
 
                 loopCount++;
             }
@@ -430,6 +435,7 @@ namespace PointlessWaymarksCmsContentEditor
 
                 var htmlModel = new SinglePhotoPage(loopItem);
                 htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
 
                 loopCount++;
             }
@@ -454,6 +460,7 @@ namespace PointlessWaymarksCmsContentEditor
 
                 var htmlModel = new SinglePostPage(loopItem);
                 htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
 
                 loopCount++;
             }

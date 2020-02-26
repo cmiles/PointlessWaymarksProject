@@ -106,6 +106,7 @@
                                 <Label>Alt Text</Label>
                                 <TextBox AcceptsReturn="True" MinLines="2" MaxLines="2" TextWrapping="Wrap"
                                          Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}"
+                                         SpellCheck.IsEnabled="True"
                                          VerticalScrollBarVisibility="Visible" />
                             </StackPanel>
                             <StackPanel Orientation="Vertical">

@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
@@ -14,6 +13,7 @@ using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.ImageHtml;
+using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -388,7 +388,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             await WriteSelectedFileToMasterMediaArchive();
             await WriteSelectedFileToLocalSite();
             await GenerateHtml();
-            await WriteLocalDbJson();
+            await Export.WriteLocalDbJson(DbEntry);
         }
 
 
@@ -408,7 +408,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             await SaveToDatabase();
             await GenerateHtml();
-            await WriteLocalDbJson();
+            await Export.WriteLocalDbJson(DbEntry);
         }
 
         private async Task SaveToDatabase()
@@ -551,36 +551,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
-        }
-
-        private async Task WriteLocalDbJson()
-        {
-            var settings = UserSettingsSingleton.CurrentSettings();
-            var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(DbEntry);
-
-            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(DbEntry).FullName,
-                $"Image---{DbEntry.ContentId}.json"));
-
-            if (jsonFile.Exists) jsonFile.Delete();
-            jsonFile.Refresh();
-
-            File.WriteAllText(jsonFile.FullName, jsonDbEntry);
-
-            var latestHistoricEntries = db.HistoricImageContents.Where(x => x.ContentId == DbEntry.ContentId)
-                .OrderByDescending(x => x.LastUpdatedOn).Take(10);
-
-            if (!latestHistoricEntries.Any()) return;
-
-            var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
-
-            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(DbEntry).FullName,
-                $"HistoricImages---{DbEntry.ContentId}-Historic.json"));
-
-            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
-            jsonHistoricFile.Refresh();
-
-            File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
         private async Task WriteSelectedFileToLocalSite()

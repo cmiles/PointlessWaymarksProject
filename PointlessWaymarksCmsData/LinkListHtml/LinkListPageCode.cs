@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Text;
-using System.Text.Json;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
@@ -150,37 +149,6 @@ namespace PointlessWaymarksCmsData.LinkListHtml
                     string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }
 
-        private void WriteLocalDbJson()
-        {
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            var db = Db.Context().Result;
-            var allContent = db.LinkStreams.OrderByDescending(x => x.CreatedOn).ToList();
-
-            var jsonDbEntry = JsonSerializer.Serialize(allContent);
-
-            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteLinkDirectory().FullName, "LinkList.json"));
-
-            if (jsonFile.Exists) jsonFile.Delete();
-            jsonFile.Refresh();
-
-            File.WriteAllText(jsonFile.FullName, jsonDbEntry);
-
-            var latestHistoricEntries = db.HistoricLinkStreams.ToList();
-
-            if (!latestHistoricEntries.Any()) return;
-
-            var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
-
-            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteLinkDirectory().FullName,
-                "HistoricLinkList.json"));
-
-            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
-            jsonHistoricFile.Refresh();
-
-            File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
-        }
-
         public void WriteLocalHtmlRssAndJson()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
@@ -204,7 +172,6 @@ namespace PointlessWaymarksCmsData.LinkListHtml
             File.WriteAllText(htmlFileInfo.FullName, htmlString);
 
             WriteContentListRss();
-            WriteLocalDbJson();
         }
     }
 }
