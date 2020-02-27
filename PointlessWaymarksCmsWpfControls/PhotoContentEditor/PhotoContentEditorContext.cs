@@ -20,6 +20,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
+using PointlessWaymarksCmsData.Pictures.PictureHelper02.Controls.ImageLoader;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
@@ -29,7 +30,6 @@ using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
-using PointlessWaymarksCmsWpfControls.Utility.PictureHelper02.Controls.ImageLoader;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
@@ -440,14 +440,45 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 var archiveFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchivePhotoDirectory().FullName,
                     toLoad.OriginalFileName));
                 if (archiveFile.Exists)
+                {
                     SelectedFile = archiveFile;
+                }
                 else
-                    await StatusContext.ShowMessage("Missing Photo",
-                        $"There is an original image file listed for this photo - {DbEntry.OriginalFileName} -" +
-                        $" but it was not found in the expected location of {archiveFile.FullName} - " +
-                        "this will cause an error and prevent you from saving. You can re-load the photo or " +
-                        "maybe your master media directory moved unexpectedly and you could close this editor " +
-                        "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
+                {
+                    var correctedFile = false;
+
+                    //Look for file in a content directory
+                    var photoContentDirectory = UserSettingsSingleton.CurrentSettings()
+                        .LocalSitePhotoContentDirectory(DbEntry, false);
+
+                    if (photoContentDirectory.Exists)
+                    {
+                        var possibleFileInfo =
+                            new FileInfo(Path.Combine(photoContentDirectory.FullName, DbEntry.OriginalFileName));
+
+                        if (possibleFileInfo.Exists)
+                        {
+                            possibleFileInfo.CopyTo(Path.Combine(
+                                UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchive,
+                                DbEntry.OriginalFileName));
+                            possibleFileInfo.Refresh();
+
+                            if (possibleFileInfo.Exists)
+                            {
+                                SelectedFile = possibleFileInfo;
+                                correctedFile = true;
+                            }
+                        }
+                    }
+
+                    if (!correctedFile)
+                        await StatusContext.ShowMessage("Missing Photo",
+                            $"There is an original image file listed for this photo - {DbEntry.OriginalFileName} -" +
+                            $" but it was not found in the expected location of {archiveFile.FullName} - " +
+                            "this will cause an error and prevent you from saving. You can re-load the photo or " +
+                            "maybe your master media directory moved unexpectedly and you could close this editor " +
+                            "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
+                }
             }
 
             Aperture = DbEntry.Aperture ?? string.Empty;

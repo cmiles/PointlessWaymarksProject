@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Transfer;
-using PointlessWaymarksCmsData;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsData.Pictures
 {
     namespace PictureHelper02.Controls.ImageLoader
     {
@@ -111,6 +110,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             public static List<FileInfo> ResizeForSrcset(FileInfo fullName, IProgress<string> progress)
             {
+                var sizeQualityList = SrcSetSizeAndQualityList().OrderByDescending(x => x.size);
+
                 int originalWidth;
 
                 using (var originalImage = File.OpenRead(fullName.FullName))
@@ -121,66 +122,15 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
                 var returnList = new List<FileInfo>();
 
-                if (originalWidth > 4000)
-                {
-                    progress.Report("Resize: 4000, 80");
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 4000, 80));
-                }
+                var smallestSrcSetSize = sizeQualityList.Min(x => x.size);
 
-                if (originalWidth > 3000)
-                {
-                    progress.Report("Resize: 3000, 80");
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 3000, 80));
-                }
-
-                if (originalWidth > 2000)
-                {
-                    progress.Report("Resize: 2000, 80");
-
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 2000, 80));
-                }
-
-                if (originalWidth > 1600)
-                {
-                    progress.Report("Resize: 1600, 80");
-
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 1600, 80));
-                }
-
-                if (originalWidth > 1200)
-                {
-                    progress.Report("Resize: 1200, 88");
-
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 1200, 80));
-                }
-
-                if (originalWidth > 800)
-                {
-                    progress.Report("Resize: 800, 72");
-
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 800, 72));
-                }
-
-                if (originalWidth > 400)
-                {
-                    progress.Report("Resize: 400, 72");
-
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 400, 72));
-                }
-
-                if (originalWidth > 200)
-                {
-                    progress.Report("Resize: 200, 72");
-
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 200, 72));
-                }
-
-                if (originalWidth > 100)
-                {
-                    progress.Report("Resize: 100, 72");
-
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, 100, 72));
-                }
+                foreach (var loopSizeQuality in sizeQualityList)
+                    if (originalWidth >= loopSizeQuality.size || loopSizeQuality.size == smallestSrcSetSize)
+                    {
+                        progress.Report($"Resize: {loopSizeQuality.size}, {loopSizeQuality.quality}");
+                        returnList.Add(ResizeWithWidthAndHeightFileName(fullName, loopSizeQuality.size,
+                            loopSizeQuality.quality));
+                    }
 
                 return returnList;
             }
@@ -237,6 +187,23 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 }
 
                 return new FileInfo(newFile);
+            }
+
+            public static List<(int size, int quality)> SrcSetSizeAndQualityList()
+            {
+                return new List<(int size, int quality)>
+                {
+                    (4000, 80),
+                    (3000, 80),
+                    (2000, 80),
+                    (1600, 80),
+                    (1200, 80),
+                    (800, 72),
+                    (500, 72),
+                    (300, 72),
+                    (200, 72),
+                    (100, 72)
+                };
             }
 
             public static async Task UploadFileAsync(FileInfo toUpload, List<string> bucketSubdirectoryList,

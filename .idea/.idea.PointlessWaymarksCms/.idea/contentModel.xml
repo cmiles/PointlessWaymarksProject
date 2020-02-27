@@ -143,6 +143,7 @@
           <e p="SinglePhotoPageCode.cs" t="Include" />
         </e>
         <e p="Pictures" t="Include">
+          <e p="ImageResizing.cs" t="Include" />
           <e p="PictureAsset.cs" t="Include" />
           <e p="PictureAssetProcessing.cs" t="Include" />
           <e p="PictureFile.cs" t="Include" />
@@ -479,7 +480,6 @@
           <e p="BooleanToVisibilityConverter.cs" t="Include" />
           <e p="DispatcherThreadSwitcher.cs" t="Include" />
           <e p="ImageCacheConverter.cs" t="Include" />
-          <e p="ImageResizing.cs" t="Include" />
           <e p="LinkExtraction.cs" t="Include" />
           <e p="ListBoxBehavior.cs" t="Include" />
           <e p="ThreadPoolThreadSwitcher.cs" t="Include" />

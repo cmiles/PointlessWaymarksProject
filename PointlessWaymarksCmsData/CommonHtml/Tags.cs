@@ -42,7 +42,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var updatedString = " Updated";
 
-            if (!string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy)) updatedString += $" by {dbEntry.LastUpdatedBy}";
+            if (!string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy) && dbEntry.CreatedBy != dbEntry.LastUpdatedBy)
+                updatedString += $" by {dbEntry.LastUpdatedBy}";
 
             if (dbEntry.LastUpdatedOn != null) updatedString += $" on {dbEntry.LastUpdatedOn.Value:M/d/yyyy}";
 
