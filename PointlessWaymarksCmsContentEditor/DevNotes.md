@@ -20,6 +20,11 @@
  - Check in on the Spatialite Z bug in EF Core and/or investigate moving to SQLite (what about an elevation lookup table vs Z values?)
  - Explore copying original media both into the content folder and keeping in the media archive folder for 'backup'
 
+2/28/2020
+Overwrite true/false support now in the Picture Resizing - this is only done by name, not hash/file size/contents/etc..., with the target really being adding resizing to the 'All Site Html Generation' not as much as perfect protection for changing a photo out on the file system and expecting magic to happen...
+
+Added several methods to check/create the main Directories - this method should be useful when settings switching is added, much nicer to deal with generation if you know you at least tried to generate the folder structure to start.
+
 2/27/2020
 First work on a slightly better Created and Updated - no test yet so leaving on the todo.
 

@@ -143,10 +143,10 @@
           <e p="SinglePhotoPageCode.cs" t="Include" />
         </e>
         <e p="Pictures" t="Include">
-          <e p="ImageResizing.cs" t="Include" />
           <e p="PictureAsset.cs" t="Include" />
           <e p="PictureAssetProcessing.cs" t="Include" />
           <e p="PictureFile.cs" t="Include" />
+          <e p="PictureResizing.cs" t="Include" />
           <e p="PictureSiteInformation.cs" t="Include" />
         </e>
         <e p="PointlessWaymarksCmsData.csproj" t="IncludeRecursive" />

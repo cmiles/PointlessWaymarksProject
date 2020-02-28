@@ -15,7 +15,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.Pictures.PictureHelper02.Controls.ImageLoader;
+using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
@@ -367,7 +367,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
-            ImageResizing.ResizeForDisplayAndSrcset(SelectedFile, StatusContext.ProgressTracker());
+            PictureResizing.ResizeForDisplayAndSrcset(SelectedFile, true, StatusContext.ProgressTracker());
         }
 
         private async Task SaveAndCreateLocal()
@@ -572,7 +572,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 sourceImage.Refresh();
             }
 
-            ImageResizing.ResizeForDisplayAndSrcset(sourceImage, StatusContext.ProgressTracker());
+            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, true, StatusContext.ProgressTracker());
         }
 
         private async Task WriteSelectedFileToMasterMediaArchive()
