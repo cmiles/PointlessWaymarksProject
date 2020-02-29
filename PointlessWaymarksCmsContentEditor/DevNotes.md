@@ -1,5 +1,4 @@
 ﻿## Todos
- - Check and Regenerate images as needed in page regen - also help 'everywhere' with keeping originals in both content directory and media archive. (Worked on the photo editor and a image size refactor)
  - Extract links from Content Types all content types automatically on saving
  - Change Created and Updated style when creator and updater are the same (do via tests!)
  - Better startup experience when settings file and/or db are missing
@@ -24,6 +23,10 @@
 Overwrite true/false support now in the Picture Resizing - this is only done by name, not hash/file size/contents/etc..., with the target really being adding resizing to the 'All Site Html Generation' not as much as perfect protection for changing a photo out on the file system and expecting magic to happen...
 
 Added several methods to check/create the main Directories - this method should be useful when settings switching is added, much nicer to deal with generation if you know you at least tried to generate the folder structure to start.
+
+Put the new methods together into the main form Generate All so that now pictures are fixed as needed.
+
+Did 5 minutes of research on screen resolutions and changed the srcset size list now that it is easy to regenerate - quite slow to generate the image files but not concerned about that at this point and also a little unsure how much time is a result of the often quite large original photo size.
 
 2/27/2020
 First work on a slightly better Created and Updated - no test yet so leaving on the todo.

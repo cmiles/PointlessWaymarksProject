@@ -15,6 +15,80 @@ namespace PointlessWaymarksCmsData.Pictures
 {
     public static class PictureResizing
     {
+        public static (bool, string) CheckFileOriginalFileIsInMediaAndContentDirectories(FileContent dbContent)
+        {
+            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllFolders();
+
+            if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName)) return (true, "No Original File to process");
+
+            var archiveFile = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveFileDirectory().FullName,
+                dbContent.OriginalFileName));
+
+            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(dbContent);
+
+            var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
+
+            if (!archiveFile.Exists && !contentFile.Exists)
+                return (false,
+                    $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
+                    $"there appears to be a file missing for File Title {dbContent.Title} " + $"slug {dbContent.Slug}");
+
+            if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
+
+            if (!archiveFile.Exists && contentFile.Exists) contentFile.CopyTo(archiveFile.FullName);
+
+            archiveFile.Refresh();
+            contentFile.Refresh();
+
+            var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
+
+            if (bothFilesPresent)
+                return (true, $"Archive and Content File Present - {archiveFile.FullName}, {contentFile.FullName}");
+
+            return (false,
+                $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
+                $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}");
+        }
+
+        public static (bool, string) CheckImageOriginalFileIsInMediaAndContentDirectories(ImageContent dbContent)
+        {
+            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllFolders();
+
+            if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName)) return (true, "No Original File to process");
+
+            var archiveFile = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveImageDirectory().FullName,
+                dbContent.OriginalFileName));
+
+            var imageContentDirectory =
+                UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbContent);
+
+            var contentFile = new FileInfo(Path.Combine(imageContentDirectory.FullName, dbContent.OriginalFileName));
+
+            if (!archiveFile.Exists && !contentFile.Exists)
+                return (false,
+                    $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
+                    $"there appears to be a file missing for Image Title {dbContent.Title} " +
+                    $"slug {dbContent.Slug}");
+
+            if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
+
+            if (!archiveFile.Exists && contentFile.Exists) contentFile.CopyTo(archiveFile.FullName);
+
+            archiveFile.Refresh();
+            contentFile.Refresh();
+
+            var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
+
+            if (bothFilesPresent)
+                return (true, $"Archive and Content File Present - {archiveFile.FullName}, {contentFile.FullName}");
+
+            return (false,
+                $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
+                $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}");
+        }
+
         public static (bool, string) CheckPhotoOriginalFileIsInMediaAndContentDirectories(PhotoContent dbContent)
         {
             UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllFolders();
@@ -51,6 +125,80 @@ namespace PointlessWaymarksCmsData.Pictures
             return (false,
                 $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
                 $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}");
+        }
+
+        public static void CleanSrcSetFilesInImageDirectory(ImageContent dbEntry, IProgress<string> progress)
+        {
+            var currentSizes = SrcSetSizeAndQualityList().Select(x => x.size).ToList();
+
+            progress?.Report($"Starting SrcSet Image Cleaning... Current Size List {string.Join(", ", currentSizes)}");
+
+            var currentFiles = PictureAssetProcessing.ProcessImageDirectory(dbEntry);
+
+            foreach (var loopFiles in currentFiles.SrcsetImages)
+                if (!currentSizes.Contains(loopFiles.Width))
+                {
+                    progress?.Report($"  Deleting {loopFiles.FileName}");
+                    loopFiles.File.Delete();
+                }
+        }
+
+        public static void CleanSrcSetFilesInPhotoDirectory(PhotoContent dbEntry, IProgress<string> progress)
+        {
+            var currentSizes = SrcSetSizeAndQualityList().Select(x => x.size).ToList();
+
+            progress?.Report($"Starting SrcSet Photo Cleaning... Current Size List {string.Join(", ", currentSizes)}");
+
+            var currentFiles = PictureAssetProcessing.ProcessPhotoDirectory(dbEntry);
+
+            foreach (var loopFiles in currentFiles.SrcsetImages)
+                if (!currentSizes.Contains(loopFiles.Width))
+                {
+                    progress?.Report($"  Deleting {loopFiles.FileName}");
+                    loopFiles.File.Delete();
+                }
+        }
+
+        public static (bool, string) CopyCleanResizeImage(ImageContent dbEntry, IProgress<string> progress)
+        {
+            progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
+
+            if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+                return (true, "No Image to Process");
+
+            var imageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
+
+            var syncCopyResults = CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry);
+
+            if (!syncCopyResults.Item1) return syncCopyResults;
+
+            CleanSrcSetFilesInImageDirectory(dbEntry, progress);
+
+            ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(imageDirectory.FullName, dbEntry.OriginalFileName)),
+                false, progress);
+
+            return (true, $"Reached end of Copy, Clean and Resize for {dbEntry.Title}");
+        }
+
+        public static (bool, string) CopyCleanResizePhoto(PhotoContent dbEntry, IProgress<string> progress)
+        {
+            progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
+
+            if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+                return (true, "No Image to Process");
+
+            var photoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
+
+            var syncCopyResults = CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry);
+
+            if (!syncCopyResults.Item1) return syncCopyResults;
+
+            CleanSrcSetFilesInPhotoDirectory(dbEntry, progress);
+
+            ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(photoDirectory.FullName, dbEntry.OriginalFileName)),
+                false, progress);
+
+            return (true, $"Reached end of Copy, Clean and Resize for {dbEntry.Title}");
         }
 
         public static async Task ProcessAndUploadImageFile(FileInfo originalImage, List<string> bucketSubdirectoryList,
@@ -207,22 +355,22 @@ namespace PointlessWaymarksCmsData.Pictures
                 return null;
             }
 
-            progress?.Report(
-                $"Starting Display Image Resizing {toResize.FullName} to Width {width} and Quality {quality}");
+            progress?.Report($"Display Resizing {toResize.Name} - Width {width} and Quality {quality} - starting");
 
             string newFile;
 
             if (!overwriteExistingFiles)
             {
-                progress?.Report("Checking for existing file...");
-
                 var possibleExistingFile = toResize.Directory.GetFiles(
                     $"{Path.GetFileNameWithoutExtension(toResize.Name)}--For-Display--{width}w--*h.jpg",
                     SearchOption.TopDirectoryOnly);
 
                 if (possibleExistingFile.Any())
+                {
                     progress?.Report(
-                        $"Found existing file at this width - {possibleExistingFile.First().FullName} - ending resize.");
+                        $"Display Resizing {toResize.Name} -  Found existing Width {width} file - {possibleExistingFile.First().Name} - ending resize.");
+                    return possibleExistingFile.First();
+                }
             }
 
             using (var image = Image.Load(toResize.FullName))
@@ -255,12 +403,10 @@ namespace PointlessWaymarksCmsData.Pictures
                 return null;
             }
 
-            progress?.Report($"Starting Resizing {toResize.FullName} to Width {width} and Quality {quality}");
+            progress?.Report($"Resizing {toResize.Name} - Starting Width {width} and Quality {quality}");
 
             if (!overwriteExistingFiles)
             {
-                progress?.Report("Checking for existing file...");
-
                 var possibleExistingFile = toResize.Directory.GetFiles(
                     $"{Path.GetFileNameWithoutExtension(toResize.Name)}--Sized--{width}w--*.jpg",
                     SearchOption.TopDirectoryOnly);
@@ -268,7 +414,7 @@ namespace PointlessWaymarksCmsData.Pictures
                 if (possibleExistingFile.Any())
                 {
                     progress?.Report(
-                        $"Found existing file at this width - {possibleExistingFile.First().FullName} - ending resize.");
+                        $"Resizing {toResize.Name} - Found existing Width {width} file - {possibleExistingFile.First().Name} - ending resize.");
                     return possibleExistingFile.First();
                 }
             }
@@ -302,13 +448,14 @@ namespace PointlessWaymarksCmsData.Pictures
             {
                 (4000, 80),
                 (3000, 80),
-                (2000, 80),
+                (1920, 80),
                 (1600, 80),
-                (1200, 80),
-                (800, 72),
-                (500, 72),
-                (300, 70),
-                (200, 70),
+                (1440, 80),
+                (1024, 80),
+                (768, 72),
+                (640, 72),
+                (320, 70),
+                (210, 70),
                 (100, 70)
             };
         }

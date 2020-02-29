@@ -436,49 +436,21 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                var settings = UserSettingsSingleton.CurrentSettings();
-                var archiveFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchivePhotoDirectory().FullName,
+                PictureResizing.CheckPhotoOriginalFileIsInMediaAndContentDirectories(DbEntry);
+
+                var archiveFile = new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchivePhotoDirectory().FullName,
                     toLoad.OriginalFileName));
+
                 if (archiveFile.Exists)
-                {
                     SelectedFile = archiveFile;
-                }
                 else
-                {
-                    var correctedFile = false;
-
-                    //Look for file in a content directory
-                    var photoContentDirectory = UserSettingsSingleton.CurrentSettings()
-                        .LocalSitePhotoContentDirectory(DbEntry, false);
-
-                    if (photoContentDirectory.Exists)
-                    {
-                        var possibleFileInfo =
-                            new FileInfo(Path.Combine(photoContentDirectory.FullName, DbEntry.OriginalFileName));
-
-                        if (possibleFileInfo.Exists)
-                        {
-                            possibleFileInfo.CopyTo(Path.Combine(
-                                UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchive,
-                                DbEntry.OriginalFileName));
-                            possibleFileInfo.Refresh();
-
-                            if (possibleFileInfo.Exists)
-                            {
-                                SelectedFile = possibleFileInfo;
-                                correctedFile = true;
-                            }
-                        }
-                    }
-
-                    if (!correctedFile)
-                        await StatusContext.ShowMessage("Missing Photo",
-                            $"There is an original image file listed for this photo - {DbEntry.OriginalFileName} -" +
-                            $" but it was not found in the expected location of {archiveFile.FullName} - " +
-                            "this will cause an error and prevent you from saving. You can re-load the photo or " +
-                            "maybe your master media directory moved unexpectedly and you could close this editor " +
-                            "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
-                }
+                    await StatusContext.ShowMessage("Missing Photo",
+                        $"There is an original image file listed for this photo - {DbEntry.OriginalFileName} -" +
+                        $" but it was not found in the expected location of {archiveFile.FullName} - " +
+                        "this will cause an error and prevent you from saving. You can re-load the photo or " +
+                        "maybe your master media directory moved unexpectedly and you could close this editor " +
+                        "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
             }
 
             Aperture = DbEntry.Aperture ?? string.Empty;

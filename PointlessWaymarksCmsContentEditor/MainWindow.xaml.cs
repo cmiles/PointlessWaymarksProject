@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.LinkListHtml;
 using PointlessWaymarksCmsData.NoteHtml;
 using PointlessWaymarksCmsData.PhotoHtml;
+using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.FileList;
@@ -312,6 +314,65 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        private async Task CleanAndResizeAllImageFiles()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            var allItems = await db.ImageContents.ToListAsync();
+
+            var loopCount = 0;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Images to Clean and Resize");
+
+            foreach (var loopItem in allItems)
+            {
+                StatusContext.Progress($"Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var fileCheck = PictureResizing.CopyCleanResizeImage(loopItem, StatusContext.ProgressTracker());
+
+                if (!fileCheck.Item1)
+                    await StatusContext.ShowMessage("File Error",
+                        $"There was an error processing image {loopItem.Title} " +
+                        $"- {fileCheck.Item2} - after you hit Ok processing will continue but" +
+                        " the process may error...", new List<string> {"Ok"});
+
+                loopCount++;
+            }
+        }
+
+
+        private async Task CleanAndResizeAllPhotoFiles()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            var allItems = await db.PhotoContents.ToListAsync();
+
+            var loopCount = 0;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Photos to Clean and Resize");
+
+            foreach (var loopItem in allItems)
+            {
+                StatusContext.Progress($"Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var fileCheck = PictureResizing.CopyCleanResizePhoto(loopItem, StatusContext.ProgressTracker());
+
+                if (!fileCheck.Item1)
+                    await StatusContext.ShowMessage("File Error",
+                        $"There was an error processing photo {loopItem.Title} " +
+                        $"- {fileCheck.Item2} - after you hit Ok processing will continue but" +
+                        " the process may error...", new List<string> {"Ok"});
+
+                loopCount++;
+            }
+        }
+
         private async Task GenerateAllFileHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -329,6 +390,14 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
+                var originalFileCheck = PictureResizing.CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem);
+
+                if (!originalFileCheck.Item1)
+                    await StatusContext.ShowMessage("File Error",
+                        $"There was an error processing file item {loopItem.Title} " +
+                        $"- {originalFileCheck.Item2} - after you hit Ok processing will continue but" +
+                        " the process may error...", new List<string> {"Ok"});
+
                 var htmlModel = new SingleFilePage(loopItem);
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem, StatusContext.ProgressTracker());
@@ -339,11 +408,14 @@ namespace PointlessWaymarksCmsContentEditor
 
         private async Task GenerateAllHtml()
         {
-            await GenerateAllFileHtml();
+            await CleanAndResizeAllPhotoFiles();
+            await CleanAndResizeAllPhotoFiles();
+
             await GenerateAllImageHtml();
             await GenerateAllPhotoHtml();
-            await GenerateAllPostHtml();
+            await GenerateAllFileHtml();
             await GenerateAllNoteHtml();
+            await GenerateAllPostHtml();
             await GenerateAllListHtml();
             await GenerateIndex();
         }

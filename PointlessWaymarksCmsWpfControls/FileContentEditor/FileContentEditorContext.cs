@@ -16,6 +16,7 @@ using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -299,13 +300,23 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
 
-            if (!string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
+            if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                var settings = UserSettingsSingleton.CurrentSettings();
-                var possibleFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchiveFileDirectory().FullName,
+                PictureResizing.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry);
+
+                var archiveFile = new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveFileDirectory().FullName,
                     DbEntry.OriginalFileName));
 
-                if (possibleFile.Exists) SelectedFile = possibleFile;
+                if (archiveFile.Exists)
+                    SelectedFile = archiveFile;
+                else
+                    await StatusContext.ShowMessage("Missing Photo",
+                        $"There is an original file listed for this entry - {DbEntry.OriginalFileName} -" +
+                        $" but it was not found in the expected location of {archiveFile.FullName} - " +
+                        "this will cause an error and prevent you from saving. You can re-load the file or " +
+                        "maybe your master media directory moved unexpectedly and you could close this editor " +
+                        "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
             }
 
             ChooseFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));

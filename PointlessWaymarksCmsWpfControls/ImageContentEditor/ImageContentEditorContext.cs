@@ -304,10 +304,21 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                var settings = UserSettingsSingleton.CurrentSettings();
-                var archiveFile = new FileInfo(Path.Combine(settings.LocalMasterMediaArchiveImageDirectory().FullName,
+                PictureResizing.CheckImageOriginalFileIsInMediaAndContentDirectories(DbEntry);
+
+                var archiveFile = new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveImageDirectory().FullName,
                     toLoad.OriginalFileName));
-                if (archiveFile.Exists) SelectedFile = archiveFile;
+
+                if (archiveFile.Exists)
+                    SelectedFile = archiveFile;
+                else
+                    await StatusContext.ShowMessage("Missing Photo",
+                        $"There is an original image file listed for this image - {DbEntry.OriginalFileName} -" +
+                        $" but it was not found in the expected location of {archiveFile.FullName} - " +
+                        "this will cause an error and prevent you from saving. You can re-load the image or " +
+                        "maybe your master media directory moved unexpectedly and you could close this editor " +
+                        "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
             }
 
             ImageSourceNotes = DbEntry.ImageSourceNotes ?? string.Empty;
