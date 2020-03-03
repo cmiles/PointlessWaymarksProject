@@ -5,9 +5,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using MvvmHelpers;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -16,15 +16,15 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 {
     public class LinkStreamListContext : INotifyPropertyChanged
     {
-        private RelayCommand _filterListCommand;
+        private Command _filterListCommand;
         private ObservableRangeCollection<LinkStreamListListItem> _items;
         private string _lastSortColumn;
-        private RelayCommand<string> _openUrlCommand;
+        private Command<string> _openUrlCommand;
         private List<LinkStreamListListItem> _selectedItems;
         private bool _sortDescending;
-        private RelayCommand<string> _sortListCommand;
+        private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
-        private RelayCommand _toggleListSortDirectionCommand;
+        private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
 
         public LinkStreamListContext(StatusControlContext statusContext)
@@ -33,7 +33,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public RelayCommand FilterListCommand
+        public Command FilterListCommand
         {
             get => _filterListCommand;
             set
@@ -55,7 +55,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public RelayCommand<string> OpenUrlCommand
+        public Command<string> OpenUrlCommand
         {
             get => _openUrlCommand;
             set
@@ -89,7 +89,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public RelayCommand<string> SortListCommand
+        public Command<string> SortListCommand
         {
             get => _sortListCommand;
             set
@@ -111,7 +111,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public RelayCommand ToggleListSortDirectionCommand
+        public Command ToggleListSortDirectionCommand
         {
             get => _toggleListSortDirectionCommand;
             set
@@ -162,14 +162,14 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            FilterListCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(FilterList));
-            SortListCommand = new RelayCommand<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
-            ToggleListSortDirectionCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(async () =>
+            FilterListCommand = new Command(() => StatusContext.RunNonBlockingTask(FilterList));
+            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
+            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
             {
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             }));
-            OpenUrlCommand = new RelayCommand<string>(x => StatusContext.RunNonBlockingTask(() => OpenUrl(x)));
+            OpenUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => OpenUrl(x)));
 
             StatusContext.Progress("Connecting to DB");
 

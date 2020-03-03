@@ -7,13 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
@@ -39,8 +39,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private string _aperture;
         private string _cameraMake;
         private string _cameraModel;
-        private RelayCommand _chooseFileAndFillMetadataCommand;
-        private RelayCommand _chooseFileCommand;
+        private Command _chooseFileAndFillMetadataCommand;
+        private Command _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PhotoContent _dbEntry;
@@ -50,9 +50,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private string _license;
         private string _photoCreatedBy;
         private DateTime _photoCreatedOn;
-        private RelayCommand _resizeFileCommand;
-        private RelayCommand _saveAndGenerateHtmlCommand;
-        private RelayCommand _saveUpdateDatabaseCommand;
+        private Command _resizeFileCommand;
+        private Command _saveAndGenerateHtmlCommand;
+        private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
@@ -61,8 +61,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
-        private RelayCommand _viewOnSiteCommand;
-        private RelayCommand _viewPhotoMetadataCommand;
+        private Command _viewOnSiteCommand;
+        private Command _viewPhotoMetadataCommand;
 
         public PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent toLoad)
         {
@@ -115,7 +115,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public RelayCommand ChooseFileAndFillMetadataCommand
+        public Command ChooseFileAndFillMetadataCommand
         {
             get => _chooseFileAndFillMetadataCommand;
             set
@@ -126,7 +126,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public RelayCommand ChooseFileCommand
+        public Command ChooseFileCommand
         {
             get => _chooseFileCommand;
             set
@@ -236,7 +236,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public RelayCommand ResizeFileCommand
+        public Command ResizeFileCommand
         {
             get => _resizeFileCommand;
             set
@@ -247,9 +247,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public RelayCommand SaveAndCreateLocalCommand { get; set; }
+        public Command SaveAndCreateLocalCommand { get; set; }
 
-        public RelayCommand SaveAndGenerateHtmlCommand
+        public Command SaveAndGenerateHtmlCommand
         {
             get => _saveAndGenerateHtmlCommand;
             set
@@ -260,7 +260,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public RelayCommand SaveUpdateDatabaseCommand
+        public Command SaveUpdateDatabaseCommand
         {
             get => _saveUpdateDatabaseCommand;
             set
@@ -362,7 +362,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public RelayCommand ViewOnSiteCommand
+        public Command ViewOnSiteCommand
         {
             get => _viewOnSiteCommand;
             set
@@ -373,7 +373,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public RelayCommand ViewPhotoMetadataCommand
+        public Command ViewPhotoMetadataCommand
         {
             get => _viewPhotoMetadataCommand;
             set
@@ -466,15 +466,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             PhotoCreatedOn = DbEntry.PhotoCreatedOn;
 
             ChooseFileAndFillMetadataCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile(true)));
-            ChooseFileCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
-            ResizeFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ResizePhoto));
-            SaveAndGenerateHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
-            ViewPhotoMetadataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
-            SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
+                new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(true)));
+            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
+            ResizeFileCommand = new Command(() => StatusContext.RunBlockingTask(ResizePhoto));
+            SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
+            ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
+            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
         }
 
         private DirectoryInfo LocalFolderDirectory(UserSettings settings)

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -18,7 +18,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         private StatusControlContext _statusContext;
         private string _summary;
         private string _title;
-        private RelayCommand _titleToSlugCommand;
+        private Command _titleToSlugCommand;
 
         public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
         {
@@ -93,7 +93,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
-        public RelayCommand TitleToSlugCommand
+        public Command TitleToSlugCommand
         {
             get => _titleToSlugCommand;
             set
@@ -109,7 +109,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            TitleToSlugCommand = new RelayCommand(() =>
+            TitleToSlugCommand = new Command(() =>
                 StatusContext.RunBlockingAction(() => Slug = SlugUtility.Create(true, Title)));
 
             DbEntry = dbEntry;

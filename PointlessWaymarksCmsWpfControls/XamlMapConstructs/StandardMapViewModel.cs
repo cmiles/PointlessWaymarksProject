@@ -5,9 +5,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using MapControl;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -23,22 +23,22 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
         {
             StatusContext = statusContext;
 
-            PointsMapSelectionChangedCommand = new RelayCommand<IList>(MapsPointsSelectionChanged);
-            PolylinesMapSelectionChangedCommand = new RelayCommand<IList>(MapsPolylineSelectionChanged);
+            PointsMapSelectionChangedCommand = new Command<IList>(MapsPointsSelectionChanged);
+            PolylinesMapSelectionChangedCommand = new Command<IList>(MapsPolylineSelectionChanged);
 
-            ClearAllSelectionsCommand = new RelayCommand(() =>
+            ClearAllSelectionsCommand = new Command(() =>
             {
                 MapsPointsSelectionChanged(null);
                 MapsPolylineSelectionChanged(null);
             });
-            ClearPointsSelectionCommand = new RelayCommand(() => MapsPointsSelectionChanged(null));
-            ClearPolylinesSelectionCommand = new RelayCommand(() => MapsPolylineSelectionChanged(null));
+            ClearPointsSelectionCommand = new Command(() => MapsPointsSelectionChanged(null));
+            ClearPolylinesSelectionCommand = new Command(() => MapsPolylineSelectionChanged(null));
         }
 
-        public RelayCommand ClearAllSelectionsCommand { get; set; }
+        public Command ClearAllSelectionsCommand { get; set; }
 
-        public RelayCommand ClearPointsSelectionCommand { get; set; }
-        public RelayCommand ClearPolylinesSelectionCommand { get; set; }
+        public Command ClearPointsSelectionCommand { get; set; }
+        public Command ClearPolylinesSelectionCommand { get; set; }
 
         public Location MapCenter
         {
@@ -53,12 +53,12 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
 
         public MapLayers MapLayers { get; } = new MapLayers();
         public ObservableCollection<MapDisplayPoint> Points { get; } = new ObservableCollection<MapDisplayPoint>();
-        public RelayCommand<IList> PointsMapSelectionChangedCommand { get; set; }
+        public Command<IList> PointsMapSelectionChangedCommand { get; set; }
 
         public ObservableCollection<MapDisplayPolyline> Polylines { get; } =
             new ObservableCollection<MapDisplayPolyline>();
 
-        public RelayCommand<IList> PolylinesMapSelectionChangedCommand { get; set; }
+        public Command<IList> PolylinesMapSelectionChangedCommand { get; set; }
         public ObservableCollection<MapDisplayPoint> Pushpins { get; } = new ObservableCollection<MapDisplayPoint>();
 
         public StatusControlContext StatusContext

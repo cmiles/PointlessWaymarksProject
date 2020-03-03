@@ -5,9 +5,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Omu.ValueInjecter;
@@ -37,11 +37,11 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
             StatusContext = new StatusControlContext();
             GeoDataPickerContext = new GeoDataPickerContext(StatusContext);
 
-            SaveContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveContent));
+            SaveContentCommand = new Command(() => StatusContext.RunBlockingTask(SaveContent));
 
-            SelectGeoDataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SelectGeoData));
+            SelectGeoDataCommand = new Command(() => StatusContext.RunBlockingTask(SelectGeoData));
             UpdateSelectedGeoDataElevation =
-                new RelayCommand(() => StatusContext.RunBlockingTask(UpdateSelectedPointGeoDataElevation));
+                new Command(() => StatusContext.RunBlockingTask(UpdateSelectedPointGeoDataElevation));
 
             UserContent = new UserSiteContent {Fingerprint = Guid.NewGuid()};
 
@@ -83,8 +83,8 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
             }
         }
 
-        public RelayCommand SaveContentCommand { get; set; }
-        public RelayCommand SelectGeoDataCommand { get; set; }
+        public Command SaveContentCommand { get; set; }
+        public Command SelectGeoDataCommand { get; set; }
 
         public StatusControlContext StatusContext
         {
@@ -108,7 +108,7 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
             }
         }
 
-        public RelayCommand UpdateSelectedGeoDataElevation { get; set; }
+        public Command UpdateSelectedGeoDataElevation { get; set; }
 
         public UserSiteContent UserContent
         {
@@ -150,20 +150,20 @@ namespace PointlessWaymarksCmsWpfControls.ItemContentEditor
 
             if (UserContent.Id > 0 && !allPreviousVersionsInContent.Any())
                 if ("No" == await StatusContext.ShowMessage("Db Conflict",
-                        "The version you started editing is not active in the database (perhaps it was deleted while " +
-                        "you were working?) - do you want to continue saving and create a 'new' active entry?",
-                        new List<string> {"Yes", "No"}))
+                    "The version you started editing is not active in the database (perhaps it was deleted while " +
+                    "you were working?) - do you want to continue saving and create a 'new' active entry?",
+                    new List<string> {"Yes", "No"}))
                     return;
 
             var differentVersionInDatabase = allPreviousVersionsInContent.Where(x => x.Id == UserContent.Id).ToList();
 
             if (differentVersionInDatabase.Any())
                 if ("No" == await StatusContext.ShowMessage("Db Conflict",
-                        $"There is a version in the database that was updated on {differentVersionInDatabase.First().LastUpdatedOn:g} by " +
-                        $"{differentVersionInDatabase.First().LastUpdatedBy} - this is different than the version you started from. Saving " +
-                        "will overwrite the updated changes in the database - you may want to look at the saved version and manually merge " +
-                        "changes? Continue saving and overwrite changes in the database?",
-                        new List<string> {"Yes", "No"}))
+                    $"There is a version in the database that was updated on {differentVersionInDatabase.First().LastUpdatedOn:g} by " +
+                    $"{differentVersionInDatabase.First().LastUpdatedBy} - this is different than the version you started from. Saving " +
+                    "will overwrite the updated changes in the database - you may want to look at the saved version and manually merge " +
+                    "changes? Continue saving and overwrite changes in the database?",
+                    new List<string> {"Yes", "No"}))
                     return;
 
             foreach (var loopOtherVersions in differentVersionInDatabase)

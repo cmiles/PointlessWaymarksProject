@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.FileHtml;
@@ -39,19 +39,19 @@ namespace PointlessWaymarksCmsContentEditor
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private RelayCommand _generateAllHtmlCommand;
-        private RelayCommand _generateHtmlForAllFileContentCommand;
-        private RelayCommand _generateHtmlForAllImageContentCommand;
-        private RelayCommand _generateHtmlForAllPhotoContentCommand;
-        private RelayCommand _generateHtmlForAllPostContentCommand;
-        private RelayCommand _generateIndexCommand;
+        private Command _generateAllHtmlCommand;
+        private Command _generateHtmlForAllFileContentCommand;
+        private Command _generateHtmlForAllImageContentCommand;
+        private Command _generateHtmlForAllPhotoContentCommand;
+        private Command _generateHtmlForAllPostContentCommand;
+        private Command _generateIndexCommand;
         private LinkStreamListWithActionsContext _linkStreamContext;
-        private RelayCommand _newFileContentCommand;
-        private RelayCommand _newImageContentCommand;
-        private RelayCommand _newLinkContentCommand;
-        private RelayCommand _newPhotoContentCommand;
-        private RelayCommand _newPostContentCommand;
-        private RelayCommand _openIndexUrlCommand;
+        private Command _newFileContentCommand;
+        private Command _newImageContentCommand;
+        private Command _newLinkContentCommand;
+        private Command _newPhotoContentCommand;
+        private Command _newPostContentCommand;
+        private Command _openIndexUrlCommand;
         private UserSettingsEditorContext _settingsEditorContext;
         private StatusControlContext _statusContext;
         private FileListWithActionsContext _tabFileListContext;
@@ -68,32 +68,32 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext = new StatusControlContext();
 
-            GenerateIndexCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(GenerateIndex));
-            OpenIndexUrlCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenIndexUrl));
-            GenerateAllHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllHtml));
+            GenerateIndexCommand = new Command(() => StatusContext.RunNonBlockingTask(GenerateIndex));
+            OpenIndexUrlCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenIndexUrl));
+            GenerateAllHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllHtml));
 
-            NewPhotoContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
+            NewPhotoContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
             GenerateHtmlForAllPhotoContentCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllPhotoHtml));
+                new Command(() => StatusContext.RunBlockingTask(GenerateAllPhotoHtml));
 
-            NewPostContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewPostContent));
+            NewPostContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewPostContent));
             GenerateHtmlForAllPostContentCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllPostHtml));
+                new Command(() => StatusContext.RunBlockingTask(GenerateAllPostHtml));
 
-            NewImageContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewImageContent));
+            NewImageContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewImageContent));
             GenerateHtmlForAllImageContentCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllImageHtml));
+                new Command(() => StatusContext.RunBlockingTask(GenerateAllImageHtml));
 
-            NewFileContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewFileContent));
+            NewFileContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewFileContent));
             GenerateHtmlForAllFileContentCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(GenerateAllFileHtml));
+                new Command(() => StatusContext.RunBlockingTask(GenerateAllFileHtml));
 
-            NewLinkContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewLinkContent));
+            NewLinkContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewLinkContent));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
 
-        public RelayCommand GenerateAllHtmlCommand
+        public Command GenerateAllHtmlCommand
         {
             get => _generateAllHtmlCommand;
             set
@@ -104,7 +104,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand GenerateHtmlForAllFileContentCommand
+        public Command GenerateHtmlForAllFileContentCommand
         {
             get => _generateHtmlForAllFileContentCommand;
             set
@@ -116,7 +116,7 @@ namespace PointlessWaymarksCmsContentEditor
         }
 
 
-        public RelayCommand GenerateHtmlForAllImageContentCommand
+        public Command GenerateHtmlForAllImageContentCommand
         {
             get => _generateHtmlForAllImageContentCommand;
             set
@@ -127,7 +127,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand GenerateHtmlForAllPhotoContentCommand
+        public Command GenerateHtmlForAllPhotoContentCommand
         {
             get => _generateHtmlForAllPhotoContentCommand;
             set
@@ -138,7 +138,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand GenerateHtmlForAllPostContentCommand
+        public Command GenerateHtmlForAllPostContentCommand
         {
             get => _generateHtmlForAllPostContentCommand;
             set
@@ -149,7 +149,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand GenerateIndexCommand
+        public Command GenerateIndexCommand
         {
             get => _generateIndexCommand;
             set
@@ -171,7 +171,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand NewFileContentCommand
+        public Command NewFileContentCommand
         {
             get => _newFileContentCommand;
             set
@@ -182,7 +182,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand NewImageContentCommand
+        public Command NewImageContentCommand
         {
             get => _newImageContentCommand;
             set
@@ -193,7 +193,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand NewLinkContentCommand
+        public Command NewLinkContentCommand
         {
             get => _newLinkContentCommand;
             set
@@ -204,7 +204,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand NewPhotoContentCommand
+        public Command NewPhotoContentCommand
         {
             get => _newPhotoContentCommand;
             set
@@ -215,7 +215,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand NewPostContentCommand
+        public Command NewPostContentCommand
         {
             get => _newPostContentCommand;
             set
@@ -226,7 +226,7 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public RelayCommand OpenIndexUrlCommand
+        public Command OpenIndexUrlCommand
         {
             get => _openIndexUrlCommand;
             set

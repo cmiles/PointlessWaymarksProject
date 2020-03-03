@@ -5,9 +5,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
@@ -20,16 +20,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 {
     public class PhotoListWithActionsContext : INotifyPropertyChanged
     {
-        private RelayCommand _deleteSelectedCommand;
-        private RelayCommand _editSelectedContentCommand;
-        private RelayCommand _generatePhotoListCommand;
-        private RelayCommand _generateSelectedHtmlCommand;
+        private Command _deleteSelectedCommand;
+        private Command _editSelectedContentCommand;
+        private Command _generatePhotoListCommand;
+        private Command _generateSelectedHtmlCommand;
         private PhotoListContext _listContext;
-        private RelayCommand _newContentCommand;
-        private RelayCommand _openUrlForPhotoListCommand;
-        private RelayCommand _openUrlForSelectedCommand;
-        private RelayCommand _photoCodesToClipboardForSelectedCommand;
-        private RelayCommand _refreshDataCommand;
+        private Command _newContentCommand;
+        private Command _openUrlForPhotoListCommand;
+        private Command _openUrlForSelectedCommand;
+        private Command _photoCodesToClipboardForSelectedCommand;
+        private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
@@ -39,7 +39,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public RelayCommand DeleteSelectedCommand
+        public Command DeleteSelectedCommand
         {
             get => _deleteSelectedCommand;
             set
@@ -50,7 +50,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public RelayCommand EditSelectedContentCommand
+        public Command EditSelectedContentCommand
         {
             get => _editSelectedContentCommand;
             set
@@ -61,7 +61,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public RelayCommand GeneratePhotoListCommand
+        public Command GeneratePhotoListCommand
         {
             get => _generatePhotoListCommand;
             set
@@ -72,7 +72,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public RelayCommand GenerateSelectedHtmlCommand
+        public Command GenerateSelectedHtmlCommand
         {
             get => _generateSelectedHtmlCommand;
             set
@@ -94,7 +94,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public RelayCommand NewContentCommand
+        public Command NewContentCommand
         {
             get => _newContentCommand;
             set
@@ -105,7 +105,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public RelayCommand OpenUrlForPhotoListCommand
+        public Command OpenUrlForPhotoListCommand
         {
             get => _openUrlForPhotoListCommand;
             set
@@ -116,7 +116,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public RelayCommand OpenUrlForSelectedCommand
+        public Command OpenUrlForSelectedCommand
         {
             get => _openUrlForSelectedCommand;
             set
@@ -127,7 +127,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public RelayCommand PhotoCodesToClipboardForSelectedCommand
+        public Command PhotoCodesToClipboardForSelectedCommand
         {
             get => _photoCodesToClipboardForSelectedCommand;
             set
@@ -138,7 +138,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public RelayCommand RefreshDataCommand
+        public Command RefreshDataCommand
         {
             get => _refreshDataCommand;
             set
@@ -266,15 +266,15 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             ListContext = new PhotoListContext(StatusContext);
 
-            GenerateSelectedHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
+            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
             PhotoCodesToClipboardForSelectedCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
-            OpenUrlForSelectedCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            OpenUrlForPhotoListCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenUrlForPhotoList));
-            NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
-            RefreshDataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new RelayCommand(() => StatusContext.RunBlockingTask(Delete));
+                new Command(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
+            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
+            OpenUrlForPhotoListCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForPhotoList));
+            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
+            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
+            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
         }
 
         private async Task NewContent()

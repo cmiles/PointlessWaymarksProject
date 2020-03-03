@@ -7,8 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsWpfControls.ToastControl;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -39,9 +39,9 @@ namespace PointlessWaymarksCmsWpfControls.Status
             Toast = new ToastSource();
             StatusLog = new ObservableCollection<string>();
 
-            UserMessageBoxResponseCommand = new RelayCommand<string>(UserMessageBoxResponse);
-            UserStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
-            UserStringEntryCancelledResponseCommand = new RelayCommand(UserStringEntryCancelledResponse);
+            UserMessageBoxResponseCommand = new Command<string>(UserMessageBoxResponse);
+            UserStringEntryApprovedResponseCommand = new Command(UserStringEntryApprovedResponse);
+            UserStringEntryCancelledResponseCommand = new Command(UserStringEntryCancelledResponse);
         }
 
         public bool BlockUi
@@ -189,9 +189,9 @@ namespace PointlessWaymarksCmsWpfControls.Status
             }
         }
 
-        public RelayCommand<string> UserMessageBoxResponseCommand { get; set; }
-        public RelayCommand UserStringEntryApprovedResponseCommand { get; set; }
-        public RelayCommand UserStringEntryCancelledResponseCommand { get; set; }
+        public Command<string> UserMessageBoxResponseCommand { get; set; }
+        public Command UserStringEntryApprovedResponseCommand { get; set; }
+        public Command UserStringEntryCancelledResponseCommand { get; set; }
 
         private void BlockTaskCompleted(Task obj)
         {

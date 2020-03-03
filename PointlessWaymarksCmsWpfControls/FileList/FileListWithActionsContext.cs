@@ -5,9 +5,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.FileHtml;
@@ -20,14 +20,14 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 {
     public class FileListWithActionsContext : INotifyPropertyChanged
     {
-        private RelayCommand _deleteSelectedCommand;
-        private RelayCommand _editSelectedContentCommand;
-        private RelayCommand _fileDownloadLinkCodesToClipboardForSelectedCommand;
-        private RelayCommand _generateSelectedHtmlCommand;
+        private Command _deleteSelectedCommand;
+        private Command _editSelectedContentCommand;
+        private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
+        private Command _generateSelectedHtmlCommand;
         private FileListContext _listContext;
-        private RelayCommand _newContentCommand;
-        private RelayCommand _openUrlForSelectedCommand;
-        private RelayCommand _photoPageLinkCodesToClipboardForSelectedCommand;
+        private Command _newContentCommand;
+        private Command _openUrlForSelectedCommand;
+        private Command _photoPageLinkCodesToClipboardForSelectedCommand;
         private StatusControlContext _statusContext;
 
         public FileListWithActionsContext(StatusControlContext statusContext)
@@ -37,7 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public RelayCommand DeleteSelectedCommand
+        public Command DeleteSelectedCommand
         {
             get => _deleteSelectedCommand;
             set
@@ -48,7 +48,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public RelayCommand EditSelectedContentCommand
+        public Command EditSelectedContentCommand
         {
             get => _editSelectedContentCommand;
             set
@@ -59,7 +59,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public RelayCommand FileDownloadLinkCodesToClipboardForSelectedCommand
+        public Command FileDownloadLinkCodesToClipboardForSelectedCommand
         {
             get => _fileDownloadLinkCodesToClipboardForSelectedCommand;
             set
@@ -70,7 +70,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public RelayCommand FilePageLinkCodesToClipboardForSelectedCommand
+        public Command FilePageLinkCodesToClipboardForSelectedCommand
         {
             get => _photoPageLinkCodesToClipboardForSelectedCommand;
             set
@@ -82,7 +82,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         }
 
 
-        public RelayCommand GenerateSelectedHtmlCommand
+        public Command GenerateSelectedHtmlCommand
         {
             get => _generateSelectedHtmlCommand;
             set
@@ -104,7 +104,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public RelayCommand NewContentCommand
+        public Command NewContentCommand
         {
             get => _newContentCommand;
             set
@@ -115,7 +115,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public RelayCommand OpenUrlForSelectedCommand
+        public Command OpenUrlForSelectedCommand
         {
             get => _openUrlForSelectedCommand;
             set
@@ -126,7 +126,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public RelayCommand RefreshDataCommand { get; set; }
+        public Command RefreshDataCommand { get; set; }
 
         public StatusControlContext StatusContext
         {
@@ -291,16 +291,16 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             ListContext = new FileListContext(StatusContext);
 
-            GenerateSelectedHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            FilePageLinkCodesToClipboardForSelectedCommand = new RelayCommand(() =>
+            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
+            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            FilePageLinkCodesToClipboardForSelectedCommand = new Command(() =>
                 StatusContext.RunBlockingTask(FilePageLinkCodesToClipboardForSelected));
-            FileDownloadLinkCodesToClipboardForSelectedCommand = new RelayCommand(() =>
+            FileDownloadLinkCodesToClipboardForSelectedCommand = new Command(() =>
                 StatusContext.RunBlockingTask(FileDownloadLinkCodesToClipboardForSelected));
-            OpenUrlForSelectedCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
-            RefreshDataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new RelayCommand(() => StatusContext.RunBlockingTask(Delete));
+            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
+            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
+            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
+            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
         }
 
         private async Task NewContent()

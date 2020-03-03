@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
@@ -20,7 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         private ContentFormatChooserContext _bodyContentFormat;
         private string _bodyContentHtmlOutput;
         private IBodyContent _dbEntry;
-        private RelayCommand _refreshPreviewCommand;
+        private Command _refreshPreviewCommand;
         private StatusControlContext _statusContext;
         private string _userBodyContent = string.Empty;
 
@@ -77,7 +77,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
         }
 
-        public RelayCommand RefreshPreviewCommand
+        public Command RefreshPreviewCommand
         {
             get => _refreshPreviewCommand;
             set
@@ -105,7 +105,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
             DbEntry = toLoad;
 
-            RefreshPreviewCommand = new RelayCommand(() => StatusContext.RunBlockingTask(UpdateContentHtml));
+            RefreshPreviewCommand = new Command(() => StatusContext.RunBlockingTask(UpdateContentHtml));
 
             if (toLoad == null)
             {

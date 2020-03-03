@@ -6,9 +6,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AngleSharp;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using pinboard.net;
 using pinboard.net.Models;
@@ -28,12 +28,12 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private LinkStream _dbEntry;
         private string _description;
-        private RelayCommand _extractDataCommand;
+        private Command _extractDataCommand;
         private DateTime? _linkDateTime;
         private string _linkUrl;
-        private RelayCommand _openUrlInBrowserCommand;
-        private RelayCommand _saveUpdateDatabaseAndCloseCommand;
-        private RelayCommand _saveUpdateDatabaseCommand;
+        private Command _openUrlInBrowserCommand;
+        private Command _saveUpdateDatabaseAndCloseCommand;
+        private Command _saveUpdateDatabaseCommand;
         private bool _showInLinkRss;
         private string _site;
         private StatusControlContext _statusContext;
@@ -106,7 +106,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
-        public RelayCommand ExtractDataCommand
+        public Command ExtractDataCommand
         {
             get => _extractDataCommand;
             set
@@ -139,7 +139,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
-        public RelayCommand OpenUrlInBrowserCommand
+        public Command OpenUrlInBrowserCommand
         {
             get => _openUrlInBrowserCommand;
             set
@@ -150,7 +150,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
-        public RelayCommand SaveUpdateDatabaseAndCloseCommand
+        public Command SaveUpdateDatabaseAndCloseCommand
         {
             get => _saveUpdateDatabaseAndCloseCommand;
             set
@@ -161,7 +161,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
-        public RelayCommand SaveUpdateDatabaseCommand
+        public Command SaveUpdateDatabaseCommand
         {
             get => _saveUpdateDatabaseCommand;
             set
@@ -377,13 +377,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
 
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            SaveUpdateDatabaseCommand = new RelayCommand(() =>
+            SaveUpdateDatabaseCommand = new Command(() =>
                 StatusContext.RunBlockingTask(() => SaveToDbWithValidation(StatusContext?.ProgressTracker())));
-            SaveUpdateDatabaseAndCloseCommand = new RelayCommand(() =>
+            SaveUpdateDatabaseAndCloseCommand = new Command(() =>
                 StatusContext.RunBlockingTask(() => SaveToDbWithValidationAndClose(StatusContext?.ProgressTracker())));
-            ExtractDataCommand = new RelayCommand(() =>
+            ExtractDataCommand = new Command(() =>
                 StatusContext.RunBlockingTask(() => ExtractDataFromLink(StatusContext?.ProgressTracker())));
-            OpenUrlInBrowserCommand = new RelayCommand(() =>
+            OpenUrlInBrowserCommand = new Command(() =>
             {
                 try
                 {

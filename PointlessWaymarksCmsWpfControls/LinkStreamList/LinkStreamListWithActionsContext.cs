@@ -3,9 +3,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
@@ -17,13 +17,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 {
     public class LinkStreamListWithActionsContext : INotifyPropertyChanged
     {
-        private RelayCommand _deleteSelectedCommand;
-        private RelayCommand _editSelectedContentCommand;
-        private RelayCommand _generateSelectedHtmlCommand;
+        private Command _deleteSelectedCommand;
+        private Command _editSelectedContentCommand;
+        private Command _generateSelectedHtmlCommand;
         private LinkStreamListContext _listContext;
-        private RelayCommand _newContentCommand;
-        private RelayCommand _postCodesToClipboardForSelectedCommand;
-        private RelayCommand _refreshDataCommand;
+        private Command _newContentCommand;
+        private Command _postCodesToClipboardForSelectedCommand;
+        private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
 
         public LinkStreamListWithActionsContext(StatusControlContext statusContext)
@@ -33,7 +33,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public RelayCommand DeleteSelectedCommand
+        public Command DeleteSelectedCommand
         {
             get => _deleteSelectedCommand;
             set
@@ -44,7 +44,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public RelayCommand EditSelectedContentCommand
+        public Command EditSelectedContentCommand
         {
             get => _editSelectedContentCommand;
             set
@@ -55,7 +55,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public RelayCommand GenerateSelectedHtmlCommand
+        public Command GenerateSelectedHtmlCommand
         {
             get => _generateSelectedHtmlCommand;
             set
@@ -77,7 +77,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public RelayCommand MdLinkCodesToClipboardForSelectedCommand
+        public Command MdLinkCodesToClipboardForSelectedCommand
         {
             get => _postCodesToClipboardForSelectedCommand;
             set
@@ -88,7 +88,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public RelayCommand NewContentCommand
+        public Command NewContentCommand
         {
             get => _newContentCommand;
             set
@@ -99,7 +99,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public RelayCommand RefreshDataCommand
+        public Command RefreshDataCommand
         {
             get => _refreshDataCommand;
             set
@@ -194,12 +194,12 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
             ListContext = new LinkStreamListContext(StatusContext);
 
-            EditSelectedContentCommand = new RelayCommand(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
             MdLinkCodesToClipboardForSelectedCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(MdLinkCodesToClipboardForSelected));
-            NewContentCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(NewContent));
-            RefreshDataCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new RelayCommand(() => StatusContext.RunBlockingTask(Delete));
+                new Command(() => StatusContext.RunBlockingTask(MdLinkCodesToClipboardForSelected));
+            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
+            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
+            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
         }
 
         private async Task MdLinkCodesToClipboardForSelected()

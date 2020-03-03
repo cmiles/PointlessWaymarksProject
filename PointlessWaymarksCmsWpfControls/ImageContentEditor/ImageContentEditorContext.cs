@@ -6,9 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
@@ -30,15 +30,15 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
     public class ImageContentEditorContext : INotifyPropertyChanged
     {
         private string _altText;
-        private RelayCommand _chooseFileCommand;
+        private Command _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private ImageContent _dbEntry;
         private string _imageSourceNotes;
-        private RelayCommand _resizeFileCommand;
-        private RelayCommand _saveAndCreateLocalCommand;
-        private RelayCommand _saveAndGenerateHtmlCommand;
-        private RelayCommand _saveUpdateDatabaseCommand;
+        private Command _resizeFileCommand;
+        private Command _saveAndCreateLocalCommand;
+        private Command _saveAndGenerateHtmlCommand;
+        private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
@@ -46,7 +46,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
-        private RelayCommand _viewOnSiteCommand;
+        private Command _viewOnSiteCommand;
 
         public ImageContentEditorContext(StatusControlContext statusContext, ImageContent toLoad)
         {
@@ -66,7 +66,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public RelayCommand ChooseFileCommand
+        public Command ChooseFileCommand
         {
             get => _chooseFileCommand;
             set
@@ -121,7 +121,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public RelayCommand ResizeFileCommand
+        public Command ResizeFileCommand
         {
             get => _resizeFileCommand;
             set
@@ -132,7 +132,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public RelayCommand SaveAndCreateLocalCommand
+        public Command SaveAndCreateLocalCommand
         {
             get => _saveAndCreateLocalCommand;
             set
@@ -143,7 +143,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public RelayCommand SaveAndGenerateHtmlCommand
+        public Command SaveAndGenerateHtmlCommand
         {
             get => _saveAndGenerateHtmlCommand;
             set
@@ -154,7 +154,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public RelayCommand SaveUpdateDatabaseCommand
+        public Command SaveUpdateDatabaseCommand
         {
             get => _saveUpdateDatabaseCommand;
             set
@@ -245,7 +245,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public RelayCommand ViewOnSiteCommand
+        public Command ViewOnSiteCommand
         {
             get => _viewOnSiteCommand;
             set
@@ -324,12 +324,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ImageSourceNotes = DbEntry.ImageSourceNotes ?? string.Empty;
             AltText = DbEntry.AltText ?? string.Empty;
 
-            ChooseFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
-            ResizeFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ResizeImage));
-            SaveAndGenerateHtmlCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
-            SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
+            ResizeFileCommand = new Command(() => StatusContext.RunBlockingTask(ResizeImage));
+            SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
+            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
         }
 
         private DirectoryInfo LocalContentDirectory(UserSettings settings)

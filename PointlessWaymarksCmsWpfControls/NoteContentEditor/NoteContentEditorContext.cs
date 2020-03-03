@@ -6,9 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.JsonFiles;
@@ -32,14 +32,14 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private NoteContent _dbEntry;
         private string _folder;
-        private RelayCommand _saveAndCreateLocalCommand;
-        private RelayCommand _saveUpdateDatabaseCommand;
+        private Command _saveAndCreateLocalCommand;
+        private Command _saveUpdateDatabaseCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private string _slug;
         private string _summary;
         private TagsEditorContext _tagEdit;
         private UpdateNotesEditorContext _updateNotes;
-        private RelayCommand _viewOnSiteCommand;
+        private Command _viewOnSiteCommand;
 
         public NoteContentEditorContext(StatusControlContext statusContext, NoteContent noteContent)
         {
@@ -103,7 +103,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public RelayCommand SaveAndCreateLocalCommand
+        public Command SaveAndCreateLocalCommand
         {
             get => _saveAndCreateLocalCommand;
             set
@@ -114,7 +114,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public RelayCommand SaveUpdateDatabaseCommand
+        public Command SaveUpdateDatabaseCommand
         {
             get => _saveUpdateDatabaseCommand;
             set
@@ -182,7 +182,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public RelayCommand ViewOnSiteCommand
+        public Command ViewOnSiteCommand
         {
             get => _viewOnSiteCommand;
             set
@@ -235,9 +235,9 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                 Slug = toLoad.Slug;
             }
 
-            SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
+            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
         }
 
         [NotifyPropertyChangedInvocator]

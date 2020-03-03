@@ -6,9 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
@@ -32,14 +32,14 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
     public class FileContentEditorContext : INotifyPropertyChanged
     {
         private BodyContentEditorContext _bodyContent;
-        private RelayCommand _chooseFileCommand;
+        private Command _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private FileContent _dbEntry;
-        private RelayCommand _openSelectedFileDirectoryCommand;
+        private Command _openSelectedFileDirectoryCommand;
         private bool _publicDownloadLink = true;
-        private RelayCommand _saveAndCreateLocalCommand;
-        private RelayCommand _saveUpdateDatabaseCommand;
+        private Command _saveAndCreateLocalCommand;
+        private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
@@ -47,7 +47,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
-        private RelayCommand _viewOnSiteCommand;
+        private Command _viewOnSiteCommand;
 
         public FileContentEditorContext(StatusControlContext statusContext, FileContent toLoad)
         {
@@ -67,7 +67,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public RelayCommand ChooseFileCommand
+        public Command ChooseFileCommand
         {
             get => _chooseFileCommand;
             set
@@ -111,9 +111,9 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public RelayCommand OpenSelectedFileCommand { get; set; }
+        public Command OpenSelectedFileCommand { get; set; }
 
-        public RelayCommand OpenSelectedFileDirectoryCommand
+        public Command OpenSelectedFileDirectoryCommand
         {
             get => _openSelectedFileDirectoryCommand;
             set
@@ -135,7 +135,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public RelayCommand SaveAndCreateLocalCommand
+        public Command SaveAndCreateLocalCommand
         {
             get => _saveAndCreateLocalCommand;
             set
@@ -147,7 +147,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         }
 
 
-        public RelayCommand SaveUpdateDatabaseCommand
+        public Command SaveUpdateDatabaseCommand
         {
             get => _saveUpdateDatabaseCommand;
             set
@@ -238,7 +238,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public RelayCommand ViewOnSiteCommand
+        public Command ViewOnSiteCommand
         {
             get => _viewOnSiteCommand;
             set
@@ -319,14 +319,14 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
             }
 
-            ChooseFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
-            SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
+            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidationAndArchiveMedia));
+                new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidationAndArchiveMedia));
             OpenSelectedFileDirectoryCommand =
-                new RelayCommand(() => StatusContext.RunBlockingTask(OpenSelectedFileDirectory));
-            OpenSelectedFileCommand = new RelayCommand(() => StatusContext.RunBlockingTask(OpenSelectedFile));
-            ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
+                new Command(() => StatusContext.RunBlockingTask(OpenSelectedFileDirectory));
+            OpenSelectedFileCommand = new Command(() => StatusContext.RunBlockingTask(OpenSelectedFile));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
         }
 
         [NotifyPropertyChangedInvocator]

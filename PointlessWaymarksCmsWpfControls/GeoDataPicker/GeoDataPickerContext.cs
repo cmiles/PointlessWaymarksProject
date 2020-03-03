@@ -7,10 +7,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using MapControl;
 using Microsoft.Win32;
+using MvvmHelpers.Commands;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using PointlessWaymarksCmsData;
@@ -37,21 +37,21 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
         {
             StatusContext = statusContext;
 
-            StartLoadCommand = new RelayCommand(() =>
+            StartLoadCommand = new Command(() =>
                 StatusContext.RunBlockingTask(() => LoadFile(StatusContext.ProgressTracker())));
-            ClearItemsCommand = new RelayCommand(() =>
+            ClearItemsCommand = new Command(() =>
                 StatusContext.RunBlockingTask(() => ClearList(StatusContext.ProgressTracker())));
-            SelectItemCommand = new RelayCommand(async () => await ReturnSelected());
-            RenamePointCommand = new RelayCommand<MapDisplayPoint>(async x => await RenamePoint(x));
+            SelectItemCommand = new Command(async () => await ReturnSelected());
+            RenamePointCommand = new Command<MapDisplayPoint>(async x => await RenamePoint(x));
 
-            PointsListSelectionChangedCommand = new RelayCommand<IList>(PointsListSelectionChanged);
-            PolylinesListSelectionChangedCommand = new RelayCommand<IList>(PolylinesListSelectionChanged);
+            PointsListSelectionChangedCommand = new Command<IList>(PointsListSelectionChanged);
+            PolylinesListSelectionChangedCommand = new Command<IList>(PolylinesListSelectionChanged);
 
             StandardMapContext = new StandardMapViewModel(statusContext);
         }
 
-        public RelayCommand ClearItemsCommand { get; set; }
-        public RelayCommand ClearSelectionCommand { get; set; }
+        public Command ClearItemsCommand { get; set; }
+        public Command ClearSelectionCommand { get; set; }
 
         public string FileName
         {
@@ -64,10 +64,10 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
             }
         }
 
-        public RelayCommand<IList> PointsListSelectionChangedCommand { get; set; }
-        public RelayCommand<IList> PolylinesListSelectionChangedCommand { get; set; }
+        public Command<IList> PointsListSelectionChangedCommand { get; set; }
+        public Command<IList> PolylinesListSelectionChangedCommand { get; set; }
 
-        public RelayCommand<MapDisplayPoint> RenamePointCommand { get; set; }
+        public Command<MapDisplayPoint> RenamePointCommand { get; set; }
 
         public List<MapDisplayPolyline> SelectedLines
         {
@@ -117,7 +117,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
             }
         }
 
-        public RelayCommand SelectItemCommand { get; set; }
+        public Command SelectItemCommand { get; set; }
 
         public StandardMapViewModel StandardMapContext
         {
@@ -130,7 +130,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoDataPicker
             }
         }
 
-        public RelayCommand StartLoadCommand { get; set; }
+        public Command StartLoadCommand { get; set; }
 
         public StatusControlContext StatusContext
         {

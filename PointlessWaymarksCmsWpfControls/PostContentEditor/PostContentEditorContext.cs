@@ -6,9 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
@@ -33,14 +33,14 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PostContent _dbEntry;
-        private RelayCommand _extractNewLinksCommand;
-        private RelayCommand _saveAndCreateLocalCommand;
-        private RelayCommand _saveUpdateDatabaseCommand;
+        private Command _extractNewLinksCommand;
+        private Command _saveAndCreateLocalCommand;
+        private Command _saveUpdateDatabaseCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
-        private RelayCommand _viewOnSiteCommand;
+        private Command _viewOnSiteCommand;
 
         public PostContentEditorContext(StatusControlContext statusContext, PostContent postContent)
         {
@@ -93,7 +93,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public RelayCommand ExtractNewLinksCommand
+        public Command ExtractNewLinksCommand
         {
             get => _extractNewLinksCommand;
             set
@@ -104,7 +104,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public RelayCommand SaveAndCreateLocalCommand
+        public Command SaveAndCreateLocalCommand
         {
             get => _saveAndCreateLocalCommand;
             set
@@ -115,7 +115,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public RelayCommand SaveUpdateDatabaseCommand
+        public Command SaveUpdateDatabaseCommand
         {
             get => _saveUpdateDatabaseCommand;
             set
@@ -172,7 +172,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public RelayCommand ViewOnSiteCommand
+        public Command ViewOnSiteCommand
         {
             get => _viewOnSiteCommand;
             set
@@ -205,10 +205,10 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
 
-            SaveAndCreateLocalCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ViewOnSiteCommand = new RelayCommand(() => StatusContext.RunBlockingTask(ViewOnSite));
-            ExtractNewLinksCommand = new RelayCommand(() => StatusContext.RunBlockingTask(() =>
+            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
                 LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker())));
         }

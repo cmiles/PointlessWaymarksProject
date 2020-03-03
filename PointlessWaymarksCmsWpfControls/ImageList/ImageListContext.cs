@@ -4,9 +4,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
 using MvvmHelpers;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -28,7 +28,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public RelayCommand FilterListCommand { get; set; }
+        public Command FilterListCommand { get; set; }
 
         public ObservableRangeCollection<ImageListListItem> Items
         {
@@ -54,7 +54,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
         public bool SortDescending { get; set; }
 
-        public RelayCommand<string> SortListCommand { get; set; }
+        public Command<string> SortListCommand { get; set; }
 
         public StatusControlContext StatusContext
         {
@@ -67,7 +67,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
-        public RelayCommand ToggleListSortDirectionCommand { get; set; }
+        public Command ToggleListSortDirectionCommand { get; set; }
 
         public string UserFilterText
         {
@@ -106,9 +106,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            FilterListCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(FilterList));
-            SortListCommand = new RelayCommand<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
-            ToggleListSortDirectionCommand = new RelayCommand(() => StatusContext.RunNonBlockingTask(async () =>
+            FilterListCommand = new Command(() => StatusContext.RunNonBlockingTask(FilterList));
+            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
+            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
             {
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);

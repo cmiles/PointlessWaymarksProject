@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:photoList="clr-namespace:PointlessWaymarksCmsWpfControls.PhotoList"
              xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:command="http://www.galasoft.ch/mvvmlight"
-             xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+
+             xmlns:fa="http://schemas.fontawesome.com/icons/"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance photoList:PhotoListContext}">
     <UserControl.Resources>
@@ -35,7 +35,7 @@
                          Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="TextChanged">
-                            <command:EventToCommand
+                            <i:InvokeCommandAction
                                 Command="{Binding FilterListCommand}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
@@ -45,12 +45,12 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
                             Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
-                        <fa:ImageAwesome Icon="ArrowUp" Height="12" Width="8" VerticalAlignment="Center"
+                        <fa:ImageAwesome Icon="Solid_ArrowUp" Height="12" Width="8" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" IsEnabled="{Binding SortDescending}" />
                     </Button>
                     <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
                             Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
-                        <fa:ImageAwesome Icon="ArrowDown" Height="12" Width="8" VerticalAlignment="Center"
+                        <fa:ImageAwesome Icon="Solid_ArrowDown" Height="12" Width="8" VerticalAlignment="Center"
                                          HorizontalAlignment="Center" />
                     </Button>
                     <Button Command="{Binding SortListCommand}" Height="24" Width="90"

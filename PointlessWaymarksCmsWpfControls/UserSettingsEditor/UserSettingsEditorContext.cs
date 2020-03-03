@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.CommandWpf;
 using JetBrains.Annotations;
+using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -16,7 +16,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
     public class UserSettingsEditorContext : INotifyPropertyChanged
     {
         private UserSettings _editorSettings;
-        private RelayCommand _saveSettingsCommand;
+        private Command _saveSettingsCommand;
         private StatusControlContext _statusContext;
 
         public UserSettingsEditorContext(StatusControlContext statusContext, UserSettings toLoad)
@@ -37,7 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
             }
         }
 
-        public RelayCommand SaveSettingsCommand
+        public Command SaveSettingsCommand
         {
             get => _saveSettingsCommand;
             set
@@ -63,7 +63,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            SaveSettingsCommand = new RelayCommand(() => StatusContext.RunBlockingTask(SaveSettings));
+            SaveSettingsCommand = new Command(() => StatusContext.RunBlockingTask(SaveSettings));
 
             EditorSettings = toLoad;
         }
