@@ -6,9 +6,6 @@ namespace PointlessWaymarksCmsData
 {
     public class UserSettings : INotifyPropertyChanged
     {
-        private string _amazonS3AccessKey = string.Empty;
-        private string _amazonS3Bucket = string.Empty;
-        private string _amazonS3SecretKey = string.Empty;
         private string _bingApiKey = string.Empty;
         private string _calTopoApiKey = string.Empty;
         private string _databaseName = "PointlessWaymarksDb";
@@ -23,39 +20,6 @@ namespace PointlessWaymarksCmsData
         private string _siteName;
         private string _siteSummary;
         private string _siteUrl;
-
-        public string AmazonS3AccessKey
-        {
-            get => _amazonS3AccessKey;
-            set
-            {
-                if (value == _amazonS3AccessKey) return;
-                _amazonS3AccessKey = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string AmazonS3Bucket
-        {
-            get => _amazonS3Bucket;
-            set
-            {
-                if (value == _amazonS3Bucket) return;
-                _amazonS3Bucket = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string AmazonS3SecretKey
-        {
-            get => _amazonS3SecretKey;
-            set
-            {
-                if (value == _amazonS3SecretKey) return;
-                _amazonS3SecretKey = value;
-                OnPropertyChanged();
-            }
-        }
 
         public string BingApiKey
         {

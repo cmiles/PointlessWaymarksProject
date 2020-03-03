@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Amazon.Runtime;
-using Amazon.S3;
-using Amazon.S3.Transfer;
 using PointlessWaymarksCmsData.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
@@ -199,48 +196,6 @@ namespace PointlessWaymarksCmsData.Pictures
                 false, progress);
 
             return (true, $"Reached end of Copy, Clean and Resize for {dbEntry.Title}");
-        }
-
-        public static async Task ProcessAndUploadImageFile(FileInfo originalImage, List<string> bucketSubdirectoryList,
-            bool overwriteExistingSourceFilesInResize, IProgress<string> progress)
-        {
-            var fullList = new List<FileInfo>
-            {
-                originalImage, ResizeForDisplay(originalImage, overwriteExistingSourceFilesInResize, progress)
-            };
-
-            fullList.AddRange(ResizeForSrcset(originalImage, overwriteExistingSourceFilesInResize, progress));
-
-            var fileCount = fullList.Count;
-            var currentFileCount = 1;
-
-            foreach (var loopFullList in fullList)
-            {
-                progress?.Report($"Uploading File {currentFileCount} of {fileCount}, {loopFullList.FullName}");
-                await UploadFileAsync(loopFullList, bucketSubdirectoryList, progress);
-                currentFileCount++;
-            }
-        }
-
-        public static async Task ProcessAndUploadImageHtmlFile(FileInfo originalImage,
-            List<string> bucketSubdirectoryList, bool overwriteExistingSourceFilesInResize, IProgress<string> progress)
-        {
-            var fullList = new List<FileInfo>
-            {
-                originalImage, ResizeForDisplay(originalImage, overwriteExistingSourceFilesInResize, progress)
-            };
-
-            fullList.AddRange(ResizeForSrcset(originalImage, overwriteExistingSourceFilesInResize, progress));
-
-            var fileCount = fullList.Count;
-            var currentFileCount = 1;
-
-            foreach (var loopFullList in fullList)
-            {
-                progress?.Report($"Uploading File {currentFileCount} of {fileCount}, {loopFullList.FullName}");
-                await UploadFileAsync(loopFullList, bucketSubdirectoryList, progress);
-                currentFileCount++;
-            }
         }
 
         public static FileInfo ResizeForDisplay(FileInfo fullName, bool overwriteExistingFile,
@@ -460,37 +415,5 @@ namespace PointlessWaymarksCmsData.Pictures
             };
         }
 
-        public static async Task UploadFileAsync(FileInfo toUpload, List<string> bucketSubdirectoryList,
-            IProgress<string> progress)
-        {
-            if (bucketSubdirectoryList == null) bucketSubdirectoryList = new List<string>();
-
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            var finalBucketName = bucketSubdirectoryList.Aggregate(settings.AmazonS3Bucket,
-                (current, loopSubDirs) => $@"{current}/{loopSubDirs}");
-
-            progress?.Report($"Upload {toUpload.FullName} to Directory {finalBucketName} Setup");
-
-            var awsCredentials = new BasicAWSCredentials(settings.AmazonS3AccessKey, settings.AmazonS3SecretKey);
-
-            IAmazonS3 client = new AmazonS3Client(awsCredentials);
-
-            var fileTransferUtility = new TransferUtility(client);
-
-            var fileTransferUtilityRequest = new TransferUtilityUploadRequest
-            {
-                BucketName = finalBucketName,
-                FilePath = toUpload.FullName,
-                StorageClass = S3StorageClass.Standard,
-                PartSize = 6291456, // 6 MB.
-                Key = toUpload.Name,
-                CannedACL = S3CannedACL.PublicRead
-            };
-
-            progress?.Report($"Upload {toUpload.FullName} to Directory {finalBucketName} Uploading...");
-
-            await fileTransferUtility.UploadAsync(fileTransferUtilityRequest);
-        }
     }
 }

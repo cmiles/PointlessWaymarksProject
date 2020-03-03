@@ -470,9 +470,9 @@
           <e p="UpdateNotesEditorVerticalControl.xaml.cs" t="Include" />
         </e>
         <e p="UserSettingsEditor" t="Include">
-          <e p="UserSettingsControl.xaml.cs" t="Include" />
           <e p="UserSettingsEditorContext.cs" t="Include" />
           <e p="UserSettingsEditorControl.xaml" t="Include" />
+          <e p="UserSettingsEditorControl.xaml.cs" t="Include" />
         </e>
         <e p="Utility" t="Include">
           <e p="BindingProxy.cs" t="Include" />

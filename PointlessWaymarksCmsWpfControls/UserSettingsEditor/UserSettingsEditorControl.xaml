@@ -85,21 +85,6 @@
                     <TextBox SpellCheck.IsEnabled="True"
                              Text="{Binding EditorSettings.PinboardApiToken, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
-                <StackPanel Orientation="Vertical">
-                    <Label>Amazon S3 Bucket</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
-                             Text="{Binding EditorSettings.AmazonS3Bucket, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
-                <StackPanel Orientation="Vertical">
-                    <Label>Amazon S3 Access Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
-                             Text="{Binding EditorSettings.AmazonS3AccessKey, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
-                <StackPanel Orientation="Vertical">
-                    <Label>Amazon S3 Secret Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
-                             Text="{Binding EditorSettings.AmazonS3SecretKey, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
             </StackPanel>
         </ScrollViewer>
 
