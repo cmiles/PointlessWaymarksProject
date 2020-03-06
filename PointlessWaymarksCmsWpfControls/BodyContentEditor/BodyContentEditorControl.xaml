@@ -6,6 +6,8 @@
              xmlns:contentFormat="clr-namespace:PointlessWaymarksCmsWpfControls.ContentFormat"
              xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
              xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
+             xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
+             xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance bodyContentEditor:BodyContentEditorContext}">
@@ -14,6 +16,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -45,9 +48,10 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <Button Command="{Binding RefreshPreviewCommand}">Refresh Preview</Button>
-                    <WebBrowser
+                    <controls:WebView
                         Grid.Row="1"
-                        wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding BodyContentHtmlOutput}" />
+                        wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding BodyContentHtmlOutput}"
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
                 </Grid>
             </GroupBox>
         </Grid>

@@ -5,6 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
         xmlns:htmlViewer="clr-namespace:PointlessWaymarksCmsWpfControls.HtmlViewer"
+        xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
         mc:Ignorable="d"
         Title="HtmlViewerWindow" Height="450" Width="800"
         d:DataContext="{d:DesignInstance htmlViewer:HtmlViewerContext}">
@@ -16,6 +17,6 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <WebBrowser wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding HtmlString}" />
+        <controls:WebView wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding HtmlString}" />
     </Grid>
 </Window>

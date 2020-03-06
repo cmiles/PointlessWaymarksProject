@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
@@ -16,6 +17,7 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
     public class UpdateNotesEditorContext : INotifyPropertyChanged
     {
         private IUpdateNotes _dbEntry;
+        private Command _refreshPreviewCommand;
         private ContentFormatChooserContext _updateNotesFormat;
         private string _updateNotesHtmlOutput;
         private string _userUpdateNotes = string.Empty;
@@ -38,6 +40,17 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             }
         }
 
+        public Command RefreshPreviewCommand
+        {
+            get => _refreshPreviewCommand;
+            set
+            {
+                if (Equals(value, _refreshPreviewCommand)) return;
+                _refreshPreviewCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext { get; set; }
 
         public string UpdateNotes
@@ -48,8 +61,6 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
                 if (value == _userUpdateNotes) return;
                 _userUpdateNotes = value;
                 OnPropertyChanged();
-
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateUpdateNotesContentHtml);
             }
         }
 
@@ -82,6 +93,8 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DbEntry = toLoad;
+
+            RefreshPreviewCommand = new Command(() => StatusContext.RunBlockingTask(UpdateUpdateNotesContentHtml));
 
             if (toLoad == null || string.IsNullOrWhiteSpace(toLoad.UpdateNotesFormat))
             {

@@ -110,6 +110,7 @@
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Generate Html</Button>
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}">Save, Generate Html</Button>
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ExtractNewLinksCommand}">Extract New Links</Button>
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
             </WrapPanel>
         </Border>

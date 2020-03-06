@@ -34,6 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private ImageContent _dbEntry;
+        private Command _extractNewLinksCommand;
         private string _imageSourceNotes;
         private Command _resizeFileCommand;
         private Command _saveAndCreateLocalCommand;
@@ -106,6 +107,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ExtractNewLinksCommand
+        {
+            get => _extractNewLinksCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksCommand)) return;
+                _extractNewLinksCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -330,6 +342,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(ImageSourceNotes, StatusContext.ProgressTracker())));
         }
 
         private DirectoryInfo LocalContentDirectory(UserSettings settings)

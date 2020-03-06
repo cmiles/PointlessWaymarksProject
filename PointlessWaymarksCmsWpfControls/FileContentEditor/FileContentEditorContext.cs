@@ -36,6 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private FileContent _dbEntry;
+        private Command _extractNewLinksCommand;
         private Command _openSelectedFileDirectoryCommand;
         private bool _publicDownloadLink = true;
         private Command _saveAndCreateLocalCommand;
@@ -107,6 +108,17 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ExtractNewLinksCommand
+        {
+            get => _extractNewLinksCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksCommand)) return;
+                _extractNewLinksCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -327,6 +339,9 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 new Command(() => StatusContext.RunBlockingTask(OpenSelectedFileDirectory));
             OpenSelectedFileCommand = new Command(() => StatusContext.RunBlockingTask(OpenSelectedFile));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
+                    StatusContext.ProgressTracker())));
         }
 
         [NotifyPropertyChangedInvocator]

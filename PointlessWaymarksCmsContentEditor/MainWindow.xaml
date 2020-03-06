@@ -14,8 +14,8 @@
     xmlns:noteList="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:linkStreamList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamList;assembly=PointlessWaymarksCmsWpfControls"
     Title="Pointless Waymarks CMS"
-    Width="700"
-    Height="600"
+    Width="900"
+    Height="650"
     d:DataContext="{d:DesignInstance local:MainWindow}"
     mc:Ignorable="d">
     <Window.Resources>

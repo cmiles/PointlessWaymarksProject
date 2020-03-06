@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
@@ -40,7 +41,8 @@ namespace PointlessWaymarksCmsData.Pictures
         public HtmlTag LocalDisplayPhotoImageTag()
         {
             var imageTag = new HtmlTag("img").AddClass("single-photo")
-                .Attr("src", $"file://{Pictures.DisplayPicture.File.FullName}")
+                .Attr("src",
+                    $"data:image/png;base64,{Convert.ToBase64String(File.ReadAllBytes(Pictures.DisplayPicture.File.FullName))}")
                 .Attr("height", Pictures.DisplayPicture.Height).Attr("width", Pictures.DisplayPicture.Width)
                 .Attr("loading", "lazy");
 

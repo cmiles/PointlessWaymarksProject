@@ -31,6 +31,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private NoteContent _dbEntry;
+        private Command _extractNewLinksCommand;
         private string _folder;
         private Command _saveAndCreateLocalCommand;
         private Command _saveUpdateDatabaseCommand;
@@ -88,6 +89,17 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ExtractNewLinksCommand
+        {
+            get => _extractNewLinksCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksCommand)) return;
+                _extractNewLinksCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -238,6 +250,9 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
+                    StatusContext.ProgressTracker())));
         }
 
         [NotifyPropertyChangedInvocator]

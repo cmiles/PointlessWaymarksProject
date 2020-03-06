@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -139,7 +140,12 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 var processResults =
                     ContentProcessor.ContentHtml(BodyContentFormat.SelectedContentFormat, preprocessResults);
 
-                var styleBlock = settings.CssMainStyleFileUrl();
+                var possibleStyleFile =
+                    new FileInfo(Path.Combine(settings.LocalSiteDirectory().FullName, "styles.css"));
+
+                var styleBlock = "body { margin-right: 20px; }" + Environment.NewLine;
+
+                if (possibleStyleFile.Exists) styleBlock += File.ReadAllText(possibleStyleFile.FullName);
 
                 BodyContentHtmlOutput = processResults.ToHtmlDocument("Body Content", styleBlock);
             }
