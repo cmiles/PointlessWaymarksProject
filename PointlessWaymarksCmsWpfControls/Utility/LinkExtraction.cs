@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData;
@@ -23,7 +24,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             progressTracker?.Report("Looking for URLs");
 
-            var allMatches = StringHelper.UrlsFromText(toExtractFrom);
+            var allMatches = StringHelper.UrlsFromText(toExtractFrom)
+                .Where(x => !x.ToLower().Contains(UserSettingsSingleton.CurrentSettings().SiteUrl)).ToList();
 
             progressTracker?.Report($"Found {allMatches.Count} Matches");
 

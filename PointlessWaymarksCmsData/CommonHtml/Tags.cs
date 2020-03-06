@@ -17,6 +17,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return titleContainer;
         }
 
+        public static string CreatedByAndUpdatedOnFormattedDateTimeString(DateTime toFormat)
+        {
+            return toFormat.ToString("M/d/yyyy");
+        }
+
         public static string CreatedByAndUpdatedOnString(ICreatedAndLastUpdateOnAndBy dbEntry)
         {
             var createdUpdatedString = $"Created by {dbEntry.CreatedBy}";
@@ -30,7 +35,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                     onlyCreated = true;
                 }
 
-            createdUpdatedString += $" on {dbEntry.CreatedOn:M/d/yyyy}.";
+            createdUpdatedString += $" on {CreatedByAndUpdatedOnFormattedDateTimeString(dbEntry.CreatedOn)}.";
 
             if (onlyCreated) return createdUpdatedString.Trim();
 
@@ -45,7 +50,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
             if (!string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy) && dbEntry.CreatedBy != dbEntry.LastUpdatedBy)
                 updatedString += $" by {dbEntry.LastUpdatedBy}";
 
-            if (dbEntry.LastUpdatedOn != null) updatedString += $" on {dbEntry.LastUpdatedOn.Value:M/d/yyyy}";
+            if (dbEntry.LastUpdatedOn != null)
+                updatedString += $" on {CreatedByAndUpdatedOnFormattedDateTimeString(dbEntry.LastUpdatedOn.Value)}";
 
             updatedString += ".";
 

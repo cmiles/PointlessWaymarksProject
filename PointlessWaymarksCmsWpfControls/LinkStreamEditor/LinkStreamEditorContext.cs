@@ -422,17 +422,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullSafe();
             }
 
-            newEntry.Tags = TagEdit.Tags;
-            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
-            newEntry.Comments = Comments;
-            newEntry.Url = LinkUrl;
-            newEntry.Title = Title;
-            newEntry.Site = Site;
-            newEntry.Author = Author;
-            newEntry.Description = Description;
+            newEntry.Tags = TagEdit.Tags.TrimNullSafe();
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullSafe();
+            newEntry.Comments = Comments.TrimNullSafe();
+            newEntry.Url = LinkUrl.TrimNullSafe();
+            newEntry.Title = Title.TrimNullSafe();
+            newEntry.Site = Site.TrimNullSafe();
+            newEntry.Author = Author.TrimNullSafe();
+            newEntry.Description = Description.TrimNullSafe();
             newEntry.LinkDate = LinkDateTime;
             newEntry.ShowInLinkRss = ShowInLinkRss;
 

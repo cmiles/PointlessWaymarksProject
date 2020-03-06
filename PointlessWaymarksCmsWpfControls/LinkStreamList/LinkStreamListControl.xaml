@@ -117,21 +117,29 @@
                             CornerRadius="5">
                             <Grid Margin="4">
                                 <StackPanel Margin="2" Orientation="Vertical">
-                                    <TextBlock Text="{Binding DbEntry.Title}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding DbEntry.Site}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding DbEntry.Author}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding DbEntry.Description}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding DbEntry.Comments}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding DbEntry.Tags}" TextWrapping="Wrap" />
-                                    <TextBlock>
-                                        <Hyperlink
-                                            Command="{Binding Data.OpenUrlCommand, Source={StaticResource Proxy}}"
-                                            CommandParameter="{Binding DbEntry.Url}">
-                                            <Hyperlink.Inlines>
-                                                <Run Text="{Binding DbEntry.Url}" />
-                                            </Hyperlink.Inlines>
-                                        </Hyperlink>
-                                    </TextBlock>
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DbEntry.Title}"
+                                             TextWrapping="Wrap" FontWeight="Bold"
+                                             PreviewMouseDown="Element_PreviewMouseDown" />
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                             Text="{Binding LinkContentString}"
+                                             TextWrapping="Wrap" PreviewMouseDown="Element_PreviewMouseDown" />
+                                    <WrapPanel Orientation="Horizontal">
+                                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                                            <Hyperlink
+                                                Command="{Binding Data.OpenUrlCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding DbEntry.Url}">
+                                                <Hyperlink.Inlines>
+                                                    <Run Text="{Binding DbEntry.Url}" />
+                                                </Hyperlink.Inlines>
+                                            </Hyperlink>
+                                        </TextBlock>
+                                        <Button VerticalAlignment="Center" Width="80" Height="20"
+                                                Command="{Binding Data.CopyUrlCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding DbEntry.Url}">
+                                            Copy Link
+                                        </Button>
+                                    </WrapPanel>
+
                                 </StackPanel>
                             </Grid>
                         </Border>

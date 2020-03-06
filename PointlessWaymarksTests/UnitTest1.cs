@@ -1,0 +1,57 @@
+using System;
+using NUnit.Framework;
+using PointlessWaymarksCmsData.Models;
+using static PointlessWaymarksCmsData.CommonHtml.Tags;
+
+namespace PointlessWaymarksTests
+{
+    public class Tests
+    {
+        [Test]
+        public void CreatedAndUpdatedString_CreatedOnly()
+        {
+            var testData = new CreatedAndUpdatedTestStructure
+            {
+                CreatedBy = "Creating Creator", CreatedOn = new DateTime(2020, 10, 9, 8, 7, 6, 5)
+            };
+
+            var createdAndUpdatedString = CreatedByAndUpdatedOnString(testData);
+
+            Assert.AreEqual(
+                $"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}.",
+                createdAndUpdatedString);
+        }
+
+        [Test]
+        public void CreatedAndUpdatedString_SameCreatedAndUpdatedByDifferentCreatedAndUpdatedOn()
+        {
+            var testData = new CreatedAndUpdatedTestStructure
+            {
+                CreatedBy = "Creating Creator",
+                CreatedOn = new DateTime(2020, 10, 9, 8, 7, 6, 5),
+                LastUpdatedBy = "Updating Updater",
+                LastUpdatedOn = new DateTime(2020, 10, 10, 8, 7, 6, 5)
+            };
+
+            var createdAndUpdatedString = CreatedByAndUpdatedOnString(testData);
+
+            Assert.AreEqual(
+                $"Created by {testData.CreatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.CreatedOn)}." +
+                $" Updated by {testData.LastUpdatedBy} on {CreatedByAndUpdatedOnFormattedDateTimeString(testData.LastUpdatedOn.Value)}.",
+                createdAndUpdatedString);
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+        }
+
+        private class CreatedAndUpdatedTestStructure : ICreatedAndLastUpdateOnAndBy
+        {
+            public string CreatedBy { get; set; }
+            public DateTime CreatedOn { get; set; }
+            public string LastUpdatedBy { get; set; }
+            public DateTime? LastUpdatedOn { get; set; }
+        }
+    }
+}

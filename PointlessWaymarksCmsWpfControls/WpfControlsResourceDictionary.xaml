@@ -16,5 +16,8 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="LightBlue" />
     </Style>
-
+    <Style x:Key="ReadOnlyTextBox" TargetType="TextBox">
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
 </ResourceDictionary>

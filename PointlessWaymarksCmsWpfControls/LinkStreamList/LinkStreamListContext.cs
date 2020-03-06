@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using JetBrains.Annotations;
 using MvvmHelpers;
@@ -16,6 +17,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 {
     public class LinkStreamListContext : INotifyPropertyChanged
     {
+        private Command<string> _copyUrlCommand;
         private Command _filterListCommand;
         private ObservableRangeCollection<LinkStreamListListItem> _items;
         private string _lastSortColumn;
@@ -31,6 +33,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public Command<string> CopyUrlCommand
+        {
+            get => _copyUrlCommand;
+            set
+            {
+                if (Equals(value, _copyUrlCommand)) return;
+                _copyUrlCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public Command FilterListCommand
@@ -170,6 +183,14 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 await SortList(_lastSortColumn);
             }));
             OpenUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => OpenUrl(x)));
+            CopyUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(async () =>
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Clipboard.SetText(x);
+
+                StatusContext.ToastSuccess($"To Clipboard {x}");
+            }));
 
             StatusContext.Progress("Connecting to DB");
 

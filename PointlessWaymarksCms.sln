@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarksCmsWpfCont
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarksCmsData", "PointlessWaymarksCmsData\PointlessWaymarksCmsData.csproj", "{95AD6B7B-0764-4707-A778-B8D3AC070D10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointlessWaymarksTests", "PointlessWaymarksTests\PointlessWaymarksTests.csproj", "{3C9709B9-F0FF-452B-9E4A-2A125B1806AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{95AD6B7B-0764-4707-A778-B8D3AC070D10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95AD6B7B-0764-4707-A778-B8D3AC070D10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95AD6B7B-0764-4707-A778-B8D3AC070D10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C9709B9-F0FF-452B-9E4A-2A125B1806AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C9709B9-F0FF-452B-9E4A-2A125B1806AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C9709B9-F0FF-452B-9E4A-2A125B1806AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C9709B9-F0FF-452B-9E4A-2A125B1806AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

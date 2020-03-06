@@ -5,6 +5,11 @@ namespace PointlessWaymarksCmsData
 {
     public static class StringHelper
     {
+        public static string TrimNullSafe(this string toTrim)
+        {
+            return string.IsNullOrWhiteSpace(toTrim) ? string.Empty : toTrim.Trim();
+        }
+
         public static List<string> UrlsFromText(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return new List<string>();

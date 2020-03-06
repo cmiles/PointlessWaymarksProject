@@ -1,5 +1,7 @@
 ﻿## Todos
- - Change Created and Updated style when creator and updater are the same (do via tests!)
+ - Change Created and Updated style when creator and updater are the same (do via tests!) - Started, first two tests are missing
+ - Link List - selection - text should select outer list item ideally on click not on drag
+ - Sorting needs better visual indicators
  - Better startup experience when settings file and/or db are missing
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
  - Top of the page search box - maybe pass a query parameter to the all content list page?
@@ -22,6 +24,13 @@
 ##Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
+
+3/6/2020
+Started test project for the Created and Updated string - at first this seemed  contrived but as I did the first two tests I remembered that the number of cases here is actually worth making sure this is right - nice to get this started.
+
+Changed the link list for slightly improved visual and better copy and paste.
+
+The link list has some item selection logic that isn't quite right - still a todo.
 
 3/5/2020
 The rendering with the WebView 'always on top' is in fact a known limitation of the control and I believe of XamlIslands in general - in the WPF/Winforms era a similiar issue went by the informal name of 'airspace'. At the time one interesting solution basically involved rendering the control into a 'native to the GUi tech' image when you needed to do something on top of it - I don't think that I will explore that and have other UI binding ideas on work arounds... This issue is doesn't have any immediate resolution but at least seems to track this https://github.com/dotnet/runtime/pull/33060

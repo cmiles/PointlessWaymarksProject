@@ -343,7 +343,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             Clipboard.SetText(finalString);
 
-            StatusContext.ToastSuccess($"To ClipboardL {finalString}");
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
