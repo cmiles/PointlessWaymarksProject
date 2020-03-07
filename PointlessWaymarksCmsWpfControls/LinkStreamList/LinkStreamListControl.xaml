@@ -119,10 +119,10 @@
                                 <StackPanel Margin="2" Orientation="Vertical">
                                     <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DbEntry.Title}"
                                              TextWrapping="Wrap" FontWeight="Bold"
-                                             PreviewMouseDown="Element_PreviewMouseDown" />
+                                             PreviewMouseDown="UIElement_OnMouseDown" />
                                     <TextBox Style="{StaticResource ReadOnlyTextBox}"
                                              Text="{Binding LinkContentString}"
-                                             TextWrapping="Wrap" PreviewMouseDown="Element_PreviewMouseDown" />
+                                             TextWrapping="Wrap" PreviewMouseDown="UIElement_OnMouseDown" />
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
                                             <Hyperlink

@@ -13,17 +13,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             InitializeComponent();
         }
 
-        private void Element_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender == null) return;
-
-            var possibleParent = FindParent<ListBoxItem>(sender as DependencyObject);
-
-            if (possibleParent == null) return;
-
-            possibleParent.IsSelected = !possibleParent.IsSelected;
-        }
-
         public static T FindParent<T>(DependencyObject child) where T : DependencyObject
         {
             if (child == null) return null;
@@ -53,6 +42,23 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             if (DataContext == null) return;
             var viewmodel = (LinkStreamListContext) DataContext;
             viewmodel.SelectedItems = ItemsListBox?.SelectedItems.Cast<LinkStreamListListItem>().ToList();
+        }
+
+        private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender == null) return;
+
+            var possibleParent = FindParent<ListBoxItem>(sender as DependencyObject);
+
+            if (possibleParent == null) return;
+
+            var newEvent =
+                new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, e.ChangedButton, e.StylusDevice)
+                {
+                    RoutedEvent = MouseDownEvent, Source = sender
+                };
+
+            possibleParent.RaiseEvent(newEvent);
         }
     }
 }

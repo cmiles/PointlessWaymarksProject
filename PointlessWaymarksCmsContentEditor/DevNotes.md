@@ -1,6 +1,6 @@
 ﻿## Todos
  - Change Created and Updated style when creator and updater are the same (do via tests!) - Started, first two tests are missing
- - Link List - selection - text should select outer list item ideally on click not on drag
+ - Link List - selection - try a click gesture (maybe disabled in ReadOnly? not sure) click to raise the for selection event
  - Sorting needs better visual indicators
  - Better startup experience when settings file and/or db are missing
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
@@ -30,7 +30,7 @@ Started test project for the Created and Updated string - at first this seemed  
 
 Changed the link list for slightly improved visual and better copy and paste.
 
-The link list has some item selection logic that isn't quite right - still a todo.
+Put in some 'ok' code to funnel preview mouse down from the ReadOnly TextBox to get list selection - it would be interesting to see if a mouse input gesture command would work and perhaps be more clear (right now selecting text selects the item - I think it would make more sense it selection triggered on click rather than mouse down?)
 
 3/5/2020
 The rendering with the WebView 'always on top' is in fact a known limitation of the control and I believe of XamlIslands in general - in the WPF/Winforms era a similiar issue went by the informal name of 'airspace'. At the time one interesting solution basically involved rendering the control into a 'native to the GUi tech' image when you needed to do something on top of it - I don't think that I will explore that and have other UI binding ideas on work arounds... This issue is doesn't have any immediate resolution but at least seems to track this https://github.com/dotnet/runtime/pull/33060
