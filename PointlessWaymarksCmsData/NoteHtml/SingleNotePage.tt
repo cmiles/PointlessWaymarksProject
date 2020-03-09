@@ -12,7 +12,7 @@
     <meta name="keywords" content="<#= DbEntry.Tags.HtmlEncode() #>" >
 
     <meta property="og:site_name" content="<#=SiteName.HtmlEncode() #>" />
-    <meta property="og:url" content="https://<#=PageUrl #>" />
+    <meta property="og:url" content="https:<#=PageUrl #>" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="<#=Title.HtmlEncode() #>" />
 

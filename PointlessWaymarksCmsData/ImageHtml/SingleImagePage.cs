@@ -71,7 +71,7 @@ using PointlessWaymarksCmsData.ImageHtml;
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https://");
+            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
             
             #line 16 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));

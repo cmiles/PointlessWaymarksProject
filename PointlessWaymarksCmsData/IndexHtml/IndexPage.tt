@@ -13,7 +13,7 @@
     <meta name="keywords" content="<#= SiteKeywords.HtmlEncode() #>" >
 
     <meta property="og:site_name" content="<#=SiteName.HtmlEncode() #>" />
-    <meta property="og:url" content="https://<#=PageUrl #>" />
+    <meta property="og:url" content="https:<#=PageUrl #>" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="<#=SiteName.HtmlEncode() #>" />
     <meta property="og:description" content="<#= SiteSummary.HtmlEncode() #>" />

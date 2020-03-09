@@ -58,13 +58,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
         public static string CssStyleFileString()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            return $"<link rel=\"stylesheet\" href=\"https://{settings.CssMainStyleFileUrl()}?v=1.0\">";
+            return $"<link rel=\"stylesheet\" href=\"https:{settings.CssMainStyleFileUrl()}?v=1.0\">";
         }
 
         public static string FavIconFileString()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            return $"<link rel=\"shortcut icon\" href=\"https://{settings.FaviconUrl()}\"/>";
+            return $"<link rel=\"shortcut icon\" href=\"https:{settings.FaviconUrl()}\"/>";
         }
 
         public static HtmlTag ImageFigCaptionTag(ImageContent dbEntry)

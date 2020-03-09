@@ -67,7 +67,7 @@ using PointlessWaymarksCmsData.Pictures;
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https://");
+            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
             
             #line 15 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));

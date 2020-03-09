@@ -50,32 +50,32 @@ using PointlessWaymarksCmsData.Models;
             this.Write("</title>\r\n    <meta name=\"description\" content=\"");
             
             #line 11 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"author\" content=\"");
             
             #line 12 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
             
             #line 13 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteKeywords));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteKeywords.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" >\r\n\r\n    <meta property=\"og:site_name\" content=\"");
             
             #line 15 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https://");
+            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
             
             #line 16 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
@@ -85,14 +85,14 @@ using PointlessWaymarksCmsData.Models;
             this.Write("\" />\r\n    <meta property=\"og:type\" content=\"website\" />\r\n    <meta property=\"og:title\" content=\"");
             
             #line 18 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:description\" content=\"");
             
             #line 19 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
@@ -106,28 +106,28 @@ using PointlessWaymarksCmsData.Models;
             this.Write("\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <meta name=\"DC.Title\" content=\"");
             
             #line 24 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name =\"DC.Creator\" content=\"");
             
             #line 25 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name =\"DC.Publisher\" content=\"");
             
             #line 26 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Description\" content=\"");
             
             #line 27 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
