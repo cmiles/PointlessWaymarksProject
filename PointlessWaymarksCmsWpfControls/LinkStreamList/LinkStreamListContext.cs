@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -6,10 +7,13 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using HtmlTableHelper;
 using JetBrains.Annotations;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
+using pinboard.net;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -28,6 +32,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
+        private Command _listSelectedLinksNotOnPinboardCommand;
 
         public LinkStreamListContext(StatusControlContext statusContext)
         {
@@ -171,6 +176,78 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             };
         }
 
+        private async Task ListSelectedLinksNotOnPinboard(IProgress<string> progress = null)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
+            {
+                progress?.Report("No Pinboard Api Token... Can't check Pinboard.");
+                return;
+            }
+            
+            var selected = SelectedItems.ToList();
+
+            if (!selected.Any())
+            {
+                progress?.Report("Nothing Selected?");
+                return;
+            }
+            
+            progress?.Report($"Found {selected.Count} items to check.");
+
+            
+            using var pb = new PinboardAPI(UserSettingsSingleton.CurrentSettings().PinboardApiToken);
+
+            var notFoundList = new List<LinkStream>();
+            
+            foreach (var loopSelected in selected)
+            {
+                if (string.IsNullOrWhiteSpace(loopSelected.DbEntry.Url))
+                {
+                    notFoundList.Add(loopSelected.DbEntry);
+                    progress?.Report($"Link titled {loopSelected.DbEntry.Title} created on {loopSelected.DbEntry.CreatedOn:d} added because of blank URL...");
+                    continue;
+                }
+
+                var matches = await pb.Posts.Get(null, null, loopSelected.DbEntry.Url, null);
+
+                if (!matches.Posts.Any())
+                {
+                    progress?.Report($"Not Found Link titled {loopSelected.DbEntry.Title} created on {loopSelected.DbEntry.CreatedOn:d}");
+                    notFoundList.Add(loopSelected.DbEntry);
+                }
+                else
+                {
+                    progress?.Report($"Found Link titled {loopSelected.DbEntry.Title} created on {loopSelected.DbEntry.CreatedOn:d}");
+                }
+            }
+
+            if (!notFoundList.Any())
+            {
+                await StatusContext.ShowMessageWithOkButton("Pinboard Match Complete",
+                    $"Found a match on Pinboard for all {selected.Count} Selected links.");
+                return;
+            }
+            
+            progress?.Report($"Building table of {notFoundList.Count} items not found on Pinboard");
+
+            var projectedNotFound = notFoundList.Select(x => new
+            {
+                x.Title,
+                x.Url,
+                x.CreatedBy,
+                x.CreatedOn,
+                x.LastUpdatedBy,
+                x.LastUpdatedOn
+            }).ToHtmlTable();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+            
+            var htmlReportWindow = new HtmlViewer.HtmlViewerWindow(projectedNotFound);
+            htmlReportWindow.Show();
+        }
+
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -191,6 +268,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
                 StatusContext.ToastSuccess($"To Clipboard {x}");
             }));
+            ListSelectedLinksNotOnPinboardCommand = new Command(x =>
+                StatusContext.RunBlockingTask(async () => await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker())));
 
             StatusContext.Progress("Connecting to DB");
 
@@ -223,6 +302,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
             SortDescending = true;
             await SortList("CreatedOn");
+        }
+
+        public Command ListSelectedLinksNotOnPinboardCommand
+        {
+            get => _listSelectedLinksNotOnPinboardCommand;
+            set
+            {
+                if (Equals(value, _listSelectedLinksNotOnPinboardCommand)) return;
+                _listSelectedLinksNotOnPinboardCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         [NotifyPropertyChangedInvocator]

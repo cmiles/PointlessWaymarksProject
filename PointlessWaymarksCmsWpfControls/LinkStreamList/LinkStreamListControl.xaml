@@ -114,15 +114,23 @@
                             Background="White"
                             BorderBrush="LightGray"
                             BorderThickness="1"
-                            CornerRadius="5">
+                            CornerRadius="5"
+                            Margin="4">
                             <Grid Margin="4">
                                 <StackPanel Margin="2" Orientation="Vertical">
                                     <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DbEntry.Title}"
-                                             TextWrapping="Wrap" FontWeight="Bold"
-                                             PreviewMouseDown="UIElement_OnMouseDown" />
+                                             TextWrapping="Wrap" FontWeight="Bold">
+                                        <i:Interaction.Behaviors>
+                                            <utility:ReadOnlyTextBoxClickPass />
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
                                     <TextBox Style="{StaticResource ReadOnlyTextBox}"
                                              Text="{Binding LinkContentString}"
-                                             TextWrapping="Wrap" PreviewMouseDown="UIElement_OnMouseDown" />
+                                             TextWrapping="Wrap">
+                                        <i:Interaction.Behaviors>
+                                            <utility:ReadOnlyTextBoxClickPass />
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
                                             <Hyperlink

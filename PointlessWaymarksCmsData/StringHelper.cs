@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace PointlessWaymarksCmsData
 {
     public static class StringHelper
     {
+        public static string HtmlEncode(this string toEncode)
+        {
+            return string.IsNullOrWhiteSpace(toEncode) ? string.Empty : HttpUtility.HtmlEncode(toEncode);
+        }
+        
         public static string TrimNullSafe(this string toTrim)
         {
             return string.IsNullOrWhiteSpace(toTrim) ? string.Empty : toTrim.Trim();

@@ -503,7 +503,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
             RequestLinkStreamEditorWindowClose?.Invoke(this, null);
         }
-
+        
         private async Task SaveToPinboard(IProgress<string> progress = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();

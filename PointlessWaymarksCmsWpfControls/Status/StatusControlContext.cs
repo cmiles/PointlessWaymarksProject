@@ -345,6 +345,11 @@ namespace PointlessWaymarksCmsWpfControls.Status
             Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
         }
 
+        public async Task<string> ShowMessageWithOkButton(string title, string body)
+        {
+            return await ShowMessage(title, body, new List<string> {"Ok"});
+        }
+
         public async Task<string> ShowMessage(string title, string body, List<string> buttons)
         {
             await ThreadSwitcher.ResumeForegroundAsync();

@@ -75,7 +75,7 @@ using PointlessWaymarksCmsData.Models;
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"");
+            this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https://");
             
             #line 16 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));

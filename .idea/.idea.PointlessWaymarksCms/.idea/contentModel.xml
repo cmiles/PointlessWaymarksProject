@@ -482,9 +482,11 @@
           <e p="ImageCacheConverter.cs" t="Include" />
           <e p="LinkExtraction.cs" t="Include" />
           <e p="ListBoxBehavior.cs" t="Include" />
+          <e p="ReadOnlyTextBoxClickPass.cs" t="Include" />
           <e p="ThreadPoolThreadSwitcher.cs" t="Include" />
           <e p="ThreadSwitcher.cs" t="Include" />
           <e p="UiThreadHelper.cs" t="Include" />
+          <e p="XamlHelpers.cs" t="Include" />
         </e>
         <e p="WpfControlsResourceDictionary.xaml" t="Include" />
         <e p="WpfHtml" t="Include">
@@ -506,6 +508,7 @@
       </e>
       <e p="PointlessWaymarksTests" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
+        <e p="CreatedAndUpdatedStringTests.cs" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.1" t="Include">
@@ -514,7 +517,6 @@
           </e>
         </e>
         <e p="PointlessWaymarksTests.csproj" t="IncludeRecursive" />
-        <e p="UnitTest1.cs" t="Include" />
       </e>
     </e>
     <e p="C:\Users\charl\.nuget\packages\microsoft.net.test.sdk\16.4.0\build\netcoreapp2.1" t="Include">

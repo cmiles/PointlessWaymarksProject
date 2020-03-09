@@ -3,17 +3,18 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Web" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title><#= ListTitle #></title>
+    <title><#= ListTitle.HtmlEncode() #></title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="alternate" type="application/rss+xml" 
-      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}" #>"     
+      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode() #>"     
       href="https:<#= RssUrl #>" />
 
     <#= Tags.CssStyleFileString() #>

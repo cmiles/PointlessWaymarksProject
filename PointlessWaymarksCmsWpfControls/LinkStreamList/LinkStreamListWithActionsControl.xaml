@@ -29,6 +29,7 @@
                         Style="{StaticResource ActionPanelButton}">
                     Md Link to Clipboard
                 </Button>
+                <Button Command="{Binding ListContext.ListSelectedLinksNotOnPinboardCommand}" Style="{StaticResource ActionPanelButton}">Selected Pinboard Check</Button>
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
                 <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}">New Content</Button>
             </WrapPanel>

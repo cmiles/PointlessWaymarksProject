@@ -1,29 +1,39 @@
 ﻿## Todos
- - Change Created and Updated style when creator and updater are the same (do via tests!) - Started, first two tests are missing
- - Link List - selection - try a click gesture (maybe disabled in ReadOnly? not sure) click to raise the for selection event
+ - Switch to Sqlite/Spatialite
+   - Move DB - JSON Import
+   - Startup support and settings file switching
  - Sorting needs better visual indicators
- - Better startup experience when settings file and/or db are missing
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
- - Top of the page search box - maybe pass a query parameter to the all content list page?
- - Should there be a small menu at the top? Ugh.
- - Need to be able to select/switch settings files (and so associated db) - this seems much easier and happier in SQLite? That does have implications for elevation (Z) in Spatialite - but with that functionality minimal so far worth working around. Actually like the current MS Sql setup but painful compared to SQLite in terms of setup...
- - Is everything getting HMTL Encoded - are there spots with leaks?
+ - Is everything getting HMTL Encoded - are there spots with leaks? (tests?)
  - RSS - Does title need CDATA to be completely safe? Or?
 
 ## Ideas
- - WebView2 (Looks like System.Interactivity plus MvvmLight are blockers here?)
- - Extract links from list page or 'all site'
- - Better header metadata on list pages
+ - Top of the html page menu - or other 'nav' idea (maybe just a one level set of links that collapses on mobile? or...)
+ - Top of the html page search box - maybe pass a query parameter to the all content list page?
+ - Extract links from list page or 'all site' (option in content but not in lists/all)
  - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
- - Backup the master media directory and database
- - Restore from JSON
- - Some sort of Master JSON Backup
- - Check in on the Spatialite Z bug in EF Core and/or investigate moving to SQLite (what about an elevation lookup table vs Z values?)
- - Explore copying original media both into the content folder and keeping in the media archive folder for 'backup'
+ - Backup the master media directory, database and current site to a dated folder (where?)
 
 ##Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
+
+3/8/2020
+Switched some items over to direct https reference - this is 'right' in so many ways but my concern is that I actually don't 100% care about public internet availability for this project - https makes sense for the modern web but I don't want to get in the way of serving a website locally from something like a raspberry pi - I haven't  experimented with this yet but I am starting to be more interested in what in more limited, maybe personal, content - what if a site was only available from my backpack, or my truck - what if a site could truly be turned off, maybe a Mondays only site, not meaning a clever splash screen on other days but literally off - what about a site from your desk literally only running when you were in. I don't know, you can easily think of a million reasons 'not this' or 'it doesn't actually make sense' - but I am curious.
+
+Finished out current Created and Updated Testing.
+
+Better options in the 'General' tab to generate HTML without the Picture Check/Clean and pulled that into a button also.
+
+Added checking in the Link List that selected items are on Pinboard - just checking the URLs not syncing data, but I think the most important is that the URL has been saved since the most core idea is to sync to Pinboard for archiving.
+
+Html Encoding added for quite a bit of meta data.
+
+Added a wpf Behavior to funnel PreviewMouseDown in Readonly Text Boxes to the containing list item for selection - not quite 'perfect' (should perhaps still look at changing this to click) but cleaner than a pure event and at least here defaults to 'more selected' rather than 'less selected' (and better here because unlike like the magic invisible boundaries that defined selection clicks before you can at least understand that selecting text selects the item).
+
+Slight visual improvement in the Link List for selection with just a small margin adjustment.
+
+I had been testing by using dotnet serve - trying to be modern and cool but it turns out that good old iis was setup with zero hassle in about 2 minutes for a simple static site like this - so moving over to that. It would be awesome if this project tested at the push of a button but I think it is better to just use iis (or server of choice) and use time elsewhere.
 
 3/6/2020
 Started test project for the Created and Updated string - at first this seemed  contrived but as I did the first two tests I remembered that the number of cases here is actually worth making sure this is right - nice to get this started.

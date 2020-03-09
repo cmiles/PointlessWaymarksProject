@@ -29,9 +29,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var onlyCreated = false;
 
             if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
-                if (string.Compare(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) != 0)
+                if (string.Compare(dbEntry.CreatedBy, dbEntry.LastUpdatedBy, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    createdUpdatedString = $"Created and Updated by {dbEntry.LastUpdatedBy} ";
+                    createdUpdatedString = $"Created and Updated by {dbEntry.LastUpdatedBy}";
                     onlyCreated = true;
                 }
 
@@ -40,9 +40,6 @@ namespace PointlessWaymarksCmsData.CommonHtml
             if (onlyCreated) return createdUpdatedString.Trim();
 
             if (string.IsNullOrWhiteSpace(dbEntry.LastUpdatedBy) && dbEntry.LastUpdatedOn == null)
-                return createdUpdatedString;
-
-            if (dbEntry.LastUpdatedOn != null && dbEntry.CreatedOn.Date == dbEntry.LastUpdatedOn.Value.Date)
                 return createdUpdatedString;
 
             var updatedString = " Updated";
@@ -61,13 +58,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
         public static string CssStyleFileString()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            return $"<link rel=\"stylesheet\" href=\"{settings.CssMainStyleFileUrl()}?v=1.0\">";
+            return $"<link rel=\"stylesheet\" href=\"https://{settings.CssMainStyleFileUrl()}?v=1.0\">";
         }
 
         public static string FavIconFileString()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            return $"<link rel=\"shortcut icon\" href=\"{settings.FaviconUrl()}\">";
+            return $"<link rel=\"shortcut icon\" href=\"https://{settings.FaviconUrl()}\"/>";
         }
 
         public static HtmlTag ImageFigCaptionTag(ImageContent dbEntry)
@@ -125,15 +122,14 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var metaString = "";
             metaString +=
-                $"<meta property=\"og:image\" content=\"http:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
+                $"<meta property=\"og:image\" content=\"https:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
             metaString +=
                 $"<meta property=\"og:image:secure_url\" content=\"https:{mainImage.Pictures.DisplayPicture.SiteUrl}\" />";
             metaString += "<meta property=\"og:image:type\" content=\"image/jpeg\" />";
             metaString += $"<meta property=\"og:image:width\" content=\"{mainImage.Pictures.DisplayPicture.Width}\" />";
             metaString +=
                 $"<meta property=\"og:image:height\" content=\"{mainImage.Pictures.DisplayPicture.Height}\" />";
-            metaString +=
-                $"<meta property=\"og:image:alt]\" content=\"{mainImage.Pictures.DisplayPicture.AltText}\" />";
+            metaString += $"<meta property=\"og:image:alt\" content=\"{mainImage.Pictures.DisplayPicture.AltText}\" />";
 
             return metaString;
         }

@@ -31,14 +31,14 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
             #line 8 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));
+            this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("</title>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n    \r\n    <link rel=\"alternate\" type=\"application/rss+xml\" \r\n      title=\"");
             
             #line 13 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture($"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}"));
+            this.Write(this.ToStringHelper.ToStringWithCulture($"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode()));
             
             #line default
             #line hidden

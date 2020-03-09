@@ -70,7 +70,10 @@ namespace PointlessWaymarksCmsContentEditor
 
             GenerateIndexCommand = new Command(() => StatusContext.RunNonBlockingTask(GenerateIndex));
             OpenIndexUrlCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenIndexUrl));
+            
             GenerateAllHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllHtml));
+            GenerateAllHtmlAndCleanAndResizePicturesCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllHtmlAndCleanAndResizePictures));
+            CleanAndResizePicturesCommand = new Command(() => StatusContext.RunBlockingTask(CleanAndResizePictures));
 
             NewPhotoContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
             GenerateHtmlForAllPhotoContentCommand =
@@ -92,6 +95,10 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
+
+        public Command CleanAndResizePicturesCommand { get; set; }
+
+        public Command GenerateAllHtmlAndCleanAndResizePicturesCommand { get; set; }
 
         public Command GenerateAllHtmlCommand
         {
@@ -406,11 +413,21 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        private async Task GenerateAllHtml()
+        private async Task CleanAndResizePictures()
         {
             await CleanAndResizeAllPhotoFiles();
-            await CleanAndResizeAllPhotoFiles();
+            await CleanAndResizeAllImageFiles();
+        }
+        
+        private async Task GenerateAllHtmlAndCleanAndResizePictures()
+        {
+            await CleanAndResizePictures();
 
+            await GenerateAllHtml();
+        }
+
+        private async Task GenerateAllHtml()
+        {
             await GenerateAllImageHtml();
             await GenerateAllPhotoHtml();
             await GenerateAllFileHtml();
