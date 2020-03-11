@@ -18,7 +18,8 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             var jsonDbEntry = JsonSerializer.Serialize(allContent);
 
-            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteLinkDirectory().FullName, "LinkList.json"));
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteLinkDirectory().FullName,
+                $"{Names.LinkListFileName}.json"));
 
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
@@ -32,7 +33,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteLinkDirectory().FullName,
-                "HistoricLinkList.json"));
+                $"{Names.HistoricLinkListFileName}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
@@ -49,7 +50,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteFileContentDirectory(dbEntry).FullName,
-                $"File---{dbEntry.ContentId}.json"));
+                $"{Names.FileContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
@@ -68,7 +69,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteFileContentDirectory(dbEntry).FullName,
-                $"HistoricFiles---{dbEntry.ContentId}.json"));
+                $"{Names.HistoricFileContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
@@ -83,7 +84,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(dbEntry).FullName,
-                $"Post---{dbEntry.ContentId}.json"));
+                $"{Names.PostContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
@@ -98,7 +99,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(dbEntry).FullName,
-                $"HistoricPosts---{dbEntry.ContentId}.json"));
+                $"{Names.HistoricPostsContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
@@ -113,7 +114,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(dbEntry).FullName,
-                $"Note---{dbEntry.ContentId}.json"));
+                $"{Names.NoteContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
@@ -128,7 +129,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(dbEntry).FullName,
-                $"HistoricNotes---{dbEntry.ContentId}.json"));
+                $"{Names.HistoricNotesContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
@@ -143,7 +144,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(dbEntry).FullName,
-                $"Image---{dbEntry.ContentId}.json"));
+                $"{Names.ImageContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
@@ -158,7 +159,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(dbEntry).FullName,
-                $"HistoricImages---{dbEntry.ContentId}-Historic.json"));
+                $"{Names.HistoricImagesContentPrefix}{dbEntry.ContentId}-Historic.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
@@ -174,7 +175,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(dbEntry).FullName,
-                $"Photo---{dbEntry.ContentId}.json"));
+                $"{Names.PhotoContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
@@ -189,7 +190,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(dbEntry).FullName,
-                $"HistoricPhoto---{dbEntry.ContentId}.json"));
+                $"{Names.HistoricPhotosContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();

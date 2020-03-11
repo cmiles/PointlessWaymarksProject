@@ -1,6 +1,6 @@
 ﻿## Todos
  - Switch to Sqlite/Spatialite
-   - Move DB - JSON Import
+   - Move DB - JSON Import - still need: LinkStream Type, Historic Import
    - Startup support and settings file switching
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
@@ -17,6 +17,11 @@
 ##Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
+
+3/10/2020
+Added the first Json imports - some via T4 generated code and Notes as handwritten. Building but not tested.
+
+Added a style for the outer border of the Lists - this is designed to make selected 'obvious enough' without needing to do any indicators.
 
 3/8/2020
 Switched some items over to direct https reference - this is 'right' in so many ways but my concern is that I actually don't 100% care about public internet availability for this project - https makes sense for the modern web but I don't want to get in the way of serving a website locally from something like a raspberry pi - I haven't  experimented with this yet but I am starting to be more interested in what in more limited, maybe personal, content - what if a site was only available from my backpack, or my truck - what if a site could truly be turned off, maybe a Mondays only site, not meaning a clever splash screen on other days but literally off - what about a site from your desk literally only running when you were in. I don't know, you can easily think of a million reasons 'not this' or 'it doesn't actually make sense' - but I am curious.

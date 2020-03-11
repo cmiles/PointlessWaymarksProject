@@ -74,8 +74,7 @@
                      HorizontalContentAlignment="Stretch">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:NoteListListItem">
-                        <Border
-                            BorderBrush="LightGray" Background="White" BorderThickness="1" CornerRadius="5">
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
                                 <StackPanel Orientation="Vertical" Margin="2">
                                     <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Summary}" />

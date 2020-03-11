@@ -75,8 +75,7 @@
                      HorizontalContentAlignment="Stretch">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="photoList:PhotoListListItem">
-                        <Border
-                            BorderBrush="LightGray" Background="White" BorderThickness="1" CornerRadius="5">
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />

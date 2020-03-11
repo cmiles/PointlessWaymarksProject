@@ -1,0 +1,68 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Omu.ValueInjecter;
+using PointlessWaymarksCmsData.Models;
+
+namespace PointlessWaymarksCmsData.JsonFiles
+{
+    public static class DbImport
+    {
+<#
+       foreach (string loopTypeNames in new List<string>{"FileContent", "PhotoContent", "PostContent", "ImageContent"})
+       {
+#>
+         public static void <#= loopTypeNames #>ToDb(List<<#= loopTypeNames #>> toImport, IProgress<string> progress)
+         {
+             progress?.Report("<#= loopTypeNames #> - Starting");
+
+             if (toImport == null || !toImport.Any())
+             {
+                 progress?.Report("No files to import?");
+                 return;
+             }
+
+             progress?.Report($"<#= loopTypeNames #> - Working with {toImport.Count} Entries");
+        
+             var db = Db.Context().Result;
+             
+             foreach (var loopFiles in toImport)
+             {
+                 progress?.Report($"{loopFiles.Title} - Starting <#= loopTypeNames #>");
+
+                 var existingItems = db.<#= loopTypeNames #>s.Where(x => x.ContentId == loopFiles.ContentId).ToList();
+    
+                 if(existingItems.Any()) progress?.Report($"{loopFiles.Title} - Found {existingItems.Count} to move to historic");
+                 
+                 foreach (var loopExisting in existingItems)
+                 {
+                     var newHistoricEntry = new Historic<#= loopTypeNames #>();
+                     newHistoricEntry.InjectFrom(loopExisting);
+                     newHistoricEntry.Id = 0;
+    
+                     db.Historic<#= loopTypeNames #>s.Add(newHistoricEntry);
+                     db.<#= loopTypeNames #>s.Remove(loopExisting);
+                     db.SaveChanges(true);
+                 }
+    
+                 progress?.Report($"{loopFiles.Title} - Adding <#= loopTypeNames #>");
+    
+                 db.<#= loopTypeNames #>s.Add(loopFiles);
+    
+                 db.SaveChanges(true);
+
+                 progress?.Report($"{loopFiles.Title} - Imported");
+             }
+
+             progress?.Report("<#= loopTypeNames #> - Finished");
+
+         }
+<#
+       }
+#>
+    }
+}

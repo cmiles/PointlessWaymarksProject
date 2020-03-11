@@ -99,7 +99,7 @@
         </Grid>
         <GroupBox
             Grid.Row="1"
-            Header="Notes"
+            Header="Links"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Name="ItemsListBox"
@@ -110,12 +110,7 @@
                 SelectionMode="Extended">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:LinkStreamListListItem">
-                        <Border
-                            Background="White"
-                            BorderBrush="LightGray"
-                            BorderThickness="1"
-                            CornerRadius="5"
-                            Margin="4">
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
                                 <StackPanel Margin="2" Orientation="Vertical">
                                     <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DbEntry.Title}"

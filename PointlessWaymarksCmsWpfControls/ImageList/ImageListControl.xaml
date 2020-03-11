@@ -75,7 +75,7 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:ImageListListItem">
                         <Border
-                            BorderBrush="LightGray" Background="White" BorderThickness="1" CornerRadius="5">
+                            Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
