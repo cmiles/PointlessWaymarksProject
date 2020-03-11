@@ -24,8 +24,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
                 var photoContent = db.PhotoContents.Cast<IContentCommon>().ToList();
                 var imageContent = db.ImageContents.Cast<IContentCommon>().ToList();
                 var postContent = db.PostContents.Cast<IContentCommon>().ToList();
-                var noteContent = db.NoteContents.ToList().Select(x => x.NoteToCommonContent()).Cast<IContentCommon>()
-                    .ToList();
+                var noteContent = db.NoteContents.Cast<IContentCommon>().ToList();
 
                 return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                     .OrderBy(x => x.Title).ToList();
@@ -141,8 +140,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             List<IContentCommon> ContentList()
             {
                 var db = Db.Context().Result;
-                return db.NoteContents.ToList().Select(x => x.NoteToCommonContent()).Cast<IContentCommon>()
-                    .OrderByDescending(x => x.Title).ToList();
+                return db.NoteContents.ToList().OrderByDescending(x => x.Title).Cast<IContentCommon>().ToList();
             }
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteNoteListFile();

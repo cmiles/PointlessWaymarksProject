@@ -43,7 +43,7 @@ using PointlessWaymarksCmsData.NoteHtml;
             this.Write("\r\n<div class=\"content-container\">\r\n    ");
             
             #line 9 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(NoteParts.NoteTitleLinkDiv(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
             
             #line default
             #line hidden

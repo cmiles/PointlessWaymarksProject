@@ -6,6 +6,6 @@
 <#@ import namespace="PointlessWaymarksCmsData.NoteHtml" #>
 
 <div class="content-container">
-    <#= NoteParts.NoteTitleLinkDiv(DbEntry) #>
+    <#= DbEntry.Title #>
     <#= CommonHtml.Tags.PostBodyDiv(DbEntry) #>
 </div>

@@ -32,9 +32,8 @@ namespace PointlessWaymarksCmsData
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var noteContent =
-                (await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                    .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToListAsync())
-                .Select(x => x.NoteToCommonContent()).Cast<IContentCommon>().ToList();
+                await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                    .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
 
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
@@ -52,9 +51,8 @@ namespace PointlessWaymarksCmsData
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var noteContent =
-                (await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                    .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToListAsync())
-                .Select(x => x.NoteToCommonContent()).Cast<IContentCommon>().ToList();
+                await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                    .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
 
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
@@ -108,9 +106,8 @@ namespace PointlessWaymarksCmsData
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
             var noteContent =
-                (await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
-                    .Take(topNumberOfEntries).ToListAsync()).Select(x => x.NoteToCommonContent()).Cast<IContentCommon>()
-                .ToList();
+                await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
+                    .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
 
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
@@ -134,23 +131,5 @@ namespace PointlessWaymarksCmsData
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
 
-        public static ContentCommon NoteToCommonContent(this NoteContent toTransform)
-        {
-            return new ContentCommon
-            {
-                ContentId = toTransform.ContentId,
-                CreatedBy = toTransform.CreatedBy,
-                CreatedOn = toTransform.CreatedOn,
-                Folder = toTransform.Folder,
-                Id = toTransform.Id,
-                LastUpdatedBy = toTransform.LastUpdatedBy,
-                LastUpdatedOn = toTransform.LastUpdatedOn,
-                MainPicture = null,
-                Slug = toTransform.Slug,
-                Summary = toTransform.Summary,
-                Tags = toTransform.Tags,
-                Title = NoteParts.TitleString(toTransform)
-            };
-        }
     }
 }

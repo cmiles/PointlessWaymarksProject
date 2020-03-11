@@ -17,7 +17,7 @@ namespace PointlessWaymarksCmsData.NoteHtml
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.NotePageUrl(DbEntry);
-            Title = $"Note - {Tags.CreatedByAndUpdatedOnString(DbEntry)}";
+            Title = DbEntry.Title;
 
             var previousLater = RelatedPostContent.PreviousAndLaterContent(3, DbEntry.CreatedOn).Result;
             PreviousPosts = previousLater.previousContent;

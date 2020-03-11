@@ -2,6 +2,6 @@
 {
     public interface IShowInSiteFeed
     {
-        bool ShowInMainSiteFeed { get; set; }
+        bool ShowInMainSiteFeed { get; }
     }
 }

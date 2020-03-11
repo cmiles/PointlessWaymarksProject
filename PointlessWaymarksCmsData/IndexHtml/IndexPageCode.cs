@@ -194,7 +194,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
                     var content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                                   $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                    items.Add(RssStringBuilder.RssItemString(NoteParts.TitleString(post.DbEntry),
+                    items.Add(RssStringBuilder.RssItemString(post.DbEntry.Title,
                         $"https:{post.PageUrl}", content, post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
                 }
 

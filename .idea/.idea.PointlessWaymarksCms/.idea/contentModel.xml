@@ -81,7 +81,6 @@
           <e p="DbImport.cs" t="Include" />
           <e p="DbImport.tt" t="Include" />
           <e p="Export.cs" t="Include" />
-          <e p="HandWrittenDbImport.cs" t="Include" />
           <e p="Import.cs" t="Include" />
           <e p="Names.cs" t="Include" />
         </e>

@@ -4,7 +4,7 @@ namespace PointlessWaymarksCmsData.Models
 {
     public interface IContentId
     {
-        public Guid ContentId { get; set; }
-        public int Id { get; set; }
+        public Guid ContentId { get; }
+        public int Id { get; }
     }
 }

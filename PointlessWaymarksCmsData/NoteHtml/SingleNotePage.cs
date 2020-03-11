@@ -148,7 +148,7 @@ using PointlessWaymarksCmsData.CommonHtml;
             this.Write("\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
             
             #line 40 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(NoteParts.NoteTitleDiv(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
             
             #line default
             #line hidden

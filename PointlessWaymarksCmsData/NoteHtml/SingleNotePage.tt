@@ -37,7 +37,7 @@
 </head>
 
 <body>
-    <#= NoteParts.NoteTitleDiv(DbEntry) #>
+    <#= DbEntry.Title #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
      <#= HorizontalRule.StandardRule() #>
     <div class="information-section">

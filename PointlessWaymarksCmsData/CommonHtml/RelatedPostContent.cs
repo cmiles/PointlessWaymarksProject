@@ -96,10 +96,9 @@ namespace PointlessWaymarksCmsData
             Guid toCheckFor)
         {
             var posts = await toQuery.PostContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
-                .ToListAsync();
+                .Cast<IContentCommon>().ToListAsync();
             var notes =
-                (await toQuery.NoteContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString())).ToListAsync())
-                .Select(x => x.NoteToCommonContent()).Cast<IContentCommon>().ToList();
+                await toQuery.NoteContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString())).Cast<IContentCommon>().ToListAsync();
 
             return posts.Concat(notes).ToList();
         }

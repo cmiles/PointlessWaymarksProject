@@ -2,7 +2,7 @@
 {
     public interface IUpdateNotes
     {
-        public string UpdateNotes { get; set; }
-        public string UpdateNotesFormat { get; set; }
+        public string UpdateNotes { get; }
+        public string UpdateNotesFormat { get; }
     }
 }

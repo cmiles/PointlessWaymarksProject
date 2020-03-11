@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
     public static class DbImport
     {
 <#
-       foreach (string loopTypeNames in new List<string>{"FileContent", "PhotoContent", "PostContent", "ImageContent"})
+       foreach (string loopTypeNames in new List<string>{"FileContent", "PhotoContent", "PostContent", "ImageContent", "NoteContent"})
        {
 #>
          public static void <#= loopTypeNames #>ToDb(List<<#= loopTypeNames #>> toImport, IProgress<string> progress)
@@ -61,6 +61,43 @@ namespace PointlessWaymarksCmsData.JsonFiles
              progress?.Report("<#= loopTypeNames #> - Finished");
 
          }
+<#
+       }
+#>
+
+<#
+       foreach (string loopTypeNames in new List<string>{"HistoricFileContent", "HistoricPhotoContent", "HistoricPostContent", "HistoricImageContent", "HistoricNoteContent"})
+       {
+#>
+        public static void <#= loopTypeNames #>ToDb(List<<#= loopTypeNames #>> toImport, IProgress<string> progress)
+        {
+            progress?.Report("<#= loopTypeNames #> - Starting");
+
+            if (toImport == null || !toImport.Any())
+            {
+                progress?.Report("No files to import?");
+                return;
+            }
+
+            progress?.Report($"<#= loopTypeNames #> - Working with {toImport.Count} Entries");
+
+            var db = Db.Context().Result;
+
+            foreach (var loopFiles in toImport)
+            {
+                progress?.Report($"{loopFiles.Title} - Starting <#= loopTypeNames #>");
+
+                loopFiles.Id = 0;
+                
+                db.<#= loopTypeNames #>s.Add(loopFiles);
+
+                db.SaveChanges(true);
+
+                progress?.Report($"{loopFiles.Title} - Imported");
+            }
+
+            progress?.Report("FileContent - Finished");
+        }
 <#
        }
 #>

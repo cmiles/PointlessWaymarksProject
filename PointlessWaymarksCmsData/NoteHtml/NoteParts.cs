@@ -41,7 +41,7 @@ namespace PointlessWaymarksCmsData.NoteHtml
         public static HtmlTag NoteTitleDiv(NoteContent dbEntry)
         {
             var titleContainer = new HtmlTag("div").AddClass("title-container");
-            titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(TitleString(dbEntry)));
+            titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(dbEntry.Title));
             return titleContainer;
         }
 
@@ -53,17 +53,12 @@ namespace PointlessWaymarksCmsData.NoteHtml
             var titleContainer = new HtmlTag("div").AddClass("title-link-container");
 
             var header = new HtmlTag("h2").AddClass("title-link-content");
-            var linkToFullPost = new LinkTag(TitleString(dbEntry), settings.NotePageUrl(dbEntry));
+            var linkToFullPost = new LinkTag(dbEntry.Title, settings.NotePageUrl(dbEntry));
             header.Children.Add(linkToFullPost);
 
             titleContainer.Children.Add(header);
 
             return titleContainer;
-        }
-
-        public static string TitleString(NoteContent content)
-        {
-            return $"Notes - {NoteCreatedByAndUpdatedOnString(content)}";
         }
 
         public static string TrimLastCharacter(this string str)

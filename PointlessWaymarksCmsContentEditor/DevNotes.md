@@ -1,6 +1,6 @@
 ﻿## Todos
  - Switch to Sqlite/Spatialite
-   - Move DB - JSON Import - still need: LinkStream Type, Historic Import
+   - Move DB - JSON Import - still need: LinkStream import, GUI, testing
    - Startup support and settings file switching
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
@@ -17,6 +17,13 @@
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
+
+3/11/2020
+Changed the model interfaces to be read only - there is some potential lost flexibility in this change but at this point I am comfortable with the 'rule' that you need to use the concrete type if you want to modify the database.
+
+The interface change was largely a realization from working on the json import for the Notes - notes is really the only type that didn't implement all the so-far-needed data interfaces (has a generated title rather than a full 'user' title) which means it is an 'exception'... But by using the NotMapped attribute I was able to added the needed Title and MainPicture properties without storing them in the database (which in retrospect might have been a workable idea - but with this in place I am not going to revisit that at the moment) - this is nice because note now can implement all needed interfaces without any outside mapping needed. 
+
+More Json import generation - historic imports now building - like all json imports 100% untested at the moment.
 
 3/10/2020
 Added the first Json imports - some via T4 generated code and Notes as handwritten. Building but not tested.

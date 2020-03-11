@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using PointlessWaymarksCmsData.NoteHtml;
 
 namespace PointlessWaymarksCmsData.Models
 {
-    public class HistoricNoteContent : IContentId, ITag, IBodyContent, ICreatedAndLastUpdateOnAndBy, IShowInSiteFeed
+    public class HistoricNoteContent : IContentId, ITag, IBodyContent, ICreatedAndLastUpdateOnAndBy, IShowInSiteFeed, ITitleSummarySlugFolder
     {
         public string Folder { get; set; }
         public string Slug { get; set; }
@@ -18,5 +20,8 @@ namespace PointlessWaymarksCmsData.Models
         public DateTime? LastUpdatedOn { get; set; }
         public bool ShowInMainSiteFeed { get; set; }
         public string Tags { get; set; }
+        
+        [NotMapped]
+        public string Title => $"Notes - {NoteParts.NoteCreatedByAndUpdatedOnString(this)}";
     }
 }
