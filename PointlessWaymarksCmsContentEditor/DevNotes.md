@@ -1,6 +1,6 @@
 ﻿## Todos
  - Switch to Sqlite/Spatialite
-   - Move DB - JSON Import - still need: LinkStream import, GUI, testing
+   - Move DB - JSON Import - still need: GUI, testing
    - Startup support and settings file switching
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
@@ -17,6 +17,9 @@
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
+
+3/12/2020
+Basic Json Import Methods are done - completely untested.
 
 3/11/2020
 Changed the model interfaces to be read only - there is some potential lost flexibility in this change but at this point I am comfortable with the 'rule' that you need to use the concrete type if you want to modify the database.

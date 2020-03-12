@@ -99,7 +99,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(dbEntry).FullName,
-                $"{Names.HistoricPostsContentPrefix}{dbEntry.ContentId}.json"));
+                $"{Names.HistoricPostContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
@@ -129,7 +129,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(dbEntry).FullName,
-                $"{Names.HistoricNotesContentPrefix}{dbEntry.ContentId}.json"));
+                $"{Names.HistoricNoteContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
@@ -159,7 +159,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(dbEntry).FullName,
-                $"{Names.HistoricImagesContentPrefix}{dbEntry.ContentId}-Historic.json"));
+                $"{Names.HistoricImageContentPrefix}{dbEntry.ContentId}-Historic.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
@@ -190,7 +190,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(dbEntry).FullName,
-                $"{Names.HistoricPhotosContentPrefix}{dbEntry.ContentId}.json"));
+                $"{Names.HistoricPhotoContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();

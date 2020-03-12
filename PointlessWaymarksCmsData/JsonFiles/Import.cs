@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
-using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData.JsonFiles
@@ -24,56 +21,43 @@ namespace PointlessWaymarksCmsData.JsonFiles
             return returnList;
         }
 
+        public static void FullImportFromRootDirectory(DirectoryInfo rootDirectory, IProgress<string> progress)
+        {
+            if (rootDirectory == null || !rootDirectory.Exists)
+            {
+                progress?.Report("Root Directory does not exist?");
+                return;
+            }
+
+            var allFiles = GetAllJsonFiles(rootDirectory);
+
+            DbImport.FileContentToDb(ContentFromFiles<FileContent>(allFiles, Names.FileContentPrefix), progress);
+            DbImport.ImageContentToDb(ContentFromFiles<ImageContent>(allFiles, Names.ImageContentPrefix), progress);
+            DbImport.LinkStreamToDb(ContentFromFiles<LinkStream>(allFiles, Names.LinkListFileName), progress);
+            DbImport.NoteContentToDb(ContentFromFiles<NoteContent>(allFiles, Names.NoteContentPrefix), progress);
+            DbImport.PhotoContentToDb(ContentFromFiles<PhotoContent>(allFiles, Names.PhotoContentPrefix), progress);
+            DbImport.PostContentToDb(ContentFromFiles<PostContent>(allFiles, Names.PostContentPrefix), progress);
+
+            DbImport.HistoricFileContentToDb(
+                ContentFromFiles<HistoricFileContent>(allFiles, Names.HistoricFileContentPrefix), progress);
+            DbImport.HistoricImageContentToDb(
+                ContentFromFiles<HistoricImageContent>(allFiles, Names.HistoricImageContentPrefix), progress);
+            DbImport.HistoricLinkStreamToDb(
+                ContentFromFiles<HistoricLinkStream>(allFiles, Names.HistoricLinkListFileName), progress);
+            DbImport.HistoricNoteContentToDb(
+                ContentFromFiles<HistoricNoteContent>(allFiles, Names.HistoricNoteContentPrefix), progress);
+            DbImport.HistoricPhotoContentToDb(
+                ContentFromFiles<HistoricPhotoContent>(allFiles, Names.HistoricPhotoContentPrefix), progress);
+            DbImport.HistoricPostContentToDb(
+                ContentFromFiles<HistoricPostContent>(allFiles, Names.HistoricPostContentPrefix), progress);
+        }
+
         public static List<string> GetAllJsonFiles(DirectoryInfo rootDirectory)
         {
             return Directory.GetFiles(rootDirectory.FullName, "*.json", SearchOption.AllDirectories).ToList();
         }
 
-        private static DbSet<T> GetDbSet<T>(Type entityType, PointlessWaymarksContext db) where T : class
-        {
-            var allProperties = typeof(PointlessWaymarksContext).GetProperties(BindingFlags.Public);
-            var typeDbSet = allProperties.Single(x =>
-                x.PropertyType.IsGenericParameter && x.PropertyType.GenericTypeArguments.Length == 1 &&
-                x.PropertyType.GenericTypeArguments.First() == entityType);
-
-            return (DbSet<T>) typeDbSet.GetValue(db);
-        }
-
-        public static void ImportContentIntoDb(List<FileContent> toImport, IProgress<string> progress)
-        {
-            if (toImport == null || !toImport.Any()) progress?.Report("No files to import?");
-
-            var db = Db.Context().Result;
-
-
-            foreach (var loopFiles in toImport)
-            {
-                var existingItems = db.FileContents.Where(x => x.ContentId == loopFiles.ContentId).ToList();
-
-                if (existingItems.Any())
-                    progress?.Report($"{loopFiles.Title} - Found {existingItems.Count} to move to historic");
-
-                foreach (var loopExisting in existingItems)
-                {
-                    var newHistoricEntry = new HistoricFileContent();
-                    newHistoricEntry.InjectFrom(loopExisting);
-                    newHistoricEntry.Id = 0;
-
-                    db.HistoricFileContents.Add(newHistoricEntry);
-                    db.FileContents.Remove(loopExisting);
-                    db.SaveChanges(true);
-                }
-
-                if (existingItems.Any()) progress?.Report($"{loopFiles.Title} - Adding FileContent");
-
-                db.FileContents.Add(loopFiles);
-
-                db.SaveChanges(true);
-            }
-        }
-
-
-        public static List<T> ImportHistoricContent<T>(List<string> fileLists, string fileIdentifierPrefix)
+        public static List<T> HistoricContentFromFiles<T>(List<string> fileLists, string fileIdentifierPrefix)
         {
             var contentFiles = fileLists.Where(x => x.Contains(fileIdentifierPrefix));
 
