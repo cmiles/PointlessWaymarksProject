@@ -8,7 +8,7 @@ namespace PointlessWaymarksCmsData
     {
         private string _bingApiKey = string.Empty;
         private string _calTopoApiKey = string.Empty;
-        private string _databaseName = "PointlessWaymarksDb";
+        private string _databaseFile;
         private string _defaultCreatedBy;
         private string _googleMapsApiKey = string.Empty;
         private string _localMasterMediaArchive;
@@ -43,13 +43,13 @@ namespace PointlessWaymarksCmsData
             }
         }
 
-        public string DatabaseName
+        public string DatabaseFile
         {
-            get => _databaseName;
+            get => _databaseFile;
             set
             {
-                if (value == _databaseName) return;
-                _databaseName = value;
+                if (value == _databaseFile) return;
+                _databaseFile = value;
                 OnPropertyChanged();
             }
         }

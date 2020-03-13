@@ -480,7 +480,79 @@ namespace PointlessWaymarksCmsData
                 currentFile.Refresh();
             }
 
-            return await JsonSerializer.DeserializeAsync<UserSettings>(File.OpenRead(currentFile.FullName));
+            var readResult = await JsonSerializer.DeserializeAsync<UserSettings>(File.OpenRead(currentFile.FullName));
+
+            var timeStampForMissingValues = $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss-fff}";
+
+            if (string.IsNullOrWhiteSpace(readResult.DatabaseFile))
+            {
+                //This could fail for all kinds of interesting reasons but for the purposes of this program I am not sure that 
+                //industrial strength name collision avoidance is needed
+                var newDbFile = new FileInfo(Path.Combine(currentFile.Directory.FullName, timeStampForMissingValues,
+                    $"PointlessWaymarksData-{timeStampForMissingValues}.db"));
+
+                if (!newDbFile.Exists) newDbFile.Create();
+            }
+
+            var hasUpdates = false;
+
+            if (string.IsNullOrWhiteSpace(readResult.LocalSiteRootDirectory))
+            {
+                var newLocalSiteRoot = new DirectoryInfo(Path.Combine(currentFile.Directory.FullName,
+                    timeStampForMissingValues, $"PointlessWaymarks-Site-{timeStampForMissingValues}"));
+
+                if (!newLocalSiteRoot.Exists) newLocalSiteRoot.Create();
+                hasUpdates = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(readResult.LocalSiteRootDirectory))
+            {
+                var newMediaArchive = new DirectoryInfo(Path.Combine(currentFile.Directory.FullName,
+                    timeStampForMissingValues, $"PointlessWaymarks-MediaArchive-{timeStampForMissingValues}"));
+
+                if (!newMediaArchive.Exists) newMediaArchive.Create();
+                hasUpdates = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(readResult.DefaultCreatedBy))
+            {
+                readResult.DefaultCreatedBy = "Pointless Waymarks CMS";
+                hasUpdates = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(readResult.SiteName))
+            {
+                readResult.SiteName = "New Site";
+                hasUpdates = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(readResult.SiteKeywords))
+            {
+                readResult.SiteKeywords = "new,site";
+                hasUpdates = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(readResult.SiteSummary))
+            {
+                readResult.SiteSummary = "A new site.";
+                hasUpdates = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(readResult.SiteAuthors))
+            {
+                readResult.SiteAuthors = "Pointless Waymarks CMS";
+                hasUpdates = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(readResult.SiteEmailTo))
+            {
+                readResult.SiteEmailTo = "nothing@nowhere.com";
+                hasUpdates = true;
+            }
+
+            if (hasUpdates) await WriteSettings(readResult);
+
+            return readResult;
         }
 
         public static string RssIndexFeedUrl(this UserSettings settings)
@@ -561,7 +633,6 @@ namespace PointlessWaymarksCmsData
 
         public static void VerifyAndCreate()
         {
-            ReadSettings().Wait();
         }
 
         public static void VerifyOrCreateAllFolders(this UserSettings settings)

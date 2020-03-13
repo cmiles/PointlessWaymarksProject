@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.FileHtml;
@@ -70,9 +72,10 @@ namespace PointlessWaymarksCmsContentEditor
 
             GenerateIndexCommand = new Command(() => StatusContext.RunNonBlockingTask(GenerateIndex));
             OpenIndexUrlCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenIndexUrl));
-            
+
             GenerateAllHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllHtml));
-            GenerateAllHtmlAndCleanAndResizePicturesCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllHtmlAndCleanAndResizePictures));
+            GenerateAllHtmlAndCleanAndResizePicturesCommand = new Command(() =>
+                StatusContext.RunBlockingTask(GenerateAllHtmlAndCleanAndResizePictures));
             CleanAndResizePicturesCommand = new Command(() => StatusContext.RunBlockingTask(CleanAndResizePictures));
 
             NewPhotoContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
@@ -92,6 +95,9 @@ namespace PointlessWaymarksCmsContentEditor
                 new Command(() => StatusContext.RunBlockingTask(GenerateAllFileHtml));
 
             NewLinkContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewLinkContent));
+
+            ImportJsonFromDirectoryCommand =
+                new Command(() => StatusContext.RunNonBlockingTask(ImportJsonFromDirectory));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
@@ -166,6 +172,8 @@ namespace PointlessWaymarksCmsContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public Command ImportJsonFromDirectoryCommand { get; set; }
 
         public LinkStreamListWithActionsContext LinkStreamContext
         {
@@ -380,6 +388,12 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        private async Task CleanAndResizePictures()
+        {
+            await CleanAndResizeAllPhotoFiles();
+            await CleanAndResizeAllImageFiles();
+        }
+
         private async Task GenerateAllFileHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -413,19 +427,6 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        private async Task CleanAndResizePictures()
-        {
-            await CleanAndResizeAllPhotoFiles();
-            await CleanAndResizeAllImageFiles();
-        }
-        
-        private async Task GenerateAllHtmlAndCleanAndResizePictures()
-        {
-            await CleanAndResizePictures();
-
-            await GenerateAllHtml();
-        }
-
         private async Task GenerateAllHtml()
         {
             await GenerateAllImageHtml();
@@ -435,6 +436,13 @@ namespace PointlessWaymarksCmsContentEditor
             await GenerateAllPostHtml();
             await GenerateAllListHtml();
             await GenerateIndex();
+        }
+
+        private async Task GenerateAllHtmlAndCleanAndResizePictures()
+        {
+            await CleanAndResizePictures();
+
+            await GenerateAllHtml();
         }
 
         private async Task GenerateAllImageHtml()
@@ -565,6 +573,31 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext.ToastSuccess($"Generated {index.PageUrl}");
         }
 
+        private async Task ImportJsonFromDirectory()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            StatusContext.Progress("Starting JSON load.");
+
+            var dialog = new VistaFolderBrowserDialog();
+
+            if (!(dialog.ShowDialog() ?? false)) return;
+
+            var newDirectory = new DirectoryInfo(dialog.SelectedPath);
+
+            if (!newDirectory.Exists)
+            {
+                StatusContext.ToastError("Directory doesn't exist?");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            Import.FullImportFromRootDirectory(newDirectory, StatusContext.ProgressTracker());
+
+            StatusContext.Progress("JSON Import Finished");
+        }
+
         private async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -577,12 +610,6 @@ namespace PointlessWaymarksCmsContentEditor
             LinkStreamContext = new LinkStreamListWithActionsContext(null);
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
-
-            UserSettingsUtilities.VerifyAndCreate();
-
-            var db = await Db.Context();
-            //db.Database.EnsureDeleted();
-            db.Database.EnsureCreated();
         }
 
         private async Task NewFileContent()

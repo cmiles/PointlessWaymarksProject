@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using PointlessWaymarksCmsData;
 
 namespace PointlessWaymarksCmsContentEditor
 {
@@ -7,5 +8,11 @@ namespace PointlessWaymarksCmsContentEditor
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            UserSettingsUtilities.VerifyAndCreate();
+            var db = Db.Context().Result;
+            db.Database.EnsureCreated();
+        }
     }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Code\PointlessWaymarksCms" t="IncludeFlat">
+    <e p="C:\Code\PointlessWaymarksCmsSpatiaLite" t="IncludeFlat">
       <e p="packages" t="ExcludeRecursive" />
       <e p="PointlessWaymarksCms.sln" t="IncludeFlat" />
       <e p="PointlessWaymarksCmsContentEditor" t="IncludeRecursive">
@@ -15,7 +15,6 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
-              <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -522,16 +521,16 @@
         <e p="PointlessWaymarksTests.csproj" t="IncludeRecursive" />
       </e>
     </e>
-    <e p="C:\Users\charl\.nuget\packages\microsoft.net.test.sdk\16.4.0\build\netcoreapp2.1" t="Include">
+    <e p="C:\Users\charl\.nuget\packages\microsoft.net.test.sdk\16.6.0-preview-20200309-01\build\netcoreapp2.1" t="Include">
       <e p="Microsoft.NET.Test.Sdk.Program.cs" t="Include" />
     </e>
-    <e p="C:\Users\charl\.nuget\packages\microsoft.testplatform.testhost\16.4.0\build\netcoreapp2.1\x64\testhost.dll" t="Include" />
-    <e p="C:\Users\charl\.nuget\packages\microsoft.testplatform.testhost\16.4.0\build\netcoreapp2.1\x64\testhost.exe" t="Include" />
-    <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.15.1\build\netcoreapp2.0\nunit.engine.api.dll" t="Include" />
-    <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.15.1\build\netcoreapp2.0\nunit.engine.dll" t="Include" />
-    <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.15.1\build\netcoreapp2.0\NUnit3.TestAdapter.dll" t="Include" />
-    <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.15.1\build\netcoreapp2.0\NUnit3.TestAdapter.pdb" t="Include" />
+    <e p="C:\Users\charl\.nuget\packages\microsoft.testplatform.testhost\16.6.0-preview-20200309-01\build\netcoreapp2.1\x64\testhost.dll" t="Include" />
+    <e p="C:\Users\charl\.nuget\packages\microsoft.testplatform.testhost\16.6.0-preview-20200309-01\build\netcoreapp2.1\x64\testhost.exe" t="Include" />
+    <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.16.1\build\netcoreapp2.1\nunit.engine.api.dll" t="Include" />
+    <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.16.1\build\netcoreapp2.1\nunit.engine.dll" t="Include" />
+    <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.16.1\build\netcoreapp2.1\NUnit3.TestAdapter.dll" t="Include" />
+    <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.16.1\build\netcoreapp2.1\NUnit3.TestAdapter.pdb" t="Include" />
     <e p="C:\Users\charl\.Rider2019.3\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\charl\.Rider2019.3\system\resharper-host\local\Transient\ReSharperHost\v193\SolutionCaches\_PointlessWaymarksCms.451256358.00" t="ExcludeRecursive" />
+    <e p="C:\Users\charl\.Rider2019.3\system\resharper-host\local\Transient\ReSharperHost\v193\SolutionCaches\_PointlessWaymarksCms.-338870448.00" t="ExcludeRecursive" />
   </component>
 </project>

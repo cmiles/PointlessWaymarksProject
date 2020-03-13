@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.NoteHtml;
 
 namespace PointlessWaymarksCmsData
 {
@@ -13,11 +12,9 @@ namespace PointlessWaymarksCmsData
         public static async Task<PointlessWaymarksContext> Context()
         {
             var optionsBuilder = new DbContextOptionsBuilder<PointlessWaymarksContext>();
-            var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseName;
+            var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseFile;
             return new PointlessWaymarksContext(optionsBuilder
-                .UseSqlServer(
-                    $"Server = (localdb)\\mssqllocaldb; Database={dbPath}; Trusted_Connection=True; MultipleActiveResultSets=true",
-                    x => x.UseNetTopologySuite()).Options);
+                .UseSqlite($"Data Source={dbPath}", x => x.UseNetTopologySuite()).Options);
         }
 
         public static async Task<List<IContentCommon>> MainFeedCommonContentAfter(DateTime after, int numberOfEntries)
@@ -31,9 +28,8 @@ namespace PointlessWaymarksCmsData
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
-            var noteContent =
-                await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
-                    .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
+            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
 
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
@@ -50,9 +46,8 @@ namespace PointlessWaymarksCmsData
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
-            var noteContent =
-                await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
-                    .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
+            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
 
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
@@ -105,9 +100,8 @@ namespace PointlessWaymarksCmsData
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
-            var noteContent =
-                await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
-                    .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
+            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
+                .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
 
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
@@ -130,6 +124,5 @@ namespace PointlessWaymarksCmsData
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
-
     }
 }
