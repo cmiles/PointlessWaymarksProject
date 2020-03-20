@@ -15,6 +15,7 @@
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
               <e p="App.g.cs" t="Include" />
+              <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -51,6 +52,7 @@
           <e p="GoogleElevationService.cs" t="Include" />
           <e p="GoogleLocation.cs" t="Include" />
         </e>
+        <e p="EventLogContext.cs" t="Include" />
         <e p="ExifHelpers.cs" t="Include" />
         <e p="FileHtml" t="Include">
           <e p="SingleFileDiv.cs" t="Include" />
@@ -92,6 +94,7 @@
         <e p="MainImageProcessor.cs" t="Include" />
         <e p="Models" t="Include">
           <e p="ContentCommon.cs" t="Include" />
+          <e p="EventLog.cs" t="Include" />
           <e p="FileContent.cs" t="Include" />
           <e p="HistoricFileContent.cs" t="Include" />
           <e p="HistoricImageContent.cs" t="Include" />

@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
     {
         public static List<T> ContentFromFiles<T>(List<string> fileLists, string fileIdentifierPrefix)
         {
-            var contentFiles = fileLists.Where(x => x.Contains(fileIdentifierPrefix));
+            var contentFiles = fileLists.Where(x => x.Contains($"\\{fileIdentifierPrefix}")).ToList();
 
             var returnList = new List<T>();
 
@@ -33,23 +33,31 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             DbImport.FileContentToDb(ContentFromFiles<FileContent>(allFiles, Names.FileContentPrefix), progress);
             DbImport.ImageContentToDb(ContentFromFiles<ImageContent>(allFiles, Names.ImageContentPrefix), progress);
-            DbImport.LinkStreamToDb(ContentFromFiles<LinkStream>(allFiles, Names.LinkListFileName), progress);
+            DbImport.LinkStreamToDb(
+                ContentFromFiles<List<LinkStream>>(allFiles, Names.LinkListFileName).SelectMany(x => x).ToList(),
+                progress);
             DbImport.NoteContentToDb(ContentFromFiles<NoteContent>(allFiles, Names.NoteContentPrefix), progress);
             DbImport.PhotoContentToDb(ContentFromFiles<PhotoContent>(allFiles, Names.PhotoContentPrefix), progress);
             DbImport.PostContentToDb(ContentFromFiles<PostContent>(allFiles, Names.PostContentPrefix), progress);
 
             DbImport.HistoricFileContentToDb(
-                ContentFromFiles<HistoricFileContent>(allFiles, Names.HistoricFileContentPrefix), progress);
+                ContentFromFiles<List<HistoricFileContent>>(allFiles, Names.HistoricFileContentPrefix)
+                    .SelectMany(x => x).ToList(), progress);
             DbImport.HistoricImageContentToDb(
-                ContentFromFiles<HistoricImageContent>(allFiles, Names.HistoricImageContentPrefix), progress);
+                ContentFromFiles<List<HistoricImageContent>>(allFiles, Names.HistoricImageContentPrefix)
+                    .SelectMany(x => x).ToList(), progress);
             DbImport.HistoricLinkStreamToDb(
-                ContentFromFiles<HistoricLinkStream>(allFiles, Names.HistoricLinkListFileName), progress);
+                ContentFromFiles<List<HistoricLinkStream>>(allFiles, Names.HistoricLinkListFileName).SelectMany(x => x)
+                    .ToList(), progress);
             DbImport.HistoricNoteContentToDb(
-                ContentFromFiles<HistoricNoteContent>(allFiles, Names.HistoricNoteContentPrefix), progress);
+                ContentFromFiles<List<HistoricNoteContent>>(allFiles, Names.HistoricNoteContentPrefix)
+                    .SelectMany(x => x).ToList(), progress);
             DbImport.HistoricPhotoContentToDb(
-                ContentFromFiles<HistoricPhotoContent>(allFiles, Names.HistoricPhotoContentPrefix), progress);
+                ContentFromFiles<List<HistoricPhotoContent>>(allFiles, Names.HistoricPhotoContentPrefix)
+                    .SelectMany(x => x).ToList(), progress);
             DbImport.HistoricPostContentToDb(
-                ContentFromFiles<HistoricPostContent>(allFiles, Names.HistoricPostContentPrefix), progress);
+                ContentFromFiles<List<HistoricPostContent>>(allFiles, Names.HistoricPostContentPrefix)
+                    .SelectMany(x => x).ToList(), progress);
         }
 
         public static List<string> GetAllJsonFiles(DirectoryInfo rootDirectory)

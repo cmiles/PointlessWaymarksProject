@@ -36,17 +36,35 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
                  var existingItems = db.<#= loopTypeNames #>s.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
     
-                 if(existingItems.Any()) progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} to move to historic");
-                 
+                if (existingItems.Any())
+                    progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
+
+                var foundExistingMatchingEntry = false;
+               
                  foreach (var loopExisting in existingItems)
                  {
-                     var newHistoricEntry = new Historic<#= loopTypeNames #>();
-                     newHistoricEntry.InjectFrom(loopExisting);
-                     newHistoricEntry.Id = 0;
+                    if (loopExisting.CreatedOn == loopImportItem.CreatedOn &&
+                        loopExisting.CreatedBy == loopImportItem.CreatedBy &&
+                        loopExisting.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
+                        loopExisting.LastUpdatedBy == loopImportItem.LastUpdatedBy)
+                        {
+                            foundExistingMatchingEntry = true;
+                            continue;
+                        }
+
+                    var newHistoricEntry = new Historic<#= loopTypeNames #>();
+                    newHistoricEntry.InjectFrom(loopExisting);
+                    newHistoricEntry.Id = 0;
     
-                     db.Historic<#= loopTypeNames #>s.Add(newHistoricEntry);
-                     db.<#= loopTypeNames #>s.Remove(loopExisting);
-                     db.SaveChanges(true);
+                    db.Historic<#= loopTypeNames #>s.Add(newHistoricEntry);
+                    db.<#= loopTypeNames #>s.Remove(loopExisting);
+                    db.SaveChanges(true);
+                 }
+
+                 if (foundExistingMatchingEntry)
+                 {
+                     progress?.Report($"{loopImportItem.Title} - Found in DB");
+                     continue;
                  }
     
                  progress?.Report($"{loopImportItem.Title} - Adding <#= loopTypeNames #>");
@@ -85,7 +103,14 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             foreach (var loopImportItem in toImport)
             {
-                progress?.Report($"{loopImportItem.Title} - Starting <#= loopTypeNames #>");
+                if (db.<#= loopTypeNames #>s.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.CreatedOn == loopImportItem.CreatedOn &&
+                    x.CreatedBy == loopImportItem.CreatedBy && x.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
+                    x.LastUpdatedBy == loopImportItem.LastUpdatedBy))
+                {
+                    progress?.Report($"Historic {loopImportItem.CreatedOn:g} {loopImportItem.Title} - Already Exists");
+                    continue;
+                }
 
                 loopImportItem.Id = 0;
                 

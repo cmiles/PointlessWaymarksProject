@@ -4,11 +4,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
+using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.ToastControl;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -112,6 +115,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public string ShowMessageResponse { get; set; }
 
+        public Guid StatusControlContextId { get; } = Guid.NewGuid();
+
         public ObservableCollection<string> StatusLog
         {
             get => _statusLog;
@@ -203,7 +208,11 @@ namespace PointlessWaymarksCmsWpfControls.Status
                 return;
             }
 
-            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
+            if (obj.IsFaulted)
+            {
+                ToastError($"Error: {obj.Exception?.Message}");
+                Task.Run(() => TryWriteExceptionToLog(obj.Exception));
+            }
         }
 
         private void DecrementBlockingTasks()
@@ -224,7 +233,12 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             if (obj.IsCanceled) return;
 
-            if (obj.IsFaulted) await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
+            if (obj.IsFaulted)
+            {
+                await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
+                
+                Task.Run(() => TryWriteExceptionToLog(obj.Exception));
+            }
         }
 
         private void FireAndForgetTaskWithToastErrorReturnCompleted(Task obj)
@@ -233,7 +247,12 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             if (obj.IsCanceled) return;
 
-            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
+            if (obj.IsFaulted)
+            {
+                ToastError($"Error: {obj.Exception?.Message}");
+
+                Task.Run(() => TryWriteExceptionToLog(obj.Exception));
+            }
         }
 
         private void IncrementBlockingTasks()
@@ -259,7 +278,12 @@ namespace PointlessWaymarksCmsWpfControls.Status
                 return;
             }
 
-            if (obj.IsFaulted) ToastError($"Error: {obj.Exception?.Message}");
+            if (obj.IsFaulted)
+            {
+                ToastError($"Error: {obj.Exception?.Message}");
+
+                Task.Run(() => TryWriteExceptionToLog(obj.Exception));
+            }
         }
 
         [NotifyPropertyChangedInvocator]
@@ -275,6 +299,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
                 StatusLog.Add(e);
 
                 if (StatusLog.Count > 20) StatusLog.Remove(StatusLog.First());
+
+                if (UserSettingsSingleton.LogDiagnosticEvents) Task.Run(() => TryWriteDiagnosticMessageToLog(e));
             });
         }
 
@@ -317,6 +343,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 ShowMessage("Error", e.ToString(), new List<string> {"Ok"}).Wait();
                 DecrementBlockingTasks();
+
+                Task.Run(() => TryWriteExceptionToLog(e));
             }
         }
 
@@ -331,6 +359,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 DecrementNonBlockingTasks();
                 ToastError($"Error: {e.Message}");
+                
+                Task.Run(() => TryWriteExceptionToLog(e));
             }
         }
 
@@ -343,11 +373,6 @@ namespace PointlessWaymarksCmsWpfControls.Status
         {
             IncrementNonBlockingTasks();
             Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
-        }
-
-        public async Task<string> ShowMessageWithOkButton(string title, string body)
-        {
-            return await ShowMessage(title, body, new List<string> {"Ok"});
         }
 
         public async Task<string> ShowMessage(string title, string body, List<string> buttons)
@@ -389,6 +414,11 @@ namespace PointlessWaymarksCmsWpfControls.Status
             return toReturn;
         }
 
+        public async Task<string> ShowMessageWithOkButton(string title, string body)
+        {
+            return await ShowMessage(title, body, new List<string> {"Ok"});
+        }
+
         public async Task<(bool, string)> ShowStringEntry(string title, string body, string initialUserString)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -408,6 +438,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             catch (Exception e)
             {
                 if (!(e is OperationCanceledException)) Progress($"ShowMessage Exception {e.Message}");
+                Task.Run(() => TryWriteExceptionToLog(e));
             }
             finally
             {
@@ -438,16 +469,99 @@ namespace PointlessWaymarksCmsWpfControls.Status
         public void ToastError(string toastText)
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Error));
+            if (UserSettingsSingleton.LogDiagnosticEvents)
+            {
+                Task.Run(() => TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}"));
+            }
         }
 
         public void ToastSuccess(string toastText)
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Success));
+            if (UserSettingsSingleton.LogDiagnosticEvents)
+            {
+                Task.Run(() => TryWriteDiagnosticMessageToLog($"Toast Success - {toastText}"));
+            }
+
         }
 
         public void ToastWarning(string toastText)
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
+            if (UserSettingsSingleton.LogDiagnosticEvents)
+            {
+                Task.Run(() => TryWriteDiagnosticMessageToLog($"Toast Warning - {toastText}"));
+            }
+        }
+
+        private async Task TryWriteDiagnosticMessageToLog(string message)
+        {
+            try
+            {
+                var log = await Db.Log();
+                log.EventLogs.Add(new EventLog
+                {
+                    Category = "Diagnostic",
+                    Sender = StatusControlContextId.ToString(),
+                    Information = message ?? string.Empty,
+                    RecordedOn = DateTime.UtcNow
+                });
+
+                await log.SaveChangesAsync(true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        private async Task TryWriteExceptionToLog(Exception ex)
+        {
+            try
+            {
+                var informationBuilder = new StringBuilder();
+                informationBuilder.AppendLine($"Local Time: {DateTime.Now:F}");
+
+                if (ex != null)
+                {
+                    informationBuilder.AppendLine($"Top Exception Message: {ex.Message}");
+
+                    informationBuilder.AppendLine("Full Exception:");
+
+                    informationBuilder.AppendLine(ex.ToString());
+
+                    var currentException = ex;
+
+                    while (currentException.InnerException != null)
+                    {
+                        informationBuilder.AppendLine();
+                        informationBuilder.AppendLine(currentException.ToString());
+                        currentException = currentException.InnerException;
+                    }
+                }
+                else
+                {
+                    informationBuilder.AppendLine("Exception is Null?");
+                }
+
+                informationBuilder.AppendLine();
+                informationBuilder.AppendLine(StatusLog.ToString());
+
+                var log = await Db.Log();
+                log.EventLogs.Add(new EventLog
+                {
+                    Category = "Exception",
+                    Sender = StatusControlContextId.ToString(),
+                    Information = informationBuilder.ToString(),
+                    RecordedOn = DateTime.UtcNow
+                });
+
+                await log.SaveChangesAsync(true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         private void UserMessageBoxResponse(string responseString)

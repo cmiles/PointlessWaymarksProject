@@ -1,22 +1,45 @@
 ﻿## Todos
- - Switch to Sqlite/Spatialite
-   - Move DB - JSON Import - still need: GUI, testing
-   - Startup support and settings file switching
+ - Settings file switching
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
  - Is everything getting HMTL Encoded - are there spots with leaks? (tests?)
  - RSS - Does title need CDATA to be completely safe? Or?
+ - Try to Log Unhandled Exceptions
 
 ## Ideas
  - Top of the html page menu - or other 'nav' idea (maybe just a one level set of links that collapses on mobile? or...)
  - Top of the html page search box - maybe pass a query parameter to the all content list page?
  - Extract links from list page or 'all site' (option in content but not in lists/all)
  - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
+ - Add a UTC DateTime as a 'Row Version' field to all content types
  - Backup the master media directory, database and current site to a dated folder (where?)
 
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
+
+3/19/2020
+In working on the Json import it became obvious it would be a benefit to have some logging. This was a fairly quick project because the GUI Commands and Feedback (and at this point nearly everything is a GUI executed command) run thru the StatusControlContext so code to write useful logging information really only had to go into that class to get a very useful start to ad hoc logging. The logging currently goes to a Sqlite database in the user docs folder. The most interesting detail that I haven't incorporated before is that each StatusControlContext gets a Guid id that is recorded as the 'sender' in the database - it could turn out to be more useful to log a thread id in terms of reconstruction but for now logging the Guid of the StatusControlContext is an easy way to get associated events.
+
+JSON Imports are done with very light testing - T4 generation of the code did end up being a good strategy - easy to debug too. I was concerned about keeping a row version (3/13 log entry) and still think that might be a good idea (and I now think just a UTC DateTime would do it) but leaving that for now and just doing a very simple check on the created/updated fields (this won't help with any time zone type issues but should work nicely for simple 1 user predictable timezone uses).
+
+3/17/2020
+A very helpful link of git sparse checkout on windows - glad I came across information on this fairly quickly - https://stackoverflow.com/questions/23289006/on-windows-git-error-sparse-checkout-leaves-no-entry-on-the-working-directory - basically the problem appears to be that if you use powershell (I suspect all versions but wonder about the latest open source cross platform versions) and follow variations of the most common sparse check out recipes the echo [your sparse checkout dir] >> .git/info/sparse-checkout is actually producing unicode file with a BOM marker - instead you should do something like
+ * echo "yourPath" | out-file -encoding ascii .git/info/sparse-checkout
+ * Set-Content .git\info\sparse-checkout "someFolder/*" -Encoding Ascii
+
+So a basic recipe of:
+```
+git init <repo>
+cd <repo>
+git remote add origin <url>
+git config core.sparsecheckout true
+Set-Content .git\info\sparse-checkout "SomeSubDir/*" -Encoding Ascii
+git pull --depth=1 origin master
+```
+
+(Note I typed out this version because it makes sense to me atm - I believe there is now a 'sparse-checkout' command that is at least experimental - there may also be some good details with --filter but I neither immediately understood nor dug into that.)
+
 
 3/13/2020
 Switched DB over to SQLite/Spatialite.

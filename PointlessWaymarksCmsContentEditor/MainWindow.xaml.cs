@@ -2,8 +2,10 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using HtmlTableHelper;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
@@ -21,6 +23,7 @@ using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.FileList;
+using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.ImageList;
 using PointlessWaymarksCmsWpfControls.LinkStreamEditor;
@@ -96,13 +99,25 @@ namespace PointlessWaymarksCmsContentEditor
 
             NewLinkContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewLinkContent));
 
-            ImportJsonFromDirectoryCommand =
-                new Command(() => StatusContext.RunNonBlockingTask(ImportJsonFromDirectory));
+            ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
+
+            ToggleDiagnosticLoggingCommand = new Command(() =>
+                UserSettingsSingleton.LogDiagnosticEvents = !UserSettingsSingleton.LogDiagnosticEvents);
+
+            ExceptionEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(ExceptionEventsReport));
+            DiagnosticEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(DiagnosticEventsReport));
+            AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
 
+        public Command AllEventsReportCommand { get; set; }
+
         public Command CleanAndResizePicturesCommand { get; set; }
+
+        public Command DiagnosticEventsReportCommand { get; set; }
+
+        public Command ExceptionEventsReportCommand { get; set; }
 
         public Command GenerateAllHtmlAndCleanAndResizePicturesCommand { get; set; }
 
@@ -329,6 +344,20 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        public Command ToggleDiagnosticLoggingCommand { get; set; }
+
+        private async Task AllEventsReport()
+        {
+            var log = await Db.Log();
+
+            var htmlTable = log.EventLogs.Take(5000).OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var reportWindow = new HtmlViewerWindow(htmlTable);
+            reportWindow.Show();
+        }
+
         private async Task CleanAndResizeAllImageFiles()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -392,6 +421,32 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await CleanAndResizeAllPhotoFiles();
             await CleanAndResizeAllImageFiles();
+        }
+
+        private async Task DiagnosticEventsReport()
+        {
+            var log = await Db.Log();
+
+            var htmlTable = log.EventLogs.Where(x => x.Category == "Diagnostic").Take(5000)
+                .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var reportWindow = new HtmlViewerWindow(htmlTable);
+            reportWindow.Show();
+        }
+
+        private async Task ExceptionEventsReport()
+        {
+            var log = await Db.Log();
+
+            var htmlTable = log.EventLogs.Where(x => x.Category == "Exception").Take(1000)
+                .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var reportWindow = new HtmlViewerWindow(htmlTable);
+            reportWindow.Show();
         }
 
         private async Task GenerateAllFileHtml()

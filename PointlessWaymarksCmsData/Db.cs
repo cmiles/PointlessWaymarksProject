@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,14 @@ namespace PointlessWaymarksCmsData
             var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseFile;
             return new PointlessWaymarksContext(optionsBuilder
                 .UseSqlite($"Data Source={dbPath}", x => x.UseNetTopologySuite()).Options);
+        }
+
+        public static async Task<EventLogContext> Log()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<EventLogContext>();
+            var dbPath = Path.Combine(UserSettingsUtilities.StorageDirectory().FullName,
+                "PointlessWaymarksEventLog.db");
+            return new EventLogContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options);
         }
 
         public static async Task<List<IContentCommon>> MainFeedCommonContentAfter(DateTime after, int numberOfEntries)

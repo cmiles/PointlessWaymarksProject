@@ -11,6 +11,8 @@ namespace PointlessWaymarksCmsContentEditor
         public App()
         {
             UserSettingsUtilities.VerifyAndCreate();
+            var log = Db.Log().Result;
+            log.Database.EnsureCreated();
             var db = Db.Context().Result;
             db.Database.EnsureCreated();
         }
