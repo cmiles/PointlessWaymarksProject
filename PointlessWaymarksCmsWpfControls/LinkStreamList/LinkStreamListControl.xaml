@@ -103,11 +103,9 @@
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Name="ItemsListBox"
-                HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding Items}"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectionChanged="Selector_OnSelectionChanged"
-                SelectionMode="Extended">
+                Style="{StaticResource ContentListListBoxStyle}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:LinkStreamListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
@@ -121,7 +119,8 @@
                                     </TextBox>
                                     <TextBox Style="{StaticResource ReadOnlyTextBox}"
                                              Text="{Binding LinkContentString}"
-                                             TextWrapping="Wrap">
+                                             TextWrapping="Wrap"
+                                             Margin="0,2,0,0">
                                         <i:Interaction.Behaviors>
                                             <utility:ReadOnlyTextBoxClickPass />
                                         </i:Interaction.Behaviors>
@@ -142,7 +141,15 @@
                                             Copy Link
                                         </Button>
                                     </WrapPanel>
-
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                             Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
+                                             TextWrapping="Wrap"
+                                             HorizontalAlignment="Right"
+                                             Opacity=".3">
+                                        <i:Interaction.Behaviors>
+                                            <utility:ReadOnlyTextBoxClickPass />
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
                                 </StackPanel>
                             </Grid>
                         </Border>

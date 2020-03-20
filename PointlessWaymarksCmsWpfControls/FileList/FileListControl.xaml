@@ -29,7 +29,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <GroupBox Header="Filter List" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
                 <TextBox MaxLines="1" AcceptsReturn="False" VerticalAlignment="Center"
                          Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged}">
                     <i:Interaction.Triggers>
@@ -68,27 +68,63 @@
             </GroupBox>
         </Grid>
         <GroupBox Grid.Row="1" Header="Files" Style="{StaticResource UiComponentGroupBoxStyle}">
-            <ListBox BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     ItemsSource="{Binding Items}"
+            <ListBox ItemsSource="{Binding Items}"
                      SelectionChanged="Selector_OnSelectionChanged" Name="FileListBox"
-                     HorizontalContentAlignment="Stretch" SelectionMode="Extended">
+                     Style="{StaticResource ContentListListBoxStyle}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:FileListListItem">
                         <Border
                             Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="100" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
                                 <Image Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
                                        Margin="2" />
                                 <StackPanel Orientation="Vertical" Grid.Column="1" Margin="2">
-                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Title}" />
-                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Summary}" />
-                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Folder}" />
-                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.Slug}" />
-                                    <TextBlock TextWrapping="Wrap" Text="{Binding DbEntry.ContentId}" />
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DbEntry.Title}"
+                                             TextWrapping="Wrap" FontWeight="Bold">
+                                        <i:Interaction.Behaviors>
+                                            <utility:ReadOnlyTextBoxClickPass />
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                             Text="{Binding DbEntry.Summary}"
+                                             TextWrapping="Wrap"
+                                             Margin="0,2,0,0">
+                                        <i:Interaction.Behaviors>
+                                            <utility:ReadOnlyTextBoxClickPass />
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
+                                    <WrapPanel Orientation="Horizontal">
+                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                                 Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
+                                                 TextWrapping="Wrap"
+                                                 HorizontalAlignment="Right">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                                 Margin="8,0,0,0"
+                                                 Text="{Binding DbEntry.Folder, StringFormat='Slug: {0}'}"
+                                                 TextWrapping="Wrap"
+                                                 HorizontalAlignment="Right">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                    </WrapPanel>
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                             Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
+                                             TextWrapping="Wrap"
+                                             HorizontalAlignment="Right"
+                                             Opacity=".3">
+                                        <i:Interaction.Behaviors>
+                                            <utility:ReadOnlyTextBoxClickPass />
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
                                 </StackPanel>
                             </Grid>
                         </Border>
