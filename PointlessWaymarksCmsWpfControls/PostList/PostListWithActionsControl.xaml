@@ -31,15 +31,15 @@
                         Content="_Refresh" />
                 <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Edit" />
+                <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}"
+                        Content="_New Content" />
                 <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Generate Html" />
                 <Button Command="{Binding PostCodesToClipboardForSelectedCommand}"
-                        Style="{StaticResource ActionPanelButton}" Content="Code to _Clipboard" />
+                        Style="{StaticResource ActionPanelButton}" Content="_Code to Clipboard" />
                 <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Open Selected In Browser" />
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
-                <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_New Content" />
             </WrapPanel>
         </Border>
         <status:StatusControl

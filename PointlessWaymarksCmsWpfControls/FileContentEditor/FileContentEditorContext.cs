@@ -363,7 +363,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Process.Start(SelectedFile.FullName);
+            var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
 
         private async Task OpenSelectedFileDirectory()
@@ -377,10 +378,10 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Process.Start(SelectedFile.Directory.FullName);
+            var ps = new ProcessStartInfo(SelectedFile.Directory.FullName) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
 
         private async Task SaveAndCreateLocal()

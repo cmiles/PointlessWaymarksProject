@@ -44,9 +44,8 @@
                     Grid.ColumnSpan="2"
                     Height="28"
                     Margin="4"
-                    Command="{Binding ChooseFileAndFillMetadataCommand}">
-                    Choose Photo - Load Metadata
-                </Button>
+                    Command="{Binding ChooseFileAndFillMetadataCommand}"
+                    Content="Choose Photo - _Load Metadata" />
                 <Button
                     Grid.Row="1"
                     Grid.ColumnSpan="2"
@@ -169,10 +168,14 @@
                     Command="{Binding ResizeFileCommand}">
                     Resize
                 </Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Generate Html</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}">Save, Generate Html</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}"
+                        Content="Save, _Resize, Generate" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}"
+                        Content="Save, _Generate Html" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}"
+                        Content="_Save" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}"
+                        Content="_View on Site" />
             </WrapPanel>
         </Border>
     </Grid>

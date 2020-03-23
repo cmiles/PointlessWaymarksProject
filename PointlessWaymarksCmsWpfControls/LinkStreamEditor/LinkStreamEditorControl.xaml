@@ -11,72 +11,85 @@
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-        <StackPanel Margin="4" CanHorizontallyScroll="False">
-            <StackPanel Orientation="Vertical">
-                <Label>Url</Label>
-                <TextBox Text="{Binding LinkUrl, UpdateSourceTrigger=PropertyChanged}" />
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+            <StackPanel Margin="4" CanHorizontallyScroll="False">
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Url</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                             Text="{Binding LinkUrl, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <Grid Margin="6,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Button Command="{Binding ExtractDataCommand}" Content="Try to Extract _Data" />
+                    <Button Grid.Column="1" Command="{Binding OpenUrlInBrowserCommand}" Content="_Open in Browser" />
+                </Grid>
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Comments</Label>
+                    <TextBox
+                        Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+                        Height="60"
+                        Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Title</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                             Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Site</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                             Text="{Binding Site, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Author</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                             Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Link Date</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                             Text="{Binding LinkDateTime, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Description</Label>
+                    <TextBox
+                        Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+                        Height="90"
+                        Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <CheckBox Margin="4,8,0,0" FontWeight="DemiBold"
+                          IsChecked="{Binding ShowInLinkRss, UpdateSourceTrigger=PropertyChanged}">
+                    Show in Link List _Feed
+                </CheckBox>
+                <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                    DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
             </StackPanel>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Button Command="{Binding ExtractDataCommand}">Try to Extract Data</Button>
-                <Button Grid.Column="1" Command="{Binding OpenUrlInBrowserCommand}">Open in Browser</Button>
-            </Grid>
-            <StackPanel Orientation="Vertical">
-                <Label>Comments</Label>
-                <TextBox
-                    SpellCheck.IsEnabled="True"
-                    Height="60"
-                    AcceptsReturn="True"
-                    Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}"
-                    TextWrapping="Wrap"
-                    VerticalScrollBarVisibility="Visible" />
-            </StackPanel>
-            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
-            <StackPanel Orientation="Vertical">
-                <Label>Title</Label>
-                <TextBox AcceptsReturn="False" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
-                         SpellCheck.IsEnabled="True" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <Label>Site</Label>
-                <TextBox AcceptsReturn="False" Text="{Binding Site, UpdateSourceTrigger=PropertyChanged}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <Label>Author</Label>
-                <TextBox AcceptsReturn="False" Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <Label>Link Date</Label>
-                <TextBox AcceptsReturn="False" Text="{Binding LinkDateTime, UpdateSourceTrigger=PropertyChanged}" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <Label>Description</Label>
-                <TextBox
-                    Height="90"
-                    AcceptsReturn="True"
-                    Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                    TextWrapping="Wrap"
-                    VerticalScrollBarVisibility="Visible"
-                    SpellCheck.IsEnabled="True" />
-            </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <Label>Link List RSS</Label>
-                <CheckBox IsChecked="{Binding ShowInLinkRss, UpdateSourceTrigger=PropertyChanged}">Show in RSS</CheckBox>
-            </StackPanel>
-            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                DataContext="{Binding CreatedUpdatedDisplay}" />
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Button Command="{Binding SaveUpdateDatabaseAndCloseCommand}">Save and Close</Button>
-                <Button Grid.Column="1" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
-            </Grid>
-        </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Button Height="24" Margin="4" Command="{Binding SaveUpdateDatabaseAndCloseCommand}"
+                    Content="_Save and Close" />
+            <Button Height="24" Margin="4" Grid.Column="1" Command="{Binding SaveUpdateDatabaseCommand}"
+                    Content="Save" />
+        </Grid>
+    </Grid>
 </UserControl>

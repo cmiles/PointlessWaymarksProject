@@ -14,6 +14,9 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="StackPanel">
+                <Setter Property="Margin" Value="0,4,0,0" />
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -21,68 +24,68 @@
             <StackPanel Orientation="Vertical">
                 <Button Style="{StaticResource ActionPanelButton}">Save</Button>
                 <StackPanel Orientation="Vertical">
-                    <Label>Local Site Root Directory</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Local Site Root Directory</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.LocalSiteRootDirectory, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Local Master Media Archive</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Local Master Media Archive</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.LocalMasterMediaArchive, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Url</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Url</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteUrl, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Site Name</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Name</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteName, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Site Authors</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Authors</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteAuthors, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Site Keywords</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Keywords</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteKeywords, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Site Summary</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Summary</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteSummary, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Site Email To</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Email To</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteEmailTo, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Default Created By Name</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Default Created By Name</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.DefaultCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Bing Maps Api Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Bing Maps Api Key</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.BingApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>CalTopo Maps Api Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">CalTopo Maps Api Key</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.CalTopoApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Google Maps Api Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Google Maps Api Key</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.GoogleMapsApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label>Pinboard Api Key</Label>
-                    <TextBox SpellCheck.IsEnabled="True"
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Pinboard Api Key</Label>
+                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.PinboardApiToken, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
             </StackPanel>

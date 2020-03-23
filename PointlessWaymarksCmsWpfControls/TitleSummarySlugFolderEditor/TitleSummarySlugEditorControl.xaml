@@ -26,14 +26,14 @@
                 <Button Margin="6,4,0,0" Command="{Binding TitleToSlugCommand}" Content="T_itle to Slug" />
             </StackPanel>
             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="S_lug"
+                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Slug"
                        Target="{Binding ElementName=SlugTextBox}" />
                 <TextBox Name="SlugTextBox" Margin="6,2,0,0" Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}"
                          SpellCheck.IsEnabled="True"
                          Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
             </StackPanel>
             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="_Folder"
+                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Folder"
                        Target="{Binding ElementName=FolderTextBox}" />
                 <TextBox Name="FolderTextBox" Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"
                          SpellCheck.IsEnabled="True"

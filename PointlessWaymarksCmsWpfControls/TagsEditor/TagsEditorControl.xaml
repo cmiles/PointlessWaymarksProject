@@ -18,7 +18,7 @@
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
-            <Label Style="{StaticResource DataEntryLabelStyle}" Content="T_ags (Comma,Separated)"
+            <Label Style="{StaticResource DataEntryLabelStyle}" Content="Tags (Comma,Separated)"
                    Target="{Binding ElementName=TagsTextBox}" />
             <TextBox
                 Name="TagsTextBox"

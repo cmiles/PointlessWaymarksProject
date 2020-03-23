@@ -22,14 +22,14 @@
             <StackPanel Orientation="Vertical"
                         Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
                 <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CreatedByTextBox}"
-                       Content="_Created By" />
+                       Content="Created By" />
                 <TextBox Name="CreatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                          Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Orientation="Vertical"
                         Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
                 <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UpdatedByTextBox}"
-                       Content="_Updated By" />
+                       Content="Updated By" />
                 <TextBox Name="UpdatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                          Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>

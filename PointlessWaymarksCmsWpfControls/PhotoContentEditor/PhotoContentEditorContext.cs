@@ -423,7 +423,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             htmlContext.WriteLocalHtml();
         }
 
-        public async Task LoadData(PhotoContent toLoad)
+        public async Task LoadData(PhotoContent toLoad, bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -435,7 +435,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
 
-            if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
+            if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
                 PictureResizing.CheckPhotoOriginalFileIsInMediaAndContentDirectories(DbEntry);
 
@@ -623,7 +623,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
-            await SaveToDatabase();
+            await SaveToDatabase(true);
             await WriteSelectedFileToMasterMediaArchive();
             await WriteSelectedFileToLocalSite();
             await GenerateHtml();
@@ -650,7 +650,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             await Export.WriteLocalDbJson(DbEntry);
         }
 
-        private async Task SaveToDatabase()
+        private async Task SaveToDatabase(bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -733,7 +733,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             DbEntry = newEntry;
 
-            await LoadData(newEntry);
+            await LoadData(newEntry, skipMediaDirectoryCheck);
         }
 
         private async Task SaveToDbWithValidation()

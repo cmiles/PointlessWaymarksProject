@@ -73,23 +73,27 @@
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
                             <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
-                                DataContext="{Binding ShowInSiteFeed}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
-                            <StackPanel Orientation="Vertical">
-                                <Label>Alt Text</Label>
-                                <TextBox AcceptsReturn="True" MinLines="2" MaxLines="2" TextWrapping="Wrap"
-                                         Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}"
-                                         VerticalScrollBarVisibility="Visible" />
+                                DataContext="{Binding ShowInSiteFeed}"
+                                Style="{StaticResource ShowInSiteFeedInPanelStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <StackPanel Orientation="Vertical" Margin="0,4,0,0">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Alt Text</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxMultiLineStyle}" MinLines="2"
+                                         MaxLines="2"
+                                         Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>Image Source Notes</Label>
-                                <TextBox AcceptsReturn="True" MinLines="2" MaxLines="2" TextWrapping="Wrap"
-                                         Text="{Binding ImageSourceNotes, UpdateSourceTrigger=PropertyChanged}"
-                                         VerticalScrollBarVisibility="Visible" />
+                            <StackPanel Orientation="Vertical" Margin="0,4,0,0">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Image Source Notes</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxMultiLineStyle}" MinLines="2"
+                                         MaxLines="2"
+                                         Text="{Binding ImageSourceNotes, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" />
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -107,11 +111,16 @@
                     Command="{Binding ResizeFileCommand}">
                     Resize
                 </Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Resize Image, Generate Html</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}">Save, Generate Html</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ExtractNewLinksCommand}">Extract New Links</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}"
+                        Content="Save, _Resize, Generate" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}"
+                        Content="Save, _Generate Html" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}"
+                        Content="_Save" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ExtractNewLinksCommand}"
+                        Content="_Extract New Links" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}"
+                        Content="_View on Site" />
             </WrapPanel>
         </Border>
     </Grid>

@@ -29,25 +29,26 @@
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <StackPanel Orientation="Vertical">
-                                <Label>Folder</Label>
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Folder</Label>
                                 <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"
-                                         SpellCheck.IsEnabled="True" />
+                                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>Summary</Label>
+                            <StackPanel Orientation="Vertical" Margin="0,4,0,0">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Summary</Label>
                                 <TextBox
-                                    SpellCheck.IsEnabled="True"
-                                    AcceptsReturn="True"
-                                    Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}"
-                                    TextWrapping="Wrap"
-                                    VerticalScrollBarVisibility="Visible" />
+                                    Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+                                    Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
-                                DataContext="{Binding ShowInSiteFeed}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
+                                DataContext="{Binding ShowInSiteFeed}"
+                                Style="{StaticResource ShowInSiteFeedInPanelStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}" />
-                            <contentIdViewer:ContentIdViewerControl Margin="0,8,0,0" DataContext="{Binding ContentId}" />
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl Margin="0,8,0,0" DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -60,10 +61,14 @@
         </TabControl>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}">Save, Generate Html</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}">Save</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ExtractNewLinksCommand}">Extract New Links</Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}">View on Site</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}"
+                        Content="Save, _Generate Html" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}"
+                        Content="_Save" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ExtractNewLinksCommand}"
+                        Content="_Extract New Links" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}"
+                        Content="_View on Site" />
             </WrapPanel>
         </Border>
     </Grid>
