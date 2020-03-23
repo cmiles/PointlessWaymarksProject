@@ -233,13 +233,14 @@ namespace PointlessWaymarksCmsData
         {
             if (string.IsNullOrWhiteSpace(slug)) return false;
 
-            var lineCheck = await context.LineContents.AnyAsync(x => x.Slug == slug);
+            //var lineCheck = await context.LineContents.AnyAsync(x => x.Slug == slug);
             var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug);
-            var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug);
+            //var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug);
             var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug);
-            var trailCheck = await context.TrailSegments.AnyAsync(x => x.Slug == slug);
+            //var trailCheck = await context.TrailSegments.AnyAsync(x => x.Slug == slug);
 
-            return lineCheck && photoCheck && pointCheck && postCheck && trailCheck;
+            //return lineCheck && photoCheck && pointCheck && postCheck && trailCheck;
+            return photoCheck && postCheck;
         }
     }
 }

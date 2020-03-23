@@ -22,51 +22,69 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
              if (toImport == null || !toImport.Any())
              {
-                 progress?.Report("No items to import?");
+                 progress?.Report("No <#= loopTypeNames #> items to import...");
                  return;
              }
 
              progress?.Report($"<#= loopTypeNames #> - Working with {toImport.Count} Entries");
-        
+
              var db = Db.Context().Result;
-             
-             foreach (var loopImportItem in toImport)
-             {
+
+             foreach (var loopImportItem in toImport) {
+
                  progress?.Report($"{loopImportItem.Title} - Starting <#= loopTypeNames #>");
+             
+                 var exactMatch = db.<#= loopTypeNames #>s.Any(x =>
+                     x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
 
-                 var existingItems = db.<#= loopTypeNames #>s.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
-    
-                if (existingItems.Any())
-                    progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
-
-                var foundExistingMatchingEntry = false;
-               
-                 foreach (var loopExisting in existingItems)
+                 if (exactMatch)
                  {
-                    if (loopExisting.CreatedOn == loopImportItem.CreatedOn &&
-                        loopExisting.CreatedBy == loopImportItem.CreatedBy &&
-                        loopExisting.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                        loopExisting.LastUpdatedBy == loopImportItem.LastUpdatedBy)
-                        {
-                            foundExistingMatchingEntry = true;
-                            continue;
-                        }
-
-                    var newHistoricEntry = new Historic<#= loopTypeNames #>();
-                    newHistoricEntry.InjectFrom(loopExisting);
-                    newHistoricEntry.Id = 0;
-    
-                    db.Historic<#= loopTypeNames #>s.Add(newHistoricEntry);
-                    db.<#= loopTypeNames #>s.Remove(loopExisting);
-                    db.SaveChanges(true);
-                 }
-
-                 if (foundExistingMatchingEntry)
-                 {
-                     progress?.Report($"{loopImportItem.Title} - Found in DB");
+                     progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
                      continue;
                  }
-    
+
+                 var laterEntries = db.<#= loopTypeNames #>s.Any(x =>
+                     x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
+
+                 if (laterEntries)
+                 {
+
+                     if (db.Historic<#= loopTypeNames #>s.Any(x =>
+                         x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+                    {
+                         progress?.Report($"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic <#= loopTypeNames #>");
+                    }
+                    else
+                    {
+                       progress?.Report($"{loopImportItem.Title} - Found later entry already in db - moving this version to Historic<#= loopTypeNames #>s");
+
+                       var newHistoricEntry = new Historic<#= loopTypeNames #>();
+                       newHistoricEntry.InjectFrom(loopImportItem);
+                       newHistoricEntry.Id = 0;
+
+                       db.Historic<#= loopTypeNames #>s.Add(newHistoricEntry);
+                       db.SaveChanges(true);
+                    }
+
+                    continue;
+                 }
+
+                 var existingItems = db.<#= loopTypeNames #>s.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
+
+                 if (existingItems.Any())
+                     progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
+
+                 foreach (var loopExisting in existingItems)
+                 {
+                     var newHistoricEntry = new Historic<#= loopTypeNames #>();
+                     newHistoricEntry.InjectFrom(loopExisting);
+                     newHistoricEntry.Id = 0;
+
+                     db.Historic<#= loopTypeNames #>s.Add(newHistoricEntry);
+                     db.<#= loopTypeNames #>s.Remove(loopExisting);
+                     db.SaveChanges(true);
+                 }
+
                  progress?.Report($"{loopImportItem.Title} - Adding <#= loopTypeNames #>");
     
                  db.<#= loopTypeNames #>s.Add(loopImportItem);
@@ -101,14 +119,17 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             var db = Db.Context().Result;
 
+            var currentLoop = 1;
+            var totalCount = toImport.Count;
+
             foreach (var loopImportItem in toImport)
             {
+                progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
                 if (db.<#= loopTypeNames #>s.Any(x =>
-                    x.ContentId == loopImportItem.ContentId && x.CreatedOn == loopImportItem.CreatedOn &&
-                    x.CreatedBy == loopImportItem.CreatedBy && x.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                    x.LastUpdatedBy == loopImportItem.LastUpdatedBy))
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
-                    progress?.Report($"Historic {loopImportItem.CreatedOn:g} {loopImportItem.Title} - Already Exists");
+                    progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
                     continue;
                 }
 
@@ -117,8 +138,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                 db.<#= loopTypeNames #>s.Add(loopImportItem);
 
                 db.SaveChanges(true);
-
-                progress?.Report($"{loopImportItem.Title} - Imported");
             }
 
             progress?.Report("FileContent - Finished");

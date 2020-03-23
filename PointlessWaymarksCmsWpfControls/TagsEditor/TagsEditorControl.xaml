@@ -18,13 +18,12 @@
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
-            <TextBlock>Tags (Comma Separated)</TextBlock>
+            <Label Style="{StaticResource DataEntryLabelStyle}" Content="T_ags (Comma,Separated)"
+                   Target="{Binding ElementName=TagsTextBox}" />
             <TextBox
-                SpellCheck.IsEnabled="True"
-                AcceptsReturn="True"
-                VerticalScrollBarVisibility="Visible"
-                Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged}"
-                TextWrapping="Wrap" />
+                Name="TagsTextBox"
+                Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+                Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
     </Grid>
 </UserControl>

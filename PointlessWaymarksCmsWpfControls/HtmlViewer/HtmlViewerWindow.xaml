@@ -6,6 +6,8 @@
         xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
         xmlns:htmlViewer="clr-namespace:PointlessWaymarksCmsWpfControls.HtmlViewer"
         xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
+        xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+        xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
         mc:Ignorable="d"
         Title="HtmlViewerWindow" Height="450" Width="800"
         d:DataContext="{d:DesignInstance htmlViewer:HtmlViewerContext}">
@@ -14,9 +16,13 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <controls:WebView wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding HtmlString}" />
+        <controls:WebView wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding HtmlString}"
+                          Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+        <status:StatusControl Grid.Column="0" d:IsHidden="true"
+                              DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

@@ -1,15 +1,16 @@
-﻿<UserControl x:Class="PointlessWaymarksCmsWpfControls.PostList.PostListControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.PostList"
-             xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-             xmlns:fa="http://schemas.fontawesome.com/icons/"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-
-             mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+﻿<UserControl
+    x:Class="PointlessWaymarksCmsWpfControls.PostList.PostListControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fa="http://schemas.fontawesome.com/icons/"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.PostList"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -31,47 +32,79 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
-                <TextBox MaxLines="1" AcceptsReturn="False" VerticalAlignment="Center"
-                         Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox
+                    VerticalAlignment="Center"
+                    AcceptsReturn="False"
+                    MaxLines="1"
+                    Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="TextChanged">
-                            <i:InvokeCommandAction
-                                Command="{Binding FilterListCommand}" />
+                            <i:InvokeCommandAction Command="{Binding FilterListCommand}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </TextBox>
             </GroupBox>
-            <GroupBox Grid.Column="1" Header="Sort" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox
+                Grid.Column="1"
+                Header="Sort"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
                 <WrapPanel HorizontalAlignment="Center">
-                    <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
-                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
-                        <fa:ImageAwesome Icon="Solid_ArrowUp" Height="12" Width="8" VerticalAlignment="Center"
-                                         HorizontalAlignment="Center" IsEnabled="{Binding SortDescending}" />
+                    <Button
+                        Height="24"
+                        Command="{Binding ToggleListSortDirectionCommand}"
+                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
+                        <fa:ImageAwesome
+                            Width="8"
+                            Height="12"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Icon="Solid_ArrowUp"
+                            IsEnabled="{Binding SortDescending}" />
                     </Button>
-                    <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
-                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
-                        <fa:ImageAwesome Icon="Solid_ArrowDown" Height="12" Width="8" VerticalAlignment="Center"
-                                         HorizontalAlignment="Center" />
+                    <Button
+                        Height="24"
+                        Command="{Binding ToggleListSortDirectionCommand}"
+                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
+                        <fa:ImageAwesome
+                            Width="8"
+                            Height="12"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Icon="Solid_ArrowDown" />
                     </Button>
-                    <Button Command="{Binding SortListCommand}" Height="24" Width="90"
-                            CommandParameter="CreatedOn">
+                    <Button
+                        Width="90"
+                        Height="24"
+                        Command="{Binding SortListCommand}"
+                        CommandParameter="CreatedOn">
                         Page Created
                     </Button>
-                    <Button Command="{Binding SortListCommand}" Height="24" Width="90"
-                            CommandParameter="Title">
+                    <Button
+                        Width="90"
+                        Height="24"
+                        Command="{Binding SortListCommand}"
+                        CommandParameter="Title">
                         Title
                     </Button>
-                    <Button Command="{Binding SortListCommand}" Height="24" Width="90"
-                            CommandParameter="CreatedBy">
+                    <Button
+                        Width="90"
+                        Height="24"
+                        Command="{Binding SortListCommand}"
+                        CommandParameter="CreatedBy">
                         Created By
                     </Button>
                 </WrapPanel>
             </GroupBox>
         </Grid>
-        <GroupBox Grid.Row="1" Header="Posts" Style="{StaticResource UiComponentGroupBoxStyle}">
-            <ListBox ItemsSource="{Binding Items}"
-                     SelectionChanged="Selector_OnSelectionChanged" Name="PhotoListBox"
-                     Style="{StaticResource ContentListListBoxStyle}">
+        <GroupBox
+            Grid.Row="1"
+            Header="Posts"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <ListBox
+                Name="PhotoListBox"
+                ItemsSource="{Binding Items}"
+                SelectionChanged="Selector_OnSelectionChanged"
+                Style="{StaticResource ContentListListBoxStyle}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:PostListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
@@ -80,51 +113,71 @@
                                     <ColumnDefinition Width="100" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Image Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
-                                       Margin="2" />
-                                <StackPanel Orientation="Vertical" Grid.Column="1" Margin="2">
-                                    <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DbEntry.Title}"
-                                             TextWrapping="Wrap" FontWeight="Bold">
+                                <Image Margin="2"
+                                       Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" />
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    Orientation="Vertical">
+                                    <TextBox
+                                        FontWeight="Bold"
+                                        Style="{StaticResource ReadOnlyTextBox}"
+                                        Text="{Binding DbEntry.Title}"
+                                        TextWrapping="Wrap">
                                         <i:Interaction.Behaviors>
                                             <utility:ReadOnlyTextBoxClickPass />
                                         </i:Interaction.Behaviors>
                                     </TextBox>
-                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                             Text="{Binding DbEntry.Summary}"
-                                             TextWrapping="Wrap"
-                                             Margin="0,2,0,0">
+                                    <TextBox
+                                        Margin="0,2,0,0"
+                                        Style="{StaticResource ReadOnlyTextBox}"
+                                        Text="{Binding DbEntry.Summary}"
+                                        TextWrapping="Wrap">
                                         <i:Interaction.Behaviors>
                                             <utility:ReadOnlyTextBoxClickPass />
                                         </i:Interaction.Behaviors>
                                     </TextBox>
                                     <WrapPanel Orientation="Horizontal">
-                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                                 Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
-                                                 TextWrapping="Wrap"
-                                                 HorizontalAlignment="Right">
+                                        <TextBox
+                                            HorizontalAlignment="Right"
+                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
+                                            TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>
                                                 <utility:ReadOnlyTextBoxClickPass />
                                             </i:Interaction.Behaviors>
                                         </TextBox>
-                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                                 Margin="8,0,0,0"
-                                                 Text="{Binding DbEntry.Folder, StringFormat='Slug: {0}'}"
-                                                 TextWrapping="Wrap"
-                                                 HorizontalAlignment="Right">
+                                        <TextBox
+                                            Margin="8,0,0,0"
+                                            HorizontalAlignment="Right"
+                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
+                                            TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>
                                                 <utility:ReadOnlyTextBoxClickPass />
                                             </i:Interaction.Behaviors>
                                         </TextBox>
                                     </WrapPanel>
-                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                             Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
-                                             TextWrapping="Wrap"
-                                             HorizontalAlignment="Right"
-                                             Opacity=".3">
-                                        <i:Interaction.Behaviors>
-                                            <utility:ReadOnlyTextBoxClickPass />
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
+                                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanel}">
+                                        <TextBox
+                                            Margin="8,0,0,0"
+                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
+                                            TextWrapping="Wrap">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                        <TextBox
+                                            Margin="8,0,0,0"
+                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
+                                            TextWrapping="Wrap">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                    </WrapPanel>
                                 </StackPanel>
                             </Grid>
                         </Border>

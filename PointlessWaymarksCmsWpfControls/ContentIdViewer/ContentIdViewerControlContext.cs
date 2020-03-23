@@ -66,7 +66,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentIdViewer
                 return;
             }
 
-            ContentIdInformation = $"Id: {dbEntry.Id} Fingerprint: {dbEntry.ContentId}";
+            ContentIdInformation = $" Fingerprint: {dbEntry.ContentId} Db Id: {dbEntry.Id}";
         }
 
         [NotifyPropertyChangedInvocator]

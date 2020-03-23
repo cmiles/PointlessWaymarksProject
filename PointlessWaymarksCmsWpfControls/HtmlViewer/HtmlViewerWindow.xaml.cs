@@ -1,8 +1,6 @@
-﻿using System.Windows;
-
-namespace PointlessWaymarksCmsWpfControls.HtmlViewer
+﻿namespace PointlessWaymarksCmsWpfControls.HtmlViewer
 {
-    public partial class HtmlViewerWindow : Window
+    public partial class HtmlViewerWindow
     {
         public HtmlViewerWindow(string htmlString)
         {

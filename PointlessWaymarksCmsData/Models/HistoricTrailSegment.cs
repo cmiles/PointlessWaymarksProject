@@ -7,11 +7,13 @@ namespace PointlessWaymarksCmsData.Models
     public class HistoricTrailSegment
     {
         public string Code { get; set; }
+        public DateTime ContentVersion { get; set; }
         public decimal CumulativeElevation { get; set; }
         public decimal ElevationGain { get; set; }
         public decimal ElevationLoss { get; set; }
         public string EndContent { get; set; }
         public Guid Fingerprint { get; set; }
+
         public decimal HighestElevation { get; set; }
         public int Id { get; set; }
         public decimal LengthInMeters { get; set; }

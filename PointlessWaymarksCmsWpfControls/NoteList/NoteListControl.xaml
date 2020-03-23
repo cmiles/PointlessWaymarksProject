@@ -95,7 +95,7 @@
                                         </TextBox>
                                         <TextBox Style="{StaticResource ReadOnlyTextBox}"
                                                  Margin="8,0,0,0"
-                                                 Text="{Binding DbEntry.Folder, StringFormat='Slug: {0}'}"
+                                                 Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
                                                  TextWrapping="Wrap"
                                                  HorizontalAlignment="Right">
                                             <i:Interaction.Behaviors>
@@ -103,15 +103,26 @@
                                             </i:Interaction.Behaviors>
                                         </TextBox>
                                     </WrapPanel>
-                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                             Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
-                                             TextWrapping="Wrap"
-                                             HorizontalAlignment="Right"
-                                             Opacity=".3">
-                                        <i:Interaction.Behaviors>
-                                            <utility:ReadOnlyTextBoxClickPass />
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
+                                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanel}">
+                                        <TextBox
+                                            Margin="8,0,0,0"
+                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
+                                            TextWrapping="Wrap">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                        <TextBox
+                                            Margin="8,0,0,0"
+                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
+                                            TextWrapping="Wrap">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                    </WrapPanel>
                                 </StackPanel>
                             </Grid>
                         </Border>

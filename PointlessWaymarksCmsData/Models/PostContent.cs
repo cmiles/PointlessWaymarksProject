@@ -7,6 +7,8 @@ namespace PointlessWaymarksCmsData.Models
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
         public Guid ContentId { get; set; }
+        public DateTime ContentVersion { get; set; }
+
         public int Id { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }

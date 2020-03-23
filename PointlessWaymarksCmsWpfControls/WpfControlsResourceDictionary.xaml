@@ -1,5 +1,9 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
+                    xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
+                    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
+                    xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer">
     <Style x:Key="ActionPanelButton" TargetType="Button">
         <Setter Property="Margin" Value="4" />
         <Setter Property="Height" Value="24" />
@@ -34,5 +38,43 @@
         <Setter Property="SelectionMode" Value="Extended" />
         <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
         <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
+    </Style>
+    <Style x:Key="ContentListContentVersionIdWrapPanel" TargetType="WrapPanel">
+        <Setter Property="Margin" Value="0,4,0,0" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Opacity" Value=".3" />
+    </Style>
+    <Style x:Key="DataEntryLabelStyle" TargetType="Label">
+        <Setter Property="FontWeight" Value="DemiBold" />
+    </Style>
+    <Style x:Key="DataEntryTextBoxSingleLineStyle" TargetType="TextBox">
+        <Setter Property="Margin" Value="6,0,0,0" />
+        <Setter Property="SpellCheck.IsEnabled" Value="True" />
+    </Style>
+    <Style x:Key="DataEntryTextBoxMultiLineStyle" TargetType="TextBox">
+        <Setter Property="Margin" Value="6,0,0,0" />
+        <Setter Property="SpellCheck.IsEnabled" Value="True" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="AcceptsReturn" Value="True" />
+        <Setter Property="VerticalScrollBarVisibility" Value="Visible" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
+    </Style>
+    <Style x:Key="ShowInSiteFeedInPanelStyle"
+           TargetType="showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl">
+        <Setter Property="Margin" Value="4,8,0,0" />
+    </Style>
+    <Style x:Key="TagsEditorInPanelStyle"
+           TargetType="tagsEditor:TagsEditorControl">
+        <Setter Property="Margin" Value="0,4,0,0" />
+    </Style>
+    <Style x:Key="CreatedUpdatedInPanelStyle"
+           TargetType="createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl">
+        <Setter Property="Margin" Value="0,4,0,0" />
+    </Style>
+    <Style x:Key="ContentIdInPanelStyle"
+           TargetType="contentIdViewer:ContentIdViewerControl">
+        <Setter Property="Margin" Value="8,8,0,0" />
+        <Setter Property="Opacity" Value=".4" />
     </Style>
 </ResourceDictionary>

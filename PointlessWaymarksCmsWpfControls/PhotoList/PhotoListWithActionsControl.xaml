@@ -25,18 +25,23 @@
         <local:PhotoListControl Margin="4,5,4,6" DataContext="{Binding ListContext}" />
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
             <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}">Refresh</Button>
-                <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}">Edit</Button>
-                <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}">Generate Html</Button>
+                <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}"
+                        Content="_Refresh" />
+                <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}"
+                        Content="_Edit" />
+                <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}"
+                        Content="_Generate Html" />
                 <Button Command="{Binding PhotoCodesToClipboardForSelectedCommand}"
                         Style="{StaticResource ActionPanelButton}">
                     Code to Clipboard
                 </Button>
-                <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}">Open Selected in Browser</Button>
+                <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}"
+                        Content="_Open Selected In Browser" />
                 <Button Command="{Binding GeneratePhotoListCommand}" Style="{StaticResource ActionPanelButton}">Generate Photo List</Button>
                 <Button Command="{Binding OpenUrlForPhotoListCommand}" Style="{StaticResource ActionPanelButton}">Open List in Browser</Button>
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
-                <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}">New Content</Button>
+                <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}"
+                        Content="_New Content" />
             </WrapPanel>
         </Border>
         <status:StatusControl

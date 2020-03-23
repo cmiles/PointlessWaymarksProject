@@ -7,6 +7,7 @@ namespace PointlessWaymarksCmsData.Models
     public class TrailSegment
     {
         public Guid ContentId { get; set; }
+        public DateTime ContentVersion { get; set; }
         public decimal CumulativeElevation { get; set; }
         public decimal ElevationGain { get; set; }
         public decimal ElevationLoss { get; set; }

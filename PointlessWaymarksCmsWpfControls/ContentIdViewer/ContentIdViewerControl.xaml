@@ -16,7 +16,15 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
-        <TextBlock Text="{Binding ContentIdInformation}" TextWrapping="Wrap" />
-    </Grid>
+    <StackPanel Orientation="Vertical">
+        <TextBox
+            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}', TargetNullValue='None'}"
+            TextWrapping="Wrap" Style="{StaticResource ReadOnlyTextBox}" />
+        <TextBox Margin="0,6,0,0"
+                 Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}', TargetNullValue='None'}"
+                 TextWrapping="Wrap" Style="{StaticResource ReadOnlyTextBox}" />
+        <TextBox Margin="0,6,0,0" Text="{Binding DbEntry.Id, StringFormat='Db Id: {0}', TargetNullValue='None'}"
+                 TextWrapping="Wrap"
+                 Style="{StaticResource ReadOnlyTextBox}" />
+    </StackPanel>
 </UserControl>

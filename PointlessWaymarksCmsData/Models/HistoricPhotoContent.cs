@@ -17,6 +17,7 @@ namespace PointlessWaymarksCmsData.Models
         public DateTime PhotoCreatedOn { get; set; }
         public string ShutterSpeed { get; set; }
         public Guid ContentId { get; set; }
+        public DateTime ContentVersion { get; set; }
 
         public Guid? MainPicture { get; set; }
         public int Id { get; set; }

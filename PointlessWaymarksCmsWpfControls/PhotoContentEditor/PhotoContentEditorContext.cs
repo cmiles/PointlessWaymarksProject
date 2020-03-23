@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlTableHelper;
 using JetBrains.Annotations;
@@ -534,6 +535,55 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
             ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
             TitleSummarySlugFolder.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
+
+            //2020/3/22 - This matches a personal naming pattern where pictures 'always' start with 4 digit year 2 digit month
+            if (!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
+            {
+                if (TitleSummarySlugFolder.Title.StartsWith("2"))
+                {
+                    var possibleTitleDate =
+                        Regex.Match(TitleSummarySlugFolder.Title, @"\A(?<possibleDate>\d\d\d\d[\s-]\d\d[\s-]*).*",
+                            RegexOptions.IgnoreCase).Groups["possibleDate"].Value;
+                    if (!string.IsNullOrWhiteSpace(possibleTitleDate))
+                        try
+                        {
+                            var tempDate = new DateTime(int.Parse(possibleTitleDate.Substring(0, 4)),
+                                int.Parse(possibleTitleDate.Substring(5, 2)), 1);
+
+                            TitleSummarySlugFolder.Title =
+                                $"{tempDate:yyyy} {tempDate:MMMM} {TitleSummarySlugFolder.Title.Substring(possibleTitleDate.Length, TitleSummarySlugFolder.Title.Length - possibleTitleDate.Length)}";
+
+                            StatusContext.Progress("Title updated based on 2yyy MM start pattern for file name");
+                        }
+                        catch
+                        {
+                            StatusContext.Progress("Did not successfully parse 2yyy MM start pattern for file name");
+                        }
+                }
+                else if (TitleSummarySlugFolder.Title.StartsWith("19"))
+                {
+                    try
+                    {
+                        if (Regex.IsMatch(TitleSummarySlugFolder.Title, @"\A19\d\d\s.*", RegexOptions.IgnoreCase))
+                        {
+                            var year = int.Parse(TitleSummarySlugFolder.Title.Substring(0, 2));
+                            var month = int.Parse(TitleSummarySlugFolder.Title.Substring(2, 2));
+
+                            var tempDate = new DateTime(year, month, 1);
+
+                            TitleSummarySlugFolder.Title =
+                                $"{tempDate:yyyy} {tempDate:MMMM} {TitleSummarySlugFolder.Title.Substring(5, TitleSummarySlugFolder.Title.Length - 5)}";
+
+                            StatusContext.Progress("Title updated based on 19MM start pattern for file name");
+                        }
+                    }
+                    catch
+                    {
+                        StatusContext.Progress("Did not successfully parse 19MM start pattern for file name");
+                    }
+                }
+            }
+
             TitleSummarySlugFolder.Slug = SlugUtility.Create(true, TitleSummarySlugFolder.Title);
             TagEdit.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords).Replace(";", ",") ?? string.Empty;
         }
@@ -610,12 +660,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             {
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
+                newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
             }
             else
             {
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
+                newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 

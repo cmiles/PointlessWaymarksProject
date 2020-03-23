@@ -107,6 +107,7 @@ namespace PointlessWaymarksCmsContentEditor
             ExceptionEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(ExceptionEventsReport));
             DiagnosticEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(DiagnosticEventsReport));
             AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
+            VersionScriptCommand = new Command(() => StatusContext.RunBlockingTask(VersionScript));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
@@ -345,6 +346,8 @@ namespace PointlessWaymarksCmsContentEditor
         }
 
         public Command ToggleDiagnosticLoggingCommand { get; set; }
+
+        public Command VersionScriptCommand { get; set; }
 
         private async Task AllEventsReport()
         {
@@ -723,6 +726,40 @@ namespace PointlessWaymarksCmsContentEditor
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
+        }
+
+        private async Task VersionScript()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            db.FileContents.ToList()
+                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.HistoricFileContents.ToList().ForEach(x =>
+                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.HistoricImageContents.ToList().ForEach(x =>
+                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+
+            db.HistoricLinkStreams.ToList()
+                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.HistoricNoteContents.ToList().ForEach(x =>
+                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.HistoricPhotoContents.ToList().ForEach(x =>
+                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.HistoricPostContents.ToList().ForEach(x =>
+                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.ImageContents.ToList()
+                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.LinkStreams.ToList()
+                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.NoteContents.ToList()
+                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.PhotoContents.ToList()
+                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            db.PostContents.ToList()
+                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
+            await db.SaveChangesAsync(true);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

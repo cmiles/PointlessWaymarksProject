@@ -14,8 +14,7 @@ namespace PointlessWaymarksCmsData
         {
             var optionsBuilder = new DbContextOptionsBuilder<PointlessWaymarksContext>();
             var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseFile;
-            return new PointlessWaymarksContext(optionsBuilder
-                .UseSqlite($"Data Source={dbPath}", x => x.UseNetTopologySuite()).Options);
+            return new PointlessWaymarksContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options);
         }
 
         public static async Task<EventLogContext> Log()

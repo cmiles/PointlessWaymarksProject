@@ -40,6 +40,9 @@ namespace PointlessWaymarksCmsData.JsonFiles
             DbImport.PhotoContentToDb(ContentFromFiles<PhotoContent>(allFiles, Names.PhotoContentPrefix), progress);
             DbImport.PostContentToDb(ContentFromFiles<PostContent>(allFiles, Names.PostContentPrefix), progress);
 
+            DbImport.HistoricPostContentToDb(
+                ContentFromFiles<List<HistoricPostContent>>(allFiles, Names.HistoricPostContentPrefix)
+                    .SelectMany(x => x).ToList(), progress);
             DbImport.HistoricFileContentToDb(
                 ContentFromFiles<List<HistoricFileContent>>(allFiles, Names.HistoricFileContentPrefix)
                     .SelectMany(x => x).ToList(), progress);
@@ -54,9 +57,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                     .SelectMany(x => x).ToList(), progress);
             DbImport.HistoricPhotoContentToDb(
                 ContentFromFiles<List<HistoricPhotoContent>>(allFiles, Names.HistoricPhotoContentPrefix)
-                    .SelectMany(x => x).ToList(), progress);
-            DbImport.HistoricPostContentToDb(
-                ContentFromFiles<List<HistoricPostContent>>(allFiles, Names.HistoricPostContentPrefix)
                     .SelectMany(x => x).ToList(), progress);
         }
 

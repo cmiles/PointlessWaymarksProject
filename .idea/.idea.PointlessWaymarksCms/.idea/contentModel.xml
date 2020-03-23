@@ -93,7 +93,6 @@
         <e p="LocationDataTypeConsts.cs" t="Include" />
         <e p="MainImageProcessor.cs" t="Include" />
         <e p="Models" t="Include">
-          <e p="ContentCommon.cs" t="Include" />
           <e p="EventLog.cs" t="Include" />
           <e p="FileContent.cs" t="Include" />
           <e p="HistoricFileContent.cs" t="Include" />
@@ -524,11 +523,11 @@
         <e p="PointlessWaymarksTests.csproj" t="IncludeRecursive" />
       </e>
     </e>
-    <e p="C:\Users\charl\.nuget\packages\microsoft.net.test.sdk\16.6.0-preview-20200309-01\build\netcoreapp2.1" t="Include">
+    <e p="C:\Users\charl\.nuget\packages\microsoft.net.test.sdk\16.6.0-preview-20200318-01\build\netcoreapp2.1" t="Include">
       <e p="Microsoft.NET.Test.Sdk.Program.cs" t="Include" />
     </e>
-    <e p="C:\Users\charl\.nuget\packages\microsoft.testplatform.testhost\16.6.0-preview-20200309-01\build\netcoreapp2.1\x64\testhost.dll" t="Include" />
-    <e p="C:\Users\charl\.nuget\packages\microsoft.testplatform.testhost\16.6.0-preview-20200309-01\build\netcoreapp2.1\x64\testhost.exe" t="Include" />
+    <e p="C:\Users\charl\.nuget\packages\microsoft.testplatform.testhost\16.6.0-preview-20200318-01\build\netcoreapp2.1\x64\testhost.dll" t="Include" />
+    <e p="C:\Users\charl\.nuget\packages\microsoft.testplatform.testhost\16.6.0-preview-20200318-01\build\netcoreapp2.1\x64\testhost.exe" t="Include" />
     <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.16.1\build\netcoreapp2.1\nunit.engine.api.dll" t="Include" />
     <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.16.1\build\netcoreapp2.1\nunit.engine.dll" t="Include" />
     <e p="C:\Users\charl\.nuget\packages\nunit3testadapter\3.16.1\build\netcoreapp2.1\NUnit3.TestAdapter.dll" t="Include" />

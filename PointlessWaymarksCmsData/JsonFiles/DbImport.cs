@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             if (toImport == null || !toImport.Any())
             {
-                progress?.Report("No items to import?");
+                progress?.Report("No FileContent items to import...");
                 return;
             }
 
@@ -26,24 +26,49 @@ namespace PointlessWaymarksCmsData.JsonFiles
             {
                 progress?.Report($"{loopImportItem.Title} - Starting FileContent");
 
+                var exactMatch = db.FileContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
+
+                if (exactMatch)
+                {
+                    progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
+                    continue;
+                }
+
+                var laterEntries = db.FileContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
+
+                if (laterEntries)
+                {
+                    if (db.HistoricFileContents.Any(x =>
+                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic FileContent");
+                    }
+                    else
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricFileContents");
+
+                        var newHistoricEntry = new HistoricFileContent();
+                        newHistoricEntry.InjectFrom(loopImportItem);
+                        newHistoricEntry.Id = 0;
+
+                        db.HistoricFileContents.Add(newHistoricEntry);
+                        db.SaveChanges(true);
+                    }
+
+                    continue;
+                }
+
                 var existingItems = db.FileContents.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
 
                 if (existingItems.Any())
                     progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
 
-                var foundExistingMatchingEntry = false;
-
                 foreach (var loopExisting in existingItems)
                 {
-                    if (loopExisting.CreatedOn == loopImportItem.CreatedOn &&
-                        loopExisting.CreatedBy == loopImportItem.CreatedBy &&
-                        loopExisting.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                        loopExisting.LastUpdatedBy == loopImportItem.LastUpdatedBy)
-                    {
-                        foundExistingMatchingEntry = true;
-                        continue;
-                    }
-
                     var newHistoricEntry = new HistoricFileContent();
                     newHistoricEntry.InjectFrom(loopExisting);
                     newHistoricEntry.Id = 0;
@@ -51,12 +76,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                     db.HistoricFileContents.Add(newHistoricEntry);
                     db.FileContents.Remove(loopExisting);
                     db.SaveChanges(true);
-                }
-
-                if (foundExistingMatchingEntry)
-                {
-                    progress?.Report($"{loopImportItem.Title} - Found in DB");
-                    continue;
                 }
 
                 progress?.Report($"{loopImportItem.Title} - Adding FileContent");
@@ -85,14 +104,18 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             var db = Db.Context().Result;
 
+            var currentLoop = 1;
+            var totalCount = toImport.Count;
+
             foreach (var loopImportItem in toImport)
             {
+                progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
                 if (db.HistoricFileContents.Any(x =>
-                    x.ContentId == loopImportItem.ContentId && x.CreatedOn == loopImportItem.CreatedOn &&
-                    x.CreatedBy == loopImportItem.CreatedBy && x.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                    x.LastUpdatedBy == loopImportItem.LastUpdatedBy))
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
-                    progress?.Report($"Historic {loopImportItem.CreatedOn:g} {loopImportItem.Title} - Already Exists");
+                    progress?.Report(
+                        $"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
                     continue;
                 }
 
@@ -101,8 +124,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                 db.HistoricFileContents.Add(loopImportItem);
 
                 db.SaveChanges(true);
-
-                progress?.Report($"{loopImportItem.Title} - Imported");
             }
 
             progress?.Report("FileContent - Finished");
@@ -122,14 +143,18 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             var db = Db.Context().Result;
 
+            var currentLoop = 1;
+            var totalCount = toImport.Count;
+
             foreach (var loopImportItem in toImport)
             {
+                progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
                 if (db.HistoricImageContents.Any(x =>
-                    x.ContentId == loopImportItem.ContentId && x.CreatedOn == loopImportItem.CreatedOn &&
-                    x.CreatedBy == loopImportItem.CreatedBy && x.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                    x.LastUpdatedBy == loopImportItem.LastUpdatedBy))
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
-                    progress?.Report($"Historic {loopImportItem.CreatedOn:g} {loopImportItem.Title} - Already Exists");
+                    progress?.Report(
+                        $"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
                     continue;
                 }
 
@@ -138,8 +163,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                 db.HistoricImageContents.Add(loopImportItem);
 
                 db.SaveChanges(true);
-
-                progress?.Report($"{loopImportItem.Title} - Imported");
             }
 
             progress?.Report("FileContent - Finished");
@@ -159,14 +182,18 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             var db = Db.Context().Result;
 
+            var currentLoop = 1;
+            var totalCount = toImport.Count;
+
             foreach (var loopImportItem in toImport)
             {
+                progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
                 if (db.HistoricLinkStreams.Any(x =>
-                    x.ContentId == loopImportItem.ContentId && x.CreatedOn == loopImportItem.CreatedOn &&
-                    x.CreatedBy == loopImportItem.CreatedBy && x.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                    x.LastUpdatedBy == loopImportItem.LastUpdatedBy))
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
-                    progress?.Report($"Historic {loopImportItem.CreatedOn:g} {loopImportItem.Title} - Already Exists");
+                    progress?.Report(
+                        $"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
                     continue;
                 }
 
@@ -175,8 +202,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                 db.HistoricLinkStreams.Add(loopImportItem);
 
                 db.SaveChanges(true);
-
-                progress?.Report($"{loopImportItem.Title} - Imported");
             }
 
             progress?.Report("FileContent - Finished");
@@ -196,14 +221,18 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             var db = Db.Context().Result;
 
+            var currentLoop = 1;
+            var totalCount = toImport.Count;
+
             foreach (var loopImportItem in toImport)
             {
+                progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
                 if (db.HistoricNoteContents.Any(x =>
-                    x.ContentId == loopImportItem.ContentId && x.CreatedOn == loopImportItem.CreatedOn &&
-                    x.CreatedBy == loopImportItem.CreatedBy && x.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                    x.LastUpdatedBy == loopImportItem.LastUpdatedBy))
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
-                    progress?.Report($"Historic {loopImportItem.CreatedOn:g} {loopImportItem.Title} - Already Exists");
+                    progress?.Report(
+                        $"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
                     continue;
                 }
 
@@ -212,8 +241,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                 db.HistoricNoteContents.Add(loopImportItem);
 
                 db.SaveChanges(true);
-
-                progress?.Report($"{loopImportItem.Title} - Imported");
             }
 
             progress?.Report("FileContent - Finished");
@@ -233,14 +260,18 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             var db = Db.Context().Result;
 
+            var currentLoop = 1;
+            var totalCount = toImport.Count;
+
             foreach (var loopImportItem in toImport)
             {
+                progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
                 if (db.HistoricPhotoContents.Any(x =>
-                    x.ContentId == loopImportItem.ContentId && x.CreatedOn == loopImportItem.CreatedOn &&
-                    x.CreatedBy == loopImportItem.CreatedBy && x.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                    x.LastUpdatedBy == loopImportItem.LastUpdatedBy))
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
-                    progress?.Report($"Historic {loopImportItem.CreatedOn:g} {loopImportItem.Title} - Already Exists");
+                    progress?.Report(
+                        $"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
                     continue;
                 }
 
@@ -249,8 +280,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                 db.HistoricPhotoContents.Add(loopImportItem);
 
                 db.SaveChanges(true);
-
-                progress?.Report($"{loopImportItem.Title} - Imported");
             }
 
             progress?.Report("FileContent - Finished");
@@ -270,14 +299,18 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             var db = Db.Context().Result;
 
+            var currentLoop = 1;
+            var totalCount = toImport.Count;
+
             foreach (var loopImportItem in toImport)
             {
+                progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
                 if (db.HistoricPostContents.Any(x =>
-                    x.ContentId == loopImportItem.ContentId && x.CreatedOn == loopImportItem.CreatedOn &&
-                    x.CreatedBy == loopImportItem.CreatedBy && x.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                    x.LastUpdatedBy == loopImportItem.LastUpdatedBy))
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
-                    progress?.Report($"Historic {loopImportItem.CreatedOn:g} {loopImportItem.Title} - Already Exists");
+                    progress?.Report(
+                        $"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
                     continue;
                 }
 
@@ -286,8 +319,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                 db.HistoricPostContents.Add(loopImportItem);
 
                 db.SaveChanges(true);
-
-                progress?.Report($"{loopImportItem.Title} - Imported");
             }
 
             progress?.Report("FileContent - Finished");
@@ -299,7 +330,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             if (toImport == null || !toImport.Any())
             {
-                progress?.Report("No items to import?");
+                progress?.Report("No ImageContent items to import...");
                 return;
             }
 
@@ -311,24 +342,49 @@ namespace PointlessWaymarksCmsData.JsonFiles
             {
                 progress?.Report($"{loopImportItem.Title} - Starting ImageContent");
 
+                var exactMatch = db.ImageContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
+
+                if (exactMatch)
+                {
+                    progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
+                    continue;
+                }
+
+                var laterEntries = db.ImageContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
+
+                if (laterEntries)
+                {
+                    if (db.HistoricImageContents.Any(x =>
+                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic ImageContent");
+                    }
+                    else
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricImageContents");
+
+                        var newHistoricEntry = new HistoricImageContent();
+                        newHistoricEntry.InjectFrom(loopImportItem);
+                        newHistoricEntry.Id = 0;
+
+                        db.HistoricImageContents.Add(newHistoricEntry);
+                        db.SaveChanges(true);
+                    }
+
+                    continue;
+                }
+
                 var existingItems = db.ImageContents.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
 
                 if (existingItems.Any())
                     progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
 
-                var foundExistingMatchingEntry = false;
-
                 foreach (var loopExisting in existingItems)
                 {
-                    if (loopExisting.CreatedOn == loopImportItem.CreatedOn &&
-                        loopExisting.CreatedBy == loopImportItem.CreatedBy &&
-                        loopExisting.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                        loopExisting.LastUpdatedBy == loopImportItem.LastUpdatedBy)
-                    {
-                        foundExistingMatchingEntry = true;
-                        continue;
-                    }
-
                     var newHistoricEntry = new HistoricImageContent();
                     newHistoricEntry.InjectFrom(loopExisting);
                     newHistoricEntry.Id = 0;
@@ -336,12 +392,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                     db.HistoricImageContents.Add(newHistoricEntry);
                     db.ImageContents.Remove(loopExisting);
                     db.SaveChanges(true);
-                }
-
-                if (foundExistingMatchingEntry)
-                {
-                    progress?.Report($"{loopImportItem.Title} - Found in DB");
-                    continue;
                 }
 
                 progress?.Report($"{loopImportItem.Title} - Adding ImageContent");
@@ -362,7 +412,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             if (toImport == null || !toImport.Any())
             {
-                progress?.Report("No items to import?");
+                progress?.Report("No LinkStream items to import...");
                 return;
             }
 
@@ -374,24 +424,49 @@ namespace PointlessWaymarksCmsData.JsonFiles
             {
                 progress?.Report($"{loopImportItem.Title} - Starting LinkStream");
 
+                var exactMatch = db.LinkStreams.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
+
+                if (exactMatch)
+                {
+                    progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
+                    continue;
+                }
+
+                var laterEntries = db.LinkStreams.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
+
+                if (laterEntries)
+                {
+                    if (db.HistoricLinkStreams.Any(x =>
+                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic LinkStream");
+                    }
+                    else
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricLinkStreams");
+
+                        var newHistoricEntry = new HistoricLinkStream();
+                        newHistoricEntry.InjectFrom(loopImportItem);
+                        newHistoricEntry.Id = 0;
+
+                        db.HistoricLinkStreams.Add(newHistoricEntry);
+                        db.SaveChanges(true);
+                    }
+
+                    continue;
+                }
+
                 var existingItems = db.LinkStreams.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
 
                 if (existingItems.Any())
                     progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
 
-                var foundExistingMatchingEntry = false;
-
                 foreach (var loopExisting in existingItems)
                 {
-                    if (loopExisting.CreatedOn == loopImportItem.CreatedOn &&
-                        loopExisting.CreatedBy == loopImportItem.CreatedBy &&
-                        loopExisting.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                        loopExisting.LastUpdatedBy == loopImportItem.LastUpdatedBy)
-                    {
-                        foundExistingMatchingEntry = true;
-                        continue;
-                    }
-
                     var newHistoricEntry = new HistoricLinkStream();
                     newHistoricEntry.InjectFrom(loopExisting);
                     newHistoricEntry.Id = 0;
@@ -399,12 +474,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                     db.HistoricLinkStreams.Add(newHistoricEntry);
                     db.LinkStreams.Remove(loopExisting);
                     db.SaveChanges(true);
-                }
-
-                if (foundExistingMatchingEntry)
-                {
-                    progress?.Report($"{loopImportItem.Title} - Found in DB");
-                    continue;
                 }
 
                 progress?.Report($"{loopImportItem.Title} - Adding LinkStream");
@@ -425,7 +494,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             if (toImport == null || !toImport.Any())
             {
-                progress?.Report("No items to import?");
+                progress?.Report("No NoteContent items to import...");
                 return;
             }
 
@@ -437,24 +506,49 @@ namespace PointlessWaymarksCmsData.JsonFiles
             {
                 progress?.Report($"{loopImportItem.Title} - Starting NoteContent");
 
+                var exactMatch = db.NoteContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
+
+                if (exactMatch)
+                {
+                    progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
+                    continue;
+                }
+
+                var laterEntries = db.NoteContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
+
+                if (laterEntries)
+                {
+                    if (db.HistoricNoteContents.Any(x =>
+                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic NoteContent");
+                    }
+                    else
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricNoteContents");
+
+                        var newHistoricEntry = new HistoricNoteContent();
+                        newHistoricEntry.InjectFrom(loopImportItem);
+                        newHistoricEntry.Id = 0;
+
+                        db.HistoricNoteContents.Add(newHistoricEntry);
+                        db.SaveChanges(true);
+                    }
+
+                    continue;
+                }
+
                 var existingItems = db.NoteContents.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
 
                 if (existingItems.Any())
                     progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
 
-                var foundExistingMatchingEntry = false;
-
                 foreach (var loopExisting in existingItems)
                 {
-                    if (loopExisting.CreatedOn == loopImportItem.CreatedOn &&
-                        loopExisting.CreatedBy == loopImportItem.CreatedBy &&
-                        loopExisting.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                        loopExisting.LastUpdatedBy == loopImportItem.LastUpdatedBy)
-                    {
-                        foundExistingMatchingEntry = true;
-                        continue;
-                    }
-
                     var newHistoricEntry = new HistoricNoteContent();
                     newHistoricEntry.InjectFrom(loopExisting);
                     newHistoricEntry.Id = 0;
@@ -462,12 +556,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                     db.HistoricNoteContents.Add(newHistoricEntry);
                     db.NoteContents.Remove(loopExisting);
                     db.SaveChanges(true);
-                }
-
-                if (foundExistingMatchingEntry)
-                {
-                    progress?.Report($"{loopImportItem.Title} - Found in DB");
-                    continue;
                 }
 
                 progress?.Report($"{loopImportItem.Title} - Adding NoteContent");
@@ -488,7 +576,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             if (toImport == null || !toImport.Any())
             {
-                progress?.Report("No items to import?");
+                progress?.Report("No PhotoContent items to import...");
                 return;
             }
 
@@ -500,24 +588,49 @@ namespace PointlessWaymarksCmsData.JsonFiles
             {
                 progress?.Report($"{loopImportItem.Title} - Starting PhotoContent");
 
+                var exactMatch = db.PhotoContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
+
+                if (exactMatch)
+                {
+                    progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
+                    continue;
+                }
+
+                var laterEntries = db.PhotoContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
+
+                if (laterEntries)
+                {
+                    if (db.HistoricPhotoContents.Any(x =>
+                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic PhotoContent");
+                    }
+                    else
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricPhotoContents");
+
+                        var newHistoricEntry = new HistoricPhotoContent();
+                        newHistoricEntry.InjectFrom(loopImportItem);
+                        newHistoricEntry.Id = 0;
+
+                        db.HistoricPhotoContents.Add(newHistoricEntry);
+                        db.SaveChanges(true);
+                    }
+
+                    continue;
+                }
+
                 var existingItems = db.PhotoContents.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
 
                 if (existingItems.Any())
                     progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
 
-                var foundExistingMatchingEntry = false;
-
                 foreach (var loopExisting in existingItems)
                 {
-                    if (loopExisting.CreatedOn == loopImportItem.CreatedOn &&
-                        loopExisting.CreatedBy == loopImportItem.CreatedBy &&
-                        loopExisting.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                        loopExisting.LastUpdatedBy == loopImportItem.LastUpdatedBy)
-                    {
-                        foundExistingMatchingEntry = true;
-                        continue;
-                    }
-
                     var newHistoricEntry = new HistoricPhotoContent();
                     newHistoricEntry.InjectFrom(loopExisting);
                     newHistoricEntry.Id = 0;
@@ -525,12 +638,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                     db.HistoricPhotoContents.Add(newHistoricEntry);
                     db.PhotoContents.Remove(loopExisting);
                     db.SaveChanges(true);
-                }
-
-                if (foundExistingMatchingEntry)
-                {
-                    progress?.Report($"{loopImportItem.Title} - Found in DB");
-                    continue;
                 }
 
                 progress?.Report($"{loopImportItem.Title} - Adding PhotoContent");
@@ -551,7 +658,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
 
             if (toImport == null || !toImport.Any())
             {
-                progress?.Report("No items to import?");
+                progress?.Report("No PostContent items to import...");
                 return;
             }
 
@@ -563,24 +670,49 @@ namespace PointlessWaymarksCmsData.JsonFiles
             {
                 progress?.Report($"{loopImportItem.Title} - Starting PostContent");
 
+                var exactMatch = db.PostContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
+
+                if (exactMatch)
+                {
+                    progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
+                    continue;
+                }
+
+                var laterEntries = db.PostContents.Any(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
+
+                if (laterEntries)
+                {
+                    if (db.HistoricPostContents.Any(x =>
+                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic PostContent");
+                    }
+                    else
+                    {
+                        progress?.Report(
+                            $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricPostContents");
+
+                        var newHistoricEntry = new HistoricPostContent();
+                        newHistoricEntry.InjectFrom(loopImportItem);
+                        newHistoricEntry.Id = 0;
+
+                        db.HistoricPostContents.Add(newHistoricEntry);
+                        db.SaveChanges(true);
+                    }
+
+                    continue;
+                }
+
                 var existingItems = db.PostContents.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
 
                 if (existingItems.Any())
                     progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
 
-                var foundExistingMatchingEntry = false;
-
                 foreach (var loopExisting in existingItems)
                 {
-                    if (loopExisting.CreatedOn == loopImportItem.CreatedOn &&
-                        loopExisting.CreatedBy == loopImportItem.CreatedBy &&
-                        loopExisting.LastUpdatedOn == loopImportItem.LastUpdatedOn &&
-                        loopExisting.LastUpdatedBy == loopImportItem.LastUpdatedBy)
-                    {
-                        foundExistingMatchingEntry = true;
-                        continue;
-                    }
-
                     var newHistoricEntry = new HistoricPostContent();
                     newHistoricEntry.InjectFrom(loopExisting);
                     newHistoricEntry.Id = 0;
@@ -588,12 +720,6 @@ namespace PointlessWaymarksCmsData.JsonFiles
                     db.HistoricPostContents.Add(newHistoricEntry);
                     db.PostContents.Remove(loopExisting);
                     db.SaveChanges(true);
-                }
-
-                if (foundExistingMatchingEntry)
-                {
-                    progress?.Report($"{loopImportItem.Title} - Found in DB");
-                    continue;
                 }
 
                 progress?.Report($"{loopImportItem.Title} - Adding PostContent");

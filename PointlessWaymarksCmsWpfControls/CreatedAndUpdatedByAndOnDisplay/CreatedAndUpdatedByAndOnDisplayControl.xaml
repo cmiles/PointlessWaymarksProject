@@ -21,15 +21,20 @@
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Vertical"
                         Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
-                <Label>Created By</Label>
-                <TextBox Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CreatedByTextBox}"
+                       Content="_Created By" />
+                <TextBox Name="CreatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                         Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Orientation="Vertical"
                         Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
-                <Label>Updated By</Label>
-                <TextBox Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UpdatedByTextBox}"
+                       Content="_Updated By" />
+                <TextBox Name="UpdatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                         Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
-            <TextBlock Text="{Binding CreatedAndUpdatedByAndOn}" TextWrapping="Wrap" />
+            <TextBox Style="{StaticResource ReadOnlyTextBox}" Margin="12,4,0,0"
+                     Text="{Binding CreatedAndUpdatedByAndOn}" TextWrapping="Wrap" />
         </StackPanel>
     </Grid>
 </UserControl>

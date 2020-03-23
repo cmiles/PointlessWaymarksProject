@@ -89,11 +89,15 @@
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
                             <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
-                                DataContext="{Binding ShowInSiteFeed}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
+                                DataContext="{Binding ShowInSiteFeed}"
+                                Style="{StaticResource ShowInSiteFeedInPanelStyle}" />
+                            <tagsEditor:TagsEditorControl Style="{StaticResource TagsEditorInPanelStyle}"
+                                                          DataContext="{Binding TagEdit}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}"
                                 DataContext="{Binding CreatedUpdatedDisplay}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" />
+                            <contentIdViewer:ContentIdViewerControl Style="{StaticResource ContentIdInPanelStyle}"
+                                                                    DataContext="{Binding ContentId}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -103,43 +107,50 @@
                     <Grid>
                         <StackPanel Margin="4">
                             <StackPanel Orientation="Vertical">
-                                <Label>Alt Text</Label>
-                                <TextBox AcceptsReturn="True" MinLines="2" MaxLines="2" TextWrapping="Wrap"
-                                         Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}"
-                                         SpellCheck.IsEnabled="True"
-                                         VerticalScrollBarVisibility="Visible" />
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Alt Text</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxMultiLineStyle}" MinLines="2"
+                                         MaxLines="2"
+                                         Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>Photo Created By</Label>
-                                <TextBox Text="{Binding PhotoCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Photo Created By</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                                         Text="{Binding PhotoCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>Photo Created On</Label>
-                                <TextBox Text="{Binding PhotoCreatedOn, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Photo Created On</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                                         Text="{Binding PhotoCreatedOn, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>Camera Make</Label>
-                                <TextBox Text="{Binding CameraMake, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Camera Make</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                                         Text="{Binding CameraMake, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>Camera Model</Label>
-                                <TextBox Text="{Binding CameraModel, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Camera Model</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                                         Text="{Binding CameraModel, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>Lens</Label>
-                                <TextBox Text="{Binding Lens, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Lens</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                                         Text="{Binding Lens, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>Aperture</Label>
-                                <TextBox Text="{Binding Aperture, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Aperture</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                                         Text="{Binding Aperture, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>Shutter Speed</Label>
-                                <TextBox Text="{Binding ShutterSpeed, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">Shutter Speed</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                                         Text="{Binding ShutterSpeed, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <Label>License</Label>
-                                <TextBox Text="{Binding License, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                                <Label Style="{StaticResource DataEntryLabelStyle}">License</Label>
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                                         Text="{Binding License, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>

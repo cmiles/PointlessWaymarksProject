@@ -19,26 +19,33 @@
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Vertical">
-                <Label>Title</Label>
-                <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" SpellCheck.IsEnabled="True" />
-                <Button Command="{Binding TitleToSlugCommand}">Title to Slug</Button>
+                <Label Style="{StaticResource DataEntryLabelStyle}" Content="_Title"
+                       Target="{Binding ElementName=TitleTextBox}" />
+                <TextBox Name="TitleTextBox" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
+                <Button Margin="6,4,0,0" Command="{Binding TitleToSlugCommand}" Content="T_itle to Slug" />
             </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <Label>Slug</Label>
-                <TextBox Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}" SpellCheck.IsEnabled="True" />
+            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                <Label Style="{StaticResource DataEntryLabelStyle}" Content="S_lug"
+                       Target="{Binding ElementName=SlugTextBox}" />
+                <TextBox Name="SlugTextBox" Margin="6,2,0,0" Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}"
+                         SpellCheck.IsEnabled="True"
+                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
             </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <Label>Folder</Label>
-                <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" SpellCheck.IsEnabled="True" />
+            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                <Label Style="{StaticResource DataEntryLabelStyle}" Content="_Folder"
+                       Target="{Binding ElementName=FolderTextBox}" />
+                <TextBox Name="FolderTextBox" Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"
+                         SpellCheck.IsEnabled="True"
+                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
             </StackPanel>
-            <StackPanel Orientation="Vertical">
-                <Label>Summary</Label>
+            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
+                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Su_mmary"
+                       Target="{Binding ElementName=SummaryTextBox}" />
                 <TextBox
-                    SpellCheck.IsEnabled="True"
-                    AcceptsReturn="True"
+                    Name="SummaryTextBox"
                     Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}"
-                    TextWrapping="Wrap"
-                    VerticalScrollBarVisibility="Visible" />
+                    Style="{StaticResource DataEntryTextBoxMultiLineStyle}" />
             </StackPanel>
         </StackPanel>
     </Grid>

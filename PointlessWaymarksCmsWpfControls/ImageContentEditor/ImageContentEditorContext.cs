@@ -446,12 +446,14 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
+                newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
             }
             else
             {
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
+                newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 
