@@ -198,6 +198,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
         public Command UserStringEntryApprovedResponseCommand { get; set; }
         public Command UserStringEntryCancelledResponseCommand { get; set; }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void BlockTaskCompleted(Task obj)
         {
             DecrementBlockingTasks();
@@ -236,7 +238,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             if (obj.IsFaulted)
             {
                 await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
-                
+
                 Task.Run(() => TryWriteExceptionToLog(obj.Exception));
             }
         }
@@ -359,7 +361,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 DecrementNonBlockingTasks();
                 ToastError($"Error: {e.Message}");
-                
+
                 Task.Run(() => TryWriteExceptionToLog(e));
             }
         }
@@ -470,28 +472,21 @@ namespace PointlessWaymarksCmsWpfControls.Status
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Error));
             if (UserSettingsSingleton.LogDiagnosticEvents)
-            {
                 Task.Run(() => TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}"));
-            }
         }
 
         public void ToastSuccess(string toastText)
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Success));
             if (UserSettingsSingleton.LogDiagnosticEvents)
-            {
                 Task.Run(() => TryWriteDiagnosticMessageToLog($"Toast Success - {toastText}"));
-            }
-
         }
 
         public void ToastWarning(string toastText)
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
             if (UserSettingsSingleton.LogDiagnosticEvents)
-            {
                 Task.Run(() => TryWriteDiagnosticMessageToLog($"Toast Warning - {toastText}"));
-            }
         }
 
         private async Task TryWriteDiagnosticMessageToLog(string message)
@@ -582,7 +577,5 @@ namespace PointlessWaymarksCmsWpfControls.Status
             StringEntryApproved = false;
             _currentFullScreenCancellationSource?.Cancel();
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

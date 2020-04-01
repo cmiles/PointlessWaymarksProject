@@ -37,7 +37,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private Command _extractNewLinksCommand;
         private string _imageSourceNotes;
         private Command _resizeFileCommand;
-        private Command _saveAndCreateLocalCommand;
         private Command _saveAndGenerateHtmlCommand;
         private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
@@ -140,17 +139,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 if (Equals(value, _resizeFileCommand)) return;
                 _resizeFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command SaveAndCreateLocalCommand
-        {
-            get => _saveAndCreateLocalCommand;
-            set
-            {
-                if (Equals(value, _saveAndCreateLocalCommand)) return;
-                _saveAndCreateLocalCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -302,7 +290,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             htmlContext.WriteLocalHtml();
         }
 
-        private async Task LoadData(ImageContent toLoad)
+        private async Task LoadData(ImageContent toLoad, bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -314,7 +302,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
 
-            if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
+            if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
+
             {
                 PictureResizing.CheckImageOriginalFileIsInMediaAndContentDirectories(DbEntry);
 
@@ -339,7 +328,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
             ResizeFileCommand = new Command(() => StatusContext.RunBlockingTask(ResizeImage));
             SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
-            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
@@ -395,28 +383,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             PictureResizing.ResizeForDisplayAndSrcset(SelectedFile, true, StatusContext.ProgressTracker());
         }
 
-        private async Task SaveAndCreateLocal()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var validationList = await ValidateAll();
-
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
-                return;
-            }
-
-            await SaveToDatabase();
-            await WriteSelectedFileToMasterMediaArchive();
-            await WriteSelectedFileToLocalSite();
-            await GenerateHtml();
-            await Export.WriteLocalDbJson(DbEntry);
-        }
-
-
         public async Task SaveAndGenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -431,12 +397,14 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
+            await WriteSelectedFileToMasterMediaArchive();
             await SaveToDatabase();
+            await WriteSelectedFileToLocalSite();
             await GenerateHtml();
             await Export.WriteLocalDbJson(DbEntry);
         }
 
-        private async Task SaveToDatabase()
+        private async Task SaveToDatabase(bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -504,13 +472,13 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 context.ImageContents.Remove(loopToHistoric);
             }
 
-            context.ImageContents.Add(newEntry);
+            await context.ImageContents.AddAsync(newEntry);
 
             await context.SaveChangesAsync(true);
 
             DbEntry = newEntry;
 
-            await LoadData(newEntry);
+            await LoadData(newEntry, skipMediaDirectoryCheck);
         }
 
         private async Task SaveToDbWithValidation()
@@ -527,6 +495,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
+            await WriteSelectedFileToMasterMediaArchive();
             await SaveToDatabase();
         }
 

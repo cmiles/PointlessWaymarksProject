@@ -117,6 +117,52 @@
                                             </i:Interaction.Behaviors>
                                         </TextBox>
                                     </WrapPanel>
+                                    <WrapPanel Orientation="Horizontal">
+                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                                 Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo Created On: {0}'}"
+                                                 TextWrapping="Wrap"
+                                                 HorizontalAlignment="Right">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                                 Margin="8,0,0,0"
+                                                 Text="{Binding DbEntry.Aperture}"
+                                                 TextWrapping="Wrap"
+                                                 HorizontalAlignment="Right">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                                 Margin="8,0,0,0"
+                                                 Text="{Binding DbEntry.ShutterSpeed}"
+                                                 TextWrapping="Wrap"
+                                                 HorizontalAlignment="Right">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                                 Margin="8,0,0,0"
+                                                 Text="{Binding DbEntry.Iso, StringFormat='Iso: {0}'}"
+                                                 TextWrapping="Wrap"
+                                                 HorizontalAlignment="Right">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                                 Margin="8,0,0,0"
+                                                 Text="{Binding DbEntry.Lens}"
+                                                 TextWrapping="Wrap"
+                                                 HorizontalAlignment="Right">
+                                            <i:Interaction.Behaviors>
+                                                <utility:ReadOnlyTextBoxClickPass />
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+                                    </WrapPanel>
                                     <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanel}">
                                         <TextBox
                                             Margin="8,0,0,0"

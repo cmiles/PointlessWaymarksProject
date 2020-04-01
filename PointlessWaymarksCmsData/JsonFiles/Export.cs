@@ -41,7 +41,7 @@ namespace PointlessWaymarksCmsData.JsonFiles
             File.WriteAllText(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
-        public static async Task WriteLocalDbJson(FileContent dbEntry, IProgress<string> progress = null)
+        public static async Task WriteLocalDbJson(FileContent dbEntry, IProgress<string> progress)
         {
             progress?.Report("Writing Db Entry to Json");
 

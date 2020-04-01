@@ -297,10 +297,10 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             htmlContext.WriteLocalHtml();
         }
 
-        private async Task LoadData(FileContent toLoad)
+        private async Task LoadData(FileContent toLoad, bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-
+            
             StatusContext.Progress("Loading Data...");
 
             DbEntry = toLoad ?? new FileContent();
@@ -312,7 +312,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
 
-            if (toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
+            if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
                 PictureResizing.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry);
 
@@ -320,12 +320,16 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                     UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveFileDirectory().FullName,
                     DbEntry.OriginalFileName));
 
+                var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(toLoad);
+
+                var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, toLoad.OriginalFileName));
+
                 if (archiveFile.Exists)
                     SelectedFile = archiveFile;
                 else
                     await StatusContext.ShowMessage("Missing Photo",
                         $"There is an original file listed for this entry - {DbEntry.OriginalFileName} -" +
-                        $" but it was not found in the expected location of {archiveFile.FullName} - " +
+                        $" but it was not found in the expected locations of {archiveFile.FullName} or {contentFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the file or " +
                         "maybe your master media directory moved unexpectedly and you could close this editor " +
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
@@ -396,15 +400,15 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            await SaveToDatabase();
             await WriteSelectedFileToMasterMediaArchive();
+            await SaveToDatabase();
             await WriteSelectedFileToLocalSite();
             await GenerateHtml();
             await Export.WriteLocalDbJson(DbEntry, StatusContext.ProgressTracker());
         }
 
 
-        private async Task SaveToDatabase()
+        private async Task SaveToDatabase(bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -443,6 +447,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             if (DbEntry != null && DbEntry.Id > 0)
+            {
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
                     var settings = UserSettingsSingleton.CurrentSettings();
@@ -461,6 +466,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                             possibleOldHtmlFile.MoveTo(settings.LocalSiteFileHtmlFile(newEntry).FullName);
                     }
                 }
+            }
 
             var context = await Db.Context();
 
@@ -475,13 +481,13 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 context.FileContents.Remove(loopToHistoric);
             }
 
-            context.FileContents.Add(newEntry);
+            await context.FileContents.AddAsync(newEntry);
 
             await context.SaveChangesAsync(true);
 
             DbEntry = newEntry;
 
-            await LoadData(newEntry);
+            await LoadData(newEntry, skipMediaDirectoryCheck);
         }
 
         private async Task SaveToDbWithValidationAndArchiveMedia()
@@ -498,8 +504,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            await SaveToDatabase();
             await WriteSelectedFileToMasterMediaArchive();
+            await SaveToDatabase();
         }
 
         private async Task<(bool, string)> Validate()
@@ -556,7 +562,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             var originalFileInTargetDirectoryFullName = Path.Combine(targetDirectory.FullName, SelectedFile.Name);
 
             var sourceFile = new FileInfo(originalFileInTargetDirectoryFullName);
-
+            //Todo: Could use some checking here for 'same file'
             if (originalFileInTargetDirectoryFullName != SelectedFile.FullName)
             {
                 if (sourceFile.Exists) sourceFile.Delete();
@@ -569,6 +575,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private async Task WriteSelectedFileToMasterMediaArchive()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null) return;
 
             StatusContext.Progress("Saving File to Archive");
 

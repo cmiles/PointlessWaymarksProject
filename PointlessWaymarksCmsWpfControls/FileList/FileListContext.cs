@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -25,6 +27,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
+        private Command<FileListListItem> _openFileCommand;
 
         public FileListContext(StatusControlContext statusContext)
         {
@@ -154,6 +157,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             }));
+            OpenFileCommand = new Command<FileListListItem>(x => StatusContext.RunNonBlockingTask(() => OpenFile(x)));
 
             StatusContext.Progress("Connecting to DB");
 
@@ -192,6 +196,47 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             await SortList("CreatedOn");
         }
 
+        public Command<FileListListItem> OpenFileCommand
+        {
+            get => _openFileCommand;
+            set
+            {
+                if (Equals(value, _openFileCommand)) return;
+                _openFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private async Task OpenFile(FileListListItem listItem)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (listItem == null)
+            {
+                StatusContext.ToastError("Nothing Items to Open?");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(listItem.DbEntry.OriginalFileName))
+            {
+                StatusContext.ToastError("No File?");
+                return;
+            }
+
+            var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentFile(listItem.DbEntry);
+
+            if (!toOpen.Exists)
+            {
+                StatusContext.ToastError("File doesn't exist?");
+                return;
+            }
+
+            var url = toOpen.FullName;
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -202,12 +247,9 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private async Task SortList(string sortColumn)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
-
             _lastSortColumn = sortColumn;
-
             var collectionView = ((CollectionView) CollectionViewSource.GetDefaultView(Items));
             collectionView.SortDescriptions.Clear();
-
             if (string.IsNullOrWhiteSpace(sortColumn)) return;
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));

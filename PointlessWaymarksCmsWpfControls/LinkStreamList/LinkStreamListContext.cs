@@ -14,6 +14,7 @@ using MvvmHelpers.Commands;
 using pinboard.net;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -25,6 +26,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         private Command _filterListCommand;
         private ObservableRangeCollection<LinkStreamListListItem> _items;
         private string _lastSortColumn;
+        private Command _listSelectedLinksNotOnPinboardCommand;
         private Command<string> _openUrlCommand;
         private List<LinkStreamListListItem> _selectedItems;
         private bool _sortDescending;
@@ -32,7 +34,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
-        private Command _listSelectedLinksNotOnPinboardCommand;
 
         public LinkStreamListContext(StatusControlContext statusContext)
         {
@@ -69,6 +70,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ListSelectedLinksNotOnPinboardCommand
+        {
+            get => _listSelectedLinksNotOnPinboardCommand;
+            set
+            {
+                if (Equals(value, _listSelectedLinksNotOnPinboardCommand)) return;
+                _listSelectedLinksNotOnPinboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -176,7 +188,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             };
         }
 
-        private async Task ListSelectedLinksNotOnPinboard(IProgress<string> progress = null)
+        private async Task ListSelectedLinksNotOnPinboard(IProgress<string> progress)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -185,7 +197,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 progress?.Report("No Pinboard Api Token... Can't check Pinboard.");
                 return;
             }
-            
+
             var selected = SelectedItems.ToList();
 
             if (!selected.Any())
@@ -193,20 +205,21 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 progress?.Report("Nothing Selected?");
                 return;
             }
-            
+
             progress?.Report($"Found {selected.Count} items to check.");
 
-            
+
             using var pb = new PinboardAPI(UserSettingsSingleton.CurrentSettings().PinboardApiToken);
 
             var notFoundList = new List<LinkStream>();
-            
+
             foreach (var loopSelected in selected)
             {
                 if (string.IsNullOrWhiteSpace(loopSelected.DbEntry.Url))
                 {
                     notFoundList.Add(loopSelected.DbEntry);
-                    progress?.Report($"Link titled {loopSelected.DbEntry.Title} created on {loopSelected.DbEntry.CreatedOn:d} added because of blank URL...");
+                    progress?.Report(
+                        $"Link titled {loopSelected.DbEntry.Title} created on {loopSelected.DbEntry.CreatedOn:d} added because of blank URL...");
                     continue;
                 }
 
@@ -214,12 +227,14 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
                 if (!matches.Posts.Any())
                 {
-                    progress?.Report($"Not Found Link titled {loopSelected.DbEntry.Title} created on {loopSelected.DbEntry.CreatedOn:d}");
+                    progress?.Report(
+                        $"Not Found Link titled {loopSelected.DbEntry.Title} created on {loopSelected.DbEntry.CreatedOn:d}");
                     notFoundList.Add(loopSelected.DbEntry);
                 }
                 else
                 {
-                    progress?.Report($"Found Link titled {loopSelected.DbEntry.Title} created on {loopSelected.DbEntry.CreatedOn:d}");
+                    progress?.Report(
+                        $"Found Link titled {loopSelected.DbEntry.Title} created on {loopSelected.DbEntry.CreatedOn:d}");
                 }
             }
 
@@ -229,7 +244,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                     $"Found a match on Pinboard for all {selected.Count} Selected links.");
                 return;
             }
-            
+
             progress?.Report($"Building table of {notFoundList.Count} items not found on Pinboard");
 
             var projectedNotFound = notFoundList.Select(x => new
@@ -243,8 +258,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }).ToHtmlTable();
 
             await ThreadSwitcher.ResumeForegroundAsync();
-            
-            var htmlReportWindow = new HtmlViewer.HtmlViewerWindow(projectedNotFound);
+
+            var htmlReportWindow = new HtmlViewerWindow(projectedNotFound);
             htmlReportWindow.Show();
         }
 
@@ -269,7 +284,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 StatusContext.ToastSuccess($"To Clipboard {x}");
             }));
             ListSelectedLinksNotOnPinboardCommand = new Command(x =>
-                StatusContext.RunBlockingTask(async () => await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker())));
+                StatusContext.RunBlockingTask(async () =>
+                    await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker())));
 
             StatusContext.Progress("Connecting to DB");
 
@@ -302,17 +318,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
             SortDescending = true;
             await SortList("CreatedOn");
-        }
-
-        public Command ListSelectedLinksNotOnPinboardCommand
-        {
-            get => _listSelectedLinksNotOnPinboardCommand;
-            set
-            {
-                if (Equals(value, _listSelectedLinksNotOnPinboardCommand)) return;
-                _listSelectedLinksNotOnPinboardCommand = value;
-                OnPropertyChanged();
-            }
         }
 
         [NotifyPropertyChangedInvocator]

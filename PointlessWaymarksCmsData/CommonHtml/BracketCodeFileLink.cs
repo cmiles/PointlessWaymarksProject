@@ -15,8 +15,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
         ///     a page link.
         /// </summary>
         /// <param name="toProcess"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        public static string FileDownloadLinkCodeProcess(string toProcess)
+        public static string FileDownloadLinkCodeProcess(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -49,6 +50,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 var dbContent = context.FileContents.FirstOrDefault(x => x.ContentId == contentGuid);
                 if (dbContent == null) continue;
 
+                progress?.Report($"Adding file download link {dbContent.Title} from Code");
+
                 var settings = UserSettingsSingleton.CurrentSettings();
 
                 var linkTag = new LinkTag(
@@ -68,10 +71,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
         ///     a file page link
         /// </summary>
         /// <param name="toProcess"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        public static string FileLinkCodeProcess(string toProcess)
+        public static string FileLinkCodeProcess(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+            progress?.Report("Searching for File Link Codes");
 
             var resultList = new List<(string wholeMatch, string siteGuidMatch, string displayText)>();
 
@@ -102,6 +108,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 var dbContent = context.FileContents.FirstOrDefault(x => x.ContentId == contentGuid);
                 if (dbContent == null) continue;
 
+                progress?.Report($"Adding file link {dbContent.Title} from Code");
                 var settings = UserSettingsSingleton.CurrentSettings();
 
                 var linkTag =

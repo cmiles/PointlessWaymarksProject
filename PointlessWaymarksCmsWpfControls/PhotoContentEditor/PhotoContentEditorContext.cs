@@ -248,8 +248,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public Command SaveAndCreateLocalCommand { get; set; }
-
         public Command SaveAndGenerateHtmlCommand
         {
             get => _saveAndGenerateHtmlCommand;
@@ -472,20 +470,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ResizeFileCommand = new Command(() => StatusContext.RunBlockingTask(ResizePhoto));
             SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
             ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
-            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-        }
-
-        private DirectoryInfo LocalFolderDirectory(UserSettings settings)
-        {
-            var folderDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName,
-                TitleSummarySlugFolder.Folder));
-            if (!folderDirectory.Exists) folderDirectory.Create();
-
-            folderDirectory.Refresh();
-
-            return folderDirectory;
         }
 
         [NotifyPropertyChangedInvocator]
@@ -518,9 +504,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 .FirstOrDefault();
 
             PhotoCreatedBy = exifDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
-            PhotoCreatedOn =
-                DateTime.ParseExact(exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal),
-                    "yyyy:MM:dd HH:mm:ss", CultureInfo.InvariantCulture);
+            var createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
+            if (string.IsNullOrWhiteSpace(createdOn)) PhotoCreatedOn = DateTime.Now;
+            else
+            {
+                var createdOnParsed = DateTime.TryParseExact(
+                    exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal), "yyyy:MM:dd HH:mm:ss",
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate);
+
+                PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
+            }
+
             TitleSummarySlugFolder.Folder = PhotoCreatedOn.Year.ToString("F0");
 
             var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
@@ -585,7 +579,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
 
             TitleSummarySlugFolder.Slug = SlugUtility.Create(true, TitleSummarySlugFolder.Title);
-            TagEdit.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords).Replace(";", ",") ?? string.Empty;
+            TagEdit.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ?? string.Empty;
         }
 
         private async Task ResizePhoto()
@@ -609,27 +603,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             PictureResizing.ResizeForDisplayAndSrcset(SelectedFile, true, StatusContext.ProgressTracker());
         }
 
-        private async Task SaveAndCreateLocal()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var validationList = await ValidateAll();
-
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
-                return;
-            }
-
-            await SaveToDatabase(true);
-            await WriteSelectedFileToMasterMediaArchive();
-            await WriteSelectedFileToLocalSite();
-            await GenerateHtml();
-            await Export.WriteLocalDbJson(DbEntry);
-        }
-
         public async Task SaveAndGenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -644,8 +617,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
-            await SaveToDatabase();
             await WriteSelectedFileToMasterMediaArchive();
+            await SaveToDatabase();
+            await WriteSelectedFileToLocalSite();
             await GenerateHtml();
             await Export.WriteLocalDbJson(DbEntry);
         }
@@ -727,7 +701,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 context.PhotoContents.Remove(loopToHistoric);
             }
 
-            context.PhotoContents.Add(newEntry);
+            await context.PhotoContents.AddAsync(newEntry);
 
             await context.SaveChangesAsync(true);
 
@@ -750,8 +724,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
-            await SaveToDatabase();
             await WriteSelectedFileToMasterMediaArchive();
+            await SaveToDatabase();
         }
 
         public static string ShutterSpeedToHumanReadableString(Rational? toProcess)

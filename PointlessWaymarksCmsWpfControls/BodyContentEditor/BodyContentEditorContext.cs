@@ -132,11 +132,14 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            StatusContext.Progress("Building HTML");
+
             var settings = UserSettingsSingleton.CurrentSettings();
 
             try
             {
-                var preprocessResults = BracketCodeCommon.ProcessCodesForLocalDisplay(BodyContent);
+                var preprocessResults =
+                    BracketCodeCommon.ProcessCodesForLocalDisplay(BodyContent, StatusContext.ProgressTracker());
                 var processResults =
                     ContentProcessor.ContentHtml(BodyContentFormat.SelectedContentFormat, preprocessResults);
 

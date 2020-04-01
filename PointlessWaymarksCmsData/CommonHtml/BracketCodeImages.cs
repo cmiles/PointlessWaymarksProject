@@ -6,7 +6,7 @@ using PointlessWaymarksCmsData.ImageHtml;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
-    public class BracketCodeImages
+    public static class BracketCodeImages
     {
         /// <summary>
         ///     Processes {{image guid;human_identifier}} with a specified function - best use may be for easily building
@@ -14,10 +14,14 @@ namespace PointlessWaymarksCmsData.CommonHtml
         /// </summary>
         /// <param name="toProcess"></param>
         /// <param name="pageConversion"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        private static string ImageCodeProcess(string toProcess, Func<SingleImagePage, string> pageConversion)
+        private static string ImageCodeProcess(string toProcess, Func<SingleImagePage, string> pageConversion,
+            IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+            progress?.Report("Searching for Image Codes");
 
             var resultList = new List<(string wholeMatch, string siteGuidMatch)>();
             var regexObj = new Regex(@"{{image (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
@@ -35,6 +39,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                     var dbImage = context.ImageContents.FirstOrDefault(x => x.ContentId == imageContentGuid);
                     if (dbImage == null) continue;
 
+                    progress?.Report($"Image Code for {dbImage.Title} processed");
                     var singleImageInfo = new SingleImagePage(dbImage);
 
                     toProcess = toProcess.Replace(loopString.wholeMatch, pageConversion(singleImageInfo));
@@ -49,21 +54,24 @@ namespace PointlessWaymarksCmsData.CommonHtml
         ///     program).
         /// </summary>
         /// <param name="toProcess"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        public static string ImageCodeProcessForDirectLocalAccess(string toProcess)
+        public static string ImageCodeProcessForDirectLocalAccess(string toProcess, IProgress<string> progress)
         {
-            return ImageCodeProcess(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString());
+            return ImageCodeProcess(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(),
+                progress);
         }
 
         /// <summary>
         ///     Processes {{image guid;human_identifier}} into figure html with a link to the image page.
         /// </summary>
         /// <param name="toProcess"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        public static string ImageCodeProcessToFigureWithLink(string toProcess)
+        public static string ImageCodeProcessToFigureWithLink(string toProcess, IProgress<string> progress)
         {
             return ImageCodeProcess(toProcess,
-                page => page.PictureInformation.PictureFigureWithLinkToPicturePageTag().ToString());
+                page => page.PictureInformation.PictureFigureWithLinkToPicturePageTag().ToString(), progress);
         }
     }
 }

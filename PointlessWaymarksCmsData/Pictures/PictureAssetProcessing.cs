@@ -57,7 +57,7 @@ namespace PointlessWaymarksCmsData.Pictures
                         .Groups["width"].Value)
                 };
 
-            var srcsetImageFiles = fileVariants.Where(x => x.Name.Contains("--Sized"));
+            var srcsetImageFiles = fileVariants.Where(x => x.Name.Contains("--Sized")).ToList();
             toReturn.SrcsetImages = srcsetImageFiles.Select(x => new PictureFile
             {
                 FileName = x.Name,
@@ -71,8 +71,12 @@ namespace PointlessWaymarksCmsData.Pictures
                 File = x
             }).ToList();
 
-            toReturn.LargePicture = toReturn.SrcsetImages.OrderByDescending(x => Math.Max(x.Height, x.Width)).First();
-            toReturn.SmallPicture = toReturn.SrcsetImages.OrderBy(x => Math.Max(x.Height, x.Width)).First();
+            if (srcsetImageFiles.Any())
+            {
+                toReturn.LargePicture =
+                    toReturn.SrcsetImages.OrderByDescending(x => Math.Max(x.Height, x.Width)).First();
+                toReturn.SmallPicture = toReturn.SrcsetImages.OrderBy(x => Math.Max(x.Height, x.Width)).First();
+            }
 
             return toReturn;
         }
@@ -126,7 +130,7 @@ namespace PointlessWaymarksCmsData.Pictures
                         .Groups["width"].Value)
                 };
 
-            var srcsetImageFiles = fileVariants.Where(x => x.Name.Contains("--Sized"));
+            var srcsetImageFiles = fileVariants.Where(x => x.Name.Contains("--Sized")).ToList();
             toReturn.SrcsetImages = srcsetImageFiles.Select(x => new PictureFile
             {
                 FileName = x.Name,
@@ -140,8 +144,12 @@ namespace PointlessWaymarksCmsData.Pictures
                     .Groups["width"].Value)
             }).ToList();
 
-            toReturn.LargePicture = toReturn.SrcsetImages.OrderByDescending(x => Math.Max(x.Height, x.Width)).First();
-            toReturn.SmallPicture = toReturn.SrcsetImages.OrderBy(x => Math.Max(x.Height, x.Width)).First();
+            if (srcsetImageFiles.Any())
+            {
+                toReturn.LargePicture =
+                    toReturn.SrcsetImages.OrderByDescending(x => Math.Max(x.Height, x.Width)).First();
+                toReturn.SmallPicture = toReturn.SrcsetImages.OrderBy(x => Math.Max(x.Height, x.Width)).First();
+            }
 
             return toReturn;
         }

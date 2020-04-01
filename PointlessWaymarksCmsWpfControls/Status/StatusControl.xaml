@@ -67,7 +67,7 @@
                         TextWrapping="Wrap" />
                     <TextBlock
                         Grid.Row="1"
-                        MaxWidth="400"
+                        MaxWidth="800"
                         Margin="0,12,0,12"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
@@ -108,7 +108,7 @@
                         Grid.Row="1"
                         BorderThickness="0"
                         IsReadOnly="True"
-                        MaxWidth="400"
+                        MaxWidth="800"
                         Margin="0,12,0,12"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"

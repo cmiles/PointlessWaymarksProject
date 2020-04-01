@@ -13,15 +13,17 @@ namespace PointlessWaymarksCmsData.CommonHtml
         ///     a link
         /// </summary>
         /// <param name="toProcess"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        public static string PostLinkCodeProcess(string toProcess)
+        public static string PostLinkCodeProcess(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
             var resultList = new List<(string wholeMatch, string siteGuidMatch, string displayText)>();
 
-            var withTextMatch = new Regex(@"{{postlink (?<siteGuid>[\dA-Za-z-]*);\s*text (?<displayText>[^};]*);[^}]*}}",
-                RegexOptions.Singleline);
+            var withTextMatch =
+                new Regex(@"{{postlink (?<siteGuid>[\dA-Za-z-]*);\s*text (?<displayText>[^};]*);[^}]*}}",
+                    RegexOptions.Singleline);
             var withTextMatchResult = withTextMatch.Match(toProcess);
             while (withTextMatchResult.Success)
             {
@@ -46,13 +48,14 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 var dbContent = context.PostContents.FirstOrDefault(x => x.ContentId == contentGuid);
                 if (dbContent == null) continue;
 
-                var settings = UserSettingsSingleton.CurrentSettings();
+                progress?.Report($"Adding post download link {dbContent.Title} from Code");
 
                 var linkTag =
                     new LinkTag(
                         string.IsNullOrWhiteSpace(loopMatch.displayText)
                             ? dbContent.Title
-                            : loopMatch.displayText.Trim(), settings.PostPageUrl(dbContent), "post-page-link");
+                            : loopMatch.displayText.Trim(),
+                        UserSettingsSingleton.CurrentSettings().PostPageUrl(dbContent), "post-page-link");
 
                 toProcess = toProcess.Replace(loopMatch.wholeMatch, linkTag.ToString());
             }

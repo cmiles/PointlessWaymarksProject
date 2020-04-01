@@ -178,6 +178,13 @@ namespace PointlessWaymarksCmsData
             return contentDirectory;
         }
 
+        public static FileInfo LocalSiteFileContentFile(this UserSettings settings, FileContent content)
+        {
+            var directory = settings.LocalSiteFileContentDirectory(content, false);
+
+            return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
+        }
+
         public static DirectoryInfo LocalSiteFileDirectory(this UserSettings settings)
         {
             var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Files"));

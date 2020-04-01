@@ -53,6 +53,7 @@
                         <Button Command="{Binding RefreshPreviewCommand}">Refresh Preview</Button>
                         <controls:WebView
                             Grid.Row="1"
+                            NavigationStarting="WebView_OnNavigationStarting"
                             wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UpdateNotesHtmlOutput}"
                             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
                     </Grid>

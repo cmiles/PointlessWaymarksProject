@@ -227,7 +227,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
-        private async Task ExtractDataFromLink(IProgress<string> progress = null)
+        private async Task ExtractDataFromLink(IProgress<string> progress)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -404,7 +404,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private async Task SaveToDatabase(IProgress<string> progress = null)
+        private async Task SaveToDatabase(IProgress<string> progress)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -468,7 +468,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             await LoadData(newEntry);
         }
 
-        private async Task SaveToDbWithValidation(IProgress<string> progress = null)
+        private async Task SaveToDbWithValidation(IProgress<string> progress)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -486,7 +486,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             await SaveToPinboard(progress);
         }
 
-        private async Task SaveToDbWithValidationAndClose(IProgress<string> progress = null)
+        private async Task SaveToDbWithValidationAndClose(IProgress<string> progress)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -506,7 +506,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             RequestLinkStreamEditorWindowClose?.Invoke(this, null);
         }
 
-        private async Task SaveToPinboard(IProgress<string> progress = null)
+        private async Task SaveToPinboard(IProgress<string> progress)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 

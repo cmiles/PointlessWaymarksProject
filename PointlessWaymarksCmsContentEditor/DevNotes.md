@@ -1,5 +1,5 @@
 ﻿## Todos
- - Files/Images check media directory sync code for bug when flagging new content (ie same bug that was in Photos)
+ - File content 
  - Settings file switching
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
@@ -21,6 +21,20 @@
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
+
+4/1/2020
+Added an open file button to the file list to open the document locally - very convienent.
+
+More progress messages especially around local HTML preview generation.
+
+Small changes to the Status Message to give more room to error message display.
+
+Bug Fixes Better handling of Image and File file checking.
+
+3/27/2020
+Added some basic progress messaging to the Body Preview construction.
+
+Did a first simple round of work on pushing any navigation out of the WebView preview and into a new window - pretty simple code to start but at least for a the best case this works well.
 
 3/23/2020
 Fixed a bug in the Photo Content Editor in the new Media Library/Content Folder check/sync where I didn't have any path for 'first creation' where the file is not yet expected to exist.

@@ -22,13 +22,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return null;
         }
 
-        public static string ProcessCodesAndMarkdownForSite(string input)
+        public static string ProcessCodesAndMarkdownForSite(string input, IProgress<string> progress)
         {
-            input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input);
-            input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input);
-            input = BracketCodeFileLink.FileDownloadLinkCodeProcess(input);
-            input = BracketCodeFileLink.FileLinkCodeProcess(input);
-            input = BracketCodePostLink.PostLinkCodeProcess(input);
+            input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input, progress);
+            input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input, progress);
+            input = BracketCodeFileLink.FileDownloadLinkCodeProcess(input, progress);
+            input = BracketCodeFileLink.FileLinkCodeProcess(input, progress);
+            input = BracketCodePostLink.PostLinkCodeProcess(input, progress);
 
             var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
             var markdownOut = Markdown.ToHtml(input, pipeline);
@@ -36,13 +36,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return markdownOut;
         }
 
-        public static string ProcessCodesForLocalDisplay(string input)
+        public static string ProcessCodesForLocalDisplay(string input, IProgress<string> progress)
         {
-            input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input);
-            input = BracketCodeImages.ImageCodeProcessForDirectLocalAccess(input);
-            input = BracketCodeFileLink.FileLinkCodeProcess(input);
-            input = BracketCodeFileLink.FileDownloadLinkCodeProcess(input);
-            input = BracketCodePostLink.PostLinkCodeProcess(input);
+            input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input, progress);
+            input = BracketCodeImages.ImageCodeProcessForDirectLocalAccess(input, progress);
+            input = BracketCodeFileLink.FileLinkCodeProcess(input, progress);
+            input = BracketCodeFileLink.FileDownloadLinkCodeProcess(input, progress);
+            input = BracketCodePostLink.PostLinkCodeProcess(input, progress);
 
             return input;
         }

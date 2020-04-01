@@ -14,10 +14,14 @@ namespace PointlessWaymarksCmsData.CommonHtml
         /// </summary>
         /// <param name="toProcess"></param>
         /// <param name="pageConversion"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        private static string PhotoCodeProcess(string toProcess, Func<SinglePhotoPage, string> pageConversion)
+        private static string PhotoCodeProcess(string toProcess, Func<SinglePhotoPage, string> pageConversion,
+            IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+            progress?.Report("Searching for Photo Codes...");
 
             var resultList = new List<(string wholeMatch, string siteGuidMatch)>();
             var regexObj = new Regex(@"{{photo (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
@@ -35,6 +39,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                     var dbPhoto = context.PhotoContents.FirstOrDefault(x => x.ContentId == photoContentGuid);
                     if (dbPhoto == null) continue;
 
+                    progress?.Report($"Photo Code - Adding {dbPhoto.Title}");
                     var singlePhotoInfo = new SinglePhotoPage(dbPhoto);
 
                     toProcess = toProcess.Replace(loopString.wholeMatch, pageConversion(singlePhotoInfo));
@@ -49,21 +54,24 @@ namespace PointlessWaymarksCmsData.CommonHtml
         ///     program).
         /// </summary>
         /// <param name="toProcess"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        public static string PhotoCodeProcessForDirectLocalAccess(string toProcess)
+        public static string PhotoCodeProcessForDirectLocalAccess(string toProcess, IProgress<string> progress)
         {
-            return PhotoCodeProcess(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString());
+            return PhotoCodeProcess(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(),
+                progress);
         }
 
         /// <summary>
         ///     Processes {{photo guid;human_identifier}} into figure html with a link to the photo page.
         /// </summary>
         /// <param name="toProcess"></param>
+        /// <param name="progress"></param>
         /// <returns></returns>
-        public static string PhotoCodeProcessToFigureWithLink(string toProcess)
+        public static string PhotoCodeProcessToFigureWithLink(string toProcess, IProgress<string> progress)
         {
             return PhotoCodeProcess(toProcess,
-                page => page.PictureInformation.PictureFigureWithLinkToPicturePageTag().ToString());
+                page => page.PictureInformation.PictureFigureWithLinkToPicturePageTag().ToString(), progress);
         }
     }
 }

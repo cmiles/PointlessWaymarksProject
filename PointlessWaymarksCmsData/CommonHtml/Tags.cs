@@ -236,11 +236,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return outerLink;
         }
 
-        public static HtmlTag PostBodyDiv(IBodyContent dbEntry)
+        public static HtmlTag PostBodyDiv(IBodyContent dbEntry, IProgress<string> progress = null)
         {
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
-            var bodyText = BracketCodeCommon.ProcessCodesAndMarkdownForSite(dbEntry.BodyContent);
+            var bodyText = BracketCodeCommon.ProcessCodesAndMarkdownForSite(dbEntry.BodyContent, progress);
 
             var bodyHtmlProcessing = ContentProcessor.ContentHtml(dbEntry.BodyContentFormat, bodyText);
 

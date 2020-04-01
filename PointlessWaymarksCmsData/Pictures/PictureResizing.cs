@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using PointlessWaymarksCmsData.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
@@ -414,6 +413,5 @@ namespace PointlessWaymarksCmsData.Pictures
                 (100, 70)
             };
         }
-
     }
 }
