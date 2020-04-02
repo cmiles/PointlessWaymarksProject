@@ -2,8 +2,8 @@
 {
     public static class Names
     {
-        public static string HistoricLinkListFileName = "HistoricLinkList.json";
-        public static string LinkListFileName = "LinkList.json";
+        public static string HistoricLinkListFileName = "HistoricLinkList";
+        public static string LinkListFileName = "LinkList";
         public static string FileContentPrefix = "File---";
         public static string HistoricFileContentPrefix = "HistoricFiles---";
         public static string PostContentPrefix = "Post---";

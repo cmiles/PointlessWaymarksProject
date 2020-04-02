@@ -25,7 +25,11 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <GroupBox Header="Format Type" Style="{StaticResource UiComponentGroupBoxStyle}">
-            <contentFormat:ContentFormatChooserControl DataContext="{Binding BodyContentFormat}" />
+            <StackPanel Orientation="Horizontal">
+                <contentFormat:ContentFormatChooserControl DataContext="{Binding BodyContentFormat}" />
+                <Label Target="{Binding ElementName=BodyMarkDownFontSizeSlider}" Margin="12,0,0,0">Font Size</Label>
+                <Slider Minimum="8" Maximum="42" x:Name="BodyMarkDownFontSizeSlider" Value="14" Width="120" VerticalAlignment="Center" />
+            </StackPanel>
         </GroupBox>
         <Grid Grid.Row="1" Margin="2">
             <Grid.ColumnDefinitions>
@@ -39,6 +43,7 @@
                     Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap"
                     BorderThickness="0"
+                    FontSize="{Binding ElementName=BodyMarkDownFontSizeSlider, Path=Value}"
                     VerticalScrollBarVisibility="Visible" />
             </GroupBox>
             <GroupBox Grid.Column="1" Header="Preview" Style="{StaticResource UiComponentGroupBoxStyle}">
@@ -47,7 +52,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <Button Command="{Binding RefreshPreviewCommand}">Refresh Preview</Button>
+                    <Button Command="{Binding RefreshPreviewCommand}" Margin="0,0,0,4" Height="24">Refresh Preview</Button>
                     <controls:WebView
                         Grid.Row="1"
                         NavigationStarting="WebView_OnNavigationStarting"

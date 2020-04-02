@@ -14,8 +14,8 @@
  - Top of the html page search box - maybe pass a query parameter to the all content list page?
  - Extract links from list page or 'all site' (option in content but not in lists/all)
  - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
- - Add a UTC DateTime as a 'Row Version' field to all content types
  - Backup the master media directory, database and current site to a dated folder (where?)
+ - Could all font sizes be controlled by slider?
 
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
@@ -23,6 +23,8 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 4/1/2020
+Added a font size slider to the Body Editor (for me if you make the window full screen the system font size is too small) - also made the refresh preview button a little larger and added a small gap between it and the preview to make it easier to hit.
+
 Added an open file button to the file list to open the document locally - very convienent.
 
 More progress messages especially around local HTML preview generation.
