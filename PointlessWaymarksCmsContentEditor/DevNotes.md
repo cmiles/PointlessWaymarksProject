@@ -1,5 +1,5 @@
 ﻿## Todos
- - File content 
+ - Need to make sure lists load current db version for editting and not the in list version 
  - Settings file switching
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
