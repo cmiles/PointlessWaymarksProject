@@ -16,7 +16,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 {
     public class PostListContext : INotifyPropertyChanged
     {
-        private Command _filterListCommand;
         private ObservableRangeCollection<PostListListItem> _items;
         private string _lastSortColumn;
         private List<PostListListItem> _selectedItems;
@@ -32,17 +31,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public Command FilterListCommand
-        {
-            get => _filterListCommand;
-            set
-            {
-                if (Equals(value, _filterListCommand)) return;
-                _filterListCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public ObservableRangeCollection<PostListListItem> Items
         {
             get => _items;
@@ -53,7 +41,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                 OnPropertyChanged();
             }
         }
-
 
         public List<PostListListItem> SelectedItems
         {
@@ -118,6 +105,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                 if (value == _userFilterText) return;
                 _userFilterText = value;
                 OnPropertyChanged();
+
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
             }
         }
 
@@ -147,7 +136,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            FilterListCommand = new Command(() => StatusContext.RunNonBlockingTask(FilterList));
             SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
             ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
             {

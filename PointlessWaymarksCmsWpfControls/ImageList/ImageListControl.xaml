@@ -32,12 +32,7 @@
             </Grid.ColumnDefinitions>
             <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
                 <TextBox MaxLines="1" AcceptsReturn="False" VerticalAlignment="Center"
-                         Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged}">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="TextChanged">
-                            <i:InvokeCommandAction Command="{Binding FilterListCommand}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                         Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}">
                 </TextBox>
             </GroupBox>
             <GroupBox Grid.Column="1" Header="Sort" Style="{StaticResource UiComponentGroupBoxStyle}">

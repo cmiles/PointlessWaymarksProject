@@ -18,7 +18,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 {
     public class FileListContext : INotifyPropertyChanged
     {
-        private Command _filterListCommand;
         private ObservableRangeCollection<FileListListItem> _items;
         private string _lastSortColumn;
         private List<FileListListItem> _selectedItems;
@@ -33,17 +32,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
-        }
-
-        public Command FilterListCommand
-        {
-            get => _filterListCommand;
-            set
-            {
-                if (Equals(value, _filterListCommand)) return;
-                _filterListCommand = value;
-                OnPropertyChanged();
-            }
         }
 
         public ObservableRangeCollection<FileListListItem> Items
@@ -120,6 +108,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 if (value == _userFilterText) return;
                 _userFilterText = value;
                 OnPropertyChanged();
+
+                StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(FilterList);
             }
         }
 
@@ -150,7 +140,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            FilterListCommand = new Command(() => StatusContext.RunNonBlockingTask(FilterList));
             SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
             ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
             {

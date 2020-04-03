@@ -37,12 +37,7 @@
                     VerticalAlignment="Center"
                     AcceptsReturn="False"
                     MaxLines="1"
-                    Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged}">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="TextChanged">
-                            <i:InvokeCommandAction Command="{Binding FilterListCommand}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                    Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}">
                 </TextBox>
             </GroupBox>
             <GroupBox

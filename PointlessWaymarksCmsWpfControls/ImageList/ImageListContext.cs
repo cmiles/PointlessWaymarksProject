@@ -28,8 +28,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public Command FilterListCommand { get; set; }
-
         public ObservableRangeCollection<ImageListListItem> Items
         {
             get => _items;
@@ -77,6 +75,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 if (value == _userFilterText) return;
                 _userFilterText = value;
                 OnPropertyChanged();
+
+                StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(FilterList);
             }
         }
 
@@ -106,7 +106,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            FilterListCommand = new Command(() => StatusContext.RunNonBlockingTask(FilterList));
             SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
             ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
             {

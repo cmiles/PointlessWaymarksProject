@@ -176,11 +176,25 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 return;
             }
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            var context = await Db.Context();
+            var frozenList = ListContext.SelectedItems;
+
+            foreach (var loopSelected in frozenList)
             {
+
+                var refreshedData =
+                    context.LinkStreams.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+
+                if (refreshedData == null)
+                {
+                    StatusContext.ToastError($"{loopSelected.DbEntry.Title} is no longer active in the database? Can not edit - " +
+                                             $"look for a historic version...");
+                    continue;
+                }
+
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var newContentWindow = new LinkStreamEditorWindow(loopSelected.DbEntry);
+                var newContentWindow = new LinkStreamEditorWindow(refreshedData);
 
                 newContentWindow.Show();
 

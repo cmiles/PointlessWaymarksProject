@@ -1,13 +1,13 @@
 ﻿## Todos
- - Need to make sure lists load current db version for editting and not the in list version 
+ - Try to Handle Uncaught exceptions when possible - how to notify?
  - Settings file switching
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
  - Is everything getting HMTL Encoded - are there spots with leaks? (tests?)
  - RSS - Does title need CDATA to be completely safe? Or?
- - Try to Log Unhandled Exceptions
  - Basic Style for the Html Table output
  - Give all labels Targets
+ - Research Markdown Monster Window handling regarding position and size
 
 ## Ideas
  - Top of the html page menu - or other 'nav' idea (maybe just a one level set of links that collapses on mobile? or...)
@@ -21,6 +21,15 @@
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
+
+4/3/2020
+Found while working on the Waterman Peak post that I was loading the content editor from the list item without refreshing from the database which had unintended consequences with the Waterman Peak post where I also added images, files and links so was bouncing between editors. Changed in all editors.
+
+Even with the small current amount of content I was noticing that the list filter had some disappointing interaction where you would type and get a bad UI lag. Fixed this by removing the interaction trigger I was orginally using in favor of triggering off the property change so that I could also take advantage of the Dely binding options which causes WPF to delay before updating the binding (this seems like insanity but works really well letting you type and the binding not be updated until you pause - which makes the UI appear to be nicely responsive.)
+
+Did some working on setting up all labels with targets - Settings screen done.
+
+First try work on unhandled exceptions - got handlers setup and basic logging in place - need to see which ones I could 'handle', which in this case I think means report and try to resume as an unhandled exception is as likely to be 'error handling bug' as fatal error in the spirit of 'out of memory'.
 
 4/1/2020
 Added a font size slider to the Body Editor (for me if you make the window full screen the system font size is too small) - also made the refresh preview button a little larger and added a small gap between it and the preview to make it easier to hit.

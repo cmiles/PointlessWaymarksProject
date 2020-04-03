@@ -24,68 +24,68 @@
             <StackPanel Orientation="Vertical">
                 <Button Style="{StaticResource ActionPanelButton}">Save</Button>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Local Site Root Directory</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LocalSiteRootDirectoryTextBox}">Local Site Root Directory</Label>
+                    <TextBox Name="LocalSiteRootDirectoryTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.LocalSiteRootDirectory, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Local Master Media Archive</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=LocalMasterMediaArchiveTextBox}" Style="{StaticResource DataEntryLabelStyle}">Local Master Media Archive</Label>
+                    <TextBox Name="LocalMasterMediaArchiveTextBox"  Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.LocalMasterMediaArchive, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Url</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=SiteUrlTextBox}" Style="{StaticResource DataEntryLabelStyle}">Url</Label>
+                    <TextBox Name="SiteUrlTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteUrl, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Name</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=SiteNameTextBox}" Style="{StaticResource DataEntryLabelStyle}">Site Name</Label>
+                    <TextBox Name="SiteNameTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteName, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Authors</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=SiteAuthorsTextBox}" Style="{StaticResource DataEntryLabelStyle}">Site Authors</Label>
+                    <TextBox Name="SiteAuthorsTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteAuthors, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Keywords</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=SiteKeywordsTextBox}" Style="{StaticResource DataEntryLabelStyle}">Site Keywords</Label>
+                    <TextBox Name="SiteKeywordsTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteKeywords, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Summary</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=SiteSummaryTextBox}" Style="{StaticResource DataEntryLabelStyle}">Site Summary</Label>
+                    <TextBox Name="SiteSummaryTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteSummary, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Site Email To</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=SiteEmailToTextBox}" Style="{StaticResource DataEntryLabelStyle}">Site Email To</Label>
+                    <TextBox Name="SiteEmailToTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.SiteEmailTo, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Default Created By Name</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=DefaultCreatedByTextBox}" Style="{StaticResource DataEntryLabelStyle}">Default Created By Name</Label>
+                    <TextBox Name="DefaultCreatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.DefaultCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Bing Maps Api Key</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=BingApiKeyTextBox}" Style="{StaticResource DataEntryLabelStyle}">Bing Maps Api Key</Label>
+                    <TextBox Name="BingApiKeyTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.BingApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">CalTopo Maps Api Key</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=CalTopoApiKeyTextBox}" Style="{StaticResource DataEntryLabelStyle}">CalTopo Maps Api Key</Label>
+                    <TextBox Name="CalTopoApiKeyTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.CalTopoApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Google Maps Api Key</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=GoogleMapsApiKeyTextBox}" Style="{StaticResource DataEntryLabelStyle}">Google Maps Api Key</Label>
+                    <TextBox Name="GoogleMapsApiKeyTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.GoogleMapsApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Pinboard Api Key</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <Label Target="{Binding ElementName=PinboardApiTokenTextBox}" Style="{StaticResource DataEntryLabelStyle}">Pinboard Api Key</Label>
+                    <TextBox Name="PinboardApiTokenTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.PinboardApiToken, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
             </StackPanel>

@@ -196,13 +196,30 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 return;
             }
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+
+            var context = await Db.Context();
+            var frozenList = ListContext.SelectedItems;
+
+            foreach (var loopSelected in frozenList)
             {
+
+                var refreshedData =
+                    context.ImageContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+
+                if (refreshedData == null)
+                {
+                    StatusContext.ToastError($"{loopSelected.DbEntry.Title} is no longer active in the database? Can not edit - " +
+                                             $"look for a historic version...");
+                    continue;
+                }
+
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var newContentWindow = new ImageContentEditorWindow(loopSelected.DbEntry);
+                var newContentWindow = new ImageContentEditorWindow(refreshedData);
 
                 newContentWindow.Show();
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
             }
         }
 

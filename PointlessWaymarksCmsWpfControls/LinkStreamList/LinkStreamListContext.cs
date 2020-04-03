@@ -23,7 +23,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
     public class LinkStreamListContext : INotifyPropertyChanged
     {
         private Command<string> _copyUrlCommand;
-        private Command _filterListCommand;
         private ObservableRangeCollection<LinkStreamListListItem> _items;
         private string _lastSortColumn;
         private Command _listSelectedLinksNotOnPinboardCommand;
@@ -48,17 +47,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             {
                 if (Equals(value, _copyUrlCommand)) return;
                 _copyUrlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command FilterListCommand
-        {
-            get => _filterListCommand;
-            set
-            {
-                if (Equals(value, _filterListCommand)) return;
-                _filterListCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -160,6 +148,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 if (value == _userFilterText) return;
                 _userFilterText = value;
                 OnPropertyChanged();
+
+                StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(FilterList);
             }
         }
 
@@ -267,7 +257,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            FilterListCommand = new Command(() => StatusContext.RunNonBlockingTask(FilterList));
             SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
             ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
             {

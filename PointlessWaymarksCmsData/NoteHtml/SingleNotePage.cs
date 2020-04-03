@@ -139,58 +139,58 @@ namespace PointlessWaymarksCmsData.NoteHtml
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
+            this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 40 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 39 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(NoteParts.NoteTitleDiv(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 40 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n     ");
             
-            #line 42 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 41 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 44 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 45 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 44 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 46 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 45 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts)));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 48 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 47 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 49 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
+            #line 48 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
