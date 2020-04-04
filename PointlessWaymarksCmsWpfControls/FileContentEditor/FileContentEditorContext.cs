@@ -300,7 +300,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private async Task LoadData(FileContent toLoad, bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-            
+
             StatusContext.Progress("Loading Data...");
 
             DbEntry = toLoad ?? new FileContent();
@@ -320,7 +320,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                     UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveFileDirectory().FullName,
                     DbEntry.OriginalFileName));
 
-                var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(toLoad);
+                var fileContentDirectory =
+                    UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(toLoad);
 
                 var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, toLoad.OriginalFileName));
 
@@ -447,7 +448,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             if (DbEntry != null && DbEntry.Id > 0)
-            {
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
                 {
                     var settings = UserSettingsSingleton.CurrentSettings();
@@ -466,7 +466,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                             possibleOldHtmlFile.MoveTo(settings.LocalSiteFileHtmlFile(newEntry).FullName);
                     }
                 }
-            }
 
             var context = await Db.Context();
 

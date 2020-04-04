@@ -37,15 +37,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
             HtmlTag compactContentSummaryTextDiv;
 
             if (content.MainPicture == null)
-            {
                 compactContentSummaryTextDiv = new DivTag().AddClass("content-compact-text-content-summary")
                     .Text(content.Summary);
-            }
             else
-            {
                 compactContentSummaryTextDiv = new DivTag().AddClass("content-compact-text-content-optional-summary")
                     .Text(content.Summary);
-            }
 
             var compactContentMainTextCreatedOrUpdatedTextDiv = new DivTag()
                 .AddClass("content-compact-text-content-date")

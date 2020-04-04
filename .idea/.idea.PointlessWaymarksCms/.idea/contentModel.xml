@@ -364,6 +364,7 @@
                 <e p="PhotoContentEditorWindow.g.cs" t="Include" />
               </e>
               <e p="PhotoList" t="Include">
+                <e p="PhotoListControl.g.cs" t="Include" />
                 <e p="PhotoListWithActionsControl.g.cs" t="Include" />
               </e>
               <e p="PointlessWaymarksCmsWpfControls.AssemblyInfo.cs" t="Include" />

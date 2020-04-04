@@ -1,5 +1,4 @@
 ﻿## Todos
- - Try to Handle Uncaught exceptions when possible - how to notify?
  - Settings file switching
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
@@ -29,7 +28,9 @@ Even with the small current amount of content I was noticing that the list filte
 
 Did some working on setting up all labels with targets - Settings screen done.
 
-First try work on unhandled exceptions - got handlers setup and basic logging in place - need to see which ones I could 'handle', which in this case I think means report and try to resume as an unhandled exception is as likely to be 'error handling bug' as fatal error in the spirit of 'out of memory'.
+First try work on unhandled exceptions - got handlers setup and basic logging in place - need to see which ones I could 'handle', which in this case I think means report and try to resume as an unhandled exception is as likely to be 'error handling bug' as fatal error in the spirit of 'out of memory'. *Changed this up a bit after looking at the Markdown Monster code - this is not the result of extensive testing but rather my impression of the rather solid state of Markdown Monster.
+
+
 
 4/1/2020
 Added a font size slider to the Body Editor (for me if you make the window full screen the system font size is too small) - also made the refresh preview button a little larger and added a small gap between it and the preview to make it easier to hit.

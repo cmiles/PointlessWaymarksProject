@@ -4,14 +4,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.ToastControl;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -198,8 +196,6 @@ namespace PointlessWaymarksCmsWpfControls.Status
         public Command UserStringEntryApprovedResponseCommand { get; set; }
         public Command UserStringEntryCancelledResponseCommand { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private void BlockTaskCompleted(Task obj)
         {
             DecrementBlockingTasks();
@@ -213,7 +209,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
             if (obj.IsFaulted)
             {
                 ToastError($"Error: {obj.Exception?.Message}");
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception, StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
+                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
             }
         }
 
@@ -239,7 +236,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception, StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
+                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
             }
         }
 
@@ -253,8 +251,22 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 ToastError($"Error: {obj.Exception?.Message}");
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception, StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
+                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
             }
+        }
+
+        private async Task<string> GetStatusLogEntriesString(int maxLastEntries)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            if (StatusLog == null || !StatusLog.Any()) return string.Empty;
+
+            var toReturn = string.Join(Environment.NewLine, StatusLog.Take(maxLastEntries));
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            return toReturn;
         }
 
         private void IncrementBlockingTasks()
@@ -284,7 +296,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 ToastError($"Error: {obj.Exception?.Message}");
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception, StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
+                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
             }
         }
 
@@ -302,7 +315,9 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
                 if (StatusLog.Count > 20) StatusLog.Remove(StatusLog.First());
 
-                if (UserSettingsSingleton.LogDiagnosticEvents) Task.Run(() => EventLogContext.TryWriteDiagnosticMessageToLog(e, StatusControlContextId.ToString()));
+                if (UserSettingsSingleton.LogDiagnosticEvents)
+                    Task.Run(() =>
+                        EventLogContext.TryWriteDiagnosticMessageToLog(e, StatusControlContextId.ToString()));
             });
         }
 
@@ -346,7 +361,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
                 ShowMessage("Error", e.ToString(), new List<string> {"Ok"}).Wait();
                 DecrementBlockingTasks();
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(),
+                    await GetStatusLogEntriesString(10)));
             }
         }
 
@@ -362,7 +378,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
                 DecrementNonBlockingTasks();
                 ToastError($"Error: {e.Message}");
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(),
+                    await GetStatusLogEntriesString(10)));
             }
         }
 
@@ -421,19 +438,6 @@ namespace PointlessWaymarksCmsWpfControls.Status
             return await ShowMessage(title, body, new List<string> {"Ok"});
         }
 
-        private async Task<string> GetStatusLogEntriesString(int maxLastEntries)
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            if (StatusLog == null || !StatusLog.Any()) return string.Empty;
-
-            var toReturn = string.Join(Environment.NewLine, StatusLog.Take(maxLastEntries));
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            return toReturn;
-        }
-
         public async Task<(bool, string)> ShowStringEntry(string title, string body, string initialUserString)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -453,7 +457,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
             catch (Exception e)
             {
                 if (!(e is OperationCanceledException)) Progress($"ShowMessage Exception {e.Message}");
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(),
+                    await GetStatusLogEntriesString(10)));
             }
             finally
             {
@@ -485,21 +490,27 @@ namespace PointlessWaymarksCmsWpfControls.Status
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Error));
             if (UserSettingsSingleton.LogDiagnosticEvents)
-                Task.Run(() => EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}", StatusControlContextId.ToString()));
+                Task.Run(() =>
+                    EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}",
+                        StatusControlContextId.ToString()));
         }
 
         public void ToastSuccess(string toastText)
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Success));
             if (UserSettingsSingleton.LogDiagnosticEvents)
-                Task.Run(() => EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}", StatusControlContextId.ToString()));
+                Task.Run(() =>
+                    EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}",
+                        StatusControlContextId.ToString()));
         }
 
         public void ToastWarning(string toastText)
         {
             Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
             if (UserSettingsSingleton.LogDiagnosticEvents)
-                Task.Run(() => EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}", StatusControlContextId.ToString()));
+                Task.Run(() =>
+                    EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}",
+                        StatusControlContextId.ToString()));
         }
 
         private void UserMessageBoxResponse(string responseString)
@@ -520,5 +531,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             StringEntryApproved = false;
             _currentFullScreenCancellationSource?.Cancel();
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

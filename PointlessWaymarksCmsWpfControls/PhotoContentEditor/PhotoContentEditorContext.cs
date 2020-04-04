@@ -505,7 +505,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             PhotoCreatedBy = exifDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
             var createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
-            if (string.IsNullOrWhiteSpace(createdOn)) PhotoCreatedOn = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(createdOn))
+            {
+                PhotoCreatedOn = DateTime.Now;
+            }
             else
             {
                 var createdOnParsed = DateTime.TryParseExact(

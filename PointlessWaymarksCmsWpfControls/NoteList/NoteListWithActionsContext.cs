@@ -202,14 +202,14 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
             foreach (var loopSelected in frozenList)
             {
-
                 var refreshedData =
                     context.NoteContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
 
                 if (refreshedData == null)
                 {
-                    StatusContext.ToastError($"{loopSelected.DbEntry.Title} is no longer active in the database? Can not edit - " +
-                                             $"look for a historic version...");
+                    StatusContext.ToastError(
+                        $"{loopSelected.DbEntry.Title} is no longer active in the database? Can not edit - " +
+                        "look for a historic version...");
                     continue;
                 }
 

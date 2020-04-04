@@ -10,7 +10,7 @@ namespace PointlessWaymarksCmsData
         {
             return string.IsNullOrWhiteSpace(toEncode) ? string.Empty : HttpUtility.HtmlEncode(toEncode);
         }
-        
+
         public static string TrimNullSafe(this string toTrim)
         {
             return string.IsNullOrWhiteSpace(toTrim) ? string.Empty : toTrim.Trim();

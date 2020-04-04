@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -20,13 +19,13 @@ namespace PointlessWaymarksCmsWpfControls.FileList
     {
         private ObservableRangeCollection<FileListListItem> _items;
         private string _lastSortColumn;
+        private Command<FileListListItem> _openFileCommand;
         private List<FileListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
-        private Command<FileListListItem> _openFileCommand;
 
         public FileListContext(StatusControlContext statusContext)
         {
@@ -41,6 +40,17 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<FileListListItem> OpenFileCommand
+        {
+            get => _openFileCommand;
+            set
+            {
+                if (Equals(value, _openFileCommand)) return;
+                _openFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -185,15 +195,10 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             await SortList("CreatedOn");
         }
 
-        public Command<FileListListItem> OpenFileCommand
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            get => _openFileCommand;
-            set
-            {
-                if (Equals(value, _openFileCommand)) return;
-                _openFileCommand = value;
-                OnPropertyChanged();
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private async Task OpenFile(FileListListItem listItem)
@@ -224,12 +229,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
 
