@@ -47,14 +47,14 @@ namespace PointlessWaymarksCmsWpfControls.XamlMapConstructs
                 //map.ZoomMap(e.GetPosition(map), Math.Floor(map.ZoomLevel + 1.5));
                 //map.ZoomToBounds(new BoundingBox(53, 7, 54, 9));
                 //map.TargetCenter = map.ViewportPointToLocation(e.GetPosition(map));
-                var location = map.ViewportPointToLocation(e.GetPosition(map));
+                var location = map.ViewToLocation(e.GetPosition(map));
                 Model().CreateLocation(new Point(location.Longitude, location.Latitude));
             }
         }
 
         private void MapMouseMove(object sender, MouseEventArgs e)
         {
-            var location = map.ViewportPointToLocation(e.GetPosition(map));
+            var location = map.ViewToLocation(e.GetPosition(map));
             var latitude = (int) Math.Round(location.Latitude * 60000d);
             var longitude = (int) Math.Round(Location.NormalizeLongitude(location.Longitude) * 60000d);
             var latHemisphere = 'N';

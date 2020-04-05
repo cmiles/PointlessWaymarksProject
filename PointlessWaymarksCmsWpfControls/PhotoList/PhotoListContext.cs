@@ -5,9 +5,11 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -29,6 +31,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+
+            DataNotifications.PhotoContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
         }
 
         public ObservableRangeCollection<PhotoListListItem> Items
@@ -110,6 +114,63 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
+        private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
+        {
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+                await DataNotificationsOnContentDataNotificationEvent(e));
+        }
+
+        private async Task DataNotificationsOnContentDataNotificationEvent(DataNotificationEventArgs e)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (e.UpdateType == DataNotificationUpdateType.Delete)
+            {
+                var toRemove = Items.Where(x => e.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Items.RemoveRange(toRemove);
+            }
+
+            if (e.UpdateType == DataNotificationUpdateType.New)
+            {
+                var context = await Db.Context();
+
+                var dbItems =
+                    (await context.PhotoContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
+                        ListItemFromDbItem);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Items.AddRange(dbItems);
+            }
+
+            if (e.UpdateType == DataNotificationUpdateType.Update)
+            {
+                var context = await Db.Context();
+
+                var dbItems =
+                    (await context.PhotoContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
+                        ListItemFromDbItem);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                foreach (var loopUpdates in dbItems)
+                {
+                    var toUpdate = Items.SingleOrDefault(x => x.DbEntry.ContentId == loopUpdates.DbEntry.ContentId);
+                    if (toUpdate == null)
+                    {
+                        Items.Add(loopUpdates);
+                        continue;
+                    }
+
+                    toUpdate.DbEntry = loopUpdates.DbEntry;
+                    toUpdate.SmallImageUrl = loopUpdates.SmallImageUrl;
+                }
+            }
+        }
+
         private async Task FilterList()
         {
             if (Items == null || !Items.Any()) return;
@@ -137,6 +198,15 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             };
         }
 
+        public PhotoListListItem ListItemFromDbItem(PhotoContent content)
+        {
+            return new PhotoListListItem
+            {
+                DbEntry = content,
+                SmallImageUrl = PictureAssetProcessing.ProcessPhotoDirectory(content).SmallPicture?.File.FullName
+            };
+        }
+
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -152,7 +222,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var db = await Db.Context();
 
-            StatusContext.Progress("Getting Post Db Entries");
+            StatusContext.Progress("Getting Photo Db Entries");
             var dbItems = db.PhotoContents.ToList();
             var listItems = new List<PhotoListListItem>();
 
@@ -162,16 +232,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             foreach (var loopItems in dbItems)
             {
                 if (totalCount == 1 || totalCount % 10 == 0)
-                    StatusContext.Progress($"Processing Post Item {currentLoop} of {totalCount}");
+                    StatusContext.Progress($"Processing Photo Item {currentLoop} of {totalCount}");
 
-                var newItem = new PhotoListListItem
-                {
-                    DbEntry = loopItems,
-                    SmallImageUrl = PictureAssetProcessing.ProcessPhotoDirectory(loopItems).SmallPicture?.File
-                        .FullName
-                };
-
-                listItems.Add(newItem);
+                listItems.Add(ListItemFromDbItem(loopItems));
 
                 currentLoop++;
             }
@@ -185,6 +248,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             SortDescending = true;
             await SortList("CreatedOn");
         }
+
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

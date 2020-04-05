@@ -111,12 +111,12 @@
                     Command="{Binding ResizeFileCommand}">
                     Resize
                 </Button>
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}"
-                        Content="Save, _Resize, Generate" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}"
                         Content="Save, _Generate Html" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}"
-                        Content="_Save" />
+                        Content="Quick _Save to DB" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ResizeFileCommand}"
+                        Content="Forced _Resize" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ExtractNewLinksCommand}"
                         Content="_Extract New Links" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}"

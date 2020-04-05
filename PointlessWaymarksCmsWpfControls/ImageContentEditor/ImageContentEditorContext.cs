@@ -410,8 +410,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             var newEntry = new ImageContent();
 
+            var isNewEntry = false;
+
             if (DbEntry == null || DbEntry.Id < 1)
             {
+                isNewEntry = true;
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
                 newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
@@ -479,6 +482,21 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             DbEntry = newEntry;
 
             await LoadData(newEntry, skipMediaDirectoryCheck);
+
+            if (isNewEntry)
+                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.New,
+                        ContentIds = new List<Guid> {newEntry.ContentId}
+                    });
+            else
+                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.Update,
+                        ContentIds = new List<Guid> {newEntry.ContentId}
+                    });
         }
 
         private async Task SaveToDbWithValidation()
@@ -568,7 +586,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 sourceImage.Refresh();
             }
 
-            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, true, StatusContext.ProgressTracker());
+            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, StatusContext.ProgressTracker());
         }
 
         private async Task WriteSelectedFileToMasterMediaArchive()

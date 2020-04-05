@@ -196,6 +196,7 @@
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml" t="Include" />
           <e p="CreatedAndUpdatedByAndOnDisplayControl.xaml.cs" t="Include" />
         </e>
+        <e p="DataNotifications.cs" t="Include" />
         <e p="FileContentEditor" t="Include">
           <e p="FileContentEditorContext.cs" t="Include" />
           <e p="FileContentEditorControl.xaml" t="Include" />

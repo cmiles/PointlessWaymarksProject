@@ -13,6 +13,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0-preview-20200318-01" />
+        <PackageReference Include="ThomasLevesque.WeakEvent" Version="4.1.0" />
     </ItemGroup>
 
     <ItemGroup>

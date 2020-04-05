@@ -417,8 +417,11 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             var newEntry = new FileContent();
 
+            var isNewEntry = false;
+
             if (DbEntry == null || DbEntry.Id < 1)
             {
+                isNewEntry = true;
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
                 newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
@@ -487,6 +490,21 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             DbEntry = newEntry;
 
             await LoadData(newEntry, skipMediaDirectoryCheck);
+
+            if (isNewEntry)
+                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.New,
+                        ContentIds = new List<Guid> {newEntry.ContentId}
+                    });
+            else
+                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.Update,
+                        ContentIds = new List<Guid> {newEntry.ContentId}
+                    });
         }
 
         private async Task SaveToDbWithValidationAndArchiveMedia()

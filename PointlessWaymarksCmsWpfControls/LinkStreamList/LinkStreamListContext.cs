@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Data;
 using HtmlTableHelper;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
 using pinboard.net;
@@ -38,6 +39,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            DataNotifications.LinkStreamContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
         }
 
         public Command<string> CopyUrlCommand
@@ -153,6 +155,62 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
+        private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
+        {
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+                await DataNotificationsOnContentDataNotificationEvent(e));
+        }
+
+        private async Task DataNotificationsOnContentDataNotificationEvent(DataNotificationEventArgs e)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (e.UpdateType == DataNotificationUpdateType.Delete)
+            {
+                var toRemove = Items.Where(x => e.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Items.RemoveRange(toRemove);
+            }
+
+            if (e.UpdateType == DataNotificationUpdateType.New)
+            {
+                var context = await Db.Context();
+
+                var dbItems =
+                    (await context.LinkStreams.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
+                        ListItemFromDbItem);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Items.AddRange(dbItems);
+            }
+
+            if (e.UpdateType == DataNotificationUpdateType.Update)
+            {
+                var context = await Db.Context();
+
+                var dbItems =
+                    (await context.LinkStreams.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
+                        ListItemFromDbItem);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                foreach (var loopUpdates in dbItems)
+                {
+                    var toUpdate = Items.SingleOrDefault(x => x.DbEntry.ContentId == loopUpdates.DbEntry.ContentId);
+                    if (toUpdate == null)
+                    {
+                        Items.Add(loopUpdates);
+                        continue;
+                    }
+
+                    toUpdate.DbEntry = loopUpdates.DbEntry;
+                }
+            }
+        }
+
         private async Task FilterList()
         {
             if (Items == null || !Items.Any()) return;
@@ -176,6 +234,14 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 if ((pi.DbEntry.LastUpdatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 return false;
             };
+        }
+
+
+        public LinkStreamListListItem ListItemFromDbItem(LinkStream content)
+        {
+            var newItem = new LinkStreamListListItem {DbEntry = content};
+
+            return newItem;
         }
 
         private async Task ListSelectedLinksNotOnPinboard(IProgress<string> progress)
@@ -292,9 +358,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing Link Item {currentLoop} of {totalCount}");
 
-                var newItem = new LinkStreamListListItem {DbEntry = loopItems};
-
-                listItems.Add(newItem);
+                listItems.Add(ListItemFromDbItem(loopItems));
 
                 currentLoop++;
             }

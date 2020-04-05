@@ -245,8 +245,11 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             var newEntry = new PostContent();
 
+            var isNewEntry = false;
+
             if (DbEntry == null || DbEntry.Id < 1)
             {
+                isNewEntry = true;
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
                 newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
@@ -321,13 +324,28 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             StatusContext?.Progress("Saving main post");
 
-            context.PostContents.Add(newEntry);
+            await context.PostContents.AddAsync(newEntry);
 
             await context.SaveChangesAsync(true);
 
             DbEntry = newEntry;
 
             await LoadData(newEntry);
+
+            if (isNewEntry)
+                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.New,
+                        ContentIds = new List<Guid> {newEntry.ContentId}
+                    });
+            else
+                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.Update,
+                        ContentIds = new List<Guid> {newEntry.ContentId}
+                    });
         }
 
         private async Task SaveToDbWithValidation()

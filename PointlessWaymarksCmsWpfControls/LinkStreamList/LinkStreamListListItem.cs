@@ -27,7 +27,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         public string LinkContentString
         {
             get => _linkContentString;
-            set
+            private set
             {
                 if (value == _linkContentString) return;
                 _linkContentString = value;

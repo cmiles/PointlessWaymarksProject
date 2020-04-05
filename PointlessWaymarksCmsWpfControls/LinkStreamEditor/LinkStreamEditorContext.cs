@@ -412,8 +412,11 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
             var newEntry = new LinkStream();
 
+            var isNewEntry = false;
+
             if (DbEntry == null || DbEntry.Id < 1)
             {
+                isNewEntry = true;
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
                 newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
@@ -457,7 +460,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
             progress?.Report("Adding new entry");
 
-            context.LinkStreams.Add(newEntry);
+            await context.LinkStreams.AddAsync(newEntry);
 
             progress?.Report("Saving Changes");
 
@@ -466,6 +469,21 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             DbEntry = newEntry;
 
             await LoadData(newEntry);
+
+            if (isNewEntry)
+                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.New,
+                        ContentIds = new List<Guid> {newEntry.ContentId}
+                    });
+            else
+                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.Update,
+                        ContentIds = new List<Guid> {newEntry.ContentId}
+                    });
         }
 
         private async Task SaveToDbWithValidation(IProgress<string> progress)

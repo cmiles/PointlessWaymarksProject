@@ -6,9 +6,11 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -31,6 +33,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+
+            DataNotifications.FileContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
         }
 
         public ObservableRangeCollection<FileListListItem> Items
@@ -123,6 +127,63 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
+        private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
+        {
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+                await DataNotificationsOnContentDataNotificationEvent(e));
+        }
+
+        private async Task DataNotificationsOnContentDataNotificationEvent(DataNotificationEventArgs e)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (e.UpdateType == DataNotificationUpdateType.Delete)
+            {
+                var toRemove = Items.Where(x => e.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Items.RemoveRange(toRemove);
+            }
+
+            if (e.UpdateType == DataNotificationUpdateType.New)
+            {
+                var context = await Db.Context();
+
+                var dbItems =
+                    (await context.FileContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
+                        ListItemFromDbItem);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Items.AddRange(dbItems);
+            }
+
+            if (e.UpdateType == DataNotificationUpdateType.Update)
+            {
+                var context = await Db.Context();
+
+                var dbItems =
+                    (await context.FileContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
+                        ListItemFromDbItem);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                foreach (var loopUpdates in dbItems)
+                {
+                    var toUpdate = Items.SingleOrDefault(x => x.DbEntry.ContentId == loopUpdates.DbEntry.ContentId);
+                    if (toUpdate == null)
+                    {
+                        Items.Add(loopUpdates);
+                        continue;
+                    }
+
+                    toUpdate.DbEntry = loopUpdates.DbEntry;
+                    toUpdate.SmallImageUrl = loopUpdates.SmallImageUrl;
+                }
+            }
+        }
+
         private async Task FilterList()
         {
             if (Items == null || !Items.Any()) return;
@@ -146,6 +207,18 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             };
         }
 
+
+        public FileListListItem ListItemFromDbItem(FileContent content)
+        {
+            var newItem = new FileListListItem {DbEntry = content};
+
+            if (content.MainPicture != null)
+                newItem.SmallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)
+                    .SmallPicture?.File.FullName;
+
+            return newItem;
+        }
+
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -162,7 +235,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             var db = await Db.Context();
 
-            StatusContext.Progress("Getting Post Db Entries");
+            StatusContext.Progress("Getting File Db Entries");
             var dbItems = db.FileContents.ToList();
             var listItems = new List<FileListListItem>();
 
@@ -172,15 +245,9 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             foreach (var loopItems in dbItems)
             {
                 if (totalCount == 1 || totalCount % 10 == 0)
-                    StatusContext.Progress($"Processing Post Item {currentLoop} of {totalCount}");
+                    StatusContext.Progress($"Processing File Item {currentLoop} of {totalCount}");
 
-                var newFileItem = new FileListListItem {DbEntry = loopItems};
-
-                if (loopItems.MainPicture != null)
-                    newFileItem.SmallImageUrl = PictureAssetProcessing
-                        .ProcessPictureDirectory(loopItems.MainPicture.Value).SmallPicture?.File.FullName;
-
-                listItems.Add(newFileItem);
+                listItems.Add(ListItemFromDbItem(loopItems));
 
                 currentLoop++;
             }
