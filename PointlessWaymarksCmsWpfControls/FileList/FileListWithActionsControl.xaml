@@ -39,6 +39,10 @@
                         Style="{StaticResource ActionPanelButton}">
                     Download Link Code
                 </Button>
+                <Button Command="{Binding FirstPagePreviewFromPdfToCairoCommand}"
+                        Style="{StaticResource ActionPanelButton}">
+                    Generate Preview Image
+                </Button>
                 <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Open Selected In Browser" />
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>

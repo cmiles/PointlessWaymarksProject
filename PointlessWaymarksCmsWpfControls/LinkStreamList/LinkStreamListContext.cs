@@ -151,7 +151,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 _userFilterText = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(FilterList);
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
             }
         }
 

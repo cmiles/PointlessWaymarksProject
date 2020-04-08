@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -23,10 +25,14 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
+        private Command _firstPagePreviewFromPdfToCairoCommand;
         private Command _generateSelectedHtmlCommand;
         private FileListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
+        private List<(object, string)> _pdfPreviewGenerationErrorOutput = new List<(object, string)>();
+
+        private List<(object, string)> _pdfPreviewGenerationProgress = new List<(object, string)>();
         private Command _photoPageLinkCodesToClipboardForSelectedCommand;
         private StatusControlContext _statusContext;
 
@@ -77,6 +83,17 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             {
                 if (Equals(value, _photoPageLinkCodesToClipboardForSelectedCommand)) return;
                 _photoPageLinkCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command FirstPagePreviewFromPdfToCairoCommand
+        {
+            get => _firstPagePreviewFromPdfToCairoCommand;
+            set
+            {
+                if (Equals(value, _firstPagePreviewFromPdfToCairoCommand)) return;
+                _firstPagePreviewFromPdfToCairoCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -138,6 +155,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 OnPropertyChanged();
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task Delete()
         {
@@ -225,6 +244,12 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
+        private void ErrorOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        {
+            //* Do your stuff with the output (write to console/log/StringBuilder)
+            _pdfPreviewGenerationErrorOutput.Add((sendingProcess, outLine.Data));
+        }
+
         private async Task FileDownloadLinkCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -271,6 +296,112 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
+        private async Task FirstPagePreviewFromPdfToCairo()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var selected = ListContext.SelectedItems;
+
+            if (selected == null || !selected.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var popplerDirectory = UserSettingsSingleton.CurrentSettings().PdfToCairoExeDirectory;
+            if (string.IsNullOrWhiteSpace(popplerDirectory))
+            {
+                StatusContext.ToastError(
+                    "Sorry - this function requires that pdftocairo.exe be on the system - please set the directory... ");
+                return;
+            }
+
+            var popplerDirectoryInfo = new DirectoryInfo(popplerDirectory);
+            if (!popplerDirectoryInfo.Exists)
+            {
+                StatusContext.ToastError(
+                    $"{popplerDirectoryInfo.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
+                return;
+            }
+
+            var pdfToCairoExe = new FileInfo(Path.Combine(popplerDirectoryInfo.FullName, "pdftocairo.exe"));
+            if (!pdfToCairoExe.Exists)
+                if (!popplerDirectoryInfo.Exists)
+                {
+                    StatusContext.ToastError(
+                        $"{pdfToCairoExe.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
+                    return;
+                }
+
+            foreach (var loopSelected in selected)
+            {
+                var targetFile = new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(loopSelected.DbEntry)
+                        .FullName, loopSelected.DbEntry.OriginalFileName));
+
+                if (!targetFile.Extension.ToLower().Contains("pdf"))
+                    StatusContext.ToastError(
+                        $"Can only generate previews from PDFs - {loopSelected.DbEntry.OriginalFileName} skipped...");
+
+                var destinationFile = new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(loopSelected.DbEntry)
+                        .FullName, $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-FirstPage.jpg"));
+
+                if (destinationFile.Exists)
+                {
+                    destinationFile.Delete();
+                    destinationFile.Refresh();
+                }
+
+                //https://stackoverflow.com/questions/4291912/process-start-how-to-get-the-output
+                //* Create your Process
+                var process = new Process
+                {
+                    StartInfo =
+                    {
+                        FileName = pdfToCairoExe.FullName,
+                        Arguments = $"-jpeg -singlefile {targetFile.FullName} {destinationFile.FullName}",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    }
+                };
+                //* Set ONLY ONE handler here.
+                process.ErrorDataReceived += ErrorOutputHandler;
+                process.OutputDataReceived += OutputHandler;
+                //* Start process
+                process.Start();
+                process.WaitForExit();
+
+
+                var anyProgressOutput = string.Join(Environment.NewLine,
+                    _pdfPreviewGenerationProgress.Where(x => x.Item1 == process).Select(x => x.Item2));
+
+                if (!string.IsNullOrWhiteSpace(anyProgressOutput))
+                {
+                    StatusContext.Progress(anyProgressOutput);
+                    await EventLogContext.TryWriteDiagnosticMessageToLog(anyProgressOutput,
+                        StatusContext.StatusControlContextId.ToString());
+                }
+
+                _pdfPreviewGenerationProgress.RemoveAll(x => x.Item1 == process);
+
+
+                var anyErrorOutput = string.Join(Environment.NewLine,
+                    _pdfPreviewGenerationErrorOutput.Where(x => x.Item1 == process).Select(x => x.Item2));
+
+                if (!string.IsNullOrWhiteSpace(anyErrorOutput))
+                {
+                    await StatusContext.ShowMessageWithOkButton("Error Generating Preview", anyErrorOutput);
+                    await EventLogContext.TryWriteDiagnosticMessageToLog(anyErrorOutput,
+                        StatusContext.StatusControlContextId.ToString());
+                }
+
+                _pdfPreviewGenerationErrorOutput.RemoveAll(x => x.Item1 == process);
+            }
+        }
+
         private async Task GenerateSelectedHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -315,6 +446,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
             RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
+            FirstPagePreviewFromPdfToCairoCommand =
+                new Command(() => StatusContext.RunBlockingTask(FirstPagePreviewFromPdfToCairo));
         }
 
         private async Task NewContent()
@@ -353,6 +486,10 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        {
+            //* Do your stuff with the output (write to console/log/StringBuilder)
+            _pdfPreviewGenerationProgress.Add((sendingProcess, outLine.Data));
+        }
     }
 }

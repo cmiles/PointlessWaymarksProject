@@ -123,7 +123,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 _userFilterText = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(FilterList);
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
             }
         }
 
@@ -152,7 +152,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
                 var dbItems =
                     (await context.FileContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem);
+                        ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -165,7 +165,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
                 var dbItems =
                     (await context.FileContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem);
+                        ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 

@@ -471,14 +471,14 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             await LoadData(newEntry);
 
             if (isNewEntry)
-                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                DataNotifications.LinkStreamContentDataNotificationEventSource.Raise(this,
                     new DataNotificationEventArgs
                     {
                         UpdateType = DataNotificationUpdateType.New,
                         ContentIds = new List<Guid> {newEntry.ContentId}
                     });
             else
-                DataNotifications.PostContentDataNotificationEventSource.Raise(this,
+                DataNotifications.LinkStreamContentDataNotificationEventSource.Raise(this,
                     new DataNotificationEventArgs
                     {
                         UpdateType = DataNotificationUpdateType.Update,

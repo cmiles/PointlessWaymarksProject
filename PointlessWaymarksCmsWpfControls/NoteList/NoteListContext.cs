@@ -110,7 +110,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
                 _userFilterText = value;
                 OnPropertyChanged();
 
-                StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(FilterList);
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
             }
         }
 

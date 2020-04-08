@@ -1,4 +1,9 @@
 ﻿## Todos
+ - Image and Photo load initial photo
+ - Progress in pdftocairo
+ - pdftocairo better button name?
+ - pdftocairo save to temp and launch image editor?
+ - setting pdftocairo text explaining where/what for pdftocairo
  - Settings file switching or/and settings file selection on launch
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
@@ -30,6 +35,12 @@
 Added Jot - https://github.com/anakic/Jot and WpfScreen - https://github.com/micdenny/WpfScreenHelper - and looked at a WPF Sample - https://github.com/microsoft/WPF-Samples/tree/master/Windows/SaveWindowState - and eventually drew heavy and nearly direct inspriation from Markdown Monster to set up tracking and restoring window position - there are so many edge cases that the thought this is perfect is completely laughable but I did try to look at several sources for information and inspiration to quickly put something together that I hope is quite good without unexpected errors and minimal edge cases. As part of this added a manifest file to hopefully ensure the Dpi Aware support is specified by the app - these were the better links that I found but I am not sure I actually understand the when/why/what very well here esp. of what happens by default in what versions and what needs to be setup (probably need to play around with settings esp. when connected to an external monitor to do some real world experimenting and testing...) https://docs.microsoft.com/en-us/windows/communitytoolkit/controls/wpf-winforms/webview, https://github.com/dotnet/wpf/issues/859, https://github.com/microsoft/WPF-Samples/blob/master/PerMonitorDPI/readme.md
 
 Fixed a binding bug that was two way to a read only property in the Link List.
+
+Fixed missing save button command binding in Settings.
+
+Fixed several copy and paste bugs related to the background data updates.
+
+Initial pdftocairo pdf preview generation added.
 
 4/5/2020
 Fixed a bug in the Content saves for images and photos where I hadn't quite gotten the recent adjustments to saving/generating right - core detail is that in early versions the files were always an over write operation (vs checking) which meant I didn't want to wait for that everytime, but now the standard generate just checks for files rather than overwrites. Downside is if you switch out an image you have to force the regen...

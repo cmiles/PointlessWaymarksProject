@@ -20,6 +20,18 @@ namespace PointlessWaymarksCmsData
         private string _siteName;
         private string _siteSummary;
         private string _siteUrl;
+        private string _pdfToCairoExeDirectory;
+
+        public string PdfToCairoExeDirectory
+        {
+            get => _pdfToCairoExeDirectory;
+            set
+            {
+                if (value == _pdfToCairoExeDirectory) return;
+                _pdfToCairoExeDirectory = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string BingApiKey
         {

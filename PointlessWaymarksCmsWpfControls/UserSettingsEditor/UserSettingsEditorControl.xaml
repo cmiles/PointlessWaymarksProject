@@ -22,7 +22,7 @@
     <Grid>
         <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
             <StackPanel Orientation="Vertical">
-                <Button Style="{StaticResource ActionPanelButton}">Save</Button>
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveSettingsCommand}">Save</Button>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}"
                            Target="{Binding ElementName=LocalSiteRootDirectoryTextBox}">
@@ -122,6 +122,14 @@
                     </Label>
                     <TextBox Name="PinboardApiTokenTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.PinboardApiToken, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label Target="{Binding ElementName=PdfToCairoDirectoryTextBox}"
+                           Style="{StaticResource DataEntryLabelStyle}">
+                        pdftocairo.exe Directory (Can be found in the MiKTeX)
+                    </Label>
+                    <TextBox Name="PdfToCairoDirectoryTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                             Text="{Binding EditorSettings.PdfToCairoExeDirectory, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
