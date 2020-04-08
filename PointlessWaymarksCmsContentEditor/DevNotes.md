@@ -1,14 +1,16 @@
 ﻿## Todos
- - Settings file switching
+ - Settings file switching or/and settings file selection on launch
  - Sorting needs better visual indicators
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
  - Is everything getting HMTL Encoded - are there spots with leaks? (tests?)
  - RSS - Does title need CDATA to be completely safe? Or?
  - Basic Style for the Html Table output
  - Give all labels Targets
- - Research Markdown Monster Window handling regarding position and size
+ - Figure out a system to allow StatusContext to help out postioning a new window vs the launch window
 
 ## Ideas
+ - Photo Gallery - The current set of Content Types are proving in a few months of use to represent nicely what I want to store - but I am starting to wonder what the cost/benefit/opportunity might be to store photos beyond what is being used on the site and essentially have this as my photo site? Worried that cost may actually become an issue
+ - 'Subsites' for years? When thinking about the photo gallery I started to wonder about the idea that you create in distinct units - so what if each 'year' of a site was essentially frozen in time, you reached the end of a 'unit' and you ended with a static website for the year that no longer 'needed' any updates to live for as long as you wanted - everything frozen... Maybe this idea is really best as buckets and subdomains and doesn't really relate to the app?
  - Top of the html page menu - or other 'nav' idea (maybe just a one level set of links that collapses on mobile? or...)
  - Top of the html page search box - maybe pass a query parameter to the all content list page?
  - Extract links from list page or 'all site' (option in content but not in lists/all)
@@ -16,11 +18,18 @@
  - Backup the master media directory, database and current site to a dated folder (where?)
  - Could all font sizes be controlled by slider?
  - Detect image change and force over write style image generation
+ - Explore https://css-ig.net/pingo - I wonder about quality and speed - I suppose this looses some flexibility but certainly current code is just resizing not watermarking/etc
+ - Explore https://wkhtmltopdf.org/ - I this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site
 
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
+
+4/8/2020
+Added Jot - https://github.com/anakic/Jot and WpfScreen - https://github.com/micdenny/WpfScreenHelper - and looked at a WPF Sample - https://github.com/microsoft/WPF-Samples/tree/master/Windows/SaveWindowState - and eventually drew heavy and nearly direct inspriation from Markdown Monster to set up tracking and restoring window position - there are so many edge cases that the thought this is perfect is completely laughable but I did try to look at several sources for information and inspiration to quickly put something together that I hope is quite good without unexpected errors and minimal edge cases. As part of this added a manifest file to hopefully ensure the Dpi Aware support is specified by the app - these were the better links that I found but I am not sure I actually understand the when/why/what very well here esp. of what happens by default in what versions and what needs to be setup (probably need to play around with settings esp. when connected to an external monitor to do some real world experimenting and testing...) https://docs.microsoft.com/en-us/windows/communitytoolkit/controls/wpf-winforms/webview, https://github.com/dotnet/wpf/issues/859, https://github.com/microsoft/WPF-Samples/blob/master/PerMonitorDPI/readme.md
+
+Fixed a binding bug that was two way to a read only property in the Link List.
 
 4/5/2020
 Fixed a bug in the Content saves for images and photos where I hadn't quite gotten the recent adjustments to saving/generating right - core detail is that in early versions the files were always an over write operation (vs checking) which meant I didn't want to wait for that everytime, but now the standard generate just checks for files rather than overwrites. Downside is if you switch out an image you have to force the regen...

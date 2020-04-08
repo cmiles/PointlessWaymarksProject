@@ -112,7 +112,7 @@
                                         </i:Interaction.Behaviors>
                                     </TextBox>
                                     <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                             Text="{Binding LinkContentString}"
+                                             Text="{Binding LinkContentString, Mode=OneWay}"
                                              TextWrapping="Wrap"
                                              Margin="0,2,0,0">
                                         <i:Interaction.Behaviors>

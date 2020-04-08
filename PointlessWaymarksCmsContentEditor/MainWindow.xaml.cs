@@ -69,6 +69,10 @@ namespace PointlessWaymarksCmsContentEditor
         {
             InitializeComponent();
 
+            App.Tracker.Track(this);
+
+            WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
+
             DataContext = this;
 
             StatusContext = new StatusControlContext();
@@ -111,6 +115,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
         }
+
 
         public Command AllEventsReportCommand { get; set; }
 
@@ -348,6 +353,8 @@ namespace PointlessWaymarksCmsContentEditor
         public Command ToggleDiagnosticLoggingCommand { get; set; }
 
         public Command VersionScriptCommand { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task AllEventsReport()
         {
@@ -761,7 +768,5 @@ namespace PointlessWaymarksCmsContentEditor
                 .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
             await db.SaveChangesAsync(true);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
