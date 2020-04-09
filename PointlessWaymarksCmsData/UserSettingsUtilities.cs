@@ -585,6 +585,19 @@ namespace PointlessWaymarksCmsData
             return storageDirectory;
         }
 
+        public static DirectoryInfo TempStorageDirectory()
+        {
+            var storageDirectory =
+                new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "Pointless Waymarks Cms", "TemporaryFiles"));
+
+            if (!storageDirectory.Exists) storageDirectory.Create();
+
+            storageDirectory.Refresh();
+
+            return storageDirectory;
+        }
+
         public static string StylesCssFromLocalSiteRootDirectory()
         {
             var settings = UserSettingsSingleton.CurrentSettings();

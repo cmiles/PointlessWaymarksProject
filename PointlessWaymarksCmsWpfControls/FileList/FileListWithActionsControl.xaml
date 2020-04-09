@@ -41,7 +41,7 @@
                 </Button>
                 <Button Command="{Binding FirstPagePreviewFromPdfToCairoCommand}"
                         Style="{StaticResource ActionPanelButton}">
-                    Generate Preview Image
+                    Generate Cover Image
                 </Button>
                 <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Open Selected In Browser" />

@@ -689,7 +689,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new ImageContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            var newContentWindow = new ImageContentEditorWindow {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 
@@ -705,7 +705,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PhotoContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            var newContentWindow = new PhotoContentEditorWindow() {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 

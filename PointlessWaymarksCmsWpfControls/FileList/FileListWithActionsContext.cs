@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
@@ -15,6 +16,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
+using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -250,6 +252,72 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             _pdfPreviewGenerationErrorOutput.Add((sendingProcess, outLine.Data));
         }
 
+        public (bool success, string standardOutput, string errorOutput) ExecuteProcess(string programToExecute,
+            string executionParameters, IProgress<string> progress)
+        {
+            if (string.IsNullOrWhiteSpace(programToExecute)) return (false, string.Empty, "Blank program to Execute?");
+
+            var programToExecuteFile = new FileInfo(programToExecute);
+
+            if (!programToExecuteFile.Exists)
+                return (false, string.Empty, $"Program to Execute {programToExecuteFile} does not exist.");
+
+            var standardOutput = new StringBuilder();
+            var errorOutput = new StringBuilder();
+
+            progress?.Report($"Setting up execution of {programToExecute} {executionParameters}");
+
+            using var process = new Process
+            {
+                StartInfo =
+                {
+                    FileName = programToExecute,
+                    Arguments = executionParameters,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true
+                }
+            };
+
+            void OnStandardOutput(object o, DataReceivedEventArgs e)
+            {
+                standardOutput.AppendLine(e.Data);
+                progress?.Report(e.Data);
+            }
+
+            void OnErrorOutput(object o, DataReceivedEventArgs e)
+            {
+                errorOutput.AppendLine(e.Data);
+                progress?.Report(e.Data);
+            }
+
+            process.OutputDataReceived += OnStandardOutput;
+            process.ErrorDataReceived += OnErrorOutput;
+
+            bool result;
+
+            try
+            {
+                progress?.Report("Starting Process");
+                process.Start();
+
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
+                result = process.WaitForExit(180000);
+            }
+            finally
+            {
+                process.OutputDataReceived -= OnStandardOutput;
+                process.ErrorDataReceived -= OnErrorOutput;
+            }
+
+            return (result, standardOutput.ToString(), errorOutput.ToString());
+        }
+
         private async Task FileDownloadLinkCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -308,31 +376,31 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 return;
             }
 
-            var popplerDirectory = UserSettingsSingleton.CurrentSettings().PdfToCairoExeDirectory;
-            if (string.IsNullOrWhiteSpace(popplerDirectory))
+            var pdfToCairoDirectoryString = UserSettingsSingleton.CurrentSettings().PdfToCairoExeDirectory;
+            if (string.IsNullOrWhiteSpace(pdfToCairoDirectoryString))
             {
                 StatusContext.ToastError(
                     "Sorry - this function requires that pdftocairo.exe be on the system - please set the directory... ");
                 return;
             }
 
-            var popplerDirectoryInfo = new DirectoryInfo(popplerDirectory);
-            if (!popplerDirectoryInfo.Exists)
+            var pdfToCairoDirectory = new DirectoryInfo(pdfToCairoDirectoryString);
+            if (!pdfToCairoDirectory.Exists)
             {
                 StatusContext.ToastError(
-                    $"{popplerDirectoryInfo.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
+                    $"{pdfToCairoDirectory.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
                 return;
             }
 
-            var pdfToCairoExe = new FileInfo(Path.Combine(popplerDirectoryInfo.FullName, "pdftocairo.exe"));
+            var pdfToCairoExe = new FileInfo(Path.Combine(pdfToCairoDirectory.FullName, "pdftocairo.exe"));
             if (!pdfToCairoExe.Exists)
-                if (!popplerDirectoryInfo.Exists)
-                {
-                    StatusContext.ToastError(
-                        $"{pdfToCairoExe.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
-                    return;
-                }
+            {
+                StatusContext.ToastError(
+                    $"{pdfToCairoExe.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
+                return;
+            }
 
+            var toProcess = new List<(FileInfo targetFile, FileInfo destinationFile, FileContent content)>();
             foreach (var loopSelected in selected)
             {
                 var targetFile = new FileInfo(Path.Combine(
@@ -340,12 +408,10 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                         .FullName, loopSelected.DbEntry.OriginalFileName));
 
                 if (!targetFile.Extension.ToLower().Contains("pdf"))
-                    StatusContext.ToastError(
-                        $"Can only generate previews from PDFs - {loopSelected.DbEntry.OriginalFileName} skipped...");
+                    continue;
 
-                var destinationFile = new FileInfo(Path.Combine(
-                    UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(loopSelected.DbEntry)
-                        .FullName, $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-FirstPage.jpg"));
+                var destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                    $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-FirstPage.jpg"));
 
                 if (destinationFile.Exists)
                 {
@@ -353,52 +419,56 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                     destinationFile.Refresh();
                 }
 
-                //https://stackoverflow.com/questions/4291912/process-start-how-to-get-the-output
-                //* Create your Process
-                var process = new Process
+                toProcess.Add((targetFile, destinationFile, loopSelected.DbEntry));
+            }
+
+            if (!toProcess.Any())
+            {
+                StatusContext.ToastError("No PDFs found? This process can only generate PDF previews...");
+                return;
+            }
+
+            foreach (var loopSelected in toProcess)
+            {
+                var executionParameters =
+                    $"-jpeg -singlefile \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\"";
+
+                var executionResult = ExecuteProcess(pdfToCairoExe.FullName, executionParameters,
+                    StatusContext.ProgressTracker());
+
+                if (!executionResult.success)
                 {
-                    StartInfo =
+                    if (loopSelected == toProcess.Last())
                     {
-                        FileName = pdfToCairoExe.FullName,
-                        Arguments = $"-jpeg -singlefile {targetFile.FullName} {destinationFile.FullName}",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        CreateNoWindow = true
+                        await StatusContext.ShowMessage("PDF Generation Problem",
+                            $"Execution Failed for {loopSelected.content.Title} - Continue??{Environment.NewLine}{executionResult.errorOutput}",
+                            new List<string> {"Yes", "No"});
                     }
-                };
-                //* Set ONLY ONE handler here.
-                process.ErrorDataReceived += ErrorOutputHandler;
-                process.OutputDataReceived += OutputHandler;
-                //* Start process
-                process.Start();
-                process.WaitForExit();
-
-
-                var anyProgressOutput = string.Join(Environment.NewLine,
-                    _pdfPreviewGenerationProgress.Where(x => x.Item1 == process).Select(x => x.Item2));
-
-                if (!string.IsNullOrWhiteSpace(anyProgressOutput))
-                {
-                    StatusContext.Progress(anyProgressOutput);
-                    await EventLogContext.TryWriteDiagnosticMessageToLog(anyProgressOutput,
-                        StatusContext.StatusControlContextId.ToString());
+                    else
+                    {
+                        if ((await StatusContext.ShowMessage("PDF Generation Problem",
+                            $"Execution Failed for {loopSelected.content.Title} - Continue??{Environment.NewLine}{executionResult.errorOutput}",
+                            new List<string> {"Yes", "No"}) == "No")) break;
+                    }
                 }
 
-                _pdfPreviewGenerationProgress.RemoveAll(x => x.Item1 == process);
+                loopSelected.destinationFile.Refresh();
 
-
-                var anyErrorOutput = string.Join(Environment.NewLine,
-                    _pdfPreviewGenerationErrorOutput.Where(x => x.Item1 == process).Select(x => x.Item2));
-
-                if (!string.IsNullOrWhiteSpace(anyErrorOutput))
+                if (loopSelected.destinationFile.Exists)
                 {
-                    await StatusContext.ShowMessageWithOkButton("Error Generating Preview", anyErrorOutput);
-                    await EventLogContext.TryWriteDiagnosticMessageToLog(anyErrorOutput,
-                        StatusContext.StatusControlContextId.ToString());
-                }
+                    await ThreadSwitcher.ResumeForegroundAsync();
 
-                _pdfPreviewGenerationErrorOutput.RemoveAll(x => x.Item1 == process);
+                    var editor = new ImageContentEditorWindow(loopSelected.destinationFile);
+                    editor.Show();
+                    editor.ImageEditor.TitleSummarySlugFolder.Title = $"{loopSelected.content.Title} Cover Page";
+                    editor.ImageEditor.TitleSummarySlugFolder.TitleToSlug();
+                    editor.ImageEditor.TitleSummarySlugFolder.Summary = $"Cover Page from {loopSelected.content.Title}.";
+                    editor.ImageEditor.TitleSummarySlugFolder.Folder = loopSelected.content.Folder;
+                    editor.ImageEditor.TagEdit.Tags = loopSelected.content.Tags;
+                    editor.ImageEditor.ImageSourceNotes =
+                        $"Generated by pdftocairo from {loopSelected.destinationFile.Name}.";
+                    await ThreadSwitcher.ResumeBackgroundAsync();
+                }
             }
         }
 

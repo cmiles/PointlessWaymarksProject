@@ -31,8 +31,10 @@
                         Content="_Refresh" />
                 <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Edit" />
+                <Button Command="{Binding NewContentFromFilesCommand}" Style="{StaticResource ActionPanelButton}"
+                        Content="_New From Files" />
                 <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_New Content" />
+                        Content="New - Blank" />
                 <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Generate Html" />
                 <Button Command="{Binding ImageCodesToClipboardForSelectedCommand}"

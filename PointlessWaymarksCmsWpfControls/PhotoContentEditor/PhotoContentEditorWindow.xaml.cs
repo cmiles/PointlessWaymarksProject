@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Models;
@@ -10,6 +11,25 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
     {
         private PhotoContentEditorContext _photoEditor;
         private StatusControlContext _statusContext;
+
+        public PhotoContentEditorWindow()
+        {
+            InitializeComponent();
+
+            StatusContext = new StatusControlContext();
+            PhotoEditor = new PhotoContentEditorContext(StatusContext);
+
+            DataContext = this;
+        }
+        public PhotoContentEditorWindow(FileInfo initialPhoto)
+        {
+            InitializeComponent();
+
+            StatusContext = new StatusControlContext();
+            PhotoEditor = new PhotoContentEditorContext(StatusContext, initialPhoto);
+
+            DataContext = this;
+        }
 
         public PhotoContentEditorWindow(PhotoContent toLoad)
         {

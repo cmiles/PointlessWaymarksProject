@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System.Diagnostics;
+using System.Windows.Controls;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
 {
@@ -7,6 +9,11 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
         public UserSettingsEditorControl()
         {
             InitializeComponent();
+        }
+
+        private void OpenHyperlink(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            ProcessHelpers.OpenUrlInExternalBrowser(e.Parameter.ToString());
         }
     }
 }

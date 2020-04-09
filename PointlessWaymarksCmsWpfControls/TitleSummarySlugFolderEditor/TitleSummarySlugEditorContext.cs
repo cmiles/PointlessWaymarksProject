@@ -110,7 +110,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             TitleToSlugCommand = new Command(() =>
-                StatusContext.RunBlockingAction(() => Slug = SlugUtility.Create(true, Title)));
+                StatusContext.RunBlockingAction(TitleToSlug));
 
             DbEntry = dbEntry;
 
@@ -128,6 +128,11 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             Title = DbEntry.Title ?? string.Empty;
             Slug = DbEntry.Slug ?? string.Empty;
             Folder = DbEntry.Folder ?? string.Empty;
+        }
+
+        public void TitleToSlug()
+        {
+            Slug = SlugUtility.Create(true, Title);
         }
 
         [NotifyPropertyChangedInvocator]

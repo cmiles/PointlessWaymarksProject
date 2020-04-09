@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
@@ -105,6 +108,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
+        public Command NewContentFromFilesCommand { get; set; }
+
         public Command OpenUrlForPhotoListCommand
         {
             get => _openUrlForPhotoListCommand;
@@ -159,6 +164,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 OnPropertyChanged();
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task Delete()
         {
@@ -287,6 +294,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
             OpenUrlForPhotoListCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForPhotoList));
             NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
+            NewContentFromFilesCommand = new Command(() => StatusContext.RunBlockingTask(NewContentFromFiles));
             RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
         }
@@ -295,9 +303,64 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PhotoContentEditorWindow(null);
+            var newContentWindow = new PhotoContentEditorWindow();
 
             newContentWindow.Show();
+        }
+
+        private async Task NewContentFromFiles()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            StatusContext.Progress("Starting photo load.");
+
+            var dialog = new VistaOpenFileDialog {Multiselect = true};
+
+            if (!(dialog.ShowDialog() ?? false)) return;
+
+            var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
+
+            if (!selectedFiles.Any()) return;
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (selectedFiles.Count > 20)
+            {
+                StatusContext.ToastError($"Sorry - max limit is 20 files at once, {selectedFiles.Count} selected...");
+                return;
+            }
+
+            var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
+
+            if (!selectedFileInfos.Any(x => x.Exists))
+            {
+                StatusContext.ToastError("Files don't exist?");
+                return;
+            }
+
+            selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
+
+            if (!selectedFileInfos.Any(FileHelpers.PhotoFileTypeIsSupported))
+            {
+                StatusContext.ToastError("None of the files appear to be supported file types...");
+                return;
+            }
+
+            if (selectedFileInfos.Any(x => !FileHelpers.PhotoFileTypeIsSupported(x)))
+                StatusContext.ToastWarning(
+                    $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.PhotoFileTypeIsSupported(x)))}");
+
+            foreach (var loopFile in selectedFileInfos.Where(FileHelpers.PhotoFileTypeIsSupported))
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var editor = new PhotoContentEditorWindow(loopFile);
+                editor.Show();
+
+                StatusContext.Progress($"New Photo Editor - {loopFile.FullName} ");
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+            }
         }
 
         [NotifyPropertyChangedInvocator]
@@ -359,7 +422,5 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

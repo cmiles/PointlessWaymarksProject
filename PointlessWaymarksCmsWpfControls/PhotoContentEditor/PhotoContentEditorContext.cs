@@ -46,6 +46,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PhotoContent _dbEntry;
         private string _focalLength;
+        private FileInfo _initialPhoto;
         private int? _iso;
         private string _lens;
         private string _license;
@@ -64,6 +65,23 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
         private Command _viewPhotoMetadataCommand;
+
+
+        public PhotoContentEditorContext(StatusControlContext statusContext)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
+        }
+
+        public PhotoContentEditorContext(StatusControlContext statusContext, FileInfo initialPhoto)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            if (initialPhoto != null && initialPhoto.Exists) _initialPhoto = initialPhoto;
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
+        }
 
         public PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent toLoad)
         {
@@ -383,11 +401,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public async Task ChooseFile(bool loadMetadata)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            StatusContext.Progress("Starting image load.");
+            StatusContext.Progress("Starting photo load.");
 
             var dialog = new VistaOpenFileDialog();
 
@@ -401,11 +421,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
+            if (!FileHelpers.PhotoFileTypeIsSupported(newFile))
+            {
+                StatusContext.ToastError("Only jpegs are supported...");
+                return;
+            }
+
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             SelectedFile = newFile;
 
-            StatusContext.Progress($"Image load - {SelectedFile.FullName} ");
+            StatusContext.Progress($"Photo load - {SelectedFile.FullName} ");
 
             if (loadMetadata) await ProcessSelectedFile();
         }
@@ -445,7 +471,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                     SelectedFile = archiveFile;
                 else
                     await StatusContext.ShowMessage("Missing Photo",
-                        $"There is an original image file listed for this photo - {DbEntry.OriginalFileName} -" +
+                        $"There is an original file listed for this photo - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected location of {archiveFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the photo or " +
                         "maybe your master media directory moved unexpectedly and you could close this editor " +
@@ -472,6 +498,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+
+            if (DbEntry.Id < 1 && _initialPhoto != null && _initialPhoto.Exists &&
+                FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
+            {
+                SelectedFile = _initialPhoto;
+                _initialPhoto = null;
+                await ProcessSelectedFile();
+            }
         }
 
         [NotifyPropertyChangedInvocator]
@@ -532,6 +566,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
             ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
             TitleSummarySlugFolder.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
+            TitleSummarySlugFolder.Summary = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
+
 
             //2020/3/22 - This matches a personal naming pattern where pictures 'always' start with 4 digit year 2 digit month
             if (!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
@@ -547,8 +583,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                             var tempDate = new DateTime(int.Parse(possibleTitleDate.Substring(0, 4)),
                                 int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
+                            TitleSummarySlugFolder.Summary =
+                                $"{TitleSummarySlugFolder.Title.Substring(possibleTitleDate.Length, TitleSummarySlugFolder.Title.Length - possibleTitleDate.Length)}.";
                             TitleSummarySlugFolder.Title =
                                 $"{tempDate:yyyy} {tempDate:MMMM} {TitleSummarySlugFolder.Title.Substring(possibleTitleDate.Length, TitleSummarySlugFolder.Title.Length - possibleTitleDate.Length)}";
+                            TitleSummarySlugFolder.Folder = $"{tempDate:yyyy}";
 
                             StatusContext.Progress("Title updated based on 2yyy MM start pattern for file name");
                         }
@@ -566,10 +605,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                             var year = int.Parse(TitleSummarySlugFolder.Title.Substring(0, 2));
                             var month = int.Parse(TitleSummarySlugFolder.Title.Substring(2, 2));
 
-                            var tempDate = new DateTime(year, month, 1);
+                            var tempDate = new DateTime(2000 + year, month, 1);
 
+                            TitleSummarySlugFolder.Summary =
+                                $"{TitleSummarySlugFolder.Title.Substring(5, TitleSummarySlugFolder.Title.Length - 5)}.";
                             TitleSummarySlugFolder.Title =
                                 $"{tempDate:yyyy} {tempDate:MMMM} {TitleSummarySlugFolder.Title.Substring(5, TitleSummarySlugFolder.Title.Length - 5)}";
+                            TitleSummarySlugFolder.Folder = $"{tempDate:yyyy}";
 
                             StatusContext.Progress("Title updated based on 19MM start pattern for file name");
                         }
@@ -580,6 +622,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                     }
                 }
             }
+
+            //Order is important here - the title supplies the summary in the code above - but overwrite that if there is a 
+            //description.
+            var description = exifDirectory?.GetDescription(ExifDirectoryBase.TagImageDescription) ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(description))
+                TitleSummarySlugFolder.Summary = description;
 
             TitleSummarySlugFolder.Slug = SlugUtility.Create(true, TitleSummarySlugFolder.Title);
             TagEdit.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ?? string.Empty;
@@ -769,8 +817,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (!SelectedFile.Exists) return (false, "File doesn't exist?");
 
-            if (!(SelectedFile.Extension.ToLower().Contains("jpg") ||
-                  SelectedFile.Extension.ToLower().Contains("jpeg")))
+            if (!FileHelpers.PhotoFileTypeIsSupported(SelectedFile))
                 return (false, "The file doesn't appear to be a supported file type.");
 
             if (await (await Db.Context()).PhotoFilenameExistsInDatabase(SelectedFile.Name, DbEntry?.ContentId))
@@ -883,7 +930,5 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             SelectedFile.CopyTo(destinationFileName);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

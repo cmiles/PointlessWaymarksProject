@@ -36,6 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private ImageContent _dbEntry;
         private Command _extractNewLinksCommand;
         private string _imageSourceNotes;
+        private FileInfo _initalImage;
         private Command _resizeFileCommand;
         private Command _saveAndGenerateHtmlCommand;
         private Command _saveUpdateDatabaseCommand;
@@ -47,6 +48,22 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
+
+        public ImageContentEditorContext(StatusControlContext statusContext)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
+        }
+
+        public ImageContentEditorContext(StatusControlContext statusContext, FileInfo initialImage)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            if (initialImage != null && initialImage.Exists) _initalImage = initialImage;
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
+        }
 
         public ImageContentEditorContext(StatusControlContext statusContext, ImageContent toLoad)
         {
@@ -256,6 +273,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public async Task ChooseFile()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -268,17 +287,23 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             var newFile = new FileInfo(dialog.FileName);
 
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             if (!newFile.Exists)
             {
                 StatusContext.ToastError("File doesn't exist?");
                 return;
             }
 
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            if (!FileHelpers.ImageFileTypeIsSupported(newFile))
+            {
+                StatusContext.ToastError("Only jpegs are supported...");
+                return;
+            }
 
             SelectedFile = newFile;
 
-            StatusContext.Progress($"Image load - {SelectedFile.FullName} ");
+            StatusContext.Progress($"Image set - {SelectedFile.FullName}");
         }
 
         private async Task GenerateHtml()
@@ -289,6 +314,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             htmlContext.WriteLocalHtml();
         }
+
 
         private async Task LoadData(ImageContent toLoad, bool skipMediaDirectoryCheck = false)
         {
@@ -332,6 +358,13 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
                 LinkExtraction.ExtractNewAndShowLinkStreamEditors(ImageSourceNotes, StatusContext.ProgressTracker())));
+
+            if (DbEntry.Id < 1 && _initalImage != null && _initalImage.Exists &&
+                FileHelpers.ImageFileTypeIsSupported(_initalImage))
+            {
+                SelectedFile = _initalImage;
+                _initalImage = null;
+            }
         }
 
         private DirectoryInfo LocalContentDirectory(UserSettings settings)
@@ -525,8 +558,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             if (!SelectedFile.Exists) return (false, "File doesn't exist?");
 
-            if (!(SelectedFile.Extension.ToLower().Contains("jpg") ||
-                  SelectedFile.Extension.ToLower().Contains("jpeg")))
+            if (!FileHelpers.ImageFileTypeIsSupported(SelectedFile))
                 return (false, "The file doesn't appear to be a supported file type.");
 
             if (await (await Db.Context()).ImageFilenameExistsInDatabase(SelectedFile.Name, DbEntry?.ContentId))
@@ -604,7 +636,5 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             SelectedFile.CopyTo(destinationFileName);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
