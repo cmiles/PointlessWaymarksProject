@@ -129,6 +129,24 @@ namespace PointlessWaymarksCmsData
             return sb.ToString();
         }
 
+
+        public static async Task<bool> FileFilenameExistsInDatabase(this PointlessWaymarksContext context,
+            string filename, Guid? exceptInThisContent)
+        {
+            if (string.IsNullOrWhiteSpace(filename)) return false;
+
+            bool imageCheck;
+
+            if (exceptInThisContent == null)
+                imageCheck =
+                    await context.FileContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+            else
+                imageCheck = await context.FileContents.AnyAsync(x =>
+                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
+
+            return imageCheck;
+        }
+
         public static (bool isValid, string explanation) FolderAndSlugCreateValidUri(List<string> folderList,
             string slug)
         {
@@ -229,18 +247,35 @@ namespace PointlessWaymarksCmsData
             return new string(stringChars);
         }
 
-        public static async Task<bool> SlugExistsInDatabase(this PointlessWaymarksContext context, string slug)
+        public static async Task<bool> SlugExistsInDatabase(this PointlessWaymarksContext context, string slug,
+            Guid? excludedContentId)
         {
             if (string.IsNullOrWhiteSpace(slug)) return false;
 
-            //var lineCheck = await context.LineContents.AnyAsync(x => x.Slug == slug);
-            var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug);
-            //var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug);
-            var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug);
-            //var trailCheck = await context.TrailSegments.AnyAsync(x => x.Slug == slug);
+            if (excludedContentId == null)
+            {
+                var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug);
+                var imageCheck = await context.ImageContents.AnyAsync(x => x.Slug == slug);
+                var noteCheck = await context.NoteContents.AnyAsync(x => x.Slug == slug);
+                var fileCheck = await context.FileContents.AnyAsync(x => x.Slug == slug);
+                var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug);
 
-            //return lineCheck && photoCheck && pointCheck && postCheck && trailCheck;
-            return photoCheck && postCheck;
+                return photoCheck || postCheck || imageCheck || noteCheck || fileCheck;
+            }
+
+
+            var photoExcludeCheck =
+                await context.PhotoContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+            var imageExcludeCheck =
+                await context.ImageContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+            var noteExcludeCheck =
+                await context.NoteContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+            var fileExcludeCheck =
+                await context.FileContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+            var postExcludeCheck =
+                await context.PostContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+
+            return photoExcludeCheck || postExcludeCheck || imageExcludeCheck || noteExcludeCheck || fileExcludeCheck;
         }
     }
 }

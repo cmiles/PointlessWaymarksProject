@@ -534,6 +534,12 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             if (SelectedFile == null || !SelectedFile.Exists)
                 return (false, "No Selected File?");
 
+            if (await (await Db.Context()).FileFilenameExistsInDatabase(SelectedFile.Name, DbEntry?.ContentId))
+                return (false, "This filename already exists in the database - image file names must be unique.");
+
+            if (await (await Db.Context()).SlugExistsInDatabase(TitleSummarySlugFolder.Slug, DbEntry?.ContentId))
+                return (false, "This slug already exists in the database - slugs must be unique.");
+
             return (true, string.Empty);
         }
 

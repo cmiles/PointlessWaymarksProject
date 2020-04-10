@@ -422,7 +422,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
             if (!isValid) return (false, errorMessage);
 
-            if (await (await Db.Context()).SlugExistsInDatabase(Slug))
+            if (await (await Db.Context()).SlugExistsInDatabase(Slug, DbEntry?.ContentId))
             {
                 isValid = false;
                 errorMessage += "Slug already exists in Database";

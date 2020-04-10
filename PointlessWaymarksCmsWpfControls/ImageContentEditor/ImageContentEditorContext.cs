@@ -447,6 +447,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
 
             PictureResizing.ResizeForDisplayAndSrcset(SelectedFile, true, StatusContext.ProgressTracker());
+
+            DataNotifications.ImageContentDataNotificationEventSource.Raise(this, new DataNotificationEventArgs
+            {
+                UpdateType = DataNotificationUpdateType.Update,
+                ContentIds = new List<Guid> { DbEntry.ContentId }
+            });
         }
 
         public async Task SaveAndGenerateHtml()
@@ -597,6 +603,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             if (await (await Db.Context()).ImageFilenameExistsInDatabase(SelectedFile.Name, DbEntry?.ContentId))
                 return (false, "This filename already exists in the database - image file names must be unique.");
 
+            if (await (await Db.Context()).SlugExistsInDatabase(TitleSummarySlugFolder.Slug, DbEntry?.ContentId))
+                return (false, "This slug already exists in the database - slugs must be unique.");
+
             return (true, string.Empty);
         }
 
@@ -652,6 +661,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
 
             PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, StatusContext.ProgressTracker());
+
+            DataNotifications.ImageContentDataNotificationEventSource.Raise(this, new DataNotificationEventArgs
+            {
+                UpdateType = DataNotificationUpdateType.Update,
+                ContentIds = new List<Guid> { DbEntry.ContentId }
+            });
         }
 
         private async Task WriteSelectedFileToMasterMediaArchive()

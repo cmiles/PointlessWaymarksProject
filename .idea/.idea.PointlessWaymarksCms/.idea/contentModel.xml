@@ -5,6 +5,7 @@
       <e p="packages" t="ExcludeRecursive" />
       <e p="PointlessWaymarksCms.sln" t="IncludeFlat" />
       <e p="PointlessWaymarksCmsContentEditor" t="IncludeRecursive">
+        <e p="app.manifest" t="Include" />
         <e p="App.xaml" t="Include" />
         <e p="App.xaml.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
@@ -13,7 +14,7 @@
         <e p="MainWindow.xaml.cs" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
-            <e p="netcoreapp3.0" t="Include">
+            <e p="netcoreapp3.1" t="Include">
               <e p="App.g.cs" t="Include" />
               <e p="MainWindow.g.cs" t="Include" />
               <e p="PointlessWaymarksCmsContentEditor.AssemblyInfo.cs" t="Include" />
@@ -21,6 +22,7 @@
           </e>
         </e>
         <e p="PointlessWaymarksCmsContentEditor.csproj" t="IncludeRecursive" />
+        <e p="WindowInitialPositionHelpers.cs" t="Include" />
       </e>
       <e p="PointlessWaymarksCmsData" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
@@ -297,7 +299,7 @@
         </e>
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
-            <e p="netcoreapp3.0" t="Include">
+            <e p="netcoreapp3.1" t="Include">
               <e p="BodyContentEditor" t="Include">
                 <e p="BodyContentEditorControl.g.cs" t="Include" />
               </e>
@@ -484,9 +486,11 @@
           <e p="BooleanNotToVisibilityConverter.cs" t="Include" />
           <e p="BooleanToVisibilityConverter.cs" t="Include" />
           <e p="DispatcherThreadSwitcher.cs" t="Include" />
+          <e p="FileHelpers.cs" t="Include" />
           <e p="ImageCacheConverter.cs" t="Include" />
           <e p="LinkExtraction.cs" t="Include" />
           <e p="ListBoxBehavior.cs" t="Include" />
+          <e p="ProcessHelpers.cs" t="Include" />
           <e p="ReadOnlyTextBoxClickPass.cs" t="Include" />
           <e p="ThreadPoolThreadSwitcher.cs" t="Include" />
           <e p="ThreadSwitcher.cs" t="Include" />

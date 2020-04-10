@@ -182,12 +182,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             if (!isValid) return (isValid, errorMessage);
 
-            if (await (await Db.Context()).SlugExistsInDatabase(Slug))
-            {
-                isValid = false;
-                errorMessage += "Slug already exists in Database";
-            }
-
             return (isValid, errorMessage);
         }
 
