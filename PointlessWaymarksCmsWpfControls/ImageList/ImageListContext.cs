@@ -109,7 +109,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
                 var dbItems =
                     (await context.ImageContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem);
+                        ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 

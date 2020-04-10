@@ -180,7 +180,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
                 var dbItems =
                     (await context.LinkStreams.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem);
+                        ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 

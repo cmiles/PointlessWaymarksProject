@@ -121,6 +121,8 @@
                         Content="_Extract New Links" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}"
                         Content="_View on Site" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding LinkToClipboardCommand}"
+                        Content="Link Code to Clipboard" />
             </WrapPanel>
         </Border>
     </Grid>

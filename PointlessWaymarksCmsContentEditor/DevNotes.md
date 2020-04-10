@@ -9,6 +9,7 @@
  - Basic Style for the Html Table output
  - Give all labels Targets
  - Figure out a system to allow StatusContext to help out postioning a new window vs the launch window
+ - Extract links from List Views and/or maybe an extract all to a form you can work thru?
 
 ## Ideas
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
@@ -39,6 +40,10 @@ Parse a Summary from photos from the title if the description is not present and
 Enhanced the autogeneration of the PDF Images so that an image editor launches with complete enough data to often be immediately saved.
 
 Upgraded to .NET Core 3.1
+
+Added a copy bracket code link to clipboard command to the Image Editor to help with the workflow of generating a cover preview.
+
+Fixed several bugs in the Range Observable Collection with not passing in a concrete list (I am getting an error when that is done).
 
 4/8/2020
 Added Jot - https://github.com/anakic/Jot and WpfScreen - https://github.com/micdenny/WpfScreenHelper - and looked at a WPF Sample - https://github.com/microsoft/WPF-Samples/tree/master/Windows/SaveWindowState - and eventually drew heavy and nearly direct inspriation from Markdown Monster to set up tracking and restoring window position - there are so many edge cases that the thought this is perfect is completely laughable but I did try to look at several sources for information and inspiration to quickly put something together that I hope is quite good without unexpected errors and minimal edge cases. As part of this added a manifest file to hopefully ensure the Dpi Aware support is specified by the app - these were the better links that I found but I am not sure I actually understand the when/why/what very well here esp. of what happens by default in what versions and what needs to be setup (probably need to play around with settings esp. when connected to an external monitor to do some real world experimenting and testing...) https://docs.microsoft.com/en-us/windows/communitytoolkit/controls/wpf-winforms/webview, https://github.com/dotnet/wpf/issues/859, https://github.com/microsoft/WPF-Samples/blob/master/PerMonitorDPI/readme.md

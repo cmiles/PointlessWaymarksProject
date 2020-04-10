@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
@@ -37,6 +38,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private Command _extractNewLinksCommand;
         private string _imageSourceNotes;
         private FileInfo _initalImage;
+        private Command _linkToClipboardCommand;
         private Command _resizeFileCommand;
         private Command _saveAndGenerateHtmlCommand;
         private Command _saveUpdateDatabaseCommand;
@@ -145,6 +147,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 if (value == _imageSourceNotes) return;
                 _imageSourceNotes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command LinkToClipboardCommand
+        {
+            get => _linkToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkToClipboardCommand)) return;
+                _linkToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -315,6 +328,25 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             htmlContext.WriteLocalHtml();
         }
 
+        private async Task LinkToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = @$"{{{{image {DbEntry.ContentId}; {DbEntry.Title}}}}}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        }
+
 
         private async Task LoadData(ImageContent toLoad, bool skipMediaDirectoryCheck = false)
         {
@@ -358,6 +390,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
                 LinkExtraction.ExtractNewAndShowLinkStreamEditors(ImageSourceNotes, StatusContext.ProgressTracker())));
+            LinkToClipboardCommand = new Command(() => StatusContext.RunBlockingTask(LinkToClipboard));
 
             if (DbEntry.Id < 1 && _initalImage != null && _initalImage.Exists &&
                 FileHelpers.ImageFileTypeIsSupported(_initalImage))

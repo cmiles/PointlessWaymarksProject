@@ -278,7 +278,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             Clipboard.SetText(finalString);
 
-            StatusContext.ToastSuccess($"To ClipboardL {finalString}");
+            StatusContext.ToastSuccess($"To Clipboard: {finalString}");
         }
 
         private async Task LoadData()

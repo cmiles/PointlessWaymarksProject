@@ -261,6 +261,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public async Task ChooseFile()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -608,7 +610,5 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             SelectedFile.CopyTo(destinationFileName);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
