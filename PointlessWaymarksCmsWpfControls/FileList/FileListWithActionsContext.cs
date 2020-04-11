@@ -67,6 +67,9 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
+
+        public Command ExtractNewLinksInSelectedCommand { get; set; }
+
         public Command FileDownloadLinkCodesToClipboardForSelectedCommand
         {
             get => _fileDownloadLinkCodesToClipboardForSelectedCommand;
@@ -318,6 +321,31 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             return (result, standardOutput.ToString(), errorOutput.ToString());
         }
 
+        private async Task ExtractNewLinksInSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var context = await Db.Context();
+            var frozenList = ListContext.SelectedItems;
+
+            foreach (var loopSelected in frozenList)
+            {
+                var refreshedData =
+                    context.FileContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+
+                if (refreshedData == null) continue;
+
+                await LinkExtraction.ExtractNewAndShowLinkStreamEditors(
+                    $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
+            }
+        }
+
         private async Task FileDownloadLinkCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -462,7 +490,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                     editor.Show();
                     editor.ImageEditor.TitleSummarySlugFolder.Title = $"{loopSelected.content.Title} Cover Page";
                     editor.ImageEditor.TitleSummarySlugFolder.TitleToSlug();
-                    editor.ImageEditor.TitleSummarySlugFolder.Summary = $"Cover Page from {loopSelected.content.Title}.";
+                    editor.ImageEditor.TitleSummarySlugFolder.Summary =
+                        $"Cover Page from {loopSelected.content.Title}.";
                     editor.ImageEditor.TitleSummarySlugFolder.Folder = loopSelected.content.Folder;
                     editor.ImageEditor.TagEdit.Tags = loopSelected.content.Tags;
                     editor.ImageEditor.ImageSourceNotes =
@@ -518,6 +547,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
             FirstPagePreviewFromPdfToCairoCommand =
                 new Command(() => StatusContext.RunBlockingTask(FirstPagePreviewFromPdfToCairo));
+            ExtractNewLinksInSelectedCommand =
+                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
         }
 
         private async Task NewContent()

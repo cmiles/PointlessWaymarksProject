@@ -9,7 +9,6 @@
  - Basic Style for the Html Table output
  - Give all labels Targets
  - Figure out a system to allow StatusContext to help out postioning a new window vs the launch window
- - Extract links from List Views and/or maybe an extract all to a form you can work thru?
 
 ## Ideas
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
@@ -17,18 +16,20 @@
  - 'Subsites' for years? When thinking about the photo gallery I started to wonder about the idea that you create in distinct units - so what if each 'year' of a site was essentially frozen in time, you reached the end of a 'unit' and you ended with a static website for the year that no longer 'needed' any updates to live for as long as you wanted - everything frozen... Maybe this idea is really best as buckets and subdomains and doesn't really relate to the app?
  - Top of the html page menu - or other 'nav' idea (maybe just a one level set of links that collapses on mobile? or...)
  - Top of the html page search box - maybe pass a query parameter to the all content list page?
- - Extract links from list page or 'all site' (option in content but not in lists/all)
  - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
  - Backup the master media directory, database and current site to a dated folder (where?)
- - Could all font sizes be controlled by slider?
+ - Could all font sizes be controlled by slider? I like the control in the editor but maybe everywhere would be more useful?
  - Detect image change and force over write style image generation
  - Explore https://css-ig.net/pingo - I wonder about quality and speed - I suppose this looses some flexibility but certainly current code is just resizing not watermarking/etc
- - Explore https://wkhtmltopdf.org/ - I this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site
+ - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site
 
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
+
+4/11/2020
+Added Extract Links to all relevant lists - this immediately proved to be very useful since there were links that I thought I had saved that I had not...
 
 4/10/2020
 Found an error where I was checking that Photo file names were unique but not slugs - when an image was imported with the same title but a different filename the same folder was used for both pictures - which is not the design and is not going to work in the current setup. Improved the slug checking and added it to other content types also.

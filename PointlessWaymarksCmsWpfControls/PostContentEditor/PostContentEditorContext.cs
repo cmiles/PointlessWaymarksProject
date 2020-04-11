@@ -183,6 +183,8 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private async Task GenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -209,7 +211,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors($"{BodyContent} {UpdateNotes}",
                     StatusContext.ProgressTracker())));
         }
 
@@ -402,7 +404,5 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

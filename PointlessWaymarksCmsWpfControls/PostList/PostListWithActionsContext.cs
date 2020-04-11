@@ -59,6 +59,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             }
         }
 
+        public Command ExtractNewLinksInSelectedCommand { get; set; }
+
         public Command GenerateSelectedHtmlCommand
         {
             get => _generateSelectedHtmlCommand;
@@ -135,6 +137,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                 OnPropertyChanged();
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task Delete()
         {
@@ -222,6 +226,31 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             }
         }
 
+        private async Task ExtractNewLinksInSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var context = await Db.Context();
+            var frozenList = ListContext.SelectedItems;
+
+            foreach (var loopSelected in frozenList)
+            {
+                var refreshedData =
+                    context.PostContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+
+                if (refreshedData == null) continue;
+
+                await LinkExtraction.ExtractNewAndShowLinkStreamEditors(
+                    $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
+            }
+        }
+
         private async Task GenerateSelectedHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -264,6 +293,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
             RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
+            ExtractNewLinksInSelectedCommand =
+                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
         }
 
         private async Task NewContent()
@@ -324,7 +355,5 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
