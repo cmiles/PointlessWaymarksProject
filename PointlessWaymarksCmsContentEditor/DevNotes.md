@@ -1,6 +1,8 @@
 ﻿## Todos
- - Clean up Temp Directory
- - Settings file switching or/and settings file selection on launch
+ - Clean up Temp Directory - keep list of temporary files, try delete on launch/close
+ - Settings file on launch: Recent File List, Validate Selected File
+ - How to do app version in this situation - app version needs to show in the title bar, write on launch to events
+ - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
@@ -27,6 +29,13 @@
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
+
+## Notes
+
+4/12/2020
+Added a default icon and Github social image. Very simple but loads better than the default icon.
+
+First version of a Settings file selector on startup - for now I am not going to support switching settings files on the fly because I am concerned there is too much room for error with scenarios like 'you have an editor window saving when you switch settings files - what happens???', but to get to work on my next project I need to support multipe sites which this does nicely. Only 'new' and 'existing' are supported but put in a placeholder for recent files which I think will be key functionality. Nearly zero testing at this point - this is a first minimal attempt.
 
 4/11/2020
 Added Extract Links to all relevant lists - this immediately proved to be very useful since there were links that I thought I had saved that I had not...

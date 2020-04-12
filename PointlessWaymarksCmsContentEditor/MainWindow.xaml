@@ -13,12 +13,15 @@
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:noteList="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:linkStreamList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamList;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
     Title="Pointless Waymarks CMS"
     Width="900"
     Height="650"
     d:DataContext="{d:DesignInstance local:MainWindow}"
     mc:Ignorable="d">
     <Window.Resources>
+        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         <Style TargetType="Button">
             <Setter Property="Margin" Value="4" />
             <Setter Property="Height" Value="40" />
@@ -77,6 +80,10 @@
                 </Grid>
             </TabItem>
         </TabControl>
+        <local:SettingsFileChooserControl DataContext="{Binding SettingsFileChooser}" Background="White"
+                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                          HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                          Visibility="{Binding Data.ShowSettingsFileChooser, Converter={StaticResource BooleanToVisibility}, Source={StaticResource Proxy}}" />
         <status:StatusControl
             Grid.Row="0"
             Grid.Column="0"

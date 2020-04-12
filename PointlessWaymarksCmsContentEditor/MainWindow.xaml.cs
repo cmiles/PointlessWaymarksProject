@@ -58,6 +58,8 @@ namespace PointlessWaymarksCmsContentEditor
         private Command _newPostContentCommand;
         private Command _openIndexUrlCommand;
         private UserSettingsEditorContext _settingsEditorContext;
+        private SettingsFileChooserControlContext _settingsFileChooser;
+        private bool _showSettingsFileChooser;
         private StatusControlContext _statusContext;
         private FileListWithActionsContext _tabFileListContext;
         private ImageListWithActionsContext _tabImageListContext;
@@ -72,6 +74,8 @@ namespace PointlessWaymarksCmsContentEditor
             App.Tracker.Track(this);
 
             WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
+
+            ShowSettingsFileChooser = true;
 
             DataContext = this;
 
@@ -113,7 +117,11 @@ namespace PointlessWaymarksCmsContentEditor
             AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
             VersionScriptCommand = new Command(() => StatusContext.RunBlockingTask(VersionScript));
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(LoadData);
+            SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext);
+            SettingsFileChooser.SettingsFileUpdated += delegate(object sender, string s)
+            {
+                StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () => await LoadData(s));
+            };
         }
 
 
@@ -280,6 +288,28 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _settingsEditorContext)) return;
                 _settingsEditorContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public SettingsFileChooserControlContext SettingsFileChooser
+        {
+            get => _settingsFileChooser;
+            set
+            {
+                if (Equals(value, _settingsFileChooser)) return;
+                _settingsFileChooser = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowSettingsFileChooser
+        {
+            get => _showSettingsFileChooser;
+            set
+            {
+                if (value == _showSettingsFileChooser) return;
+                _showSettingsFileChooser = value;
                 OnPropertyChanged();
             }
         }
@@ -663,9 +693,20 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext.Progress("JSON Import Finished");
         }
 
-        private async Task LoadData()
+        private async Task LoadData(string settingsFileName)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            ShowSettingsFileChooser = false;
+
+            UserSettingsUtilities.SettingsFileName = settingsFileName;
+
+            UserSettingsUtilities.VerifyAndCreate();
+
+            var log = Db.Log().Result;
+            await log.Database.EnsureCreatedAsync();
+            var db = Db.Context().Result;
+            await db.Database.EnsureCreatedAsync();
 
             TabImageListContext = new ImageListWithActionsContext(null);
             TabFileListContext = new FileListWithActionsContext(null);
@@ -705,7 +746,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PhotoContentEditorWindow() {Left = Left + 4, Top = Top + 4};
+            var newContentWindow = new PhotoContentEditorWindow {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 

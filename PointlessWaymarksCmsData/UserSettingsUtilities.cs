@@ -10,6 +10,8 @@ namespace PointlessWaymarksCmsData
 {
     public static class UserSettingsUtilities
     {
+        public static string SettingsFileName = "PointlessWaymarksCmsSettings.json";
+
         public static string AllContentListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/AllContentList.html";
@@ -569,7 +571,7 @@ namespace PointlessWaymarksCmsData
 
         public static FileInfo SettingsFile()
         {
-            return new FileInfo(Path.Combine(StorageDirectory().FullName, "PointlessWaymarksCmsSettings.json"));
+            return new FileInfo(Path.Combine(StorageDirectory().FullName, SettingsFileName));
         }
 
         public static DirectoryInfo StorageDirectory()
@@ -577,19 +579,6 @@ namespace PointlessWaymarksCmsData
             var storageDirectory =
                 new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                     "Pointless Waymarks Cms"));
-
-            if (!storageDirectory.Exists) storageDirectory.Create();
-
-            storageDirectory.Refresh();
-
-            return storageDirectory;
-        }
-
-        public static DirectoryInfo TempStorageDirectory()
-        {
-            var storageDirectory =
-                new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "Pointless Waymarks Cms", "TemporaryFiles"));
 
             if (!storageDirectory.Exists) storageDirectory.Create();
 
@@ -607,6 +596,19 @@ namespace PointlessWaymarksCmsData
             if (!possibleFile.Exists) return string.Empty;
 
             return File.ReadAllText(possibleFile.FullName);
+        }
+
+        public static DirectoryInfo TempStorageDirectory()
+        {
+            var storageDirectory = new DirectoryInfo(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pointless Waymarks Cms",
+                "TemporaryFiles"));
+
+            if (!storageDirectory.Exists) storageDirectory.Create();
+
+            storageDirectory.Refresh();
+
+            return storageDirectory;
         }
 
         public static async Task<(bool, string)> ValidateLocalMasterMediaArchive()

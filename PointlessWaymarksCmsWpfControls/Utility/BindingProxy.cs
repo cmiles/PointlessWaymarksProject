@@ -5,12 +5,12 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     //https://www.thomaslevesque.com/2011/03/21/wpf-how-to-bind-to-data-when-the-datacontext-is-not-inherited/
     //
     //<DataGrid.Resources>
-    //<local:BindingProxy x:Key="proxy" Data="{Binding}" />
+    //<local:BindingProxy x:Key="Proxy" Data="{Binding}" />
     //</DataGrid.Resources>
     //
     //Visibility="{Binding Data.ShowPrice,
     //    Converter={StaticResource visibilityConverter},
-    //    Source={StaticResource proxy}}"
+    //    Source={StaticResource Proxy}}"
     public class BindingProxy : Freezable
     {
         // Using a DependencyProperty as the backing store for Data.  This enables animation, styling, binding, etc...

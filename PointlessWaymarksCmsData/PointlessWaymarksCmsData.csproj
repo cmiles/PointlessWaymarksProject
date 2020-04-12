@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.14.0" />
+    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-819" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="HtmlTags" Version="8.0.0" />

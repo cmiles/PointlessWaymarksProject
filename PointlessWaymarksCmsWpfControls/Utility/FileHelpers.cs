@@ -7,7 +7,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 {
     public static class FileHelpers
     {
-
         public static bool ImageFileTypeIsSupported(FileInfo toCheck)
         {
             if (toCheck == null) return false;

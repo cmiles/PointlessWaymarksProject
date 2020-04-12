@@ -13,6 +13,7 @@ namespace PointlessWaymarksCmsData
         private string _googleMapsApiKey = string.Empty;
         private string _localMasterMediaArchive;
         private string _localSiteRootDirectory;
+        private string _pdfToCairoExeDirectory;
         private string _pinboardApiToken;
         private string _siteAuthors;
         private string _siteEmailTo;
@@ -20,18 +21,6 @@ namespace PointlessWaymarksCmsData
         private string _siteName;
         private string _siteSummary;
         private string _siteUrl;
-        private string _pdfToCairoExeDirectory;
-
-        public string PdfToCairoExeDirectory
-        {
-            get => _pdfToCairoExeDirectory;
-            set
-            {
-                if (value == _pdfToCairoExeDirectory) return;
-                _pdfToCairoExeDirectory = value;
-                OnPropertyChanged();
-            }
-        }
 
         public string BingApiKey
         {
@@ -106,6 +95,17 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _localSiteRootDirectory) return;
                 _localSiteRootDirectory = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string PdfToCairoExeDirectory
+        {
+            get => _pdfToCairoExeDirectory;
+            set
+            {
+                if (value == _pdfToCairoExeDirectory) return;
+                _pdfToCairoExeDirectory = value;
                 OnPropertyChanged();
             }
         }
@@ -187,12 +187,12 @@ namespace PointlessWaymarksCmsData
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

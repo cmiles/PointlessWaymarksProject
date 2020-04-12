@@ -19,14 +19,7 @@ namespace PointlessWaymarksCmsContentEditor
 
         public App()
         {
-            UserSettingsUtilities.VerifyAndCreate();
-
             Tracker = new Tracker(new JsonFileStore(UserSettingsUtilities.StorageDirectory().FullName));
-
-            var log = Db.Log().Result;
-            log.Database.EnsureCreated();
-            var db = Db.Context().Result;
-            db.Database.EnsureCreated();
 
             Tracker.Configure<Window>()
                 .Id(w => w.Name, SystemInformation.VirtualScreen.Size) // <-- include the screen resolution in the id
