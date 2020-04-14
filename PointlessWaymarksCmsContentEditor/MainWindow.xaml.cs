@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HtmlTableHelper;
@@ -50,6 +52,7 @@ namespace PointlessWaymarksCmsContentEditor
         private Command _generateHtmlForAllPhotoContentCommand;
         private Command _generateHtmlForAllPostContentCommand;
         private Command _generateIndexCommand;
+        private string _infoTitle;
         private LinkStreamListWithActionsContext _linkStreamContext;
         private Command _newFileContentCommand;
         private Command _newImageContentCommand;
@@ -57,6 +60,7 @@ namespace PointlessWaymarksCmsContentEditor
         private Command _newPhotoContentCommand;
         private Command _newPostContentCommand;
         private Command _openIndexUrlCommand;
+        private string _recentSettingsFilesNames;
         private UserSettingsEditorContext _settingsEditorContext;
         private SettingsFileChooserControlContext _settingsFileChooser;
         private bool _showSettingsFileChooser;
@@ -74,6 +78,9 @@ namespace PointlessWaymarksCmsContentEditor
             App.Tracker.Track(this);
 
             WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
+
+            InfoTitle =
+                $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes" : string.Empty)}";
 
             ShowSettingsFileChooser = true;
 
@@ -117,11 +124,9 @@ namespace PointlessWaymarksCmsContentEditor
             AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
             VersionScriptCommand = new Command(() => StatusContext.RunBlockingTask(VersionScript));
 
-            SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext);
-            SettingsFileChooser.SettingsFileUpdated += delegate(object sender, string s)
-            {
-                StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () => await LoadData(s));
-            };
+            SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
+
+            SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
         }
 
 
@@ -204,6 +209,17 @@ namespace PointlessWaymarksCmsContentEditor
 
         public Command ImportJsonFromDirectoryCommand { get; set; }
 
+        public string InfoTitle
+        {
+            get => _infoTitle;
+            set
+            {
+                if (value == _infoTitle) return;
+                _infoTitle = value;
+                OnPropertyChanged();
+            }
+        }
+
         public LinkStreamListWithActionsContext LinkStreamContext
         {
             get => _linkStreamContext;
@@ -277,6 +293,17 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _openIndexUrlCommand)) return;
                 _openIndexUrlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string RecentSettingsFilesNames
+        {
+            get => _recentSettingsFilesNames;
+            set
+            {
+                if (Equals(value, _recentSettingsFilesNames)) return;
+                _recentSettingsFilesNames = value;
                 OnPropertyChanged();
             }
         }
@@ -467,7 +494,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             var log = await Db.Log();
 
-            var htmlTable = log.EventLogs.Where(x => x.Category == "Diagnostic").Take(5000)
+            var htmlTable = log.EventLogs.Where(x => x.Category == "Diagnostic" || x.Category == "Startup").Take(5000)
                 .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable();
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -480,7 +507,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             var log = await Db.Log();
 
-            var htmlTable = log.EventLogs.Where(x => x.Category == "Exception").Take(1000)
+            var htmlTable = log.EventLogs.Where(x => x.Category == "Exception" || x.Category == "Startup").Take(1000)
                 .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable();
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -668,6 +695,12 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext.ToastSuccess($"Generated {index.PageUrl}");
         }
 
+        private static DateTime? GetBuildDate(Assembly assembly)
+        {
+            var attribute = assembly.GetCustomAttribute<BuildDateAttribute>();
+            return attribute?.DateTime;
+        }
+
         private async Task ImportJsonFromDirectory()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -693,20 +726,24 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext.Progress("JSON Import Finished");
         }
 
-        private async Task LoadData(string settingsFileName)
+        private async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ShowSettingsFileChooser = false;
 
-            UserSettingsUtilities.SettingsFileName = settingsFileName;
-
-            UserSettingsUtilities.VerifyAndCreate();
+            var settings = await UserSettingsUtilities.ReadSettings();
+            settings.VerifyOrCreateAllFolders();
 
             var log = Db.Log().Result;
             await log.Database.EnsureCreatedAsync();
+            await EventLogContext.TryWriteStartupMessageToLog(
+                $"{InfoTitle} - Settings File {UserSettingsUtilities.SettingsFileName}",
+                StatusContext.StatusControlContextId.ToString());
+
             var db = Db.Context().Result;
             await db.Database.EnsureCreatedAsync();
+
 
             TabImageListContext = new ImageListWithActionsContext(null);
             TabFileListContext = new FileListWithActionsContext(null);
@@ -774,6 +811,40 @@ namespace PointlessWaymarksCmsContentEditor
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
+        }
+
+        private async Task SettingsFileChooserOnSettingsFileUpdated((bool isNew, string userInput) settingReturn)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(settingReturn.userInput))
+            {
+                StatusContext.ToastError("Error with Settings File? No name?");
+                return;
+            }
+
+            if (settingReturn.isNew)
+                await UserSettingsUtilities.SetupNewSite(settingReturn.userInput);
+            else
+                UserSettingsUtilities.SettingsFileName = settingReturn.userInput;
+
+            var fileList = RecentSettingsFilesNames?.Split("|").ToList() ?? new List<string>();
+
+            if (!fileList.Contains(UserSettingsUtilities.SettingsFileName))
+                fileList.Add(UserSettingsUtilities.SettingsFileName);
+
+            if (fileList.Count > 10)
+                fileList = fileList.Take(10).ToList();
+
+            RecentSettingsFilesNames = string.Join("|", fileList);
+
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        private void SettingsFileChooserOnSettingsFileUpdatedEvent(object? sender, (bool isNew, string userString) e)
+        {
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+                await SettingsFileChooserOnSettingsFileUpdated(e));
         }
 
         private async Task VersionScript()

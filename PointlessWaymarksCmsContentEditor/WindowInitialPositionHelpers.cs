@@ -16,7 +16,7 @@ namespace PointlessWaymarksCmsContentEditor
         //https://github.com/microsoft/WPF-Samples/tree/master/Windows/SaveWindowState
         //https://github.com/micdenny/WpfScreenHelper
         //
-        //This borrows heavily esp. with EnsureWindowIsVisible being nearly a copy of the Markdown Monster code with only a 
+        //This borrows heavily esp. with EnsureWindowIsVisible being nearly a copy of the Markdown Monster with only a 
         //few changes.
         public enum DpiType
         {

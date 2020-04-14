@@ -13,6 +13,10 @@
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="FontAwesome5" Version="2.0.5" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
+    <PackageReference Include="GitInfo" Version="2.0.26">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="HtmlTags" Version="8.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Jot" Version="2.1.4" />
@@ -41,7 +45,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PointlessWaymarksCmsData\PointlessWaymarksCmsData.csproj" />
     <ProjectReference Include="..\PointlessWaymarksCmsWpfControls\PointlessWaymarksCmsWpfControls.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="PointlessWaymarksCmsData.BuildDateAttribute">
+      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

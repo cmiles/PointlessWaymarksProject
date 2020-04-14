@@ -16,23 +16,7 @@ namespace PointlessWaymarksCmsData
 
         public static async Task TryWriteDiagnosticMessageToLog(string message, string sender)
         {
-            try
-            {
-                var log = await Db.Log();
-                await log.EventLogs.AddAsync(new EventLog
-                {
-                    Category = "Diagnostic",
-                    Sender = sender,
-                    Information = message ?? string.Empty,
-                    RecordedOn = DateTime.UtcNow
-                });
-
-                await log.SaveChangesAsync(true);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            await TryWriteMessageToLog("Diagnostic", message, sender);
         }
 
         public static async Task TryWriteExceptionToLog(Exception ex, string sender, string additionLogInfo)
@@ -133,6 +117,32 @@ namespace PointlessWaymarksCmsData
             {
                 Console.WriteLine(e);
             }
+        }
+
+        private static async Task TryWriteMessageToLog(string category, string message, string sender)
+        {
+            try
+            {
+                var log = await Db.Log();
+                await log.EventLogs.AddAsync(new EventLog
+                {
+                    Category = category,
+                    Sender = sender,
+                    Information = message ?? string.Empty,
+                    RecordedOn = DateTime.UtcNow
+                });
+
+                await log.SaveChangesAsync(true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        public static async Task TryWriteStartupMessageToLog(string message, string sender)
+        {
+            await TryWriteMessageToLog("Startup", message, sender);
         }
     }
 }

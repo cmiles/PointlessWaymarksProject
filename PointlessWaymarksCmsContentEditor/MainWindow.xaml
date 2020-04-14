@@ -14,13 +14,13 @@
     xmlns:noteList="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:linkStreamList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
-    Title="Pointless Waymarks CMS"
     Width="900"
     Height="650"
+    Title="{Binding InfoTitle}"
     d:DataContext="{d:DesignInstance local:MainWindow}"
     mc:Ignorable="d">
     <Window.Resources>
-        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        <utility:BindingProxy x:Key="MainWindowProxy" Data="{Binding}" />
         <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         <Style TargetType="Button">
             <Setter Property="Margin" Value="4" />
@@ -83,7 +83,7 @@
         <local:SettingsFileChooserControl DataContext="{Binding SettingsFileChooser}" Background="White"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                           HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                                          Visibility="{Binding Data.ShowSettingsFileChooser, Converter={StaticResource BooleanToVisibility}, Source={StaticResource Proxy}}" />
+                                          Visibility="{Binding Data.ShowSettingsFileChooser, Converter={StaticResource BooleanToVisibility}, Source={StaticResource MainWindowProxy}}" />
         <status:StatusControl
             Grid.Row="0"
             Grid.Column="0"

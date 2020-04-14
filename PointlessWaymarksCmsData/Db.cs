@@ -20,8 +20,8 @@ namespace PointlessWaymarksCmsData
         public static async Task<EventLogContext> Log()
         {
             var optionsBuilder = new DbContextOptionsBuilder<EventLogContext>();
-            var dbPath = Path.Combine(UserSettingsUtilities.StorageDirectory().FullName,
-                "PointlessWaymarksEventLog.db");
+            var dbPath = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchive,
+                "PointlessWaymarksCms-EventLog.db");
             return new EventLogContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options);
         }
 

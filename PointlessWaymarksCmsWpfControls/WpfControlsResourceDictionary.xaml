@@ -13,12 +13,12 @@
         <Setter Property="Margin" Value="4" />
         <Setter Property="CornerRadius" Value="4" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="LightBlue" />
+        <Setter Property="BorderBrush" Value="Green" />
     </Style>
     <Style x:Key="UiComponentGroupBoxStyle" TargetType="GroupBox">
         <Setter Property="Header" Value="Filter List" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="LightBlue" />
+        <Setter Property="BorderBrush" Value="Green" />
     </Style>
     <Style x:Key="ReadOnlyTextBox" TargetType="TextBox">
         <Setter Property="IsReadOnly" Value="True" />

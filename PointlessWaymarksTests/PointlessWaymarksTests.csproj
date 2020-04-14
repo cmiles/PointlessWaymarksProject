@@ -1,24 +1,34 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
 
-        <IsPackable>false</IsPackable>
-    </PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="nunit" Version="3.12.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.16.1">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0-preview-20200318-01" />
-        <PackageReference Include="ThomasLevesque.WeakEvent" Version="4.1.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GitInfo" Version="2.0.26">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0-preview-20200318-01" />
+    <PackageReference Include="ThomasLevesque.WeakEvent" Version="4.1.0" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\PointlessWaymarksCmsData\PointlessWaymarksCmsData.csproj" />
-      <ProjectReference Include="..\PointlessWaymarksCmsWpfControls\PointlessWaymarksCmsWpfControls.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PointlessWaymarksCmsData\PointlessWaymarksCmsData.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksCmsWpfControls\PointlessWaymarksCmsWpfControls.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="PointlessWaymarksCmsData.BuildDateAttribute">
+      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 
 </Project>

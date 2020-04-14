@@ -8,6 +8,10 @@
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-819" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
+    <PackageReference Include="GitInfo" Version="2.0.26">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="HtmlTags" Version="8.0.0" />
     <PackageReference Include="Markdig" Version="0.18.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-preview.2.20159.4" />
@@ -174,6 +178,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SinglePhotoPage.tt</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="PointlessWaymarksCmsData.BuildDateAttribute">
+      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

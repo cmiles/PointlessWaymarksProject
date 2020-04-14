@@ -1,7 +1,6 @@
 ﻿## Todos
+ - Progress on startup after the settings picker screen
  - Clean up Temp Directory - keep list of temporary files, try delete on launch/close
- - Settings file on launch: Recent File List, Validate Selected File
- - How to do app version in this situation - app version needs to show in the title bar, write on launch to events
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -13,6 +12,7 @@
  - Figure out a system to allow StatusContext to help out postioning a new window vs the launch window
 
 ## Ideas
+ - Look at deployment options - self contained? msix?
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
  - Photo Gallery - The current set of Content Types are proving in a few months of use to represent nicely what I want to store - but I am starting to wonder what the cost/benefit/opportunity might be to store photos beyond what is being used on the site and essentially have this as my photo site? Worried that cost may actually become an issue
  - 'Subsites' for years? When thinking about the photo gallery I started to wonder about the idea that you create in distinct units - so what if each 'year' of a site was essentially frozen in time, you reached the end of a 'unit' and you ended with a static website for the year that no longer 'needed' any updates to live for as long as you wanted - everything frozen... Maybe this idea is really best as buckets and subdomains and doesn't really relate to the app?
@@ -31,6 +31,17 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 ## Notes
+
+4/14/2020
+Improved the startup screen related code so that creating new sites happens much more nicely - I think the settings/settings file could be handled better in general but with this working I think more rework/refactoring waits.
+
+Added the Build Date and GitInfo into the title bar - if this was a commercial project that would be a distraction, uneeded question and probably branding mistake - however because those aren't concerns if you have to ask someone or yourself about 'version' you can't get easier than in the title bar (haha so easier than having to ask is having everything logged and remotely available I suppose, and the version info is in the log but the log is local only so Title bar is still easier...)
+
+4/13/2020
+In framework projects I have found the most 'versioning' utility for a desktop app in adding a build timestamp to the published Informational Version and showing that in the title bar. With the move to .NET Core I wanted to look again and try to see if there was something that might be better... I found two approaches to try:
+ - https://www.meziantou.net/getting-the-date-of-build-of-a-dotnet-assembly-at-runtime.htm - the build datetime stamp I like so much is maybe a 'version' but maybe it is better as just a specific piece of metadata! This article shows how to quickly/easy add a buildtime attribute - love this, I think it would be more powerful to explore putting it into a Nuget package but for now just added the ?12 lines of code directly to projects.
+ - https://github.com/kzu/GitInfo - Writes the Git info into the project on build - for this project where I am not yet doing/managing 'releases' if a friend used the project the best reference would probably be the git commit from the build - seems like this (including if there were uncommited changes) plus buildtime gives a pretty good picture of what is going on.
+ These approaches also leave the true Versions clean for use in either managing releases and/or automated CI style builds which I think is smart.
 
 4/12/2020
 Added a default icon and Github social image. Very simple but loads better than the default icon.

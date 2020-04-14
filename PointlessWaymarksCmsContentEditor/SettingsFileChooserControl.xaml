@@ -8,24 +8,49 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance local:SettingsFileChooserControlContext}">
+    <UserControl.Resources>
+        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+    </UserControl.Resources>
     <StackPanel>
         <TextBlock HorizontalAlignment="Center" FontSize="24" TextWrapping="Wrap" TextAlignment="Center">Please Choose a Settings File or Create a New One</TextBlock>
-        <TextBlock HorizontalAlignment="Center" FontSize="18">Recent Files:</TextBlock>
-        <ListBox SelectionMode="Single" Height="160">
-            <ListBox.ItemTemplate>
-                <DataTemplate />
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <GroupBox Header="Existing File" FontSize="18" BorderThickness="2">
+        <GroupBox Header="Recent Files" FontSize="18" BorderThickness="2" Margin="4,24,4,0">
+            <ListBox SelectionMode="Single" Height="160" BorderThickness="0" ItemsSource="{Binding Items}"
+                     HorizontalContentAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" BorderBrush="DarkGreen" BorderThickness="1" CornerRadius="5">
+                            <Grid Margin="6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Button FontSize="16"
+                                        Command="{Binding Data.ChooseRecentFileCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding .}">
+                                    Launch
+                                </Button>
+                                <StackPanel Orientation="Vertical" Grid.Column="1">
+                                    <TextBlock Text="{Binding ParsedSettings.SiteName}" />
+                                    <TextBlock Text="{Binding SettingsFile.FullName}" FontSize="12" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Grid>
+
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
+        <GroupBox Header="Existing File" FontSize="18" BorderThickness="2" Margin="4,24,4,0">
             <StackPanel Orientation="Vertical">
-                <Button Margin="6,8,4,8" FontSize="14" Height="40" Command="{Binding ChooseFileCommand}">Choose Existing Settings File</Button>
+                <Button Margin="6,8,4,8" FontSize="14" Height="40" Command="{Binding ChooseFileCommand}">Choose Existing</Button>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="New Settings File" FontSize="18" BorderThickness="2">
+        <GroupBox Header="New Settings File" FontSize="18" BorderThickness="2" Margin="4,24,4,0">
             <StackPanel Orientation="Vertical">
-                <Label Target="{Binding ElementName=SettingsFileNameTextBox}" FontSize="14">Settings File Name</Label>
-                <TextBox Name="SettingsFileNameTextBox" FontSize="14" MaxLength="128" Margin="6,8,4,12" />
-                <Button Margin="6,0,4,8" FontSize="14" Height="40" Command="{Binding NewFileCommand}">Create New Settings File</Button>
+                <Label Target="{Binding ElementName=SettingsFileNameTextBox}" FontSize="14">Settings Name</Label>
+                <TextBox Name="SettingsFileNameTextBox" FontSize="14" MaxLength="128" Margin="6,8,4,12"
+                         Text="{Binding UserNewFileName, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Margin="6,0,4,8" FontSize="14" Height="40" Command="{Binding NewFileCommand}">Create New</Button>
             </StackPanel>
         </GroupBox>
     </StackPanel>
