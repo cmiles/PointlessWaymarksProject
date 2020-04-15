@@ -127,6 +127,8 @@ namespace PointlessWaymarksCmsContentEditor
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
 
             SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanUpTemporaryFiles);
         }
 
 
@@ -490,6 +492,39 @@ namespace PointlessWaymarksCmsContentEditor
             await CleanAndResizeAllImageFiles();
         }
 
+        private async Task CleanUpTemporaryFiles()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var temporaryDirectory = UserSettingsUtilities.TempStorageDirectory();
+
+            if (!temporaryDirectory.Exists)
+            {
+                temporaryDirectory.Create();
+                return;
+            }
+
+            var allFiles = temporaryDirectory.GetFiles().ToList();
+
+            var frozenUtcNow = DateTime.UtcNow;
+
+            foreach (var loopFiles in allFiles)
+                try
+                {
+                    var creationDayDiff = frozenUtcNow.Subtract(loopFiles.CreationTimeUtc).Days;
+                    var lastAccessDayDiff = frozenUtcNow.Subtract(loopFiles.LastAccessTimeUtc).Days;
+                    var lastWriteDayDiff = frozenUtcNow.Subtract(loopFiles.LastWriteTimeUtc).Days;
+
+                    if (creationDayDiff > 2 && lastAccessDayDiff > 2 && lastWriteDayDiff > 2)
+                        loopFiles.Delete();
+                }
+                catch (Exception e)
+                {
+                    await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(),
+                        $"Could not delete temporary file - {e}");
+                }
+        }
+
         private async Task DiagnosticEventsReport()
         {
             var log = await Db.Log();
@@ -732,9 +767,10 @@ namespace PointlessWaymarksCmsContentEditor
 
             ShowSettingsFileChooser = false;
 
-            var settings = await UserSettingsUtilities.ReadSettings();
+            var settings = await UserSettingsUtilities.ReadSettings(StatusContext.ProgressTracker());
             settings.VerifyOrCreateAllFolders();
 
+            StatusContext.Progress("Checking for database files...");
             var log = Db.Log().Result;
             await log.Database.EnsureCreatedAsync();
             await EventLogContext.TryWriteStartupMessageToLog(
@@ -744,6 +780,7 @@ namespace PointlessWaymarksCmsContentEditor
             var db = Db.Context().Result;
             await db.Database.EnsureCreatedAsync();
 
+            StatusContext.Progress("Setting up UI Controls");
 
             TabImageListContext = new ImageListWithActionsContext(null);
             TabFileListContext = new FileListWithActionsContext(null);
@@ -824,9 +861,11 @@ namespace PointlessWaymarksCmsContentEditor
             }
 
             if (settingReturn.isNew)
-                await UserSettingsUtilities.SetupNewSite(settingReturn.userInput);
+                await UserSettingsUtilities.SetupNewSite(settingReturn.userInput, StatusContext.ProgressTracker());
             else
                 UserSettingsUtilities.SettingsFileName = settingReturn.userInput;
+
+            StatusContext.Progress($"Using {UserSettingsUtilities.SettingsFileName}");
 
             var fileList = RecentSettingsFilesNames?.Split("|").ToList() ?? new List<string>();
 

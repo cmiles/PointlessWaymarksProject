@@ -115,6 +115,8 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            StatusContext.Progress("Looking for recent files");
+
             foreach (var loopFiles in RecentSettingFilesNames)
             {
                 if (string.IsNullOrWhiteSpace(loopFiles)) continue;
@@ -125,6 +127,8 @@ namespace PointlessWaymarksCmsContentEditor
 
                 try
                 {
+                    StatusContext.Progress($"Recent Files - getting info from {loopFileInfo.FullName}");
+
                     var readResult =
                         await JsonSerializer.DeserializeAsync<UserSettings>(File.OpenRead(loopFileInfo.FullName));
 
@@ -155,6 +159,8 @@ namespace PointlessWaymarksCmsContentEditor
                 StatusContext.ToastError("File name is not valid - avoid special characters...");
                 return;
             }
+
+            StatusContext.Progress($"New File Selected - {UserNewFileName}");
 
             SettingsFileUpdated?.Invoke(this, (true, UserNewFileName));
         }

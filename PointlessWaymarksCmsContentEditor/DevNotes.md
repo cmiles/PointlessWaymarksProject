@@ -1,13 +1,11 @@
 ﻿## Todos
- - Progress on startup after the settings picker screen
- - Clean up Temp Directory - keep list of temporary files, try delete on launch/close
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
  - Is everything getting HMTL Encoded - are there spots with leaks? (tests?)
  - RSS - Does title need CDATA to be completely safe? Or?
- - Basic Style for the Html Table output
+ - Basic Style for the Html Table output - maybe inline Pure or another more minimal framework?
  - Give all labels Targets
  - Figure out a system to allow StatusContext to help out postioning a new window vs the launch window
 
@@ -36,6 +34,10 @@
 Improved the startup screen related code so that creating new sites happens much more nicely - I think the settings/settings file could be handled better in general but with this working I think more rework/refactoring waits.
 
 Added the Build Date and GitInfo into the title bar - if this was a commercial project that would be a distraction, uneeded question and probably branding mistake - however because those aren't concerns if you have to ask someone or yourself about 'version' you can't get easier than in the title bar (haha so easier than having to ask is having everything logged and remotely available I suppose, and the version info is in the log but the log is local only so Title bar is still easier...)
+
+Progress in the Initial Load.
+
+Cleanup temporary files - I initially though I would do this via keeping track of each temporary file created - but after thinking about it for a few days decided instead to just look for files older than 2 days and delete those.
 
 4/13/2020
 In framework projects I have found the most 'versioning' utility for a desktop app in adding a build timestamp to the published Informational Version and showing that in the title bar. With the move to .NET Core I wanted to look again and try to see if there was something that might be better... I found two approaches to try:

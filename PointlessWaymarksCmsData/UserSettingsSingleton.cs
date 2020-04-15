@@ -8,7 +8,7 @@
 
         public static UserSettings CurrentSettings()
         {
-            return _userSettings ??= UserSettingsUtilities.ReadSettings().Result;
+            return _userSettings ??= UserSettingsUtilities.ReadSettings(null).Result;
         }
     }
 }

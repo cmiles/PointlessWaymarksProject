@@ -1,6 +1,4 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarksCmsContentEditor
+﻿namespace PointlessWaymarksCmsContentEditor
 {
     /// <summary>
     ///     Interaction logic for SettingsFileChooserControl.xaml

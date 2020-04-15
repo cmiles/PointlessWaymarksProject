@@ -480,7 +480,7 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Posts/PostRss.xml";
         }
 
-        public static async Task<UserSettings> ReadSettings()
+        public static async Task<UserSettings> ReadSettings(IProgress<string> progress)
         {
             var currentFile = SettingsFile();
 
@@ -488,6 +488,8 @@ namespace PointlessWaymarksCmsData
                 throw new InvalidDataException($"Settings file {currentFile.FullName} doesn't exist?");
 
             UserSettings readResult;
+
+            progress?.Report($"Reading and deserializing {currentFile.FullName}");
 
             await using (var fs = new FileStream(currentFile.FullName, FileMode.Open, FileAccess.Read))
             {
@@ -497,6 +499,8 @@ namespace PointlessWaymarksCmsData
             var timeStampForMissingValues = $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss-fff}";
 
             var hasUpdates = false;
+
+            progress?.Report("Checking for missing values in settings...");
 
             if (string.IsNullOrWhiteSpace(readResult.LocalSiteRootDirectory))
             {
@@ -582,7 +586,11 @@ namespace PointlessWaymarksCmsData
                 hasUpdates = true;
             }
 
-            if (hasUpdates) await WriteSettings(readResult);
+            if (hasUpdates)
+            {
+                progress?.Report("Found missing values - writing defaults back to settings.");
+                await WriteSettings(readResult);
+            }
 
             return readResult;
         }
@@ -597,7 +605,7 @@ namespace PointlessWaymarksCmsData
             return new FileInfo(Path.Combine(StorageDirectory().FullName, SettingsFileName));
         }
 
-        public static async Task<UserSettings> SetupNewSite(string userFilename)
+        public static async Task<UserSettings> SetupNewSite(string userFilename, IProgress<string> progress)
         {
             if (!FolderFileUtility.IsValidFilename(userFilename))
                 throw new InvalidDataException("New site input must be a valid filename.");
@@ -606,6 +614,8 @@ namespace PointlessWaymarksCmsData
 
             var rootDirectory = new DirectoryInfo(Path.Combine(StorageDirectory().FullName, userFilename));
 
+            progress?.Report("Creating new settings - looking for home...");
+
             var fileNumber = 1;
 
             while (rootDirectory.Exists)
@@ -613,6 +623,7 @@ namespace PointlessWaymarksCmsData
                 rootDirectory =
                     new DirectoryInfo(Path.Combine(StorageDirectory().FullName, $"{userFilename}-{fileNumber}"));
                 rootDirectory.Refresh();
+                progress?.Report($"Trying {rootDirectory.FullName}...");
                 fileNumber++;
             }
 
@@ -621,11 +632,15 @@ namespace PointlessWaymarksCmsData
             var siteRoot = new DirectoryInfo(Path.Combine(rootDirectory.FullName, "GeneratedSite"));
             newSettings.LocalSiteRootDirectory = siteRoot.FullName;
 
+            progress?.Report($"Local Site Root set to {siteRoot.FullName}");
+
             newSettings.DatabaseFile =
                 Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsDatabase-{userFilename}.db");
 
             var mediaDirectory = new DirectoryInfo(Path.Combine(rootDirectory.FullName, "MediaArchive"));
             newSettings.LocalMasterMediaArchive = mediaDirectory.FullName;
+
+            progress?.Report("Adding fake default values...");
 
             newSettings.DefaultCreatedBy = "Pointless Waymarks CMS";
             newSettings.SiteName = userFilename;
@@ -638,7 +653,11 @@ namespace PointlessWaymarksCmsData
             SettingsFileName =
                 Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsSettings-{userFilename}.json");
 
+            progress?.Report("Writing Settings");
+
             await WriteSettings(newSettings);
+
+            progress?.Report("Setting up directory structure.");
 
             VerifyOrCreateAllFolders(newSettings);
 
