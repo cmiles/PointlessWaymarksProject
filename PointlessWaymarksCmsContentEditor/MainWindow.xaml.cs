@@ -80,7 +80,7 @@ namespace PointlessWaymarksCmsContentEditor
             WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
             InfoTitle =
-                $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes" : string.Empty)}";
+                $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
 
             ShowSettingsFileChooser = true;
 
