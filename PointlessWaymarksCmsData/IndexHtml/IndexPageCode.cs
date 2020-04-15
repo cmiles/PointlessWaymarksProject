@@ -40,11 +40,18 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
             if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid);
 
-            DateTime previousDate = IndexContent.Skip(_numberOfContentItemsToDisplay - 1).Max(x => x.CreatedOn);
+            if (!IndexContent.Any())
+            {
+                PreviousPosts = new List<IContentCommon>();
+            }
+            else
+            {
+                DateTime previousDate = IndexContent.Skip(_numberOfContentItemsToDisplay - 1).Max(x => x.CreatedOn);
 
-            var previousLater = RelatedPostContent.PreviousAndLaterContent(6, previousDate).Result;
+                var previousLater = RelatedPostContent.PreviousAndLaterContent(6, previousDate).Result;
 
-            PreviousPosts = previousLater.previousContent;
+                PreviousPosts = previousLater.previousContent;
+            }
         }
 
         public List<dynamic> IndexContent { get; }

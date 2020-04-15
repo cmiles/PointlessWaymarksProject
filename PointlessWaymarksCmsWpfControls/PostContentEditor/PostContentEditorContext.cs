@@ -211,7 +211,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors($"{BodyContent} {UpdateNotes}",
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
                     StatusContext.ProgressTracker())));
         }
 

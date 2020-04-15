@@ -347,7 +347,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             OpenSelectedFileCommand = new Command(() => StatusContext.RunBlockingTask(OpenSelectedFile));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors($"{BodyContent} {UpdateNotes}",
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
                     StatusContext.ProgressTracker())));
         }
 
