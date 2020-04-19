@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using AngleSharp.Html;
+using AngleSharp.Html.Parser;
 using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData.PhotoGalleryHtml
@@ -16,10 +19,33 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
 
         public DateTime PhotoPageDate { get; set; }
 
-        public string PhotoTags { get; set; }
+        public List<string> PhotoTags { get; set; }
 
         public string SiteName { get; set; }
         public string Summary { get; set; }
         public string Title { get; set; }
+
+        public void WriteLocalHtml()
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var parser = new HtmlParser();
+            var htmlDoc = parser.ParseDocument(TransformText());
+
+            var stringWriter = new StringWriter();
+            htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
+
+            var htmlString = stringWriter.ToString();
+
+            var htmlFileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteDailyPhotoGalleryFileInfo(PhotoPageDate, true);
+
+            if (htmlFileInfo.Exists)
+            {
+                htmlFileInfo.Delete();
+                htmlFileInfo.Refresh();
+            }
+
+            File.WriteAllText(htmlFileInfo.FullName, htmlString);
+        }
     }
 }

@@ -266,6 +266,23 @@ namespace PointlessWaymarksCmsData.CommonHtml
                     $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
         }
 
+        public static HtmlTag TagList(List<string> tags)
+        {
+            tags ??= new List<string>();
+
+            tags = tags.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
+
+            var tagsContainer = new DivTag().AddClass("tags-container");
+
+            if (!tags.Any()) return HtmlTag.Empty();
+
+            tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
+
+            foreach (var loopTag in tags) tagsContainer.Children.Add(InfoDivTag(loopTag, "tag-detail", "tag", loopTag));
+
+            return tagsContainer;
+        }
+
         public static HtmlTag TagList(ITag dbEntry)
         {
             var tagsContainer = new DivTag().AddClass("tags-container");
@@ -287,6 +304,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             var titleContainer = new HtmlTag("div").AddClass("title-container");
             titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(content.Title));
+            return titleContainer;
+        }
+
+        public static HtmlTag TitleDiv(string stringTitle)
+        {
+            var titleContainer = new HtmlTag("div").AddClass("title-container");
+            titleContainer.Children.Add(new HtmlTag("h1").AddClass("title-content").Text(stringTitle));
             return titleContainer;
         }
 

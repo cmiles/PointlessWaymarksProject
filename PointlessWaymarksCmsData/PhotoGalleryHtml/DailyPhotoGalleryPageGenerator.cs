@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +7,39 @@ using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData.PhotoGalleryHtml
 {
-    public static class DailyPhotosPageGenerator
+    public static class DailyPhotoPageGenerators
     {
-        public static async Task<string> DailyPhotosGallery(DateTime dateTimeForPictures)
+        public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(IProgress<string> progress)
+        {
+            var db = await Db.Context();
+
+            progress?.Report("Starting Daily Photo Pages Generation");
+
+            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync()).Select(x => x.Date).Distinct().OrderByDescending(x => x).ToList();
+
+            progress?.Report($"Found {allDates.Count} Dates with Photos");
+
+            var returnList = new List<DailyPhotosPage>();
+
+            var loopCounter = 1;
+            var loopGoal = allDates.Count;
+
+            foreach (var loopDates in allDates)
+            {
+                if (loopCounter % 10 == 0)
+                {
+                    progress?.Report($"Daily Photo Page - {loopDates:D} - {loopCounter} of {loopGoal}");
+                }
+                var toAdd = await DailyPhotoGallery(loopDates);
+                if (toAdd != null) returnList.Add(toAdd);
+
+                loopCounter++;
+            }
+
+            return returnList;
+        }
+
+        public static async Task<DailyPhotosPage> DailyPhotoGallery(DateTime dateTimeForPictures)
         {
             var db = await Db.Context();
 
@@ -19,7 +50,7 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
                 .Where(x => x.PhotoCreatedOn >= startsAfterOrOn && x.PhotoCreatedOn < endsBefore)
                 .OrderBy(x => x.PhotoCreatedOn).ToListAsync();
 
-            if (!datePhotos.Any()) return string.Empty;
+            if (!datePhotos.Any()) return null;
 
             var photographersList = datePhotos.Where(x => !string.IsNullOrWhiteSpace(x.PhotoCreatedBy))
                 .Select(x => x.PhotoCreatedBy).Distinct().ToList();
@@ -39,13 +70,13 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
                 CreatedBy = photographersAndCreatedByString,
                 PhotoPageDate = startsAfterOrOn,
                 SiteName = UserSettingsSingleton.CurrentSettings().SiteName,
-                PhotoTags = string.Join(",",
+                PhotoTags =
                     datePhotos.SelectMany(x => x.Tags.Split(",")).Where(x => !string.IsNullOrWhiteSpace(x))
-                        .Select(x => x.Trim()).Distinct().ToList()),
-                PageUrl = UserSettingsSingleton.CurrentSettings().DailyPhotosGalleryUrl(startsAfterOrOn)
+                        .Select(x => x.Trim()).Distinct().OrderBy(x => x).ToList(),
+                PageUrl = UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(startsAfterOrOn)
             };
 
-            return photoPage.TransformText();
+            return photoPage;
         }
     }
 }

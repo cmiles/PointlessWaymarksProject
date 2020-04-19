@@ -1,7 +1,6 @@
 ﻿## Todos
  - Photo Galleries:
     - Daily:
-       - Main Div List
        - Page Footer with Links to Previous/Next Page and perhaps to the Camera Roll
        - List of Links to all Content where photo is used (probably a single list for any photo in page)
     - Camera Roll
@@ -34,6 +33,9 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 ## Notes
+
+4/19/2020
+Basic Daily Photo pages are now generating.
 
 4/18/2020
 Start work on the Photo Galleries - starting with daily...

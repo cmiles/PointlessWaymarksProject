@@ -54,7 +54,7 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
             this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
             
             #line 15 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoTags.HtmlEncode()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(",", PhotoTags).HtmlEncode()));
             
             #line default
             #line hidden
@@ -171,13 +171,27 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
             this.Write("\r\n    ");
             
             #line 47 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(DailyPhotosPageParts.PhotoList(ImageList)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 48 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(PhotoTags)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 49 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 50 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

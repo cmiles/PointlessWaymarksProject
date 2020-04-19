@@ -20,6 +20,7 @@ using PointlessWaymarksCmsData.IndexHtml;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.LinkListHtml;
 using PointlessWaymarksCmsData.NoteHtml;
+using PointlessWaymarksCmsData.PhotoGalleryHtml;
 using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsData.PostHtml;
@@ -122,7 +123,6 @@ namespace PointlessWaymarksCmsContentEditor
             ExceptionEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(ExceptionEventsReport));
             DiagnosticEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(DiagnosticEventsReport));
             AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
-            VersionScriptCommand = new Command(() => StatusContext.RunBlockingTask(VersionScript));
 
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
 
@@ -551,6 +551,15 @@ namespace PointlessWaymarksCmsContentEditor
             reportWindow.Show();
         }
 
+        private async Task GenerateAllDailyPhotoGalleriesHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var allPages = await DailyPhotoPageGenerators.DailyPhotoGalleries(StatusContext.ProgressTracker());
+
+            allPages.ForEach(x => x.WriteLocalHtml());
+        }
+
         private async Task GenerateAllFileHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -592,7 +601,10 @@ namespace PointlessWaymarksCmsContentEditor
             await GenerateAllNoteHtml();
             await GenerateAllPostHtml();
             await GenerateAllListHtml();
+            await GenerateAllDailyPhotoGalleriesHtml();
             await GenerateIndex();
+
+            StatusContext.ToastSuccess($"All HTML Generation Finished");
         }
 
         private async Task GenerateAllHtmlAndCleanAndResizePictures()
@@ -626,7 +638,6 @@ namespace PointlessWaymarksCmsContentEditor
                 loopCount++;
             }
         }
-
 
         private async Task GenerateAllListHtml()
         {
@@ -884,40 +895,6 @@ namespace PointlessWaymarksCmsContentEditor
         {
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
                 await SettingsFileChooserOnSettingsFileUpdated(e));
-        }
-
-        private async Task VersionScript()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            db.FileContents.ToList()
-                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.HistoricFileContents.ToList().ForEach(x =>
-                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.HistoricImageContents.ToList().ForEach(x =>
-                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-
-            db.HistoricLinkStreams.ToList()
-                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.HistoricNoteContents.ToList().ForEach(x =>
-                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.HistoricPhotoContents.ToList().ForEach(x =>
-                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.HistoricPostContents.ToList().ForEach(x =>
-                x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.ImageContents.ToList()
-                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.LinkStreams.ToList()
-                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.NoteContents.ToList()
-                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.PhotoContents.ToList()
-                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            db.PostContents.ToList()
-                .ForEach(x => x.ContentVersion = x.LastUpdatedOn?.AddHours(7) ?? x.CreatedOn.AddHours(7));
-            await db.SaveChangesAsync(true);
         }
     }
 }

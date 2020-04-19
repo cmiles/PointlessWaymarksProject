@@ -55,6 +55,11 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/styles.css";
         }
 
+        public static string DailyPhotoGalleryUrl(this UserSettings settings, DateTime galleryDate)
+        {
+            return $"//{settings.SiteUrl}/Photos/Galleries/Daily/DailyPhotos-{galleryDate:yyyy-MM-dd}.html";
+        }
+
         public static string FaviconUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/favicon.ico";
@@ -154,6 +159,24 @@ namespace PointlessWaymarksCmsData
         {
             var directory = settings.LocalSiteRootDirectory;
             return new FileInfo($"{Path.Combine(directory, "AllContentRss")}.xml");
+        }
+
+        public static DirectoryInfo LocalSiteDailyPhotoGalleryDirectory(this UserSettings settings)
+        {
+            var photoDirectory =
+                new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos", "Galleries", "Daily"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
+        public static FileInfo LocalSiteDailyPhotoGalleryFileInfo(this UserSettings settings, DateTime galleryDate,
+            bool createDirectoryIfNotFound = true)
+        {
+            var directory = settings.LocalSiteDailyPhotoGalleryDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, $"DailyPhotos-{galleryDate:yyyy-MM-dd}")}.html");
         }
 
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
@@ -355,6 +378,17 @@ namespace PointlessWaymarksCmsData
             return photoDirectory;
         }
 
+        public static DirectoryInfo LocalSitePhotoGalleryDirectory(this UserSettings settings)
+        {
+            var photoDirectory =
+                new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos", "Galleries"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
         public static FileInfo LocalSitePhotoHtmlFile(this UserSettings settings, PhotoContent content)
         {
             var directory = settings.LocalSitePhotoContentDirectory(content, false);
@@ -425,11 +459,6 @@ namespace PointlessWaymarksCmsData
         public static string NoteListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Notes/NoteList.html";
-        }
-
-        public static string DailyPhotosGalleryUrl(this UserSettings settings, DateTime galleryDate)
-        {
-            return $"//{settings.SiteUrl}/Photos/Galleries/DailyPhotos-{galleryDate:yyyy-MM-dd}.html";
         }
 
         public static string NotePageUrl(this UserSettings settings, NoteContent content)
@@ -758,6 +787,7 @@ namespace PointlessWaymarksCmsData
         {
             settings.LocalSiteDirectory().CreateIfItDoesntExist();
             settings.LocalSitePhotoDirectory().CreateIfItDoesntExist();
+            settings.LocalSitePhotoGalleryDirectory().CreateIfItDoesntExist();
             settings.LocalSiteFileDirectory().CreateIfItDoesntExist();
             settings.LocalSiteImageDirectory().CreateIfItDoesntExist();
             settings.LocalSiteNoteDirectory().CreateIfItDoesntExist();
