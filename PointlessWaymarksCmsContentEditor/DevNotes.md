@@ -1,4 +1,11 @@
 ﻿## Todos
+ - Photo Galleries:
+    - Daily:
+       - Main Div List
+       - Page Footer with Links to Previous/Next Page and perhaps to the Camera Roll
+       - List of Links to all Content where photo is used (probably a single list for any photo in page)
+    - Camera Roll
+       - (Nothing Done...)
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -12,8 +19,6 @@
 ## Ideas
  - Look at deployment options - self contained? msix?
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
- - Photo Gallery - The current set of Content Types are proving in a few months of use to represent nicely what I want to store - but I am starting to wonder what the cost/benefit/opportunity might be to store photos beyond what is being used on the site and essentially have this as my photo site? Worried that cost may actually become an issue
- - 'Subsites' for years? When thinking about the photo gallery I started to wonder about the idea that you create in distinct units - so what if each 'year' of a site was essentially frozen in time, you reached the end of a 'unit' and you ended with a static website for the year that no longer 'needed' any updates to live for as long as you wanted - everything frozen... Maybe this idea is really best as buckets and subdomains and doesn't really relate to the app?
  - Top of the html page menu - or other 'nav' idea (maybe just a one level set of links that collapses on mobile? or...)
  - Top of the html page search box - maybe pass a query parameter to the all content list page?
  - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
@@ -29,6 +34,9 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 ## Notes
+
+4/18/2020
+Start work on the Photo Galleries - starting with daily...
 
 4/14/2020
 Improved the startup screen related code so that creating new sites happens much more nicely - I think the settings/settings file could be handled better in general but with this working I think more rework/refactoring waits.

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
@@ -32,6 +33,19 @@ namespace PointlessWaymarksCmsData
             }
 
             return matchList;
+        }
+
+        /// <summary>
+        /// Given a List of String "Joe", "Jorge" and "Jeff" joins to "Joe, Jorge and Jeff" - performs as expected with single items lists remaining
+        /// single items. https://stackoverflow.com/questions/17560201/join-liststring-together-with-commas-plus-and-for-last-element
+        /// </summary>
+        /// <param name="toJoin"></param>
+        /// <returns></returns>
+        public static string JoinListOfStringsToCommonUsageListWithAnd(this List<string> toJoin)
+        {
+            toJoin ??= new List<string>();
+
+            return toJoin.Count > 1 ? string.Join(", ", toJoin.Take(toJoin.Count - 1)) + " and " + toJoin.Last() : toJoin.FirstOrDefault();
         }
     }
 }

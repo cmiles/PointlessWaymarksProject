@@ -427,6 +427,11 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Notes/NoteList.html";
         }
 
+        public static string DailyPhotosGalleryUrl(this UserSettings settings, DateTime galleryDate)
+        {
+            return $"//{settings.SiteUrl}/Photos/Galleries/DailyPhotos-{galleryDate:yyyy-MM-dd}.html";
+        }
+
         public static string NotePageUrl(this UserSettings settings, NoteContent content)
         {
             return $"//{settings.SiteUrl}/Notes/{content.Folder}/{content.Slug}.html";

@@ -81,6 +81,11 @@
       <LastGenOutput>SingleNotePage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.NoteHtml</CustomToolNamespace>
     </None>
+    <None Update="PhotoGalleryHtml\DailyPhotosPage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>DailyPhotosPage.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.PhotoGalleryHtml</CustomToolNamespace>
+    </None>
     <None Update="PhotoHtml\SinglePhotoDiv.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SinglePhotoDiv.cs</LastGenOutput>
@@ -157,6 +162,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SingleNotePage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PhotoGalleryHtml\DailyPhotosPage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DailyPhotosPage.tt</DependentUpon>
     </Compile>
     <Compile Update="PhotoHtml\SinglePhotoDiv.cs">
       <DesignTime>True</DesignTime>
