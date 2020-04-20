@@ -170,14 +170,14 @@ namespace PointlessWaymarksCmsData.NoteHtml
             this.Write("\r\n        ");
             
             #line 44 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result));
+            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
             #line 45 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts)));
             
             #line default
             #line hidden

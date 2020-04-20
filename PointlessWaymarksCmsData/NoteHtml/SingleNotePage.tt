@@ -41,8 +41,8 @@
      <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
-        <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>
-        <#= RelatedPostContent.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
+        <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId).Result #>
+        <#= Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
     </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>

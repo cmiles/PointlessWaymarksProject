@@ -2,6 +2,7 @@
 using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData.NoteHtml
@@ -18,7 +19,7 @@ namespace PointlessWaymarksCmsData.NoteHtml
             PageUrl = settings.NotePageUrl(DbEntry);
             Title = DbEntry.Title;
 
-            var previousLater = RelatedPostContent.PreviousAndLaterContent(3, DbEntry.CreatedOn).Result;
+            var previousLater = BodyContentReferences.PreviousAndLaterContent(3, DbEntry.CreatedOn).Result;
             PreviousPosts = previousLater.previousContent;
             LaterPosts = previousLater.laterContent;
         }

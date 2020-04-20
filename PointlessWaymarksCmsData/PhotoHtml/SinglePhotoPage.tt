@@ -44,7 +44,7 @@
     <div class="information-section">
         <#= PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
         <#= Tags.TagList(DbEntry).ToString() #>
-        <#= RelatedPostContent.RelatedPostsTag(DbEntry.ContentId).Result #>
+        <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId).Result #>
         <#= Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
         <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
     </div>

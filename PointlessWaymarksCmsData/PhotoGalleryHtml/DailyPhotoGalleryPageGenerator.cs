@@ -15,25 +15,30 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
 
             progress?.Report("Starting Daily Photo Pages Generation");
 
-            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync()).Select(x => x.Date).Distinct().OrderByDescending(x => x).ToList();
+            var allDates = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).ToListAsync()).Select(x => x.Date)
+                .Distinct().OrderByDescending(x => x).ToList();
 
             progress?.Report($"Found {allDates.Count} Dates with Photos");
 
             var returnList = new List<DailyPhotosPage>();
 
-            var loopCounter = 1;
             var loopGoal = allDates.Count;
 
-            foreach (var loopDates in allDates)
+            for (var i = 0; i < allDates.Count; i++)
             {
-                if (loopCounter % 10 == 0)
-                {
-                    progress?.Report($"Daily Photo Page - {loopDates:D} - {loopCounter} of {loopGoal}");
-                }
-                var toAdd = await DailyPhotoGallery(loopDates);
-                if (toAdd != null) returnList.Add(toAdd);
+                var loopDate = allDates[i];
 
-                loopCounter++;
+                if (i % 10 == 0) progress?.Report($"Daily Photo Page - {loopDate:D} - {i} of {loopGoal}");
+                var toAdd = await DailyPhotoGallery(loopDate);
+
+                if (i > 0)
+                {
+                    toAdd.NextDailyPhotosPage = returnList[i - 1];
+
+                    returnList[i - 1].PreviousDailyPhotosPage = toAdd;
+                }
+
+                returnList.Add(toAdd);
             }
 
             return returnList;

@@ -14,6 +14,7 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
         public List<PictureSiteInformation> ImageList { get; set; }
 
         public PictureSiteInformation MainImage { get; set; }
+        public DailyPhotosPage NextDailyPhotosPage { get; set; }
 
         public string PageUrl { get; set; }
 
@@ -21,14 +22,14 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
 
         public List<string> PhotoTags { get; set; }
 
+        public DailyPhotosPage PreviousDailyPhotosPage { get; set; }
+
         public string SiteName { get; set; }
         public string Summary { get; set; }
         public string Title { get; set; }
 
         public void WriteLocalHtml()
         {
-            var settings = UserSettingsSingleton.CurrentSettings();
-
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());
 
@@ -37,7 +38,8 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
 
             var htmlString = stringWriter.ToString();
 
-            var htmlFileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteDailyPhotoGalleryFileInfo(PhotoPageDate, true);
+            var htmlFileInfo = UserSettingsSingleton.CurrentSettings()
+                .LocalSiteDailyPhotoGalleryFileInfo(PhotoPageDate);
 
             if (htmlFileInfo.Exists)
             {

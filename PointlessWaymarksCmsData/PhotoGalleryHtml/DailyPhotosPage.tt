@@ -5,6 +5,7 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarksCmsData.Pictures" #>
+<#@ import namespace="PointlessWaymarksCmsData.Models" #>
 
 <html lang="en">
 <head>
@@ -45,7 +46,12 @@
 <body>
     <#= Tags.TitleDiv(Title).ToString() #>
     <#= DailyPhotosPageParts.PhotoList(ImageList) #>
-    <#= Tags.TagList(PhotoTags) #>
+    <#= HorizontalRule.StandardRule() #>
+    <div class="information-section">
+        <#= Tags.TagList(PhotoTags).ToString() #>
+        <#= BodyContentReferences.RelatedContentTag(ImageList.Select(x => ((IContentId)x.Pictures.DbEntry).ContentId).ToList()).Result #>
+        <#= DailyPhotosPageParts.PreviousAndNextPostsDiv(this) #>
+    </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>
 </body>

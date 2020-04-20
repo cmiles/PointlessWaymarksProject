@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using HtmlTags;
 using Microsoft.EntityFrameworkCore;
-using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 
-namespace PointlessWaymarksCmsData
+namespace PointlessWaymarksCmsData.CommonHtml
 {
-    public static class RelatedPostContent
+    public static class BodyContentReferences
     {
         public static async Task<(List<IContentCommon> previousContent, List<IContentCommon> laterContent)>
             PreviousAndLaterContent(int numberOfPreviousAndLater, DateTime createdOn)
@@ -21,28 +20,17 @@ namespace PointlessWaymarksCmsData
             return (previousContent, laterContent);
         }
 
-        public static HtmlTag PreviousAndNextPostsDiv(List<IContentCommon> previousPosts,
-            List<IContentCommon> laterPosts)
+        public static async Task<List<IContentCommon>> RelatedContent(this PointlessWaymarksContext toQuery,
+            Guid toCheckFor)
         {
-            if (!laterPosts.Any() && !previousPosts.Any()) return HtmlTag.Empty();
+            var posts = await toQuery.PostContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
+                .Cast<IContentCommon>().ToListAsync();
+            var notes = await toQuery.NoteContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
+                .Cast<IContentCommon>().ToListAsync();
+            var files = await toQuery.FileContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
+                .Cast<IContentCommon>().ToListAsync();
 
-            var hasPreviousPosts = previousPosts.Any();
-            var hasLaterPosts = laterPosts.Any();
-            var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
-
-            var relatedPostsContainer = new DivTag().AddClass("post-related-posts-container");
-            relatedPostsContainer.Children.Add(new DivTag()
-                .Text($"Posts {(hasPreviousPosts ? "Before" : "")}" +
-                      $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")
-                .AddClass("post-related-posts-label-tag"));
-
-            foreach (var loopPosts in previousPosts)
-                relatedPostsContainer.Children.Add(RelatedContentDiv(loopPosts));
-
-            foreach (var loopPosts in laterPosts)
-                relatedPostsContainer.Children.Add(RelatedContentDiv(loopPosts));
-
-            return relatedPostsContainer;
+            return posts.Concat(notes).OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
         }
 
         public static HtmlTag RelatedContentDiv(IContentCommon post)
@@ -92,29 +80,41 @@ namespace PointlessWaymarksCmsData
             return relatedPostContainerDiv;
         }
 
-        public static async Task<List<IContentCommon>> RelatedPostsAndNotes(this PointlessWaymarksContext toQuery,
-            Guid toCheckFor)
-        {
-            var posts = await toQuery.PostContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
-                .Cast<IContentCommon>().ToListAsync();
-            var notes = await toQuery.NoteContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
-                .Cast<IContentCommon>().ToListAsync();
-
-            return posts.Concat(notes).ToList();
-        }
-
-        public static async Task<HtmlTag> RelatedPostsTag(Guid toCheckFor)
+        public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor)
         {
             var db = await Db.Context();
-            var posts = await db.RelatedPostsAndNotes(toCheckFor);
+            var related = await db.RelatedContent(toCheckFor);
 
-            if (posts == null || !posts.Any()) return HtmlTag.Empty();
+            if (related == null || !related.Any()) return HtmlTag.Empty();
 
             var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
 
             relatedPostsList.Children.Add(new DivTag().Text("Appears In:").AddClass("related-post-label-tag"));
 
-            foreach (var loopPost in posts) relatedPostsList.Children.Add(RelatedContentDiv(loopPost));
+            foreach (var loopPost in related) relatedPostsList.Children.Add(RelatedContentDiv(loopPost));
+
+            return relatedPostsList;
+        }
+
+        public static async Task<HtmlTag> RelatedContentTag(List<Guid> toCheckFor)
+        {
+            toCheckFor ??= new List<Guid>();
+
+            var db = await Db.Context();
+
+            var allRelated = new List<IContentCommon>();
+
+            foreach (var loopGuid in toCheckFor) allRelated.AddRange(await db.RelatedContent(loopGuid));
+
+            if (!allRelated.Any()) return HtmlTag.Empty();
+
+            allRelated = allRelated.Distinct().OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
+
+            var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
+
+            relatedPostsList.Children.Add(new DivTag().Text("Appears In:").AddClass("related-post-label-tag"));
+
+            foreach (var loopPost in allRelated) relatedPostsList.Children.Add(RelatedContentDiv(loopPost));
 
             return relatedPostsList;
         }

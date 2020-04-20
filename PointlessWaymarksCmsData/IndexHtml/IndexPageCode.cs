@@ -48,7 +48,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
             {
                 DateTime previousDate = IndexContent.Skip(_numberOfContentItemsToDisplay - 1).Max(x => x.CreatedOn);
 
-                var previousLater = RelatedPostContent.PreviousAndLaterContent(6, previousDate).Result;
+                var previousLater = BodyContentReferences.PreviousAndLaterContent(6, previousDate).Result;
 
                 PreviousPosts = previousLater.previousContent;
             }

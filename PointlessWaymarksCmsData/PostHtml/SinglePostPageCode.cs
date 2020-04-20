@@ -2,6 +2,7 @@
 using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 
@@ -22,7 +23,7 @@ namespace PointlessWaymarksCmsData.PostHtml
 
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
 
-            var previousLater = RelatedPostContent.PreviousAndLaterContent(3, DbEntry.CreatedOn).Result;
+            var previousLater = BodyContentReferences.PreviousAndLaterContent(3, DbEntry.CreatedOn).Result;
             PreviousPosts = previousLater.previousContent;
             LaterPosts = previousLater.laterContent;
         }

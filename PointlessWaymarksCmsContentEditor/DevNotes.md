@@ -1,8 +1,9 @@
 ﻿## Todos
  - Photo Galleries:
     - Daily:
-       - Page Footer with Links to Previous/Next Page and perhaps to the Camera Roll
-       - List of Links to all Content where photo is used (probably a single list for any photo in page)
+       - Link to Camera Roll
+       - Related Content with photos should include the daily photos
+       - Consider layout - limiting height could make for a more compact (?appealing?) layout, but portrait oriented pictures will end up quite small - maybe better layout worse presentation if the goal is photo presentation... Sorting by sizes would obscure order...
     - Camera Roll
        - (Nothing Done...)
  - Clean up the main window - split out context - consider creating a control?
@@ -14,6 +15,7 @@
  - Basic Style for the Html Table output - maybe inline Pure or another more minimal framework?
  - Give all labels Targets
  - Figure out a system to allow StatusContext to help out postioning a new window vs the launch window
+ - Tag Content Pages?
 
 ## Ideas
  - Look at deployment options - self contained? msix?
@@ -33,6 +35,9 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 ## Notes
+
+4/20/2020
+Added related content and previous/next to the Daily Photos page and did a little refactoring.
 
 4/19/2020
 Basic Daily Photo pages are now generating.

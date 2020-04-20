@@ -259,6 +259,39 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return titleContainer;
         }
 
+        public static HtmlTag PreviousAndNextPostsDiv(List<IContentCommon> previousPosts,
+            List<IContentCommon> laterPosts)
+        {
+            previousPosts ??= new List<IContentCommon>();
+            laterPosts ??= new List<IContentCommon>();
+
+            if (!laterPosts.Any() && !previousPosts.Any()) return HtmlTag.Empty();
+
+            var hasPreviousPosts = previousPosts.Any();
+            var hasLaterPosts = laterPosts.Any();
+            var hasBothEarlierAndLaterPosts = hasPreviousPosts && hasLaterPosts;
+
+            var relatedPostsContainer = new DivTag().AddClass("post-related-posts-container");
+            relatedPostsContainer.Children.Add(new DivTag()
+                .Text($"Posts {(hasPreviousPosts ? "Before" : "")}" +
+                      $"{(hasBothEarlierAndLaterPosts ? "/" : "")}{(hasLaterPosts ? "After" : "")}:")
+                .AddClass("post-related-posts-label-tag"));
+
+            if (hasPreviousPosts)
+            {
+                foreach (var loopPosts in previousPosts)
+                    relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
+            }
+
+            if (hasLaterPosts)
+            {
+                foreach (var loopPosts in laterPosts)
+                    relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
+            }
+
+            return relatedPostsContainer;
+        }
+
         public static HtmlTag SiteMainRss()
         {
             return new HtmlTag("Link").Attr("rel", "alternate").Attr("type", "application/rss+xml")
