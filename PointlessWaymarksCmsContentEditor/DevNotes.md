@@ -2,8 +2,6 @@
  - Photo Galleries:
     - Daily:
        - Link to Camera Roll
-       - Related Content with photos should include the daily photos
-       - Consider layout - limiting height could make for a more compact (?appealing?) layout, but portrait oriented pictures will end up quite small - maybe better layout worse presentation if the goal is photo presentation... Sorting by sizes would obscure order...
     - Camera Roll
        - (Nothing Done...)
  - Clean up the main window - split out context - consider creating a control?
@@ -18,6 +16,7 @@
  - Tag Content Pages?
 
 ## Ideas
+ - Auto-validate all html output?
  - Look at deployment options - self contained? msix?
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
  - Top of the html page menu - or other 'nav' idea (maybe just a one level set of links that collapses on mobile? or...)
@@ -35,6 +34,17 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 ## Notes
+
+4/21/2020
+In running validation on a page I found 2 issues:
+ - Missing Doctype tag - fixed - for this content the browsers didn't care as far as I can tell but disappointed I missed this
+ - Missing Sizes tag in the srcset images - the first images worked on for the site were all 'full width' (actually constrained but in the spirit of) and I had left out sizes - from reading this seems to be an 'error' but in past experimenting when you were just going to default to 100vw with nothing else in size it seemed that the browsers did the same thing with 100vw and nothing... But now there are the small thumbs and the photo gallery sizes in play - added sizes information. As in the past it seems like one challenge is that while sizes and srcset are incredibly powerful and don't require any javascript it also makes the images resistant to radical on the fly restyling - worth it for now anyway!
+
+These two issues - but especially doctype - emphasize what a value a testing setup would be - perhaps this is possible now that switching setting files is possible? But the challenge is finding something that could be maintained and kept up to date - maybe just auto validation of all output?
+
+Alpha sorted Tags in - I believe - all spots.
+
+Daily Photos links now appearing as related content - Also reworked what appears here with the idea that if you bracket code linked content that it will also be included in the bottom related links which I think emphasizes the available content/resources in a nice way. This required additional bracket and other code to get this working especially in combination with subbing daily photo content for individual photo content.
 
 4/20/2020
 Added related content and previous/next to the Daily Photos page and did a little refactoring.

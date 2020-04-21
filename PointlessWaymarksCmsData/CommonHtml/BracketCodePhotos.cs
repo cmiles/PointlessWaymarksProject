@@ -2,12 +2,48 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class BracketCodePhotos
     {
+        public static List<PhotoContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
+        {
+            if (string.IsNullOrWhiteSpace(toProcess)) return new List<PhotoContent>();
+
+            progress?.Report("Searching for Photo Codes...");
+
+            var resultList = new List<Guid>();
+            var regexObj = new Regex(@"{{photo (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
+            var matchResult = regexObj.Match(toProcess);
+            while (matchResult.Success)
+            {
+                resultList.Add(Guid.Parse(matchResult.Groups["siteGuid"].Value));
+                matchResult = matchResult.NextMatch();
+            }
+
+            resultList = resultList.Distinct().ToList();
+
+            var returnList = new List<PhotoContent>();
+
+            foreach (var loopGuid in resultList)
+            {
+                var context = Db.Context().Result;
+
+                var dbContent = context.PhotoContents.FirstOrDefault(x => x.ContentId == loopGuid);
+                if (dbContent == null) continue;
+
+                progress?.Report($"Photo Code - Adding DbContent For {dbContent.Title}");
+
+                returnList.Add(dbContent);
+            }
+
+            return returnList;
+        }
+
+
         /// <summary>
         ///     Processes {{photo guid;human_identifier}} with a specified function - best use may be for easily building
         ///     library code.
@@ -71,7 +107,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
         public static string PhotoCodeProcessToFigureWithLink(string toProcess, IProgress<string> progress)
         {
             return PhotoCodeProcess(toProcess,
-                page => page.PictureInformation.PictureFigureWithLinkToPicturePageTag().ToString(), progress);
+                page => page.PictureInformation.PictureFigureWithLinkToPicturePageTag("100vw").ToString(), progress);
         }
     }
 }

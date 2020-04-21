@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsData.PhotoHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
+    #line 1 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class SinglePhotoDiv : SinglePhotoDivBase
     {
@@ -29,17 +29,16 @@ namespace PointlessWaymarksCmsData.PhotoHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\n");
             this.Write("<div class=\"content-container\">\r\n    ");
             
-            #line 7 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureTag()));
+            #line 8 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureTag("100vw")));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 8 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
+            #line 9 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PhotoDetails.PhotoDetailsDiv(DbEntry).ToString()));
             
             #line default

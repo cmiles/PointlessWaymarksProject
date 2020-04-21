@@ -5,21 +5,13 @@ using System.Threading.Tasks;
 using HtmlTags;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.PhotoGalleryHtml;
 using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class BodyContentReferences
     {
-        public static async Task<(List<IContentCommon> previousContent, List<IContentCommon> laterContent)>
-            PreviousAndLaterContent(int numberOfPreviousAndLater, DateTime createdOn)
-        {
-            var previousContent = Db.MainFeedCommonContentBefore(createdOn, numberOfPreviousAndLater).Result;
-            var laterContent = Db.MainFeedCommonContentAfter(createdOn, numberOfPreviousAndLater).Result;
-
-            return (previousContent, laterContent);
-        }
-
         public static async Task<List<IContentCommon>> RelatedContent(this PointlessWaymarksContext toQuery,
             Guid toCheckFor)
         {
@@ -80,6 +72,58 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return relatedPostContainerDiv;
         }
 
+        public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor, string bodyContentToCheckIn,
+            IProgress<string> progress = null)
+        {
+            var contentCommonList = new List<IContentCommon>();
+
+            var db = await Db.Context();
+
+            contentCommonList.AddRange(await RelatedContent(db, toCheckFor));
+            contentCommonList.AddRange(BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+
+            var transformedList = new List<(DateTime sortDateTime, HtmlTag tagContent)>();
+
+            if (contentCommonList.Any())
+            {
+                contentCommonList = contentCommonList.GroupBy(x => x.ContentId).Select(x => x.First()).ToList();
+
+                foreach (var loopContent in contentCommonList)
+                {
+                    var toAdd = RelatedContentDiv(loopContent);
+                    if (toAdd != null && !toAdd.IsEmpty())
+                        transformedList.Add((loopContent.LastUpdatedOn ?? loopContent.CreatedOn, toAdd));
+                }
+            }
+
+            var photoContent = BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress);
+
+            if (photoContent.Any())
+            {
+                var dates = photoContent.Select(x => x.PhotoCreatedOn.Date).Distinct().ToList();
+
+                foreach (var loopDates in dates)
+                {
+                    var toAdd = await DailyPhotoPageGenerators.DailyPhotoGallery(loopDates);
+                    if (toAdd != null)
+                        transformedList.Add((loopDates, DailyPhotosPageParts.DailyPhotosPageRelatedContentDiv(toAdd)));
+                }
+            }
+
+            var relatedTags = transformedList.OrderByDescending(x => x.sortDateTime).Select(x => x.tagContent).ToList();
+
+            var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
+
+            relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClass("related-post-label-tag"));
+
+            foreach (var loopPost in relatedTags) relatedPostsList.Children.Add(loopPost);
+
+            return relatedPostsList;
+        }
+
         public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor)
         {
             var db = await Db.Context();
@@ -89,7 +133,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
 
-            relatedPostsList.Children.Add(new DivTag().Text("Appears In:").AddClass("related-post-label-tag"));
+            relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClass("related-post-label-tag"));
 
             foreach (var loopPost in related) relatedPostsList.Children.Add(RelatedContentDiv(loopPost));
 
@@ -112,7 +156,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
 
-            relatedPostsList.Children.Add(new DivTag().Text("Appears In:").AddClass("related-post-label-tag"));
+            relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClass("related-post-label-tag"));
 
             foreach (var loopPost in allRelated) relatedPostsList.Children.Add(RelatedContentDiv(loopPost));
 

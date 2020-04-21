@@ -2,7 +2,7 @@
 <#@ assembly name="System.Core" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarksCmsData.Pictures" #>
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -40,7 +40,7 @@
 </head>
 
 <body class="single-photo-body">
-    <#= PictureInformation.PictureFigureTag() #>
+    <#= PictureInformation.PictureFigureTag("100vw") #>
     <div class="information-section">
         <#= PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
         <#= Tags.TagList(DbEntry).ToString() #>

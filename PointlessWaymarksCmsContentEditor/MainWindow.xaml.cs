@@ -604,7 +604,7 @@ namespace PointlessWaymarksCmsContentEditor
             await GenerateAllDailyPhotoGalleriesHtml();
             await GenerateIndex();
 
-            StatusContext.ToastSuccess($"All HTML Generation Finished");
+            StatusContext.ToastSuccess("All HTML Generation Finished");
         }
 
         private async Task GenerateAllHtmlAndCleanAndResizePictures()

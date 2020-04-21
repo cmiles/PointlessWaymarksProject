@@ -26,7 +26,8 @@ namespace PointlessWaymarksCmsData.FileHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title>");
+            this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title" +
+                    ">");
             
             #line 8 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\FileHtml\SingleFilePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title.HtmlEncode()));

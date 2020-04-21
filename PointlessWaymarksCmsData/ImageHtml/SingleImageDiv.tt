@@ -6,6 +6,6 @@
 <#@ import namespace="PointlessWaymarksCmsData.ImageHtml" #>
 
 <div class="content-container">
-    <#= PictureInformation.PictureFigureTag() #>
+    <#= PictureInformation.PictureFigureTag("100vw") #>
     <#= ImageParts.ImageSourceNotesDivTag(DbEntry) #>
 </div>

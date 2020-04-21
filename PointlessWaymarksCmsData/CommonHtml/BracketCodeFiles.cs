@@ -3,11 +3,74 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using HtmlTags;
+using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
-    public static class BracketCodeFileLink
+    public static class BracketCodeFiles
     {
+        public static List<FileContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
+        {
+            if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
+
+            var guidList = new List<Guid>();
+
+            var withTextDownloadMatch =
+                new Regex(@"{{filedownloadlink (?<siteGuid>[\dA-Za-z-]*);\s*text (?<displayText>[^};]*);[^}]*}}",
+                    RegexOptions.Singleline);
+            var withTextDownloadMatchResult = withTextDownloadMatch.Match(toProcess);
+            while (withTextDownloadMatchResult.Success)
+            {
+                guidList.Add(Guid.Parse(withTextDownloadMatchResult.Groups["siteGuid"].Value));
+                withTextDownloadMatchResult = withTextDownloadMatchResult.NextMatch();
+            }
+
+            var downloadMatch = new Regex(@"{{filedownloadlink (?<siteGuid>[\dA-Za-z-]*);[^}]*}}",
+                RegexOptions.Singleline);
+            var downloadMatchResult = downloadMatch.Match(toProcess);
+            while (downloadMatchResult.Success)
+            {
+                guidList.Add(Guid.Parse(downloadMatchResult.Groups["siteGuid"].Value));
+                downloadMatchResult = downloadMatchResult.NextMatch();
+            }
+
+            var withTextLinkMatch =
+                new Regex(@"{{filelink (?<siteGuid>[\dA-Za-z-]*);\s*text (?<displayText>[^};]*);[^}]*}}",
+                    RegexOptions.Singleline);
+            var withLinkTextMatchResult = withTextLinkMatch.Match(toProcess);
+            while (withLinkTextMatchResult.Success)
+            {
+                guidList.Add(Guid.Parse(withLinkTextMatchResult.Groups["siteGuid"].Value));
+                withLinkTextMatchResult = withLinkTextMatchResult.NextMatch();
+            }
+
+            var linkMatch = new Regex(@"{{filelink (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
+            var linkMatchResult = linkMatch.Match(toProcess);
+            while (linkMatchResult.Success)
+            {
+                guidList.Add(Guid.Parse(linkMatchResult.Groups["siteGuid"].Value));
+                linkMatchResult = linkMatchResult.NextMatch();
+            }
+
+            guidList = guidList.Distinct().ToList();
+
+            var resultList = new List<FileContent>();
+
+            var context = Db.Context().Result;
+
+            foreach (var loopGuid in guidList)
+            {
+                var dbContent = context.FileContents.FirstOrDefault(x => x.ContentId == loopGuid);
+                if (dbContent == null) continue;
+
+                progress?.Report($"File Code - Adding DbContent For {dbContent.Title}");
+
+                resultList.Add(dbContent);
+            }
+
+            return resultList;
+        }
+
         /// <summary>
         ///     Processes {{filedownloadlink guid;human_identifier}} or {{filedownloadlink guid;text toDisplay;(optional
         ///     human_identifier}} to

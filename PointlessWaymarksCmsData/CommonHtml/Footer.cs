@@ -17,19 +17,19 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var contentListDiv = new DivTag().AddClass("footer-content-lists-container");
             contentListDiv.Children.Add(new DivTag().AddClass("footer-content-list").Text("List/Search:"));
             contentListDiv.Children.Add(
-                new LinkTag("All Content", @$"//{settings.AllContentListUrl()}").AddClass("footer-content-list"));
+                new LinkTag("All Content", @$"{settings.AllContentListUrl()}").AddClass("footer-content-list"));
             contentListDiv.Children.Add(
-                new LinkTag("Posts", @$"//{settings.PostsListUrl()}").AddClass("footer-content-list"));
+                new LinkTag("Posts", @$"{settings.PostsListUrl()}").AddClass("footer-content-list"));
             contentListDiv.Children.Add(
-                new LinkTag("Photos", @$"//{settings.PhotoListUrl()}").AddClass("footer-content-list"));
+                new LinkTag("Photos", @$"{settings.PhotoListUrl()}").AddClass("footer-content-list"));
             contentListDiv.Children.Add(
-                new LinkTag("Images", @$"//{settings.ImageListUrl()}").AddClass("footer-content-list"));
+                new LinkTag("Images", @$"{settings.ImageListUrl()}").AddClass("footer-content-list"));
             contentListDiv.Children.Add(
-                new LinkTag("Files", @$"//{settings.FileListUrl()}").AddClass("footer-content-list"));
+                new LinkTag("Files", @$"{settings.FileListUrl()}").AddClass("footer-content-list"));
             contentListDiv.Children.Add(
-                new LinkTag("Notes", @$"//{settings.NoteListUrl()}").AddClass("footer-content-list"));
+                new LinkTag("Notes", @$"{settings.NoteListUrl()}").AddClass("footer-content-list"));
             contentListDiv.Children.Add(
-                new LinkTag("Links", @$"//{settings.LinkListUrl()}").AddClass("footer-content-list"));
+                new LinkTag("Links", @$"{settings.LinkListUrl()}").AddClass("footer-content-list"));
 
             footerDiv.Children.Add(contentListDiv);
 

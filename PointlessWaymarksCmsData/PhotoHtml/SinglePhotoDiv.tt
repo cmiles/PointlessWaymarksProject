@@ -5,6 +5,6 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
 <div class="content-container">
-    <#= PictureInformation.PictureFigureTag() #>
+    <#= PictureInformation.PictureFigureTag("100vw") #>
     <#= PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
 </div>

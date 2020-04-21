@@ -1,6 +1,7 @@
 ﻿<#@ template language="C#" debug="true"#>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -43,7 +44,7 @@
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
-        <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId).Result #>
+        <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
         <#= Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
         <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
     </div>

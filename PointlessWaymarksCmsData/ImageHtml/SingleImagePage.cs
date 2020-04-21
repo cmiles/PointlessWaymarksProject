@@ -28,7 +28,8 @@ namespace PointlessWaymarksCmsData.ImageHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title>");
+            this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title" +
+                    ">");
             
             #line 10 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title.HtmlEncode()));
@@ -161,7 +162,7 @@ namespace PointlessWaymarksCmsData.ImageHtml
             this.Write("\r\n\r\n</head>\r\n\r\n<body class=\"single-photo-body\">\r\n    ");
             
             #line 44 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureTag()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureTag("100vw")));
             
             #line default
             #line hidden

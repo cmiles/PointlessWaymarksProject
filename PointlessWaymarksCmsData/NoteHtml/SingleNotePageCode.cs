@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsData.NoteHtml
             PageUrl = settings.NotePageUrl(DbEntry);
             Title = DbEntry.Title;
 
-            var previousLater = BodyContentReferences.PreviousAndLaterContent(3, DbEntry.CreatedOn).Result;
+            var previousLater = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
             PreviousPosts = previousLater.previousContent;
             LaterPosts = previousLater.laterContent;
         }

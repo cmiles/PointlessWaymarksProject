@@ -164,6 +164,5 @@ namespace PointlessWaymarksCmsData.Pictures
                 ? ProcessPhotoDirectory(photoOrImageContentId)
                 : ProcessImageDirectory(photoOrImageContentId);
         }
-
     }
 }

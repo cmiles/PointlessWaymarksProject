@@ -23,7 +23,7 @@ namespace PointlessWaymarksCmsData.PostHtml
 
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
 
-            var previousLater = BodyContentReferences.PreviousAndLaterContent(3, DbEntry.CreatedOn).Result;
+            var previousLater = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
             PreviousPosts = previousLater.previousContent;
             LaterPosts = previousLater.laterContent;
         }

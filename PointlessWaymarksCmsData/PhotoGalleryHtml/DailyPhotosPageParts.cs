@@ -26,8 +26,7 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
             var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("related-post-text-content-title-container");
 
             var relatedPostMainTextTitleLink =
-                new LinkTag(((IContentCommon) photoPage.MainImage.Pictures.DbEntry).Title, photoPage.PageUrl)
-                    .AddClass("related-post-text-content-title-link");
+                new LinkTag(photoPage.Title, photoPage.PageUrl).AddClass("related-post-text-content-title-link");
 
             relatedPostMainTextTitleTextDiv.Children.Add(relatedPostMainTextTitleLink);
 
@@ -51,7 +50,9 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
             foreach (var loopPhotos in photos)
             {
                 var photoContainer = new DivTag().AddClass("daily-photo-gallery-photo-container");
-                photoContainer.Children.Add(loopPhotos.PictureFigureWithLinkToPicturePageTag());
+                photoContainer.Children.Add(
+                    loopPhotos.PictureFigureWithLinkToPicturePageTag(
+                        "(min-width: 1200px) 33vw, (min-width: 600px) 50vw, 100vw"));
 
                 containerDiv.Children.Add(photoContainer);
             }

@@ -116,6 +116,15 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return dbEntry.LastUpdatedOn ?? dbEntry.CreatedOn;
         }
 
+        public static (List<IContentCommon> previousContent, List<IContentCommon> laterContent)
+            MainFeedPreviousAndLaterContent(int numberOfPreviousAndLater, DateTime createdOn)
+        {
+            var previousContent = Db.MainFeedCommonContentBefore(createdOn, numberOfPreviousAndLater).Result;
+            var laterContent = Db.MainFeedCommonContentAfter(createdOn, numberOfPreviousAndLater).Result;
+
+            return (previousContent, laterContent);
+        }
+
         public static string OpenGraphImageMetaTags(PictureSiteInformation mainImage)
         {
             if (mainImage?.Pictures == null) return string.Empty;
@@ -175,13 +184,16 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return figCaptionTag;
         }
 
-        public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo)
+        public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes)
         {
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("srcset", pictureDirectoryInfo.SrcSetString())
                 .Attr("src", pictureDirectoryInfo.DisplayPicture.SiteUrl)
                 .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
                 .Attr("width", pictureDirectoryInfo.DisplayPicture.Width).Attr("loading", "lazy");
+
+            if (!string.IsNullOrWhiteSpace(sizes)) imageTag.Attr("sizes", sizes);
+            else imageTag.Attr("sizes", "100vw");
 
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
@@ -209,6 +221,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var imageTag = new HtmlTag("img").AddClass("thumb-photo").Attr("srcset", pictureAsset.SrcSetString())
                 .Attr("src", pictureAsset.SmallPicture.SiteUrl).Attr("height", pictureAsset.SmallPicture.Height)
                 .Attr("width", pictureAsset.SmallPicture.Width).Attr("loading", "lazy");
+
+            var smallestGreaterThan100 = pictureAsset.SrcsetImages.Where(x => x.Width > 100).OrderBy(x => x.Width)
+                .FirstOrDefault();
+
+            imageTag.Attr("sizes", smallestGreaterThan100 == null ? "100px" : $"{smallestGreaterThan100.Width}px");
 
             if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureAsset.DisplayPicture.AltText);
@@ -278,16 +295,12 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 .AddClass("post-related-posts-label-tag"));
 
             if (hasPreviousPosts)
-            {
                 foreach (var loopPosts in previousPosts)
                     relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
-            }
 
             if (hasLaterPosts)
-            {
                 foreach (var loopPosts in laterPosts)
                     relatedPostsContainer.Children.Add(BodyContentReferences.RelatedContentDiv(loopPosts));
-            }
 
             return relatedPostsContainer;
         }
@@ -324,7 +337,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
 
-            var tags = dbEntry.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
+            var tags = dbEntry.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
+                .Distinct().OrderBy(x => x).ToList();
 
             if (!tags.Any()) return HtmlTag.Empty();
 
