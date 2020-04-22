@@ -435,7 +435,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             var allItems = await db.ImageContents.ToListAsync();
 
-            var loopCount = 0;
+            var loopCount = 1;
             var totalCount = allItems.Count;
 
             StatusContext.Progress($"Found {totalCount} Images to Clean and Resize");
@@ -465,7 +465,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             var allItems = await db.PhotoContents.ToListAsync();
 
-            var loopCount = 0;
+            var loopCount = 1;
             var totalCount = allItems.Count;
 
             StatusContext.Progress($"Found {totalCount} Photos to Clean and Resize");
@@ -560,6 +560,15 @@ namespace PointlessWaymarksCmsContentEditor
             allPages.ForEach(x => x.WriteLocalHtml());
         }
 
+        private async Task GenerateCameraRollHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var cameraRollPage = await CameraRollGalleryPageGenerator.CameraRoll(StatusContext.ProgressTracker());
+
+            cameraRollPage.WriteLocalHtml();
+        }
+
         private async Task GenerateAllFileHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -568,7 +577,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             var allItems = await db.FileContents.ToListAsync();
 
-            var loopCount = 0;
+            var loopCount = 1;
             var totalCount = allItems.Count;
 
             StatusContext.Progress($"Found {totalCount} Files to Generate");
@@ -602,6 +611,7 @@ namespace PointlessWaymarksCmsContentEditor
             await GenerateAllPostHtml();
             await GenerateAllListHtml();
             await GenerateAllDailyPhotoGalleriesHtml();
+            await GenerateCameraRollHtml();
             await GenerateIndex();
 
             StatusContext.ToastSuccess("All HTML Generation Finished");
@@ -622,7 +632,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             var allItems = await db.ImageContents.ToListAsync();
 
-            var loopCount = 0;
+            var loopCount = 1;
             var totalCount = allItems.Count;
 
             StatusContext.Progress($"Found {totalCount} Images to Generate");
@@ -663,7 +673,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             var allItems = await db.NoteContents.ToListAsync();
 
-            var loopCount = 0;
+            var loopCount = 1;
             var totalCount = allItems.Count;
 
             StatusContext.Progress($"Found {totalCount} Posts to Generate");
@@ -689,7 +699,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             var allItems = await db.PhotoContents.ToListAsync();
 
-            var loopCount = 0;
+            var loopCount = 1;
             var totalCount = allItems.Count;
 
             StatusContext.Progress($"Found {totalCount} Photos to Generate");
@@ -714,7 +724,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             var allItems = await db.PostContents.ToListAsync();
 
-            var loopCount = 0;
+            var loopCount = 1;
             var totalCount = allItems.Count;
 
             StatusContext.Progress($"Found {totalCount} Posts to Generate");

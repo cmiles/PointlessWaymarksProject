@@ -60,6 +60,11 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Photos/Galleries/Daily/DailyPhotos-{galleryDate:yyyy-MM-dd}.html";
         }
 
+        public static string CameraRollPhotoGalleryUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Photos/Galleries/CameraRoll.html";
+        }
+
         public static string FaviconUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/favicon.ico";
@@ -177,6 +182,13 @@ namespace PointlessWaymarksCmsData
         {
             var directory = settings.LocalSiteDailyPhotoGalleryDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, $"DailyPhotos-{galleryDate:yyyy-MM-dd}")}.html");
+        }
+
+        public static FileInfo LocalSiteCameraRollPhotoGalleryFileInfo(this UserSettings settings, 
+            bool createDirectoryIfNotFound = true)
+        {
+            var directory = settings.LocalSitePhotoGalleryDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "CameraRoll")}.html");
         }
 
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)

@@ -3,7 +3,8 @@
     - Daily:
        - Link to Camera Roll
     - Camera Roll
-       - (Nothing Done...)
+       - Should search be implemented?
+       - Should desctiptions be included?
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -34,6 +35,15 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 ## Notes
+
+4/22/2020
+First version of the Camera Roll generation.
+
+Fix a related content miss where photo pages weren't considering 'themselves' when getting daily photo content.
+
+Move newer related content to all pages.
+
+Fix typos in Main Window generation progress loops.
 
 4/21/2020
 In running validation on a page I found 2 issues:

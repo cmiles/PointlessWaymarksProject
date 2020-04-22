@@ -101,6 +101,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var photoContent = BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress);
 
+            //If the object itself is a photo add it to the list
+            photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync( x => x.ContentId == toCheckFor));
+
             if (photoContent.Any())
             {
                 var dates = photoContent.Select(x => x.PhotoCreatedOn.Date).Distinct().ToList();
