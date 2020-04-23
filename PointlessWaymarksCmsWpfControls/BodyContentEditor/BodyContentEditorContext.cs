@@ -23,37 +23,19 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         private string _bodyContentHtmlOutput;
         private IBodyContent _dbEntry;
         private Command _refreshPreviewCommand;
+        private string _selectedBodyText;
         private StatusControlContext _statusContext;
         private string _userBodyContent = string.Empty;
-        private string _selectedBodyText;
 
         public BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             BodyContentFormat = new ContentFormatChooserContext(StatusContext);
 
-            RemoveLineBreaksFromSelectedCommand = new Command(() => StatusContext.RunBlockingAction(RemoveLineBreaksFromSelected));
-            
+            RemoveLineBreaksFromSelectedCommand =
+                new Command(() => StatusContext.RunBlockingAction(RemoveLineBreaksFromSelected));
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
-        }
-
-        public Command RemoveLineBreaksFromSelectedCommand { get; set; }
-
-        private void RemoveLineBreaksFromSelected()
-        {
-            if (string.IsNullOrWhiteSpace(SelectedBodyText)) return;
-            SelectedBodyText = Regex.Replace(SelectedBodyText, @"\r\n?|\n", " ");
-        }
-
-        public string SelectedBodyText
-        {
-            get => _selectedBodyText;
-            set
-            {
-                if (value == _selectedBodyText) return;
-                _selectedBodyText = value;
-                OnPropertyChanged();
-            }
         }
 
         public string BodyContent
@@ -113,6 +95,19 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
         }
 
+        public Command RemoveLineBreaksFromSelectedCommand { get; set; }
+
+        public string SelectedBodyText
+        {
+            get => _selectedBodyText;
+            set
+            {
+                if (value == _selectedBodyText) return;
+                _selectedBodyText = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -123,6 +118,8 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task LoadData(IBodyContent toLoad)
         {
@@ -152,6 +149,12 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void RemoveLineBreaksFromSelected()
+        {
+            if (string.IsNullOrWhiteSpace(SelectedBodyText)) return;
+            SelectedBodyText = Regex.Replace(SelectedBodyText, @"\r\n?|\n", " ");
         }
 
         public async Task UpdateContentHtml()
@@ -184,7 +187,5 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                     $"<h2>Not able to process input</h2><p>{e}</p>".ToHtmlDocument("Invalid", string.Empty);
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

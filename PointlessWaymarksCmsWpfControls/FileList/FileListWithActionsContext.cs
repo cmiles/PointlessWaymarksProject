@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
@@ -17,7 +16,6 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
-using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -59,20 +57,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
-        }
-
-        private async Task FirstPagePreviewFromPdfToCairo()
-        {
-            var selected = ListContext.SelectedItems;
-
-            if (selected == null || !selected.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            await PdfConversion.PdfPageToImageWithPdfToCairo(StatusContext,
-                selected.Select(x => x.DbEntry).ToList(), 1);
         }
 
         public Command DeleteSelectedCommand
@@ -350,6 +334,20 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             Clipboard.SetText(finalString);
 
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        private async Task FirstPagePreviewFromPdfToCairo()
+        {
+            var selected = ListContext.SelectedItems;
+
+            if (selected == null || !selected.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            await PdfConversion.PdfPageToImageWithPdfToCairo(StatusContext, selected.Select(x => x.DbEntry).ToList(),
+                1);
         }
 
 

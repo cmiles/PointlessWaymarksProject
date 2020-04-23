@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -9,7 +8,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     public static class Processes
     {
         public static (bool success, string standardOutput, string errorOutput) ExecuteProcess(string programToExecute,
-    string executionParameters, IProgress<string> progress)
+            string executionParameters, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(programToExecute)) return (false, string.Empty, "Blank program to Execute?");
 
@@ -73,6 +72,5 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             return (result, standardOutput.ToString(), errorOutput.ToString());
         }
-
     }
 }

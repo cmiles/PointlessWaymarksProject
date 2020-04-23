@@ -17,8 +17,9 @@
  - Tag Content Pages?
 
 ## Ideas
+ - Could the replace line breaks with spaces add to the TextBox context menu without interferring with other choices?
  - Auto-validate all html output?
- - Look at deployment options - self contained? msix?
+ - Look at deployment options - self contained? msix? automated?
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
  - Top of the html page menu - or other 'nav' idea (maybe just a one level set of links that collapses on mobile? or...)
  - Top of the html page search box - maybe pass a query parameter to the all content list page?
