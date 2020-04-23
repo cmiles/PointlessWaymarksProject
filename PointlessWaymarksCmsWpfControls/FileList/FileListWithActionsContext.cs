@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.Models;
@@ -33,7 +34,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
         private List<(object, string)> _pdfPreviewGenerationErrorOutput = new List<(object, string)>();
-
         private List<(object, string)> _pdfPreviewGenerationProgress = new List<(object, string)>();
         private Command _photoPageLinkCodesToClipboardForSelectedCommand;
         private StatusControlContext _statusContext;
@@ -42,7 +42,37 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
+            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            FilePageLinkCodesToClipboardForSelectedCommand = new Command(() =>
+                StatusContext.RunBlockingTask(FilePageLinkCodesToClipboardForSelected));
+            FileDownloadLinkCodesToClipboardForSelectedCommand = new Command(() =>
+                StatusContext.RunBlockingTask(FileDownloadLinkCodesToClipboardForSelected));
+            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
+            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
+            NewContentFromFilesCommand = new Command(() => StatusContext.RunBlockingTask(NewContentFromFiles));
+            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
+            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
+            FirstPagePreviewFromPdfToCairoCommand =
+                new Command(() => StatusContext.RunBlockingTask(FirstPagePreviewFromPdfToCairo));
+            ExtractNewLinksInSelectedCommand =
+                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
+
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        private async Task FirstPagePreviewFromPdfToCairo()
+        {
+            var selected = ListContext.SelectedItems;
+
+            if (selected == null || !selected.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            await PdfConversion.PdfPageToImageWithPdfToCairo(StatusContext,
+                selected.Select(x => x.DbEntry).ToList(), 1);
         }
 
         public Command DeleteSelectedCommand
@@ -136,6 +166,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 OnPropertyChanged();
             }
         }
+
+        public Command NewContentFromFilesCommand { get; set; }
 
         public Command OpenUrlForSelectedCommand
         {
@@ -249,78 +281,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        private void ErrorOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
-        {
-            //* Do your stuff with the output (write to console/log/StringBuilder)
-            _pdfPreviewGenerationErrorOutput.Add((sendingProcess, outLine.Data));
-        }
-
-        public (bool success, string standardOutput, string errorOutput) ExecuteProcess(string programToExecute,
-            string executionParameters, IProgress<string> progress)
-        {
-            if (string.IsNullOrWhiteSpace(programToExecute)) return (false, string.Empty, "Blank program to Execute?");
-
-            var programToExecuteFile = new FileInfo(programToExecute);
-
-            if (!programToExecuteFile.Exists)
-                return (false, string.Empty, $"Program to Execute {programToExecuteFile} does not exist.");
-
-            var standardOutput = new StringBuilder();
-            var errorOutput = new StringBuilder();
-
-            progress?.Report($"Setting up execution of {programToExecute} {executionParameters}");
-
-            using var process = new Process
-            {
-                StartInfo =
-                {
-                    FileName = programToExecute,
-                    Arguments = executionParameters,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    RedirectStandardInput = true
-                }
-            };
-
-            void OnStandardOutput(object o, DataReceivedEventArgs e)
-            {
-                standardOutput.AppendLine(e.Data);
-                progress?.Report(e.Data);
-            }
-
-            void OnErrorOutput(object o, DataReceivedEventArgs e)
-            {
-                errorOutput.AppendLine(e.Data);
-                progress?.Report(e.Data);
-            }
-
-            process.OutputDataReceived += OnStandardOutput;
-            process.ErrorDataReceived += OnErrorOutput;
-
-            bool result;
-
-            try
-            {
-                progress?.Report("Starting Process");
-                process.Start();
-
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-
-                result = process.WaitForExit(180000);
-            }
-            finally
-            {
-                process.OutputDataReceived -= OnStandardOutput;
-                process.ErrorDataReceived -= OnErrorOutput;
-            }
-
-            return (result, standardOutput.ToString(), errorOutput.ToString());
-        }
-
         private async Task ExtractNewLinksInSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -392,114 +352,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
-        private async Task FirstPagePreviewFromPdfToCairo()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var selected = ListContext.SelectedItems;
-
-            if (selected == null || !selected.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var pdfToCairoDirectoryString = UserSettingsSingleton.CurrentSettings().PdfToCairoExeDirectory;
-            if (string.IsNullOrWhiteSpace(pdfToCairoDirectoryString))
-            {
-                StatusContext.ToastError(
-                    "Sorry - this function requires that pdftocairo.exe be on the system - please set the directory... ");
-                return;
-            }
-
-            var pdfToCairoDirectory = new DirectoryInfo(pdfToCairoDirectoryString);
-            if (!pdfToCairoDirectory.Exists)
-            {
-                StatusContext.ToastError(
-                    $"{pdfToCairoDirectory.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
-                return;
-            }
-
-            var pdfToCairoExe = new FileInfo(Path.Combine(pdfToCairoDirectory.FullName, "pdftocairo.exe"));
-            if (!pdfToCairoExe.Exists)
-            {
-                StatusContext.ToastError(
-                    $"{pdfToCairoExe.FullName} doesn't exist? Check your pdftocairo bin directory setting.");
-                return;
-            }
-
-            var toProcess = new List<(FileInfo targetFile, FileInfo destinationFile, FileContent content)>();
-            foreach (var loopSelected in selected)
-            {
-                var targetFile = new FileInfo(Path.Combine(
-                    UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(loopSelected.DbEntry)
-                        .FullName, loopSelected.DbEntry.OriginalFileName));
-
-                if (!targetFile.Extension.ToLower().Contains("pdf"))
-                    continue;
-
-                var destinationFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-                    $"{Path.GetFileNameWithoutExtension(targetFile.Name)}-FirstPage.jpg"));
-
-                if (destinationFile.Exists)
-                {
-                    destinationFile.Delete();
-                    destinationFile.Refresh();
-                }
-
-                toProcess.Add((targetFile, destinationFile, loopSelected.DbEntry));
-            }
-
-            if (!toProcess.Any())
-            {
-                StatusContext.ToastError("No PDFs found? This process can only generate PDF previews...");
-                return;
-            }
-
-            foreach (var loopSelected in toProcess)
-            {
-                var executionParameters =
-                    $"-jpeg -singlefile \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\"";
-
-                var executionResult = ExecuteProcess(pdfToCairoExe.FullName, executionParameters,
-                    StatusContext.ProgressTracker());
-
-                if (!executionResult.success)
-                {
-                    if (loopSelected == toProcess.Last())
-                    {
-                        await StatusContext.ShowMessage("PDF Generation Problem",
-                            $"Execution Failed for {loopSelected.content.Title} - Continue??{Environment.NewLine}{executionResult.errorOutput}",
-                            new List<string> {"Yes", "No"});
-                    }
-                    else
-                    {
-                        if ((await StatusContext.ShowMessage("PDF Generation Problem",
-                            $"Execution Failed for {loopSelected.content.Title} - Continue??{Environment.NewLine}{executionResult.errorOutput}",
-                            new List<string> {"Yes", "No"}) == "No")) break;
-                    }
-                }
-
-                loopSelected.destinationFile.Refresh();
-
-                if (loopSelected.destinationFile.Exists)
-                {
-                    await ThreadSwitcher.ResumeForegroundAsync();
-
-                    var editor = new ImageContentEditorWindow(loopSelected.destinationFile);
-                    editor.Show();
-                    editor.ImageEditor.TitleSummarySlugFolder.Title = $"{loopSelected.content.Title} Cover Page";
-                    editor.ImageEditor.TitleSummarySlugFolder.TitleToSlug();
-                    editor.ImageEditor.TitleSummarySlugFolder.Summary =
-                        $"Cover Page from {loopSelected.content.Title}.";
-                    editor.ImageEditor.TitleSummarySlugFolder.Folder = loopSelected.content.Folder;
-                    editor.ImageEditor.TagEdit.Tags = loopSelected.content.Tags;
-                    editor.ImageEditor.ImageSourceNotes =
-                        $"Generated by pdftocairo from {loopSelected.destinationFile.Name}.";
-                    await ThreadSwitcher.ResumeBackgroundAsync();
-                }
-            }
-        }
 
         private async Task GenerateSelectedHtml()
         {
@@ -534,30 +386,60 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new FileListContext(StatusContext);
-
-            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            FilePageLinkCodesToClipboardForSelectedCommand = new Command(() =>
-                StatusContext.RunBlockingTask(FilePageLinkCodesToClipboardForSelected));
-            FileDownloadLinkCodesToClipboardForSelectedCommand = new Command(() =>
-                StatusContext.RunBlockingTask(FileDownloadLinkCodesToClipboardForSelected));
-            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
-            FirstPagePreviewFromPdfToCairoCommand =
-                new Command(() => StatusContext.RunBlockingTask(FirstPagePreviewFromPdfToCairo));
-            ExtractNewLinksInSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
         }
 
         private async Task NewContent()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new FileContentEditorWindow(null);
+            var newContentWindow = new FileContentEditorWindow();
 
             newContentWindow.Show();
+        }
+
+        private async Task NewContentFromFiles()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            StatusContext.Progress("Starting File load.");
+
+            var dialog = new VistaOpenFileDialog {Multiselect = true};
+
+            if (!(dialog.ShowDialog() ?? false)) return;
+
+            var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
+
+            if (!selectedFiles.Any()) return;
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (selectedFiles.Count > 20)
+            {
+                StatusContext.ToastError($"Sorry - max limit is 20 files at once, {selectedFiles.Count} selected...");
+                return;
+            }
+
+            var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
+
+            if (!selectedFileInfos.Any(x => x.Exists))
+            {
+                StatusContext.ToastError("Files don't exist?");
+                return;
+            }
+
+            selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
+
+            foreach (var loopFile in selectedFileInfos)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var editor = new FileContentEditorWindow(loopFile);
+                editor.Show();
+
+                StatusContext.Progress($"New File Editor - {loopFile.FullName} ");
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+            }
         }
 
         [NotifyPropertyChangedInvocator]

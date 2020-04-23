@@ -30,6 +30,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            MdLinkCodesToClipboardForSelectedCommand =
+                new Command(() => StatusContext.RunBlockingTask(MdLinkCodesToClipboardForSelected));
+            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
+            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
+            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
+
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
@@ -121,6 +128,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private async Task Delete()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -207,13 +216,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new LinkStreamListContext(StatusContext);
-
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            MdLinkCodesToClipboardForSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(MdLinkCodesToClipboardForSelected));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
         }
 
         private async Task MdLinkCodesToClipboardForSelected()
@@ -250,7 +252,5 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

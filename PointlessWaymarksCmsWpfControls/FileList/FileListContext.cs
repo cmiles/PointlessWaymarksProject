@@ -32,6 +32,15 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         public FileListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+
+            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
+            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+            {
+                SortDescending = !SortDescending;
+                await SortList(_lastSortColumn);
+            }));
+            OpenFileCommand = new Command<FileListListItem>(x => StatusContext.RunNonBlockingTask(() => OpenFile(x)));
+
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
             DataNotifications.FileContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
@@ -127,6 +136,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
         {
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
@@ -150,9 +161,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             {
                 var context = await Db.Context();
 
-                var dbItems =
-                    (await context.FileContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem).ToList();
+                var dbItems = (await context.FileContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Select(ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -163,9 +173,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             {
                 var context = await Db.Context();
 
-                var dbItems =
-                    (await context.FileContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem).ToList();
+                var dbItems = (await context.FileContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Select(ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -222,14 +231,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-
-            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
-            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-            {
-                SortDescending = !SortDescending;
-                await SortList(_lastSortColumn);
-            }));
-            OpenFileCommand = new Command<FileListListItem>(x => StatusContext.RunNonBlockingTask(() => OpenFile(x)));
 
             StatusContext.Progress("Connecting to DB");
 
@@ -309,7 +310,5 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

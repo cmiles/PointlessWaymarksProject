@@ -30,6 +30,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         public PhotoListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+
+            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
+            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+            {
+                SortDescending = !SortDescending;
+                await SortList(_lastSortColumn);
+            }));
+
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
             DataNotifications.PhotoContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
@@ -210,13 +218,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-
-            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
-            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-            {
-                SortDescending = !SortDescending;
-                await SortList(_lastSortColumn);
-            }));
 
             StatusContext.Progress("Connecting to DB");
 

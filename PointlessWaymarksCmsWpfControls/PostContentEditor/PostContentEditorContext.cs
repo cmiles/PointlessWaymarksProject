@@ -46,6 +46,13 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(
+                    $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker())));
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(postContent));
         }
 
@@ -206,13 +213,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
-
-            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
-                    StatusContext.ProgressTracker())));
         }
 
         [NotifyPropertyChangedInvocator]

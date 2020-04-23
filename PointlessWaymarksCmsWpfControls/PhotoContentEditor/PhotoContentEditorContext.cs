@@ -69,23 +69,23 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
         public PhotoContentEditorContext(StatusControlContext statusContext)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
+            SetupContextAndCommands(statusContext);
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
         }
 
         public PhotoContentEditorContext(StatusControlContext statusContext, FileInfo initialPhoto)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
-
             if (initialPhoto != null && initialPhoto.Exists) _initialPhoto = initialPhoto;
+
+            SetupContextAndCommands(statusContext);
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
         }
 
         public PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent toLoad)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
+            SetupContextAndCommands(statusContext);
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
         }
@@ -490,15 +490,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             PhotoCreatedBy = DbEntry.PhotoCreatedBy ?? string.Empty;
             PhotoCreatedOn = DbEntry.PhotoCreatedOn;
 
-            ChooseFileAndFillMetadataCommand =
-                new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(true)));
-            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
-            ResizeFileCommand = new Command(() => StatusContext.RunBlockingTask(ResizePhoto));
-            SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
-            ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
-            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-
             if (DbEntry.Id < 1 && _initialPhoto != null && _initialPhoto.Exists &&
                 FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
             {
@@ -653,11 +644,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             PictureResizing.ResizeForDisplayAndSrcset(SelectedFile, true, StatusContext.ProgressTracker());
 
-            DataNotifications.PhotoContentDataNotificationEventSource.Raise(this, new DataNotificationEventArgs
-            {
-                UpdateType = DataNotificationUpdateType.Update,
-                ContentIds = new List<Guid> { DbEntry.ContentId }
-            });
+            DataNotifications.PhotoContentDataNotificationEventSource.Raise(this,
+                new DataNotificationEventArgs
+                {
+                    UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {DbEntry.ContentId}
+                });
         }
 
         public async Task SaveAndGenerateHtml()
@@ -803,6 +794,20 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             await SaveToDatabase();
         }
 
+        public void SetupContextAndCommands(StatusControlContext statusContext)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            ChooseFileAndFillMetadataCommand =
+                new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(true)));
+            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
+            ResizeFileCommand = new Command(() => StatusContext.RunBlockingTask(ResizePhoto));
+            SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
+            ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
+            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+        }
+
         public static string ShutterSpeedToHumanReadableString(Rational? toProcess)
         {
             if (toProcess == null) return string.Empty;
@@ -923,11 +928,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, StatusContext.ProgressTracker());
 
-            DataNotifications.PhotoContentDataNotificationEventSource.Raise(this, new DataNotificationEventArgs
-            {
-                UpdateType = DataNotificationUpdateType.Update,
-                ContentIds = new List<Guid> { DbEntry.ContentId }
-            });
+            DataNotifications.PhotoContentDataNotificationEventSource.Raise(this,
+                new DataNotificationEventArgs
+                {
+                    UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {DbEntry.ContentId}
+                });
         }
 
         private async Task WriteSelectedFileToMasterMediaArchive()

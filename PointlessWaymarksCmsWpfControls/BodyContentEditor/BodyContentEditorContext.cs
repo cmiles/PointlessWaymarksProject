@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
@@ -24,12 +25,35 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         private Command _refreshPreviewCommand;
         private StatusControlContext _statusContext;
         private string _userBodyContent = string.Empty;
+        private string _selectedBodyText;
 
         public BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             BodyContentFormat = new ContentFormatChooserContext(StatusContext);
+
+            RemoveLineBreaksFromSelectedCommand = new Command(() => StatusContext.RunBlockingAction(RemoveLineBreaksFromSelected));
+            
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
+        }
+
+        public Command RemoveLineBreaksFromSelectedCommand { get; set; }
+
+        private void RemoveLineBreaksFromSelected()
+        {
+            if (string.IsNullOrWhiteSpace(SelectedBodyText)) return;
+            SelectedBodyText = Regex.Replace(SelectedBodyText, @"\r\n?|\n", " ");
+        }
+
+        public string SelectedBodyText
+        {
+            get => _selectedBodyText;
+            set
+            {
+                if (value == _selectedBodyText) return;
+                _selectedBodyText = value;
+                OnPropertyChanged();
+            }
         }
 
         public string BodyContent
@@ -120,6 +144,8 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             var setUpdateFormatOk = await BodyContentFormat.TrySelectContentChoice(toLoad.BodyContentFormat);
 
             if (!setUpdateFormatOk) StatusContext.ToastWarning("Trouble loading Format from Db...");
+
+            SelectedBodyText = string.Empty;
         }
 
         [NotifyPropertyChangedInvocator]

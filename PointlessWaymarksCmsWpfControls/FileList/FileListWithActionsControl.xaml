@@ -31,6 +31,8 @@
                         Content="_Edit" />
                 <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_New Content" />
+                <Button Command="{Binding NewContentFromFilesCommand}" Style="{StaticResource ActionPanelButton}"
+                        Content="New Content from Files" />
                 <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Generate Html" />
                 <Button Command="{Binding FilePageLinkCodesToClipboardForSelectedCommand}"

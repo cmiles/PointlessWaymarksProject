@@ -817,7 +817,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new FileContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
+            var newContentWindow = new FileContentEditorWindow {Left = Left + 4, Top = Top + 4};
             newContentWindow.Show();
         }
 

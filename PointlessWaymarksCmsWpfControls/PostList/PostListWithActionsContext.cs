@@ -34,6 +34,17 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
+            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            PostCodesToClipboardForSelectedCommand =
+                new Command(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
+            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
+            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
+            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
+            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
+            ExtractNewLinksInSelectedCommand =
+                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
+
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
@@ -284,17 +295,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new PostListContext(StatusContext);
-
-            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            PostCodesToClipboardForSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
-            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
-            ExtractNewLinksInSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
         }
 
         private async Task NewContent()

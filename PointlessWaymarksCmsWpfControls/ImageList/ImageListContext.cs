@@ -27,6 +27,14 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         public ImageListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+
+            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
+            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+            {
+                SortDescending = !SortDescending;
+                await SortList(_lastSortColumn);
+            }));
+
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
             DataNotifications.ImageContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
@@ -84,6 +92,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
         {
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
@@ -107,9 +117,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             {
                 var context = await Db.Context();
 
-                var dbItems =
-                    (await context.ImageContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem).ToList();
+                var dbItems = (await context.ImageContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Select(ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -179,13 +188,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
-            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-            {
-                SortDescending = !SortDescending;
-                await SortList(_lastSortColumn);
-            }));
-
             StatusContext.Progress("Connecting to DB");
 
             var db = await Db.Context();
@@ -236,7 +238,5 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

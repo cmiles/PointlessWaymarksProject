@@ -36,6 +36,15 @@
 
 ## Notes
 
+4/23/2020
+Added the new from files to the Files interface - not too much code involved and while working on some Saguaro NPS documents found it was less confusing to be able to open all of them at once even if it wasn't any faster to edit.
+
+In the early days of this project I started doing the Command setup in a Load method rather than in the constructor - this was partly to solve some problems I was having (I believe with the MVVMLight RelayCommand - but the earliest work here was copied over from the earliest prerelease .NET Core 3 versions that supported WPF so it could have been something else too) but also I thought it might be valuable to refresh the bindings as Load was called and thought requiring the Command properties to have notification changes like every other property would be nicely consistent - I think the experiment is over though and it didn't work out, needing property changed is just more friction for the commands and I think it this kind of vanilla WPF project it is natural to look for commands in the constuctor so starting to walk this decision back - started with the main editors and lists.
+
+Added a helper to get the SelectedText of a TextBox into the View Model - this was for the body content where pasting from PDF was bugging me because the text often copies with copious linebreaks that reflect the original formatting nicely but are often imho not relevant for the web. Added a command to remove linebreaks from selected text (for what it does the button is unusually prominent in the UI - this was the quickest solution - I added an idea to explore how to extend the textbox content menu and keep existing choices).
+
+Refactored the PDF to Image generation I had added to easily get cover pages - this allowed this code to be included in the file editor (intuitive place for it while adding a new file...) and also allowed an extension to use pdftocairo to quickly make an image of any page number. This came with some complications in file naming but basically works nicely - the file naming complication is that pdftocairo adds a page number to your file name if you are not using 'singlefile' - I don't believe that new file name is included in the output and the exact format is either dependent on total pdf length and/or is not man-page-specified, worked around this but interesting that shelling out this process so quickly ran into issues with this approach, mostly it should not matter but could result in unexpected rare oddities...
+
 4/22/2020
 First version of the Camera Roll generation.
 

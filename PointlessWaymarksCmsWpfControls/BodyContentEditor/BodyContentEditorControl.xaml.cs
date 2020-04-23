@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -25,5 +26,6 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             e.Cancel = true;
             ProcessHelpers.OpenUrlInExternalBrowser(e.Uri?.OriginalString);
         }
+
     }
 }

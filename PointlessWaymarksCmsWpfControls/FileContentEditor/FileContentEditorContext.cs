@@ -37,6 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private FileContent _dbEntry;
         private Command _extractNewLinksCommand;
+        private FileInfo _initialFile;
         private Command _openSelectedFileDirectoryCommand;
         private bool _publicDownloadLink = true;
         private Command _saveAndCreateLocalCommand;
@@ -49,12 +50,40 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
+        private string _pdfToImagePageToExtract = "1";
+
+        public FileContentEditorContext(StatusControlContext statusContext)
+        {
+            SetupStatusContextAndCommands(statusContext);
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
+        }
+
+        public FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile)
+        {
+            if (initialFile != null && initialFile.Exists) _initialFile = initialFile;
+
+            SetupStatusContextAndCommands(statusContext);
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
+        }
 
         public FileContentEditorContext(StatusControlContext statusContext, FileContent toLoad)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
+            SetupStatusContextAndCommands(statusContext);
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
+        }
+
+        public string PdfToImagePageToExtract
+        {
+            get => _pdfToImagePageToExtract;
+            set
+            {
+                if (value == _pdfToImagePageToExtract) return;
+                _pdfToImagePageToExtract = value;
+                OnPropertyChanged();
+            }
         }
 
         public BodyContentEditorContext BodyContent
@@ -338,17 +367,11 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
             }
 
-            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
-            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand =
-                new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidationAndArchiveMedia));
-            OpenSelectedFileDirectoryCommand =
-                new Command(() => StatusContext.RunBlockingTask(OpenSelectedFileDirectory));
-            OpenSelectedFileCommand = new Command(() => StatusContext.RunBlockingTask(OpenSelectedFile));
-            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors($"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}",
-                    StatusContext.ProgressTracker())));
+            if (DbEntry.Id < 1 && _initialFile != null && _initialFile.Exists)
+            {
+                SelectedFile = _initialFile;
+                _initialFile = null;
+            }
         }
 
         [NotifyPropertyChangedInvocator]
@@ -525,6 +548,68 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             await WriteSelectedFileToMasterMediaArchive();
             await SaveToDatabase();
+        }
+
+        public void SetupStatusContextAndCommands(StatusControlContext statusContext)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
+            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand =
+                new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidationAndArchiveMedia));
+            OpenSelectedFileDirectoryCommand =
+                new Command(() => StatusContext.RunBlockingTask(OpenSelectedFileDirectory));
+            OpenSelectedFileCommand = new Command(() => StatusContext.RunBlockingTask(OpenSelectedFile));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(
+                    $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker())));
+            SaveAndExtractImageFromPdfCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndExtractImageFromPdf));
+        }
+
+        public Command SaveAndExtractImageFromPdfCommand { get; set; }
+
+        private async Task SaveAndExtractImageFromPdf()
+        {
+            if (SelectedFile == null || !SelectedFile.Exists || !SelectedFile.Extension.ToLower().Contains("pdf"))
+            {
+                StatusContext.ToastError("Please selected a valid pdf file");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PdfToImagePageToExtract))
+            {
+                StatusContext.ToastError("Please enter a page number");
+                return;
+            }
+
+            if (!int.TryParse(PdfToImagePageToExtract, out int pageNumber))
+            {
+                StatusContext.ToastError("Please enter a valid page number");
+                return;
+            }
+
+            if (pageNumber < 1)
+            {
+                StatusContext.ToastError("Please selected a valid page number");
+                return;
+            }
+
+            var validationList = await ValidateAll();
+
+            if (validationList.Any(x => !x.Item1))
+            {
+                await StatusContext.ShowMessage("Validation Error",
+                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
+                    new List<string> { "Ok" });
+                return;
+            }
+
+            await SaveAndCreateLocal();
+
+            await PdfConversion.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> {DbEntry},
+                pageNumber);
         }
 
         private async Task<(bool, string)> Validate()

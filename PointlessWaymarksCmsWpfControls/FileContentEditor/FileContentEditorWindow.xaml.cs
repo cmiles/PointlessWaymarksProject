@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Models;
@@ -10,6 +11,24 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
     {
         private FileContentEditorContext _postContent;
         private StatusControlContext _statusContext;
+
+        public FileContentEditorWindow()
+        {
+            InitializeComponent();
+            StatusContext = new StatusControlContext();
+            FileContent = new FileContentEditorContext(StatusContext);
+
+            DataContext = this;
+        }
+
+        public FileContentEditorWindow(FileInfo initialFile)
+        {
+            InitializeComponent();
+            StatusContext = new StatusControlContext();
+            FileContent = new FileContentEditorContext(StatusContext, initialFile);
+
+            DataContext = this;
+        }
 
         public FileContentEditorWindow(FileContent toLoad)
         {
@@ -42,12 +61,12 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

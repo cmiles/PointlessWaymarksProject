@@ -53,14 +53,14 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
         public ImageContentEditorContext(StatusControlContext statusContext)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
+            SetupContextAndCommands(statusContext);
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
         }
 
         public ImageContentEditorContext(StatusControlContext statusContext, FileInfo initialImage)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
+            SetupContextAndCommands(statusContext);
 
             if (initialImage != null && initialImage.Exists) _initalImage = initialImage;
 
@@ -69,7 +69,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
         public ImageContentEditorContext(StatusControlContext statusContext, ImageContent toLoad)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
+            SetupContextAndCommands(statusContext);
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
         }
@@ -383,15 +383,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ImageSourceNotes = DbEntry.ImageSourceNotes ?? string.Empty;
             AltText = DbEntry.AltText ?? string.Empty;
 
-            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
-            ResizeFileCommand = new Command(() => StatusContext.RunBlockingTask(ResizeImage));
-            SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
-            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors(ImageSourceNotes, StatusContext.ProgressTracker())));
-            LinkToClipboardCommand = new Command(() => StatusContext.RunBlockingTask(LinkToClipboard));
-
             if (DbEntry.Id < 1 && _initalImage != null && _initalImage.Exists &&
                 FileHelpers.ImageFileTypeIsSupported(_initalImage))
             {
@@ -448,11 +439,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             PictureResizing.ResizeForDisplayAndSrcset(SelectedFile, true, StatusContext.ProgressTracker());
 
-            DataNotifications.ImageContentDataNotificationEventSource.Raise(this, new DataNotificationEventArgs
-            {
-                UpdateType = DataNotificationUpdateType.Update,
-                ContentIds = new List<Guid> { DbEntry.ContentId }
-            });
+            DataNotifications.ImageContentDataNotificationEventSource.Raise(this,
+                new DataNotificationEventArgs
+                {
+                    UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {DbEntry.ContentId}
+                });
         }
 
         public async Task SaveAndGenerateHtml()
@@ -589,6 +580,20 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             await SaveToDatabase();
         }
 
+        public void SetupContextAndCommands(StatusControlContext statusContext)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
+            ResizeFileCommand = new Command(() => StatusContext.RunBlockingTask(ResizeImage));
+            SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
+            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(ImageSourceNotes, StatusContext.ProgressTracker())));
+            LinkToClipboardCommand = new Command(() => StatusContext.RunBlockingTask(LinkToClipboard));
+        }
+
         private async Task<(bool, string)> Validate()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -662,11 +667,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, StatusContext.ProgressTracker());
 
-            DataNotifications.ImageContentDataNotificationEventSource.Raise(this, new DataNotificationEventArgs
-            {
-                UpdateType = DataNotificationUpdateType.Update,
-                ContentIds = new List<Guid> { DbEntry.ContentId }
-            });
+            DataNotifications.ImageContentDataNotificationEventSource.Raise(this,
+                new DataNotificationEventArgs
+                {
+                    UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {DbEntry.ContentId}
+                });
         }
 
         private async Task WriteSelectedFileToMasterMediaArchive()

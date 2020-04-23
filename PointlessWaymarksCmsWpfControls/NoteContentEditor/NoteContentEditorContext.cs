@@ -46,6 +46,13 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
+            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
+                    StatusContext.ProgressTracker())));
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(noteContent));
         }
 
@@ -205,6 +212,9 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private async Task GenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -227,7 +237,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
             BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
 
-            if (string.IsNullOrWhiteSpace(toLoad?.Slug))
+            if (string.IsNullOrWhiteSpace(DbEntry.Slug))
             {
                 var possibleSlug = SlugUtility.RandomLowerCaseString(6);
 
@@ -244,15 +254,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
             else
             {
-                Slug = toLoad.Slug;
+                Slug = DbEntry.Slug;
             }
-
-            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
-                    StatusContext.ProgressTracker())));
         }
 
         [NotifyPropertyChangedInvocator]
@@ -460,8 +463,5 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

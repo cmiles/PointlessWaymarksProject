@@ -47,6 +47,25 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            SaveUpdateDatabaseCommand = new Command(() =>
+                StatusContext.RunBlockingTask(() => SaveToDbWithValidation(StatusContext?.ProgressTracker())));
+            SaveUpdateDatabaseAndCloseCommand = new Command(() =>
+                StatusContext.RunBlockingTask(() => SaveToDbWithValidationAndClose(StatusContext?.ProgressTracker())));
+            ExtractDataCommand = new Command(() =>
+                StatusContext.RunBlockingTask(() => ExtractDataFromLink(StatusContext?.ProgressTracker())));
+            OpenUrlInBrowserCommand = new Command(() =>
+            {
+                try
+                {
+                    var ps = new ProcessStartInfo(LinkUrl) {UseShellExecute = true, Verb = "open"};
+                    Process.Start(ps);
+                }
+                catch (Exception e)
+                {
+                    StatusContext.ToastWarning($"Trouble opening link - {e.Message}");
+                }
+            });
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
                 await LoadData(linkContent, extractDataOnLoad));
         }
@@ -227,6 +246,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private async Task ExtractDataFromLink(IProgress<string> progress)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -375,26 +396,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
             TagEdit = new TagsEditorContext(StatusContext, toLoad);
-
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            SaveUpdateDatabaseCommand = new Command(() =>
-                StatusContext.RunBlockingTask(() => SaveToDbWithValidation(StatusContext?.ProgressTracker())));
-            SaveUpdateDatabaseAndCloseCommand = new Command(() =>
-                StatusContext.RunBlockingTask(() => SaveToDbWithValidationAndClose(StatusContext?.ProgressTracker())));
-            ExtractDataCommand = new Command(() =>
-                StatusContext.RunBlockingTask(() => ExtractDataFromLink(StatusContext?.ProgressTracker())));
-            OpenUrlInBrowserCommand = new Command(() =>
-            {
-                try
-                {
-                    var ps = new ProcessStartInfo(LinkUrl) {UseShellExecute = true, Verb = "open"};
-                    Process.Start(ps);
-                }
-                catch (Exception e)
-                {
-                    StatusContext.ToastWarning($"Trouble opening link - {e.Message}");
-                }
-            });
+
             if (extractDataOnLoad) await ExtractDataFromLink(StatusContext?.ProgressTracker());
         }
 
@@ -586,7 +589,5 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 await Validate()
             };
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

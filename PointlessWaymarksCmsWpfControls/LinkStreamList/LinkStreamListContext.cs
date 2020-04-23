@@ -38,7 +38,28 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         public LinkStreamListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+
+            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
+            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+            {
+                SortDescending = !SortDescending;
+                await SortList(_lastSortColumn);
+            }));
+            OpenUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => OpenUrl(x)));
+            CopyUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(async () =>
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Clipboard.SetText(x);
+
+                StatusContext.ToastSuccess($"To Clipboard {x}");
+            }));
+            ListSelectedLinksNotOnPinboardCommand = new Command(x =>
+                StatusContext.RunBlockingTask(async () =>
+                    await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker())));
+
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+
             DataNotifications.LinkStreamContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
         }
 
@@ -155,6 +176,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
         {
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
@@ -178,9 +201,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             {
                 var context = await Db.Context();
 
-                var dbItems =
-                    (await context.LinkStreams.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem).ToList();
+                var dbItems = (await context.LinkStreams.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Select(ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -323,25 +345,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
-            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-            {
-                SortDescending = !SortDescending;
-                await SortList(_lastSortColumn);
-            }));
-            OpenUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => OpenUrl(x)));
-            CopyUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(async () =>
-            {
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                Clipboard.SetText(x);
-
-                StatusContext.ToastSuccess($"To Clipboard {x}");
-            }));
-            ListSelectedLinksNotOnPinboardCommand = new Command(x =>
-                StatusContext.RunBlockingTask(async () =>
-                    await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker())));
-
             StatusContext.Progress("Connecting to DB");
 
             var db = await Db.Context();
@@ -370,6 +373,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             Items = new ObservableRangeCollection<LinkStreamListListItem>(listItems);
 
             SortDescending = true;
+
             await SortList("CreatedOn");
         }
 
@@ -406,7 +410,5 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
