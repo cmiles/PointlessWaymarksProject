@@ -19,10 +19,10 @@ namespace PointlessWaymarksCmsData.Models
         public DateTime? LastUpdatedOn { get; set; }
 
         public Guid? MainPicture { get; set; }
-        public string Tags { get; set; }
-        public string Folder { get; set; }
 
         public bool ShowInMainSiteFeed { get; set; }
+        public string Tags { get; set; }
+        public string Folder { get; set; }
 
         public string Slug { get; set; }
         public string Summary { get; set; }

@@ -14,10 +14,14 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
     {
         private ITitleSummarySlugFolder _dbEntry;
         private string _folder;
+        private bool _folderHasChanges;
         private string _slug;
+        private bool _slugHasChanges;
         private StatusControlContext _statusContext;
         private string _summary;
+        private bool _summaryHasChanges;
         private string _title;
+        private bool _titleHasChanges;
         private Command _titleToSlugCommand;
 
         public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
@@ -48,6 +52,17 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
+        public bool FolderHasChanges
+        {
+            get => _folderHasChanges;
+            set
+            {
+                if (value == _folderHasChanges) return;
+                _folderHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string Slug
         {
             get => _slug;
@@ -55,6 +70,17 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             {
                 if (value == _slug) return;
                 _slug = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SlugHasChanges
+        {
+            get => _slugHasChanges;
+            set
+            {
+                if (value == _slugHasChanges) return;
+                _slugHasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -82,6 +108,17 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
+        public bool SummaryHasChanges
+        {
+            get => _summaryHasChanges;
+            set
+            {
+                if (value == _summaryHasChanges) return;
+                _summaryHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string Title
         {
             get => _title;
@@ -89,6 +126,17 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             {
                 if (value == _title) return;
                 _title = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool TitleHasChanges
+        {
+            get => _titleHasChanges;
+            set
+            {
+                if (value == _titleHasChanges) return;
+                _titleHasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -104,13 +152,22 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void CheckForChanges()
+        {
+            SummaryHasChanges = DbEntry?.Summary.TrimNullSafe() != Summary.TrimNullSafe();
+            TitleHasChanges = DbEntry?.Title.TrimNullSafe() != Title.TrimNullSafe();
+            SlugHasChanges = DbEntry?.Slug.TrimNullSafe() != Slug.TrimNullSafe();
+            FolderHasChanges = DbEntry?.Folder.TrimNullSafe() != Folder.TrimNullSafe();
+        }
+
 
         public async Task LoadData(ITitleSummarySlugFolder dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            TitleToSlugCommand = new Command(() =>
-                StatusContext.RunBlockingAction(TitleToSlug));
+            TitleToSlugCommand = new Command(() => StatusContext.RunBlockingAction(TitleToSlug));
 
             DbEntry = dbEntry;
 
@@ -130,15 +187,16 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             Folder = DbEntry.Folder ?? string.Empty;
         }
 
-        public void TitleToSlug()
-        {
-            Slug = SlugUtility.Create(true, Title);
-        }
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            CheckForChanges();
+        }
+
+        public void TitleToSlug()
+        {
+            Slug = SlugUtility.Create(true, Title);
         }
 
         public async Task<(bool valid, string explanation)> Validate()
@@ -184,7 +242,5 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             return (isValid, errorMessage);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

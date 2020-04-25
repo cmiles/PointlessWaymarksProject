@@ -4,7 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
+    xmlns:fa5="http://schemas.fontawesome.com/icons/"
     d:DataContext="{d:DesignInstance titleSummarySlugFolderEditor:TitleSummarySlugEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -14,34 +16,63 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Vertical">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="_Title"
-                       Target="{Binding ElementName=TitleTextBox}" />
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Content="_Title"
+                           Target="{Binding ElementName=TitleTextBox}" />
+                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center" Visibility="{Binding TitleHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                        <fa5:FontAwesome.ToolTip>
+                            <TextBlock Text="{Binding DbEntry.Title, StringFormat='Original Value: {0}'}"/>
+                        </fa5:FontAwesome.ToolTip>
+                    </fa5:FontAwesome>
+                </StackPanel>
                 <TextBox Name="TitleTextBox" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
                 <Button Margin="6,4,0,0" Command="{Binding TitleToSlugCommand}" Content="T_itle to Slug" />
             </StackPanel>
             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Slug"
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Content="Slug"
                        Target="{Binding ElementName=SlugTextBox}" />
+                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center" Visibility="{Binding SlugHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                        <fa5:FontAwesome.ToolTip>
+                            <TextBlock Text="{Binding DbEntry.Slug, StringFormat='Original Value: {0}'}"/>
+                        </fa5:FontAwesome.ToolTip>
+                    </fa5:FontAwesome>
+                </StackPanel>
                 <TextBox Name="SlugTextBox" Margin="6,2,0,0" Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}"
                          SpellCheck.IsEnabled="True"
                          Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
             </StackPanel>
             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Folder"
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Content="Folder"
                        Target="{Binding ElementName=FolderTextBox}" />
+                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center" Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                        <fa5:FontAwesome.ToolTip>
+                            <TextBlock Text="{Binding DbEntry.Folder, StringFormat='Original Value: {0}'}"/>
+                        </fa5:FontAwesome.ToolTip>
+                    </fa5:FontAwesome>
+                </StackPanel>
                 <TextBox Name="FolderTextBox" Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"
                          SpellCheck.IsEnabled="True"
                          Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
             </StackPanel>
             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Su_mmary"
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Content="Su_mmary"
                        Target="{Binding ElementName=SummaryTextBox}" />
+                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center" Visibility="{Binding SummaryHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                        <fa5:FontAwesome.ToolTip>
+                            <TextBlock Text="{Binding DbEntry.Summary, StringFormat='Original Value: {0}'}"/>
+                        </fa5:FontAwesome.ToolTip>
+                    </fa5:FontAwesome>
+                </StackPanel>
                 <TextBox
                     Name="SummaryTextBox"
                     Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}"

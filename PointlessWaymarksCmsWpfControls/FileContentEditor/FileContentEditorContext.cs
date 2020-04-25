@@ -330,6 +330,22 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             htmlContext.WriteLocalHtml();
         }
 
+        public bool HasUnsavedChanges()
+        {
+            return !(DbEntry.Folder == TitleSummarySlugFolder.Folder && DbEntry.Slug == TitleSummarySlugFolder.Slug &&
+                     DbEntry.Summary == TitleSummarySlugFolder.Summary &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
+                     DbEntry.Title == TitleSummarySlugFolder.Title &&
+                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy &&
+                     DbEntry.UpdateNotes == UpdateNotes.UpdateNotes &&
+                     DbEntry.UpdateNotesFormat == UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString &&
+                     DbEntry.BodyContent == BodyContent.BodyContent &&
+                     DbEntry.BodyContentFormat == BodyContent.BodyContentFormat.SelectedContentFormatAsString &&
+                     DbEntry.OriginalFileName == SelectedFile.Name &&
+                     DbEntry.PublicDownloadLink == PublicDownloadLink && DbEntry.MainPicture ==
+                     BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent));
+        }
+
         private async Task LoadData(FileContent toLoad, bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();

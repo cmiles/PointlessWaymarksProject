@@ -7,6 +7,7 @@
         xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
         mc:Ignorable="d"
         Title="File Content Editor" Height="600" Width="800"
+        Closing="FileContentEditorWindow_OnClosing"
         d:DataContext="{d:DesignInstance local:FileContentEditorWindow}">
     <Grid>
         <local:FileContentEditorControl DataContext="{Binding FileContent}" />

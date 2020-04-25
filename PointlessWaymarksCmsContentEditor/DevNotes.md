@@ -5,6 +5,8 @@
     - Camera Roll
        - Should search be implemented?
        - Should desctiptions be included?
+ - Close with changes protection - File Editor done but probably need to abstract
+ - Property Change Tracking - TitleSummarySlug done
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -17,6 +19,7 @@
  - Tag Content Pages?
 
 ## Ideas
+ - Hide button for the Body Preview
  - Could the replace line breaks with spaces add to the TextBox context menu without interferring with other choices?
  - Auto-validate all html output?
  - Look at deployment options - self contained? msix? automated?
@@ -36,6 +39,11 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 ## Notes
+
+4/25/2020
+Lost an edit by accidentally closing an editor while adding multiple files - as a result started work on detecting changes with the first experiments going into the FileEditorWindow and into the TitleSummarySlug control. Both are fairly simple at this point but in quick testing seem to work. I think the window work can be abstracted slightly to make this slightly faster/easier to get into all of the editors - having abstracted individual property change tracking before I suspect in this case it is simpler and less work to do it as 'one offs'.
+
+The extract links was showing duplicates - eliminated. Also added an option to exclude specified links but not currently in use (left this code in but it didn't work out exactly like I thought - the original idea was to exclude PDFs that were the selected file of a FileContent, but since I often rename the incoming PDF this didn't actually work.
 
 4/23/2020
 Added the new from files to the Files interface - not too much code involved and while working on some Saguaro NPS documents found it was less confusing to be able to open all of them at once even if it wasn't any faster to edit.

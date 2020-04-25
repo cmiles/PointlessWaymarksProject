@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
@@ -89,15 +88,11 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
 
                 if (pageNumber == 1)
-                {
                     executionParameters =
                         $"-jpeg -singlefile \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\"";
-                }
                 else
-                {
                     executionParameters =
                         $"-jpeg -f {pageNumber} -l {pageNumber} \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\"";
-                }
 
                 var (success, _, errorOutput) = Processes.ExecuteProcess(pdfToCairoExe.FullName, executionParameters,
                     statusContext.ProgressTracker());
@@ -107,9 +102,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     if (await statusContext.ShowMessage("PDF Generation Problem",
                         $"Execution Failed for {loopSelected.content.Title} - Continue??{Environment.NewLine}{errorOutput}",
                         new List<string> {"Yes", "No"}) == "No")
-                    {
                         return;
-                    }
 
                     continue;
                 }
@@ -127,13 +120,15 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     var directoryToSearch = loopSelected.destinationFile.Directory;
                     var baseName = loopSelected.targetFile.Name;
 
-                    var possibleFiles = directoryToSearch.EnumerateFiles($"{Path.GetFileNameWithoutExtension(loopSelected.destinationFile.Name)}-*.jpg").ToList();
+                    var possibleFiles = directoryToSearch
+                        .EnumerateFiles($"{Path.GetFileNameWithoutExtension(loopSelected.destinationFile.Name)}-*.jpg")
+                        .ToList();
 
                     foreach (var loopFiles in possibleFiles)
                     {
                         var fileNamePageNumber = loopFiles.Name.Split("-Page-").ToList().Last().Replace(".jpg", "");
 
-                        if (int.TryParse(fileNamePageNumber, out int possiblePageNumber) &&
+                        if (int.TryParse(fileNamePageNumber, out var possiblePageNumber) &&
                             possiblePageNumber == pageNumber)
                         {
                             updatedDestination = loopFiles;
@@ -147,9 +142,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     if (await statusContext.ShowMessage("PDF Generation Problem",
                         $"Execution Failed for {loopSelected.content.Title} - Continue??{Environment.NewLine}{errorOutput}",
                         new List<string> {"Yes", "No"}) == "No")
-                    {
                         return;
-                    }
 
                     continue;
                 }
@@ -161,14 +154,16 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 if (pageNumber == 1)
                 {
                     editor.ImageEditor.TitleSummarySlugFolder.Title = $"{loopSelected.content.Title} Cover Page";
-                    editor.ImageEditor.TitleSummarySlugFolder.Summary = $"Cover Page from {loopSelected.content.Title}.";
+                    editor.ImageEditor.TitleSummarySlugFolder.Summary =
+                        $"Cover Page from {loopSelected.content.Title}.";
                 }
                 else
                 {
                     editor.ImageEditor.TitleSummarySlugFolder.Title = $"{loopSelected.content.Title} Page {pageNumber}";
-                    editor.ImageEditor.TitleSummarySlugFolder.Summary = $"Page {pageNumber} from {loopSelected.content.Title}.";
+                    editor.ImageEditor.TitleSummarySlugFolder.Summary =
+                        $"Page {pageNumber} from {loopSelected.content.Title}.";
                 }
-                
+
                 editor.ImageEditor.TitleSummarySlugFolder.TitleToSlug();
 
                 editor.ImageEditor.TitleSummarySlugFolder.Folder = loopSelected.content.Folder;

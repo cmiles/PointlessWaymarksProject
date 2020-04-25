@@ -12,9 +12,13 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     public static class LinkExtraction
     {
         public static async Task ExtractNewAndShowLinkStreamEditors(string toExtractFrom,
-            IProgress<string> progressTracker)
+            IProgress<string> progressTracker, List<string> exludedUrls = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            exludedUrls ??= new List<string>();
+            exludedUrls = exludedUrls.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim().ToLower())
+                .ToList();
 
             if (string.IsNullOrWhiteSpace(toExtractFrom))
             {
@@ -24,8 +28,9 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             progressTracker?.Report("Looking for URLs");
 
-            var allMatches = StringHelper.UrlsFromText(toExtractFrom)
-                .Where(x => !x.ToLower().Contains(UserSettingsSingleton.CurrentSettings().SiteUrl)).ToList();
+            var allMatches = StringHelper.UrlsFromText(toExtractFrom).Where(x =>
+                !x.ToLower().Contains(UserSettingsSingleton.CurrentSettings().SiteUrl) &&
+                !exludedUrls.Contains(x.ToLower())).ToList();
 
             progressTracker?.Report($"Found {allMatches.Count} Matches");
 
@@ -44,8 +49,11 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 }
                 else
                 {
-                    progressTracker?.Report($"Adding {loopMatches} to list to show...");
-                    linksToShow.Add(loopMatches);
+                    if (!linksToShow.Contains(loopMatches))
+                    {
+                        progressTracker?.Report($"Adding {loopMatches} to list to show...");
+                        linksToShow.Add(loopMatches);
+                    }
                 }
             }
 
