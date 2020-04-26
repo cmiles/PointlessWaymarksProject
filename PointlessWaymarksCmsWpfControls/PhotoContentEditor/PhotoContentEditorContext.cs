@@ -34,7 +34,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
-    public class PhotoContentEditorContext : INotifyPropertyChanged
+    public class PhotoContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private string _altText;
         private string _aperture;
@@ -399,6 +399,21 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 _viewPhotoMetadataCommand = value;
                 OnPropertyChanged();
             }
+        }
+
+        public bool HasChanges()
+        {
+            return !(DbEntry.Aperture == Aperture && DbEntry.Folder == TitleSummarySlugFolder.Folder &&
+                     DbEntry.Iso == Iso && DbEntry.Lens == Lens && DbEntry.License == License &&
+                     DbEntry.Slug == TitleSummarySlugFolder.Slug && DbEntry.Summary == TitleSummarySlugFolder.Summary &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
+                     DbEntry.Title == TitleSummarySlugFolder.Title && DbEntry.AltText == AltText &&
+                     DbEntry.CameraMake == CameraMake && DbEntry.CameraModel == CameraModel &&
+                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy && DbEntry.FocalLength == FocalLength &&
+                     DbEntry.ShutterSpeed == ShutterSpeed && DbEntry.UpdateNotes == UpdateNotes.UpdateNotes &&
+                     DbEntry.UpdateNotesFormat == UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString &&
+                     DbEntry.OriginalFileName == SelectedFile.Name && DbEntry.PhotoCreatedBy == PhotoCreatedBy &&
+                     DbEntry.PhotoCreatedOn == PhotoCreatedOn);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

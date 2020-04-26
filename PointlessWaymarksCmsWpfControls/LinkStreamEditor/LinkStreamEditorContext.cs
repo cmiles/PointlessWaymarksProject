@@ -21,7 +21,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 {
-    public class LinkStreamEditorContext : INotifyPropertyChanged
+    public class LinkStreamEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private string _author;
         private string _comments;
@@ -244,6 +244,16 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 _title = value;
                 OnPropertyChanged();
             }
+        }
+
+        public bool HasChanges()
+        {
+            return !(DbEntry.Tags == TagEdit.Tags.TrimNullSafe() &&
+                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy.TrimNullSafe() &&
+                     DbEntry.Comments == Comments.TrimNullSafe() && DbEntry.Url == LinkUrl.TrimNullSafe() &&
+                     DbEntry.Title == Title.TrimNullSafe() && DbEntry.Site == Site.TrimNullSafe() &&
+                     DbEntry.Author == Author.TrimNullSafe() && DbEntry.Description == Description.TrimNullSafe() &&
+                     DbEntry.LinkDate == LinkDateTime && DbEntry.ShowInLinkRss == ShowInLinkRss);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 {
@@ -20,7 +21,10 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ImageEditor = new ImageContentEditorContext(StatusContext);
 
             DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
         }
+
+        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
         public ImageContentEditorWindow(FileInfo initialImage)
         {
@@ -30,6 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ImageEditor = new ImageContentEditorContext(StatusContext, initialImage);
 
             DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
         }
 
         public ImageContentEditorWindow(ImageContent toLoad)
@@ -40,6 +45,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ImageEditor = new ImageContentEditorContext(StatusContext, toLoad);
 
             DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
         }
 
         public ImageContentEditorContext ImageEditor

@@ -28,7 +28,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 {
-    public class ImageContentEditorContext : INotifyPropertyChanged
+    public class ImageContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private string _altText;
         private Command _chooseFileCommand;
@@ -284,6 +284,18 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 _viewOnSiteCommand = value;
                 OnPropertyChanged();
             }
+        }
+
+        public bool HasChanges()
+        {
+            return !(DbEntry.Folder == TitleSummarySlugFolder.Folder && DbEntry.Slug == TitleSummarySlugFolder.Slug &&
+                     DbEntry.Summary == TitleSummarySlugFolder.Summary &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
+                     DbEntry.Title == TitleSummarySlugFolder.Title && DbEntry.AltText == AltText &&
+                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy &&
+                     DbEntry.UpdateNotes == UpdateNotes.UpdateNotes &&
+                     DbEntry.UpdateNotesFormat == UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString &&
+                     DbEntry.OriginalFileName == SelectedFile.Name && DbEntry.ImageSourceNotes == ImageSourceNotes);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

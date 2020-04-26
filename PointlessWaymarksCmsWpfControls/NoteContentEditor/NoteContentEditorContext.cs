@@ -25,7 +25,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 {
-    public class NoteContentEditorContext : INotifyPropertyChanged
+    public class NoteContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private BodyContentEditorContext _bodyContent;
         private ContentIdViewerControlContext _contentId;
@@ -33,6 +33,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private NoteContent _dbEntry;
         private Command _extractNewLinksCommand;
         private string _folder;
+        private IHasUnsavedChanges _hasUnsavedChangesImplementation;
         private Command _saveAndCreateLocalCommand;
         private Command _saveUpdateDatabaseCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
@@ -212,6 +213,17 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
+        public bool HasChanges()
+        {
+            return !(DbEntry.Slug == Slug.TrimNullSafe() && DbEntry.Folder == Folder.TrimNullSafe() &&
+                     DbEntry.Summary == Summary.TrimNullSafe() &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
+                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy &&
+                     DbEntry.BodyContent == BodyContent.BodyContent &&
+                     DbEntry.BodyContentFormat == BodyContent.BodyContentFormat.SelectedContentFormatAsString &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -306,9 +318,9 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 
-            newEntry.Slug = Slug;
-            newEntry.Folder = Folder;
-            newEntry.Summary = Summary;
+            newEntry.Slug = Slug.TrimNullSafe();
+            newEntry.Folder = Folder.TrimNullSafe();
+            newEntry.Summary = Summary.TrimNullSafe();
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
             newEntry.Tags = TagEdit.Tags;
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;

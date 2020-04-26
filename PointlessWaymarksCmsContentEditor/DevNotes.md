@@ -5,8 +5,8 @@
     - Camera Roll
        - Should search be implemented?
        - Should desctiptions be included?
- - Close with changes protection - File Editor done but probably need to abstract
- - Property Change Tracking - TitleSummarySlug done
+ - Close with changes protection - review/improve closing a 'blank' editor window, Tags should be evaluated like they are in the tags control
+ - Property Change Tracking - TitleSummarySlug done, Tags done
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -41,6 +41,10 @@
 ## Notes
 
 4/25/2020
+Tags editor adds change detection.
+
+All windows have closing with unsaved changes warnings but the ways tags are evaluated should be improved to be like the tags editor and closing an 'empty' editor is incorrectly flagged as 'has changes'.
+
 Lost an edit by accidentally closing an editor while adding multiple files - as a result started work on detecting changes with the first experiments going into the FileEditorWindow and into the TitleSummarySlug control. Both are fairly simple at this point but in quick testing seem to work. I think the window work can be abstracted slightly to make this slightly faster/easier to get into all of the editors - having abstracted individual property change tracking before I suspect in this case it is simpler and less work to do it as 'one offs'.
 
 The extract links was showing duplicates - eliminated. Also added an option to exclude specified links but not currently in use (left this code in but it didn't work out exactly like I thought - the original idea was to exclude PDFs that were the selected file of a FileContent, but since I often rename the incoming PDF this didn't actually work.

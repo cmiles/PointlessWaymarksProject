@@ -12,7 +12,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 {
     public partial class FileContentEditorWindow : INotifyPropertyChanged
     {
-        private bool _closeConfirmed;
         private FileContentEditorContext _postContent;
         private StatusControlContext _statusContext;
 
@@ -23,7 +22,10 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             FileContent = new FileContentEditorContext(StatusContext);
 
             DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
         }
+
+        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
         public FileContentEditorWindow(FileInfo initialFile)
         {
@@ -32,6 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             FileContent = new FileContentEditorContext(StatusContext, initialFile);
 
             DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
         }
 
         public FileContentEditorWindow(FileContent toLoad)
@@ -41,6 +44,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             FileContent = new FileContentEditorContext(StatusContext, toLoad);
 
             DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
         }
 
         public FileContentEditorContext FileContent
@@ -67,42 +71,10 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void FileContentEditorWindow_OnClosing(object sender, CancelEventArgs e)
-        {
-            if (_closeConfirmed) return;
-
-            e.Cancel = true;
-
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(WindowClosing);
-        }
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async Task WindowClosing()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (!FileContent.HasUnsavedChanges())
-            {
-                _closeConfirmed = true;
-                await ThreadSwitcher.ResumeForegroundAsync();
-                Close();
-            }
-
-            ;
-
-            if (await StatusContext.ShowMessage("Unsaved Changes...",
-                "There are unsaved changes - do you want to discard your changes?",
-                new List<string> {"Yes - Close Window", "No"}) == "Yes - Close Window")
-            {
-                _closeConfirmed = true;
-                await ThreadSwitcher.ResumeForegroundAsync();
-                Close();
-            }
         }
     }
 }

@@ -29,7 +29,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 {
-    public class FileContentEditorContext : INotifyPropertyChanged
+    public class FileContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private BodyContentEditorContext _bodyContent;
         private Command _chooseFileCommand;
@@ -330,7 +330,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             htmlContext.WriteLocalHtml();
         }
 
-        public bool HasUnsavedChanges()
+        public bool HasChanges()
         {
             return !(DbEntry.Folder == TitleSummarySlugFolder.Folder && DbEntry.Slug == TitleSummarySlugFolder.Slug &&
                      DbEntry.Summary == TitleSummarySlugFolder.Summary &&

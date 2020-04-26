@@ -156,12 +156,11 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
         private void CheckForChanges()
         {
-            SummaryHasChanges = DbEntry?.Summary.TrimNullSafe() != Summary.TrimNullSafe();
-            TitleHasChanges = DbEntry?.Title.TrimNullSafe() != Title.TrimNullSafe();
-            SlugHasChanges = DbEntry?.Slug.TrimNullSafe() != Slug.TrimNullSafe();
-            FolderHasChanges = DbEntry?.Folder.TrimNullSafe() != Folder.TrimNullSafe();
+            SummaryHasChanges = StringHelper.TrimNullSafe(DbEntry?.Summary) != Summary.TrimNullSafe();
+            TitleHasChanges = StringHelper.TrimNullSafe(DbEntry?.Title) != Title.TrimNullSafe();
+            SlugHasChanges = StringHelper.TrimNullSafe(DbEntry?.Slug) != Slug.TrimNullSafe();
+            FolderHasChanges = StringHelper.TrimNullSafe(DbEntry?.Folder) != Folder.TrimNullSafe();
         }
-
 
         public async Task LoadData(ITitleSummarySlugFolder dbEntry)
         {

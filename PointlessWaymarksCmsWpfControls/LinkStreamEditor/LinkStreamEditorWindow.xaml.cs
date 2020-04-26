@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 {
@@ -20,7 +21,10 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             EditorContent.RequestLinkStreamEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
 
             DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, EditorContent);
         }
+
+        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
         public LinkStreamEditorContext EditorContent
         {

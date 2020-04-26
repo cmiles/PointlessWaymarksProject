@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 {
@@ -21,7 +22,10 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             NoteContent = new NoteContentEditorContext(StatusContext, toLoad);
 
             DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, NoteContent);
         }
+
+        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
         public NoteContentEditorContext NoteContent
         {

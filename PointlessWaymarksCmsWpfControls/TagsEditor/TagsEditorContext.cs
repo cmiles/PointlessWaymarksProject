@@ -14,6 +14,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         private StatusControlContext _statusContext;
 
         private string _tags;
+        private bool _tagsHasChanges;
 
         public TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
         {
@@ -55,18 +56,43 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
+        public bool TagsHasChanges
+        {
+            get => _tagsHasChanges;
+            set
+            {
+                if (value == _tagsHasChanges) return;
+                _tagsHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void CheckForChanges()
+        {
+            TagsHasChanges = !TagList().SequenceEqual(DbTagList());
+        }
+
+        private List<string> DbTagList()
+        {
+            if (string.IsNullOrWhiteSpace(DbEntry?.Tags)) return new List<string>();
+            return DbEntry.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
+                .OrderBy(x => x).ToList();
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            CheckForChanges();
         }
 
         public List<string> TagList()
         {
             if (string.IsNullOrWhiteSpace(Tags)) return new List<string>();
-            return Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
+            return Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).OrderBy(x => x)
+                .ToList();
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

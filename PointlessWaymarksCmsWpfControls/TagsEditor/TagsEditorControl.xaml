@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
+    xmlns:fa5="http://schemas.fontawesome.com/icons/"
     d:DataContext="{d:DesignInstance tagsEditor:TagsEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -14,12 +15,21 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
-            <Label Style="{StaticResource DataEntryLabelStyle}" Content="Tags (Comma,Separated)"
-                   Target="{Binding ElementName=TagsTextBox}" />
+            <StackPanel Orientation="Horizontal">
+                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Tags (Comma,Separated)"
+                       Target="{Binding ElementName=TagsTextBox}" />
+                <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                 Visibility="{Binding TagsHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                    <fa5:FontAwesome.ToolTip>
+                        <TextBlock Text="{Binding DbEntry.Tags, StringFormat='Original Value: {0}'}" />
+                    </fa5:FontAwesome.ToolTip>
+                </fa5:FontAwesome>
+            </StackPanel>
             <TextBox
                 Name="TagsTextBox"
                 Style="{StaticResource DataEntryTextBoxMultiLineStyle}"

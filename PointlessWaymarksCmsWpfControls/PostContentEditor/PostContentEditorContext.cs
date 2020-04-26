@@ -27,7 +27,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 {
-    public class PostContentEditorContext : INotifyPropertyChanged
+    public class PostContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private BodyContentEditorContext _bodyContent;
         private ContentIdViewerControlContext _contentId;
@@ -188,6 +188,20 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 _viewOnSiteCommand = value;
                 OnPropertyChanged();
             }
+        }
+
+        public bool HasChanges()
+        {
+            return !(DbEntry.Folder == TitleSummarySlugFolder.Folder && DbEntry.Slug == TitleSummarySlugFolder.Slug &&
+                     DbEntry.Summary == TitleSummarySlugFolder.Summary &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
+                     DbEntry.Title == TitleSummarySlugFolder.Title &&
+                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy &&
+                     DbEntry.UpdateNotes == UpdateNotes.UpdateNotes &&
+                     DbEntry.UpdateNotesFormat == UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString &&
+                     DbEntry.BodyContent == BodyContent.BodyContent &&
+                     DbEntry.BodyContentFormat == BodyContent.BodyContentFormat.SelectedContentFormatAsString &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
