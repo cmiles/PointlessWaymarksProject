@@ -71,6 +71,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return resultList;
         }
 
+        public static string FileDownloadLinkBracketCode(FileContent content)
+        {
+            return $@"{{filedownloadlink {content.ContentId}; {content.Title}}}";
+        }
+
         /// <summary>
         ///     Processes {{filedownloadlink guid;human_identifier}} or {{filedownloadlink guid;text toDisplay;(optional
         ///     human_identifier}} to
@@ -127,6 +132,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
             }
 
             return toProcess;
+        }
+
+        public static string FileLinkBracketCode(FileContent content)
+        {
+            return $@"{{filelink {content.ContentId}; {content.Title}}}";
         }
 
         /// <summary>

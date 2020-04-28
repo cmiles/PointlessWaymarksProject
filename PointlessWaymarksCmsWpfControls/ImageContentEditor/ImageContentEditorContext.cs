@@ -19,7 +19,7 @@ using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
-using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
+using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -288,14 +288,18 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
         public bool HasChanges()
         {
-            return !(DbEntry.Folder == TitleSummarySlugFolder.Folder && DbEntry.Slug == TitleSummarySlugFolder.Slug &&
-                     DbEntry.Summary == TitleSummarySlugFolder.Summary &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
-                     DbEntry.Title == TitleSummarySlugFolder.Title && DbEntry.AltText == AltText &&
-                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy &&
-                     DbEntry.UpdateNotes == UpdateNotes.UpdateNotes &&
-                     DbEntry.UpdateNotesFormat == UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString &&
-                     DbEntry.OriginalFileName == SelectedFile.Name && DbEntry.ImageSourceNotes == ImageSourceNotes);
+            return !(StringHelper.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
+                     StringHelper.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
+                     StringHelper.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
+                     StringHelper.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
+                     StringHelper.AreEqual(DbEntry.AltText, AltText) &&
+                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
+                     StringHelper.AreEqual(DbEntry.UpdateNotesFormat,
+                         UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
+                     StringHelper.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
+                     StringHelper.AreEqual(DbEntry.ImageSourceNotes, ImageSourceNotes) &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -350,7 +354,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
-            var linkString = @$"{{{{image {DbEntry.ContentId}; {DbEntry.Title}}}}}{Environment.NewLine}";
+            var linkString = PointlessWaymarksCmsData.CommonHtml.BracketCodeImages.ImageBracketCode(DbEntry);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -364,13 +368,18 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new ImageContent();
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
-            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, toLoad, false);
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
-            UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
-            TagEdit = new TagsEditorContext(StatusContext, toLoad);
+            DbEntry = toLoad ?? new ImageContent
+            {
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            };
+
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
+            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, false);
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
+            ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
+            UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
+            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
 

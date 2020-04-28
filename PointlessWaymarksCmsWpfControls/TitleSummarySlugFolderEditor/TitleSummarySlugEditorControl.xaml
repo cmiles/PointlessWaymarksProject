@@ -27,7 +27,7 @@
                            Target="{Binding ElementName=TitleTextBox}" />
                     <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center" Visibility="{Binding TitleHasChanges, Converter={StaticResource BooleanToVisibility}}">
                         <fa5:FontAwesome.ToolTip>
-                            <TextBlock Text="{Binding DbEntry.Title, StringFormat='Original Value: {0}'}"/>
+                            <TextBlock Text="{Binding DbEntry.Title, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"/>
                         </fa5:FontAwesome.ToolTip>
                     </fa5:FontAwesome>
                 </StackPanel>
@@ -41,7 +41,7 @@
                        Target="{Binding ElementName=SlugTextBox}" />
                     <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center" Visibility="{Binding SlugHasChanges, Converter={StaticResource BooleanToVisibility}}">
                         <fa5:FontAwesome.ToolTip>
-                            <TextBlock Text="{Binding DbEntry.Slug, StringFormat='Original Value: {0}'}"/>
+                            <TextBlock Text="{Binding DbEntry.Slug, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"/>
                         </fa5:FontAwesome.ToolTip>
                     </fa5:FontAwesome>
                 </StackPanel>
@@ -55,7 +55,7 @@
                        Target="{Binding ElementName=FolderTextBox}" />
                     <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center" Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}">
                         <fa5:FontAwesome.ToolTip>
-                            <TextBlock Text="{Binding DbEntry.Folder, StringFormat='Original Value: {0}'}"/>
+                            <TextBlock Text="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"/>
                         </fa5:FontAwesome.ToolTip>
                     </fa5:FontAwesome>
                 </StackPanel>
@@ -69,7 +69,7 @@
                        Target="{Binding ElementName=SummaryTextBox}" />
                     <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center" Visibility="{Binding SummaryHasChanges, Converter={StaticResource BooleanToVisibility}}">
                         <fa5:FontAwesome.ToolTip>
-                            <TextBlock Text="{Binding DbEntry.Summary, StringFormat='Original Value: {0}'}"/>
+                            <TextBlock Text="{Binding DbEntry.Summary, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"/>
                         </fa5:FontAwesome.ToolTip>
                     </fa5:FontAwesome>
                 </StackPanel>

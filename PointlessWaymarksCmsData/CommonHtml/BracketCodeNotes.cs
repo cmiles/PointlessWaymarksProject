@@ -9,6 +9,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class BracketCodeNotes
     {
+        public static string NoteLinkBracketCode(NoteContent content)
+        {
+            return $@"{{notelink {content.ContentId}; {content.Title}}}";
+        }
+
         public static List<NoteContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<NoteContent>();
@@ -46,7 +51,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 var dbContent = context.NoteContents.FirstOrDefault(x => x.ContentId == loopMatch);
                 if (dbContent == null) continue;
 
-                progress?.Report($"Photo Code - Adding DbContent For {dbContent.Title}");
+                progress?.Report($"Note Code - Adding DbContent For {dbContent.Title}");
 
                 returnList.Add(dbContent);
             }

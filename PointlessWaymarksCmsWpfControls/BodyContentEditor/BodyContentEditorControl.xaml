@@ -17,6 +17,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -35,27 +36,40 @@
         <Grid Grid.Row="1" Margin="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-            <GroupBox Header="Content" Style="{StaticResource UiComponentGroupBoxStyle}">
-                <TextBox
-                    SpellCheck.IsEnabled="True"
-                    AcceptsReturn="True"
-                    Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged}"
-                    TextWrapping="Wrap"
-                    BorderThickness="0"
-                    utility:TextBoxHelper.SelectedText="{Binding SelectedBodyText}"
-                    FontSize="{Binding ElementName=BodyMarkDownFontSizeSlider, Path=Value}"
-                    VerticalScrollBarVisibility="Visible" />
-            </GroupBox>
-                <Button Grid.Row="1" Margin="0,0,0,0" HorizontalAlignment="Right" Command="{Binding RemoveLineBreaksFromSelectedCommand}">Line Breaks to Spaces for Selected</Button>
+                <GroupBox Header="Content" Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <TextBox
+                        SpellCheck.IsEnabled="True"
+                        AcceptsReturn="True"
+                        Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged}"
+                        TextWrapping="Wrap"
+                        BorderThickness="0"
+                        utility:TextBoxHelper.SelectedText="{Binding SelectedBodyText}"
+                        FontSize="{Binding ElementName=BodyMarkDownFontSizeSlider, Path=Value}"
+                        VerticalScrollBarVisibility="Visible" />
+                </GroupBox>
+                <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
+                    <Button HorizontalAlignment="Right"
+                            Command="{Binding RemoveLineBreaksFromSelectedCommand}">
+                        Selected - Line Breaks to Spaces
+                    </Button>
+                </StackPanel>
             </Grid>
-            <GroupBox Grid.Column="1" Header="Preview" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GridSplitter Grid.Column="1"
+                          Margin="6,0,6,0"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Stretch"
+                          Background="#EEEEEE"
+                          ShowsPreview="True"
+                          Width="6" />
+            <GroupBox Grid.Column="2" Header="Preview" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />

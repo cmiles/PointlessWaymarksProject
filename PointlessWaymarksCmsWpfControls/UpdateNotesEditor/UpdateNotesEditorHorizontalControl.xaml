@@ -33,6 +33,7 @@
             <Grid Grid.Row="1" Margin="2">
                 <Grid.RowDefinitions>
                     <RowDefinition />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <GroupBox Header="Content" Style="{StaticResource UiComponentGroupBoxStyle}">
@@ -44,7 +45,14 @@
                         TextWrapping="Wrap"
                         VerticalScrollBarVisibility="Visible" />
                 </GroupBox>
-                <GroupBox Grid.Row="1" Header="Preview" Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GridSplitter Grid.Row="1"
+                              Margin="0,6,0,6"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Center"
+                              Background="#EEEEEE"
+                              ShowsPreview="True"
+                              Height="6" />
+                <GroupBox Grid.Row="2" Header="Preview" Style="{StaticResource UiComponentGroupBoxStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />

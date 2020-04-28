@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
@@ -20,7 +23,8 @@ using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
-using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
+using PointlessWaymarksCmsWpfControls.HelpDisplay;
+using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -51,6 +55,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
+        private HelpDisplayContext _helpContext;
 
         public FileContentEditorContext(StatusControlContext statusContext)
         {
@@ -292,6 +297,25 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public bool HasChanges()
+        {
+            return !(StringHelper.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
+                     StringHelper.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
+                     StringHelper.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges &&
+                     StringHelper.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
+                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
+                     StringHelper.AreEqual(DbEntry.UpdateNotesFormat,
+                         UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
+                     StringHelper.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+                     StringHelper.AreEqual(DbEntry.BodyContentFormat,
+                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) &&
+                     StringHelper.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
+                     DbEntry.PublicDownloadLink == PublicDownloadLink && DbEntry.MainPicture ==
+                     BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent));
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task ChooseFile()
@@ -329,21 +353,42 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             htmlContext.WriteLocalHtml();
         }
-
-        public bool HasChanges()
+        private async Task LinkToClipboard()
         {
-            return !(DbEntry.Folder == TitleSummarySlugFolder.Folder && DbEntry.Slug == TitleSummarySlugFolder.Slug &&
-                     DbEntry.Summary == TitleSummarySlugFolder.Summary &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
-                     DbEntry.Title == TitleSummarySlugFolder.Title &&
-                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy &&
-                     DbEntry.UpdateNotes == UpdateNotes.UpdateNotes &&
-                     DbEntry.UpdateNotesFormat == UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString &&
-                     DbEntry.BodyContent == BodyContent.BodyContent &&
-                     DbEntry.BodyContentFormat == BodyContent.BodyContentFormat.SelectedContentFormatAsString &&
-                     DbEntry.OriginalFileName == SelectedFile.Name &&
-                     DbEntry.PublicDownloadLink == PublicDownloadLink && DbEntry.MainPicture ==
-                     BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent));
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = BracketCodeFiles.FileLinkBracketCode(DbEntry);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        }
+
+        private async Task DownloadLinkToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = BracketCodeFiles.FileDownloadLinkBracketCode(DbEntry);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
         }
 
         private async Task LoadData(FileContent toLoad, bool skipMediaDirectoryCheck = false)
@@ -352,14 +397,21 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             StatusContext.Progress("Loading Data...");
 
-            DbEntry = toLoad ?? new FileContent();
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
-            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, toLoad, false);
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
-            UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
-            TagEdit = new TagsEditorContext(StatusContext, toLoad);
-            BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
+            DbEntry = toLoad ?? new FileContent
+            {
+                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+                PublicDownloadLink = true
+            };
+
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
+            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, false);
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
+            ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
+            UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
+            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
+            BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
@@ -614,6 +666,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            HelpContext = new HelpDisplayContext(FileContentHelpMarkdown.HelpBlock + Environment.NewLine + BracketCodeHelpMarkdown.HelpBlock);
+
             ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
             SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand =
@@ -627,6 +681,23 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker())));
             SaveAndExtractImageFromPdfCommand =
                 new Command(() => StatusContext.RunBlockingTask(SaveAndExtractImageFromPdf));
+            LinkToClipboardCommand = new Command(() => StatusContext.RunNonBlockingTask(LinkToClipboard));
+            DownloadLinkToClipboardCommand = new Command(() => StatusContext.RunNonBlockingTask(DownloadLinkToClipboard));
+        }
+
+        public Command DownloadLinkToClipboardCommand { get; set; }
+
+        public Command LinkToClipboardCommand { get; set; }
+
+        public HelpDisplayContext HelpContext
+        {
+            get => _helpContext;
+            set
+            {
+                if (Equals(value, _helpContext)) return;
+                _helpContext = value;
+                OnPropertyChanged();
+            }
         }
 
         private async Task<(bool, string)> Validate()

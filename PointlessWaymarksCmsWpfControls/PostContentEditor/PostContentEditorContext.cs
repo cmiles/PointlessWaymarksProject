@@ -18,7 +18,7 @@ using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
-using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
+using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -192,15 +192,17 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
         public bool HasChanges()
         {
-            return !(DbEntry.Folder == TitleSummarySlugFolder.Folder && DbEntry.Slug == TitleSummarySlugFolder.Slug &&
-                     DbEntry.Summary == TitleSummarySlugFolder.Summary &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
-                     DbEntry.Title == TitleSummarySlugFolder.Title &&
-                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy &&
-                     DbEntry.UpdateNotes == UpdateNotes.UpdateNotes &&
-                     DbEntry.UpdateNotesFormat == UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString &&
-                     DbEntry.BodyContent == BodyContent.BodyContent &&
-                     DbEntry.BodyContentFormat == BodyContent.BodyContentFormat.SelectedContentFormatAsString &&
+            return !(StringHelper.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
+                     StringHelper.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
+                     StringHelper.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
+                     StringHelper.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
+                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
+                     StringHelper.AreEqual(DbEntry.UpdateNotesFormat,
+                         UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
+                     StringHelper.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+                     StringHelper.AreEqual(DbEntry.BodyContentFormat,
+                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
                      DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
         }
 
@@ -219,14 +221,21 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new PostContent();
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, toLoad, true);
-            ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
-            UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
-            TagEdit = new TagsEditorContext(StatusContext, toLoad);
-            BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
+            DbEntry = toLoad ?? new PostContent
+            {
+                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+                ShowInMainSiteFeed = true
+            };
+
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
+            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, true);
+            ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
+            UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
+            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
+            BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -290,7 +299,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
 
             StatusContext?.Progress("Getting Main Entry");
 

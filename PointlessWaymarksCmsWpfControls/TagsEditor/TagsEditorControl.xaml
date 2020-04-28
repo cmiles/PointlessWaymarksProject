@@ -24,9 +24,9 @@
                 <Label Style="{StaticResource DataEntryLabelStyle}" Content="Tags (Comma,Separated)"
                        Target="{Binding ElementName=TagsTextBox}" />
                 <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                                 Visibility="{Binding TagsHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                                 Visibility="{Binding TagsHaveChanges, Converter={StaticResource BooleanToVisibility}}">
                     <fa5:FontAwesome.ToolTip>
-                        <TextBlock Text="{Binding DbEntry.Tags, StringFormat='Original Value: {0}'}" />
+                        <TextBlock Text="{Binding DbEntry.Tags, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
                     </fa5:FontAwesome.ToolTip>
                 </fa5:FontAwesome>
             </StackPanel>

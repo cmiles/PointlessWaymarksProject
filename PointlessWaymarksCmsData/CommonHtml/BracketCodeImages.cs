@@ -43,6 +43,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return returnList;
         }
 
+        public static string ImageBracketCode(ImageContent content)
+        {
+            return $@"{{image {content.ContentId}; {content.Title}}}";
+        }
+
         /// <summary>
         ///     Processes {{image guid;human_identifier}} with a specified function - best use may be for easily building
         ///     library code.

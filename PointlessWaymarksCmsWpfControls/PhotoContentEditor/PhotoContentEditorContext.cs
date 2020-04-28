@@ -25,7 +25,7 @@ using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
-using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
+using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -403,17 +403,25 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
         public bool HasChanges()
         {
-            return !(DbEntry.Aperture == Aperture && DbEntry.Folder == TitleSummarySlugFolder.Folder &&
-                     DbEntry.Iso == Iso && DbEntry.Lens == Lens && DbEntry.License == License &&
-                     DbEntry.Slug == TitleSummarySlugFolder.Slug && DbEntry.Summary == TitleSummarySlugFolder.Summary &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
-                     DbEntry.Title == TitleSummarySlugFolder.Title && DbEntry.AltText == AltText &&
-                     DbEntry.CameraMake == CameraMake && DbEntry.CameraModel == CameraModel &&
-                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy && DbEntry.FocalLength == FocalLength &&
-                     DbEntry.ShutterSpeed == ShutterSpeed && DbEntry.UpdateNotes == UpdateNotes.UpdateNotes &&
-                     DbEntry.UpdateNotesFormat == UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString &&
-                     DbEntry.OriginalFileName == SelectedFile.Name && DbEntry.PhotoCreatedBy == PhotoCreatedBy &&
-                     DbEntry.PhotoCreatedOn == PhotoCreatedOn);
+            return !(StringHelper.AreEqual(DbEntry.Aperture, Aperture) &&
+                     StringHelper.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
+                     StringHelper.AreEqual(DbEntry.Lens, Lens) && StringHelper.AreEqual(DbEntry.License, License) &&
+                     StringHelper.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
+                     StringHelper.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
+                     StringHelper.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
+                     StringHelper.AreEqual(DbEntry.AltText, AltText) &&
+                     StringHelper.AreEqual(DbEntry.CameraMake, CameraMake) &&
+                     StringHelper.AreEqual(DbEntry.CameraModel, CameraModel) &&
+                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelper.AreEqual(DbEntry.FocalLength, FocalLength) &&
+                     StringHelper.AreEqual(DbEntry.ShutterSpeed, ShutterSpeed) &&
+                     StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
+                     StringHelper.AreEqual(DbEntry.UpdateNotesFormat,
+                         UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
+                     StringHelper.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
+                     StringHelper.AreEqual(DbEntry.PhotoCreatedBy, PhotoCreatedBy) && DbEntry.Iso == Iso &&
+                     DbEntry.PhotoCreatedOn == PhotoCreatedOn &&
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -466,13 +474,19 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new PhotoContent();
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, toLoad);
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, toLoad, false);
-            ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
-            UpdateNotes = new UpdateNotesEditorContext(StatusContext, toLoad);
-            TagEdit = new TagsEditorContext(StatusContext, toLoad);
+            DbEntry = toLoad ?? new PhotoContent
+            {
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+                ShowInMainSiteFeed = false
+            };
+
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
+            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, false);
+            ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
+            UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
+            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {

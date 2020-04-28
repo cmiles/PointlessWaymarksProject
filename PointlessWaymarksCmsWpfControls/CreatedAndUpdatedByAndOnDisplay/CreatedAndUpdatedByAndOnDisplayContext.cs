@@ -14,19 +14,51 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
     public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged
     {
         private string _createdAndUpdatedByAndOn;
-        private string _createdBy;
+        private string _createdBy = string.Empty;
         private DateTime? _createdOn;
         private ICreatedAndLastUpdateOnAndBy _dbEntry;
         private bool _showCreatedByEditor;
         private bool _showUpdatedByEditor;
-        private string _updatedBy;
+        private string _updatedBy = string.Empty;
         private DateTime? _updatedOn;
+        private bool _createdByHasChanges;
+        private bool _updatedHasChanges;
 
         public CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
             ICreatedAndLastUpdateOnAndBy dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
+        }
+
+        private void CheckForChanges()
+        {
+            // ReSharper disable InvokeAsExtensionMethod
+            CreatedByHasChanges = CreatedBy.TrimNullSafe() != StringHelper.TrimNullSafe(DbEntry?.CreatedBy);
+            UpdatedHasChanges = UpdatedBy.TrimNullSafe() != StringHelper.TrimNullSafe(DbEntry?.LastUpdatedBy);
+            // ReSharper restore InvokeAsExtensionMethod
+        }
+
+        public bool UpdatedHasChanges
+        {
+            get => _updatedHasChanges;
+            set
+            {
+                if (value == _updatedHasChanges) return;
+                _updatedHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool CreatedByHasChanges
+        {
+            get => _createdByHasChanges;
+            set
+            {
+                if (value == _createdByHasChanges) return;
+                _createdByHasChanges = value;
+                OnPropertyChanged();
+            }
         }
 
         public string CreatedAndUpdatedByAndOn
@@ -169,6 +201,7 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
         public async Task<(bool, string)> Validate()

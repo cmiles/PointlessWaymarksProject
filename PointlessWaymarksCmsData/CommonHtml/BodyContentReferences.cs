@@ -22,7 +22,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var files = await toQuery.FileContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
                 .Cast<IContentCommon>().ToListAsync();
 
-            return posts.Concat(notes).OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
+            return posts.Concat(notes).Concat(files).OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
         }
 
         public static HtmlTag RelatedContentDiv(IContentCommon post)

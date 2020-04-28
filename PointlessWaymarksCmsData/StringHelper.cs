@@ -7,6 +7,16 @@ namespace PointlessWaymarksCmsData
 {
     public static class StringHelper
     {
+        public static bool AreEqual(string a, string b)
+        {
+            if (string.IsNullOrEmpty(a))
+            {
+                return string.IsNullOrEmpty(b);
+            }
+
+            return string.Equals(a, b);
+        }
+
         public static string HtmlEncode(this string toEncode)
         {
             return string.IsNullOrWhiteSpace(toEncode) ? string.Empty : HttpUtility.HtmlEncode(toEncode);

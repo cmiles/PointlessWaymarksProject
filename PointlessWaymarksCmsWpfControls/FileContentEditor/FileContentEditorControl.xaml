@@ -12,6 +12,7 @@
              xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
              xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
              xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+             xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:FileContentEditorContext}">
     <UserControl.Resources>
@@ -72,6 +73,9 @@
                     <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
             </TabItem>
+            <TabItem Header="Help">
+                <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
+            </TabItem>
         </TabControl>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -81,11 +85,17 @@
                         Content="_Save" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ExtractNewLinksCommand}"
                         Content="_Extract New Links" />
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndExtractImageFromPdfCommand}">
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding LinkToClipboardCommand}"
+                        Content="Link to Clipboard" />
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding DownloadLinkToClipboardCommand}"
+                        Content="Download Link to Clipboard" />
+                <Button Style="{StaticResource ActionPanelButton}"
+                        Command="{Binding SaveAndExtractImageFromPdfCommand}">
                     <Viewbox StretchDirection="DownOnly">
                         <StackPanel Orientation="Horizontal">
                             <Label>Save, Extract Pdf Page</Label>
-                            <TextBox Text="{Binding PdfToImagePageToExtract}" Width="32" Background="White" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" />
+                            <TextBox Text="{Binding PdfToImagePageToExtract}" Width="32" Background="White"
+                                     VerticalContentAlignment="Center" HorizontalContentAlignment="Right" />
                         </StackPanel>
                     </Viewbox>
                 </Button>

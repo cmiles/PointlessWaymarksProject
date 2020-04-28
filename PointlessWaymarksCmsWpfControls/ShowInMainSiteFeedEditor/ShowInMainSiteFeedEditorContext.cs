@@ -6,15 +6,16 @@ using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
-namespace PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor
+namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
 {
     public class ShowInMainSiteFeedEditorContext : INotifyPropertyChanged
 
     {
-        private readonly bool _defaultSetting;
         private IShowInSiteFeed _dbEntry;
+        private readonly bool _defaultSetting;
         private bool _showInMainSite;
         private StatusControlContext _statusContext;
+        private bool _showInMainSiteHasChanges;
 
         public ShowInMainSiteFeedEditorContext(StatusControlContext statusContext, IShowInSiteFeed dbEntry,
             bool defaultSetting)
@@ -46,6 +47,17 @@ namespace PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor
             }
         }
 
+        public bool ShowInMainSiteHasChanges
+        {
+            get => _showInMainSiteHasChanges;
+            set
+            {
+                if (value == _showInMainSiteHasChanges) return;
+                _showInMainSiteHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -55,6 +67,13 @@ namespace PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor
                 _statusContext = value;
                 OnPropertyChanged();
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void CheckForChanges()
+        {
+            ShowInMainSiteHasChanges = ShowInMainSite != (DbEntry?.ShowInMainSiteFeed ?? false);
         }
 
         private async Task LoadData(IShowInSiteFeed toLoad)
@@ -69,8 +88,7 @@ namespace PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

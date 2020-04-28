@@ -13,14 +13,14 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
     public class TitleSummarySlugEditorContext : INotifyPropertyChanged
     {
         private ITitleSummarySlugFolder _dbEntry;
-        private string _folder;
+        private string _folder = string.Empty;
         private bool _folderHasChanges;
-        private string _slug;
+        private string _slug = string.Empty;
         private bool _slugHasChanges;
         private StatusControlContext _statusContext;
-        private string _summary;
+        private string _summary = string.Empty;
         private bool _summaryHasChanges;
-        private string _title;
+        private string _title = string.Empty;
         private bool _titleHasChanges;
         private Command _titleToSlugCommand;
 
@@ -156,10 +156,13 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
         private void CheckForChanges()
         {
+            // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
+            //Empty string from null will not be invoked as an extension if DbEntry is null...
             SummaryHasChanges = StringHelper.TrimNullSafe(DbEntry?.Summary) != Summary.TrimNullSafe();
             TitleHasChanges = StringHelper.TrimNullSafe(DbEntry?.Title) != Title.TrimNullSafe();
             SlugHasChanges = StringHelper.TrimNullSafe(DbEntry?.Slug) != Slug.TrimNullSafe();
             FolderHasChanges = StringHelper.TrimNullSafe(DbEntry?.Folder) != Folder.TrimNullSafe();
+            // ReSharper restore InvokeAsExtensionMethod
         }
 
         public async Task LoadData(ITitleSummarySlugFolder dbEntry)
@@ -190,7 +193,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            CheckForChanges();
+            if(!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
         public void TitleToSlug()

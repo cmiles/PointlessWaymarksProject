@@ -12,6 +12,10 @@ namespace PointlessWaymarksCmsData
     {
         public static string SettingsFileName = "PointlessWaymarksCmsSettings.json";
 
+        public static string DefaultContentFormatChoice()
+        {
+            return Enum.GetNames(typeof(ContentFormatEnum)).First();
+        }
         public static string AllContentListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/AllContentList.html";

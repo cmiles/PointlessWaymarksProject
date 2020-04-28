@@ -17,7 +17,7 @@ using PointlessWaymarksCmsData.NoteHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
-using PointlessWaymarksCmsWpfControls.ShowInSiteContentEditor;
+using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
@@ -33,7 +33,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private NoteContent _dbEntry;
         private Command _extractNewLinksCommand;
         private string _folder;
-        private IHasUnsavedChanges _hasUnsavedChangesImplementation;
         private Command _saveAndCreateLocalCommand;
         private Command _saveUpdateDatabaseCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
@@ -215,12 +214,12 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
         public bool HasChanges()
         {
-            return !(DbEntry.Slug == Slug.TrimNullSafe() && DbEntry.Folder == Folder.TrimNullSafe() &&
-                     DbEntry.Summary == Summary.TrimNullSafe() &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && DbEntry.Tags == TagEdit.Tags &&
-                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy &&
-                     DbEntry.BodyContent == BodyContent.BodyContent &&
-                     DbEntry.BodyContentFormat == BodyContent.BodyContentFormat.SelectedContentFormatAsString &&
+            return !(StringHelper.AreEqual(DbEntry.Folder, Folder.TrimNullSafe()) &&
+                     StringHelper.AreEqual(DbEntry.Summary, Summary.TrimNullSafe()) &&
+                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelper.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+                     StringHelper.AreEqual(DbEntry.BodyContentFormat,
+                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
                      DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
         }
 
@@ -240,14 +239,19 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new NoteContent();
-            Folder = toLoad?.Folder ?? string.Empty;
-            Summary = toLoad?.Summary ?? string.Empty;
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, toLoad, true);
-            ContentId = new ContentIdViewerControlContext(StatusContext, toLoad);
-            TagEdit = new TagsEditorContext(StatusContext, toLoad);
-            BodyContent = new BodyContentEditorContext(StatusContext, toLoad);
+            DbEntry = toLoad ?? new NoteContent
+            {
+                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            };
+
+            Folder = DbEntry?.Folder ?? string.Empty;
+            Summary = DbEntry?.Summary ?? string.Empty;
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
+            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, true);
+            ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
+            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
+            BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
 
             if (string.IsNullOrWhiteSpace(DbEntry.Slug))
             {
@@ -326,7 +330,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
 
             if (DbEntry != null && DbEntry.Id > 0)
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)

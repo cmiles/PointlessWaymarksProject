@@ -54,6 +54,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return returnList;
         }
 
+        public static string NoteLinkBracketCode(PostContent content)
+        {
+            return $@"{{postlink {content.ContentId}; {content.Title}}}";
+        }
+
         /// <summary>
         ///     Processes {{postlink guid;human_identifier}} or {{postlink guid;text toDisplay;(optional human_identifier}} to
         ///     a link

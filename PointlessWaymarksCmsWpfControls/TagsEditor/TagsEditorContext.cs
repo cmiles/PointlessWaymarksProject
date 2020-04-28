@@ -13,8 +13,8 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         private ITag _dbEntry;
         private StatusControlContext _statusContext;
 
-        private string _tags;
-        private bool _tagsHasChanges;
+        private string _tags = string.Empty;
+        private bool _tagsHaveChanges;
 
         public TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
         {
@@ -56,13 +56,13 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
-        public bool TagsHasChanges
+        public bool TagsHaveChanges
         {
-            get => _tagsHasChanges;
+            get => _tagsHaveChanges;
             set
             {
-                if (value == _tagsHasChanges) return;
-                _tagsHasChanges = value;
+                if (value == _tagsHaveChanges) return;
+                _tagsHaveChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -71,7 +71,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
         public void CheckForChanges()
         {
-            TagsHasChanges = !TagList().SequenceEqual(DbTagList());
+            TagsHaveChanges = !TagList().SequenceEqual(DbTagList());
         }
 
         private List<string> DbTagList()
@@ -85,7 +85,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            CheckForChanges();
+            if (!propertyName.Contains("HaveChanges")) CheckForChanges();
         }
 
         public List<string> TagList()

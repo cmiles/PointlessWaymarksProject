@@ -248,12 +248,15 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
         public bool HasChanges()
         {
-            return !(DbEntry.Tags == TagEdit.Tags.TrimNullSafe() &&
-                     DbEntry.CreatedBy == CreatedUpdatedDisplay.CreatedBy.TrimNullSafe() &&
-                     DbEntry.Comments == Comments.TrimNullSafe() && DbEntry.Url == LinkUrl.TrimNullSafe() &&
-                     DbEntry.Title == Title.TrimNullSafe() && DbEntry.Site == Site.TrimNullSafe() &&
-                     DbEntry.Author == Author.TrimNullSafe() && DbEntry.Description == Description.TrimNullSafe() &&
-                     DbEntry.LinkDate == LinkDateTime && DbEntry.ShowInLinkRss == ShowInLinkRss);
+            return !(!TagEdit.TagsHaveChanges && DbEntry.ShowInLinkRss == ShowInLinkRss &&
+                     DbEntry.LinkDate == LinkDateTime &&
+                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy.TrimNullSafe()) &&
+                     StringHelper.AreEqual(DbEntry.Comments, Comments.TrimNullSafe()) &&
+                     StringHelper.AreEqual(DbEntry.Url, LinkUrl.TrimNullSafe()) &&
+                     StringHelper.AreEqual(DbEntry.Title, Title.TrimNullSafe()) &&
+                     StringHelper.AreEqual(DbEntry.Site, Site.TrimNullSafe()) &&
+                     StringHelper.AreEqual(DbEntry.Author, Author.TrimNullSafe()) &&
+                     StringHelper.AreEqual(DbEntry.Description, Description.TrimNullSafe()));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -394,7 +397,10 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new LinkStream();
+            DbEntry = toLoad ?? new LinkStream()
+            {
+                ShowInLinkRss = true, CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+            };
 
             LinkUrl = DbEntry?.Url ?? string.Empty;
             Comments = DbEntry?.Comments ?? string.Empty;
@@ -404,9 +410,9 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             Description = DbEntry?.Description ?? string.Empty;
             ShowInLinkRss = DbEntry?.ShowInLinkRss ?? true;
 
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
-            TagEdit = new TagsEditorContext(StatusContext, toLoad);
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, toLoad);
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
+            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
+            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
 
             if (extractDataOnLoad) await ExtractDataFromLink(StatusContext?.ProgressTracker());
         }

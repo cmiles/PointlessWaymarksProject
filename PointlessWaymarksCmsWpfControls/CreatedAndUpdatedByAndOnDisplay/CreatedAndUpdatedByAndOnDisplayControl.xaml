@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
+    xmlns:fa5="http://schemas.fontawesome.com/icons/"
     d:DataContext="{d:DesignInstance createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -14,22 +15,40 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Vertical"
-                        Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CreatedByTextBox}"
-                       Content="Created By" />
+                        Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CreatedByTextBox}"
+                           Content="Created By" />
+                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                     Visibility="{Binding CreatedByHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                        <fa5:FontAwesome.ToolTip>
+                            <TextBlock
+                                Text="{Binding DbEntry.CreatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                        </fa5:FontAwesome.ToolTip>
+                    </fa5:FontAwesome>
+                </StackPanel>
                 <TextBox Name="CreatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                          Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Orientation="Vertical"
-                        Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BoolToVisibility}, FallbackValue=Hidden}">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UpdatedByTextBox}"
-                       Content="Updated By" />
+                        Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UpdatedByTextBox}"
+                           Content="Updated By" />
+                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                     Visibility="{Binding UpdatedHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                        <fa5:FontAwesome.ToolTip>
+                            <TextBlock
+                                Text="{Binding DbEntry.LastUpdatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                        </fa5:FontAwesome.ToolTip>
+                    </fa5:FontAwesome>
+                </StackPanel>
                 <TextBox Name="UpdatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                          Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
