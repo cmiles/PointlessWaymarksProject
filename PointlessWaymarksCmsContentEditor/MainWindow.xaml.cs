@@ -560,15 +560,6 @@ namespace PointlessWaymarksCmsContentEditor
             allPages.ForEach(x => x.WriteLocalHtml());
         }
 
-        private async Task GenerateCameraRollHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var cameraRollPage = await CameraRollGalleryPageGenerator.CameraRoll(StatusContext.ProgressTracker());
-
-            cameraRollPage.WriteLocalHtml();
-        }
-
         private async Task GenerateAllFileHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -739,6 +730,15 @@ namespace PointlessWaymarksCmsContentEditor
 
                 loopCount++;
             }
+        }
+
+        private async Task GenerateCameraRollHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var cameraRollPage = await CameraRollGalleryPageGenerator.CameraRoll(StatusContext.ProgressTracker());
+
+            cameraRollPage.WriteLocalHtml();
         }
 
         private async Task GenerateIndex()
