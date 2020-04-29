@@ -1,11 +1,5 @@
 ﻿## Todos
- - Photo Galleries:
-    - Daily:
-       - Link to Camera Roll
-    - Camera Roll
-       - Should search be implemented?
-       - Should descriptions be included?
- - Property Change Tracking - TitleSummarySlug done, Tags done, Show in Main Feed Done, Created and Updated Done
+ - Property Change Tracking - Need: Content Format Type, Check Notes/Links
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -40,6 +34,18 @@
 
 ## Notes
 
+4/29/2020
+
+Body Content and Update Notes get visual updates and simple change indication.
+
+Camera Roll updated with links to the Daily Galleries.
+
+Added Camera Roll to the footer.
+
+Fixed an error with new content and the CreatedUpdated control detecting them as not new both in the autofill of updated and in validation.
+
+Worked on more automation for the photo imports.
+
 4/28/2020
 
 Added very basic Bracket code generation helpers and added link commands and buttons into the file editor.
@@ -53,6 +59,8 @@ Tried the 'Markdown Editor' Visual Studio extension for a week or so - loved the
 Published https://pointlesswaymarks.com/Files/PimaCounty/pima-county-multi-species-conservation-plan-2019-annual-report/pima-county-multi-species-conservation-plan-2019-annual-report.html to the main feed - first use of File Content on the index page and it seems to be working but I didn't see immediate rss updates which might need a check...
 
 Updated Index to have the related content - will have to experiment on mobile to see if this works - I think on desktop it is not quite a pure/clean but is reasonable and great for content discovery.
+
+Changed layout of the Camera Roll - after trying with a sort of list of list of days approach decided to go with a single list with date and info items mixed in with the photo items - maybe more 'date' items are needed (maybe years? maybe months?) but overall like this basic approach and also think this approach is a bit more interesting because it creates more difference between the daily galleries and the total list...
 
 4/27/2020
 

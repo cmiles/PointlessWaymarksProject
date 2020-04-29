@@ -19,6 +19,7 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
         private IUpdateNotes _dbEntry;
         private Command _refreshPreviewCommand;
         private ContentFormatChooserContext _updateNotesFormat;
+        private bool _updateNotesHasChanges;
         private string _updateNotesHtmlOutput;
         private string _userUpdateNotes = string.Empty;
 
@@ -61,6 +62,8 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
                 if (value == _userUpdateNotes) return;
                 _userUpdateNotes = value;
                 OnPropertyChanged();
+
+                UpdateNotesHasChanges = !StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes);
             }
         }
 
@@ -77,6 +80,17 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             }
         }
 
+        public bool UpdateNotesHasChanges
+        {
+            get => _updateNotesHasChanges;
+            set
+            {
+                if (value == _updateNotesHasChanges) return;
+                _updateNotesHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string UpdateNotesHtmlOutput
         {
             get => _updateNotesHtmlOutput;
@@ -87,6 +101,8 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
                 OnPropertyChanged();
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task LoadData(IUpdateNotes toLoad)
         {
@@ -129,7 +145,5 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
                 UpdateNotesHtmlOutput = "<h2>Not able to process input</h2>".ToHtmlDocument("Invalid", string.Empty);
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

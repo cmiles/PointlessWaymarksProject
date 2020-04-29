@@ -42,7 +42,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             UserMessageBoxResponseCommand = new Command<string>(UserMessageBoxResponse);
             UserStringEntryApprovedResponseCommand = new Command(UserStringEntryApprovedResponse);
-            UserStringEntryCancelledResponseCommand = new Command(UserStringEntryCancelledResponse);
+            UserStringEntryCancelledResponseCommand = new Command(UserStringEntryCanceledResponse);
         }
 
         public bool BlockUi
@@ -202,7 +202,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             if (obj.IsCanceled)
             {
-                ToastWarning("Cancelled Task");
+                ToastWarning("Canceled Task");
                 return;
             }
 
@@ -288,7 +288,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             if (obj.IsCanceled)
             {
-                ToastWarning("Cancelled Task");
+                ToastWarning("Canceled Task");
                 return;
             }
 
@@ -526,7 +526,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             _currentFullScreenCancellationSource?.Cancel();
         }
 
-        private void UserStringEntryCancelledResponse()
+        private void UserStringEntryCanceledResponse()
         {
             StringEntryApproved = false;
             _currentFullScreenCancellationSource?.Cancel();

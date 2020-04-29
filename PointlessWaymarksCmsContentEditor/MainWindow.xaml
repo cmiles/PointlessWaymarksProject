@@ -28,7 +28,7 @@
         </Style>
     </Window.Resources>
     <Grid>
-        <TabControl>
+        <TabControl BorderBrush="Green">
             <TabItem Header="Posts">
                 <postList:PostListWithActionsControl DataContext="{Binding TabPostListContext}" />
             </TabItem>

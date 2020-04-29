@@ -45,6 +45,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var db = Db.Context().Result;
 
+            var staticLinksDiv = new DivTag().AddClass("footer-content-lists-container");
+
+            var cameraRollLink = new LinkTag("Camera Roll",
+                UserSettingsSingleton.CurrentSettings().CameraRollPhotoGalleryUrl(), "footer-camera-roll-link");
+
+            staticLinksDiv.Children.Add(cameraRollLink);
+
             var possibleAbout = db.PostContents.Where(x => x.Title.ToLower() == "about").ToList();
 
             if (possibleAbout.Count > 0)
@@ -53,10 +60,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
                 var aboutLink = new LinkTag("About", settings.PostPageUrl(aboutToUse)).AddClass("footer-site-about");
 
-                var aboutDiv = new DivTag().AddClass("footer-content-lists-container");
-                aboutDiv.Children.Add(aboutLink);
+                staticLinksDiv.Children.Add(aboutLink);
 
-                footerDiv.Children.Add(aboutDiv);
+                footerDiv.Children.Add(staticLinksDiv);
             }
 
             return footerDiv;

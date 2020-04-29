@@ -31,6 +31,8 @@
                         Content="_Edit" />
                 <Button Command="{Binding NewContentFromFilesCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_New from Files" />
+                <Button Command="{Binding NewContentFromFilesWithAutosaveCommand}" Style="{StaticResource ActionPanelButton}"
+                        Content="_New w/Autosave" />
                 <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="New - Blank" />
                 <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}"

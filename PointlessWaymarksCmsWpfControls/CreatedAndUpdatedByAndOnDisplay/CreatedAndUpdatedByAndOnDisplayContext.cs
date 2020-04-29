@@ -23,6 +23,7 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
         private DateTime? _updatedOn;
         private bool _createdByHasChanges;
         private bool _updatedHasChanges;
+        private bool _isNewEntry;
 
         public CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
             ICreatedAndLastUpdateOnAndBy dbEntry)
@@ -151,18 +152,41 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
+        public bool IsNewEntry
+        {
+            get => _isNewEntry;
+            set
+            {
+                if (value == _isNewEntry) return;
+                _isNewEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
         public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DbEntry = toLoad;
-            CreatedBy = toLoad?.CreatedBy ?? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy ?? string.Empty;
-            UpdatedBy = toLoad?.LastUpdatedBy ?? string.Empty;
+
+            IsNewEntry = false;
+
+            if (toLoad == null)
+            {
+                IsNewEntry = true;
+            }
+            else if (((IContentId) DbEntry).Id < 1)
+            {
+                IsNewEntry = true;
+            }
+
+            CreatedBy = string.IsNullOrWhiteSpace(toLoad?.CreatedBy) ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy : DbEntry.CreatedBy;
+            UpdatedBy =  toLoad?.LastUpdatedBy ?? string.Empty;
 
             //If this is a 'first update' go ahead and fill in the Created by as the updated by, this
             //is realistically just a trade off, better for most common workflow - potential mistake
             //if trading off created/updated authors since you are not 'forcing' an entry
-            if (!string.IsNullOrWhiteSpace(CreatedBy) && string.IsNullOrWhiteSpace(UpdatedBy)) UpdatedBy = CreatedBy;
+            if (!IsNewEntry && string.IsNullOrWhiteSpace(UpdatedBy)) UpdatedBy = CreatedBy;
 
             CreatedOn = toLoad?.CreatedOn;
             UpdatedOn = toLoad?.LastUpdatedOn;
@@ -171,7 +195,7 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
 
             CreatedAndUpdatedByAndOn = string.Empty;
 
-            if (DbEntry == null)
+            if (IsNewEntry)
             {
                 CreatedAndUpdatedByAndOn = "New Entry";
                 ShowCreatedByEditor = true;
@@ -182,10 +206,10 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             ShowCreatedByEditor = false;
             ShowUpdatedByEditor = true;
 
-            if (!string.IsNullOrWhiteSpace(DbEntry.CreatedBy))
-                newStringParts.Add($"Created By {DbEntry.CreatedBy.Trim()}");
-            else
-                newStringParts.Add("Created");
+            newStringParts.Add(!string.IsNullOrWhiteSpace(DbEntry.CreatedBy)
+                ? $"Created By {DbEntry.CreatedBy.Trim()}"
+                : "Created");
+
             newStringParts.Add($"On {DbEntry.CreatedOn:g}");
 
             if (!string.IsNullOrWhiteSpace(DbEntry.LastUpdatedBy))
@@ -208,10 +232,10 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (DbEntry == null && string.IsNullOrWhiteSpace(CreatedBy))
+            if (IsNewEntry && string.IsNullOrWhiteSpace(CreatedBy))
                 return (false, "Created by can not be blank for a new entry.");
 
-            if (DbEntry != null && string.IsNullOrWhiteSpace(UpdatedBy))
+            if (!IsNewEntry && string.IsNullOrWhiteSpace(UpdatedBy))
                 return (false, "Updated by can not be blank when updating an entry");
 
             return (true, string.Empty);

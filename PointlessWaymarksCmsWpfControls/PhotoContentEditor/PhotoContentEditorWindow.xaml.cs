@@ -18,7 +18,18 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             InitializeComponent();
 
             StatusContext = new StatusControlContext();
-            PhotoEditor = new PhotoContentEditorContext(StatusContext);
+            PhotoEditor = new PhotoContentEditorContext(StatusContext, false);
+
+            DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+        }
+
+        public PhotoContentEditorWindow(bool forAutomation)
+        {
+            InitializeComponent();
+
+            StatusContext = new StatusControlContext();
+            PhotoEditor = new PhotoContentEditorContext(StatusContext, forAutomation);
 
             DataContext = this;
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);

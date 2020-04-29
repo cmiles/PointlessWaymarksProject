@@ -20,6 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
     public class BodyContentEditorContext : INotifyPropertyChanged
     {
         private ContentFormatChooserContext _bodyContentFormat;
+        private bool _bodyContentHasChanges;
         private string _bodyContentHtmlOutput;
         private IBodyContent _dbEntry;
         private Command _refreshPreviewCommand;
@@ -46,6 +47,8 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 if (value == _userBodyContent) return;
                 _userBodyContent = value;
                 OnPropertyChanged();
+
+                BodyContentHasChanges = !StringHelper.AreEqual(DbEntry.BodyContent, BodyContent);
             }
         }
 
@@ -59,6 +62,17 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 OnPropertyChanged();
 
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateContentHtml);
+            }
+        }
+
+        public bool BodyContentHasChanges
+        {
+            get => _bodyContentHasChanges;
+            set
+            {
+                if (value == _bodyContentHasChanges) return;
+                _bodyContentHasChanges = value;
+                OnPropertyChanged();
             }
         }
 

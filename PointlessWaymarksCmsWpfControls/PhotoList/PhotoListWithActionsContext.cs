@@ -46,7 +46,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
             OpenUrlForPhotoListCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForPhotoList));
             NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            NewContentFromFilesCommand = new Command(() => StatusContext.RunBlockingTask(NewContentFromFiles));
+            NewContentFromFilesCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await NewContentFromFiles(false)));
+            NewContentFromFilesWithAutosaveCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await NewContentFromFiles(true)));
+
             RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
             ExtractNewLinksInSelectedCommand =
@@ -124,6 +128,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         }
 
         public Command NewContentFromFilesCommand { get; set; }
+
+        public Command NewContentFromFilesWithAutosaveCommand { get; set; }
 
         public Command OpenUrlForPhotoListCommand
         {
@@ -337,7 +343,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             newContentWindow.Show();
         }
 
-        private async Task NewContentFromFiles()
+        private async Task NewContentFromFiles(bool autoSaveAndClose)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -383,8 +389,18 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var editor = new PhotoContentEditorWindow(loopFile);
-                editor.Show();
+
+                if (autoSaveAndClose)
+                {
+                    var editor = new PhotoContentEditorWindow(true);
+                    StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+                        await TryAutomateEditorSaveGenerateAndClose(editor, loopFile));
+                }
+                else
+                {
+                    var editor = new PhotoContentEditorWindow(loopFile);
+                    editor.Show();
+                }
 
                 StatusContext.Progress($"New Photo Editor - {loopFile.FullName} ");
 
@@ -450,6 +466,46 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             Clipboard.SetText(finalString);
 
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        private async Task TryAutomateEditorSaveGenerateAndClose(PhotoContentEditorWindow editor, FileInfo loopFile)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            editor.StatusContext.BlockUi = true;
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            editor.Show();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            await editor.PhotoEditor.LoadData(null);
+            editor.PhotoEditor.SelectedFile = loopFile;
+            await editor.PhotoEditor.ProcessSelectedFile();
+
+            var validation = await editor.PhotoEditor.ValidateAll();
+
+            if (validation.Any(x => !x.Item1))
+            {
+                //Todo: Get validation errors to user
+                editor.StatusContext.BlockUi = false;
+                return;
+            }
+
+            try
+            {
+                await editor.PhotoEditor.SaveAndGenerateHtml();
+            }
+            catch (Exception e)
+            {
+                await editor.StatusContext.ShowMessageWithOkButton("Trouble with Autosave", e.Message);
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            editor.Close();
         }
     }
 }

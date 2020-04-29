@@ -19,7 +19,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="250" />
         </Grid.ColumnDefinitions>
-        <Label Target="{Binding ElementName=FormatTypeComboBox}">Format Type</Label>
+        <Label Target="{Binding ElementName=FormatTypeComboBox}" Style="{StaticResource DataEntryLabelStyle}">Format Type</Label>
         <ComboBox
             Name="FormatTypeComboBox"
             Grid.Column="1"

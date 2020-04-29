@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HtmlTags;
@@ -44,17 +43,21 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
 
                 var infoItem = new DivTag().AddClass("camera-roll-info-item-container");
 
-                infoItem.Children.Add(new DivTag().AddClass("camera-roll-info-date")
-                    .Text($"{loopDate:yyyy MMMM d, dddd}"));
+                var dateLink = new LinkTag($"{loopDate:yyyy MMMM d, dddd}",
+                    UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(loopDate),
+                    "camera-roll-info-date-link");
+                var dateDiv = new DivTag().AddClass("camera-roll-info-date");
+                dateDiv.Children.Add(dateLink);
+                infoItem.Children.Add(dateDiv);
 
                 var cameras = datePhotos
                     .Where(x => !string.IsNullOrWhiteSpace(x.CameraMake) && !string.IsNullOrWhiteSpace(x.CameraModel))
-                    .Select(x => $"{x.CameraMake.Trim()} {x.CameraModel.Trim()}").Distinct().OrderBy(x => x).ToList().JoinListOfStringsToCommonUsageListWithAnd();
+                    .Select(x => $"{x.CameraMake.Trim()} {x.CameraModel.Trim()}").Distinct().OrderBy(x => x).ToList()
+                    .JoinListOfStringsToCommonUsageListWithAnd();
                 infoItem.Children.Add(new DivTag().AddClass("camera-roll-info-camera").Text(cameras));
 
-                var lenses = datePhotos
-                    .Where(x => !string.IsNullOrWhiteSpace(x.Lens))
-                    .Select(x => x.Lens.Trim()).Distinct().OrderBy(x => x).ToList().JoinListOfStringsToCommonUsageListWithAnd();
+                var lenses = datePhotos.Where(x => !string.IsNullOrWhiteSpace(x.Lens)).Select(x => x.Lens.Trim())
+                    .Distinct().OrderBy(x => x).ToList().JoinListOfStringsToCommonUsageListWithAnd();
                 infoItem.Children.Add(new DivTag().AddClass("camera-roll-info-lens").Text(lenses));
 
                 cameraRollContainer.Children.Add(infoItem);

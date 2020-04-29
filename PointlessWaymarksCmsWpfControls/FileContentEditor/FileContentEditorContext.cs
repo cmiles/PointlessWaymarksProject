@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
@@ -41,6 +39,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private FileContent _dbEntry;
         private Command _extractNewLinksCommand;
+        private HelpDisplayContext _helpContext;
         private FileInfo _initialFile;
         private Command _openSelectedFileDirectoryCommand;
         private string _pdfToImagePageToExtract = "1";
@@ -55,7 +54,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
-        private HelpDisplayContext _helpContext;
 
         public FileContentEditorContext(StatusControlContext statusContext)
         {
@@ -135,6 +133,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public Command DownloadLinkToClipboardCommand { get; set; }
+
         public Command ExtractNewLinksCommand
         {
             get => _extractNewLinksCommand;
@@ -145,6 +145,19 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public HelpDisplayContext HelpContext
+        {
+            get => _helpContext;
+            set
+            {
+                if (Equals(value, _helpContext)) return;
+                _helpContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command LinkToClipboardCommand { get; set; }
 
         public Command OpenSelectedFileCommand { get; set; }
 
@@ -343,35 +356,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             StatusContext.Progress($"File load - {SelectedFile.FullName} ");
         }
 
-        private async Task GenerateHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            StatusContext.Progress("Generating Html...");
-
-            var htmlContext = new SingleFilePage(DbEntry);
-
-            htmlContext.WriteLocalHtml();
-        }
-        private async Task LinkToClipboard()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (DbEntry == null || DbEntry.Id < 1)
-            {
-                StatusContext.ToastError("Sorry - please save before getting link...");
-                return;
-            }
-
-            var linkString = BracketCodeFiles.FileLinkBracketCode(DbEntry);
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(linkString);
-
-            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
-        }
-
         private async Task DownloadLinkToClipboard()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -383,6 +367,36 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
 
             var linkString = BracketCodeFiles.FileDownloadLinkBracketCode(DbEntry);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(linkString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        }
+
+        private async Task GenerateHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.Progress("Generating Html...");
+
+            var htmlContext = new SingleFilePage(DbEntry);
+
+            htmlContext.WriteLocalHtml();
+        }
+
+        private async Task LinkToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                StatusContext.ToastError("Sorry - please save before getting link...");
+                return;
+            }
+
+            var linkString = BracketCodeFiles.FileLinkBracketCode(DbEntry);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -666,7 +680,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            HelpContext = new HelpDisplayContext(FileContentHelpMarkdown.HelpBlock + Environment.NewLine + BracketCodeHelpMarkdown.HelpBlock);
+            HelpContext = new HelpDisplayContext(FileContentHelpMarkdown.HelpBlock + Environment.NewLine +
+                                                 BracketCodeHelpMarkdown.HelpBlock);
 
             ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
             SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
@@ -682,22 +697,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             SaveAndExtractImageFromPdfCommand =
                 new Command(() => StatusContext.RunBlockingTask(SaveAndExtractImageFromPdf));
             LinkToClipboardCommand = new Command(() => StatusContext.RunNonBlockingTask(LinkToClipboard));
-            DownloadLinkToClipboardCommand = new Command(() => StatusContext.RunNonBlockingTask(DownloadLinkToClipboard));
-        }
-
-        public Command DownloadLinkToClipboardCommand { get; set; }
-
-        public Command LinkToClipboardCommand { get; set; }
-
-        public HelpDisplayContext HelpContext
-        {
-            get => _helpContext;
-            set
-            {
-                if (Equals(value, _helpContext)) return;
-                _helpContext = value;
-                OnPropertyChanged();
-            }
+            DownloadLinkToClipboardCommand =
+                new Command(() => StatusContext.RunNonBlockingTask(DownloadLinkToClipboard));
         }
 
         private async Task<(bool, string)> Validate()

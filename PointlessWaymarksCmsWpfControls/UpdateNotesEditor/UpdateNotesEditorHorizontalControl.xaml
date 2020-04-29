@@ -9,6 +9,7 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:fa5="http://schemas.fontawesome.com/icons/"
     d:DataContext="{d:DesignInstance updateNotesEditor:UpdateNotesEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -19,6 +20,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -27,7 +29,10 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0" Header="Format Type" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox Grid.Row="0" Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Format</Label>
+                </GroupBox.Header>
                 <contentFormat:ContentFormatChooserControl DataContext="{Binding UpdateNotesFormat}" />
             </GroupBox>
             <Grid Grid.Row="1" Margin="2">
@@ -36,8 +41,20 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <GroupBox Header="Content" Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource DataEntryLabelStyle}"
+                                   Target="{Binding ElementName=UpdateNotesContentTextBox}">
+                                Content
+                            </Label>
+                            <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                             ToolTip="Content Has Changes"
+                                             Visibility="{Binding UpdateNotesHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                        </StackPanel>
+                    </GroupBox.Header>
                     <TextBox
+                        Name="UpdateNotesContentTextBox"
                         SpellCheck.IsEnabled="True"
                         AcceptsReturn="True"
                         BorderThickness="0"
@@ -52,14 +69,21 @@
                               Background="#EEEEEE"
                               ShowsPreview="True"
                               Height="6" />
-                <GroupBox Grid.Row="2" Header="Preview" Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox Grid.Row="2" Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <GroupBox.Header>
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=UpdateNotesPreviewWebView}">
+                            Preview
+                        </Label>
+                    </GroupBox.Header>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <Button Command="{Binding RefreshPreviewCommand}">Refresh Preview</Button>
+                        <Button Command="{Binding RefreshPreviewCommand}" Margin="0,0,0,4" Height="24">Refresh Preview</Button>
                         <controls:WebView
+                            Name="UpdateNotesPreviewWebView"
                             NavigationStarting="WebView_OnNavigationStarting"
                             Grid.Row="1"
                             wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UpdateNotesHtmlOutput}"

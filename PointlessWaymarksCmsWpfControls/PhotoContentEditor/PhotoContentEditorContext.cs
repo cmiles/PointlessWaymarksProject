@@ -67,11 +67,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private Command _viewPhotoMetadataCommand;
 
 
-        public PhotoContentEditorContext(StatusControlContext statusContext)
+        public PhotoContentEditorContext(StatusControlContext statusContext, bool skipInitialLoad)
         {
             SetupContextAndCommands(statusContext);
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
+            if(!skipInitialLoad) StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
         }
 
         public PhotoContentEditorContext(StatusControlContext statusContext, FileInfo initialPhoto)
@@ -534,7 +534,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private async Task ProcessSelectedFile()
+        public async Task ProcessSelectedFile()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -869,7 +869,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             return (true, string.Empty);
         }
 
-        private async Task<List<(bool, string)>> ValidateAll()
+        public async Task<List<(bool, string)>> ValidateAll()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
