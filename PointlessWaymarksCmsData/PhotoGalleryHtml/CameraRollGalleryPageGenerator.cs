@@ -21,8 +21,6 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
 
             progress?.Report($"Found {allDates.Count} Dates with Photos for Camera Roll");
 
-            var returnList = new List<DailyPhotosPage>();
-
             var loopGoal = allDates.Count;
 
             var cameraRollContainer = new DivTag().AddClass("camera-roll-list");

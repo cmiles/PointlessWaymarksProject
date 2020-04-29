@@ -52,6 +52,8 @@ Tried the 'Markdown Editor' Visual Studio extension for a week or so - loved the
 
 Published https://pointlesswaymarks.com/Files/PimaCounty/pima-county-multi-species-conservation-plan-2019-annual-report/pima-county-multi-species-conservation-plan-2019-annual-report.html to the main feed - first use of File Content on the index page and it seems to be working but I didn't see immediate rss updates which might need a check...
 
+Updated Index to have the related content - will have to experiment on mobile to see if this works - I think on desktop it is not quite a pure/clean but is reasonable and great for content discovery.
+
 4/27/2020
 
 More Help work - currently using the File Editor as a test. It may be worth circling back to see how localized text is commonly done in WPF and see if that is simple enough to try - I didn't go that direction immediately because my first idea was to keep everything 'in code'. Initial results are decent.

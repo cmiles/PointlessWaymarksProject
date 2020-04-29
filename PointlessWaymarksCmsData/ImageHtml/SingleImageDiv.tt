@@ -1,11 +1,9 @@
 ﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Text" #>
-<#@ import namespace="System.Collections.Generic" #>
-<#@ import namespace="PointlessWaymarksCmsData.ImageHtml" #>
+<#@ import namespace="CommonHtml" #>
 
 <div class="content-container">
-    <#= PictureInformation.PictureFigureTag("100vw") #>
+    <#= PictureInformation.PictureFigureWithCaptionTag("100vw") #>
     <#= ImageParts.ImageSourceNotesDivTag(DbEntry) #>
+    <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
 </div>

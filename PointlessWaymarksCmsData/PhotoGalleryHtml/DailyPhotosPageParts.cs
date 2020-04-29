@@ -51,7 +51,7 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
             {
                 var photoContainer = new DivTag().AddClass("daily-photo-gallery-photo-container");
                 photoContainer.Children.Add(
-                    loopPhotos.PictureFigureWithLinkToPicturePageTag(
+                    loopPhotos.PictureFigureWithCaptionAndLinkToPicturePageTag(
                         "(min-width: 1200px) 33vw, (min-width: 600px) 50vw, 100vw"));
 
                 containerDiv.Children.Add(photoContainer);

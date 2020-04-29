@@ -184,7 +184,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return figCaptionTag;
         }
 
-        public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes)
+        public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes, bool willHaveVisibleCaption)
         {
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("srcset", pictureDirectoryInfo.SrcSetString())
@@ -197,6 +197,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
+
+            if(!willHaveVisibleCaption 
+               && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText)
+               && !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary))
+                imageTag.Attr("alt", ((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;
         }

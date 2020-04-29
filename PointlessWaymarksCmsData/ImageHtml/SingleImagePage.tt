@@ -1,8 +1,5 @@
 ﻿<#@ template language="C#" #>
-<#@ assembly name="System.Core" #>
-<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
-<#@ import namespace="PointlessWaymarksCmsData.Pictures" #>
-<#@ import namespace="PointlessWaymarksCmsData.ImageHtml" #>
+<#@ import namespace="CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,7 +38,7 @@
 </head>
 
 <body class="single-photo-body">
-    <#= PictureInformation.PictureFigureTag("100vw") #>
+    <#= PictureInformation.PictureFigureWithCaptionTag("100vw") #>
     <#= ImageParts.ImageSourceNotesDivTag(DbEntry) #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>

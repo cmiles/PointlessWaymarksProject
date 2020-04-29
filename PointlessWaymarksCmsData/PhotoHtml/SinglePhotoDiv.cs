@@ -9,10 +9,7 @@
 // ------------------------------------------------------------------------------
 namespace PointlessWaymarksCmsData.PhotoHtml
 {
-    using System.Linq;
-    using System.Text;
-    using System.Collections.Generic;
-    using PointlessWaymarksCmsData.CommonHtml;
+    using CommonHtml;
     using System;
     
     /// <summary>
@@ -29,17 +26,24 @@ namespace PointlessWaymarksCmsData.PhotoHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("<div class=\"content-container\">\r\n    ");
+            this.Write("\r\n<div class=\"content-container\">\r\n    ");
             
-            #line 8 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureTag("100vw")));
+            #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureWithCaptionTag("100vw")));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 9 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
+            #line 6 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PhotoDetails.PhotoDetailsDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 7 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result));
             
             #line default
             #line hidden

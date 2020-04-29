@@ -9,10 +9,7 @@
 // ------------------------------------------------------------------------------
 namespace PointlessWaymarksCmsData.NoteHtml
 {
-    using System.Linq;
-    using System.Text;
-    using System.Collections.Generic;
-    using PointlessWaymarksCmsData.NoteHtml;
+    using CommonHtml;
     using System;
     
     /// <summary>
@@ -31,15 +28,22 @@ namespace PointlessWaymarksCmsData.NoteHtml
         {
             this.Write("\r\n<div class=\"content-container\">\r\n    ");
             
-            #line 9 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
+            #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(NoteParts.NoteTitleLinkDiv(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 10 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(CommonHtml.Tags.PostBodyDiv(DbEntry)));
+            #line 6 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 7 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\NoteHtml\SingleNoteDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result));
             
             #line default
             #line hidden

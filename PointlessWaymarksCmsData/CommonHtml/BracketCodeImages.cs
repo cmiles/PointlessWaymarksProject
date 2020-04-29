@@ -111,7 +111,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
         public static string ImageCodeProcessToFigureWithLink(string toProcess, IProgress<string> progress)
         {
             return ImageCodeProcess(toProcess,
-                page => page.PictureInformation.PictureFigureWithLinkToPicturePageTag("100vw").ToString(), progress);
+                page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(), progress);
         }
     }
 }

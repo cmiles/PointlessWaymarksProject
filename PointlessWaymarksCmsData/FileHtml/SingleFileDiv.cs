@@ -9,17 +9,14 @@
 // ------------------------------------------------------------------------------
 namespace PointlessWaymarksCmsData.FileHtml
 {
-    using System.Linq;
-    using System.Text;
-    using System.Collections.Generic;
-    using PointlessWaymarksCmsData.CommonHtml;
+    using CommonHtml;
     using System;
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\FileHtml\SingleFileDiv.tt"
+    #line 1 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\FileHtml\SingleFileDiv.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class SingleFileDiv : SingleFileDivBase
     {
@@ -29,25 +26,31 @@ namespace PointlessWaymarksCmsData.FileHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\n");
             this.Write("\r\n<div class=\"content-container\">\r\n    ");
             
-            #line 8 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\FileHtml\SingleFileDiv.tt"
+            #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\FileHtml\SingleFileDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleLinkDiv(DbEntry, DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 9 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\FileHtml\SingleFileDiv.tt"
+            #line 6 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\FileHtml\SingleFileDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 10 "C:\Code\PointlessWaymarksCms\PointlessWaymarksCmsData\FileHtml\SingleFileDiv.tt"
+            #line 7 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\FileHtml\SingleFileDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 8 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\FileHtml\SingleFileDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result));
             
             #line default
             #line hidden

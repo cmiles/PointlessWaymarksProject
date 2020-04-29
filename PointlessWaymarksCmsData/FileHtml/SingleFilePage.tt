@@ -1,6 +1,5 @@
 ﻿<#@ template language="C#" #>
-<#@ assembly name="System.Core" #>
-<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
+<#@ import namespace="CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
 <head>
