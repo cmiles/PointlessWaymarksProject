@@ -16,6 +16,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var coreLinksDiv = new DivTag().AddClass("core-links-container");
 
             coreLinksDiv.Children.Add(
+                new LinkTag("Main", @$"https://{settings.SiteUrl}").AddClass("core-links-item"));
+            coreLinksDiv.Children.Add(
                 new LinkTag("Search", @$"{settings.AllContentListUrl()}").AddClass("core-links-item"));
             coreLinksDiv.Children.Add(
                 new LinkTag("Photos", @$"{settings.CameraRollPhotoGalleryUrl()}").AddClass("core-links-item"));
@@ -370,7 +372,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var titleHeader = new HtmlTag("H1").AddClass("index-title-content");
             titleHeader.Children.Add(new LinkTag(UserSettingsSingleton.CurrentSettings().SiteName,
-                UserSettingsSingleton.CurrentSettings().SiteUrl, "index-title-content-link"));
+                $"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}", "index-title-content-link"));
 
             titleContainer.Children.Add(titleHeader);
 

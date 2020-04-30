@@ -1,6 +1,7 @@
 ﻿## Todos
  - All Search List type filters
  - Footer rework after the all search is done - maybe remove type page links in favor of all search and look at layout
+ - Look at Sendinblue or other email integration - with RSS dead and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start?)
  - Property Change Tracking - Need: Content Format Type, Check Notes/Links
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
@@ -14,13 +15,10 @@
  - Tag Content Pages?
 
 ## Ideas
- - Hide button for the Body Preview
- - Could the replace line breaks with spaces add to the TextBox context menu without interfering with other choices?
+ - Could the replace line breaks with spaces add to the TextBox context menu without interfering with other choices? Looks like spell check is the most questionable option - need to test...
  - Auto-validate all html output?
  - Look at deployment options - self contained? msix? automated?
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
- - Top of the html page menu - or other 'nav' idea (maybe just a one level set of links that collapses on mobile? or...)
- - Top of the html page search box - maybe pass a query parameter to the all content list page?
  - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
  - Backup the master media directory, database and current site to a dated folder (where?)
  - Could all font sizes be controlled by slider? I like the control in the editor but maybe everywhere would be more useful?
