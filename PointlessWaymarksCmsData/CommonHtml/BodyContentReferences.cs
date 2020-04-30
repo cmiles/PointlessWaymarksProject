@@ -118,6 +118,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var relatedTags = transformedList.OrderByDescending(x => x.sortDateTime).Select(x => x.tagContent).ToList();
 
+            if(!relatedTags.Any()) return HtmlTag.Empty();
+
             var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
 
             relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClass("related-post-label-tag"));

@@ -44,6 +44,8 @@
 </head>
 
 <body>
+    <#= Tags.StandardHeader().ToString() #>
+    <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(Title).ToString() #>
     <#= DailyPhotosPageParts.PhotoList(ImageList) #>
     <#= HorizontalRule.StandardRule() #>

@@ -9,6 +9,34 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class Tags
     {
+        public static HtmlTag CoreLinksDiv()
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var coreLinksDiv = new DivTag().AddClass("core-links-container");
+
+            coreLinksDiv.Children.Add(
+                new LinkTag("Search", @$"{settings.AllContentListUrl()}").AddClass("core-links-item"));
+            coreLinksDiv.Children.Add(
+                new LinkTag("Photos", @$"{settings.CameraRollPhotoGalleryUrl()}").AddClass("core-links-item"));
+            coreLinksDiv.Children.Add(new LinkTag("Links", @$"{settings.LinkListUrl()}").AddClass("core-links-item"));
+
+            var db = Db.Context().Result;
+
+            var possibleAbout = db.PostContents.Where(x => x.Title.ToLower() == "about").ToList();
+
+            if (possibleAbout.Count > 0)
+            {
+                var aboutToUse = possibleAbout.OrderByDescending(x => x.CreatedOn).First();
+
+                var aboutLink = new LinkTag("About", settings.PostPageUrl(aboutToUse)).AddClass("core-links-item");
+
+                coreLinksDiv.Children.Add(aboutLink);
+            }
+
+            return coreLinksDiv;
+        }
+
         public static HtmlTag CreatedByAndUpdatedOnDiv(ICreatedAndLastUpdateOnAndBy dbEntry)
         {
             var titleContainer = new DivTag().AddClass("created-and-updated-container");
@@ -184,7 +212,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return figCaptionTag;
         }
 
-        public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes, bool willHaveVisibleCaption)
+        public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes,
+            bool willHaveVisibleCaption)
         {
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("srcset", pictureDirectoryInfo.SrcSetString())
@@ -198,10 +227,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
 
-            if(!willHaveVisibleCaption 
-               && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText)
-               && !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary))
-                imageTag.Attr("alt", ((ITitleSummarySlugFolder)pictureDirectoryInfo.DbEntry).Summary);
+            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText) &&
+                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
+                imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;
         }
@@ -310,11 +338,53 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return relatedPostsContainer;
         }
 
+        public static HtmlTag SearchTypeLinksDiv()
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var coreLinksDiv = new DivTag().AddClass("search-types-container");
+
+            coreLinksDiv.Children.Add(
+                new LinkTag("Search Posts", @$"{settings.PostsListUrl()}").AddClass("search-types-item"));
+            coreLinksDiv.Children.Add(
+                new LinkTag("Photos", @$"{settings.PhotoListUrl()}").AddClass("search-types-item"));
+            coreLinksDiv.Children.Add(
+                new LinkTag("Images", @$"{settings.ImageListUrl()}").AddClass("search-types-item"));
+            coreLinksDiv.Children.Add(new LinkTag("Files", @$"{settings.FileListUrl()}").AddClass("search-types-item"));
+            coreLinksDiv.Children.Add(new LinkTag("Notes", @$"{settings.NoteListUrl()}").AddClass("search-types-item"));
+            coreLinksDiv.Children.Add(new LinkTag("Links", @$"{settings.LinkListUrl()}").AddClass("search-types-item"));
+
+            return coreLinksDiv;
+        }
+
         public static HtmlTag SiteMainRss()
         {
             return new HtmlTag("Link").Attr("rel", "alternate").Attr("type", "application/rss+xml")
                 .Attr("title", $"Main RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName}").Attr("href",
                     $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
+        }
+
+        public static HtmlTag StandardHeader()
+        {
+            var titleContainer = new DivTag().AddClass("index-title-container");
+
+            var titleHeader = new HtmlTag("H1").AddClass("index-title-content");
+            titleHeader.Children.Add(new LinkTag(UserSettingsSingleton.CurrentSettings().SiteName,
+                UserSettingsSingleton.CurrentSettings().SiteUrl, "index-title-content-link"));
+
+            titleContainer.Children.Add(titleHeader);
+
+            var siteSummary = UserSettingsSingleton.CurrentSettings().SiteSummary;
+
+            if (!string.IsNullOrWhiteSpace(siteSummary))
+            {
+                var titleSiteSummary = new HtmlTag("H5").AddClass("index-title-summary-content").Text(siteSummary);
+                titleContainer.Children.Add(titleSiteSummary);
+            }
+
+            titleContainer.Children.Add(CoreLinksDiv());
+
+            return titleContainer;
         }
 
         public static HtmlTag TagList(List<string> tags)

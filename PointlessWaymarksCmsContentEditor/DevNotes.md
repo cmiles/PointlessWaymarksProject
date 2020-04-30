@@ -1,4 +1,6 @@
 ﻿## Todos
+ - All Search List type filters
+ - Footer rework after the all search is done - maybe remove type page links in favor of all search and look at layout
  - Property Change Tracking - Need: Content Format Type, Check Notes/Links
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
@@ -33,6 +35,14 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 ## Notes
+
+4/30/3030
+
+Added a standard header tag - rather than add a responsive hamburger menu just went with a very simple set of text links. If I try migrating HikeLemmon a stronger menu component will be worth looking at but for now playing with simple coding on some menu option I actually wasn't sure anything was a 'win' vs just picking the most important links and showing them. Header also added to a number of additional pages.
+
+Fixed a bug in related content where no related was still showing the related: heading with nothing following.
+
+Added a content type to the content lists data - this is a setup for a future search setup on the 'all' list that allows filtering by type - I think that change will really improve the search.
 
 4/29/2020
 

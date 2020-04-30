@@ -33,6 +33,8 @@
 </head>
 
 <body>
+    <#= Tags.StandardHeader().ToString() #>
+    <#= HorizontalRule.StandardRule() #>
     <#= NoteParts.NoteTitleDiv(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
      <#= HorizontalRule.StandardRule() #>

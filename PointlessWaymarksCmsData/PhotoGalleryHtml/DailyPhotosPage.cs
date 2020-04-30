@@ -166,55 +166,69 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
             this.Write("\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
             
             #line 47 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv(Title).ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 48 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DailyPhotosPageParts.PhotoList(ImageList)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 49 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv(Title).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 50 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DailyPhotosPageParts.PhotoList(ImageList)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 51 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 51 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 53 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(PhotoTags).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 52 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 54 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(ImageList.Select(x => ((IContentId)x.Pictures.DbEntry).ContentId).ToList()).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 53 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 55 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DailyPhotosPageParts.PreviousAndNextPostsDiv(this)));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 55 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 57 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 56 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 58 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoGalleryHtml\DailyPhotosPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

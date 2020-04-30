@@ -149,7 +149,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
             #line 41 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Title().ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden

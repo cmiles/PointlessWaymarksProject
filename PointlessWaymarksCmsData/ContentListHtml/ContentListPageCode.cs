@@ -36,6 +36,32 @@ namespace PointlessWaymarksCmsData.ContentListHtml
                 photoListPhotoEntryDiv.Data("tags", loopContent.Tags);
                 photoListPhotoEntryDiv.Data("summary", loopContent.Summary);
 
+                switch (loopContent)
+                {
+                    case FileContent x:
+                        photoListPhotoEntryDiv.Data("contenttype", "files");
+                        break;
+                    case ImageContent x:
+                        photoListPhotoEntryDiv.Data("contenttype", "picture");
+                        break;
+                    case NoteContent x:
+                        photoListPhotoEntryDiv.Data("contenttype", "post");
+                        break;
+                    case PhotoContent x:
+                        photoListPhotoEntryDiv.Data("contenttype", "picture");
+                        break;
+                    case PostContent x:
+                        photoListPhotoEntryDiv.Data("contenttype", "post");
+                        break;
+                    case LinkStream x:
+                        photoListPhotoEntryDiv.Data("contenttype", "link");
+                        break;
+                    default:
+                        photoListPhotoEntryDiv.Data("contenttype", "other");
+                        break;
+                }
+
+
                 photoListPhotoEntryDiv.Children.Add(ContentCompact.FromContent(loopContent));
 
                 allContentContainer.Children.Add(photoListPhotoEntryDiv);

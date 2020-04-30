@@ -44,6 +44,8 @@
 </head>
 
 <body>
+    <#= Tags.StandardHeader().ToString() #>
+    <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv($"{SiteName} - Photographs").ToString() #>
     <#= CameraRollContentTag.ToString() #>
     <#= HorizontalRule.StandardRule() #>

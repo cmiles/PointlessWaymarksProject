@@ -38,7 +38,7 @@
 </head>
 
 <body>
-    <#= Title().ToString() #>
+    <#= Tags.StandardHeader().ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= IndexPosts() #>
     <#= Tags.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()) #>

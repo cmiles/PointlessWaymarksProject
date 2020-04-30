@@ -37,6 +37,8 @@
 </head>
 
 <body>
+    <#= Tags.StandardHeader().ToString() #>
+    <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>

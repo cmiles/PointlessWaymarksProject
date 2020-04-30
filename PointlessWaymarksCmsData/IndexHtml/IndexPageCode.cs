@@ -128,18 +128,6 @@ namespace PointlessWaymarksCmsData.IndexHtml
             return indexBodyContainer;
         }
 
-        public HtmlTag Title()
-        {
-            var titleContainer = new DivTag().AddClass("index-title-container");
-            var titleHeader = new HtmlTag("H1").AddClass("index-title-content").Text(SiteName);
-            var titleSiteSummary = new HtmlTag("H5").AddClass("index-title-summary-content").Text(SiteSummary);
-
-            titleContainer.Children.Add(titleHeader);
-            titleContainer.Children.Add(titleSiteSummary);
-
-            return titleContainer;
-        }
-
         public void WriteLocalHtml()
         {
             WriteRss();
