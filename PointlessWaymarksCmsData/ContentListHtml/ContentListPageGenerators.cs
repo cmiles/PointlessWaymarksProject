@@ -99,7 +99,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
                 localIndexFile.Refresh();
             }
 
-            File.WriteAllText(localIndexFile.FullName,
+            await File.WriteAllTextAsync(localIndexFile.FullName,
                 RssStringBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - {titleAdd}",
                     string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }

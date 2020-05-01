@@ -15,8 +15,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var coreLinksDiv = new DivTag().AddClass("core-links-container");
 
-            coreLinksDiv.Children.Add(
-                new LinkTag("Main", @$"https://{settings.SiteUrl}").AddClass("core-links-item"));
+            coreLinksDiv.Children.Add(new LinkTag("Main", @$"https://{settings.SiteUrl}").AddClass("core-links-item"));
             coreLinksDiv.Children.Add(
                 new LinkTag("Search", @$"{settings.AllContentListUrl()}").AddClass("core-links-item"));
             coreLinksDiv.Children.Add(

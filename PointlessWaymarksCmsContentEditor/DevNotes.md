@@ -1,7 +1,5 @@
 ﻿## Todos
- - All Search List type filters
- - Footer rework after the all search is done - maybe remove type page links in favor of all search and look at layout
- - Look at Sendinblue or other email integration - with RSS dead and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start?)
+ - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
  - Property Change Tracking - Need: Content Format Type, Check Notes/Links
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
@@ -15,8 +13,9 @@
  - Tag Content Pages?
 
 ## Ideas
- - Could the replace line breaks with spaces add to the TextBox context menu without interfering with other choices? Looks like spell check is the most questionable option - need to test...
  - Auto-validate all html output?
+ - An app panel to generate smaller parts for dev debug
+ - Animate changes on the Lists when filtered
  - Look at deployment options - self contained? msix? automated?
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
  - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
@@ -34,13 +33,28 @@
 
 ## Notes
 
-4/30/3030
+5/1/2020
+
+I had moved over to iis for hosting for local dev and had written about it being easier - that was true for some initial work I did but I have now moved back to dotnet serve - in retrospect just as easy I think. Details that helped me -
+   - dotnet dev-certs https --help - I didn't know this existed and found it via a google search on https://www.hanselman.com/blog/DevelopingLocallyWithASPNETCoreUnderHTTPSSSLAndSelfSignedCerts.aspx - seems like in many cases the dev certs should just work but I don't think anyone would argue that dev setups have odd hiccups over time esp. if you are constantly installing previews...
+   - In dotnet serve you can't forget either -S or -p 443 in conjunction with a Hosts file entry such as 127.0.0.1 pointlesswaymarks.com
+   - Probably worth noting ipconfig /flushdns - not sure what situations trigger needing this in which browsers if/when... but worth noting
+
+I now think the problems I had with dotnet serve were actually about some misses doing 'everthing' correctly esp. moving from local debug in http vs https - everything above is documented and simple, but just enough details that I think when new to it I was confused occasionally by not getting everything correct all at once...
+
+Changed the footer to use the core links like in the header and changed the format.
+
+Added new checkboxes and javascript to the All Content List to filter by 'type' - here some content types are grouped together.
+
+4/30/2020
 
 Added a standard header tag - rather than add a responsive hamburger menu just went with a very simple set of text links. If I try migrating HikeLemmon a stronger menu component will be worth looking at but for now playing with simple coding on some menu option I actually wasn't sure anything was a 'win' vs just picking the most important links and showing them. Header also added to a number of additional pages.
 
 Fixed a bug in related content where no related was still showing the related: heading with nothing following.
 
 Added a content type to the content lists data - this is a setup for a future search setup on the 'all' list that allows filtering by type - I think that change will really improve the search.
+
+Did a quick experiment with the TextBox wondering if I replaced the ContextMenu with my own if the Spell Checker would then grab that and use it - it didn't... it is likely that the problem can be solved either in code but I think benefit to time here is to just forget about this for now and let the return stripping in selected stay as a button for now.
 
 4/29/2020
 

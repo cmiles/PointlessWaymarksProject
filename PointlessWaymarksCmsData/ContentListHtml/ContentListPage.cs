@@ -85,7 +85,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             this.Write("\r\n    <h1 class=\"index-title-content\">");
             
             #line 27 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture($"{UserSettingsSingleton.CurrentSettings().SiteName} {ListTitle}"));
+            this.Write(this.ToStringHelper.ToStringWithCulture($"Search {ListTitle}"));
             
             #line default
             #line hidden
@@ -101,13 +101,20 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             this.Write("...\">\r\n    </div>\r\n    ");
             
             #line 31 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(ContentTableTag()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(FilterCheckboxesTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 32 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(ContentTableTag()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 33 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
@@ -117,14 +124,24 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 <script>
     function searchContent() {
       // Declare variables
-      var input, filterText, contentDivs, loopDiv, i, divDataText;
+      var input, filterText, contentTypes, contentDivs, loopDiv, i, divDataText;
       input = document.getElementById('userSearchText');
       filterText = input.value.toUpperCase();
+      contentTypes = Array.from(document.getElementsByClassName('content-list-filter-checkbox'))
+            .filter(x => x.checked).map(x => x.value);
+
       contentDivs = document.getElementsByClassName('content-list-item-container');
 
       // Loop through all list items, and hide those who don't match the search query
       for (i = 0; i < contentDivs.length; i++) {
         loopDiv = contentDivs[i];
+        divDataContentType = loopDiv.getAttribute('data-contenttype');
+
+        if(contentTypes.length && !contentTypes.includes(divDataContentType)){
+           loopDiv.style.display = ""none"";
+           continue;
+        }
+
 	    divDataText = loopDiv.getAttribute('data-title').concat(
 		    loopDiv.getAttribute('data-summary'),
 		    loopDiv.getAttribute('data-tags')).toUpperCase();
