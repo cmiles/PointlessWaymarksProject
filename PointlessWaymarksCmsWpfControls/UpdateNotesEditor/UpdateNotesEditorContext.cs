@@ -112,6 +112,8 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 
             RefreshPreviewCommand = new Command(() => StatusContext.RunBlockingTask(UpdateUpdateNotesContentHtml));
 
+            UpdateNotesFormat.InitialValue = DbEntry?.UpdateNotesFormat;
+
             if (toLoad == null || string.IsNullOrWhiteSpace(toLoad.UpdateNotesFormat))
             {
                 UpdateNotes = string.Empty;

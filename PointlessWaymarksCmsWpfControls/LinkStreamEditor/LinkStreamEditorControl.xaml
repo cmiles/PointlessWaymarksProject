@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
+    xmlns:fa5="http://schemas.fontawesome.com/icons/"
     d:DataContext="{d:DesignInstance local:LinkStreamEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -16,6 +17,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -26,8 +28,17 @@
         <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
             <StackPanel Margin="4" CanHorizontallyScroll="False">
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Url</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <StackPanel Orientation="Horizontal">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UrlTextBox}">Url</Label>
+                        <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                         Visibility="{Binding LinkUrlHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                            <fa5:FontAwesome.ToolTip>
+                                <TextBlock
+                                    Text="{Binding DbEntry.Url, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                            </fa5:FontAwesome.ToolTip>
+                        </fa5:FontAwesome>
+                    </StackPanel>
+                    <TextBox Name="UrlTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding LinkUrl, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <Grid Margin="6,2,0,0">
@@ -39,44 +50,122 @@
                     <Button Grid.Column="1" Command="{Binding OpenUrlInBrowserCommand}" Content="_Open in Browser" />
                 </Grid>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Comments</Label>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=CommentsTextBox}">
+                            Comments
+                        </Label>
+                        <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                         Visibility="{Binding CommentsHaveChanges, Converter={StaticResource BooleanToVisibility}}">
+                            <fa5:FontAwesome.ToolTip>
+                                <TextBlock
+                                    Text="{Binding DbEntry.Comments, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                            </fa5:FontAwesome.ToolTip>
+                        </fa5:FontAwesome>
+                    </StackPanel>
                     <TextBox
+                        Name="CommentsTextBox"
                         Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
                         Height="60"
                         Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Title</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <StackPanel Orientation="Horizontal">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=TitleTextBox}">Title</Label>
+                        <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                         Visibility="{Binding TitleHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                            <fa5:FontAwesome.ToolTip>
+                                <TextBlock
+                                    Text="{Binding DbEntry.Title, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                            </fa5:FontAwesome.ToolTip>
+                        </fa5:FontAwesome>
+                    </StackPanel>
+                    <TextBox Name="TitleTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Site</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <StackPanel Orientation="Horizontal">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteTextBox}">Site</Label>
+                        <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                         Visibility="{Binding SiteHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                            <fa5:FontAwesome.ToolTip>
+                                <TextBlock
+                                    Text="{Binding DbEntry.Site, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                            </fa5:FontAwesome.ToolTip>
+                        </fa5:FontAwesome>
+                    </StackPanel>
+                    <TextBox Name="SiteTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding Site, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Author</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <StackPanel Orientation="Horizontal">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=AuthorTextBox}">
+                            Author
+                        </Label>
+                        <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                         Visibility="{Binding AuthorHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                            <fa5:FontAwesome.ToolTip>
+                                <TextBlock
+                                    Text="{Binding DbEntry.Author, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                            </fa5:FontAwesome.ToolTip>
+                        </fa5:FontAwesome>
+                    </StackPanel>
+                    <TextBox Name="AuthorTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
+
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Link Date</Label>
-                    <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    <StackPanel Orientation="Horizontal">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=LinkDateTimeTextBox}">
+                            Link Date
+                        </Label>
+                        <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                         Visibility="{Binding LinkDateTimeHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                            <fa5:FontAwesome.ToolTip>
+                                <TextBlock
+                                    Text="{Binding DbEntry.LinkDate, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                            </fa5:FontAwesome.ToolTip>
+                        </fa5:FontAwesome>
+                    </StackPanel>
+                    <TextBox Name="LinkDateTimeTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding LinkDateTime, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}">Description</Label>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=DescriptionTextBox}">
+                            Description
+                        </Label>
+                        <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                         Visibility="{Binding DescriptionHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                            <fa5:FontAwesome.ToolTip>
+                                <TextBlock
+                                    Text="{Binding DbEntry.Description, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                            </fa5:FontAwesome.ToolTip>
+                        </fa5:FontAwesome>
+                    </StackPanel>
                     <TextBox
+                        Name="DescriptionTextBox"
                         Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
                         Height="90"
                         Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
-                <CheckBox Margin="4,8,0,0" FontWeight="DemiBold"
-                          IsChecked="{Binding ShowInLinkRss, UpdateSourceTrigger=PropertyChanged}">
-                    Show in Link List _Feed
-                </CheckBox>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Margin="4,8,0,0" FontWeight="DemiBold" 
+                              IsChecked="{Binding ShowInLinkRss, UpdateSourceTrigger=PropertyChanged}">
+                        Show in Link List _Feed
+                    </CheckBox>
+                    <fa5:FontAwesome Margin="4,8,0,0" Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                     Visibility="{Binding ShowInLinkRssHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                        <fa5:FontAwesome.ToolTip>
+                            <TextBlock
+                                Text="{Binding DbEntry.ShowInLinkRss, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                        </fa5:FontAwesome.ToolTip>
+                    </fa5:FontAwesome>
+                </StackPanel>
                 <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                     DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
             </StackPanel>

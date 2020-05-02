@@ -64,10 +64,24 @@ namespace PointlessWaymarksCmsData.LinkListHtml
             
             #line default
             #line hidden
-            this.Write("\r\n</head>\r\n\r\n<body>\r\n    <h1 class=\"index-title-content\">");
+            this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
             #line 21 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture($"{UserSettingsSingleton.CurrentSettings().SiteName} {ListTitle}"));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 22 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    <h1 class=\"index-title-content\">");
+            
+            #line 23 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture($"{ListTitle}"));
             
             #line default
             #line hidden
@@ -75,21 +89,21 @@ namespace PointlessWaymarksCmsData.LinkListHtml
                     "=\"search-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Searc" +
                     "h ");
             
-            #line 23 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
+            #line 25 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));
             
             #line default
             #line hidden
             this.Write("...\">\r\n    </div>\r\n    ");
             
-            #line 25 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
+            #line 27 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(LinkTableTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 26 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
+            #line 28 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

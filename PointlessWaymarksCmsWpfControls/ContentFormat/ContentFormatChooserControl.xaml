@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:contentFormat="clr-namespace:PointlessWaymarksCmsWpfControls.ContentFormat"
+    xmlns:fa5="http://schemas.fontawesome.com/icons/"
     d:DataContext="{d:DesignInstance contentFormat:ContentFormatChooserContext}"
     mc:Ignorable="d">
     <UserControl.Resources>
@@ -12,18 +13,27 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="270" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Label Target="{Binding ElementName=FormatTypeComboBox}" Style="{StaticResource DataEntryLabelStyle}">Format Type</Label>
-        <ComboBox
-            Name="FormatTypeComboBox"
-            Grid.Column="1"
-            ItemsSource="{Binding ContentFormatChoices}"
-            SelectedItem="{Binding SelectedContentFormat}" />
+            <ComboBox
+                Name="FormatTypeComboBox"
+                Grid.Column="1"
+                ItemsSource="{Binding ContentFormatChoices}"
+                SelectedItem="{Binding SelectedContentFormat}" />
+            <fa5:FontAwesome Margin="6,0,0,0" Grid.Column="2" Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                             Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                <fa5:FontAwesome.ToolTip>
+                    <TextBlock
+                        Text="{Binding InitialValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                </fa5:FontAwesome.ToolTip>
+            </fa5:FontAwesome>
     </Grid>
 </UserControl>

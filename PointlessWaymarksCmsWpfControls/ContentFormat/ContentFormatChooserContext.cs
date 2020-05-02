@@ -14,9 +14,11 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
     public class ContentFormatChooserContext : INotifyPropertyChanged
     {
         private List<ContentFormatEnum> _contentFormatChoices;
+        private string _initialValue;
 
         private ContentFormatEnum _selectedContentFormat;
         private string _selectedContentFormatAsString;
+        private bool _selectedContentFormatHasChanges;
         private StatusControlContext _statusContext;
 
         public ContentFormatChooserContext(StatusControlContext statusContext)
@@ -35,6 +37,26 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
                 _contentFormatChoices = value;
                 OnPropertyChanged();
             }
+        }
+
+        public bool SelectedContentFormatHasChanges
+        {
+            get => _selectedContentFormatHasChanges;
+            set
+            {
+                if (value == _selectedContentFormatHasChanges) return;
+                _selectedContentFormatHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private void CheckForChanges()
+        {
+            // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
+            //Empty string from null will not be invoked as an extension if DbEntry is null...
+            SelectedContentFormatHasChanges =
+                StringHelper.TrimNullSafe(InitialValue) != SelectedContentFormatAsString.TrimNullSafe();
+            // ReSharper restore InvokeAsExtensionMethod
         }
 
         public ContentFormatEnum SelectedContentFormat
@@ -78,10 +100,22 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             }
         }
 
+        public string InitialValue
+        {
+            get => _initialValue;
+            set
+            {
+                if (value == _initialValue) return;
+                _initialValue = value;
+                OnPropertyChanged();
+            }
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
         public async Task<bool> TrySelectContentChoice(string contentChoice)

@@ -1,6 +1,6 @@
 ﻿## Todos
+ - Use https://github.com/microsoft/Windows.UI.Composition-Win32-Samples/tree/master/dotnet/WPF/ScreenCapture as a basis to look at screen shots and helpers!
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
- - Property Change Tracking - Need: Content Format Type, Check Notes/Links
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -8,9 +8,9 @@
  - Is everything getting HMTL Encoded - are there spots with leaks? (tests?)
  - RSS - Does title need CDATA to be completely safe? Or?
  - Basic Style for the Html Table output - maybe inline Pure or another more minimal framework?
- - Give all labels Targets
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
  - Tag Content Pages?
+ - Paged List Display and or search based List Display - suspect that photos is going to surpass what is currently reasonable to 'Load All'
 
 ## Ideas
  - Auto-validate all html output?
@@ -31,7 +31,16 @@
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
+## Projects to Review
+ - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
+
 ## Notes
+
+5/2/2020
+
+Put change indication in for Notes, Links and Content Type and filled in missing label Targets in those. I believe for now that this takes care of the Label Target and Change Indicator todos.
+
+Added to Todos to look at https://github.com/microsoft/Windows.UI.Composition-Win32-Samples/tree/master/dotnet/WPF/ScreenCapture - this sample is a little to complex for a quick cut and paste but I suspect that the helpers and other information will be overall useful in addition to adding Screen Capture.
 
 5/1/2020
 

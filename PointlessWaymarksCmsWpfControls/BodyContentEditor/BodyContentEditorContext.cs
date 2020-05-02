@@ -143,6 +143,8 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
             RefreshPreviewCommand = new Command(() => StatusContext.RunBlockingTask(UpdateContentHtml));
 
+            BodyContentFormat.InitialValue = toLoad?.BodyContentFormat;
+
             if (toLoad == null)
             {
                 BodyContent = string.Empty;

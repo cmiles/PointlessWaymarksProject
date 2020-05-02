@@ -42,7 +42,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             {
                 progressTracker?.Report($"Checking to see if {loopMatches} exists in database...");
 
-                var alreadyExists = await db.LinkStreams.AnyAsync(x => x.Url == loopMatches);
+                var alreadyExists = await db.LinkStreams.AnyAsync(x => x.Url.ToLower() == loopMatches.ToLower());
                 if (alreadyExists)
                 {
                     progressTracker?.Report($"{loopMatches} exists in database...");

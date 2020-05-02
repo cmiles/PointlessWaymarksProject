@@ -33,11 +33,13 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private NoteContent _dbEntry;
         private Command _extractNewLinksCommand;
         private string _folder;
+        private bool _folderHasChanges;
         private Command _saveAndCreateLocalCommand;
         private Command _saveUpdateDatabaseCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private string _slug;
         private string _summary;
+        private bool _summaryHasChanges;
         private TagsEditorContext _tagEdit;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
@@ -54,6 +56,37 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                     StatusContext.ProgressTracker())));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(noteContent));
+        }
+
+        private void CheckForChanges()
+        {
+            // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
+            //Empty string from null will not be invoked as an extension if DbEntry is null...
+            SummaryHasChanges = StringHelper.TrimNullSafe(DbEntry?.Summary) != Summary.TrimNullSafe();
+            FolderHasChanges = StringHelper.TrimNullSafe(DbEntry?.Folder) != Folder.TrimNullSafe();
+            // ReSharper restore InvokeAsExtensionMethod
+        }
+
+        public bool FolderHasChanges
+        {
+            get => _folderHasChanges;
+            set
+            {
+                if (value == _folderHasChanges) return;
+                _folderHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SummaryHasChanges
+        {
+            get => _summaryHasChanges;
+            set
+            {
+                if (value == _summaryHasChanges) return;
+                _summaryHasChanges = value;
+                OnPropertyChanged();
+            }
         }
 
         public BodyContentEditorContext BodyContent
@@ -278,6 +311,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
         private async Task SaveAndCreateLocal()

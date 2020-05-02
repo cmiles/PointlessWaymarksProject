@@ -9,6 +9,7 @@
              xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
              xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
              xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:NoteContentEditorContext}">
     <UserControl.Resources>
@@ -16,6 +17,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -29,12 +31,37 @@
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <StackPanel Orientation="Vertical">
-                                <Label Style="{StaticResource DataEntryLabelStyle}">Folder</Label>
-                                <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Style="{StaticResource DataEntryLabelStyle}"
+                                           Target="{Binding ElementName=FolderTextBox}">
+                                        Folder
+                                    </Label>
+                                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                                     Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                                        <fa5:FontAwesome.ToolTip>
+                                            <TextBlock
+                                                Text="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                                        </fa5:FontAwesome.ToolTip>
+                                    </fa5:FontAwesome>
+                                </StackPanel>
+                                <TextBox Name="FolderTextBox"
+                                         Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Margin="0,4,0,0">
-                                <Label Style="{StaticResource DataEntryLabelStyle}">Summary</Label>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Style="{StaticResource DataEntryLabelStyle}"
+                                           Target="{Binding ElementName=SummaryTextBox}">
+                                        Summary
+                                    </Label>
+                                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                                                     Visibility="{Binding SummaryHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                                        <fa5:FontAwesome.ToolTip>
+                                            <TextBlock
+                                                Text="{Binding DbEntry.Summary, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                                        </fa5:FontAwesome.ToolTip>
+                                    </fa5:FontAwesome>
+                                </StackPanel>
                                 <TextBox
                                     Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
                                     Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}" />

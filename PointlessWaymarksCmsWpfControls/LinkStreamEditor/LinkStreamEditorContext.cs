@@ -24,21 +24,29 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
     public class LinkStreamEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private string _author;
+        private bool _authorHasChanges;
         private string _comments;
+        private bool _commentsHaveChanges;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private LinkStream _dbEntry;
         private string _description;
+        private bool _descriptionHasChanges;
         private Command _extractDataCommand;
         private DateTime? _linkDateTime;
+        private bool _linkDateTimeHasChanges;
         private string _linkUrl;
+        private bool _linkUrlHasChanges;
         private Command _openUrlInBrowserCommand;
         private Command _saveUpdateDatabaseAndCloseCommand;
         private Command _saveUpdateDatabaseCommand;
         private bool _showInLinkRss;
+        private bool _showInLinkRssHasChanges;
         private string _site;
+        private bool _siteHasChanges;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private string _title;
+        private bool _titleHasChanges;
 
         public EventHandler RequestLinkStreamEditorWindowClose;
 
@@ -81,6 +89,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public bool AuthorHasChanges
+        {
+            get => _authorHasChanges;
+            set
+            {
+                if (value == _authorHasChanges) return;
+                _authorHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string Comments
         {
             get => _comments;
@@ -88,6 +107,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             {
                 if (value == _comments) return;
                 _comments = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool CommentsHaveChanges
+        {
+            get => _commentsHaveChanges;
+            set
+            {
+                if (value == _commentsHaveChanges) return;
+                _commentsHaveChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -125,6 +155,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public bool DescriptionHasChanges
+        {
+            get => _descriptionHasChanges;
+            set
+            {
+                if (value == _descriptionHasChanges) return;
+                _descriptionHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command ExtractDataCommand
         {
             get => _extractDataCommand;
@@ -147,6 +188,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public bool LinkDateTimeHasChanges
+        {
+            get => _linkDateTimeHasChanges;
+            set
+            {
+                if (value == _linkDateTimeHasChanges) return;
+                _linkDateTimeHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string LinkUrl
         {
             get => _linkUrl;
@@ -154,6 +206,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             {
                 if (value == _linkUrl) return;
                 _linkUrl = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool LinkUrlHasChanges
+        {
+            get => _linkUrlHasChanges;
+            set
+            {
+                if (value == _linkUrlHasChanges) return;
+                _linkUrlHasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -202,6 +265,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public bool ShowInLinkRssHasChanges
+        {
+            get => _showInLinkRssHasChanges;
+            set
+            {
+                if (value == _showInLinkRssHasChanges) return;
+                _showInLinkRssHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string Site
         {
             get => _site;
@@ -209,6 +283,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             {
                 if (value == _site) return;
                 _site = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SiteHasChanges
+        {
+            get => _siteHasChanges;
+            set
+            {
+                if (value == _siteHasChanges) return;
+                _siteHasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -246,6 +331,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
+        public bool TitleHasChanges
+        {
+            get => _titleHasChanges;
+            set
+            {
+                if (value == _titleHasChanges) return;
+                _titleHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool HasChanges()
         {
             return !(!TagEdit.TagsHaveChanges && DbEntry.ShowInLinkRss == ShowInLinkRss &&
@@ -260,6 +356,21 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private void CheckForChanges()
+        {
+            // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
+            //Empty string from null will not be invoked as an extension if DbEntry is null...
+            AuthorHasChanges = StringHelper.TrimNullSafe(DbEntry?.Author) != Author.TrimNullSafe();
+            CommentsHaveChanges = StringHelper.TrimNullSafe(DbEntry?.Comments) != Comments.TrimNullSafe();
+            DescriptionHasChanges = StringHelper.TrimNullSafe(DbEntry?.Description) != Description.TrimNullSafe();
+            LinkDateTimeHasChanges = DbEntry?.LinkDate != LinkDateTime;
+            LinkUrlHasChanges = StringHelper.TrimNullSafe(DbEntry?.Url) != LinkUrl.TrimNullSafe();
+            ShowInLinkRssHasChanges = DbEntry?.ShowInLinkRss != ShowInLinkRss;
+            SiteHasChanges = StringHelper.TrimNullSafe(DbEntry?.Site) != Site.TrimNullSafe();
+            TitleHasChanges = StringHelper.TrimNullSafe(DbEntry?.Title) != Title.TrimNullSafe();
+            // ReSharper restore InvokeAsExtensionMethod
+        }
 
         private async Task ExtractDataFromLink(IProgress<string> progress)
         {
@@ -397,7 +508,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new LinkStream()
+            DbEntry = toLoad ?? new LinkStream
             {
                 ShowInLinkRss = true, CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
             };
@@ -421,6 +532,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (!(propertyName.Contains("HasChanges") || propertyName.Contains("HaveChanges"))) CheckForChanges();
         }
 
         private async Task SaveToDatabase(IProgress<string> progress)
@@ -540,7 +652,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             await SaveToDatabase(progress);
             await SaveToPinboard(progress);
 
-            RequestLinkStreamEditorWindowClose?.Invoke(this, null);
+            RequestLinkStreamEditorWindowClose?.Invoke(this, new EventArgs());
         }
 
         private async Task SaveToPinboard(IProgress<string> progress)

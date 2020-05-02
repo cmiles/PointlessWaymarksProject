@@ -18,7 +18,9 @@
 </head>
 
 <body>
-    <h1 class="index-title-content"><#= $"{UserSettingsSingleton.CurrentSettings().SiteName} {ListTitle}" #></h1>
+    <#= Tags.StandardHeader().ToString() #>
+    <#= HorizontalRule.StandardRule() #>
+    <h1 class="index-title-content"><#= $"{ListTitle}" #></h1>
     <div class="search-input-container">
         <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search <#= ListTitle #>...">
     </div>
