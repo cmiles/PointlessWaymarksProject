@@ -17,6 +17,7 @@
  - An app panel to generate smaller parts for dev debug
  - Animate changes on the Lists when filtered
  - Look at deployment options - self contained? msix? automated?
+ - Watch https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/ - the source generators look like they could be quite interesting for INPC and HasChanges
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
  - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
  - Backup the master media directory, database and current site to a dated folder (where?)

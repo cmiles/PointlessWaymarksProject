@@ -66,7 +66,7 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
                 {
                     var listItemPhotoListItem = new DivTag().AddClass("camera-roll-photo-item-container");
                     var photoItem = new PictureSiteInformation(loopPhotos.ContentId);
-                    listItemPhotoListItem.Children.Add(photoItem.PictureFigureWithLinkToPicturePageTag("120px"));
+                    listItemPhotoListItem.Children.Add(photoItem.PictureFigureWithLinkToPicturePageTag("(min-width: 1200px) 20vw, 120px"));
 
                     cameraRollContainer.Children.Add(listItemPhotoListItem);
 
