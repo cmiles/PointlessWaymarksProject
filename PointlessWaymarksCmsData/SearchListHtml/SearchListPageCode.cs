@@ -9,16 +9,16 @@ using HtmlTags;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 
-namespace PointlessWaymarksCmsData.ContentListHtml
+namespace PointlessWaymarksCmsData.SearchListHtml
 {
-    public partial class ContentListPage
+    public partial class SearchListPage
     {
-        public ContentListPage(string rssUrl)
+        public SearchListPage(string rssUrl)
         {
             RssUrl = rssUrl;
         }
 
-        public Func<List<IContentCommon>> ContentFunction { get; set; }
+        public Func<List<object>> ContentFunction { get; set; }
         public string ListTitle { get; set; }
 
         public string RssUrl { get; set; }
@@ -30,17 +30,37 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             var allContentContainer = new DivTag().AddClass("content-list-container");
 
             foreach (var loopContent in allContent)
-            {
-                var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
-                photoListPhotoEntryDiv.Data("title", loopContent.Title);
-                photoListPhotoEntryDiv.Data("tags", loopContent.Tags);
-                photoListPhotoEntryDiv.Data("summary", loopContent.Summary);
-                photoListPhotoEntryDiv.Data("contenttype", TypeToFilterTag(loopContent));
+                if (loopContent is IContentCommon loopContentCommon)
+                {
+                    var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
+                    photoListPhotoEntryDiv.Data("title", loopContentCommon.Title);
+                    photoListPhotoEntryDiv.Data("tags", loopContentCommon.Tags);
+                    photoListPhotoEntryDiv.Data("summary", loopContentCommon.Summary);
+                    photoListPhotoEntryDiv.Data("contenttype", TypeToFilterTag(loopContentCommon));
 
-                photoListPhotoEntryDiv.Children.Add(ContentCompact.FromContent(loopContent));
+                    photoListPhotoEntryDiv.Children.Add(ContentCompact.FromContentCommon(loopContentCommon));
 
-                allContentContainer.Children.Add(photoListPhotoEntryDiv);
-            }
+                    allContentContainer.Children.Add(photoListPhotoEntryDiv);
+                }
+                else if (loopContent is LinkStream loopLinkContent)
+                {
+                    var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
+
+                    var titleList = new List<string>();
+
+                    if (!string.IsNullOrWhiteSpace(loopLinkContent.Title)) titleList.Add(loopLinkContent.Title);
+                    if (!string.IsNullOrWhiteSpace(loopLinkContent.Site)) titleList.Add(loopLinkContent.Site);
+                    if (!string.IsNullOrWhiteSpace(loopLinkContent.Author)) titleList.Add(loopLinkContent.Author);
+
+                    photoListPhotoEntryDiv.Data("title", string.Join(" - ", titleList));
+                    photoListPhotoEntryDiv.Data("tags", loopLinkContent.Tags);
+                    photoListPhotoEntryDiv.Data("summary", $"{loopLinkContent.Description} {loopLinkContent.Comments}");
+                    photoListPhotoEntryDiv.Data("contenttype", TypeToFilterTag(loopLinkContent));
+
+                    photoListPhotoEntryDiv.Children.Add(ContentCompact.FromLinkStream(loopLinkContent));
+
+                    allContentContainer.Children.Add(photoListPhotoEntryDiv);
+                }
 
             return allContentContainer;
         }
@@ -48,6 +68,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
         public HtmlTag FilterCheckboxesTag()
         {
             var allContent = ContentFunction();
+
             var filterTags = allContent.Select(TypeToFilterTag).Distinct().ToList();
 
             if (filterTags.Count() < 2) return HtmlTag.Empty();
@@ -80,6 +101,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
                 ImageContent _ => "image",
                 PhotoContent _ => "image",
                 FileContent _ => "file",
+                LinkStream _ => "link",
                 _ => "other"
             };
         }

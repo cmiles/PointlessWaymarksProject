@@ -413,8 +413,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
 
-            var tags = dbEntry.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
-                .Distinct().OrderBy(x => x).ToList();
+            var tags = Db.ParseTagList(dbEntry);
 
             if (!tags.Any()) return HtmlTag.Empty();
 

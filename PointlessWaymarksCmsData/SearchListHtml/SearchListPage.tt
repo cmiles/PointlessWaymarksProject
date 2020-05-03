@@ -12,10 +12,16 @@
     <title><#= ListTitle.HtmlEncode() #></title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
+    <#
+    if (!string.IsNullOrWhiteSpace(RssUrl))
+    { #>
     <link rel="alternate" type="application/rss+xml" 
-      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode() #>"     
+      title="<#=
+                $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode() #>"     
       href="https:<#= RssUrl #>" />
+    <#
+    } #>
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
@@ -50,7 +56,7 @@
 
         if(contentTypes.length && !contentTypes.includes(divDataContentType)){
            loopDiv.style.display = "none";
-           continue;
+           continue;s
         }
 
 	    divDataText = loopDiv.getAttribute('data-title').concat(

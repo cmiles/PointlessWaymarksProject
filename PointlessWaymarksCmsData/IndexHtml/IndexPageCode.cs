@@ -178,7 +178,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
                                   $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                     }
 
-                    items.Add(RssStringBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
                 }
 
@@ -189,7 +189,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
                     var content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                                   $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                    items.Add(RssStringBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
                 }
 
@@ -212,7 +212,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
                                   $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                     }
 
-                    items.Add(RssStringBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
                 }
 
@@ -235,7 +235,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
                                   $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                     }
 
-                    items.Add(RssStringBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
                 }
 
@@ -258,7 +258,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
                                   $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                     }
 
-                    items.Add(RssStringBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
                 }
             }
@@ -272,7 +272,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
             }
 
             File.WriteAllText(localIndexFile.FullName,
-                RssStringBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName}",
+                RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName}",
                     string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }
     }

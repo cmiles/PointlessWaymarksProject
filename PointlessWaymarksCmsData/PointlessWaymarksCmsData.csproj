@@ -57,10 +57,10 @@
       <LastGenOutput>IndexPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.IndexHtml</CustomToolNamespace>
     </None>
-    <None Update="ContentListHtml\ContentListPage.tt">
+    <None Update="SearchListHtml\SearchListPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ContentListPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarksCmsData.ContentListHtml</CustomToolNamespace>
+      <LastGenOutput>SearchListPage.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.SearchListHtml</CustomToolNamespace>
     </None>
     <None Update="JsonFiles\DbImport.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -111,6 +111,11 @@
       <LastGenOutput>SinglePhotoPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.PhotoHtml</CustomToolNamespace>
     </None>
+    <None Update="TagListHtml\TagListPage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>TagListPage.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.TagListHtml</CustomToolNamespace>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -142,11 +147,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>IndexPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentListHtml\ContentListPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ContentListPage.tt</DependentUpon>
     </Compile>
     <Compile Update="JsonFiles\DbImport.cs">
       <DesignTime>True</DesignTime>
@@ -197,6 +197,16 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SinglePhotoPage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="SearchListHtml\SearchListPage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SearchListPage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TagListHtml\TagListPage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TagListPage.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 

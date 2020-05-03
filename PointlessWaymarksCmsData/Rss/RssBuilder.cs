@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Web;
+using PointlessWaymarksCmsData.CommonHtml;
+using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksCmsData.Rss
 {
-    public static class RssStringBuilder
+    public static class RssBuilder
     {
         public static string RssFileString(string channelTitle, string items)
         {
@@ -46,6 +52,49 @@ namespace PointlessWaymarksCmsData.Rss
             rssBuilder.AppendLine("    </item>");
 
             return rssBuilder.ToString();
+        }
+
+        public static async void WriteContentCommonListRss(List<IContentCommon> content, FileInfo fileInfo,
+            string titleAdd)
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var items = new List<string>();
+
+            foreach (var loopPosts in content)
+            {
+                var contentUrl = await settings.ContentUrl(loopPosts.ContentId);
+
+                string itemDescription;
+
+                if (loopPosts.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(loopPosts.MainPicture.Value);
+                    itemDescription =
+                        $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
+                        $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+                else
+                {
+                    itemDescription = $"<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
+                                      $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                items.Add(RssItemString(loopPosts.Title, $"https:{contentUrl}", itemDescription, loopPosts.CreatedOn,
+                    loopPosts.ContentId.ToString()));
+            }
+
+            var localIndexFile = fileInfo;
+
+            if (localIndexFile.Exists)
+            {
+                localIndexFile.Delete();
+                localIndexFile.Refresh();
+            }
+
+            await File.WriteAllTextAsync(localIndexFile.FullName,
+                RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - {titleAdd}",
+                    string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }
     }
 }

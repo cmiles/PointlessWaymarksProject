@@ -1,4 +1,8 @@
 ﻿## Todos
+ - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually')
+ - Tag List Generation needs Progress
+ - Tag Lists in content should link
+ - Check style of Tag Pages
  - Use https://github.com/microsoft/Windows.UI.Composition-Win32-Samples/tree/master/dotnet/WPF/ScreenCapture as a basis to look at screen shots and helpers!
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
  - Clean up the main window - split out context - consider creating a control?
@@ -36,6 +40,10 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+5/3/2020
+
+Initial generation of Tags - an all page with Search and individual pages. Doing this triggered a refactoring in the Search Lists so that any content can potentially be generated (code has to be added for any new types but now not locked to IContentCommon).
 
 5/2/2020
 

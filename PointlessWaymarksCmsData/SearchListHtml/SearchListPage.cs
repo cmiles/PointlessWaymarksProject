@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace PointlessWaymarksCmsData.ContentListHtml
+namespace PointlessWaymarksCmsData.SearchListHtml
 {
     using System.Linq;
     using System.Text;
@@ -20,9 +20,9 @@ namespace PointlessWaymarksCmsData.ContentListHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public partial class ContentListPage : ContentListPageBase
+    public partial class SearchListPage : SearchListPageBase
     {
 #line hidden
         /// <summary>
@@ -33,58 +33,74 @@ namespace PointlessWaymarksCmsData.ContentListHtml
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title" +
                     ">");
             
-            #line 12 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 12 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("</title>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=" +
-                    "1.0\">\r\n    \r\n    <link rel=\"alternate\" type=\"application/rss+xml\" \r\n      title=" +
-                    "\"");
+                    "1.0\">\r\n\r\n    ");
             
-            #line 17 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
+
+    if (!string.IsNullOrWhiteSpace(RssUrl))
+    { 
+            
+            #line default
+            #line hidden
+            this.Write("    <link rel=\"alternate\" type=\"application/rss+xml\" \r\n      title=\"");
+            
+            #line 20 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\"     \r\n      href=\"https:");
             
-            #line 18 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 22 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RssUrl));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n\r\n    ");
+            this.Write("\" />\r\n    ");
             
-            #line 20 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
+
+    } 
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 26 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 21 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 27 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 25 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 31 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 26 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 32 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <h1 class=\"index-title-content\">");
             
-            #line 27 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 33 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"Search {ListTitle}"));
             
             #line default
@@ -93,28 +109,28 @@ namespace PointlessWaymarksCmsData.ContentListHtml
                     "=\"search-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Searc" +
                     "h ");
             
-            #line 29 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 35 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));
             
             #line default
             #line hidden
             this.Write("...\">\r\n    </div>\r\n    ");
             
-            #line 31 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 37 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(FilterCheckboxesTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 32 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 38 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ContentTableTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 33 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ContentListHtml\ContentListPage.tt"
+            #line 39 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
@@ -139,7 +155,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
 
         if(contentTypes.length && !contentTypes.includes(divDataContentType)){
            loopDiv.style.display = ""none"";
-           continue;
+           continue;s
         }
 
 	    divDataText = loopDiv.getAttribute('data-title').concat(
@@ -170,7 +186,7 @@ namespace PointlessWaymarksCmsData.ContentListHtml
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public class ContentListPageBase
+    public class SearchListPageBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

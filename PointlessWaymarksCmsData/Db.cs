@@ -132,5 +132,61 @@ namespace PointlessWaymarksCmsData
             return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
+
+        public static List<string> ParseTagList(ITag tag)
+        {
+            if (tag == null) return new List<string>();
+            if (string.IsNullOrWhiteSpace(tag.Tags)) return new List<string>();
+            return tag.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
+                .Select(x => SlugUtility.Create(true, x)).Distinct().OrderBy(x => x)
+                .ToList();
+        }
+
+        public static List<(string tag, List<object> contentObjects)> ParseToTagAndContentList(
+            List<(string tag, List<object> contentObjects)> list, List<ITag> toAdd)
+        {
+            list ??= new List<(string tag, List<object> contentObjects)>();
+
+            if (toAdd == null) return list;
+
+            toAdd.ForEach(x => ParseToTagAndContentList(list, x));
+
+            return list;
+        }
+
+        public static List<(string tag, List<object> contentObjects)> ParseToTagAndContentList(
+            List<(string tag, List<object> contentObjects)> list, ITag toAdd)
+        {
+            list ??= new List<(string tag, List<object> contentObjects)>();
+
+            var tags = ParseTagList(toAdd);
+
+            foreach (var loopTags in tags)
+            {
+                var existingEntry = list.SingleOrDefault(x => x.tag.ToLower() == loopTags.ToLower());
+                if (string.IsNullOrWhiteSpace(existingEntry.tag))
+                    list.Add((loopTags.ToLower(), new List<object> {toAdd}));
+                else
+                    existingEntry.contentObjects.Add(toAdd);
+            }
+
+            return list;
+        }
+
+        public static async Task<List<(string tag, List<object> contentObjects)>> TagAndContentList()
+        {
+            var db = await Context();
+
+            var returnList = new List<(string tag, List<object> contentObjects)>();
+
+            ParseToTagAndContentList(returnList, (await db.FileContents.ToListAsync()).Cast<ITag>().ToList());
+            ParseToTagAndContentList(returnList, (await db.PhotoContents.ToListAsync()).Cast<ITag>().ToList());
+            ParseToTagAndContentList(returnList, (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList());
+            ParseToTagAndContentList(returnList, (await db.PostContents.ToListAsync()).Cast<ITag>().ToList());
+            ParseToTagAndContentList(returnList, (await db.NoteContents.ToListAsync()).Cast<ITag>().ToList());
+            ParseToTagAndContentList(returnList, (await db.LinkStreams.ToListAsync()).Cast<ITag>().ToList());
+
+            return returnList;
+        }
     }
 }

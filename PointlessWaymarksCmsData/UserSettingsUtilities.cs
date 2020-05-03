@@ -12,10 +12,6 @@ namespace PointlessWaymarksCmsData
     {
         public static string SettingsFileName = "PointlessWaymarksCmsSettings.json";
 
-        public static string DefaultContentFormatChoice()
-        {
-            return Enum.GetNames(typeof(ContentFormatEnum)).First();
-        }
         public static string AllContentListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/AllContentList.html";
@@ -24,6 +20,16 @@ namespace PointlessWaymarksCmsData
         public static string AllContentRssUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/AllContentRss.xml";
+        }
+
+        public static string AllTagsListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Tags/AllTagsList.html";
+        }
+
+        public static string CameraRollPhotoGalleryUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Photos/Galleries/CameraRoll.html";
         }
 
         public static async Task<string> ContentUrl(this UserSettings settings, Guid toLink)
@@ -64,9 +70,9 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Photos/Galleries/Daily/DailyPhotos-{galleryDate:yyyy-MM-dd}.html";
         }
 
-        public static string CameraRollPhotoGalleryUrl(this UserSettings settings)
+        public static string DefaultContentFormatChoice()
         {
-            return $"//{settings.SiteUrl}/Photos/Galleries/CameraRoll.html";
+            return Enum.GetNames(typeof(ContentFormatEnum)).First();
         }
 
         public static string FaviconUrl(this UserSettings settings)
@@ -170,6 +176,18 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory, "AllContentRss")}.xml");
         }
 
+        public static FileInfo LocalSiteAllTagsListFileInfo(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteTagsDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "AllTagsList")}.html");
+        }
+
+        public static FileInfo LocalSiteCameraRollPhotoGalleryFileInfo(this UserSettings settings)
+        {
+            var directory = settings.LocalSitePhotoGalleryDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "CameraRoll")}.html");
+        }
+
         public static DirectoryInfo LocalSiteDailyPhotoGalleryDirectory(this UserSettings settings)
         {
             var photoDirectory =
@@ -181,18 +199,10 @@ namespace PointlessWaymarksCmsData
             return photoDirectory;
         }
 
-        public static FileInfo LocalSiteDailyPhotoGalleryFileInfo(this UserSettings settings, DateTime galleryDate,
-            bool createDirectoryIfNotFound = true)
+        public static FileInfo LocalSiteDailyPhotoGalleryFileInfo(this UserSettings settings, DateTime galleryDate)
         {
             var directory = settings.LocalSiteDailyPhotoGalleryDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, $"DailyPhotos-{galleryDate:yyyy-MM-dd}")}.html");
-        }
-
-        public static FileInfo LocalSiteCameraRollPhotoGalleryFileInfo(this UserSettings settings, 
-            bool createDirectoryIfNotFound = true)
-        {
-            var directory = settings.LocalSitePhotoGalleryDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "CameraRoll")}.html");
         }
 
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)
@@ -472,6 +482,24 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory, "RssIndexFeed")}.xml");
         }
 
+        public static FileInfo LocalSiteTagListFileInfo(this UserSettings settings, string tag)
+        {
+            var directory = settings.LocalSiteTagsDirectory();
+            var sluggedTag = SlugUtility.Create(true, tag);
+            return new FileInfo($"{Path.Combine(directory.FullName, $"TagList-{sluggedTag}")}.html");
+        }
+
+
+        public static DirectoryInfo LocalSiteTagsDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Tags"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
         public static string NoteListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Notes/NoteList.html";
@@ -738,6 +766,12 @@ namespace PointlessWaymarksCmsData
             return File.ReadAllText(possibleFile.FullName);
         }
 
+        public static string TagPageUrl(this UserSettings settings, string tag)
+        {
+            var sluggedTag = SlugUtility.Create(true, tag);
+            return $"//{settings.SiteUrl}/Tags/TagList-{sluggedTag}.html";
+        }
+
         public static DirectoryInfo TempStorageDirectory()
         {
             var storageDirectory = new DirectoryInfo(Path.Combine(
@@ -804,12 +838,14 @@ namespace PointlessWaymarksCmsData
             settings.LocalSiteDirectory().CreateIfItDoesntExist();
             settings.LocalSitePhotoDirectory().CreateIfItDoesntExist();
             settings.LocalSitePhotoGalleryDirectory().CreateIfItDoesntExist();
+            settings.LocalSiteDailyPhotoGalleryDirectory().CreateIfItDoesntExist();
             settings.LocalSiteFileDirectory().CreateIfItDoesntExist();
             settings.LocalSiteImageDirectory().CreateIfItDoesntExist();
             settings.LocalSiteNoteDirectory().CreateIfItDoesntExist();
             settings.LocalSitePostDirectory().CreateIfItDoesntExist();
             settings.LocalSiteLinkDirectory().CreateIfItDoesntExist();
             settings.LocalSiteNoteDirectory().CreateIfItDoesntExist();
+            settings.LocalSiteTagsDirectory().CreateIfItDoesntExist();
         }
 
         public static void VerifyOrCreateMediaFolders(this UserSettings settings)

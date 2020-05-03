@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.ContentListHtml;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.IndexHtml;
@@ -24,6 +23,7 @@ using PointlessWaymarksCmsData.PhotoGalleryHtml;
 using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsData.PostHtml;
+using PointlessWaymarksCmsData.SearchListHtml;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
@@ -115,6 +115,8 @@ namespace PointlessWaymarksCmsContentEditor
 
             NewLinkContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewLinkContent));
 
+            GenerateAllTagHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllTagHtml));
+
             ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
 
             ToggleDiagnosticLoggingCommand = new Command(() =>
@@ -130,6 +132,8 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanUpTemporaryFiles);
         }
+
+        public Command GenerateAllTagHtmlCommand { get; set; }
 
 
         public Command AllEventsReportCommand { get; set; }
@@ -595,6 +599,7 @@ namespace PointlessWaymarksCmsContentEditor
 
         private async Task GenerateAllHtml()
         {
+            await GenerateAllTagHtml();
             await GenerateAllImageHtml();
             await GenerateAllPhotoHtml();
             await GenerateAllFileHtml();
@@ -640,16 +645,23 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        private async Task GenerateAllTagHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            SearchListPageGenerators.WriteTagListAndTagPages();
+        }
+
         private async Task GenerateAllListHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ContentListPageGenerators.WriteAllContentListHtml();
-            ContentListPageGenerators.WriteFileContentListHtml();
-            ContentListPageGenerators.WriteImageContentListHtml();
-            ContentListPageGenerators.WritePhotoContentListHtml();
-            ContentListPageGenerators.WritePostContentListHtml();
-            ContentListPageGenerators.WriteNoteContentListHtml();
+            SearchListPageGenerators.WriteAllContentCommonSearchListHtml();
+            SearchListPageGenerators.WriteFileContentListHtml();
+            SearchListPageGenerators.WriteImageContentListHtml();
+            SearchListPageGenerators.WritePhotoContentListHtml();
+            SearchListPageGenerators.WritePostContentListHtml();
+            SearchListPageGenerators.WriteNoteContentListHtml();
 
             var linkListPage = new LinkListPage();
             linkListPage.WriteLocalHtmlRssAndJson();

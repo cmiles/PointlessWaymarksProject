@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 
@@ -76,9 +77,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
         private List<string> DbTagList()
         {
-            if (string.IsNullOrWhiteSpace(DbEntry?.Tags)) return new List<string>();
-            return DbEntry.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
-                .OrderBy(x => x).ToList();
+            return string.IsNullOrWhiteSpace(DbEntry?.Tags) ? new List<string>() : Db.ParseTagList(DbEntry);
         }
 
         [NotifyPropertyChangedInvocator]

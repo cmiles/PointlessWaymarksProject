@@ -79,14 +79,27 @@
                     <CheckBox Margin="24,6,0,0" Grid.Row="6" Command="{Binding ToggleDiagnosticLoggingCommand}">Log Diagnostic Events</CheckBox>
                 </Grid>
             </TabItem>
+            <TabItem Header="Part Generation">
+                <Grid>
+                    <WrapPanel>
+                        <WrapPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Height" Value="90"></Setter>
+                                <Setter Property="Width" Value="90"></Setter>
+                            </Style>
+                        </WrapPanel.Resources>
+                        <Button Command="{Binding GenerateAllTagHtmlCommand}">Tags</Button>
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
         </TabControl>
         <local:SettingsFileChooserControl DataContext="{Binding SettingsFileChooser}" Background="White"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                           HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                                          Visibility="{Binding Data.ShowSettingsFileChooser, Converter={StaticResource BooleanToVisibility}, Source={StaticResource MainWindowProxy}}" />
+                                          Visibility="{Binding Data.ShowSettingsFileChooser, Converter={StaticResource BooleanToVisibility}, Source={StaticResource MainWindowProxy}}" d:IsHidden="True" />
         <status:StatusControl
             Grid.Row="0"
             Grid.Column="0"
-            DataContext="{Binding StatusContext}" />
+            DataContext="{Binding StatusContext}" d:IsHidden="True" />
     </Grid>
 </Window>
