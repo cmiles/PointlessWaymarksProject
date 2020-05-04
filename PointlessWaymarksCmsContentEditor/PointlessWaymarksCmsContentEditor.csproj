@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-819" />
+    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-822" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="FontAwesome5" Version="2.0.5" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
@@ -20,13 +20,13 @@
     <PackageReference Include="HtmlTags" Version="8.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Jot" Version="2.1.4" />
-    <PackageReference Include="Markdig" Version="0.18.3" />
+    <PackageReference Include="Markdig" Version="0.20.0" />
     <PackageReference Include="Markdig.Wpf" Version="0.3.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-preview.2.20159.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0-preview.2.20159.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite" Version="5.0.0-preview.2.20159.4" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0-preview.2.20160.3" />
-    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0-preview.3.20215.2" />
+    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.0.1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.0" />
@@ -34,14 +34,14 @@
     <PackageReference Include="Ookii.Dialogs.Wpf.NETCore" Version="2.1.0" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.1-beta" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
-    <PackageReference Include="System.Runtime.Caching" Version="5.0.0-preview.2.20160.6" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-preview.2.20160.6" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0-preview.2.20160.6" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-rc0001" />
+    <PackageReference Include="System.Runtime.Caching" Version="5.0.0-preview.3.20214.6" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-preview.3.20214.6" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0-preview.3.20214.6" />
     <PackageReference Include="ThomasLevesque.WeakEvent" Version="4.1.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
     <PackageReference Include="WpfScreenHelper" Version="0.4.0" />
-    <PackageReference Include="XAML.MapControl" Version="5.0.1" />
+    <PackageReference Include="XAML.MapControl" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>

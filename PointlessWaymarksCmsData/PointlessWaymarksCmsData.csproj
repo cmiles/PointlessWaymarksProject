@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-819" />
+    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-822" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GitInfo" Version="2.0.26">
@@ -13,20 +13,20 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="HtmlTags" Version="8.0.0" />
-    <PackageReference Include="Markdig" Version="0.18.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-preview.2.20159.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0-preview.2.20159.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite" Version="5.0.0-preview.2.20159.4" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0-preview.2.20160.3" />
+    <PackageReference Include="Markdig" Version="0.20.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0-preview.3.20215.2" />
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.0" />
     <PackageReference Include="ObjectDumper.NET" Version="2.5.20033.1" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
     <PackageReference Include="ReSharper.Annotations" Version="7.1.3.130415" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
-    <PackageReference Include="System.CodeDom" Version="5.0.0-preview.2.20160.6" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-preview.2.20160.6" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0-preview.2.20160.6" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-rc0001" />
+    <PackageReference Include="System.CodeDom" Version="5.0.0-preview.3.20214.6" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-preview.3.20214.6" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0-preview.3.20214.6" />
     <PackageReference Include="ThomasLevesque.WeakEvent" Version="4.1.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
   </ItemGroup>
