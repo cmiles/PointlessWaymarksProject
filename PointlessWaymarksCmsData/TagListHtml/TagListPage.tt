@@ -19,6 +19,7 @@
         <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search Tags...">
     </div>
     <#= TagList() #>
+    <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>
 
 <script>

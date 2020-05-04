@@ -36,6 +36,7 @@
     </div>
     <#= FilterCheckboxesTag() #>
     <#= ContentTableTag() #>
+    <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>
 
 <script>

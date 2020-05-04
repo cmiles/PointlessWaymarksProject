@@ -20,6 +20,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 new LinkTag("Search", @$"{settings.AllContentListUrl()}").AddClass("core-links-item"));
             coreLinksDiv.Children.Add(
                 new LinkTag("Photos", @$"{settings.CameraRollPhotoGalleryUrl()}").AddClass("core-links-item"));
+            coreLinksDiv.Children.Add(
+                new LinkTag("Tags", @$"{settings.AllTagsListUrl()}").AddClass("core-links-item"));
             coreLinksDiv.Children.Add(new LinkTag("Links", @$"{settings.LinkListUrl()}").AddClass("core-links-item"));
 
             var db = Db.Context().Result;

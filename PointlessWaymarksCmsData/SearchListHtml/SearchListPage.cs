@@ -131,6 +131,13 @@ namespace PointlessWaymarksCmsData.SearchListHtml
             this.Write("\r\n    ");
             
             #line 39 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 40 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

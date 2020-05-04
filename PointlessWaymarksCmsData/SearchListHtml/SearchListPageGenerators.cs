@@ -135,18 +135,28 @@ namespace PointlessWaymarksCmsData.SearchListHtml
             File.WriteAllText(fileInfo.FullName, htmlString);
         }
 
-        public static void WriteTagListAndTagPages()
+        public static void WriteTagListAndTagPages(IProgress<string> progress)
         {
-            var tags = Db.TagAndContentList().Result;
+            progress?.Report("Tag Pages - Getting Tag Data");
+            var tags = Db.TagAndContentList(progress).Result;
 
             var allTags = new TagListPage {ContentFunction = () => tags};
 
+            progress?.Report("Tag Pages - Writing All Tag Data");
             allTags.WriteLocalHtml();
 
+            var loopCount = 0;
+
             foreach (var loopTags in tags)
+            {
+                loopCount++;
+
+                if(loopCount % 30 == 0) progress?.Report($"Generating Tag Page {loopTags.tag} - {loopCount} of {tags.Count}");
+
                 WriteSearchListHtml(() => loopTags.contentObjects,
                     UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(loopTags.tag),
                     $"Tag - {loopTags.tag}", string.Empty);
+            }
         }
     }
 }

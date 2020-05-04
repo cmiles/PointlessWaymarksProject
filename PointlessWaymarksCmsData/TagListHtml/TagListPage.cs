@@ -69,6 +69,13 @@ namespace PointlessWaymarksCmsData.TagListHtml
             this.Write("\r\n    ");
             
             #line 21 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 22 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

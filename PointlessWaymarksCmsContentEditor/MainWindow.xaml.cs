@@ -649,7 +649,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            SearchListPageGenerators.WriteTagListAndTagPages();
+            SearchListPageGenerators.WriteTagListAndTagPages(StatusContext.ProgressTracker());
         }
 
         private async Task GenerateAllListHtml()
