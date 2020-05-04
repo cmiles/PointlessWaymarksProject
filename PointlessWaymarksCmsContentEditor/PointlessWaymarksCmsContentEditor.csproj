@@ -11,6 +11,9 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-822" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
+    <PackageReference Include="FluentMigrator" Version="3.2.6" />
+    <PackageReference Include="FluentMigrator.Runner" Version="3.2.6" />
+    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.2.6" />
     <PackageReference Include="FontAwesome5" Version="2.0.5" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GitInfo" Version="2.0.26">
@@ -20,11 +23,17 @@
     <PackageReference Include="HtmlTags" Version="8.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Jot" Version="2.1.4" />
-    <PackageReference Include="Markdig" Version="0.20.0" />
+    <PackageReference Include="Markdig" Version="0.18.3" />
     <PackageReference Include="Markdig.Wpf" Version="0.3.1" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="5.0.0-preview.3.20181.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.0-preview.3.20181.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0-preview.3.20181.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite" Version="5.0.0-preview.3.20181.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-preview.3.20215.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0-preview.3.20215.2" />
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.0.1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
