@@ -39,6 +39,7 @@ using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.PostList;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -73,6 +74,7 @@ namespace PointlessWaymarksCmsContentEditor
         private NoteListWithActionsContext _tabNoteListContext;
         private PhotoListWithActionsContext _tabPhotoListContext;
         private PostListWithActionsContext _tabPostListContext;
+        private TagExclusionEditorContext _tagExclusionContext;
 
         public MainWindow()
         {
@@ -843,8 +845,20 @@ namespace PointlessWaymarksCmsContentEditor
             TabPostListContext = new PostListWithActionsContext(null);
             TabNoteListContext = new NoteListWithActionsContext(null);
             LinkStreamContext = new LinkStreamListWithActionsContext(null);
+            TagExclusionContext = new TagExclusionEditorContext(null);
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
+        }
+
+        public TagExclusionEditorContext TagExclusionContext
+        {
+            get => _tagExclusionContext;
+            set
+            {
+                if (Equals(value, _tagExclusionContext)) return;
+                _tagExclusionContext = value;
+                OnPropertyChanged();
+            }
         }
 
         private async Task NewFileContent()

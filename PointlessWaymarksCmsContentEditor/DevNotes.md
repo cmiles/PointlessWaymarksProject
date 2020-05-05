@@ -1,6 +1,13 @@
 ﻿## Todos
+ - Tag Exclusion
+    - Editor:
+       - Make sure check changes runs at the start for good initial state
+       - Unsaved should always show unsaved indicators - looks like some issues here
+    - Generation:
+       - Skip in the All Tags and All Tag Pages
+       - Skip in the Common Tags tag routine
+       - Still include in the Content Search data tags
  - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually')
- - Tag List Generation needs Progress
  - Tag Lists in content should link
  - Check style of Tag Pages
  - Use https://github.com/microsoft/Windows.UI.Composition-Win32-Samples/tree/master/dotnet/WPF/ScreenCapture as a basis to look at screen shots and helpers!
@@ -44,6 +51,10 @@
 5/4/2020
 
 With Tags in place I noticed that there were a few tags in photos where I was fine with the tag appearing on the photo page (I think...) but the tag was more personal and I didn't like it showing in the tag list for search. This is easily solved and makes sense to me to have a tags exclusion table in the database. But adding a table would break the apps for previous db version - so time to setup migrations. I initially tried doing this via the EF Core migrations - but quickly ran into trouble since I don't have a single db to point it to - I could change that of course with a always present test db or... but it made me feel like this wasn't quite the scenario they were focused on - so I quickly found FluentMigrator and within a few minutes had it at least seemingly working with the table added!
+
+First version of the Tags Exclusion Editor added - still needs works but basics in place.
+
+Still excited about Fluent Migrations and it working as expected and quickly but now I wondering if I can build a new database with EnsureCreated and the get FluentMigrations to do the right thing... More research needed.
 
 5/3/2020
 

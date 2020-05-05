@@ -363,7 +363,7 @@
                     Margin="5"
                     VerticalAlignment="Bottom"
                     SelectedIndex="0"
-                    SelectedValuePath="Tag"
+                    SelectedValuePath="TagValue"
                     ToolTip="Map Projection">
                     <ComboBoxItem Content="Web Mercator" Tag="{StaticResource WebMercatorProjection}" />
                     <ComboBoxItem Content="World Mercator" Tag="{StaticResource WorldMercatorProjection}" />

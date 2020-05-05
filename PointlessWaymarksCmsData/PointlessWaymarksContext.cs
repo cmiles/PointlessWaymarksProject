@@ -37,6 +37,8 @@ namespace PointlessWaymarksCmsData
         public DbSet<PostContent> PostContents { get; set; }
         //public DbSet<TrailSegment> TrailSegments { get; set; }
 
+        public DbSet<TagExclusion> TagExclusions { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

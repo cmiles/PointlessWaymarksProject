@@ -21,7 +21,7 @@
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Tags (Comma,Separated)"
+                <Label Style="{StaticResource DataEntryLabelStyle}" Content="TagValues (Comma,Separated)"
                        Target="{Binding ElementName=TagsTextBox}" />
                 <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
                                  Visibility="{Binding TagsHaveChanges, Converter={StaticResource BooleanToVisibility}}">

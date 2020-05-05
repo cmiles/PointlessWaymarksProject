@@ -14,6 +14,7 @@
     xmlns:noteList="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:linkStreamList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:tagExclusionEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagExclusionEditor;assembly=PointlessWaymarksCmsWpfControls"
     Width="900"
     Height="650"
     Title="{Binding InfoTitle}"
@@ -46,6 +47,9 @@
             </TabItem>
             <TabItem Header="Links">
                 <linkStreamList:LinkStreamListWithActionsControl DataContext="{Binding LinkStreamContext}" />
+            </TabItem>
+            <TabItem Header="TagValue Exclusions">
+                <tagExclusionEditor:TagExclusionEditorControl DataContext="{Binding TagExclusionContext}" />
             </TabItem>
             <TabItem Header="Settings">
                 <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />
@@ -88,7 +92,7 @@
                                 <Setter Property="Width" Value="90"></Setter>
                             </Style>
                         </WrapPanel.Resources>
-                        <Button Command="{Binding GenerateAllTagHtmlCommand}">Tags</Button>
+                        <Button Command="{Binding GenerateAllTagHtmlCommand}">TagValues</Button>
                     </WrapPanel>
                 </Grid>
             </TabItem>
