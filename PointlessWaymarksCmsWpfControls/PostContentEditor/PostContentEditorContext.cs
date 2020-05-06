@@ -18,6 +18,8 @@ using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarksCmsWpfControls.FileContentEditor;
+using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
@@ -41,10 +43,13 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
+        private HelpDisplayContext _helpContext;
 
         public PostContentEditorContext(StatusControlContext statusContext, PostContent postContent)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+
+            HelpContext = new HelpDisplayContext(CommonFields.TitleSlugFolderSummary);
 
             SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
@@ -54,6 +59,17 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker())));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(postContent));
+        }
+
+        public HelpDisplayContext HelpContext
+        {
+            get => _helpContext;
+            set
+            {
+                if (Equals(value, _helpContext)) return;
+                _helpContext = value;
+                OnPropertyChanged();
+            }
         }
 
         public BodyContentEditorContext BodyContent

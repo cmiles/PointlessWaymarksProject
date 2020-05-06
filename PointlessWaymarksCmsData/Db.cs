@@ -133,13 +133,30 @@ namespace PointlessWaymarksCmsData
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
 
-        public static List<string> ParseTagList(ITag tag)
+        public static List<string> ParseTagList(string rawTagString, bool removeExcludedTags)
+        {
+            if (rawTagString == null) return new List<string>();
+            if (string.IsNullOrWhiteSpace(rawTagString)) return new List<string>();
+
+            var excludedTags = new List<string>();
+
+            if (removeExcludedTags)
+            {
+                var db = Db.Context().Result;
+                excludedTags = db.TagExclusions.ToList().Select(x => SlugUtility.Create(true, x.Tag)).ToList();
+            }
+
+            return rawTagString.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
+                .Select(x => SlugUtility.Create(true, x)).Distinct().Where(x => !excludedTags.Contains(x)).OrderBy(x => x)
+                .ToList();
+        }
+
+        public static List<string> ParseTagList(ITag tag, bool removeExcludedTags)
         {
             if (tag == null) return new List<string>();
             if (string.IsNullOrWhiteSpace(tag.Tags)) return new List<string>();
-            return tag.Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
-                .Select(x => SlugUtility.Create(true, x)).Distinct().OrderBy(x => x)
-                .ToList();
+
+            return ParseTagList(tag.Tags, removeExcludedTags);
         }
 
         public static List<(string tag, List<object> contentObjects)> ParseToTagAndContentList(
@@ -167,7 +184,7 @@ namespace PointlessWaymarksCmsData
         {
             list ??= new List<(string tag, List<object> contentObjects)>();
 
-            var tags = ParseTagList(toAdd);
+            var tags = ParseTagList(toAdd, true);
 
             foreach (var loopTags in tags)
             {

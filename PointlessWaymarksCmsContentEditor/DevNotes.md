@@ -1,16 +1,6 @@
 ﻿## Todos
- - Tag Exclusion
-    - Editor:
-       - Make sure check changes runs at the start for good initial state
-       - Unsaved should always show unsaved indicators - looks like some issues here
-    - Generation:
-       - Skip in the All Tags and All Tag Pages
-       - Skip in the Common Tags tag routine
-       - Still include in the Content Search data tags
- - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually')
- - Tag Lists in content should link
- - Check style of Tag Pages
- - Use https://github.com/microsoft/Windows.UI.Composition-Win32-Samples/tree/master/dotnet/WPF/ScreenCapture as a basis to look at screen shots and helpers!
+ - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
+ - Screen shot into all windows - User Control?
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
@@ -20,8 +10,8 @@
  - RSS - Does title need CDATA to be completely safe? Or?
  - Basic Style for the Html Table output - maybe inline Pure or another more minimal framework?
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
- - Tag Content Pages?
- - Paged List Display and or search based List Display - suspect that photos is going to surpass what is currently reasonable to 'Load All'
+ - WPF Paged List Display and or search based List Display - suspect that photos is going to surpass what is currently reasonable to 'Load All'
+ - Db Migrations - how to both do .EnsureCreated and work with FluentMigrator - I think the 2nd run is the trick, first run easy enough to detect there is not a db file - but second run how to get Fluent Migrator to know there is nothing to do? This stays on the list for now but I am wondering hoping that a simple schema check guard will be enough here - not maybe the full intent of FluentMigrations but this could do the trick maybe?
 
 ## Ideas
  - Auto-validate all html output?
@@ -47,6 +37,22 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+5/6/2020
+
+Added an initial Screen Shot implementation - originally I had thought to use https://github.com/microsoft/Windows.UI.Composition-Win32-Samples/tree/master/dotnet/WPF/ScreenCapture but after looking more at the sample can Screen Capture docs I didn't understand how to quickly get a single screen shot of just the app window with minimal code - so went back to a traditional Visual render in WPF and rather than figure out that code again went to https://stackoverflow.com/questions/5124825/generating-a-screenshot-of-a-wpf-window. Still need to explore how to get it into each window with minimal hassle (a user control might work - probably can walk the visual tree up to window?).
+
+Did some help text for the common fields - needs reformatting I think but basic idea works - test in Posts atm.
+
+In writing the help realized that the title of a photo is not actually displayed on the photo page - still happy with the current layout that doesn't put it bold or at the top - but the title should be present, so made an overload of the caption to include it. Interestly for general purpose use I ditched title in caption earlier - but for this specific case I think it makes sense.
+
+A few CSS tweaks for PointlessWaymarks.com
+
+5/5/2020
+
+Tag Exclusions editor v1 done. Updated Tag generation done.
+
+Used a combination of guard statement based on whether the db already exists and schema 'if' in the migration to maybe get a system where I can use the migrations and create new sites with a completely up to date .EnsureCreated db??? Might get too confusing? Or maybe just not worth it?? I think I will run it for now and see what happens.
 
 5/4/2020
 

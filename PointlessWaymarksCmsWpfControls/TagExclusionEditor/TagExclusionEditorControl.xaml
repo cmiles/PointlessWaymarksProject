@@ -28,7 +28,7 @@
         <GroupBox Header="Notes" Style="{StaticResource UiComponentGroupBoxStyle}">
             <wpf:MarkdownViewer Markdown="{Binding HelpMarkdown}" />
         </GroupBox>
-        <GroupBox Header="TagValue Exclusions" Grid.Row="1" Style="{StaticResource UiComponentGroupBoxStyle}">
+        <GroupBox Header="Tag Exclusions" Grid.Row="1" Style="{StaticResource UiComponentGroupBoxStyle}">
             <ItemsControl ItemsSource="{Binding Items}">
                 <ItemsControl.Resources>
                     <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
@@ -59,11 +59,12 @@
                                                  Visibility="{Binding HasChanges, Converter={StaticResource BooleanToHidden}}">
                                     <fa5:FontAwesome.ToolTip>
                                         <TextBlock
-                                            Text="{Binding DbEntry.Tag, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                                            Text="{Binding DbEntry.Tag, StringFormat='Original Value: {0}', TargetNullValue='New Entry', FallbackValue='New Entry'}" />
                                     </fa5:FontAwesome.ToolTip>
                                 </fa5:FontAwesome>
                                 <Button Height="32"
-                                        Command="{Binding Data.AddNewItemCommand, Source={StaticResource Proxy}}">
+                                        Command="{Binding Data.SaveItemCommand, Source={StaticResource Proxy}}" 
+                                        CommandParameter="{Binding .}">
                                     Save
                                 </Button>
                                 <Button Height="32"

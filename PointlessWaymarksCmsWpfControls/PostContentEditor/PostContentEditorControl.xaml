@@ -11,6 +11,7 @@
              xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
              xmlns:postContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PostContentEditor"
              xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
+             xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance postContentEditor:PostContentEditorContext}">
@@ -56,6 +57,9 @@
                 <Grid>
                     <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
+            </TabItem>
+            <TabItem Header="Help">
+                <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">

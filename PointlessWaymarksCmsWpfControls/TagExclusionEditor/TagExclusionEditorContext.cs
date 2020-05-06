@@ -26,7 +26,9 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
 
             HelpMarkdown = TagExclusionHelpMarkdown.HelpBlock;
             AddNewItemCommand = new Command(async () => await AddNewItem());
-            DeleteItemCommand = new Command<TagExclusionEditorListItem>(async x => await DeleteItem(x));
+            SaveItemCommand = new Command<TagExclusionEditorListItem>(x => StatusContext.RunBlockingTask(SaveItem, x));
+            DeleteItemCommand =
+                new Command<TagExclusionEditorListItem>(x => StatusContext.RunBlockingTask(DeleteItem, x));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -57,6 +59,8 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
             }
         }
 
+        public Command<TagExclusionEditorListItem> SaveItemCommand { get; set; }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -74,7 +78,7 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Items.Add(new TagExclusionEditorListItem());
+            Items.Add(new TagExclusionEditorListItem {DbEntry = new TagExclusion()});
         }
 
         private async Task DeleteItem(TagExclusionEditorListItem tagItem)
@@ -157,6 +161,7 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
             {
                 var toAdd = new TagExclusion {Tag = tagItem.TagValue};
                 await db.AddAsync(toAdd);
+                await db.SaveChangesAsync(true);
                 tagItem.DbEntry = toAdd;
                 return;
             }
@@ -166,6 +171,8 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
             toModify.Tag = tagItem.TagValue;
 
             await db.SaveChangesAsync(true);
+
+            tagItem.DbEntry = toModify;
         }
     }
 }

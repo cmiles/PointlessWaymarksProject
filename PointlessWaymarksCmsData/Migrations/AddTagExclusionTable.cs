@@ -10,9 +10,12 @@ namespace PointlessWaymarksCmsData.Migrations
     {
         public override void Up()
         {
-            Create.Table("TagExclusions")
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("Tag").AsString();
+            if (!Schema.Table("TagExclusions").Exists())
+            {
+                Create.Table("TagExclusions")
+                    .WithColumn("Id").AsInt64().PrimaryKey().Identity()
+                    .WithColumn("Tag").AsString();
+            }
         }
 
         public override void Down()

@@ -38,7 +38,7 @@
 </head>
 
 <body class="single-photo-body">
-    <#= PictureInformation.PictureFigureWithCaptionTag("100vw") #>
+    <#= PictureInformation.PictureFigureWithTitleCaptionTag("100vw") #>
     <div class="information-section">
         <#= PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
         <#= Tags.TagList(DbEntry).ToString() #>

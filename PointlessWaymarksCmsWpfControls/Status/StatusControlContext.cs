@@ -349,6 +349,12 @@ namespace PointlessWaymarksCmsWpfControls.Status
             Task.Run(toRun).ContinueWith(BlockTaskCompleted);
         }
 
+        public void RunBlockingTask<T>(Func<T, Task> toRun, T parameter)
+        {
+            IncrementBlockingTasks();
+            Task.Run(async () => await toRun(parameter)).ContinueWith(BlockTaskCompleted);
+        }
+
         public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
         {
             try

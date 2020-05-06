@@ -33,7 +33,7 @@ namespace PointlessWaymarksCmsData
             a = a.TrimNullSafe();
             b = b.TrimNullSafe();
 
-            return string.Compare(a, b, StringComparison.InvariantCulture) != 0;
+            return string.Compare(a, b, StringComparison.InvariantCulture) == 0;
         }
 
         /// <summary>

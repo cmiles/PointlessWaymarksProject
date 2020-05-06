@@ -98,18 +98,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return $"<link rel=\"shortcut icon\" href=\"https:{settings.FaviconUrl()}\"/>";
         }
 
-        public static HtmlTag ImageFigCaptionTag(ImageContent dbEntry)
+        public static HtmlTag ImageFigCaptionTag(ImageContent dbEntry, bool includeTitle = false)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
 
             var figCaptionTag = new HtmlTag("figcaption");
             figCaptionTag.AddClass("single-image-caption");
 
-            var summaryString = string.Empty;
+            var summaryString = includeTitle ? dbEntry.Title : string.Empty;
 
             if (!string.IsNullOrWhiteSpace(dbEntry.Summary))
             {
-                //titleSummaryString += ": ";
+                if(includeTitle) summaryString += ": ";
                 if (!dbEntry.Summary.Trim().EndsWith(".")) summaryString += $"{dbEntry.Summary.Trim()}.";
                 else summaryString += $"{dbEntry.Summary.Trim()}";
             }
@@ -186,7 +186,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return createdByDiv;
         }
 
-        public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry)
+        public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry, bool includeTitle = false)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
 
@@ -195,12 +195,11 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var summaryStringList = new List<string>();
 
-            //var titleSummaryString = DbEntry.Title;
-            var titleSummaryString = string.Empty;
+            var titleSummaryString = includeTitle ? dbEntry.Title : string.Empty;
 
             if (!string.IsNullOrWhiteSpace(dbEntry.Summary))
             {
-                //titleSummaryString += ": ";
+                if(includeTitle) titleSummaryString += ": ";
                 if (!dbEntry.Summary.Trim().EndsWith(".")) titleSummaryString += $"{dbEntry.Summary.Trim()}.";
                 else titleSummaryString += $"{dbEntry.Summary.Trim()}";
             }
@@ -409,17 +408,23 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static HtmlTag TagList(ITag dbEntry)
         {
-            var tagsContainer = new DivTag().AddClass("tags-container");
-
             if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
 
-            tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
-
-            var tags = Db.ParseTagList(dbEntry);
+            var tags = Db.ParseTagList(dbEntry, true);
 
             if (!tags.Any()) return HtmlTag.Empty();
 
-            foreach (var loopTag in tags) tagsContainer.Children.Add(InfoDivTag(loopTag, "tag-detail", "tag", loopTag));
+            var tagsContainer = new DivTag().AddClass("tags-container");
+
+            tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
+
+            foreach (var loopTag in tags)
+            {
+                var tagLinkContainer = new DivTag().AddClass("tags-detail-link-container");
+                var tagLink = new LinkTag(loopTag, UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag)).AddClass("tag-detail-link");
+                tagLinkContainer.Children.Add(tagLink);
+                tagsContainer.Children.Add(tagLinkContainer);
+            }
 
             return tagsContainer;
         }

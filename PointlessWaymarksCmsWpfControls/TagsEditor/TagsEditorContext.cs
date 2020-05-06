@@ -77,7 +77,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
         private List<string> DbTagList()
         {
-            return string.IsNullOrWhiteSpace(DbEntry?.Tags) ? new List<string>() : Db.ParseTagList(DbEntry);
+            return string.IsNullOrWhiteSpace(DbEntry?.Tags) ? new List<string>() : Db.ParseTagList(DbEntry, false);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -89,9 +89,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
         public List<string> TagList()
         {
-            if (string.IsNullOrWhiteSpace(Tags)) return new List<string>();
-            return Tags.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).OrderBy(x => x)
-                .ToList();
+            return string.IsNullOrWhiteSpace(Tags) ? new List<string>() : Db.ParseTagList(Tags, false);
         }
     }
 }

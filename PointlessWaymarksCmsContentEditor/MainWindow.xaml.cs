@@ -38,6 +38,7 @@ using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.PostList;
+using PointlessWaymarksCmsWpfControls.ScreenShot;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
@@ -130,14 +131,21 @@ namespace PointlessWaymarksCmsContentEditor
             DiagnosticEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(DiagnosticEventsReport));
             AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
 
+            ScreenShotCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+            {
+                var result = await FrameworkElementScreenShot.TryScreenShotToClipboardAsync(this);
+                if (result)
+                    StatusContext.ToastSuccess("Window copied to Clipboard");
+                else
+                    StatusContext.ToastError("Problem Copying Window to Clipboard");
+            }));
+
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
 
             SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanUpTemporaryFiles);
         }
-
-        public Command GenerateAllTagHtmlCommand { get; set; }
 
 
         public Command AllEventsReportCommand { get; set; }
@@ -160,6 +168,8 @@ namespace PointlessWaymarksCmsContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public Command GenerateAllTagHtmlCommand { get; set; }
 
         public Command GenerateHtmlForAllFileContentCommand
         {
@@ -318,6 +328,8 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        public Command ScreenShotCommand { get; set; }
+
         public UserSettingsEditorContext SettingsEditorContext
         {
             get => _settingsEditorContext;
@@ -413,6 +425,17 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _tabPostListContext)) return;
                 _tabPostListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public TagExclusionEditorContext TagExclusionContext
+        {
+            get => _tagExclusionContext;
+            set
+            {
+                if (Equals(value, _tagExclusionContext)) return;
+                _tagExclusionContext = value;
                 OnPropertyChanged();
             }
         }
@@ -649,13 +672,6 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        private async Task GenerateAllTagHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            SearchListPageGenerators.WriteTagListAndTagPages(StatusContext.ProgressTracker());
-        }
-
         private async Task GenerateAllListHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -748,6 +764,13 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        private async Task GenerateAllTagHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            SearchListPageGenerators.WriteTagListAndTagPages(StatusContext.ProgressTracker());
+        }
+
         private async Task GenerateCameraRollHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -807,25 +830,30 @@ namespace PointlessWaymarksCmsContentEditor
             var settings = await UserSettingsUtilities.ReadSettings(StatusContext.ProgressTracker());
             settings.VerifyOrCreateAllFolders();
 
-            var sc = new ServiceCollection()
-                // Add common FluentMigrator services
-                .AddFluentMigratorCore().ConfigureRunner(rb => rb
-                    // Add SQLite support to FluentMigrator
-                    .AddSQLite()
-                    // Set the connection string
-                    .WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
-                    // Define the assembly containing the migrations
-                    .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
-                // Enable logging to console in the FluentMigrator way
-                .AddLogging(lb => lb.AddFluentMigratorConsole())
-                // Build the service provider
-                .BuildServiceProvider(false);
+            var possibleDbFile = new FileInfo(settings.DatabaseFile);
+
+            if (possibleDbFile.Exists)
+            {
+                var sc = new ServiceCollection()
+                    // Add common FluentMigrator services
+                    .AddFluentMigratorCore().ConfigureRunner(rb => rb
+                        // Add SQLite support to FluentMigrator
+                        .AddSQLite()
+                        // Set the connection string
+                        .WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
+                        // Define the assembly containing the migrations
+                        .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
+                    // Enable logging to console in the FluentMigrator way
+                    .AddLogging(lb => lb.AddFluentMigratorConsole())
+                    // Build the service provider
+                    .BuildServiceProvider(false);
 
                 // Instantiate the runner
                 var runner = sc.GetRequiredService<IMigrationRunner>();
 
                 // Execute the migrations
                 runner.MigrateUp();
+            }
 
             StatusContext.Progress("Checking for database files...");
             var log = Db.Log().Result;
@@ -848,17 +876,6 @@ namespace PointlessWaymarksCmsContentEditor
             TagExclusionContext = new TagExclusionEditorContext(null);
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
-        }
-
-        public TagExclusionEditorContext TagExclusionContext
-        {
-            get => _tagExclusionContext;
-            set
-            {
-                if (Equals(value, _tagExclusionContext)) return;
-                _tagExclusionContext = value;
-                OnPropertyChanged();
-            }
         }
 
         private async Task NewFileContent()

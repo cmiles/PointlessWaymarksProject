@@ -54,6 +54,14 @@ namespace PointlessWaymarksCmsData.Pictures
             return figureTag;
         }
 
+        public HtmlTag ImageFigureWithTitleCaptionTag(ImageContent dbEntry, string sizes)
+        {
+            var figureTag = new HtmlTag("figure").AddClass("single-image-container");
+            figureTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
+            figureTag.Children.Add(Tags.ImageFigCaptionTag(dbEntry, true));
+            return figureTag;
+        }
+
         public HtmlTag LocalDisplayPhotoImageTag()
         {
             var imageTag = new HtmlTag("img").AddClass("single-photo")
@@ -131,6 +139,14 @@ namespace PointlessWaymarksCmsData.Pictures
             return figureTag;
         }
 
+        public HtmlTag PhotoFigureWithTitleCaptionTag(PhotoContent dbEntry, string sizes)
+        {
+            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
+            figureTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
+            figureTag.Children.Add(Tags.PhotoFigCaptionTag(dbEntry, true));
+            return figureTag;
+        }
+
         public HtmlTag PictureFigureTag(string sizes)
         {
             switch (Pictures.DbEntry)
@@ -179,6 +195,19 @@ namespace PointlessWaymarksCmsData.Pictures
                     return PhotoFigureWithLinkToPageTag(p, sizes);
                 case ImageContent i:
                     return ImageFigureWithLinkToPageTag(i, sizes);
+                default:
+                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
+            }
+        }
+
+        public HtmlTag PictureFigureWithTitleCaptionTag(string sizes)
+        {
+            switch (Pictures.DbEntry)
+            {
+                case PhotoContent p:
+                    return PhotoFigureWithTitleCaptionTag(p, sizes);
+                case ImageContent i:
+                    return ImageFigureWithTitleCaptionTag(i, sizes);
                 default:
                     throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
             }

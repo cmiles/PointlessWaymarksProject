@@ -161,7 +161,7 @@ namespace PointlessWaymarksCmsData.PhotoHtml
             this.Write("\r\n\r\n</head>\r\n\r\n<body class=\"single-photo-body\">\r\n    ");
             
             #line 41 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureWithCaptionTag("100vw")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureWithTitleCaptionTag("100vw")));
             
             #line default
             #line hidden
