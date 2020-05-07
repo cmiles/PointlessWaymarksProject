@@ -91,8 +91,15 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
                 {
-                    listBox.ScrollIntoView(e.NewItems[0]);
-                    listBox.SelectedItem = e.NewItems[0];
+                    try
+                    {
+                        listBox.ScrollIntoView(e.NewItems[0]);
+                        listBox.SelectedItem = e.NewItems[0];
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(exception);
+                    }
                 }
             }
 
