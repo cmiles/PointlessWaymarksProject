@@ -24,7 +24,6 @@
  - Backup the master media directory, database and current site to a dated folder (where?)
  - Could all font sizes be controlled by slider? I like the control in the editor but maybe everywhere would be more useful?
  - Detect image change and force over write style image generation
- - Explore https://css-ig.net/pingo - I wonder about quality and speed - I suppose this looses some flexibility but certainly current code is just resizing not watermarking/etc
  - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site
  - How hard would it be to create a GridSplitter that would be easy to set the initial split based off of the last editor use - and/or that could completely hide content to one side with a shortcut
 
@@ -40,8 +39,16 @@
 
 5/7/2020
 
-Unexpected Errors today:
- - 'No Identity' 
+Unexpected Errors today - I believe these are mostly .NET 3.1 Preview related and may have to do with errors being exposed that were previously hidden:
+ - Null image source string - I don't believe this should normally error but it did - add the ImageCache converter into Photos (the only spot not using it) and it fixed the problem - also added in a Null Image converter based on https://stackoverflow.com/questions/5399601/imagesourceconverter-error-for-source-null to Utility - not currently using but the behavior in the other converter may not always be ideal
+ - BitmapSource not initialized - previously just return a new instance worked - but now it is complaining that it is not initialized, added a small bitmap rather than new bitmap
+ - Seeing the Aero2 error - you can continue past this so no big deal, but interesting this is coming up
+ - No project Identity and missing Sqlite files - I am trying to stick at preview 3.1 but have had trouble several times with preview EF Core so moved back to stable and everything worked - I suspect some kind of version issue or compatibility with Sqlite
+ - AngleSharp is throwing an encoding error - it can be bypassed but seems new with 3.1
+
+The photo auto-save has been great for productivity but it has performance issues if you select too many files at once - added a switch so that at more than 5 files it processes them 1 at a time - worked with large first test batch.
+
+Converted the window screen shot into a user control - to 'fully work' it looks dynamically for the StatusControlContext - this is an internal assumption but a good one for now especially for this 'non core' feature and as a nice way to integrate with low effort.
 
 5/6/2020
 

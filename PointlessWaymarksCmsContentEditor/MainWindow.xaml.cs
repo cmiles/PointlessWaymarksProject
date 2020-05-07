@@ -38,7 +38,6 @@ using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.PostList;
-using PointlessWaymarksCmsWpfControls.ScreenShot;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
@@ -130,15 +129,6 @@ namespace PointlessWaymarksCmsContentEditor
             ExceptionEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(ExceptionEventsReport));
             DiagnosticEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(DiagnosticEventsReport));
             AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
-
-            ScreenShotCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-            {
-                var result = await FrameworkElementScreenShot.TryScreenShotToClipboardAsync(this);
-                if (result)
-                    StatusContext.ToastSuccess("Window copied to Clipboard");
-                else
-                    StatusContext.ToastError("Problem Copying Window to Clipboard");
-            }));
 
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
 
@@ -328,8 +318,6 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public Command ScreenShotCommand { get; set; }
-
         public UserSettingsEditorContext SettingsEditorContext
         {
             get => _settingsEditorContext;
@@ -441,8 +429,6 @@ namespace PointlessWaymarksCmsContentEditor
         }
 
         public Command ToggleDiagnosticLoggingCommand { get; set; }
-
-        public Command VersionScriptCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -12,6 +12,7 @@
              xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
              xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
              xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
+             xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:ImageContentEditorContext}">
@@ -125,5 +126,6 @@
                         Content="Link Code to Clipboard" />
             </WrapPanel>
         </Border>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
     </Grid>
 </UserControl>

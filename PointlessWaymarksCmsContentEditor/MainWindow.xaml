@@ -16,6 +16,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:tagExclusionEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagExclusionEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:fa5="http://schemas.fontawesome.com/icons/"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot;assembly=PointlessWaymarksCmsWpfControls"
     Width="900"
     Height="650"
     Title="{Binding InfoTitle}"
@@ -89,11 +90,12 @@
                     <WrapPanel>
                         <WrapPanel.Resources>
                             <Style TargetType="Button">
-                                <Setter Property="Height" Value="90"></Setter>
-                                <Setter Property="Width" Value="90"></Setter>
+                                <Setter Property="Height" Value="90" />
+                                <Setter Property="Width" Value="90" />
                             </Style>
                         </WrapPanel.Resources>
                         <Button Command="{Binding GenerateAllTagHtmlCommand}">Tags</Button>
+                        <Button Command="{Binding GenerateHtmlForAllPhotoContentCommand}">Photos</Button>
                     </WrapPanel>
                 </Grid>
             </TabItem>
@@ -101,10 +103,9 @@
         <local:SettingsFileChooserControl DataContext="{Binding SettingsFileChooser}" Background="White"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                           HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                                          Visibility="{Binding Data.ShowSettingsFileChooser, Converter={StaticResource BooleanToVisibility}, Source={StaticResource MainWindowProxy}}" d:IsHidden="True" />
-        <Button Opacity=".4" Height="26" Width="26" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="2" Command="{Binding ScreenShotCommand}">
-            <fa5:FontAwesome Icon="Solid_Camera" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-        </Button>
+                                          Visibility="{Binding Data.ShowSettingsFileChooser, Converter={StaticResource BooleanToVisibility}, Source={StaticResource MainWindowProxy}}"
+                                          d:IsHidden="True" />
+        <windowScreenShot:WindowScreenShotControl VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="2" />
         <status:StatusControl
             Grid.Row="0"
             Grid.Column="0"

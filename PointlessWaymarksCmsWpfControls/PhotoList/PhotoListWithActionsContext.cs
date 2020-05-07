@@ -387,7 +387,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var validFiles = selectedFileInfos.Where(FileHelpers.PhotoFileTypeIsSupported).ToList();
 
-
             foreach (var loopFile in validFiles)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();

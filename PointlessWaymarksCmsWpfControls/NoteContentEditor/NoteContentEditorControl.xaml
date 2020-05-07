@@ -10,6 +10,7 @@
              xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
              xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:NoteContentEditorContext}">
     <UserControl.Resources>
@@ -98,5 +99,6 @@
                         Content="_View on Site" />
             </WrapPanel>
         </Border>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
     </Grid>
 </UserControl>

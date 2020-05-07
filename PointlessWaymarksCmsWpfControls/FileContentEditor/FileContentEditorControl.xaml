@@ -13,6 +13,7 @@
              xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
              xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
              xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay"
+             xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:FileContentEditorContext}">
     <UserControl.Resources>
@@ -103,5 +104,6 @@
                         Content="_View on Site" />
             </WrapPanel>
         </Border>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
     </Grid>
 </UserControl>

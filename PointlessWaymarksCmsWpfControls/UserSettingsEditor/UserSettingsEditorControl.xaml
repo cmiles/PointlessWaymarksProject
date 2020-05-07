@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     d:DataContext="{d:DesignInstance userSettingsEditor:UserSettingsEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -138,6 +139,6 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
-
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
     </Grid>
 </UserControl>

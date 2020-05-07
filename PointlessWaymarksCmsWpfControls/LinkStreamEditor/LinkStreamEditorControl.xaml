@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
     xmlns:fa5="http://schemas.fontawesome.com/icons/"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     d:DataContext="{d:DesignInstance local:LinkStreamEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -180,5 +181,6 @@
             <Button Height="24" Margin="4" Grid.Column="1" Command="{Binding SaveUpdateDatabaseCommand}"
                     Content="Save" />
         </Grid>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
     </Grid>
 </UserControl>

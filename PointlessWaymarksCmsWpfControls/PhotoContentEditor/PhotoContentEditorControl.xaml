@@ -11,6 +11,8 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:photoContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PhotoContentEditor"
     xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -20,6 +22,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:ImageCacheConverter x:Key="ImageCache"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -63,7 +66,7 @@
                             <RowDefinition />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Image Source="{Binding SelectedFileFullPath}" />
+                        <Image Source="{Binding SelectedFileFullPath, Converter={StaticResource ImageCache}}" />
                         <TextBlock
                             Grid.Row="1"
                             HorizontalAlignment="Center"
@@ -178,5 +181,6 @@
                         Content="_View on Site" />
             </WrapPanel>
         </Border>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
     </Grid>
 </UserControl>

@@ -205,10 +205,10 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
                 if (summaryHasValue)
                 {
-                    var summaryIsInTitle = !titleSummaryString.Replace(".", string.Empty).ToLower()
+                    var summaryIsInTitle = titleSummaryString.Replace(".", string.Empty).ToLower()
                         .Contains(dbEntry.Summary.TrimNullSafe().Replace(".", string.Empty).ToLower());
 
-                    if(summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullSafe()}";
+                    if(!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullSafe()}";
                 }
 
                 if (!titleSummaryString.EndsWith(".")) titleSummaryString += ".";
