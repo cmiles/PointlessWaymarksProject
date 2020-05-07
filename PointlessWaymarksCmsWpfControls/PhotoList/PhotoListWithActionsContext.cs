@@ -385,16 +385,27 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 StatusContext.ToastWarning(
                     $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.PhotoFileTypeIsSupported(x)))}");
 
-            foreach (var loopFile in selectedFileInfos.Where(FileHelpers.PhotoFileTypeIsSupported))
+            var validFiles = selectedFileInfos.Where(FileHelpers.PhotoFileTypeIsSupported).ToList();
+
+
+            foreach (var loopFile in validFiles)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-
 
                 if (autoSaveAndClose)
                 {
                     var editor = new PhotoContentEditorWindow(true);
-                    StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
-                        await TryAutomateEditorSaveGenerateAndClose(editor, loopFile));
+
+                    if (validFiles.Count > 5)
+                    {
+                        await TryAutomateEditorSaveGenerateAndClose(editor, loopFile);
+                    }
+                    else
+                    {
+                        StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+                            await TryAutomateEditorSaveGenerateAndClose(editor, loopFile));
+                    }
+
                 }
                 else
                 {

@@ -851,8 +851,11 @@ namespace PointlessWaymarksCmsContentEditor
                 // Instantiate the runner
                 var runner = sc.GetRequiredService<IMigrationRunner>();
 
+                await ThreadSwitcher.ResumeForegroundAsync();
                 // Execute the migrations
                 runner.MigrateUp();
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
             }
 
             StatusContext.Progress("Checking for database files...");

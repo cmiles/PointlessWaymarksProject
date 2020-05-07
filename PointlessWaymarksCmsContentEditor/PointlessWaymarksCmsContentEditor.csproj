@@ -36,6 +36,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-preview.3.20215.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0-preview.3.20215.2" />
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1-preview.vb-release" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.0" />
@@ -43,7 +44,7 @@
     <PackageReference Include="Ookii.Dialogs.Wpf.NETCore" Version="2.1.0" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.1-beta" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-rc0001" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-unstable1162" />
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0-preview.3.20214.6" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-preview.3.20214.6" />
     <PackageReference Include="System.Text.Json" Version="5.0.0-preview.3.20214.6" />

@@ -195,13 +195,28 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var summaryStringList = new List<string>();
 
-            var titleSummaryString = includeTitle ? dbEntry.Title : string.Empty;
+            string titleSummaryString;
 
-            if (!string.IsNullOrWhiteSpace(dbEntry.Summary))
+            var summaryHasValue = !string.IsNullOrWhiteSpace(dbEntry.Summary);
+
+            if (includeTitle || !summaryHasValue)
             {
-                if(includeTitle) titleSummaryString += ": ";
-                if (!dbEntry.Summary.Trim().EndsWith(".")) titleSummaryString += $"{dbEntry.Summary.Trim()}.";
-                else titleSummaryString += $"{dbEntry.Summary.Trim()}";
+                titleSummaryString = dbEntry.Title;
+
+                if (summaryHasValue)
+                {
+                    var summaryIsInTitle = !titleSummaryString.Replace(".", string.Empty).ToLower()
+                        .Contains(dbEntry.Summary.TrimNullSafe().Replace(".", string.Empty).ToLower());
+
+                    if(summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullSafe()}";
+                }
+
+                if (!titleSummaryString.EndsWith(".")) titleSummaryString += ".";
+            }
+            else
+            {
+                titleSummaryString = dbEntry.Summary.TrimNullSafe();
+                if (!titleSummaryString.EndsWith(".")) titleSummaryString += $"{dbEntry.Summary.Trim()}.";
             }
 
             summaryStringList.Add(titleSummaryString);
