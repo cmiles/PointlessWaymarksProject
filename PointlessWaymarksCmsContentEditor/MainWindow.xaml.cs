@@ -121,6 +121,8 @@ namespace PointlessWaymarksCmsContentEditor
 
             GenerateAllTagHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllTagHtml));
 
+            GenerateDailyGalleryHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllDailyPhotoGalleriesHtml));
+
             ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
 
             ToggleDiagnosticLoggingCommand = new Command(() =>
@@ -136,6 +138,8 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanUpTemporaryFiles);
         }
+
+        public Command GenerateDailyGalleryHtmlCommand { get; set; }
 
 
         public Command AllEventsReportCommand { get; set; }

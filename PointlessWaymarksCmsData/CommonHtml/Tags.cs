@@ -216,7 +216,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             else
             {
                 titleSummaryString = dbEntry.Summary.TrimNullSafe();
-                if (!titleSummaryString.EndsWith(".")) titleSummaryString += $"{dbEntry.Summary.Trim()}.";
+                if (!titleSummaryString.EndsWith(".")) titleSummaryString += ".";
             }
 
             summaryStringList.Add(titleSummaryString);
@@ -404,28 +404,20 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return titleContainer;
         }
 
-        public static HtmlTag TagList(List<string> tags)
-        {
-            tags ??= new List<string>();
-
-            tags = tags.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
-
-            var tagsContainer = new DivTag().AddClass("tags-container");
-
-            if (!tags.Any()) return HtmlTag.Empty();
-
-            tagsContainer.Children.Add(new DivTag().Text("Tags:").AddClass("tag-detail-label-tag"));
-
-            foreach (var loopTag in tags) tagsContainer.Children.Add(InfoDivTag(loopTag, "tag-detail", "tag", loopTag));
-
-            return tagsContainer;
-        }
-
         public static HtmlTag TagList(ITag dbEntry)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
 
             var tags = Db.ParseTagList(dbEntry, true);
+
+            return TagList(tags);
+        }
+
+        public static HtmlTag TagList(List<string> tags)
+        {
+            tags ??= new List<string>();
+
+            tags = tags.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
 
             if (!tags.Any()) return HtmlTag.Empty();
 

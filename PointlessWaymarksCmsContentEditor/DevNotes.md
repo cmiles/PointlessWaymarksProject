@@ -1,6 +1,6 @@
 ﻿## Todos
  - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
- - Screen shot into all windows - User Control?
+ - Camera gallery code use some shortcuts - maybe years at the top and a block for months at the start of each year?
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
