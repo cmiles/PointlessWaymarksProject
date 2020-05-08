@@ -37,9 +37,15 @@
 
 ## Notes
 
+5/8/2020
+
+Had trouble with a large panorama 1910 Sea of Sand - about 33k wide - throwing an exception in the ImageSharp based resizing code. From the GitHub issues it seemed like this shouldn't happen but it was slightly difficult to follow the technical library/image processing discussion plus be sure I understood what was in the currently packages - so asked in the gitter channel and 'an overflow in JpegFrame in SamplesPerLine' was identified. For now I just used a 20k wide export for the file - but hope to change this out later.
+
+When working on a new post I found a puzzling truncation of long Titles extracted from Metadata - I reported https://github.com/drewnoakes/metadata-extractor/issues/474 but I am not sure if this is a questionable use of the metadata format by Adobe or a real issue - so at least for now I worked around by using the BitmapSource metadata which does extract the correct title - I haven't tested but my belief is that the BitmapSource way of doing it is going to be slower and more memory intensive, however extracting the correct title is important enough that any hit is worth it for now.
+
 5/7/2020
 
-Unexpected Errors today - I believe these are mostly .NET 3.1 Preview related and may have to do with errors being exposed that were previously hidden:
+Unexpected Errors today - I believe these are mostly .NET 3.1 Preview related and some may have to do with errors being exposed that I previously had hidden:
  - Null image source string - I don't believe this should normally error but it did - add the ImageCache converter into Photos (the only spot not using it) and it fixed the problem - also added in a Null Image converter based on https://stackoverflow.com/questions/5399601/imagesourceconverter-error-for-source-null to Utility - not currently using but the behavior in the other converter may not always be ideal
  - BitmapSource not initialized - previously just return a new instance worked - but now it is complaining that it is not initialized, added a small bitmap rather than new bitmap
  - Seeing the Aero2 error - you can continue past this so no big deal, but interesting this is coming up
