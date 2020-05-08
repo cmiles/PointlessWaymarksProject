@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using MetadataExtractor;
@@ -550,6 +551,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext.Progress("Getting Directories");
 
+            //TODO: 2020/5/8 this is not ideal but is in place to work around long title not being read by MetadataExtractor - 
+            await using var fs = new FileStream(SelectedFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            BitmapSource img = BitmapFrame.Create(fs);
+            var md = (BitmapMetadata)img.Metadata;
+            TitleSummarySlugFolder.Title = md?.Title;
+            await fs.DisposeAsync();
+
             var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName)
                 .OfType<ExifSubIfdDirectory>().FirstOrDefault();
             var exifDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<ExifIfd0Directory>()
@@ -585,9 +593,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
             License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
             ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
-            TitleSummarySlugFolder.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
-            TitleSummarySlugFolder.Summary = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
 
+            if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
+            {
+                TitleSummarySlugFolder.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
+            }
+
+            TitleSummarySlugFolder.Summary = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
 
             //2020/3/22 - This matches a personal naming pattern where pictures 'always' start with 4 digit year 2 digit month
             if (!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
