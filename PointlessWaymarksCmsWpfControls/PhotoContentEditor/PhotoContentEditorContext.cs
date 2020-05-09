@@ -8,12 +8,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Media.Imaging;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
+using MetadataExtractor.Formats.Xmp;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
@@ -32,6 +34,8 @@ using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.WpfHtml;
+using XmpCore;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
@@ -551,18 +555,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext.Progress("Getting Directories");
 
-            //TODO: 2020/5/8 this is not ideal but is in place to work around long title not being read by MetadataExtractor - 
-            await using var fs = new FileStream(SelectedFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            BitmapSource img = BitmapFrame.Create(fs);
-            var md = (BitmapMetadata)img.Metadata;
-            TitleSummarySlugFolder.Title = md?.Title;
-            await fs.DisposeAsync();
-
             var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName)
                 .OfType<ExifSubIfdDirectory>().FirstOrDefault();
             var exifDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<ExifIfd0Directory>()
                 .FirstOrDefault();
             var iptcDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<IptcDirectory>()
+                .FirstOrDefault();
+            var xmpDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<XmpDirectory>()
                 .FirstOrDefault();
 
             PhotoCreatedBy = exifDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
@@ -588,11 +587,27 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             CameraMake = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
             CameraModel = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
             FocalLength = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagFocalLength) ?? string.Empty;
+
             Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
-            if (Lens == "----") Lens = string.Empty;
+
+            if (Lens == "----")
+            {
+                Lens = string.Empty;
+            }
+            if (Lens == string.Empty)
+            {
+                Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsExifAux, "Lens")?.Value ?? string.Empty;
+            }
+            if (Lens == string.Empty)
+            {
+                Lens = xmpDirectory?.XmpMeta?.GetProperty("crs", "LensProfileName")?.Value ?? string.Empty;
+            }
+
             Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
             License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
             ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
+
+            TitleSummarySlugFolder.Title = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "title", 1).Value;
 
             if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
             {
@@ -940,12 +955,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                     x.DirectoryName,
                     Tag = x.Name,
                     TagValue = ObjectDumper.Dump(x.Description)
-                }).ToHtmlTable();
+                }).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+
+            var xmpDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<XmpDirectory>()
+                .FirstOrDefault();
+
+            var xmpMetadata = xmpDirectory?.GetXmpProperties().Select(x => new {XmpKey = x.Key, XmpValue = x.Value}).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var viewerWindow = new HtmlViewerWindow(tagHtml);
-            viewerWindow.Show();
+            var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                $"PhotoMetadata-{Path.GetFileNameWithoutExtension(SelectedFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
+
+            var htmlString = ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(SelectedFile.FullName)}</h1><br><h1>Metadata - Part 1</h1><br>" + tagHtml + "<br><br><h1>XMP - Part 2</h1><br>" + xmpMetadata).ToHtmlDocumentWithPureCss("Photo Metadata", "body {margin: 12px;}");
+
+            await File.WriteAllTextAsync(file.FullName, htmlString);
+
+            var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
+            Process.Start(ps);
         }
 
         private async Task WriteSelectedFileToLocalSite()

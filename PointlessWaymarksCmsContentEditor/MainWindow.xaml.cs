@@ -28,6 +28,7 @@ using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsData.SearchListHtml;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.FileList;
+using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.ImageList;
@@ -68,6 +69,7 @@ namespace PointlessWaymarksCmsContentEditor
         private UserSettingsEditorContext _settingsEditorContext;
         private SettingsFileChooserControlContext _settingsFileChooser;
         private bool _showSettingsFileChooser;
+        private HelpDisplayContext _softwareComponentsHelpContext;
         private StatusControlContext _statusContext;
         private FileListWithActionsContext _tabFileListContext;
         private ImageListWithActionsContext _tabImageListContext;
@@ -121,7 +123,11 @@ namespace PointlessWaymarksCmsContentEditor
 
             GenerateAllTagHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllTagHtml));
 
-            GenerateDailyGalleryHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllDailyPhotoGalleriesHtml));
+            GenerateDailyGalleryHtmlCommand =
+                new Command(() => StatusContext.RunBlockingTask(GenerateAllDailyPhotoGalleriesHtml));
+            GenerateCamerRollCommand =
+                new Command(() => StatusContext.RunBlockingTask(GenerateCameraRollHtml));
+
 
             ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
 
@@ -139,7 +145,7 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanUpTemporaryFiles);
         }
 
-        public Command GenerateDailyGalleryHtmlCommand { get; set; }
+        public Command GenerateCamerRollCommand { get; set; }
 
 
         public Command AllEventsReportCommand { get; set; }
@@ -164,6 +170,8 @@ namespace PointlessWaymarksCmsContentEditor
         }
 
         public Command GenerateAllTagHtmlCommand { get; set; }
+
+        public Command GenerateDailyGalleryHtmlCommand { get; set; }
 
         public Command GenerateHtmlForAllFileContentCommand
         {
@@ -351,6 +359,17 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (value == _showSettingsFileChooser) return;
                 _showSettingsFileChooser = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public HelpDisplayContext SoftwareComponentsHelpContext
+        {
+            get => _softwareComponentsHelpContext;
+            set
+            {
+                if (Equals(value, _softwareComponentsHelpContext)) return;
+                _softwareComponentsHelpContext = value;
                 OnPropertyChanged();
             }
         }
@@ -866,6 +885,7 @@ namespace PointlessWaymarksCmsContentEditor
             TagExclusionContext = new TagExclusionEditorContext(null);
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
+            SoftwareComponentsHelpContext = new HelpDisplayContext(SoftwareUsedHelpMarkdown.HelpBlock);
         }
 
         private async Task NewFileContent()

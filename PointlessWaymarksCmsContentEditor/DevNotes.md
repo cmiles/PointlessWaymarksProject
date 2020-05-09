@@ -1,6 +1,7 @@
 ﻿## Todos
+ - Look at https://github.com/saucecontrol/PhotoSauce for image resizing - for speed and quality, but also because I find it difficult to fully understand the implications of the A
  - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
- - Camera gallery code use some shortcuts - maybe years at the top and a block for months at the start of each year?
+ - I Search it might be nice to have the content type on the line with date...
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
@@ -36,6 +37,20 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+5/9/2020
+
+Finished out a first implementation of the year and month navigation in the camera roll - I believe the structure will work but will need to work thru the styling a bit more to know.
+
+Finished a Help Block that lists software used building this software.
+
+Added PureCSS to the project as a static copy to inline into the photo metadata reports (and/or future reports) for quick and simple styling - didn't link it because I want full offline functionality with these local html files.
+
+Originally in the metadata reports I opened the photo metadata report in an HTML view window but either the state of WebView, or the state of my use of it, means that find and context menu are not coming up?!? Switched that report to write to the temp folder and to open thru process start.
+
+Added Camera Roll to the parts generation.
+
+Added an about tab to the main app.
 
 5/8/2020
 

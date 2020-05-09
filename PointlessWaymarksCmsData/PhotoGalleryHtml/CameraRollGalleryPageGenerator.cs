@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using HtmlTags;
@@ -26,10 +28,88 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
 
             PictureSiteInformation mainImage = null;
             var isFirstItem = true;
+            var currentYear = -1;
+            var currentMonth = -1;
+
+            var yearList = allDates.Select(x => x.Year).Distinct().OrderByDescending(x => x).ToList();
 
             for (var i = 0; i < allDates.Count; i++)
             {
                 var loopDate = allDates[i];
+
+                var newYear = false;
+                var newMonth = false;
+
+                if (loopDate.Year != currentYear)
+                {
+                    newYear = true;
+                    currentYear = loopDate.Year;
+
+                    var yearNavigationDiv = new DivTag().AddClass("camera-roll-year-list-container");
+
+                    var yearLabelContainer = new DivTag().AddClass("camera-roll-year-list-item");
+                    var yearLabel = new DivTag().Text("Years:").AddClass("camera-roll-year-list-label");
+                    yearLabelContainer.Children.Add(yearLabel);
+                    yearNavigationDiv.Children.Add(yearLabelContainer);
+
+                    foreach (var loopYear in yearList)
+                    {
+                        var yearContainer = new DivTag().AddClass("camera-roll-year-list-item");
+
+                        if (loopYear == currentYear)
+                        {
+                            var activeYearContent = new DivTag().Text(loopYear.ToString()).AddClass("camera-roll-year-list-content");
+                            yearContainer.Children.Add(activeYearContent);
+                        }
+                        else
+                        {
+                            var activeYearContent = new LinkTag(loopYear.ToString(), $"#{loopYear}").AddClass("camera-roll-year-list-content");
+                            yearContainer.Children.Add(activeYearContent);
+                        }
+
+                        yearNavigationDiv.Children.Add(yearContainer);
+                    }
+
+                    cameraRollContainer.Children.Add(yearNavigationDiv);
+                }
+
+                if (loopDate.Month != currentMonth || newYear)
+                {
+                    newMonth = true;
+                    currentMonth = loopDate.Month;
+
+                    var currentYearMonths = allDates.Where(x => x.Year == currentYear).Select(x => x.Month).Distinct()
+                        .OrderBy(x => x).ToList();
+
+                    var monthNavigationDiv = new DivTag().AddClass("camera-roll-month-list-container");
+
+                    var monthLabelContainer = new DivTag().AddClass("camera-roll-month-list-item");
+                    var monthLabel = new DivTag().Text("Months:").AddClass("camera-roll-month-list-label");
+                    monthLabelContainer.Children.Add(monthLabel);
+                    monthNavigationDiv.Children.Add(monthLabelContainer);
+
+                    for (int j = 1; j < 13; j++)
+                    {
+                        var monthContainer = new DivTag().AddClass("camera-roll-month-list-item");
+
+                        var monthText = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(j);
+
+                        if (j == currentMonth || !currentYearMonths.Contains(j))
+                        {
+                            var activeMonthContent = new DivTag().Text(monthText).AddClass("camera-roll-month-list-content");
+                            monthContainer.Children.Add(activeMonthContent);
+                        }
+                        else
+                        {
+                            var activeMonthContent = new LinkTag(monthText, $"#{currentYear}-{j}").AddClass("camera-roll-month-list-content");
+                            monthContainer.Children.Add(activeMonthContent);
+                        }
+
+                        monthNavigationDiv.Children.Add(monthContainer);
+                    }
+
+                    cameraRollContainer.Children.Add(monthNavigationDiv);
+                }
 
                 if (i % 10 == 0) progress?.Report($"Camera Gallery Section - {loopDate:D} - {i} of {loopGoal}");
 
@@ -40,13 +120,20 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
                     .Where(x => x.PhotoCreatedOn >= startsAfterOrOn && x.PhotoCreatedOn < endsBefore)
                     .OrderBy(x => x.PhotoCreatedOn).ToListAsync();
 
-
                 var infoItem = new DivTag().AddClass("camera-roll-info-item-container");
+
+                if (newYear) infoItem.Id(currentYear.ToString());
 
                 var dateLink = new LinkTag($"{loopDate:yyyy MMMM d, dddd}",
                     UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(loopDate),
                     "camera-roll-info-date-link");
                 var dateDiv = new DivTag().AddClass("camera-roll-info-date");
+
+                if (newMonth)
+                {
+                    dateDiv.Id($"{currentYear}-{currentMonth}");
+                }
+
                 dateDiv.Children.Add(dateLink);
                 infoItem.Children.Add(dateDiv);
 
