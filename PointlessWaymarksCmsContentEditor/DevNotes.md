@@ -1,5 +1,5 @@
 ﻿## Todos
- - Look at https://github.com/saucecontrol/PhotoSauce for image resizing - for speed and quality, but also because I find it difficult to fully understand the implications of the A
+ - Look at https://github.com/saucecontrol/PhotoSauce for image resizing - for speed and quality, but also because I find it difficult to fully understand the implications of the GNU Affero General Public License v3.0 - this project is fully open with reference to the source available so I believe that all intended uses are in the spirit of that license however I am not completely sure about the mix of licenses and details...
  - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
  - I Search it might be nice to have the content type on the line with date...
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
@@ -57,6 +57,8 @@ Added an about tab to the main app.
 Had trouble with a large panorama 1910 Sea of Sand - about 33k wide - throwing an exception in the ImageSharp based resizing code. From the GitHub issues it seemed like this shouldn't happen but it was slightly difficult to follow the technical library/image processing discussion plus be sure I understood what was in the currently packages - so asked in the gitter channel and 'an overflow in JpegFrame in SamplesPerLine' was identified. For now I just used a 20k wide export for the file - but hope to change this out later.
 
 When working on a new post I found a puzzling truncation of long Titles extracted from Metadata - I reported https://github.com/drewnoakes/metadata-extractor/issues/474 but I am not sure if this is a questionable use of the metadata format by Adobe or a real issue - so at least for now I worked around by using the BitmapSource metadata which does extract the correct title - I haven't tested but my belief is that the BitmapSource way of doing it is going to be slower and more memory intensive, however extracting the correct title is important enough that any hit is worth it for now.
+
+I had been getting photo titles from the IPTC metadata - this had worked well but I had a problem with some recent files with long titles - the titles were truncated... Initially I thought this was an issue with the metadata extraction since the Bitmapdata from a framework Bitmapsource and Exiftool both showed the Title without issue - but a very helpful comment online - https://github.com/drewnoakes/metadata-extractor/issues/474#issuecomment-626014133 - helped me quickly realize that I had not looked up and did not know this was to Adobe spec and also didn't realize that the generic GetMetadata call into MetadataExtractor didn't return XMP data. The XMP part is critical because that is where the full title is. Added the XMP Title and also some fallback lens info from XMP.
 
 5/7/2020
 
