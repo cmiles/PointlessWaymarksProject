@@ -13,9 +13,32 @@ Random Details:
  - Custom software because I believe that my goals are fundamentally simple enough that the scope of this project means that I can create new software that brings me joy with less effort and time than it would take to customize existing software.
  - I hope to write good quality code and I am happy to share it - but for various reason including the incredibly narrow and personal focus of this project I don't currently intend to make 'public use' a consideration
 
-More details, including Todo Lists, Idea Lists, and notes are [found in a DevNotes.md file that is versioned along with the code](https://github.com/cmiles/PointlessWaymarksCms/blob/master/PointlessWaymarksCmsContentEditor/DevNotes.md).
+More details, including Todo Lists, Idea Lists, and notes are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
 
 If you have questions or comments you are certainly welcome to contact me at PointlessWaymarks@gmail.com
+
+
+### Application Screen Shots
+
+Launch screen with recent files and option to create a new project.
+
+![Launch Screen](PointlessWaymarksCmsScreenShots/LaunchScreen.jpg "Launch Screen")
+
+
+Post List - There is a similiar list for each Content Type.
+
+![Posts List](PointlessWaymarksCmsScreenShots/PostsList.jpg "Posts List")
+
+
+Post Editor with Preview Showing - The editors, like the entire application - is relatively simple but quick and easy to work with.
+
+![Post Editor](PointlessWaymarksCmsScreenShots/PostEditorWithPreview.jpg "Post Editor")
+
+
+The first tab of the Photo Content Editor - most of the data on this screen was imported from the photo metadata.
+
+![Photo Content Editor](PointlessWaymarksCmsScreenShots/PhotoEditor.jpg "Photo Content Editor")
+
 
 ### Software Used By and In Building Pointless Waymarks CMS
 
