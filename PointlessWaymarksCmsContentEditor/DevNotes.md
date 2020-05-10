@@ -1,7 +1,7 @@
 ﻿## Todos
  - Look at https://github.com/saucecontrol/PhotoSauce for image resizing - for speed and quality, but also because I find it difficult to fully understand the implications of the GNU Affero General Public License v3.0 - this project is fully open with reference to the source available so I believe that all intended uses are in the spirit of that license however I am not completely sure about the mix of licenses and details...
  - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
- - I Search it might be nice to have the content type on the line with date...
+ - In Search it might be nice to have the content type on the line with date?
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
@@ -16,7 +16,6 @@
 
 ## Ideas
  - Auto-validate all html output?
- - An app panel to generate smaller parts for dev debug
  - Animate changes on the Lists when filtered
  - Look at deployment options - self contained? msix? automated?
  - Watch https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/ - the source generators look like they could be quite interesting for INPC and HasChanges
@@ -51,6 +50,8 @@ Originally in the metadata reports I opened the photo metadata report in an HTML
 Added Camera Roll to the parts generation.
 
 Added an about tab to the main app.
+
+Bug fixes in new XMP Lens data extraction.
 
 5/8/2020
 

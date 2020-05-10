@@ -590,17 +590,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
 
-            if (Lens == "----")
-            {
-                Lens = string.Empty;
-            }
-            if (Lens == string.Empty)
+            if (Lens == string.Empty || Lens == "----")
             {
                 Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsExifAux, "Lens")?.Value ?? string.Empty;
             }
-            if (Lens == string.Empty)
+            if (Lens == string.Empty || Lens == "----")
             {
-                Lens = xmpDirectory?.XmpMeta?.GetProperty("crs", "LensProfileName")?.Value ?? string.Empty;
+                Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsCameraraw, "LensProfileName")?.Value ?? string.Empty;
+
+                if (Lens.StartsWith("Adobe ("))
+                {
+                    Lens = Lens.Substring(7, Lens.Length - 7);
+                    if(Lens.EndsWith(")")) Lens = Lens.Substring(0, Lens.Length - 1);
+                }
+            }
+
+            if (Lens == "----")
+            {
+                Lens = string.Empty;
             }
 
             Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
