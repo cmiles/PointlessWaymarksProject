@@ -15,6 +15,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -26,6 +27,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
+        private Command _filePageLinkCodesToClipboardForSelectedCommand;
         private Command _firstPagePreviewFromPdfToCairoCommand;
         private Command _generateSelectedHtmlCommand;
         private FileListContext _listContext;
@@ -33,7 +35,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private Command _openUrlForSelectedCommand;
         private List<(object, string)> _pdfPreviewGenerationErrorOutput = new List<(object, string)>();
         private List<(object, string)> _pdfPreviewGenerationProgress = new List<(object, string)>();
-        private Command _photoPageLinkCodesToClipboardForSelectedCommand;
         private StatusControlContext _statusContext;
 
         public FileListWithActionsContext(StatusControlContext statusContext)
@@ -55,6 +56,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 new Command(() => StatusContext.RunBlockingTask(FirstPagePreviewFromPdfToCairo));
             ExtractNewLinksInSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
+            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
+
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -97,11 +100,11 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
         public Command FilePageLinkCodesToClipboardForSelectedCommand
         {
-            get => _photoPageLinkCodesToClipboardForSelectedCommand;
+            get => _filePageLinkCodesToClipboardForSelectedCommand;
             set
             {
-                if (Equals(value, _photoPageLinkCodesToClipboardForSelectedCommand)) return;
-                _photoPageLinkCodesToClipboardForSelectedCommand = value;
+                if (Equals(value, _filePageLinkCodesToClipboardForSelectedCommand)) return;
+                _filePageLinkCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -176,6 +179,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 OnPropertyChanged();
             }
         }
+
+        public Command ViewHistoryCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -471,6 +476,55 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         {
             //* Do your stuff with the output (write to console/log/StringBuilder)
             _pdfPreviewGenerationProgress.Add((sendingProcess, outLine.Data));
+        }
+
+        private async Task ViewHistory()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var selected = ListContext.SelectedItems;
+
+            if (selected == null || !selected.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (selected.Count > 1)
+            {
+                StatusContext.ToastError("Please Select a Single Item");
+                return;
+            }
+
+            var singleSelected = selected.Single();
+
+            if (singleSelected.DbEntry == null || singleSelected.DbEntry.ContentId == Guid.Empty)
+            {
+                StatusContext.ToastWarning("No History - New/Unsaved Entry?");
+                return;
+            }
+
+            var db = await Db.Context();
+
+            StatusContext.Progress($"Looking up Historic Entries for {singleSelected.DbEntry.Title}");
+
+            var historicItems = await db.HistoricFileContents
+                .Where(x => x.ContentId == singleSelected.DbEntry.ContentId).ToListAsync();
+
+            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+            if (historicItems.Count < 1)
+            {
+                StatusContext.ToastWarning("No History to Show...");
+                return;
+            }
+
+            var historicView = new ContentViewHistoryPage($"Historic Entries - {singleSelected.DbEntry.Title}",
+                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {singleSelected.DbEntry.Title}",
+                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                    .Select(ObjectDumper.Dump).ToList());
+
+            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
     }
 }

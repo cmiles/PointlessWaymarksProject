@@ -15,6 +15,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -48,6 +49,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
             ExtractNewLinksInSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
+            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
+
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -155,6 +158,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 OnPropertyChanged();
             }
         }
+
+        public Command ViewHistoryCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -367,17 +372,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
-            if (!selectedFileInfos.Any(FileHelpers.ImageFileTypeIsSupported))
+            if (!selectedFileInfos.Any(FileTypeHelpers.ImageFileTypeIsSupported))
             {
                 StatusContext.ToastError("None of the files appear to be supported file types...");
                 return;
             }
 
-            if (selectedFileInfos.Any(x => !FileHelpers.ImageFileTypeIsSupported(x)))
+            if (selectedFileInfos.Any(x => !FileTypeHelpers.ImageFileTypeIsSupported(x)))
                 StatusContext.ToastWarning(
-                    $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.ImageFileTypeIsSupported(x)))}");
+                    $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileTypeHelpers.ImageFileTypeIsSupported(x)))}");
 
-            foreach (var loopFile in selectedFileInfos.Where(FileHelpers.ImageFileTypeIsSupported))
+            foreach (var loopFile in selectedFileInfos.Where(FileTypeHelpers.ImageFileTypeIsSupported))
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -415,6 +420,55 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
                 Process.Start(ps);
             }
+        }
+
+        private async Task ViewHistory()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var selected = ListContext.SelectedItems;
+
+            if (selected == null || !selected.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (selected.Count > 1)
+            {
+                StatusContext.ToastError("Please Select a Single Item");
+                return;
+            }
+
+            var singleSelected = selected.Single();
+
+            if (singleSelected.DbEntry == null || singleSelected.DbEntry.ContentId == Guid.Empty)
+            {
+                StatusContext.ToastWarning("No History - New/Unsaved Entry?");
+                return;
+            }
+
+            var db = await Db.Context();
+
+            StatusContext.Progress($"Looking up Historic Entries for {singleSelected.DbEntry.Title}");
+
+            var historicItems = await db.HistoricImageContents
+                .Where(x => x.ContentId == singleSelected.DbEntry.ContentId).ToListAsync();
+
+            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+            if (historicItems.Count < 1)
+            {
+                StatusContext.ToastWarning("No History to Show...");
+                return;
+            }
+
+            var historicView = new ContentViewHistoryPage($"Historic Entries - {singleSelected.DbEntry.Title}",
+                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {singleSelected.DbEntry.Title}",
+                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                    .Select(ObjectDumper.Dump).ToList());
+
+            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
     }
 }

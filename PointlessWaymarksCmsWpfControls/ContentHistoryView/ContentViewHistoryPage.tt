@@ -1,0 +1,48 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="AngleSharp.Text" #>
+<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
+<#@ import namespace="PointlessWaymarksCmsData" #>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
+    <meta charset="utf-8">
+    <title><#= PageTitle.HtmlEncode() #> - Photographs</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .item-list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .item-list-container {
+            box-shadow: 0 0 4px 0px #909090;
+            margin: 1rem;
+        }
+
+        .item-list-content {
+            margin: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <#= Tags.TitleDiv(ContentTitle).ToString() #>
+    <div class="item-list">
+        <# foreach (var loopItem in Items)
+       { #>
+       <div class="item-list-container">
+            <div class="item-list-content">
+                <#= loopItem #>
+            </div>
+       </div>
+       <# } #>
+      </div>
+</body>
+
+</html>

@@ -13,8 +13,10 @@ using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
+using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -50,8 +52,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 StatusContext.RunBlockingTask(async () => await NewContentFromFiles(false)));
             NewContentFromFilesWithAutosaveCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await NewContentFromFiles(true)));
-
+            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
             RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
+
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
             ExtractNewLinksInSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
@@ -186,6 +189,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
+        public Command ViewHistoryCommand { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task Delete()
@@ -201,39 +206,50 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
 
             if (selected.Count > 1)
-            {
-                StatusContext.ToastError("Sorry - please delete one at a time");
-                return;
-            }
+                if (await StatusContext.ShowMessage("Delete Multiple Items",
+                    $"You are about to delete {selected.Count} items - do you really want to delete all of these photos?",
+                    new List<string> {"Yes", "No"}) == "No")
+                    return;
 
-            var selectedItem = selected.Single();
-
-            if (selectedItem.DbEntry == null || selectedItem.DbEntry.Id < 1)
-            {
-                StatusContext.ToastError("Entry is not saved?");
-                return;
-            }
-
+            var selectedItems = selected.ToList();
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var possibleContentDirectory = settings.LocalSitePhotoContentDirectory(selectedItem.DbEntry, false);
-            if (possibleContentDirectory.Exists) possibleContentDirectory.Delete(true);
-
-            var context = await Db.Context();
-
-            var toHistoric = await context.PhotoContents.Where(x => x.ContentId == selectedItem.DbEntry.ContentId)
-                .ToListAsync();
-
-            foreach (var loopToHistoric in toHistoric)
+            foreach (var loopSelected in selectedItems)
             {
-                var newHistoric = new HistoricPhotoContent();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                await context.HistoricPhotoContents.AddAsync(newHistoric);
-                context.PhotoContents.Remove(loopToHistoric);
-            }
+                if (loopSelected.DbEntry == null || loopSelected.DbEntry.Id < 1)
+                {
+                    StatusContext.ToastError("Entry is not saved - Skipping?");
+                    return;
+                }
 
-            await context.SaveChangesAsync(true);
+
+                var possibleContentDirectory = settings.LocalSitePhotoContentDirectory(loopSelected.DbEntry, false);
+                if (possibleContentDirectory.Exists)
+                {
+                    StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
+                    possibleContentDirectory.Delete(true);
+                }
+
+                var context = await Db.Context();
+
+                var toHistoric = await context.PhotoContents.Where(x => x.ContentId == loopSelected.DbEntry.ContentId)
+                    .ToListAsync();
+
+                StatusContext.Progress($"Writing {loopSelected.DbEntry.Title} Last Historic Entry");
+
+                foreach (var loopToHistoric in toHistoric)
+                {
+                    var newHistoric = new HistoricPhotoContent();
+                    newHistoric.InjectFrom(loopToHistoric);
+                    newHistoric.Id = 0;
+                    await context.HistoricPhotoContents.AddAsync(newHistoric);
+                    context.PhotoContents.Remove(loopToHistoric);
+                }
+
+                StatusContext.Progress($"Submitting Db Delete for {loopSelected.DbEntry.Title}");
+
+                await context.SaveChangesAsync(true);
+            }
 
             await LoadData();
         }
@@ -359,9 +375,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (selectedFiles.Count > 50)
+            const int maxLimit = 100;
+
+            if (selectedFiles.Count > maxLimit)
             {
-                StatusContext.ToastError($"Sorry - max limit is 50 files at once, {selectedFiles.Count} selected...");
+                StatusContext.ToastError($"Sorry - max limit is {maxLimit} files at once, {selectedFiles.Count} selected...");
                 return;
             }
 
@@ -375,17 +393,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
-            if (!selectedFileInfos.Any(FileHelpers.PhotoFileTypeIsSupported))
+            if (!selectedFileInfos.Any(FileTypeHelpers.PhotoFileTypeIsSupported))
             {
                 StatusContext.ToastError("None of the files appear to be supported file types...");
                 return;
             }
 
-            if (selectedFileInfos.Any(x => !FileHelpers.PhotoFileTypeIsSupported(x)))
+            if (selectedFileInfos.Any(x => !FileTypeHelpers.PhotoFileTypeIsSupported(x)))
                 StatusContext.ToastWarning(
-                    $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.PhotoFileTypeIsSupported(x)))}");
+                    $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileTypeHelpers.PhotoFileTypeIsSupported(x)))}");
 
-            var validFiles = selectedFileInfos.Where(FileHelpers.PhotoFileTypeIsSupported).ToList();
+            var validFiles = selectedFileInfos.Where(FileTypeHelpers.PhotoFileTypeIsSupported).ToList();
 
             foreach (var loopFile in validFiles)
             {
@@ -396,15 +414,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     var editor = new PhotoContentEditorWindow(true);
 
                     if (validFiles.Count > 5)
-                    {
                         await TryAutomateEditorSaveGenerateAndClose(editor, loopFile);
-                    }
                     else
-                    {
                         StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
                             await TryAutomateEditorSaveGenerateAndClose(editor, loopFile));
-                    }
-
                 }
                 else
                 {
@@ -448,7 +461,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             foreach (var loopSelected in ListContext.SelectedItems)
             {
-                var url = $@"http://{settings.PhotoPageUrl(loopSelected.DbEntry)}";
+                var url = $@"https://{settings.PhotoPageUrl(loopSelected.DbEntry)}";
 
                 var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
                 Process.Start(ps);
@@ -468,8 +481,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             var finalString = string.Empty;
 
             foreach (var loopSelected in ListContext.SelectedItems)
-                finalString +=
-                    @$"{{{{photo {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+                finalString += BracketCodePhotos.PhotoBracketCode(loopSelected.DbEntry) + Environment.NewLine;
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -516,6 +528,55 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             await ThreadSwitcher.ResumeForegroundAsync();
 
             editor.Close();
+        }
+
+        private async Task ViewHistory()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var selected = ListContext.SelectedItems;
+
+            if (selected == null || !selected.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (selected.Count > 1)
+            {
+                StatusContext.ToastError("Please Select a Single Item");
+                return;
+            }
+
+            var singleSelected = selected.Single();
+
+            if (singleSelected.DbEntry == null || singleSelected.DbEntry.ContentId == Guid.Empty)
+            {
+                StatusContext.ToastWarning("No History - New/Unsaved Entry?");
+                return;
+            }
+
+            var db = await Db.Context();
+
+            StatusContext.Progress($"Looking up Historic Entries for {singleSelected.DbEntry.Title}");
+
+            var historicItems = await db.HistoricPhotoContents
+                .Where(x => x.ContentId == singleSelected.DbEntry.ContentId).ToListAsync();
+
+            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+            if (historicItems.Count < 1)
+            {
+                StatusContext.ToastWarning("No History to Show...");
+                return;
+            }
+
+            var historicView = new ContentViewHistoryPage($"Historic Entries - {singleSelected.DbEntry.Title}",
+                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {singleSelected.DbEntry.Title}",
+                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                    .Select(ObjectDumper.Dump).ToList());
+
+            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
     }
 }

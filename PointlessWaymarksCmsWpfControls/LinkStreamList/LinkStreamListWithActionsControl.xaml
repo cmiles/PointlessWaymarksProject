@@ -36,6 +36,7 @@
                     Selected Pinboard Check
                 </Button>
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
+                <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButton}">View History</Button>
             </WrapPanel>
         </Border>
         <status:StatusControl

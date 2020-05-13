@@ -54,6 +54,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="ContentHistoryView\ContentViewHistoryPage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ContentViewHistoryPage.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsWpfControls.ContentHistoryView</CustomToolNamespace>
+    </None>
     <None Update="WpfHtml\PureInlineCss.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>PureInlineCss.cs</LastGenOutput>
@@ -66,6 +71,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="ContentHistoryView\ContentViewHistoryPage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ContentViewHistoryPage.tt</DependentUpon>
+    </Compile>
     <Compile Update="WpfHtml\PureInlineCss.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

@@ -196,6 +196,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
         public Command UserStringEntryApprovedResponseCommand { get; set; }
         public Command UserStringEntryCancelledResponseCommand { get; set; }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void BlockTaskCompleted(Task obj)
         {
             DecrementBlockingTasks();
@@ -537,7 +539,5 @@ namespace PointlessWaymarksCmsWpfControls.Status
             StringEntryApproved = false;
             _currentFullScreenCancellationSource?.Cancel();
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

@@ -8,6 +8,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
 
              xmlns:fa="http://schemas.fontawesome.com/icons/"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance photoList:PhotoListContext}">
     <UserControl.Resources>
@@ -16,6 +17,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:ImageCacheConverter x:Key="ImageCache" />
+            <utility:NullImageConverter x:Key="NullImage" />
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
@@ -31,8 +33,32 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
-                <TextBox MaxLines="1" AcceptsReturn="False" VerticalAlignment="Center"
-                         Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
+                <StackPanel Orientation="Vertical">
+                    <TextBox MaxLines="1" AcceptsReturn="False" VerticalAlignment="Center"
+                             Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox VerticalAlignment="Center">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Checked">
+                                    <i:InvokeCommandAction Command="{Binding LoadRecentOnlyCommand}">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <system:Boolean>False</system:Boolean>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="Unchecked">
+                                    <i:InvokeCommandAction Command="{Binding LoadRecentOnlyCommand}">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <system:Boolean>True</system:Boolean>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            Load All Photos
+                        </CheckBox>
+                        <TextBlock Margin="4,0,2,0" VerticalAlignment="Center" Visibility="{Binding AllLoaded, Converter={StaticResource BooleanNotToVisibility}}">(Only Most Recent Loaded)</TextBlock>
+                    </StackPanel>
+                </StackPanel>
             </GroupBox>
             <GroupBox Grid.Column="1" Header="Sort" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <WrapPanel HorizontalAlignment="Center">

@@ -12,6 +12,7 @@ using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.NoteHtml;
+using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.NoteContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -44,6 +45,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
             ExtractNewLinksInSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
+            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -149,6 +151,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
                 OnPropertyChanged();
             }
         }
+
+        public Command ViewHistoryCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -356,6 +360,55 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
                 var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
                 Process.Start(ps);
             }
+        }
+
+        private async Task ViewHistory()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var selected = ListContext.SelectedItems;
+
+            if (selected == null || !selected.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (selected.Count > 1)
+            {
+                StatusContext.ToastError("Please Select a Single Item");
+                return;
+            }
+
+            var singleSelected = selected.Single();
+
+            if (singleSelected.DbEntry == null || singleSelected.DbEntry.ContentId == Guid.Empty)
+            {
+                StatusContext.ToastWarning("No History - New/Unsaved Entry?");
+                return;
+            }
+
+            var db = await Db.Context();
+
+            StatusContext.Progress($"Looking up Historic Entries for {singleSelected.DbEntry.Title}");
+
+            var historicItems = await db.HistoricNoteContents
+                .Where(x => x.ContentId == singleSelected.DbEntry.ContentId).ToListAsync();
+
+            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+            if (historicItems.Count < 1)
+            {
+                StatusContext.ToastWarning("No History to Show...");
+                return;
+            }
+
+            var historicView = new ContentViewHistoryPage($"Historic Entries - {singleSelected.DbEntry.Title}",
+                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {singleSelected.DbEntry.Title}",
+                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                    .Select(ObjectDumper.Dump).ToList());
+
+            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
     }
 }

@@ -324,7 +324,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
-            if (!FileHelpers.ImageFileTypeIsSupported(newFile))
+            if (!FileTypeHelpers.ImageFileTypeIsSupported(newFile))
             {
                 StatusContext.ToastError("Only jpegs are supported...");
                 return;
@@ -405,7 +405,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             AltText = DbEntry.AltText ?? string.Empty;
 
             if (DbEntry.Id < 1 && _initialImage != null && _initialImage.Exists &&
-                FileHelpers.ImageFileTypeIsSupported(_initialImage))
+                FileTypeHelpers.ImageFileTypeIsSupported(_initialImage))
             {
                 SelectedFile = _initialImage;
                 _initialImage = null;
@@ -623,7 +623,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             if (!SelectedFile.Exists) return (false, "File doesn't exist?");
 
-            if (!FileHelpers.ImageFileTypeIsSupported(SelectedFile))
+            if (!FileTypeHelpers.ImageFileTypeIsSupported(SelectedFile))
                 return (false, "The file doesn't appear to be a supported file type.");
 
             if (await (await Db.Context()).ImageFilenameExistsInDatabase(SelectedFile.Name, DbEntry?.ContentId))

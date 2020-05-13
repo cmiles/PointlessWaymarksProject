@@ -965,8 +965,12 @@ namespace PointlessWaymarksCmsContentEditor
 
             var fileList = RecentSettingsFilesNames?.Split("|").ToList() ?? new List<string>();
 
-            if (!fileList.Contains(UserSettingsUtilities.SettingsFileName))
-                fileList.Add(UserSettingsUtilities.SettingsFileName);
+            if (fileList.Contains(UserSettingsUtilities.SettingsFileName))
+            {
+                fileList.Remove(UserSettingsUtilities.SettingsFileName);
+            }
+
+            fileList = new List<string> { UserSettingsUtilities.SettingsFileName }.Concat(fileList).ToList();
 
             if (fileList.Count > 10)
                 fileList = fileList.Take(10).ToList();

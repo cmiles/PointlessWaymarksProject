@@ -10,7 +10,6 @@
  - RSS - Does title need CDATA to be completely safe? Or?
  - Basic Style for the Html Table output - maybe inline Pure or another more minimal framework?
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
- - WPF Paged List Display and or search based List Display - suspect that photos is going to surpass what is currently reasonable to 'Load All'
  - Db Migrations - how to both do .EnsureCreated and work with FluentMigrator - I think the 2nd run is the trick, first run easy enough to detect there is not a db file - but second run how to get Fluent Migrator to know there is nothing to do? This stays on the list for now but I am wondering hoping that a simple schema check guard will be enough here - not maybe the full intent of FluentMigrations but this could do the trick maybe?
 
 ## Ideas
@@ -36,6 +35,20 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+5/13/2020
+
+Photo List is now limited to most recent initially - the list is still smooth and responsive with all content loaded so I don't yet see the need to have search and basically limit getting to show all - but the load on show all is painfully slow as an initial load when you 'requested the program start' not 'requested all photos load'.
+
+Implemented a very simple history report in html for all content types - originally I assumed that I would implement this as a wpf window but the since currently the 'real' idea here is to show history and let you manually merge what you need (ie - whole body got erased, no problem - just copy and paste it back from history) the html seems like it gets more functionality more quickly.
+
+Found a bug in the Photo processing for my date patterns at the start of names - fixed. I think this is the last change here - I do wonder if this pattern should be a setting, it is pretty personal and will now catch more patterns...
+
+Extended deletes in the photo list to allow multiples - so far I haven't needed this in other types so leaving those as single delete only for now.
+
+Bumped up max photo load number to 100.
+
+Most recent file is moved to the top of the recent list.
 
 5/9/2020
 

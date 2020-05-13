@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
 {
-    public static class FileHelpers
+    public static class FileTypeHelpers
     {
         public static bool ImageFileTypeIsSupported(FileInfo toCheck)
         {

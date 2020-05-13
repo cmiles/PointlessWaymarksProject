@@ -448,7 +448,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
-            if (!FileHelpers.PhotoFileTypeIsSupported(newFile))
+            if (!FileTypeHelpers.PhotoFileTypeIsSupported(newFile))
             {
                 StatusContext.ToastError("Only jpegs are supported...");
                 return;
@@ -524,7 +524,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             PhotoCreatedOn = DbEntry.PhotoCreatedOn;
 
             if (DbEntry.Id < 1 && _initialPhoto != null && _initialPhoto.Exists &&
-                FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
+                FileTypeHelpers.PhotoFileTypeIsSupported(_initialPhoto))
             {
                 SelectedFile = _initialPhoto;
                 _initialPhoto = null;
@@ -644,16 +644,18 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                             StatusContext.Progress("Did not successfully parse 2yyy MM start pattern for file name");
                         }
                 }
-                else if (TitleSummarySlugFolder.Title.StartsWith("19"))
+                else if (TitleSummarySlugFolder.Title.StartsWith("0") || TitleSummarySlugFolder.Title.StartsWith("1"))
                 {
                     try
                     {
-                        if (Regex.IsMatch(TitleSummarySlugFolder.Title, @"\A19\d\d\s.*", RegexOptions.IgnoreCase))
+                        if (Regex.IsMatch(TitleSummarySlugFolder.Title, @"\A[01]\d\d\d\s.*", RegexOptions.IgnoreCase))
                         {
                             var year = int.Parse(TitleSummarySlugFolder.Title.Substring(0, 2));
                             var month = int.Parse(TitleSummarySlugFolder.Title.Substring(2, 2));
 
-                            var tempDate = new DateTime(2000 + year, month, 1);
+                            var tempDate = year < 20
+                                ? new DateTime(2000 + year, month, 1)
+                                : new DateTime(1900 + year, month, 1);
 
                             TitleSummarySlugFolder.Summary =
                                 $"{TitleSummarySlugFolder.Title.Substring(5, TitleSummarySlugFolder.Title.Length - 5)}.";
@@ -661,12 +663,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                                 $"{tempDate:yyyy} {tempDate:MMMM} {TitleSummarySlugFolder.Title.Substring(5, TitleSummarySlugFolder.Title.Length - 5)}";
                             TitleSummarySlugFolder.Folder = $"{tempDate:yyyy}";
 
-                            StatusContext.Progress("Title updated based on 19MM start pattern for file name");
+                            StatusContext.Progress("Title updated based on YYMM start pattern for file name");
                         }
                     }
                     catch
                     {
-                        StatusContext.Progress("Did not successfully parse 19MM start pattern for file name");
+                        StatusContext.Progress("Did not successfully parse YYMM start pattern for file name");
                     }
                 }
             }
@@ -885,7 +887,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (!SelectedFile.Exists) return (false, "File doesn't exist?");
 
-            if (!FileHelpers.PhotoFileTypeIsSupported(SelectedFile))
+            if (!FileTypeHelpers.PhotoFileTypeIsSupported(SelectedFile))
                 return (false, "The file doesn't appear to be a supported file type.");
 
             if (await (await Db.Context()).PhotoFilenameExistsInDatabase(SelectedFile.Name, DbEntry?.ContentId))
