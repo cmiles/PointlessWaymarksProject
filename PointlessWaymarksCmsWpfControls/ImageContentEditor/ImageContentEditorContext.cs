@@ -37,7 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private ImageContent _dbEntry;
         private Command _extractNewLinksCommand;
         private string _imageSourceNotes;
-        private FileInfo _initalImage;
+        private FileInfo _initialImage;
         private Command _linkToClipboardCommand;
         private Command _resizeFileCommand;
         private Command _saveAndGenerateHtmlCommand;
@@ -62,7 +62,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         {
             SetupContextAndCommands(statusContext);
 
-            if (initialImage != null && initialImage.Exists) _initalImage = initialImage;
+            if (initialImage != null && initialImage.Exists) _initialImage = initialImage;
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
         }
@@ -404,11 +404,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ImageSourceNotes = DbEntry.ImageSourceNotes ?? string.Empty;
             AltText = DbEntry.AltText ?? string.Empty;
 
-            if (DbEntry.Id < 1 && _initalImage != null && _initalImage.Exists &&
-                FileHelpers.ImageFileTypeIsSupported(_initalImage))
+            if (DbEntry.Id < 1 && _initialImage != null && _initialImage.Exists &&
+                FileHelpers.ImageFileTypeIsSupported(_initialImage))
             {
-                SelectedFile = _initalImage;
-                _initalImage = null;
+                SelectedFile = _initialImage;
+                _initialImage = null;
             }
         }
 

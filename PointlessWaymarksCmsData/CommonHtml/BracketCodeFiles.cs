@@ -73,7 +73,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string FileDownloadLinkBracketCode(FileContent content)
         {
-            return $@"{{filedownloadlink {content.ContentId}; {content.Title}}}";
+            return $@"{{{{filedownloadlink {content.ContentId}; {content.Title}}}}}";
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string FileLinkBracketCode(FileContent content)
         {
-            return $@"{{filelink {content.ContentId}; {content.Title}}}";
+            return $@"{{{{filelink {content.ContentId}; {content.Title}}}}}";
         }
 
         /// <summary>

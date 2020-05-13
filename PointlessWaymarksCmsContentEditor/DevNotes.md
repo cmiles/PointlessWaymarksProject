@@ -1,5 +1,4 @@
 ﻿## Todos
- - Look at https://github.com/saucecontrol/PhotoSauce for image resizing - for speed and quality, but also because I find it difficult to fully understand the implications of the GNU Affero General Public License v3.0 - this project is fully open with reference to the source available so I believe that all intended uses are in the spirit of that license however I am not completely sure about the mix of licenses and details...
  - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
  - In Search it might be nice to have the content type on the line with date?
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
@@ -26,6 +25,7 @@
  - Detect image change and force over write style image generation
  - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site
  - How hard would it be to create a GridSplitter that would be easy to set the initial split based off of the last editor use - and/or that could completely hide content to one side with a shortcut
+ - Look at https://github.com/saucecontrol/PhotoSauce for image resizing - for speed and quality, but also because I find it difficult to fully understand the implications of the GNU Affero General Public License v3.0 - this project is fully open with reference to the source available so I believe that all intended uses are in the spirit of that license however I am not completely sure about the mix of licenses and details...
 
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...

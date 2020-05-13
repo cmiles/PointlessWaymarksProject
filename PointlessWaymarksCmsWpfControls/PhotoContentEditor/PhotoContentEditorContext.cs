@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using System.Windows.Media.Imaging;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using MetadataExtractor;
@@ -27,7 +26,6 @@ using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
-using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
@@ -76,7 +74,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         {
             SetupContextAndCommands(statusContext);
 
-            if(!skipInitialLoad) StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
+            if (!skipInitialLoad)
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
         }
 
         public PhotoContentEditorContext(StatusControlContext statusContext, FileInfo initialPhoto)
@@ -591,24 +590,20 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
 
             if (Lens == string.Empty || Lens == "----")
-            {
                 Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsExifAux, "Lens")?.Value ?? string.Empty;
-            }
             if (Lens == string.Empty || Lens == "----")
             {
-                Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsCameraraw, "LensProfileName")?.Value ?? string.Empty;
+                Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsCameraraw, "LensProfileName")?.Value ??
+                       string.Empty;
 
                 if (Lens.StartsWith("Adobe ("))
                 {
                     Lens = Lens.Substring(7, Lens.Length - 7);
-                    if(Lens.EndsWith(")")) Lens = Lens.Substring(0, Lens.Length - 1);
+                    if (Lens.EndsWith(")")) Lens = Lens.Substring(0, Lens.Length - 1);
                 }
             }
 
-            if (Lens == "----")
-            {
-                Lens = string.Empty;
-            }
+            if (Lens == "----") Lens = string.Empty;
 
             Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
             License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
@@ -617,9 +612,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             TitleSummarySlugFolder.Title = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "title", 1).Value;
 
             if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
-            {
-                TitleSummarySlugFolder.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
-            }
+                TitleSummarySlugFolder.Title =
+                    iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
 
             TitleSummarySlugFolder.Summary = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
 
@@ -962,23 +956,27 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                     x.DirectoryName,
                     Tag = x.Name,
                     TagValue = ObjectDumper.Dump(x.Description)
-                }).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+                }).ToHtmlTable(new {@class = "pure-table pure-table-striped"});
 
             var xmpDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<XmpDirectory>()
                 .FirstOrDefault();
 
-            var xmpMetadata = xmpDirectory?.GetXmpProperties().Select(x => new {XmpKey = x.Key, XmpValue = x.Value}).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+            var xmpMetadata = xmpDirectory?.GetXmpProperties().Select(x => new {XmpKey = x.Key, XmpValue = x.Value})
+                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
                 $"PhotoMetadata-{Path.GetFileNameWithoutExtension(SelectedFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
 
-            var htmlString = ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(SelectedFile.FullName)}</h1><br><h1>Metadata - Part 1</h1><br>" + tagHtml + "<br><br><h1>XMP - Part 2</h1><br>" + xmpMetadata).ToHtmlDocumentWithPureCss("Photo Metadata", "body {margin: 12px;}");
+            var htmlString =
+                ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(SelectedFile.FullName)}</h1><br><h1>Metadata - Part 1</h1><br>" +
+                 tagHtml + "<br><br><h1>XMP - Part 2</h1><br>" + xmpMetadata)
+                .ToHtmlDocumentWithPureCss("Photo Metadata", "body {margin: 12px;}");
 
             await File.WriteAllTextAsync(file.FullName, htmlString);
 
-            var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
+            var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
 

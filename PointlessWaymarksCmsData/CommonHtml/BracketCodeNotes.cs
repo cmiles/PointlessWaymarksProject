@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
     {
         public static string NoteLinkBracketCode(NoteContent content)
         {
-            return $@"{{notelink {content.ContentId}; {content.Title}}}";
+            return $@"{{{{notelink {content.ContentId}; {content.Title}}}}}";
         }
 
         public static List<NoteContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)

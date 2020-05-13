@@ -33,11 +33,11 @@
     </Window.Resources>
     <Grid>
         <TabControl BorderBrush="Green">
-            <TabItem Header="Posts">
-                <postList:PostListWithActionsControl DataContext="{Binding TabPostListContext}" />
-            </TabItem>
             <TabItem Header="Photos">
                 <photoList:PhotoListWithActionsControl DataContext="{Binding TabPhotoListContext}" />
+            </TabItem>
+            <TabItem Header="Posts">
+                <postList:PostListWithActionsControl DataContext="{Binding TabPostListContext}" />
             </TabItem>
             <TabItem Header="Images">
                 <imageList:ImageListWithActionsControl DataContext="{Binding TabImageListContext}" />

@@ -45,7 +45,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string PhotoBracketCode(PhotoContent content)
         {
-            return $@"{{photo {content.ContentId}; {content.Title}}}";
+            return $@"{{{{photo {content.ContentId}; {content.Title}}}}}";
         }
 
 
