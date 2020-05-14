@@ -38,6 +38,10 @@
 
 5/13/2020
 
+Small fixes to the Image created from the File pdf extraction.
+
+Quick updates to add pure to the remaining reports.
+
 Photo List is now limited to most recent initially - the list is still smooth and responsive with all content loaded so I don't yet see the need to have search and basically limit getting to show all - but the load on show all is painfully slow as an initial load when you 'requested the program start' not 'requested all photos load'.
 
 Implemented a very simple history report in html for all content types - originally I assumed that I would implement this as a wpf window but the since currently the 'real' idea here is to show history and let you manually merge what you need (ie - whole body got erased, no problem - just copy and paste it back from history) the html seems like it gets more functionality more quickly.

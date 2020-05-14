@@ -43,6 +43,7 @@ using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsContentEditor
 {
@@ -459,11 +460,11 @@ namespace PointlessWaymarksCmsContentEditor
         {
             var log = await Db.Log();
 
-            var htmlTable = log.EventLogs.Take(5000).OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable();
+            var htmlTable = log.EventLogs.Take(5000).OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable(new { @class = "pure-table pure-table-striped" });
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var reportWindow = new HtmlViewerWindow(htmlTable);
+            var reportWindow = new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Events Report", string.Empty));
             reportWindow.Show();
         }
 
@@ -570,11 +571,11 @@ namespace PointlessWaymarksCmsContentEditor
             var log = await Db.Log();
 
             var htmlTable = log.EventLogs.Where(x => x.Category == "Diagnostic" || x.Category == "Startup").Take(5000)
-                .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable();
+                .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable(new { @class = "pure-table pure-table-striped" });
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var reportWindow = new HtmlViewerWindow(htmlTable);
+            var reportWindow = new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Diagnostic Events Report", string.Empty));
             reportWindow.Show();
         }
 
@@ -583,11 +584,11 @@ namespace PointlessWaymarksCmsContentEditor
             var log = await Db.Log();
 
             var htmlTable = log.EventLogs.Where(x => x.Category == "Exception" || x.Category == "Startup").Take(1000)
-                .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable();
+                .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable(new { @class = "pure-table pure-table-striped" });
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var reportWindow = new HtmlViewerWindow(htmlTable);
+            var reportWindow = new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Exception Events Report", string.Empty));
             reportWindow.Show();
         }
 
