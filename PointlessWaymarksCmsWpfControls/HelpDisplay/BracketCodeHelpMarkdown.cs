@@ -14,7 +14,7 @@ Codes can not contain {{ or }}.
 
 Basic code formats - the [*description*] blocks should be replaced:
  - {{[*link type (see below)*] [*ContentId*]; [*title or note - for reference only*]}} - displays a link to the content with the current Title of the content as the display text.
- - {{[*link type (see below)*] [*ContentId*]; text [*your display text*]; [*title or note - for reference only*]}} - displays a link to the content with the specified display text
+ - {{[*link type (see below)*] [*ContentId*]; text [*your display text*]; [*title or note - for reference only*]}} - displays a link to the content with the specified display text (don't forget to include 'text ' for this to work).
 
 Link Types:
  - filelink - a link to the File Page

@@ -9,6 +9,17 @@ namespace PointlessWaymarksCmsData
     public static class StringHelper
     {
         /// <summary>
+        /// Simple expansion of Camel Case into a 'normal' string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string SplitCamelCase(this string str)
+        {
+            //https://stackoverflow.com/questions/5796383/insert-spaces-between-words-on-a-camel-cased-token
+            return Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
+        }
+
+        /// <summary>
         ///     Returns a case sensitive compare where null and empty are treated as equal
         /// </summary>
         /// <param name="a"></param>

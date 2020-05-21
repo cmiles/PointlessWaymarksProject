@@ -609,11 +609,20 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
             ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
 
-            TitleSummarySlugFolder.Title = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "title", 1).Value;
+            //The XMP data - vs the IPTC - will hold the full Title for a very long title (the IPTC will be truncated) - 
+            //for a 'from Lightroom with no other concerns' export Title makes the most sense, but there are other possible
+            //metadata fields to pull from that could be relevant in other contexts.
+            TitleSummarySlugFolder.Title = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "title", 1)?.Value;
 
             if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
                 TitleSummarySlugFolder.Title =
                     iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
+            //Use a variety of guess on common file names and make that the title - while this could result in an initial title 
+            //like DSC001 style out of camera names but after having experimented with loading files I think 'default' is better
+            //than an invalid blank.
+            if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
+                TitleSummarySlugFolder.Title = Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ")
+                    .Replace("_", " ").SplitCamelCase();
 
             TitleSummarySlugFolder.Summary = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
 
