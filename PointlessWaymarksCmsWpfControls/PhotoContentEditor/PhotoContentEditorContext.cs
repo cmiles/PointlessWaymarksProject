@@ -710,13 +710,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
-            PictureResizing.ResizeForDisplayAndSrcset(SelectedFile, true, StatusContext.ProgressTracker());
-
-            DataNotifications.PhotoContentDataNotificationEventSource.Raise(this,
-                new DataNotificationEventArgs
-                {
-                    UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {DbEntry.ContentId}
-                });
+            await WriteSelectedFileToLocalSite(true);
         }
 
         public async Task SaveAndGenerateHtml()
@@ -735,7 +729,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             await WriteSelectedFileToMasterMediaArchive();
             await SaveToDatabase();
-            await WriteSelectedFileToLocalSite();
+            await WriteSelectedFileToLocalSite(false);
             await GenerateHtml();
             await Export.WriteLocalDbJson(DbEntry);
         }
@@ -991,7 +985,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             Process.Start(ps);
         }
 
-        private async Task WriteSelectedFileToLocalSite()
+        private async Task WriteSelectedFileToLocalSite(bool forcedResizeOverwriteExistingFiles)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -1010,7 +1004,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 sourceImage.Refresh();
             }
 
-            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, StatusContext.ProgressTracker());
+            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, forcedResizeOverwriteExistingFiles, StatusContext.ProgressTracker());
 
             DataNotifications.PhotoContentDataNotificationEventSource.Raise(this,
                 new DataNotificationEventArgs

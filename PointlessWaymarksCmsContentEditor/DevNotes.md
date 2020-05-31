@@ -25,7 +25,7 @@
  - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site
  - How hard would it be to create a GridSplitter that would be easy to set the initial split based off of the last editor use - and/or that could completely hide content to one side with a shortcut
  - Look at https://github.com/saucecontrol/PhotoSauce for image resizing - for speed and quality, but also because I find it difficult to fully understand the implications of the GNU Affero General Public License v3.0 - this project is fully open with reference to the source available so I believe that all intended uses are in the spirit of that license however I am not completely sure about the mix of licenses and details...
-
+ 
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
@@ -35,6 +35,22 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+5/31/2020
+
+Added a table and migration to hold pairs of related content - this is not wired up/processed yet but the idea is that this table will track related content (which otherwise is largely trapped in the text of a post in bracket codes) and allow generation of a change list for more efficient html generation and perhaps a list of file changes.
+
+To setup for tracking related content the Bracket Code was refactored - both to have an easy way to get the related content and also to pull out some common code.
+
+Added a migration for the new related content table.
+
+5/21/2020
+
+Supplement the title with the file name if the title in both XMP and IPTC title are blank - originally I thought this was a mistake because it can leave you with Titles that are whatever file name format your camera is writing, but in retrospect I think better to try to find some valid data rather than leave this blank.
+
+Created an MSIX and installed it on my computer. This was largely a test but since it was successful I will probably try to use it and may try to use Github actions to build it automatically.
+
+Included the bracket code help in the post help.
 
 5/13/2020
 

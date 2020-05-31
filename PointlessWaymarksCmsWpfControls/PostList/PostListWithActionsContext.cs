@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PostHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
@@ -347,11 +348,9 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                 return;
             }
 
-            var finalString = string.Empty;
-
-            foreach (var loopSelected in ListContext.SelectedItems)
-                finalString +=
-                    @$"{{{{postlink {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + @$"{BracketCodePosts.PostLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

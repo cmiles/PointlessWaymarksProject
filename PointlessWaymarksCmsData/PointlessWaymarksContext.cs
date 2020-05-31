@@ -39,6 +39,8 @@ namespace PointlessWaymarksCmsData
 
         public DbSet<TagExclusion> TagExclusions { get; set; }
 
+        public DbSet<RelatedContent> RelatedContents { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

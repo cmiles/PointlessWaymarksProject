@@ -366,7 +366,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            var linkString = BracketCodeFiles.FileDownloadLinkBracketCode(DbEntry);
+            var linkString = BracketCodeFileDownload.FileDownloadLinkBracketCode(DbEntry);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

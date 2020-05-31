@@ -9,24 +9,20 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class BracketCodeImages
     {
+        public const string BracketCodeToken = "postlink";
+
         public static List<ImageContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<ImageContent>();
 
             progress?.Report("Searching for Image Codes...");
 
-            var resultList = new List<Guid>();
-            var regexObj = new Regex(@"{{image (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
-            var matchResult = regexObj.Match(toProcess);
-            while (matchResult.Success)
-            {
-                resultList.Add(Guid.Parse(matchResult.Groups["siteGuid"].Value));
-                matchResult = matchResult.NextMatch();
-            }
-
-            resultList = resultList.Distinct().ToList();
+            var resultList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken)
+                .Select(x => x.contentGuid).Distinct().ToList();
 
             var returnList = new List<ImageContent>();
+
+            if (!resultList.Any()) return returnList;
 
             foreach (var loopGuid in resultList)
             {
@@ -63,27 +59,21 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             progress?.Report("Searching for Image Codes");
 
-            var resultList = new List<(string wholeMatch, string siteGuidMatch)>();
-            var regexObj = new Regex(@"{{image (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
-            var matchResult = regexObj.Match(toProcess);
-            while (matchResult.Success)
+            var resultList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken);
+
+            if (!resultList.Any()) return toProcess;
+
+            var context = Db.Context().Result;
+
+            foreach (var loopMatch in resultList)
             {
-                resultList.Add((matchResult.Value, matchResult.Groups["siteGuid"].Value));
-                matchResult = matchResult.NextMatch();
+                var dbImage = context.ImageContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                if (dbImage == null) continue;
 
-                var context = Db.Context().Result;
+                progress?.Report($"Image Code for {dbImage.Title} processed");
+                var singleImageInfo = new SingleImagePage(dbImage);
 
-                foreach (var loopString in resultList)
-                {
-                    var imageContentGuid = Guid.Parse(loopString.siteGuidMatch);
-                    var dbImage = context.ImageContents.FirstOrDefault(x => x.ContentId == imageContentGuid);
-                    if (dbImage == null) continue;
-
-                    progress?.Report($"Image Code for {dbImage.Title} processed");
-                    var singleImageInfo = new SingleImagePage(dbImage);
-
-                    toProcess = toProcess.Replace(loopString.wholeMatch, pageConversion(singleImageInfo));
-                }
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, pageConversion(singleImageInfo));
             }
 
             return toProcess;
@@ -111,7 +101,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
         public static string ImageCodeProcessToFigureWithLink(string toProcess, IProgress<string> progress)
         {
             return ImageCodeProcess(toProcess,
-                page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(), progress);
+                page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(),
+                progress);
         }
     }
 }

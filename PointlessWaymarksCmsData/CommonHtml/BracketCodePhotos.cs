@@ -9,24 +9,19 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class BracketCodePhotos
     {
+        public const string BracketCodeToken = "photo";
+
         public static List<PhotoContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<PhotoContent>();
 
             progress?.Report("Searching for Photo Codes...");
 
-            var resultList = new List<Guid>();
-            var regexObj = new Regex(@"{{photo (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
-            var matchResult = regexObj.Match(toProcess);
-            while (matchResult.Success)
-            {
-                resultList.Add(Guid.Parse(matchResult.Groups["siteGuid"].Value));
-                matchResult = matchResult.NextMatch();
-            }
-
-            resultList = resultList.Distinct().ToList();
+            var resultList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid).Distinct().ToList();
 
             var returnList = new List<PhotoContent>();
+
+            if (!resultList.Any()) return returnList;
 
             foreach (var loopGuid in resultList)
             {
@@ -45,7 +40,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string PhotoBracketCode(PhotoContent content)
         {
-            return $@"{{{{photo {content.ContentId}; {content.Title}}}}}";
+            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
 
@@ -62,29 +57,23 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
-            progress?.Report("Searching for Photo Codes...");
+            progress?.Report("Searching for Photo Codes");
 
-            var resultList = new List<(string wholeMatch, string siteGuidMatch)>();
-            var regexObj = new Regex(@"{{photo (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
-            var matchResult = regexObj.Match(toProcess);
-            while (matchResult.Success)
+            var resultList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken);
+
+            if (!resultList.Any()) return toProcess;
+
+            var context = Db.Context().Result;
+
+            foreach (var loopMatch in resultList)
             {
-                resultList.Add((matchResult.Value, matchResult.Groups["siteGuid"].Value));
-                matchResult = matchResult.NextMatch();
+                var dbPhoto = context.PhotoContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                if (dbPhoto == null) continue;
 
-                var context = Db.Context().Result;
+                progress?.Report($"Photo Code for {dbPhoto.Title} processed");
+                var singlePhotoInfo = new SinglePhotoPage(dbPhoto);
 
-                foreach (var loopString in resultList)
-                {
-                    var photoContentGuid = Guid.Parse(loopString.siteGuidMatch);
-                    var dbPhoto = context.PhotoContents.FirstOrDefault(x => x.ContentId == photoContentGuid);
-                    if (dbPhoto == null) continue;
-
-                    progress?.Report($"Photo Code - Adding {dbPhoto.Title}");
-                    var singlePhotoInfo = new SinglePhotoPage(dbPhoto);
-
-                    toProcess = toProcess.Replace(loopString.wholeMatch, pageConversion(singlePhotoInfo));
-                }
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, pageConversion(singlePhotoInfo));
             }
 
             return toProcess;
