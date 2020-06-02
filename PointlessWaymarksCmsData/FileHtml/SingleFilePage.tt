@@ -22,13 +22,16 @@
     <meta name ="DC.Creator" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
     <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Description" content="<#=DbEntry.Summary.HtmlEncode() #>">
-    <meta name="DC.Date" content="<#=DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
+    <meta name="DC.Date" content="<#=
+                    DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
     <meta name="DC.Language" content="en-US">
 
     <link rel="alternate" type="application/rss+xml" 
-      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Files" #>"
-      href="https:<#= UserSettingsSingleton.CurrentSettings().FileRssUrl() #>" />
+      title="<#=
+                    $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Files" #>"
+      href="https:<#=
+                    UserSettingsSingleton.CurrentSettings().FileRssUrl() #>" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -41,15 +44,19 @@
     <#= Tags.StandardHeader().ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(DbEntry).ToString() #>
-    <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#=
+                    Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= DownloadLinkTag() #>
-    <#= HorizontalRule.StandardRuleIfNotEmptyTag(DownloadLinkTag()) #>
+    <#=
+                    HorizontalRule.StandardRuleIfNotEmptyTag(DownloadLinkTag()) #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
-        <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
-        <#= Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+        <#=
+                    BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
+        <#=
+                    Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
         <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>

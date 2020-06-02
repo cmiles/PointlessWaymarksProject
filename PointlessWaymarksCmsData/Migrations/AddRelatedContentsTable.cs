@@ -9,10 +9,8 @@ namespace PointlessWaymarksCmsData.Migrations
         {
             if (!Schema.Table("RelatedContents").Exists())
             {
-                Create.Table("RelatedContents")
-                    .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                    .WithColumn("ContentOne").AsGuid()
-                    .WithColumn("ContentTwo").AsGuid();
+                Create.Table("RelatedContents").WithColumn("Id").AsInt64().PrimaryKey().Identity()
+                    .WithColumn("ContentOne").AsGuid().WithColumn("ContentTwo").AsGuid();
             }
         }
 

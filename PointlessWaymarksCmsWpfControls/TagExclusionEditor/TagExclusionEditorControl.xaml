@@ -64,7 +64,7 @@
                                     </fa5:FontAwesome.ToolTip>
                                 </fa5:FontAwesome>
                                 <Button Height="32"
-                                        Command="{Binding Data.SaveItemCommand, Source={StaticResource Proxy}}" 
+                                        Command="{Binding Data.SaveItemCommand, Source={StaticResource Proxy}}"
                                         CommandParameter="{Binding .}">
                                     Save
                                 </Button>
@@ -87,7 +87,8 @@
                         Content="Add New Item" />
             </WrapPanel>
         </Border>
-        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"
+                                                  VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right" />
         <status:StatusControl
             Grid.Row="0"
             Grid.RowSpan="2"

@@ -34,7 +34,7 @@ namespace PointlessWaymarksCmsContentEditor
                     w.WindowState
                 }).PersistOn(nameof(Window.Closing)).StopTrackingOn(nameof(Window.Closing));
 
-            Tracker.Configure<MainWindow>().Properties(x => new { x.RecentSettingsFilesNames});
+            Tracker.Configure<MainWindow>().Properties(x => new {x.RecentSettingsFilesNames});
 #if !DEBUG
             DispatcherUnhandledException += App_DispatcherUnhandledException;
 #endif

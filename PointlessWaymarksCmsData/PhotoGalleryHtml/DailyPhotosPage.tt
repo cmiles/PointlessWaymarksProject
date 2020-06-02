@@ -21,20 +21,24 @@
     <meta property="og:title" content="<#=Title.HtmlEncode() #>" />
     <meta property="og:description" content="<#= Summary.HtmlEncode() #>" />
 
-    <#= PointlessWaymarksCmsData.CommonHtml.Tags.OpenGraphImageMetaTags(MainImage) #>
+    <#=
+                    PointlessWaymarksCmsData.CommonHtml.Tags.OpenGraphImageMetaTags(MainImage) #>
 
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
     <meta name="DC.Title" content="<#=Title.HtmlEncode() #>">
     <meta name ="DC.Creator" content="<#=CreatedBy.HtmlEncode() #>">
     <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Description" content="<#=Summary.HtmlEncode() #>">
-    <meta name="DC.Date" content="<#=PhotoPageDate.ToString("yyyy-MM-dd").HtmlEncode() #>">
+    <meta name="DC.Date" content="<#=
+                    PhotoPageDate.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
     <meta name="DC.Language" content="en-US">
 
     <link rel="alternate" type="application/rss+xml" 
-      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Photos".HtmlEncode() #>"
-      href="https:<#= UserSettingsSingleton.CurrentSettings().PhotoRssUrl() #>" />
+      title="<#=
+                    $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Photos".HtmlEncode() #>"
+      href="https:<#=
+                    UserSettingsSingleton.CurrentSettings().PhotoRssUrl() #>" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -47,12 +51,16 @@
     <#= Tags.StandardHeader().ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(Title).ToString() #>
-    <#= DailyPhotosPageParts.PhotoList(ImageList) #>
+    <#=
+                    DailyPhotosPageParts.PhotoList(ImageList) #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(PhotoTags).ToString() #>
-        <#= BodyContentReferences.RelatedContentTag(ImageList.Select(x => ((IContentId)x.Pictures.DbEntry).ContentId).ToList()).Result #>
-        <#= DailyPhotosPageParts.PreviousAndNextPostsDiv(this) #>
+        <#=
+                    BodyContentReferences.RelatedContentTag(
+                        ImageList.Select(x => ((IContentId) x.Pictures.DbEntry).ContentId).ToList()).Result #>
+        <#=
+                    DailyPhotosPageParts.PreviousAndNextPostsDiv(this) #>
     </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>

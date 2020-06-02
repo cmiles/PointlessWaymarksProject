@@ -15,10 +15,11 @@
 
     <#
     if (!string.IsNullOrWhiteSpace(RssUrl))
-    { #>
+    {
+#>
     <link rel="alternate" type="application/rss+xml" 
       title="<#=
-                $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode() #>"     
+            $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode() #>"     
       href="https:<#= RssUrl #>" />
     <#
     } #>

@@ -56,7 +56,10 @@
                             </i:Interaction.Triggers>
                             Load All Photos
                         </CheckBox>
-                        <TextBlock Margin="4,0,2,0" VerticalAlignment="Center" Visibility="{Binding AllLoaded, Converter={StaticResource BooleanNotToVisibility}}">(Only Most Recent Loaded)</TextBlock>
+                        <TextBlock Margin="4,0,2,0" VerticalAlignment="Center"
+                                   Visibility="{Binding AllLoaded, Converter={StaticResource BooleanNotToVisibility}}">
+                            (Only Most Recent Loaded)
+                        </TextBlock>
                     </StackPanel>
                 </StackPanel>
             </GroupBox>

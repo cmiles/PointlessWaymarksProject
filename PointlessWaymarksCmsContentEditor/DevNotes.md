@@ -1,4 +1,9 @@
 ﻿## Todos
+ - Investigate memory usage
+ - Email Subscription page into core links, or better include in about (and rename?)?
+ - Refactor the Email HTML so you code send any current type to it
+    - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
+ - Look at the SendInBlue API - because the program doesn't actually 'publish' (it just creates the files to publish) not aiming for full auto but do want a user triggered (button!) action to generate an email.
  - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
  - In Search it might be nice to have the content type on the line with date?
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
@@ -35,6 +40,17 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+6/2/2020
+
+I had an out of memory error today after some heavy photo loading - a super quick check of the default Diagnostics view in VS suggests that I am not freeing something related to photos and memory usage goes crazy by the end of a large export - nice that the program has been staying responsive, but I need to track down the memory leak...
+
+On HikeLemmon email subscription popularity was a surprise for me so I wanted to find a way to do it in here. So far:
+ - Rather than a custom page I just did an iframe in a post page - this will never be custom beautiful, and another more beautiful approach might have been a custom page that abstracts the typical sign up process, but it seems highly functional and practical and I suspect means minimal maintenance and no additional credential storage or other abstractions.
+ - Added an 'HTML Email to clipboard' function and supporting methods - right now anyway 'posts' are very simple so only does some minimal common email formatting to get a simple email together. One challenge is that my simple posts are 'by convention' and a Post can actually contain anything markup legal (so basically anything) and email HTML compatibility is very terrible... However this solves the actual current problem in an acceptable way.
+ - Signed up for SendInBlue and connected google reCaptcha - their free plan seems to currently cover all current needs, first test went well and the API docs look encouraging (important since a 'publish' action rather than HTML to the clipboard is the eventual plan).
+
+Caught a bug in the bracket code refactor of images - fixed.
 
 5/31/2020
 

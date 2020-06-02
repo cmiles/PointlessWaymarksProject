@@ -10,13 +10,14 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class BracketCodeFileDownload
     {
-        public const string BracketCodeToken = "filelink";
+        public const string BracketCodeToken = "filedownloadlink";
 
         public static List<FileContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
 
-            var guidList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid).Distinct().ToList();
+            var guidList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
+                .Distinct().ToList();
 
             var resultList = new List<FileContent>();
 
@@ -37,18 +38,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string FileDownloadLinkBracketCode(FileContent content)
         {
-            return $@"{{{{filedownloadlink {content.ContentId}; {content.Title}}}}}";
+            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        /// <summary>
-        ///     Processes {{filedownloadlink guid;human_identifier}} or {{filedownloadlink guid;text toDisplay;(optional
-        ///     human_identifier}} to
-        ///     a file download link. If the file content is not set to offer public downloads of the file the link is converted to
-        ///     a page link.
-        /// </summary>
-        /// <param name="toProcess"></param>
-        /// <param name="progress"></param>
-        /// <returns></returns>
         public static string FileDownloadLinkCodeProcess(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
@@ -82,6 +74,5 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
-
     }
 }

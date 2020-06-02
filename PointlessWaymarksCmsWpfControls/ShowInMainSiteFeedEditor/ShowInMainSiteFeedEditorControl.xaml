@@ -19,12 +19,13 @@
     <Grid>
         <StackPanel Orientation="Horizontal">
             <CheckBox IsChecked="{Binding ShowInMainSite}" FontWeight="DemiBold" Content="Show Post in Site _Feed" />
-        <fa5:FontAwesome Margin="3,0,0,0" Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                         Visibility="{Binding ShowInMainSiteHasChanges, Converter={StaticResource BooleanToVisibility}}">
-            <fa5:FontAwesome.ToolTip>
-                <TextBlock Text="{Binding DbEntry.ShowInMainSiteFeed, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
-            </fa5:FontAwesome.ToolTip>
-        </fa5:FontAwesome>
+            <fa5:FontAwesome Margin="3,0,0,0" Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                             Visibility="{Binding ShowInMainSiteHasChanges, Converter={StaticResource BooleanToVisibility}}">
+                <fa5:FontAwesome.ToolTip>
+                    <TextBlock
+                        Text="{Binding DbEntry.ShowInMainSiteFeed, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                </fa5:FontAwesome.ToolTip>
+            </fa5:FontAwesome>
         </StackPanel>
     </Grid>
 </UserControl>

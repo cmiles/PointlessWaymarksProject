@@ -23,17 +23,17 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Label Target="{Binding ElementName=FormatTypeComboBox}" Style="{StaticResource DataEntryLabelStyle}">Format Type</Label>
-            <ComboBox
-                Name="FormatTypeComboBox"
-                Grid.Column="1"
-                ItemsSource="{Binding ContentFormatChoices}"
-                SelectedItem="{Binding SelectedContentFormat}" />
-            <fa5:FontAwesome Margin="6,0,0,0" Grid.Column="2" Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                             Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}">
-                <fa5:FontAwesome.ToolTip>
-                    <TextBlock
-                        Text="{Binding InitialValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
-                </fa5:FontAwesome.ToolTip>
-            </fa5:FontAwesome>
+        <ComboBox
+            Name="FormatTypeComboBox"
+            Grid.Column="1"
+            ItemsSource="{Binding ContentFormatChoices}"
+            SelectedItem="{Binding SelectedContentFormat}" />
+        <fa5:FontAwesome Margin="6,0,0,0" Grid.Column="2" Icon="Solid_InfoCircle" VerticalAlignment="Center"
+                         Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}">
+            <fa5:FontAwesome.ToolTip>
+                <TextBlock
+                    Text="{Binding InitialValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+            </fa5:FontAwesome.ToolTip>
+        </fa5:FontAwesome>
     </Grid>
 </UserControl>

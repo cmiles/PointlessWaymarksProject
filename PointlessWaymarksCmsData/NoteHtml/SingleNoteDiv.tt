@@ -4,5 +4,6 @@
 <div class="content-container">
     <#= NoteParts.NoteTitleLinkDiv(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry) #>
-    <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
+    <#=
+                    BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
 </div>

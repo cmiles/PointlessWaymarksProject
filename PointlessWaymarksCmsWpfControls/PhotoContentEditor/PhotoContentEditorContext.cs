@@ -607,7 +607,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
             License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
-            ShutterSpeed = ShutterSpeedToHumanReadableString(exifSubIfDirectory?.GetRational(37377));
+
+            var shutterValue = new Rational();
+            if (exifSubIfDirectory?.TryGetRational(37377, out shutterValue) ?? false)
+            {
+                ShutterSpeed = ShutterSpeedToHumanReadableString(shutterValue);
+            }
+            else
+            {
+                ShutterSpeed = string.Empty;
+            }
 
             //The XMP data - vs the IPTC - will hold the full Title for a very long title (the IPTC will be truncated) - 
             //for a 'from Lightroom with no other concerns' export Title makes the most sense, but there are other possible
@@ -690,6 +699,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             TitleSummarySlugFolder.Slug = SlugUtility.Create(true, TitleSummarySlugFolder.Title);
             TagEdit.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ?? string.Empty;
+        }
+
+        public static string ShutterSpeedToHumanReadableString(Rational rational)
+        {
+            return ShutterSpeedToHumanReadableString((Rational?) rational);
         }
 
         private async Task ResizePhoto()
@@ -1004,7 +1018,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 sourceImage.Refresh();
             }
 
-            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, forcedResizeOverwriteExistingFiles, StatusContext.ProgressTracker());
+            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, forcedResizeOverwriteExistingFiles,
+                StatusContext.ProgressTracker());
 
             DataNotifications.PhotoContentDataNotificationEventSource.Raise(this,
                 new DataNotificationEventArgs

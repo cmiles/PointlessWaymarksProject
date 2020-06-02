@@ -17,7 +17,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             progress?.Report("Searching for Photo Codes...");
 
-            var resultList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid).Distinct().ToList();
+            var resultList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken)
+                .Select(x => x.contentGuid).Distinct().ToList();
 
             var returnList = new List<PhotoContent>();
 
@@ -93,6 +94,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
         }
 
         /// <summary>
+        ///     This method processes a photo code for use in Email
+        /// </summary>
+        /// <param name="toProcess"></param>
+        /// <param name="progress"></param>
+        /// <returns></returns>
+        public static string PhotoCodeProcessForEmail(string toProcess, IProgress<string> progress)
+        {
+            return PhotoCodeProcess(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
+                progress);
+        }
+
+        /// <summary>
         ///     Processes {{photo guid;human_identifier}} into figure html with a link to the photo page.
         /// </summary>
         /// <param name="toProcess"></param>
@@ -101,7 +114,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
         public static string PhotoCodeProcessToFigureWithLink(string toProcess, IProgress<string> progress)
         {
             return PhotoCodeProcess(toProcess,
-                page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(), progress);
+                page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(),
+                progress);
         }
     }
 }

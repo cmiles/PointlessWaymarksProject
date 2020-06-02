@@ -18,13 +18,16 @@
     <meta name ="DC.Creator" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
     <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Description" content="<#=DbEntry.Summary.HtmlEncode() #>">
-    <meta name="DC.Date" content="<#=DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
+    <meta name="DC.Date" content="<#=
+                    DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
     <meta name="DC.Language" content="en-US">
 
     <link rel="alternate" type="application/rss+xml" 
-      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Notes".HtmlEncode() #>"
-      href="https:<#= UserSettingsSingleton.CurrentSettings().NoteRssUrl() #>" />
+      title="<#=
+                    $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Notes".HtmlEncode() #>"
+      href="https:<#=
+                    UserSettingsSingleton.CurrentSettings().NoteRssUrl() #>" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -40,8 +43,10 @@
      <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
-        <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
-        <#= Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
+        <#=
+                    BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
+        <#=
+                    Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
     </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>

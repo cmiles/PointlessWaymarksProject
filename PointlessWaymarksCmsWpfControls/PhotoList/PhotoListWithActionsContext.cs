@@ -379,7 +379,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             if (selectedFiles.Count > maxLimit)
             {
-                StatusContext.ToastError($"Sorry - max limit is {maxLimit} files at once, {selectedFiles.Count} selected...");
+                StatusContext.ToastError(
+                    $"Sorry - max limit is {maxLimit} files at once, {selectedFiles.Count} selected...");
                 return;
             }
 
@@ -414,7 +415,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     var editor = new PhotoContentEditorWindow(true);
 
                     if (validFiles.Count > 5)
+                    {
                         await TryAutomateEditorSaveGenerateAndClose(editor, loopFile);
+                    }
                     else
                         StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
                             await TryAutomateEditorSaveGenerateAndClose(editor, loopFile));

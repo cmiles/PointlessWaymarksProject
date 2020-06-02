@@ -26,7 +26,8 @@
                 <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
                                  Visibility="{Binding TagsHaveChanges, Converter={StaticResource BooleanToVisibility}}">
                     <fa5:FontAwesome.ToolTip>
-                        <TextBlock Text="{Binding DbEntry.Tags, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
+                        <TextBlock
+                            Text="{Binding DbEntry.Tags, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
                     </fa5:FontAwesome.ToolTip>
                 </fa5:FontAwesome>
             </StackPanel>

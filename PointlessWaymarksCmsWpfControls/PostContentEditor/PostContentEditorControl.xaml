@@ -75,6 +75,7 @@
                         Content="_View on Site" />
             </WrapPanel>
         </Border>
-        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                                                  VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right" />
     </Grid>
 </UserControl>

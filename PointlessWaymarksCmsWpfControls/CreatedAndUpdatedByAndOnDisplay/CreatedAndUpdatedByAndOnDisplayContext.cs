@@ -180,8 +180,10 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
                 IsNewEntry = true;
             }
 
-            CreatedBy = string.IsNullOrWhiteSpace(toLoad?.CreatedBy) ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy : DbEntry.CreatedBy;
-            UpdatedBy =  toLoad?.LastUpdatedBy ?? string.Empty;
+            CreatedBy = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
+                ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+                : DbEntry.CreatedBy;
+            UpdatedBy = toLoad?.LastUpdatedBy ?? string.Empty;
 
             //If this is a 'first update' go ahead and fill in the Created by as the updated by, this
             //is realistically just a trade off, better for most common workflow - potential mistake

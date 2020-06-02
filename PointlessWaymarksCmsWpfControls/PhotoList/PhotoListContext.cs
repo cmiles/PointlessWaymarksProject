@@ -46,7 +46,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 var currentState = LoadRecentOnly;
                 LoadRecentOnly = x;
-                if(currentState != LoadRecentOnly) StatusContext.RunBlockingTask(LoadData);
+                if (currentState != LoadRecentOnly) StatusContext.RunBlockingTask(LoadData);
             });
 
             LoadRecentOnly = true;
@@ -161,9 +161,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 var context = await Db.Context();
 
-                var dbItems =
-                    (await context.PhotoContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem).ToList();
+                var dbItems = (await context.PhotoContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
+                    .Select(ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -263,7 +262,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             StatusContext.Progress("Getting Photo Db Entries");
 
-            var dbItems = LoadRecentOnly ? db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).Take(20).ToList() : db.PhotoContents.ToList();
+            var dbItems = LoadRecentOnly
+                ? db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).Take(20).ToList()
+                : db.PhotoContents.ToList();
 
             var listItems = new List<PhotoListListItem>();
 
@@ -315,5 +316,4 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
         public event PropertyChangedEventHandler PropertyChanged;
     }
-
 }

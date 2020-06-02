@@ -102,7 +102,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var photoContent = BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress);
 
             //If the object itself is a photo add it to the list
-            photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync( x => x.ContentId == toCheckFor));
+            photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toCheckFor));
 
             if (photoContent.Any())
             {
@@ -118,7 +118,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var relatedTags = transformedList.OrderByDescending(x => x.sortDateTime).Select(x => x.tagContent).ToList();
 
-            if(!relatedTags.Any()) return HtmlTag.Empty();
+            if (!relatedTags.Any()) return HtmlTag.Empty();
 
             var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
 

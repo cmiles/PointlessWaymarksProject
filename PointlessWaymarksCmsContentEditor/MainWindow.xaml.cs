@@ -126,8 +126,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             GenerateDailyGalleryHtmlCommand =
                 new Command(() => StatusContext.RunBlockingTask(GenerateAllDailyPhotoGalleriesHtml));
-            GenerateCamerRollCommand =
-                new Command(() => StatusContext.RunBlockingTask(GenerateCameraRollHtml));
+            GenerateCamerRollCommand = new Command(() => StatusContext.RunBlockingTask(GenerateCameraRollHtml));
 
 
             ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
@@ -460,7 +459,8 @@ namespace PointlessWaymarksCmsContentEditor
         {
             var log = await Db.Log();
 
-            var htmlTable = log.EventLogs.Take(5000).OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+            var htmlTable = log.EventLogs.Take(5000).OrderByDescending(x => x.RecordedOn).ToList()
+                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -571,11 +571,13 @@ namespace PointlessWaymarksCmsContentEditor
             var log = await Db.Log();
 
             var htmlTable = log.EventLogs.Where(x => x.Category == "Diagnostic" || x.Category == "Startup").Take(5000)
-                .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+                .OrderByDescending(x => x.RecordedOn).ToList()
+                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var reportWindow = new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Diagnostic Events Report", string.Empty));
+            var reportWindow =
+                new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Diagnostic Events Report", string.Empty));
             reportWindow.Show();
         }
 
@@ -584,11 +586,13 @@ namespace PointlessWaymarksCmsContentEditor
             var log = await Db.Log();
 
             var htmlTable = log.EventLogs.Where(x => x.Category == "Exception" || x.Category == "Startup").Take(1000)
-                .OrderByDescending(x => x.RecordedOn).ToList().ToHtmlTable(new { @class = "pure-table pure-table-striped" });
+                .OrderByDescending(x => x.RecordedOn).ToList()
+                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var reportWindow = new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Exception Events Report", string.Empty));
+            var reportWindow =
+                new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Exception Events Report", string.Empty));
             reportWindow.Show();
         }
 
@@ -971,7 +975,7 @@ namespace PointlessWaymarksCmsContentEditor
                 fileList.Remove(UserSettingsUtilities.SettingsFileName);
             }
 
-            fileList = new List<string> { UserSettingsUtilities.SettingsFileName }.Concat(fileList).ToList();
+            fileList = new List<string> {UserSettingsUtilities.SettingsFileName}.Concat(fileList).ToList();
 
             if (fileList.Count > 10)
                 fileList = fileList.Take(10).ToList();

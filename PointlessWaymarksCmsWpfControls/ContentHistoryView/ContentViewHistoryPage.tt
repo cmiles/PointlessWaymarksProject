@@ -34,14 +34,17 @@
 <body>
     <#= Tags.TitleDiv(ContentTitle).ToString() #>
     <div class="item-list">
-        <# foreach (var loopItem in Items)
-       { #>
+        <#
+    foreach (var loopItem in Items)
+    {
+#>
        <div class="item-list-container">
             <div class="item-list-content">
                 <#= loopItem #>
             </div>
        </div>
-       <# } #>
+       <#
+    } #>
       </div>
 </body>
 

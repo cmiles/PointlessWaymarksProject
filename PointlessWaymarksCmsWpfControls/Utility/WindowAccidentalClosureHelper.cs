@@ -45,7 +45,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             if (await StatusContext.ShowMessage("Unsaved Changes...",
                 "There are unsaved changes - do you want to discard your changes?",
-                new List<string> { "Yes - Close Window", "No" }) == "Yes - Close Window")
+                new List<string> {"Yes - Close Window", "No"}) == "Yes - Close Window")
             {
                 _closeConfirmed = true;
                 await ThreadSwitcher.ResumeForegroundAsync();

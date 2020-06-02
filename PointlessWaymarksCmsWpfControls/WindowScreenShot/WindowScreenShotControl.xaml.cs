@@ -36,7 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.WindowScreenShot
 
                 try
                 {
-                    statusContext = (StatusControlContext)((dynamic)x.DataContext).StatusContext;
+                    statusContext = (StatusControlContext) ((dynamic) x.DataContext).StatusContext;
                 }
                 catch (Exception e)
                 {
@@ -52,7 +52,6 @@ namespace PointlessWaymarksCmsWpfControls.WindowScreenShot
                     else
                         statusContext.ToastError("Problem Copying Window to Clipboard");
                 }
-
             });
 
             DataContext = this;

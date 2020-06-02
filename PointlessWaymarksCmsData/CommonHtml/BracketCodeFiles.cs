@@ -15,7 +15,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
 
-            var guidList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid).Distinct().ToList();
+            var guidList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
+                .Distinct().ToList();
 
             var returnList = new List<FileContent>();
 

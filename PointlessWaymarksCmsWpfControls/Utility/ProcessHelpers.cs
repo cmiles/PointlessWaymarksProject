@@ -12,7 +12,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             if (string.IsNullOrWhiteSpace(url)) return;
             if (url == "about:blank") return;
 
-            var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
     }

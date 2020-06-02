@@ -135,10 +135,11 @@
                     </Label>
                     <TextBox Name="PdfToCairoDirectoryTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.PdfToCairoExeDirectory, UpdateSourceTrigger=PropertyChanged}" />
-                    <wpf:MarkdownViewer Markdown="{Binding PdfToCairoHelpText}"></wpf:MarkdownViewer>
+                    <wpf:MarkdownViewer Markdown="{Binding PdfToCairoHelpText}" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
-        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" VerticalContentAlignment="Bottom"
+                                                  HorizontalContentAlignment="Right" />
     </Grid>
 </UserControl>

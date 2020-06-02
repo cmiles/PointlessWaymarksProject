@@ -20,15 +20,19 @@
     <meta name ="DC.Creator" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
     <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Description" content="<#=DbEntry.Summary.HtmlEncode() #>">
-    <meta name="DC.Date" content="<#=DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
+    <meta name="DC.Date" content="<#=
+                    DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
     <meta name="DC.Language" content="en-US">
 
-    <#= Tags.OpenGraphImageMetaTags(PictureInformation) #>
+    <#=
+                    Tags.OpenGraphImageMetaTags(PictureInformation) #>
 
     <link rel="alternate" type="application/rss+xml" 
-      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Images".HtmlEncode() #>"
-      href="https:<#= UserSettingsSingleton.CurrentSettings().ImageRssUrl() #>" />
+      title="<#=
+                    $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Images".HtmlEncode() #>"
+      href="https:<#=
+                    UserSettingsSingleton.CurrentSettings().ImageRssUrl() #>" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -38,12 +42,16 @@
 </head>
 
 <body class="single-photo-body">
-    <#= PictureInformation.PictureFigureWithCaptionTag("100vw") #>
-    <#= ImageParts.ImageSourceNotesDivTag(DbEntry) #>
+    <#=
+                    PictureInformation.PictureFigureWithCaptionTag("100vw") #>
+    <#=
+                    ImageParts.ImageSourceNotesDivTag(DbEntry) #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
-        <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
-        <#= Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+        <#=
+                    BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
+        <#=
+                    Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
         <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>

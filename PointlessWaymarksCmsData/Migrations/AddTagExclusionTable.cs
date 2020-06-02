@@ -12,9 +12,8 @@ namespace PointlessWaymarksCmsData.Migrations
         {
             if (!Schema.Table("TagExclusions").Exists())
             {
-                Create.Table("TagExclusions")
-                    .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                    .WithColumn("Tag").AsString();
+                Create.Table("TagExclusions").WithColumn("Id").AsInt64().PrimaryKey().Identity().WithColumn("Tag")
+                    .AsString();
             }
         }
 

@@ -15,20 +15,24 @@
     <meta property="og:title" content="<#=DbEntry.Title.HtmlEncode() #>" />
     <meta property="og:description" content="<#= DbEntry.Summary.HtmlEncode() #>" />
 
-    <#= Tags.OpenGraphImageMetaTags(PictureInformation) #>
+    <#=
+                    Tags.OpenGraphImageMetaTags(PictureInformation) #>
 
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
     <meta name="DC.Title" content="<#=DbEntry.Title.HtmlEncode() #>">
     <meta name ="DC.Creator" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
     <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Description" content="<#=DbEntry.Summary.HtmlEncode() #>">
-    <meta name="DC.Date" content="<#=DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
+    <meta name="DC.Date" content="<#=
+                    DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
     <meta name="DC.Language" content="en-US">
 
     <link rel="alternate" type="application/rss+xml" 
-      title="<#= $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Photos".HtmlEncode() #>"
-      href="https:<#= UserSettingsSingleton.CurrentSettings().PhotoRssUrl() #>" />
+      title="<#=
+                    $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Photos".HtmlEncode() #>"
+      href="https:<#=
+                    UserSettingsSingleton.CurrentSettings().PhotoRssUrl() #>" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -38,12 +42,16 @@
 </head>
 
 <body class="single-photo-body">
-    <#= PictureInformation.PictureFigureWithTitleCaptionTag("100vw") #>
+    <#=
+                    PictureInformation.PictureFigureWithTitleCaptionTag("100vw") #>
     <div class="information-section">
-        <#= PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
+        <#=
+                    PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
         <#= Tags.TagList(DbEntry).ToString() #>
-        <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
-        <#= Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+        <#=
+                    BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
+        <#=
+                    Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
         <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>

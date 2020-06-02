@@ -147,8 +147,8 @@ namespace PointlessWaymarksCmsData
             }
 
             return rawTagString.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
-                .Select(x => SlugUtility.Create(true, x)).Distinct().Where(x => !excludedTags.Contains(x)).OrderBy(x => x)
-                .ToList();
+                .Select(x => SlugUtility.Create(true, x)).Distinct().Where(x => !excludedTags.Contains(x))
+                .OrderBy(x => x).ToList();
         }
 
         public static List<string> ParseTagList(ITag tag, bool removeExcludedTags)
@@ -172,7 +172,7 @@ namespace PointlessWaymarksCmsData
             {
                 i++;
 
-                if(i % 20 == 0) progress?.Report($"Processing Tag Content - {i} of {toAdd.Count}");
+                if (i % 20 == 0) progress?.Report($"Processing Tag Content - {i} of {toAdd.Count}");
                 ParseToTagAndContentList(list, x);
             });
 
@@ -198,7 +198,8 @@ namespace PointlessWaymarksCmsData
             return list;
         }
 
-        public static async Task<List<(string tag, List<object> contentObjects)>> TagAndContentList(IProgress<string> progress)
+        public static async Task<List<(string tag, List<object> contentObjects)>> TagAndContentList(
+            IProgress<string> progress)
         {
             var db = await Context();
 
@@ -208,22 +209,24 @@ namespace PointlessWaymarksCmsData
 
             progress?.Report("Process File Content Tags");
             ParseToTagAndContentList(returnList, (await db.FileContents.ToListAsync()).Cast<ITag>().ToList(), progress);
-            
+
             progress?.Report("Process Photo Content Tags");
-            ParseToTagAndContentList(returnList, (await db.PhotoContents.ToListAsync()).Cast<ITag>().ToList(), progress);
-            
+            ParseToTagAndContentList(returnList, (await db.PhotoContents.ToListAsync()).Cast<ITag>().ToList(),
+                progress);
+
             progress?.Report("Process Image Content Tags");
-            ParseToTagAndContentList(returnList, (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList(), progress);
-            
+            ParseToTagAndContentList(returnList, (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList(),
+                progress);
+
             progress?.Report("Process Post Content Tags");
             ParseToTagAndContentList(returnList, (await db.PostContents.ToListAsync()).Cast<ITag>().ToList(), progress);
-            
+
             progress?.Report("Process Note Content Tags");
             ParseToTagAndContentList(returnList, (await db.NoteContents.ToListAsync()).Cast<ITag>().ToList(), progress);
-            
+
             progress?.Report("Process Link Content Tags");
             ParseToTagAndContentList(returnList, (await db.LinkStreams.ToListAsync()).Cast<ITag>().ToList(), progress);
-            
+
             progress?.Report("Finished Parsing Tag Content");
 
             return returnList;

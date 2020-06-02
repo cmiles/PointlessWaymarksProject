@@ -193,7 +193,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
                 var styleBlock = "body { margin-right: 20px; }" + Environment.NewLine;
 
-                if (possibleStyleFile.Exists) styleBlock += File.ReadAllText(possibleStyleFile.FullName);
+                if (possibleStyleFile.Exists) styleBlock += await File.ReadAllTextAsync(possibleStyleFile.FullName);
 
                 BodyContentHtmlOutput = processResults.ToHtmlDocument("Body Content", styleBlock);
             }

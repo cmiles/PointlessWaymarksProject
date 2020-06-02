@@ -13,15 +13,15 @@ namespace PointlessWaymarksCmsData.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="bracketcodeToken"></param>
         /// <returns></returns>
-        public static List<(string bracketCodeText, Guid contentGuid, string displayText)> BracketCodeMatches(string toProcess, string bracketcodeToken)
+        public static List<(string bracketCodeText, Guid contentGuid, string displayText)> BracketCodeMatches(
+            string toProcess, string bracketcodeToken)
         {
             var resultList = new List<(string bracketCodeText, Guid contentGuid, string displayText)>();
 
             if (string.IsNullOrWhiteSpace(toProcess)) return resultList;
 
-        var withTextMatch =
-                new Regex($@"{{{{{bracketcodeToken} (?<siteGuid>[\dA-Za-z-]*);[^}}]*}}}}",
-                    RegexOptions.Singleline);
+            var withTextMatch = new Regex($@"{{{{{bracketcodeToken} (?<siteGuid>[\dA-Za-z-]*);[^}}]*}}}}",
+                RegexOptions.Singleline);
             var withTextMatchResult = withTextMatch.Match(toProcess);
             while (withTextMatchResult.Success)
             {
@@ -31,7 +31,10 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 withTextMatchResult = withTextMatchResult.NextMatch();
             }
 
-            var regexObj = new Regex($@"{{{{{bracketcodeToken} (?<siteGuid>[\dA-Za-z-]*);\s*text (?<displayText>[^}};]*);[^}}]*}}}}", RegexOptions.Singleline);
+            var regexObj =
+                new Regex(
+                    $@"{{{{{bracketcodeToken} (?<siteGuid>[\dA-Za-z-]*);\s*text (?<displayText>[^}};]*);[^}}]*}}}}",
+                    RegexOptions.Singleline);
             var matchResult = regexObj.Match(toProcess);
             while (matchResult.Success)
             {
@@ -81,6 +84,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
             input = BracketCodeImages.ImageCodeProcessForDirectLocalAccess(input, progress);
             input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
             input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input, progress);
+            input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+
+            return input;
+        }
+
+        public static string ProcessCodesForEmail(string input, IProgress<string> progress)
+        {
+            input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
+            input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
+            input = BracketCodeImages.ImageCodeProcessForEmail(input, progress);
+            input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
+            input = BracketCodePhotos.PhotoCodeProcessForEmail(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
 
             return input;

@@ -20,8 +20,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                 new LinkTag("Search", @$"{settings.AllContentListUrl()}").AddClass("core-links-item"));
             coreLinksDiv.Children.Add(
                 new LinkTag("Photos", @$"{settings.CameraRollPhotoGalleryUrl()}").AddClass("core-links-item"));
-            coreLinksDiv.Children.Add(
-                new LinkTag("Tags", @$"{settings.AllTagsListUrl()}").AddClass("core-links-item"));
+            coreLinksDiv.Children.Add(new LinkTag("Tags", @$"{settings.AllTagsListUrl()}").AddClass("core-links-item"));
             coreLinksDiv.Children.Add(new LinkTag("Links", @$"{settings.LinkListUrl()}").AddClass("core-links-item"));
 
             var db = Db.Context().Result;
@@ -98,6 +97,20 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return $"<link rel=\"shortcut icon\" href=\"https:{settings.FaviconUrl()}\"/>";
         }
 
+        public static string ImageCaptionText(ImageContent dbEntry, bool includeTitle = false)
+        {
+            var summaryString = includeTitle ? dbEntry.Title : string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(dbEntry.Summary))
+            {
+                if (includeTitle) summaryString += ": ";
+                if (!dbEntry.Summary.Trim().EndsWith(".")) summaryString += $"{dbEntry.Summary.Trim()}.";
+                else summaryString += $"{dbEntry.Summary.Trim()}";
+            }
+
+            return string.Join(" ", summaryString);
+        }
+
         public static HtmlTag ImageFigCaptionTag(ImageContent dbEntry, bool includeTitle = false)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
@@ -105,16 +118,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var figCaptionTag = new HtmlTag("figcaption");
             figCaptionTag.AddClass("single-image-caption");
 
-            var summaryString = includeTitle ? dbEntry.Title : string.Empty;
-
-            if (!string.IsNullOrWhiteSpace(dbEntry.Summary))
-            {
-                if(includeTitle) summaryString += ": ";
-                if (!dbEntry.Summary.Trim().EndsWith(".")) summaryString += $"{dbEntry.Summary.Trim()}.";
-                else summaryString += $"{dbEntry.Summary.Trim()}";
-            }
-
-            figCaptionTag.Text(string.Join(" ", summaryString));
+            figCaptionTag.Text(ImageCaptionText(dbEntry, includeTitle));
 
             return figCaptionTag;
         }
@@ -186,13 +190,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return createdByDiv;
         }
 
-        public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry, bool includeTitle = false)
+        public static string PhotoCaptionText(PhotoContent dbEntry, bool includeTitle = false)
         {
-            if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
-
-            var figCaptionTag = new HtmlTag("figcaption");
-            figCaptionTag.AddClass("single-photo-caption");
-
             var summaryStringList = new List<string>();
 
             string titleSummaryString;
@@ -208,7 +207,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
                     var summaryIsInTitle = titleSummaryString.Replace(".", string.Empty).ToLower()
                         .Contains(dbEntry.Summary.TrimNullSafe().Replace(".", string.Empty).ToLower());
 
-                    if(!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullSafe()}";
+                    if (!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullSafe()}";
                 }
 
                 if (!titleSummaryString.EndsWith(".")) titleSummaryString += ".";
@@ -224,9 +223,36 @@ namespace PointlessWaymarksCmsData.CommonHtml
             summaryStringList.Add($"{dbEntry.PhotoCreatedBy}.");
             summaryStringList.Add($"{dbEntry.PhotoCreatedOn:M/d/yyyy}.");
 
-            figCaptionTag.Text(string.Join(" ", summaryStringList));
+            return string.Join(" ", summaryStringList);
+        }
+
+        public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry, bool includeTitle = false)
+        {
+            if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
+
+            var figCaptionTag = new HtmlTag("figcaption");
+            figCaptionTag.AddClass("single-photo-caption");
+            figCaptionTag.Text(string.Join(" ", PhotoCaptionText(dbEntry, includeTitle)));
 
             return figCaptionTag;
+        }
+
+        public static HtmlTag PictureEmailImgTag(PictureAsset pictureDirectoryInfo, bool willHaveVisibleCaption)
+        {
+            var emailSize = pictureDirectoryInfo.SrcsetImages.Where(x => x.Width < 800).OrderByDescending(x => x.Width)
+                .First();
+
+            var imageTag = new HtmlTag("img").Attr("src", $"https:{emailSize.SiteUrl}")
+                .Attr("max-height", emailSize.Height).Attr("max-width", emailSize.Width).Attr("width", "94%");
+
+            if (!string.IsNullOrWhiteSpace(emailSize.AltText))
+                imageTag.Attr("alt", emailSize.AltText);
+
+            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(emailSize.AltText) &&
+                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
+                imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
+
+            return imageTag;
         }
 
         public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes,
@@ -428,7 +454,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
             foreach (var loopTag in tags)
             {
                 var tagLinkContainer = new DivTag().AddClass("tags-detail-link-container");
-                var tagLink = new LinkTag(loopTag, UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag)).AddClass("tag-detail-link");
+                var tagLink =
+                    new LinkTag(loopTag, UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag)).AddClass(
+                        "tag-detail-link");
                 tagLinkContainer.Children.Add(tagLink);
                 tagsContainer.Children.Add(tagLinkContainer);
             }

@@ -3,7 +3,10 @@
 <#@ import namespace="CommonHtml" #>
 
 <div class="content-container">
-    <#= PictureInformation.PictureFigureWithCaptionTag("100vw") #>
-    <#= ImageParts.ImageSourceNotesDivTag(DbEntry) #>
-    <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
+    <#=
+                    PictureInformation.PictureFigureWithCaptionTag("100vw") #>
+    <#=
+                    ImageParts.ImageSourceNotesDivTag(DbEntry) #>
+    <#=
+                    BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
 </div>

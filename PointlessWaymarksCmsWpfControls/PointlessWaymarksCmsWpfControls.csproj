@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-822" />
+    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-825" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
-    <PackageReference Include="FontAwesome5" Version="2.0.5" />
+    <PackageReference Include="FontAwesome5" Version="2.0.6" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GitInfo" Version="2.0.26">
       <PrivateAssets>all</PrivateAssets>
@@ -20,21 +20,21 @@
     <PackageReference Include="HtmlTableHelper" Version="1.2.2" />
     <PackageReference Include="HtmlTags" Version="8.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="Markdig" Version="0.18.0" />
+    <PackageReference Include="Markdig" Version="0.18.3" />
     <PackageReference Include="Markdig.Wpf" Version="0.3.1" />
-    <PackageReference Include="MetadataExtractor" Version="2.4.0" />
+    <PackageReference Include="MetadataExtractor" Version="2.4.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
-    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.1.0-preview1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.0" />
-    <PackageReference Include="ObjectDumper.NET" Version="2.5.20131.1-pre" />
+    <PackageReference Include="ObjectDumper.NET" Version="2.5.20143.3-pre" />
     <PackageReference Include="Ookii.Dialogs.Wpf.NETCore" Version="2.1.0" />
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.10.3" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
-    <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.1-beta" />
+    <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-unstable1162" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112.2" />
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0-preview.3.20214.6" />
@@ -42,7 +42,7 @@
     <PackageReference Include="System.Text.Json" Version="5.0.0-preview.3.20214.6" />
     <PackageReference Include="ThomasLevesque.WeakEvent" Version="4.1.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
-    <PackageReference Include="XAML.MapControl" Version="5.1.0" />
+    <PackageReference Include="XAML.MapControl" Version="5.2.1" />
   </ItemGroup>
 
   <ItemGroup>

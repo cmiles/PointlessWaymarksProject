@@ -151,7 +151,8 @@ namespace PointlessWaymarksCmsData.SearchListHtml
             {
                 loopCount++;
 
-                if(loopCount % 30 == 0) progress?.Report($"Generating Tag Page {loopTags.tag} - {loopCount} of {tags.Count}");
+                if (loopCount % 30 == 0)
+                    progress?.Report($"Generating Tag Page {loopTags.tag} - {loopCount} of {tags.Count}");
 
                 WriteSearchListHtml(() => loopTags.contentObjects,
                     UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(loopTags.tag),

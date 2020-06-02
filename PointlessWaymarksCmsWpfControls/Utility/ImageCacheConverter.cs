@@ -16,13 +16,13 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                return BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] { 1 }, 1);
+                return BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] {1}, 1);
             }
-            
+
             var possibleFile = new FileInfo(path);
             if (!possibleFile.Exists)
             {
-                return BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] { 1 }, 1);
+                return BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] {1}, 1);
             }
 
             var uriSource = new Uri(path, UriKind.Absolute);
@@ -41,10 +41,10 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             }
             catch
             {
-                return BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] { 1 }, 1);
+                return BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] {1}, 1);
             }
         }
-        
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException("Not implemented.");

@@ -12,10 +12,8 @@ namespace PointlessWaymarksCmsData.HtmlGeneration
 {
     public static class Generate
     {
-
         public static async Task WriteRelatedContentInformationToDb(IContentCommon content)
         {
-
         }
 
         //public static async Task<List<Guid>> ContentChanged(DateTime contentAfter, IProgress<string> progress)
@@ -35,9 +33,8 @@ namespace PointlessWaymarksCmsData.HtmlGeneration
 
         //    foreach (var loopSets in originalContentSets)
         //    {
-                
+
         //    }
         //}
-
     }
 }

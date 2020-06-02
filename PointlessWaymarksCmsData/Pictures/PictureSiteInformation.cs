@@ -62,6 +62,7 @@ namespace PointlessWaymarksCmsData.Pictures
             return figureTag;
         }
 
+
         public HtmlTag LocalDisplayPhotoImageTag()
         {
             var imageTag = new HtmlTag("img").AddClass("single-photo")
@@ -84,12 +85,42 @@ namespace PointlessWaymarksCmsData.Pictures
             return figureTag;
         }
 
+        private HtmlTag EmailImageTableTag(ImageContent dbEntry)
+        {
+            var tableContainer = new TableTag();
+            tableContainer.Style("margin", "20px").Style("text-align", "center");
+            var pictureRow = tableContainer.AddBodyRow();
+            var pictureCell = pictureRow.Cell();
+            pictureCell.Children.Add(Tags.PictureEmailImgTag(Pictures, true));
+
+            var captionRow = tableContainer.AddBodyRow();
+            var captionCell = captionRow.Cell(Tags.ImageCaptionText(dbEntry, false));
+            captionCell.Style("opacity", ".5");
+
+            return tableContainer;
+        }
+
         private HtmlTag LocalPhotoFigureTag(PhotoContent dbEntry)
         {
             var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
             figureTag.Children.Add(LocalDisplayPhotoImageTag());
             figureTag.Children.Add(Tags.PhotoFigCaptionTag(dbEntry));
             return figureTag;
+        }
+
+        private HtmlTag EmailPhotoTableTag(PhotoContent dbEntry)
+        {
+            var tableContainer = new TableTag();
+            tableContainer.Style("margin", "20px").Style("text-align", "center");
+            var pictureRow = tableContainer.AddBodyRow();
+            var pictureCell = pictureRow.Cell();
+            pictureCell.Children.Add(Tags.PictureEmailImgTag(Pictures, true));
+
+            var captionRow = tableContainer.AddBodyRow();
+            var captionCell = captionRow.Cell(Tags.PhotoCaptionText(dbEntry, false));
+            captionCell.Style("opacity", ".5");
+
+            return tableContainer;
         }
 
         public HtmlTag LocalPictureFigureTag()
@@ -100,6 +131,19 @@ namespace PointlessWaymarksCmsData.Pictures
                     return LocalPhotoFigureTag(p);
                 case ImageContent i:
                     return LocalImageFigureTag(i);
+                default:
+                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
+            }
+        }
+
+        public HtmlTag EmailPictureTableTag()
+        {
+            switch (Pictures.DbEntry)
+            {
+                case PhotoContent p:
+                    return EmailPhotoTableTag(p);
+                case ImageContent i:
+                    return EmailImageTableTag(i);
                 default:
                     throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
             }

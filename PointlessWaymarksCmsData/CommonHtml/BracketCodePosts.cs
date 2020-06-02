@@ -17,7 +17,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             progress?.Report("Searching for Post Codes...");
 
-            var guidList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid).Distinct().ToList();
+            var guidList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
+                .Distinct().ToList();
 
             var returnList = new List<PostContent>();
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using HtmlTags;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
@@ -31,6 +32,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         private Command _postCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
+        private Command _emailHtmlToClipboardForSelectedCommand;
 
         public PostListWithActionsContext(StatusControlContext statusContext)
         {
@@ -40,6 +42,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
             PostCodesToClipboardForSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
+            EmailHtmlToClipboardForSelectedCommand = new Command(() => StatusContext.RunBlockingTask(EmailBodyHtml));
             OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
             NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
             RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
@@ -49,6 +52,17 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public Command EmailHtmlToClipboardForSelectedCommand
+        {
+            get => _emailHtmlToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _emailHtmlToClipboardForSelectedCommand)) return;
+                _emailHtmlToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public Command DeleteSelectedCommand
@@ -315,6 +329,99 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task EmailBodyHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (ListContext.SelectedItems.Count > 1)
+            {
+                StatusContext.ToastError("Please select only 1 item...");
+                return;
+            }
+
+            var frozenSelected = ListContext.SelectedItems.First();
+
+            var preprocessResults = BracketCodeCommon.ProcessCodesForEmail(frozenSelected.DbEntry.BodyContent,
+                StatusContext.ProgressTracker());
+            var (success, bodyHtmlString) =
+                ContentProcessor.ContentHtml(frozenSelected.DbEntry.BodyContentFormat, preprocessResults);
+
+            if (!success)
+            {
+                StatusContext.ToastError("Problem processing");
+                return;
+            }
+
+            var emailCenterTable = new TableTag();
+            emailCenterTable.Attr("width", "100%");
+            emailCenterTable.Attr("border", "0");
+            emailCenterTable.Attr("cellspacing", "0");
+            emailCenterTable.Attr("cellpadding", "0");
+            var emailCenterRow = emailCenterTable.AddBodyRow();
+
+            var emailCenterLeftCell = emailCenterRow.Cell();
+            emailCenterLeftCell.Attr("max-width", "1%");
+            emailCenterLeftCell.Attr("align", "center");
+            emailCenterLeftCell.Attr("valign", "top");
+            emailCenterLeftCell.Text("&nbsp;").Encoded(false);
+
+            var emailCenterContentCell = emailCenterRow.Cell();
+            emailCenterContentCell.Attr("width", "100%");
+            emailCenterContentCell.Attr("align", "center");
+            emailCenterContentCell.Attr("valign", "top");
+
+            var emailCenterRightCell = emailCenterRow.Cell();
+            emailCenterRightCell.Attr("max-width", "1%");
+            emailCenterRightCell.Attr("align", "center");
+            emailCenterRightCell.Attr("valign", "top");
+            emailCenterRightCell.Text("&nbsp;").Encoded(false);
+
+
+            var outerTable = new TableTag();
+            emailCenterContentCell.Children.Add(outerTable);
+            outerTable.Style("width", "100%");
+            outerTable.Style("max-width", "900px");
+
+            var header = new HtmlTag("h3");
+            header.Style("text-align", "center");
+            var postAddress = $"https:{UserSettingsSingleton.CurrentSettings().PostPageUrl(frozenSelected.DbEntry)}";
+            var postLink =
+                new LinkTag(
+                    $"{UserSettingsSingleton.CurrentSettings().SiteName.HtmlEncode()} - {frozenSelected.DbEntry.Title.HtmlEncode()}",
+                    postAddress);
+            header.Children.Add(postLink);
+
+            var headerRow = outerTable.AddHeaderRow();
+            var headerCell = headerRow.Header();
+            headerCell.Children.Add(header);
+
+            var bodyRow = outerTable.AddBodyRow();
+            var bodyCell = bodyRow.Cell();
+            bodyCell.Text(bodyHtmlString).Encoded(false);
+
+            var footer = new HtmlTag("h4");
+            footer.Style("text-align", "center");
+            var siteLink = new LinkTag(UserSettingsSingleton.CurrentSettings().SiteUrl,
+                @$"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}");
+            footer.Children.Add(siteLink);
+
+            var footerRow = outerTable.AddBodyRow();
+            var footerCell = footerRow.Cell();
+            footerCell.Children.Add(footer);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(emailCenterTable.ToString());
+
+            StatusContext.ToastSuccess($"Post to Email Html on Clipboard");
         }
 
         private async Task OpenUrlForSelected()

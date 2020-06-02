@@ -48,7 +48,8 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            HelpContext = new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
+            HelpContext =
+                new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
 
             SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));

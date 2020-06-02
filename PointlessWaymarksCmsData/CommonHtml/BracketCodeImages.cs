@@ -9,7 +9,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class BracketCodeImages
     {
-        public const string BracketCodeToken = "postlink";
+        public const string BracketCodeToken = "image";
 
         public static List<ImageContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
@@ -41,7 +41,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string ImageBracketCode(ImageContent content)
         {
-            return $@"{{{{image {content.ContentId}; {content.Title}}}}}";
+            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
         /// <summary>
@@ -89,6 +89,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
         public static string ImageCodeProcessForDirectLocalAccess(string toProcess, IProgress<string> progress)
         {
             return ImageCodeProcess(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(),
+                progress);
+        }
+
+        /// <summary>
+        ///     This method processes a image code for use in email.
+        /// </summary>
+        /// <param name="toProcess"></param>
+        /// <param name="progress"></param>
+        /// <returns></returns>
+        public static string ImageCodeProcessForEmail(string toProcess, IProgress<string> progress)
+        {
+            return ImageCodeProcess(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
                 progress);
         }
 

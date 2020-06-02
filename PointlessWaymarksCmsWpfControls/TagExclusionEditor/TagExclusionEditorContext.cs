@@ -109,7 +109,8 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
 
             var dbItems = await db.TagExclusions.ToListAsync();
 
-            var listItems = dbItems.Select(x => new TagExclusionEditorListItem {DbEntry = x, TagValue = x.Tag}).OrderBy(x => x.TagValue).ToList();
+            var listItems = dbItems.Select(x => new TagExclusionEditorListItem {DbEntry = x, TagValue = x.Tag})
+                .OrderBy(x => x.TagValue).ToList();
 
             if (Items == null)
             {

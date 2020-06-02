@@ -155,7 +155,7 @@
                         Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <CheckBox Margin="4,8,0,0" FontWeight="DemiBold" 
+                    <CheckBox Margin="4,8,0,0" FontWeight="DemiBold"
                               IsChecked="{Binding ShowInLinkRss, UpdateSourceTrigger=PropertyChanged}">
                         Show in Link List _Feed
                     </CheckBox>
@@ -181,6 +181,7 @@
             <Button Height="24" Margin="4" Grid.Column="1" Command="{Binding SaveUpdateDatabaseCommand}"
                     Content="Save" />
         </Grid>
-        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                                                  VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right" />
     </Grid>
 </UserControl>

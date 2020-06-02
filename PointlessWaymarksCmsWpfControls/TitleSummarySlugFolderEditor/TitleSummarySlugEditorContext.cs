@@ -193,7 +193,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            if(!propertyName.Contains("HasChanges")) CheckForChanges();
+            if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
         public void TitleToSlug()

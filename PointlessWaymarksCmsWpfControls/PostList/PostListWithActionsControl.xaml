@@ -37,6 +37,8 @@
                         Content="_Generate Html" />
                 <Button Command="{Binding PostCodesToClipboardForSelectedCommand}"
                         Style="{StaticResource ActionPanelButton}" Content="_Code to Clipboard" />
+                <Button Command="{Binding EmailHtmlToClipboardForSelectedCommand}"
+                        Style="{StaticResource ActionPanelButton}" Content="Email to Clipboard" />
                 <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Open Selected In Browser" />
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>

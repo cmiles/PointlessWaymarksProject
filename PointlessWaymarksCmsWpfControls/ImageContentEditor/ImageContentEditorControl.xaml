@@ -126,6 +126,7 @@
                         Content="Link Code to Clipboard" />
             </WrapPanel>
         </Border>
-        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right"></windowScreenShot:WindowScreenShotControl>
+        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2"
+                                                  VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right" />
     </Grid>
 </UserControl>
