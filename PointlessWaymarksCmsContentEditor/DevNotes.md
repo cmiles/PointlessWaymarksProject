@@ -41,6 +41,12 @@
 
 ## Notes
 
+6/3/2020
+
+Beginning to look at memory usage a little more -
+ - ImageSharp appears to be holding quite a bit of memory in some cases although I am not sure what the expected GC pattern is here so I am not sure this is a 'problem'
+ - I am still suspicious of the Photo Editor form based largely on watching memory (which I am completely aware is 'anecodotal' evidence at the best, I absolutely don't have internals knowledge to let me predict what the GC is going to decide...) - in looking at the code I did identify the opportunity to rescale the selected image in memory for delay on the form rather than referencing and downscaling the full sized image - there is some up front cost but this appears to be a win. As part of this read a number of posts around a Google search in the spirit of 'wpf bitmap memory leak' which are not encouraging and also many of the results are old and there is at least some chance WPF internals have changed.
+
 6/2/2020
 
 I had an out of memory error today after some heavy photo loading - a super quick check of the default Diagnostics view in VS suggests that I am not freeing something related to photos and memory usage goes crazy by the end of a large export - nice that the program has been staying responsive, but I need to track down the memory leak...

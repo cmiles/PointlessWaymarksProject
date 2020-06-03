@@ -19,7 +19,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,7 +29,7 @@
     <PackageReference Include="FluentMigrator" Version="3.2.6" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.2.6" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.2.6" />
-    <PackageReference Include="FontAwesome5" Version="2.0.6" />
+    <PackageReference Include="FontAwesome5" Version="2.0.5" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GitInfo" Version="2.0.26">
       <PrivateAssets>all</PrivateAssets>

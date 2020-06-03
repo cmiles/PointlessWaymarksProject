@@ -16,13 +16,13 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                return BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] {1}, 1);
+                return ImageConstants.BlankImage;
             }
 
             var possibleFile = new FileInfo(path);
             if (!possibleFile.Exists)
             {
-                return BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] {1}, 1);
+                return ImageConstants.BlankImage;
             }
 
             var uriSource = new Uri(path, UriKind.Absolute);
@@ -34,14 +34,14 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 image.BeginInit();
                 image.CacheOption = BitmapCacheOption.OnLoad;
                 image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                image.CacheOption = BitmapCacheOption.OnLoad;
                 image.UriSource = uriSource;
                 image.EndInit();
+                image.Freeze();
                 return image;
             }
             catch
             {
-                return BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] {1}, 1);
+                return ImageConstants.BlankImage;
             }
         }
 

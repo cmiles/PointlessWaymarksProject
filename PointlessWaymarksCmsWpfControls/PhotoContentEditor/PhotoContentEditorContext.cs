@@ -9,6 +9,9 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using MetadataExtractor;
@@ -33,7 +36,11 @@ using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Processing;
 using XmpCore;
+using Rational = MetadataExtractor.Rational;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
@@ -68,6 +75,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
         private Command _viewPhotoMetadataCommand;
+        private BitmapSource _selectedFileBitmapSource = ImageConstants.BlankImage;
 
 
         public PhotoContentEditorContext(StatusControlContext statusContext, bool skipInitialLoad)
@@ -301,8 +309,66 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 _selectedFile = value;
                 OnPropertyChanged();
 
-                if (SelectedFile == null) return;
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
+            }
+        }
+
+        private async Task SelectedFileChanged()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null)
+            {
+                SelectedFileFullPath = string.Empty;
+                SelectedFileBitmapSource = ImageConstants.BlankImage;
+                return;
+            }
+
+            SelectedFile.Refresh();
+
+            if (!SelectedFile.Exists)
+            {
                 SelectedFileFullPath = SelectedFile.FullName;
+                SelectedFileBitmapSource = ImageConstants.BlankImage;
+                return;
+            }
+
+            await using var fileStream = new FileStream(SelectedFile.FullName, FileMode.Open, FileAccess.Read);
+
+            await using var inStream = fileStream;
+            await using var outStream = new MemoryStream();
+            using var image = Image.Load(inStream, out IImageFormat format);
+            var originalWidth = image.Width;
+            var originalHeight = image.Height;
+
+            var factor = (decimal) 400 / originalWidth;
+
+            var clone = image.Clone(i => i.Resize((int) (originalWidth * factor), (int) (originalHeight * factor)));
+
+            clone.Save(outStream, format);
+
+            outStream.Position = 0;
+
+            var uiImage = new BitmapImage();
+            uiImage.BeginInit();
+            uiImage.CacheOption = BitmapCacheOption.OnLoad;
+            uiImage.StreamSource = outStream;
+            uiImage.EndInit();
+            uiImage.Freeze();
+
+            SelectedFileBitmapSource = uiImage;
+
+            SelectedFileFullPath = SelectedFile.FullName;
+        }
+
+        public BitmapSource SelectedFileBitmapSource
+        {
+            get => _selectedFileBitmapSource;
+            set
+            {
+                if (Equals(value, _selectedFileBitmapSource)) return;
+                _selectedFileBitmapSource = value;
+                OnPropertyChanged();
             }
         }
 
