@@ -10,8 +10,8 @@ Random Details:
  - Static Files because I believe that this is currently the lowest cost, least maintenance, most durable way to put free content online.
  - Generated and database driven because it offers a huge amount of flexibility in updating and creating content and leaves open the possibility of generating different formats.
  - Custom software because I believe I will be working with the same content types over and over again and after years of creating content in 'generic' editors I now want highly specialized no compromise ways to create exactly what I want.
- - Custom software because I believe that my goals are fundamentally simple enough that the scope of this project means that I can create new software that brings me joy with less effort and time than it would take to customize existing software.
- - I hope to write good quality code and I am happy to share it - but for various reason including the incredibly narrow and personal focus of this project I don't currently intend to make 'public use' a consideration
+ - Custom software because I believe that my goals are fundamentally simple enough that I can create new software that brings me joy with less effort and time than it would take to customize existing software.
+ - I hope to write high quality code and I am happy to share it - but for various reason, including the incredibly narrow and personal focus of this project, I don't currently intend to make 'public use' a consideration
 
 More details, including Todo Lists, Idea Lists, and notes are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
 
