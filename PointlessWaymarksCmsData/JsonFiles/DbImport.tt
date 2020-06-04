@@ -13,10 +13,8 @@ namespace PointlessWaymarksCmsData.JsonFiles
     public static class DbImport
     {
 <#
-    foreach (
-        string loopTypeNames in
-            new List<string> {"FileContent", "PhotoContent", "PostContent", "ImageContent", "NoteContent", "LinkStream"}
-        )
+    foreach (string loopTypeNames in
+        new List<string> {"FileContent", "PhotoContent", "PostContent", "ImageContent", "NoteContent", "LinkStream"})
     {
 #>
          public static void <#= loopTypeNames #>ToDb(List<<#= loopTypeNames #>> toImport, IProgress<string> progress)
@@ -105,17 +103,16 @@ namespace PointlessWaymarksCmsData.JsonFiles
 #>
 
 <#
-    foreach (
-        string loopTypeNames in
-            new List<string>
-            {
-                "HistoricFileContent",
-                "HistoricPhotoContent",
-                "HistoricPostContent",
-                "HistoricImageContent",
-                "HistoricNoteContent",
-                "HistoricLinkStream"
-            })
+    foreach (string loopTypeNames in
+        new List<string>
+        {
+            "HistoricFileContent",
+            "HistoricPhotoContent",
+            "HistoricPostContent",
+            "HistoricImageContent",
+            "HistoricNoteContent",
+            "HistoricLinkStream"
+        })
     {
 #>
         public static void <#= loopTypeNames #>ToDb(List<<#= loopTypeNames #>> toImport, IProgress<string> progress)

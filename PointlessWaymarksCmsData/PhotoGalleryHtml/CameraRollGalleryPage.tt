@@ -22,7 +22,7 @@
     <meta property="og:description" content="All photographs on <#=SiteName.HtmlEncode() #> listed by date." />
 
     <#=
-                    PointlessWaymarksCmsData.CommonHtml.Tags.OpenGraphImageMetaTags(MainImage) #>
+                PointlessWaymarksCmsData.CommonHtml.Tags.OpenGraphImageMetaTags(MainImage) #>
 
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
     <meta name="DC.Title" content="Photographs By Date">
@@ -30,15 +30,15 @@
     <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Description" content="All photographs on <#=SiteName.HtmlEncode() #> listed by date.">
     <meta name="DC.Date" content="<#=
-                    LastDateGroupDateTime.ToString("yyyy-MM-dd").HtmlEncode() #>">
+                LastDateGroupDateTime.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
     <meta name="DC.Language" content="en-US">
 
     <link rel="alternate" type="application/rss+xml" 
       title="<#=
-                    $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Photos".HtmlEncode() #>"
+                $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Photos".HtmlEncode() #>"
       href="https:<#=
-                    UserSettingsSingleton.CurrentSettings().PhotoRssUrl() #>" />
+                UserSettingsSingleton.CurrentSettings().PhotoRssUrl() #>" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -51,7 +51,7 @@
     <#= Tags.StandardHeader().ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#=
-                    Tags.TitleDiv($"{SiteName} - Photographs").ToString() #>
+                Tags.TitleDiv($"{SiteName} - Photographs").ToString() #>
     <#= CameraRollContentTag.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>

@@ -23,7 +23,7 @@
     <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Description" content="<#=DbEntry.Summary.HtmlEncode() #>">
     <meta name="DC.Date" content="<#=
-                    DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
+                DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
     <meta name="DC.Language" content="en-US">
 
@@ -40,15 +40,15 @@
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#=
-                    Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+                Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=
-                    BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
+                BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
         <#=
-                    Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
+                Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
         <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>

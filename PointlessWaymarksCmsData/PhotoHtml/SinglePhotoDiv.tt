@@ -3,9 +3,9 @@
 
 <div class="content-container">
     <#=
-                    PictureInformation.PictureFigureWithCaptionTag("100vw") #>
+                PictureInformation.PictureFigureWithCaptionTag("100vw") #>
     <#=
-                    PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
+                PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
     <#=
-                    BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
+                BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
 </div>

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using PointlessWaymarksCmsData.Models;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Processing;
 
 namespace PointlessWaymarksCmsData.Pictures
 {
@@ -197,66 +195,38 @@ namespace PointlessWaymarksCmsData.Pictures
             return (true, $"Reached end of Copy, Clean and Resize for {dbEntry.Title}");
         }
 
-        public static FileInfo ResizeForDisplay(FileInfo fullName, bool overwriteExistingFile,
+        public static FileInfo ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
             IProgress<string> progress)
         {
             int originalWidth;
 
-            using (var originalImage = File.OpenRead(fullName.FullName))
+            using (var sourceImage = Image.FromFile(fileToProcess.FullName))
             {
-                var imageInfo = Image.Identify(originalImage);
-                originalWidth = imageInfo.Width;
+                originalWidth = sourceImage.Width;
             }
 
             if (originalWidth > 1200)
             {
                 progress?.Report("Resize For Display: 1200, 82");
 
-                return ResizeWithForDisplayFileName(fullName, 1200, 82, overwriteExistingFile, progress);
+                return ResizeWithForDisplayFileName(fileToProcess, 1200, 82, overwriteExistingFile, progress);
             }
 
             if (originalWidth > 800)
             {
                 progress?.Report("Resize For Display: 800, 82");
 
-                return ResizeWithForDisplayFileName(fullName, 800, 82, overwriteExistingFile, progress);
+                return ResizeWithForDisplayFileName(fileToProcess, 800, 82, overwriteExistingFile, progress);
             }
 
             if (originalWidth > 400)
             {
                 progress?.Report("Resize For Display: 800, 82");
 
-                return ResizeWithWidthAndHeightFileName(fullName, 400, 82, overwriteExistingFile, progress);
+                return ResizeWithForDisplayFileName(fileToProcess, 400, 82, overwriteExistingFile, progress);
             }
 
-            FileInfo newFile;
-
-            using (var image = Image.Load(fullName.FullName))
-            {
-                progress?.Report("Resize For Display: Natural Size, 82");
-
-                newFile = new FileInfo(Path.Combine(fullName.Directory?.FullName ?? string.Empty,
-                    $"{Path.GetFileNameWithoutExtension(fullName.Name)}--For-Display.jpg"));
-
-                if (newFile.Exists && !overwriteExistingFile)
-                {
-                    progress?.Report($"Found existing file - {newFile.FullName}");
-                    return newFile;
-                }
-
-                if (newFile.Exists)
-                {
-                    newFile.Delete();
-                    newFile.Refresh();
-                }
-
-                using var outImage = File.Create(newFile.FullName);
-                image.SaveAsJpeg(outImage, new JpegEncoder {Quality = 82});
-
-                newFile.Refresh();
-            }
-
-            return newFile;
+            return ResizeWithForDisplayFileName(fileToProcess, originalWidth, 82, overwriteExistingFile, progress);
         }
 
         public static List<FileInfo> ResizeForDisplayAndSrcset(FileInfo originalImage, bool overwriteExistingFiles,
@@ -272,17 +242,16 @@ namespace PointlessWaymarksCmsData.Pictures
             return fullList;
         }
 
-        public static List<FileInfo> ResizeForSrcset(FileInfo fullName, bool overwriteExistingFiles,
+        public static List<FileInfo> ResizeForSrcset(FileInfo fileToProcess, bool overwriteExistingFiles,
             IProgress<string> progress)
         {
             var sizeQualityList = SrcSetSizeAndQualityList().OrderByDescending(x => x.size).ToList();
 
             int originalWidth;
 
-            using (var originalImage = File.OpenRead(fullName.FullName))
+            using (var sourceImage = Image.FromFile(fileToProcess.FullName))
             {
-                var imageInfo = Image.Identify(originalImage);
-                originalWidth = imageInfo.Width;
+                originalWidth = sourceImage.Width;
             }
 
             var returnList = new List<FileInfo>();
@@ -293,7 +262,7 @@ namespace PointlessWaymarksCmsData.Pictures
                 if (originalWidth >= loopSizeQuality.size || loopSizeQuality.size == smallestSrcSetSize)
                 {
                     progress?.Report($"Resize: {loopSizeQuality.size}, {loopSizeQuality.quality}");
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fullName, loopSizeQuality.size,
+                    returnList.Add(ResizeWithWidthAndHeightFileName(fileToProcess, loopSizeQuality.size,
                         loopSizeQuality.quality, overwriteExistingFiles, progress));
                 }
 
@@ -303,15 +272,13 @@ namespace PointlessWaymarksCmsData.Pictures
         public static FileInfo ResizeWithForDisplayFileName(FileInfo toResize, int width, int quality,
             bool overwriteExistingFiles, IProgress<string> progress)
         {
-            if (toResize == null || !toResize.Exists)
+            if (toResize == null || !toResize.Exists || toResize.Directory == null)
             {
                 progress?.Report("No input to resize?");
                 return null;
             }
 
             progress?.Report($"Display Resizing {toResize.Name} - Width {width} and Quality {quality} - starting");
-
-            string newFile;
 
             if (!overwriteExistingFiles)
             {
@@ -327,31 +294,16 @@ namespace PointlessWaymarksCmsData.Pictures
                 }
             }
 
-            using (var image = Image.Load(toResize.FullName))
-            {
-                var naturalWidth = image.Width;
+            var resizer = new MagicScalerImageResizer();
 
-                var newHeight = (int) (image.Height * ((decimal) width / naturalWidth));
-
-                image.Mutate(ctx => ctx.Resize(width, newHeight, KnownResamplers.Bicubic));
-
-                newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
-                    $"{Path.GetFileNameWithoutExtension(toResize.Name)}--For-Display--{image.Width}w--{image.Height}h.jpg");
-
-                var newFileInfo = new FileInfo(newFile);
-                if (newFileInfo.Exists) newFileInfo.Delete();
-
-                using var outImage = File.Create(newFile);
-                image.SaveAsJpeg(outImage, new JpegEncoder {Quality = quality});
-            }
-
-            return new FileInfo(newFile);
+            return resizer.ResizeTo(toResize, width, quality, "For-Display", true, progress);
         }
+
 
         public static FileInfo ResizeWithWidthAndHeightFileName(FileInfo toResize, int width, int quality,
             bool overwriteExistingFiles, IProgress<string> progress)
         {
-            if (toResize == null || !toResize.Exists)
+            if (toResize == null || !toResize.Exists || toResize.Directory == null)
             {
                 progress?.Report("No input to resize?");
                 return null;
@@ -373,27 +325,9 @@ namespace PointlessWaymarksCmsData.Pictures
                 }
             }
 
-            string newFile;
+            var resizer = new MagicScalerImageResizer();
 
-            using (var image = Image.Load(toResize.FullName))
-            {
-                var naturalWidth = image.Width;
-
-                var newHeight = (int) (image.Height * ((decimal) width / naturalWidth));
-
-                image.Mutate(ctx => ctx.Resize(width, newHeight, KnownResamplers.Bicubic));
-
-                newFile = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
-                    $"{Path.GetFileNameWithoutExtension(toResize.Name)}--Sized--{image.Width}w--{image.Height}h.jpg");
-
-                var newFileInfo = new FileInfo(newFile);
-                if (newFileInfo.Exists) newFileInfo.Delete();
-
-                using var outImage = File.Create(newFile);
-                image.SaveAsJpeg(outImage, new JpegEncoder {Quality = quality});
-            }
-
-            return new FileInfo(newFile);
+            return resizer.ResizeTo(toResize, width, quality, "Sized", true, progress);
         }
 
         public static List<(int size, int quality)> SrcSetSizeAndQualityList()
