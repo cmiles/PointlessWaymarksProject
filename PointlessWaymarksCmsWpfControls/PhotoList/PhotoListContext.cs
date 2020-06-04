@@ -21,7 +21,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 {
     public class PhotoListContext : INotifyPropertyChanged
     {
-        private ObservableRangeCollection<PhotoListListItem> _items;
+        private ObservableCollection<PhotoListListItem> _items;
         private string _lastSortColumn;
         private List<PhotoListListItem> _selectedItems;
         private bool _sortDescending;
@@ -59,7 +59,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         public Command<bool> LoadRecentOnlyCommand { get; set; }
 
 
-        public ObservableRangeCollection<PhotoListListItem> Items
+        public ObservableCollection<PhotoListListItem> Items
         {
             get => _items;
             set
@@ -154,19 +154,18 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.RemoveRange(toRemove);
             }
 
             if (e.UpdateType == DataNotificationUpdateType.New)
             {
                 var context = await Db.Context();
 
-                var dbItems = (await context.PhotoContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
+                var toAdd = (await context.PhotoContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
                     .Select(ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.AddRange(dbItems);
+                toAdd.ForEach(x => Items.Add(x));
             }
 
             if (e.UpdateType == DataNotificationUpdateType.Update)
@@ -285,7 +284,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             StatusContext.Progress("Loading Display List of Photos");
 
-            Items = new ObservableRangeCollection<PhotoListListItem>(listItems);
+            Items = new ObservableCollection<PhotoListListItem>(listItems);
 
             AllLoaded = !LoadRecentOnly;
 

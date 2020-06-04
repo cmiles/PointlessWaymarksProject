@@ -36,8 +36,8 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="SelectionMode" Value="Extended" />
-        <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
-        <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+        <Setter Property="VirtualizingPanel.ScrollUnit" Value="Item" />
         <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
     </Style>
     <Style x:Key="ContentListContentVersionIdWrapPanel" TargetType="WrapPanel">

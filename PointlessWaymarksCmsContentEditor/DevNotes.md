@@ -41,6 +41,12 @@
 
 ## Notes
 
+6/4/2020
+
+Switched the content lists over to 'Item' caching and scrolling - while the scrolling is not as nice as before the performance impact on Loading the Photo list was absurd - where before it would pause for ?1 minute or more? to rebind the ObservableCollection with 1000 or so entries now it loads in <10 seconds (which for the functionality of an 'all' list without paging seems worth it to me for the moment).
+
+Remove ImageSharp in favor of MagicScaler. With use of simple/minimal code MagicScaler is notably faster and I appreciate the switch to an Ms-Pl licensed library.
+
 6/3/2020
 
 Switched the main resizing over to MagicScaler.

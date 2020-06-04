@@ -91,8 +91,7 @@
             </GroupBox>
         </Grid>
         <GroupBox Grid.Row="1" Header="Photos" Style="{StaticResource UiComponentGroupBoxStyle}">
-            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     ItemsSource="{Binding Items}"
+            <ListBox ItemsSource="{Binding Items}"
                      SelectionChanged="Selector_OnSelectionChanged" Name="PhotoListBox"
                      Style="{StaticResource ContentListListBoxStyle}">
                 <ListBox.ItemTemplate>

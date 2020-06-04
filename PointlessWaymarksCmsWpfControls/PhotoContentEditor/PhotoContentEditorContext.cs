@@ -22,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
+using PhotoSauce.MagicScaler;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
@@ -36,9 +37,6 @@ using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Processing;
 using XmpCore;
 using Rational = MetadataExtractor.Rational;
 
@@ -334,18 +332,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
 
             await using var fileStream = new FileStream(SelectedFile.FullName, FileMode.Open, FileAccess.Read);
-
-            await using var inStream = fileStream;
             await using var outStream = new MemoryStream();
-            using var image = Image.Load(inStream, out IImageFormat format);
-            var originalWidth = image.Width;
-            var originalHeight = image.Height;
 
-            var factor = (decimal) 400 / originalWidth;
-
-            var clone = image.Clone(i => i.Resize((int) (originalWidth * factor), (int) (originalHeight * factor)));
-
-            clone.Save(outStream, format);
+            var settings = new ProcessImageSettings { Width = 200, JpegQuality = 72 };
+            MagicImageProcessor.ProcessImage(fileStream, outStream, settings);
 
             outStream.Position = 0;
 

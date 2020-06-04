@@ -52,7 +52,6 @@
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.10.3" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-unstable1162" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112.2" />
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0-preview.3.20214.6" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-preview.3.20214.6" />
