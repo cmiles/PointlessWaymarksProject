@@ -1,9 +1,9 @@
 ﻿## Todos
- - Investigate memory usage
  - Email Subscription page into core links, or better include in about (and rename?)?
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - Look at the SendInBlue API - because the program doesn't actually 'publish' (it just creates the files to publish) not aiming for full auto but do want a user triggered (button!) action to generate an email.
+ - Revisit the hyphens on the tag search page - I suspect it is a mistake to show these.
  - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
  - In Search it might be nice to have the content type on the line with date?
  - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
@@ -41,11 +41,19 @@
 
 ## Notes
 
+6/5/2020
+
+While saving a Pima County 1999 Mountain Parks report I found I needed to rotate an image - normally with a photo this is corrected before it hits this program since the current main photo source is Lightroom - however in this case because this was an extracted image from a pdf and this program is actually the quickest way for me to do that it was obvious that rotation in the UI would be a benefit - thankfully an easy change by combing MagicScaler and the recent change to the way the editor image/photo is displayed.
+
+Taking memory usage off the todo list - the UI changes plus the switch to MagicScaler seem to have at least improved the situation enough to let it go for now.
+
 6/4/2020
 
 Switched the content lists over to 'Item' caching and scrolling - while the scrolling is not as nice as before the performance impact on Loading the Photo list was absurd - where before it would pause for ?1 minute or more? to rebind the ObservableCollection with 1000 or so entries now it loads in <10 seconds (which for the functionality of an 'all' list without paging seems worth it to me for the moment).
 
 Remove ImageSharp in favor of MagicScaler. With use of simple/minimal code MagicScaler is notably faster and I appreciate the switch to an Ms-Pl licensed library.
+
+Add a more aggressive image clean up setting to better clear out old/erroneous images.
 
 6/3/2020
 

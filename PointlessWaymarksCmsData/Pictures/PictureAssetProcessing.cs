@@ -112,7 +112,7 @@ namespace PointlessWaymarksCmsData.Pictures
 
             var fileVariants = directoryInfo.GetFiles().Where(x => x.Name.StartsWith($"{baseFileName}--")).ToList();
 
-            var displayImageFile = fileVariants.SingleOrDefault(x => x.Name.Contains("--For-Display"));
+            var displayImageFile = fileVariants.FirstOrDefault(x => x.Name.Contains("--For-Display"));
 
             if (displayImageFile != null && displayImageFile.Exists)
                 toReturn.DisplayPicture = new PictureFile

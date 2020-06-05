@@ -55,13 +55,18 @@
                         <Grid.RowDefinitions>
                             <RowDefinition />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Image Source="{Binding SelectedFileFullPath, Converter={StaticResource ImageCache}}" />
+                        <Image Source="{Binding SelectedFileBitmapSource}" />
                         <TextBlock
                             Grid.Row="1"
                             HorizontalAlignment="Center"
                             Text="{Binding SelectedFile.FullName}"
                             TextWrapping="Wrap" />
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Command="{Binding RotateImageLeftCommand}">Rotate Left</Button>
+                            <Button Command="{Binding RotateImageRightCommand}">Rotate Right</Button>
+                        </StackPanel>
                     </Grid>
                 </Border>
             </Grid>

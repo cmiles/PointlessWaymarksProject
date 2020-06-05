@@ -121,7 +121,15 @@ namespace PointlessWaymarksCmsData.Pictures
                 $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}");
         }
 
-        public static void CleanSrcSetFilesInImageDirectory(ImageContent dbEntry, IProgress<string> progress)
+        /// <summary>
+        /// This deletes Image Directory jpeg files that match this programs generated sizing naming conventions. If deleteAll is true then all
+        /// files will be deleted - otherwise only files where the width does not match one of the generated widths will be
+        /// deleted.
+        /// </summary>
+        /// <param name="dbEntry"></param>
+        /// <param name="deleteAll"></param>
+        /// <param name="progress"></param>
+        public static void CleanDisplayAndSrcSetFilesInImageDirectory(ImageContent dbEntry, bool deleteAll, IProgress<string> progress)
         {
             var currentSizes = SrcSetSizeAndQualityList().Select(x => x.size).ToList();
 
@@ -130,14 +138,24 @@ namespace PointlessWaymarksCmsData.Pictures
             var currentFiles = PictureAssetProcessing.ProcessImageDirectory(dbEntry);
 
             foreach (var loopFiles in currentFiles.SrcsetImages)
-                if (!currentSizes.Contains(loopFiles.Width))
+                if (!currentSizes.Contains(loopFiles.Width) || deleteAll)
                 {
                     progress?.Report($"  Deleting {loopFiles.FileName}");
                     loopFiles.File.Delete();
                 }
+
+            currentFiles.DisplayPicture?.File?.Delete();
         }
 
-        public static void CleanSrcSetFilesInPhotoDirectory(PhotoContent dbEntry, IProgress<string> progress)
+        /// <summary>
+        /// This deletes Photo Directory jpeg files that match this programs generated sizing naming conventions. If deleteAll is true then all
+        /// files will be deleted - otherwise only files where the width does not match one of the generated widths will be
+        /// deleted.
+        /// </summary>
+        /// <param name="dbEntry"></param>
+        /// <param name="deleteAll"></param>
+        /// <param name="progress"></param>
+        public static void CleanDisplayAndSrcSetFilesInPhotoDirectory(PhotoContent dbEntry, bool deleteAll, IProgress<string> progress)
         {
             var currentSizes = SrcSetSizeAndQualityList().Select(x => x.size).ToList();
 
@@ -146,11 +164,13 @@ namespace PointlessWaymarksCmsData.Pictures
             var currentFiles = PictureAssetProcessing.ProcessPhotoDirectory(dbEntry);
 
             foreach (var loopFiles in currentFiles.SrcsetImages)
-                if (!currentSizes.Contains(loopFiles.Width))
+                if (!currentSizes.Contains(loopFiles.Width) || deleteAll)
                 {
                     progress?.Report($"  Deleting {loopFiles.FileName}");
                     loopFiles.File.Delete();
                 }
+
+            currentFiles.DisplayPicture?.File?.Delete();
         }
 
         public static (bool, string) CopyCleanResizeImage(ImageContent dbEntry, IProgress<string> progress)
@@ -166,7 +186,7 @@ namespace PointlessWaymarksCmsData.Pictures
 
             if (!syncCopyResults.Item1) return syncCopyResults;
 
-            CleanSrcSetFilesInImageDirectory(dbEntry, progress);
+            CleanDisplayAndSrcSetFilesInImageDirectory(dbEntry, true, progress);
 
             ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(imageDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);
@@ -174,7 +194,14 @@ namespace PointlessWaymarksCmsData.Pictures
             return (true, $"Reached end of Copy, Clean and Resize for {dbEntry.Title}");
         }
 
-        public static (bool, string) CopyCleanResizePhoto(PhotoContent dbEntry, IProgress<string> progress)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dbEntry"></param>
+        /// <param name="deleteAllExisting"></param>
+        /// <param name="progress"></param>
+        /// <returns></returns>
+        public static (bool, string) CopyCleanResizePhoto(PhotoContent dbEntry, bool deleteAllExisting, IProgress<string> progress)
         {
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
@@ -187,7 +214,7 @@ namespace PointlessWaymarksCmsData.Pictures
 
             if (!syncCopyResults.Item1) return syncCopyResults;
 
-            CleanSrcSetFilesInPhotoDirectory(dbEntry, progress);
+            CleanDisplayAndSrcSetFilesInPhotoDirectory(dbEntry, deleteAllExisting, progress);
 
             ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(photoDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);

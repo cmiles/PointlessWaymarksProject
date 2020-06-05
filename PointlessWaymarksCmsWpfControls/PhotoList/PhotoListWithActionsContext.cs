@@ -16,6 +16,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
+using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -36,6 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _photoCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
+        private Command _forcedResizeCommand;
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
         {
@@ -54,12 +56,46 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 StatusContext.RunBlockingTask(async () => await NewContentFromFiles(true)));
             ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
             RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
+            ForcedResizeCommand = new Command(() => StatusContext.RunBlockingTask(ForcedResize));
 
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
             ExtractNewLinksInSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        private async Task ForcedResize()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var totalCount = ListContext.SelectedItems.Count;
+            var currentLoop = 1;
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+            {
+                if(currentLoop % 10 == 0) StatusContext.Progress($"Cleaning Generated Images And Resizing {currentLoop} of {totalCount} - " +
+                                                                 $"{loopSelected.DbEntry.Title}"); 
+                PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, true, StatusContext.ProgressTracker());
+                currentLoop++;
+            }
+        }
+
+        public Command ForcedResizeCommand
+        {
+            get => _forcedResizeCommand;
+            set
+            {
+                if (Equals(value, _forcedResizeCommand)) return;
+                _forcedResizeCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public Command DeleteSelectedCommand

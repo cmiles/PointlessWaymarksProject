@@ -7,12 +7,15 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
+using PhotoSauce.MagicScaler;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
@@ -40,9 +43,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private FileInfo _initialImage;
         private Command _linkToClipboardCommand;
         private Command _resizeFileCommand;
+        private Command _rotateImageLeftCommand;
+        private Command _rotateImageRightCommand;
         private Command _saveAndGenerateHtmlCommand;
         private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
+        private BitmapSource _selectedFileBitmapSource;
         private string _selectedFileFullPath;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private StatusControlContext _statusContext;
@@ -173,6 +179,28 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
+        public Command RotateImageLeftCommand
+        {
+            get => _rotateImageLeftCommand;
+            set
+            {
+                if (Equals(value, _rotateImageLeftCommand)) return;
+                _rotateImageLeftCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command RotateImageRightCommand
+        {
+            get => _rotateImageRightCommand;
+            set
+            {
+                if (Equals(value, _rotateImageRightCommand)) return;
+                _rotateImageRightCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command SaveAndGenerateHtmlCommand
         {
             get => _saveAndGenerateHtmlCommand;
@@ -204,8 +232,18 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 _selectedFile = value;
                 OnPropertyChanged();
 
-                if (SelectedFile == null) return;
-                SelectedFileFullPath = SelectedFile.FullName;
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
+            }
+        }
+
+        public BitmapSource SelectedFileBitmapSource
+        {
+            get => _selectedFileBitmapSource;
+            set
+            {
+                if (Equals(value, _selectedFileBitmapSource)) return;
+                _selectedFileBitmapSource = value;
+                OnPropertyChanged();
             }
         }
 
@@ -354,7 +392,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
-            var linkString = PointlessWaymarksCmsData.CommonHtml.BracketCodeImages.ImageBracketCode(DbEntry);
+            var linkString = BracketCodeImages.ImageBracketCode(DbEntry);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -465,6 +503,31 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 {
                     UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {DbEntry.ContentId}
                 });
+        }
+
+        private async Task RotateImage(Orientation rotationType)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null)
+            {
+                StatusContext.ToastError("No File Selected?");
+                return;
+            }
+
+            SelectedFile.Refresh();
+
+            if (!SelectedFile.Exists)
+            {
+                StatusContext.ToastError("File doesn't appear to exist?");
+                return;
+            }
+
+            var rotate = new MagicScalerImageResizer();
+
+            rotate.Rotate(SelectedFile, rotationType);
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
         }
 
         public async Task SaveAndGenerateHtml()
@@ -601,6 +664,46 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             await SaveToDatabase();
         }
 
+        private async Task SelectedFileChanged()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null)
+            {
+                SelectedFileFullPath = string.Empty;
+                SelectedFileBitmapSource = ImageConstants.BlankImage;
+                return;
+            }
+
+            SelectedFile.Refresh();
+
+            if (!SelectedFile.Exists)
+            {
+                SelectedFileFullPath = SelectedFile.FullName;
+                SelectedFileBitmapSource = ImageConstants.BlankImage;
+                return;
+            }
+
+            await using var fileStream = new FileStream(SelectedFile.FullName, FileMode.Open, FileAccess.Read);
+            await using var outStream = new MemoryStream();
+
+            var settings = new ProcessImageSettings {Width = 450, JpegQuality = 72};
+            MagicImageProcessor.ProcessImage(fileStream, outStream, settings);
+
+            outStream.Position = 0;
+
+            var uiImage = new BitmapImage();
+            uiImage.BeginInit();
+            uiImage.CacheOption = BitmapCacheOption.OnLoad;
+            uiImage.StreamSource = outStream;
+            uiImage.EndInit();
+            uiImage.Freeze();
+
+            SelectedFileBitmapSource = uiImage;
+
+            SelectedFileFullPath = SelectedFile.FullName;
+        }
+
         public void SetupContextAndCommands(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
@@ -610,6 +713,10 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            RotateImageRightCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate90)));
+            RotateImageLeftCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate270)));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
                 LinkExtraction.ExtractNewAndShowLinkStreamEditors(ImageSourceNotes, StatusContext.ProgressTracker())));
             LinkToClipboardCommand = new Command(() => StatusContext.RunBlockingTask(LinkToClipboard));

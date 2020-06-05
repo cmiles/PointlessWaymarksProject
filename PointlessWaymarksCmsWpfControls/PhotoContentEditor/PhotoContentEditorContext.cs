@@ -9,8 +9,6 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using HtmlTableHelper;
 using JetBrains.Annotations;
@@ -38,7 +36,6 @@ using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 using XmpCore;
-using Rational = MetadataExtractor.Rational;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
@@ -61,9 +58,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private string _photoCreatedBy;
         private DateTime _photoCreatedOn;
         private Command _resizeFileCommand;
+        private Command _rotatePhotoLeftCommand;
+        private Command _rotatePhotoRightCommand;
         private Command _saveAndGenerateHtmlCommand;
         private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
+        private BitmapSource _selectedFileBitmapSource = ImageConstants.BlankImage;
         private string _selectedFileFullPath;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private string _shutterSpeed;
@@ -73,7 +73,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
         private Command _viewPhotoMetadataCommand;
-        private BitmapSource _selectedFileBitmapSource = ImageConstants.BlankImage;
 
 
         public PhotoContentEditorContext(StatusControlContext statusContext, bool skipInitialLoad)
@@ -276,6 +275,28 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public Command RotatePhotoLeftCommand
+        {
+            get => _rotatePhotoLeftCommand;
+            set
+            {
+                if (Equals(value, _rotatePhotoLeftCommand)) return;
+                _rotatePhotoLeftCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command RotatePhotoRightCommand
+        {
+            get => _rotatePhotoRightCommand;
+            set
+            {
+                if (Equals(value, _rotatePhotoRightCommand)) return;
+                _rotatePhotoRightCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command SaveAndGenerateHtmlCommand
         {
             get => _saveAndGenerateHtmlCommand;
@@ -309,46 +330,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
             }
-        }
-
-        private async Task SelectedFileChanged()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedFile == null)
-            {
-                SelectedFileFullPath = string.Empty;
-                SelectedFileBitmapSource = ImageConstants.BlankImage;
-                return;
-            }
-
-            SelectedFile.Refresh();
-
-            if (!SelectedFile.Exists)
-            {
-                SelectedFileFullPath = SelectedFile.FullName;
-                SelectedFileBitmapSource = ImageConstants.BlankImage;
-                return;
-            }
-
-            await using var fileStream = new FileStream(SelectedFile.FullName, FileMode.Open, FileAccess.Read);
-            await using var outStream = new MemoryStream();
-
-            var settings = new ProcessImageSettings { Width = 200, JpegQuality = 72 };
-            MagicImageProcessor.ProcessImage(fileStream, outStream, settings);
-
-            outStream.Position = 0;
-
-            var uiImage = new BitmapImage();
-            uiImage.BeginInit();
-            uiImage.CacheOption = BitmapCacheOption.OnLoad;
-            uiImage.StreamSource = outStream;
-            uiImage.EndInit();
-            uiImage.Freeze();
-
-            SelectedFileBitmapSource = uiImage;
-
-            SelectedFileFullPath = SelectedFile.FullName;
         }
 
         public BitmapSource SelectedFileBitmapSource
@@ -666,13 +647,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             var shutterValue = new Rational();
             if (exifSubIfDirectory?.TryGetRational(37377, out shutterValue) ?? false)
-            {
                 ShutterSpeed = ShutterSpeedToHumanReadableString(shutterValue);
-            }
             else
-            {
                 ShutterSpeed = string.Empty;
-            }
 
             //The XMP data - vs the IPTC - will hold the full Title for a very long title (the IPTC will be truncated) - 
             //for a 'from Lightroom with no other concerns' export Title makes the most sense, but there are other possible
@@ -757,11 +734,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             TagEdit.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ?? string.Empty;
         }
 
-        public static string ShutterSpeedToHumanReadableString(Rational rational)
-        {
-            return ShutterSpeedToHumanReadableString((Rational?) rational);
-        }
-
         private async Task ResizePhoto()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -781,6 +753,31 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
 
             await WriteSelectedFileToLocalSite(true);
+        }
+
+        private async Task RotateImage(Orientation rotationType)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null)
+            {
+                StatusContext.ToastError("No File Selected?");
+                return;
+            }
+
+            SelectedFile.Refresh();
+
+            if (!SelectedFile.Exists)
+            {
+                StatusContext.ToastError("File doesn't appear to exist?");
+                return;
+            }
+
+            var rotate = new MagicScalerImageResizer();
+
+            rotate.Rotate(SelectedFile, rotationType);
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
         }
 
         public async Task SaveAndGenerateHtml()
@@ -926,6 +923,46 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             await SaveToDatabase();
         }
 
+        private async Task SelectedFileChanged()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null)
+            {
+                SelectedFileFullPath = string.Empty;
+                SelectedFileBitmapSource = ImageConstants.BlankImage;
+                return;
+            }
+
+            SelectedFile.Refresh();
+
+            if (!SelectedFile.Exists)
+            {
+                SelectedFileFullPath = SelectedFile.FullName;
+                SelectedFileBitmapSource = ImageConstants.BlankImage;
+                return;
+            }
+
+            await using var fileStream = new FileStream(SelectedFile.FullName, FileMode.Open, FileAccess.Read);
+            await using var outStream = new MemoryStream();
+
+            var settings = new ProcessImageSettings {Width = 450, JpegQuality = 72};
+            MagicImageProcessor.ProcessImage(fileStream, outStream, settings);
+
+            outStream.Position = 0;
+
+            var uiImage = new BitmapImage();
+            uiImage.BeginInit();
+            uiImage.CacheOption = BitmapCacheOption.OnLoad;
+            uiImage.StreamSource = outStream;
+            uiImage.EndInit();
+            uiImage.Freeze();
+
+            SelectedFileBitmapSource = uiImage;
+
+            SelectedFileFullPath = SelectedFile.FullName;
+        }
+
         public void SetupContextAndCommands(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
@@ -938,6 +975,15 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            RotatePhotoRightCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate90)));
+            RotatePhotoLeftCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate270)));
+        }
+
+        public static string ShutterSpeedToHumanReadableString(Rational rational)
+        {
+            return ShutterSpeedToHumanReadableString((Rational?) rational);
         }
 
         public static string ShutterSpeedToHumanReadableString(Rational? toProcess)
@@ -1073,6 +1119,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 SelectedFile.CopyTo(originalFileInTargetDirectoryFullName);
                 sourceImage.Refresh();
             }
+
+            PictureResizing.CleanDisplayAndSrcSetFilesInPhotoDirectory(DbEntry, true, StatusContext.ProgressTracker());
 
             PictureResizing.ResizeForDisplayAndSrcset(sourceImage, forcedResizeOverwriteExistingFiles,
                 StatusContext.ProgressTracker());

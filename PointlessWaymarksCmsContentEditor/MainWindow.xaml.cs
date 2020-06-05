@@ -515,7 +515,7 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 StatusContext.Progress($"Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var fileCheck = PictureResizing.CopyCleanResizePhoto(loopItem, StatusContext.ProgressTracker());
+                var fileCheck = PictureResizing.CopyCleanResizePhoto(loopItem, true, StatusContext.ProgressTracker());
 
                 if (!fileCheck.Item1)
                     await StatusContext.ShowMessage("File Error",

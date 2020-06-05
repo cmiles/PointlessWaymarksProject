@@ -44,6 +44,7 @@
                         Content="_Open Selected In Browser" />
                 <Button Command="{Binding GeneratePhotoListCommand}" Style="{StaticResource ActionPanelButton}">Generate Photo List</Button>
                 <Button Command="{Binding OpenUrlForPhotoListCommand}" Style="{StaticResource ActionPanelButton}">Open List in Browser</Button>
+                <Button Command="{Binding ForcedResizeCommand}" Style="{StaticResource ActionPanelButton}">Clean and Resize</Button>
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
                 <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButton}">View History</Button>
                 <Button Command="{Binding ExtractNewLinksInSelectedCommand}" Style="{StaticResource ActionPanelButton}">Extract Links</Button>

@@ -65,6 +65,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Image Source="{Binding SelectedFileBitmapSource}" />
                         <TextBlock
@@ -72,6 +73,10 @@
                             HorizontalAlignment="Center"
                             Text="{Binding SelectedFile.FullName}"
                             TextWrapping="Wrap" />
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Command="{Binding RotatePhotoLeftCommand}">Rotate Left</Button>
+                            <Button Command="{Binding RotatePhotoRightCommand}">Rotate Right</Button>
+                        </StackPanel>
                     </Grid>
                 </Border>
                 <Button
