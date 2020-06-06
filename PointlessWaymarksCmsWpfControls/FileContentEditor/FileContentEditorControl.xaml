@@ -52,7 +52,7 @@
                                 DataContext="{Binding TitleSummarySlugFolder}" Margin="0,4,0,0" />
                             <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
                                 DataContext="{Binding ShowInSiteFeed}"
-                                Style="{StaticResource ShowInSiteFeedInPanelStyle}" />
+                                Style="{StaticResource ShowInSiteFeedPanelStyle}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
                                                           Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl

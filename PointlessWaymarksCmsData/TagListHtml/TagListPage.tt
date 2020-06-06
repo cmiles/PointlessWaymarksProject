@@ -33,9 +33,10 @@
       // Loop through all list items, and hide those who don't match the search query
       for (i = 0; i < contentDivs.length; i++) {
         loopDiv = contentDivs[i];
-	    divDataText = loopDiv.getAttribute('data-tagname').toUpperCase();
+	    divTagName = loopDiv.getAttribute('data-tagname').toUpperCase();
+	    divTagSlug = loopDiv.getAttribute('data-tagslug').toUpperCase();
 
-        if (divDataText.indexOf(filterText) > -1) {
+        if (divTagName.indexOf(filterText) > -1 || divTagSlug.indexOf(filterText) > -1 ) {
 		    loopDiv.style.display = "";
         } else {
 		    loopDiv.style.display = "none";

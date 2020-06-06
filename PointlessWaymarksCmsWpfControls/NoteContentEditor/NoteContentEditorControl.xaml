@@ -69,7 +69,7 @@
                             </StackPanel>
                             <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
                                 DataContext="{Binding ShowInSiteFeed}"
-                                Style="{StaticResource ShowInSiteFeedInPanelStyle}" />
+                                Style="{StaticResource ShowInSiteFeedPanelStyle}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
                                                           Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl

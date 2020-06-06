@@ -23,6 +23,7 @@ using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
+using PointlessWaymarksCmsWpfControls.ShowInSearchEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -50,6 +51,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private FileInfo _selectedFile;
         private BitmapSource _selectedFileBitmapSource;
         private string _selectedFileFullPath;
+        private ShowInSearchEditorContext _showInSearch;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
@@ -258,6 +260,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
+        public ShowInSearchEditorContext ShowInSearch
+        {
+            get => _showInSearch;
+            set
+            {
+                if (Equals(value, _showInSearch)) return;
+                _showInSearch = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ShowInMainSiteFeedEditorContext ShowInSiteFeed
         {
             get => _showInSiteFeed;
@@ -337,6 +350,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                          UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
                      StringHelper.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
                      StringHelper.AreEqual(DbEntry.ImageSourceNotes, ImageSourceNotes) &&
+                     DbEntry.ShowInSearch == ShowInSearch.ShowInSearch &&
                      DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges);
         }
 
@@ -364,7 +378,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             if (!FileTypeHelpers.ImageFileTypeIsSupported(newFile))
             {
-                StatusContext.ToastError("Only jpegs are supported...");
+                StatusContext.ToastError("Only jpeg files are supported...");
                 return;
             }
 
@@ -414,6 +428,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
             ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, false);
+            ShowInSearch = new ShowInSearchEditorContext(StatusContext, DbEntry, true);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
@@ -449,6 +464,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 _initialImage = null;
             }
         }
+
 
         private DirectoryInfo LocalContentDirectory(UserSettings settings)
         {
@@ -580,6 +596,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
+            newEntry.ShowInSearch = ShowInSearch.ShowInSearch;
             newEntry.Tags = TagEdit.Tags;
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.AltText = AltText;

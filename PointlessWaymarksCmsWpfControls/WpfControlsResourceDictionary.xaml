@@ -3,7 +3,8 @@
                     xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
                     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
                     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
-                    xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer">
+                    xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
+                    xmlns:showInSearchEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInSearchEditor">
     <Style x:Key="ActionPanelButton" TargetType="Button">
         <Setter Property="Margin" Value="4" />
         <Setter Property="Height" Value="24" />
@@ -61,8 +62,12 @@
         <Setter Property="VerticalScrollBarVisibility" Value="Visible" />
         <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
     </Style>
-    <Style x:Key="ShowInSiteFeedInPanelStyle"
+    <Style x:Key="ShowInSiteFeedPanelStyle"
            TargetType="showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl">
+        <Setter Property="Margin" Value="4,8,0,0" />
+    </Style>
+    <Style x:Key="ShowInSearchPanelStyle"
+           TargetType="showInSearchEditor:ShowInSearchEditorControl">
         <Setter Property="Margin" Value="4,8,0,0" />
     </Style>
     <Style x:Key="TagsEditorInPanelStyle"

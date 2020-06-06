@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using HtmlTags;
 using PointlessWaymarksCmsData.Models;
 
@@ -17,8 +16,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             progress?.Report("Searching for Post Codes...");
 
-            var guidList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
-                .Distinct().ToList();
+            var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
+                .Select(x => x.contentGuid).Distinct().ToList();
 
             var returnList = new List<PostContent>();
 
@@ -50,7 +49,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             progress?.Report("Searching for Post Codes...");
 
-            var resultList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken);
+            var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
 
             if (!resultList.Any()) return toProcess;
 

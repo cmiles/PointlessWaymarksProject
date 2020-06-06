@@ -13,6 +13,7 @@
              xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
              xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
              xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
+             xmlns:showInSearchEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInSearchEditor"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance local:ImageContentEditorContext}">
@@ -80,7 +81,10 @@
                                 DataContext="{Binding TitleSummarySlugFolder}" />
                             <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
                                 DataContext="{Binding ShowInSiteFeed}"
-                                Style="{StaticResource ShowInSiteFeedInPanelStyle}" />
+                                Style="{StaticResource ShowInSiteFeedPanelStyle}" />
+                            <showInSearchEditor:ShowInSearchEditorControl
+                                DataContext="{Binding ShowInSearch}"
+                                Style="{StaticResource ShowInSearchPanelStyle}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
                                                           Style="{StaticResource TagsEditorInPanelStyle}" />
                             <StackPanel Orientation="Vertical" Margin="0,4,0,0">

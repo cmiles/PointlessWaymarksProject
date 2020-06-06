@@ -38,6 +38,7 @@ namespace PointlessWaymarksCmsData
         //public DbSet<TrailSegment> TrailSegments { get; set; }
 
         public DbSet<TagExclusion> TagExclusions { get; set; }
+        public DbSet<MenuLink> MenuLinks { get; set; }
 
         public DbSet<RelatedContent> RelatedContents { get; set; }
 

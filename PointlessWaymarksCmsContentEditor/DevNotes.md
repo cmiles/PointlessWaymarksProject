@@ -1,21 +1,20 @@
 ﻿## Todos
- - Email Subscription page into core links, or better include in about (and rename?)?
+ - Menu Links feature
+    - Editor
+    - Generate Html
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - Look at the SendInBlue API - because the program doesn't actually 'publish' (it just creates the files to publish) not aiming for full auto but do want a user triggered (button!) action to generate an email.
- - Revisit the hyphens on the tag search page - I suspect it is a mistake to show these.
  - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
  - In Search it might be nice to have the content type on the line with date?
- - Look at Sendinblue or other email integration - with RSS dead for many people and a lot of email comments from HikeLemmon seems worth doing something here (maybe just a matter of creating email output to copy and paste at the start? https://github.com/sendinblue/APIv3-csharp-library)
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
+ - Folder in editor should help you with existing choices
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
  - Is everything getting HMTL Encoded - are there spots with leaks? (tests?)
  - RSS - Does title need CDATA to be completely safe? Or?
- - Basic Style for the Html Table output - maybe inline Pure or another more minimal framework?
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
- - Db Migrations - how to both do .EnsureCreated and work with FluentMigrator - I think the 2nd run is the trick, first run easy enough to detect there is not a db file - but second run how to get Fluent Migrator to know there is nothing to do? This stays on the list for now but I am wondering hoping that a simple schema check guard will be enough here - not maybe the full intent of FluentMigrations but this could do the trick maybe?
 
 ## Ideas
  - Auto-validate all html output?
@@ -41,11 +40,21 @@
 
 ## Notes
 
+6/6/2020
+
+Setting up for a MenuLinks table so that the current 'core links' is database driven. This should be a nice step towards being able to quickly generate other sites.
+
+The emerging most popular use for images is to show content in files esp. via the pdf image extraction - this is great/as intended but an aspect I didn't anticipate is that many of these images essentially create 'duplicates' in the search results that are not helpful and take away from finding the file/better content (the file and the image are likely to have the same thumbnail...) - added a ShowInSearch column to the Image table to be able to control this. Most interesting issue with adding this was that an image excluded from search could have a unique tag - so tag pages are generated for all tags but the tag search page only gets tags from pages included in search.
+
 6/5/2020
 
 While saving a Pima County 1999 Mountain Parks report I found I needed to rotate an image - normally with a photo this is corrected before it hits this program since the current main photo source is Lightroom - however in this case because this was an extracted image from a pdf and this program is actually the quickest way for me to do that it was obvious that rotation in the UI would be a benefit - thankfully an easy change by combing MagicScaler and the recent change to the way the editor image/photo is displayed.
 
 Taking memory usage off the todo list - the UI changes plus the switch to MagicScaler seem to have at least improved the situation enough to let it go for now.
+
+Via a little string manipulation to replace - with spaces - this could eventually need data structure changes but for now this works for the display of tags.
+
+Bracket Codes extended to support 'Special Pages' like {{index}}, {{indexrss}}, {{searchpage}}, etc... In the process put some tests into place on the Bracket Code processing and improved that code! This is partly for general use and partly for the upcoming MenuLinks table where bracket codes will be valid and as a default setup using the bracket codes creates one more spot that where changes to this code or a site should be less likely to break links.
 
 6/4/2020
 

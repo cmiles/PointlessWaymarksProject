@@ -6,26 +6,25 @@ using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
-namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
+namespace PointlessWaymarksCmsWpfControls.ShowInSearchEditor
 {
-    public class ShowInMainSiteFeedEditorContext : INotifyPropertyChanged
+    public class ShowInSearchEditorContext : INotifyPropertyChanged
 
     {
-        private IShowInSiteFeed _dbEntry;
+        private IShowInSearch _dbEntry;
         private readonly bool _defaultSetting;
-        private bool _showInMainSite;
-        private bool _showInMainSiteHasChanges;
+        private bool _showInSearch;
+        private bool _showInSearchHasChanges;
         private StatusControlContext _statusContext;
 
-        public ShowInMainSiteFeedEditorContext(StatusControlContext statusContext, IShowInSiteFeed dbEntry,
-            bool defaultSetting)
+        public ShowInSearchEditorContext(StatusControlContext statusContext, IShowInSearch dbEntry, bool defaultSetting)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             _defaultSetting = defaultSetting;
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
-        public IShowInSiteFeed DbEntry
+        public IShowInSearch DbEntry
         {
             get => _dbEntry;
             set
@@ -36,24 +35,24 @@ namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
             }
         }
 
-        public bool ShowInMainSite
+        public bool ShowInSearch
         {
-            get => _showInMainSite;
+            get => _showInSearch;
             set
             {
-                if (value == _showInMainSite) return;
-                _showInMainSite = value;
+                if (value == _showInSearch) return;
+                _showInSearch = value;
                 OnPropertyChanged();
             }
         }
 
-        public bool ShowInMainSiteHasChanges
+        public bool ShowInSearchHasChanges
         {
-            get => _showInMainSiteHasChanges;
+            get => _showInSearchHasChanges;
             set
             {
-                if (value == _showInMainSiteHasChanges) return;
-                _showInMainSiteHasChanges = value;
+                if (value == _showInSearchHasChanges) return;
+                _showInSearchHasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -73,15 +72,15 @@ namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
 
         private void CheckForChanges()
         {
-            ShowInMainSiteHasChanges = ShowInMainSite != (DbEntry?.ShowInMainSiteFeed ?? false);
+            ShowInSearchHasChanges = ShowInSearch != (DbEntry?.ShowInSearch ?? false);
         }
 
-        private async Task LoadData(IShowInSiteFeed toLoad)
+        private async Task LoadData(IShowInSearch toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DbEntry = toLoad;
-            ShowInMainSite = toLoad?.ShowInMainSiteFeed ?? _defaultSetting;
+            ShowInSearch = toLoad?.ShowInSearch ?? _defaultSetting;
         }
 
         [NotifyPropertyChangedInvocator]

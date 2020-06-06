@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsData.SearchListHtml
                 var db = Db.Context().Result;
                 var fileContent = db.FileContents.Cast<object>().ToList();
                 var photoContent = db.PhotoContents.Cast<object>().ToList();
-                var imageContent = db.ImageContents.Cast<object>().ToList();
+                var imageContent = db.ImageContents.Where(x => x.ShowInSearch).Cast<object>().ToList();
                 var postContent = db.PostContents.Cast<object>().ToList();
                 var noteContent = db.NoteContents.Cast<object>().ToList();
 
@@ -56,7 +56,7 @@ namespace PointlessWaymarksCmsData.SearchListHtml
             List<object> ContentList()
             {
                 var db = Db.Context().Result;
-                return db.ImageContents.OrderBy(x => x.Title).Cast<object>().ToList();
+                return db.ImageContents.Where(x => x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
             }
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteImageListFile();
@@ -138,16 +138,21 @@ namespace PointlessWaymarksCmsData.SearchListHtml
         public static void WriteTagListAndTagPages(IProgress<string> progress)
         {
             progress?.Report("Tag Pages - Getting Tag Data");
-            var tags = Db.TagAndContentList(progress).Result;
+            var tags = Db.TagAndContentList(false, progress).Result;
 
             var allTags = new TagListPage {ContentFunction = () => tags};
 
             progress?.Report("Tag Pages - Writing All Tag Data");
             allTags.WriteLocalHtml();
 
+            //Tags is reset - above for tag search we don't include tags from pages that are hidden from search - but to
+            //ensure all tags have a page we generate pages from all tags (if an image excluded from search had a unique
+            //tag we need a page for the links on that page, excluded from search does not mean 'unreachable'...)
+            var pageTags = Db.TagAndContentList(true, progress).Result;
+
             var loopCount = 0;
 
-            foreach (var loopTags in tags)
+            foreach (var loopTags in pageTags)
             {
                 loopCount++;
 

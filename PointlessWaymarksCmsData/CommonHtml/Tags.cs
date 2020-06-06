@@ -455,8 +455,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
             {
                 var tagLinkContainer = new DivTag().AddClass("tags-detail-link-container");
                 var tagLink =
-                    new LinkTag(loopTag, UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag)).AddClass(
-                        "tag-detail-link");
+                    new LinkTag(loopTag.Replace("-", " "), UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag))
+                        .AddClass("tag-detail-link");
                 tagLinkContainer.Children.Add(tagLink);
                 tagsContainer.Children.Add(tagLinkContainer);
             }

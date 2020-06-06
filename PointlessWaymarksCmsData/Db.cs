@@ -142,7 +142,7 @@ namespace PointlessWaymarksCmsData
 
             if (removeExcludedTags)
             {
-                var db = Db.Context().Result;
+                var db = Context().Result;
                 excludedTags = db.TagExclusions.ToList().Select(x => SlugUtility.Create(true, x.Tag)).ToList();
             }
 
@@ -199,7 +199,7 @@ namespace PointlessWaymarksCmsData
         }
 
         public static async Task<List<(string tag, List<object> contentObjects)>> TagAndContentList(
-            IProgress<string> progress)
+            bool includeFromPagesExcludedFromSearch, IProgress<string> progress)
         {
             var db = await Context();
 
@@ -215,7 +215,10 @@ namespace PointlessWaymarksCmsData
                 progress);
 
             progress?.Report("Process Image Content Tags");
-            ParseToTagAndContentList(returnList, (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList(),
+            ParseToTagAndContentList(returnList,
+                includeFromPagesExcludedFromSearch
+                    ? (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList()
+                    : (await db.ImageContents.Where(x => x.ShowInSearch).ToListAsync()).Cast<ITag>().ToList(),
                 progress);
 
             progress?.Report("Process Post Content Tags");

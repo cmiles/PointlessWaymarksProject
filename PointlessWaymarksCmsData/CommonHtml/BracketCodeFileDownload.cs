@@ -16,7 +16,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
 
-            var guidList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
+            var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
                 .Distinct().ToList();
 
             var resultList = new List<FileContent>();
@@ -45,7 +45,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
-            var resultList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken);
+            var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
 
             var context = Db.Context().Result;
 

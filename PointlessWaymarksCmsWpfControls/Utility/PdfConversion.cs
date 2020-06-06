@@ -166,6 +166,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 }
 
                 editor.ImageEditor.TitleSummarySlugFolder.TitleToSlug();
+                editor.ImageEditor.ShowInSearch.ShowInSearch = false;
 
                 editor.ImageEditor.TitleSummarySlugFolder.Folder = loopSelected.content.Folder;
                 editor.ImageEditor.TagEdit.Tags = loopSelected.content.Tags;

@@ -22,7 +22,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             progress?.Report("Searching for Note Codes...");
 
-            var guidList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
+            var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
                 .Distinct().ToList();
 
             var returnList = new List<NoteContent>();
@@ -50,7 +50,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             progress?.Report("Searching for Note Codes...");
 
-            var resultList = BracketCodeCommon.BracketCodeMatches(toProcess, BracketCodeToken);
+            var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
 
             if (!resultList.Any()) return toProcess;
 

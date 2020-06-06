@@ -8,39 +8,43 @@ namespace PointlessWaymarksCmsData.CommonHtml
     public static class BracketCodeCommon
     {
         /// <summary>
-        /// Returns Bracket Code Information from a string
+        ///     Returns Bracket Code Information from a string
         /// </summary>
         /// <param name="toProcess"></param>
-        /// <param name="bracketcodeToken"></param>
+        /// <param name="bracketCodeToken"></param>
         /// <returns></returns>
-        public static List<(string bracketCodeText, Guid contentGuid, string displayText)> BracketCodeMatches(
-            string toProcess, string bracketcodeToken)
+        public static List<(string bracketCodeText, Guid contentGuid, string displayText)> ContentBracketCodeMatches(
+            string toProcess, string bracketCodeToken)
         {
             var resultList = new List<(string bracketCodeText, Guid contentGuid, string displayText)>();
 
             if (string.IsNullOrWhiteSpace(toProcess)) return resultList;
 
-            var withTextMatch = new Regex($@"{{{{{bracketcodeToken} (?<siteGuid>[\dA-Za-z-]*);[^}}]*}}}}",
-                RegexOptions.Singleline);
-            var withTextMatchResult = withTextMatch.Match(toProcess);
-            while (withTextMatchResult.Success)
+            var withTextMatch =
+                new Regex(
+                    $@"{{{{{bracketCodeToken} (?<siteGuid>[\dA-Za-z-]*);\s*[Tt]ext (?<displayText>[^}};]*);[^}}]*}}}}",
+                    RegexOptions.Singleline);
+            var noTextMatch = withTextMatch.Match(toProcess);
+            while (noTextMatch.Success)
             {
-                Guid.TryParse(withTextMatchResult.Groups["siteGuid"].Value, out Guid parsedContentId);
-                resultList.Add((withTextMatchResult.Value, parsedContentId,
-                    withTextMatchResult.Groups["displayText"].Value));
-                withTextMatchResult = withTextMatchResult.NextMatch();
+                Guid.TryParse(noTextMatch.Groups["siteGuid"].Value, out var parsedContentId);
+                resultList.Add((noTextMatch.Value, parsedContentId, noTextMatch.Groups["displayText"].Value));
+                noTextMatch = noTextMatch.NextMatch();
             }
 
-            var regexObj =
-                new Regex(
-                    $@"{{{{{bracketcodeToken} (?<siteGuid>[\dA-Za-z-]*);\s*text (?<displayText>[^}};]*);[^}}]*}}}}",
-                    RegexOptions.Singleline);
-            var matchResult = regexObj.Match(toProcess);
-            while (matchResult.Success)
+            //Remove the more specific pattern matches before processing the less specific matches, 
+            //as currently written there are patterns that can match both.
+            foreach (var loopResultList in resultList)
+                toProcess = toProcess.Replace(loopResultList.bracketCodeText, string.Empty);
+
+            var regexObj = new Regex($@"{{{{{bracketCodeToken} (?<siteGuid>[\dA-Za-z-]*);[^}}]*}}}}",
+                RegexOptions.Singleline);
+            var textMatch = regexObj.Match(toProcess);
+            while (textMatch.Success)
             {
-                Guid.TryParse(withTextMatchResult.Groups["siteGuid"].Value, out Guid parsedContentId);
-                resultList.Add((matchResult.Value, parsedContentId, string.Empty));
-                matchResult = matchResult.NextMatch();
+                Guid.TryParse(textMatch.Groups["siteGuid"].Value, out var parsedContentId);
+                resultList.Add((textMatch.Value, parsedContentId, string.Empty));
+                textMatch = textMatch.NextMatch();
             }
 
             return resultList;
@@ -77,6 +81,18 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return markdownOut;
         }
 
+        public static string ProcessCodesForEmail(string input, IProgress<string> progress)
+        {
+            input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
+            input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
+            input = BracketCodeImages.ImageCodeProcessForEmail(input, progress);
+            input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
+            input = BracketCodePhotos.PhotoCodeProcessForEmail(input, progress);
+            input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+
+            return input;
+        }
+
         public static string ProcessCodesForLocalDisplay(string input, IProgress<string> progress)
         {
             input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
@@ -89,16 +105,43 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return input;
         }
 
-        public static string ProcessCodesForEmail(string input, IProgress<string> progress)
+        /// <summary>
+        ///     Returns Bracket Code Information from a string
+        /// </summary>
+        /// <param name="toProcess"></param>
+        /// <param name="bracketCodeToken"></param>
+        /// <returns></returns>
+        public static List<(string bracketCodeText, string displayText)> SpecialPageBracketCodeMatches(string toProcess,
+            string bracketCodeToken)
         {
-            input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
-            input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
-            input = BracketCodeImages.ImageCodeProcessForEmail(input, progress);
-            input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
-            input = BracketCodePhotos.PhotoCodeProcessForEmail(input, progress);
-            input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+            var resultList = new List<(string bracketCodeText, string displayText)>();
 
-            return input;
+            if (string.IsNullOrWhiteSpace(toProcess)) return resultList;
+
+            var withTextMatch = new Regex($@"{{{{{bracketCodeToken};\s*[Tt]ext (?<displayText>[^}};]*);[^}}]*}}}}",
+                RegexOptions.Singleline);
+            var noTextMatch = withTextMatch.Match(toProcess);
+            while (noTextMatch.Success)
+            {
+                resultList.Add((noTextMatch.Value, noTextMatch.Groups["displayText"].Value));
+                noTextMatch = noTextMatch.NextMatch();
+            }
+
+            //Remove the more specific pattern matches before processing the less specific matches, 
+            //as currently written there are patterns that can match both.
+            foreach (var loopResultList in resultList)
+                toProcess = toProcess.Replace(loopResultList.bracketCodeText, string.Empty);
+
+            var regexObj = new Regex($@"{{{{{bracketCodeToken};}}}}", RegexOptions.Singleline);
+            var textMatch = regexObj.Match(toProcess);
+            while (textMatch.Success)
+            {
+                Guid.TryParse(textMatch.Groups["siteGuid"].Value, out var parsedContentId);
+                resultList.Add((textMatch.Value, string.Empty));
+                textMatch = textMatch.NextMatch();
+            }
+
+            return resultList;
         }
     }
 }

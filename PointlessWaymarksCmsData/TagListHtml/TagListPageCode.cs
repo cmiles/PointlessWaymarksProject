@@ -21,10 +21,13 @@ namespace PointlessWaymarksCmsData.TagListHtml
             foreach (var loopTagGroup in toProcess)
             {
                 var contentContainer = new DivTag().AddClass("tag-list-item");
-                contentContainer.Data("tagname", loopTagGroup.tagName);
+                contentContainer.Data("tagname", loopTagGroup.tagName.Replace("-", " "));
+                contentContainer.Data("tagslug", loopTagGroup.tagName);
 
-                var contentLink = new LinkTag($"{loopTagGroup.tagName} ({loopTagGroup.tagCotentEntries.Count})",
-                    UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTagGroup.tagName)).AddClass("tag-list-link");
+                var contentLink =
+                    new LinkTag($"{loopTagGroup.tagName.Replace("-", " ")} ({loopTagGroup.tagCotentEntries.Count})",
+                            UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTagGroup.tagName))
+                        .AddClass("tag-list-link");
 
                 contentContainer.Children.Add(contentLink);
                 tagListContainer.Children.Add(contentContainer);

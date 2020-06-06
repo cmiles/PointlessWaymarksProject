@@ -26,33 +26,32 @@ namespace PointlessWaymarksCmsData.TagListHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\n");
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title" +
                     ">Tag List</title>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, init" +
                     "ial-scale=1.0\">\r\n\r\n    ");
             
-            #line 11 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
+            #line 12 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 12 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
+            #line 13 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n<body>\r\n    ");
             
-            #line 15 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 16 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
+            #line 17 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
@@ -61,21 +60,21 @@ namespace PointlessWaymarksCmsData.TagListHtml
                     "rch-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Search Tag" +
                     "s...\">\r\n    </div>\r\n    ");
             
-            #line 20 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
+            #line 21 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(TagList()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 21 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
+            #line 22 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 22 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
@@ -93,9 +92,10 @@ namespace PointlessWaymarksCmsData.TagListHtml
       // Loop through all list items, and hide those who don't match the search query
       for (i = 0; i < contentDivs.length; i++) {
         loopDiv = contentDivs[i];
-	    divDataText = loopDiv.getAttribute('data-tagname').toUpperCase();
+	    divTagName = loopDiv.getAttribute('data-tagname').toUpperCase();
+	    divTagSlug = loopDiv.getAttribute('data-tagslug').toUpperCase();
 
-        if (divDataText.indexOf(filterText) > -1) {
+        if (divTagName.indexOf(filterText) > -1 || divTagSlug.indexOf(filterText) > -1 ) {
 		    loopDiv.style.display = """";
         } else {
 		    loopDiv.style.display = ""none"";
