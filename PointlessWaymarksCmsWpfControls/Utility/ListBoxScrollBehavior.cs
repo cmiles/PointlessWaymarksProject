@@ -8,10 +8,10 @@ using System.Windows.Controls;
 namespace PointlessWaymarksCmsWpfControls.Utility
 {
     //Source: https://stackoverflow.com/questions/2006729/how-can-i-have-a-listbox-auto-scroll-when-a-new-item-is-added
-    public class ListBoxBehavior
+    public class ListBoxScrollBehavior
     {
         public static readonly DependencyProperty ScrollOnNewItemProperty =
-            DependencyProperty.RegisterAttached("ScrollOnNewItem", typeof(bool), typeof(ListBoxBehavior),
+            DependencyProperty.RegisterAttached("ScrollOnNewItem", typeof(bool), typeof(ListBoxScrollBehavior),
                 new UIPropertyMetadata(false, OnScrollOnNewItemChanged));
 
         private static readonly Dictionary<ListBox, Capture> Associations = new Dictionary<ListBox, Capture>();
@@ -32,8 +32,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         private static void ListBox_Loaded(object sender, RoutedEventArgs e)
         {
             var listBox = (ListBox) sender;
-            var incc = listBox.Items as INotifyCollectionChanged;
-            if (incc == null) return;
+            var collectionChangeNotification = listBox.Items as INotifyCollectionChanged;
+            if (collectionChangeNotification == null) return;
             listBox.Loaded -= ListBox_Loaded;
             Associations[listBox] = new Capture(listBox);
         }
@@ -87,10 +87,15 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 if (incc != null) incc.CollectionChanged += incc_CollectionChanged;
             }
 
+            public void Dispose()
+            {
+                if (incc != null)
+                    incc.CollectionChanged -= incc_CollectionChanged;
+            }
+
             private void incc_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
-                {
                     try
                     {
                         listBox.ScrollIntoView(e.NewItems[0]);
@@ -100,13 +105,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     {
                         Console.WriteLine(exception);
                     }
-                }
-            }
-
-            public void Dispose()
-            {
-                if (incc != null)
-                    incc.CollectionChanged -= incc_CollectionChanged;
             }
         }
     }

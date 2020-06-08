@@ -7,13 +7,14 @@ namespace PointlessWaymarksCmsData.Migrations
     {
         public override void Down()
         {
-            Delete.Table("MenuLinks");
+            Delete.Column("ShowInSearch").FromTable("ImageContents");
         }
 
         public override void Up()
         {
             if (!Schema.Table("ImageContents").Column("ShowInSearch").Exists())
-                Alter.Table("ImageContents").AddColumn("ShowInSearch").AsBoolean().SetExistingRowsTo(true).NotNullable();
+                Alter.Table("ImageContents").AddColumn("ShowInSearch").AsBoolean().SetExistingRowsTo(true)
+                    .NotNullable();
 
             if (!Schema.Table("HistoricImageContents").Column("ShowInSearch").Exists())
                 Alter.Table("HistoricImageContents").AddColumn("ShowInSearch").AsBoolean().SetExistingRowsTo(true)

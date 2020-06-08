@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PointlessWaymarksCmsWpfControls.HelpDisplay
+﻿namespace PointlessWaymarksCmsWpfControls.HelpDisplay
 {
     public static class SoftwareUsedHelpMarkdown
     {
@@ -32,6 +28,7 @@ namespace PointlessWaymarksCmsWpfControls.HelpDisplay
  - [jamesmontemagno/mvvm-helpers: Collection of MVVM helper classes for any application](https://github.com/jamesmontemagno/mvvm-helpers). MIT License.
  - [shps951023/HtmlTableHelper: Mini C# IEnumerable object to HTML Table String Library](https://github.com/shps951023/HtmlTableHelper) - used for quick reporting output like the Photo Metadata Dump. MIT License.
  - [Pure](https://purecss.io/) - Used in the reporting output for simple styling. BSD and MIT Licenses.
+ - [Material Design Icons](http://materialdesignicons.com/)
 ";
     }
 }

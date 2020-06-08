@@ -9,31 +9,22 @@ namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class Tags
     {
-        public static HtmlTag CoreLinksDiv()
+        public static HtmlTag CoreLinksDiv(IProgress<string> progress = null)
         {
-            var settings = UserSettingsSingleton.CurrentSettings();
+            var db = Db.Context().Result;
+
+            var items = db.MenuLinks.OrderBy(x => x.MenuOrder).ToList();
+
+            if (!items.Any()) return HtmlTag.Empty();
 
             var coreLinksDiv = new DivTag().AddClass("core-links-container");
 
-            coreLinksDiv.Children.Add(new LinkTag("Main", @$"https://{settings.SiteUrl}").AddClass("core-links-item"));
-            coreLinksDiv.Children.Add(
-                new LinkTag("Search", @$"{settings.AllContentListUrl()}").AddClass("core-links-item"));
-            coreLinksDiv.Children.Add(
-                new LinkTag("Photos", @$"{settings.CameraRollPhotoGalleryUrl()}").AddClass("core-links-item"));
-            coreLinksDiv.Children.Add(new LinkTag("Tags", @$"{settings.AllTagsListUrl()}").AddClass("core-links-item"));
-            coreLinksDiv.Children.Add(new LinkTag("Links", @$"{settings.LinkListUrl()}").AddClass("core-links-item"));
-
-            var db = Db.Context().Result;
-
-            var possibleAbout = db.PostContents.Where(x => x.Title.ToLower() == "about").ToList();
-
-            if (possibleAbout.Count > 0)
+            foreach (var loopItems in items)
             {
-                var aboutToUse = possibleAbout.OrderByDescending(x => x.CreatedOn).First();
+                var html = BracketCodeCommon.ProcessCodesAndMarkdownForSite(loopItems.LinkTag, progress);
 
-                var aboutLink = new LinkTag("About", settings.PostPageUrl(aboutToUse)).AddClass("core-links-item");
-
-                coreLinksDiv.Children.Add(aboutLink);
+                var coreLinkContainer = new DivTag().AddClass("core-links-item").Text(html).Encoded(false);
+                coreLinksDiv.Children.Add(coreLinkContainer);
             }
 
             return coreLinksDiv;

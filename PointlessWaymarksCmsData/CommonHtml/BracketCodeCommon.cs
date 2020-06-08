@@ -74,6 +74,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
             input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+            input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
             var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
             var markdownOut = Markdown.ToHtml(input, pipeline);
@@ -89,6 +90,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
             input = BracketCodePhotos.PhotoCodeProcessForEmail(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+            input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
             return input;
         }
@@ -101,6 +103,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
             input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+            input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
             return input;
         }

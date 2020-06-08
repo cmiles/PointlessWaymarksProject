@@ -28,6 +28,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
+        private Command _forcedResizeCommand;
         private Command _generatePhotoListCommand;
         private Command _generateSelectedHtmlCommand;
         private PhotoListContext _listContext;
@@ -37,7 +38,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _photoCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
-        private Command _forcedResizeCommand;
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
         {
@@ -65,39 +65,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        private async Task ForcedResize()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var totalCount = ListContext.SelectedItems.Count;
-            var currentLoop = 1;
-
-            foreach (var loopSelected in ListContext.SelectedItems)
-            {
-                if(currentLoop % 10 == 0) StatusContext.Progress($"Cleaning Generated Images And Resizing {currentLoop} of {totalCount} - " +
-                                                                 $"{loopSelected.DbEntry.Title}"); 
-                PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, true, StatusContext.ProgressTracker());
-                currentLoop++;
-            }
-        }
-
-        public Command ForcedResizeCommand
-        {
-            get => _forcedResizeCommand;
-            set
-            {
-                if (Equals(value, _forcedResizeCommand)) return;
-                _forcedResizeCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Command DeleteSelectedCommand
         {
             get => _deleteSelectedCommand;
@@ -121,6 +88,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         }
 
         public Command ExtractNewLinksInSelectedCommand { get; set; }
+
+        public Command ForcedResizeCommand
+        {
+            get => _forcedResizeCommand;
+            set
+            {
+                if (Equals(value, _forcedResizeCommand)) return;
+                _forcedResizeCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command GeneratePhotoListCommand
         {
@@ -351,6 +329,29 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
+        private async Task ForcedResize()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var totalCount = ListContext.SelectedItems.Count;
+            var currentLoop = 1;
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+            {
+                if (currentLoop % 10 == 0)
+                    StatusContext.Progress($"Cleaning Generated Images And Resizing {currentLoop} of {totalCount} - " +
+                                           $"{loopSelected.DbEntry.Title}");
+                PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, true, StatusContext.ProgressTracker());
+                currentLoop++;
+            }
+        }
+
         private async Task GenerateSelectedHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -451,9 +452,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     var editor = new PhotoContentEditorWindow(true);
 
                     if (validFiles.Count > 5)
-                    {
                         await TryAutomateEditorSaveGenerateAndClose(editor, loopFile);
-                    }
                     else
                         StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
                             await TryAutomateEditorSaveGenerateAndClose(editor, loopFile));

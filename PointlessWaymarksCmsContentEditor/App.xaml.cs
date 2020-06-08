@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Jot;

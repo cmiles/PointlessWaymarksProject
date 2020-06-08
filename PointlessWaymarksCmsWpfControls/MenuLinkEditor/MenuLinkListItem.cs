@@ -1,18 +1,18 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
 
-namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
+namespace PointlessWaymarksCmsWpfControls.MenuLinkEditor
 {
-    public class TagExclusionEditorListItem : INotifyPropertyChanged
+    public class MenuLinkListItem : INotifyPropertyChanged
     {
-        private TagExclusion _dbEntry;
+        private MenuLink _dbEntry;
         private bool _hasChanges;
-        private string _tagValue;
+        private string _userLink;
+        private int _userOrder;
 
-        public TagExclusion DbEntry
+        public MenuLink DbEntry
         {
             get => _dbEntry;
             set
@@ -20,6 +20,17 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
                 OnPropertyChanged();
+
+                if (DbEntry == null)
+                {
+                    UserLink = string.Empty;
+                    UserOrder = 0;
+                }
+                else
+                {
+                    UserLink = (DbEntry.LinkTag ?? string.Empty).Trim();
+                    UserOrder = DbEntry.MenuOrder;
+                }
             }
         }
 
@@ -34,13 +45,24 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
             }
         }
 
-        public string TagValue
+        public string UserLink
         {
-            get => _tagValue;
+            get => _userLink;
             set
             {
-                if (value == _tagValue) return;
-                _tagValue = value;
+                if (value == _userLink) return;
+                _userLink = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int UserOrder
+        {
+            get => _userOrder;
+            set
+            {
+                if (value == _userOrder) return;
+                _userOrder = value;
                 OnPropertyChanged();
             }
         }
@@ -51,12 +73,18 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
         {
             if (DbEntry == null || DbEntry.Id < 1)
             {
-                if (string.IsNullOrWhiteSpace(TagValue)) HasChanges = false;
                 HasChanges = true;
                 return;
             }
 
-            HasChanges = !StringHelper.AreEqualWithTrim(TagValue, DbEntry.Tag);
+            HasChanges = CleanedUserLink() != DbEntry.LinkTag || UserOrder != DbEntry.MenuOrder;
+        }
+
+        private string CleanedUserLink()
+        {
+            var toReturn = UserLink ?? string.Empty;
+
+            return toReturn.Trim();
         }
 
         [NotifyPropertyChangedInvocator]

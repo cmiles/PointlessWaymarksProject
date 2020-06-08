@@ -1,7 +1,4 @@
 ﻿## Todos
- - Menu Links feature
-    - Editor
-    - Generate Html
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - Look at the SendInBlue API - because the program doesn't actually 'publish' (it just creates the files to publish) not aiming for full auto but do want a user triggered (button!) action to generate an email.
@@ -39,6 +36,14 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+6/8/2020
+
+First version of the Menu Editor is in place and the generation is now using this - nicely simple since the current menu implementation is just a flexbox of links - originally I thought about reworking this to something 'more' but this style has grown on me, still needs consideration for mobile but... Added basic help.
+
+Fixed a bug in moving folders in posts where a new parent folder wasn't created when needed.
+
+First use of the Special Page bracket codes in the Subscribe page - worked well. Updated the help to the bracket codes to reflect this.
 
 6/6/2020
 

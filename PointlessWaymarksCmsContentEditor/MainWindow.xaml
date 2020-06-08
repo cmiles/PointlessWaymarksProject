@@ -18,6 +18,7 @@
     xmlns:fa5="http://schemas.fontawesome.com/icons/"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:menuListEditor="clr-namespace:PointlessWaymarksCmsWpfControls.MenuLinkEditor;assembly=PointlessWaymarksCmsWpfControls"
     Width="900"
     Height="650"
     Title="{Binding InfoTitle}"
@@ -49,7 +50,10 @@
                 <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />
             </TabItem>
             <TabItem Header="Links">
-                <linkStreamList:LinkStreamListWithActionsControl DataContext="{Binding LinkStreamContext}" />
+                <linkStreamList:LinkStreamListWithActionsControl DataContext="{Binding TabLinkStreamContext}" />
+            </TabItem>
+            <TabItem Header="Menu Links">
+                <menuListEditor:MenuLinkEditorControl DataContext="{Binding TabMenuLinkContext}" />
             </TabItem>
             <TabItem Header="Tag Exclusions">
                 <tagExclusionEditor:TagExclusionEditorControl DataContext="{Binding TagExclusionContext}" />

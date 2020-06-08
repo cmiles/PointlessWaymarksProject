@@ -41,7 +41,7 @@
                 Margin="24"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
-                utility:ListBoxBehavior.ScrollOnNewItem="True"
+                utility:ListBoxScrollBehavior.ScrollOnNewItem="True"
                 BorderThickness="0"
                 Cursor="Wait"
                 ItemsSource="{Binding StatusLog}"

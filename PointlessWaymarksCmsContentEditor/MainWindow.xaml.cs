@@ -34,6 +34,7 @@ using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.ImageList;
 using PointlessWaymarksCmsWpfControls.LinkStreamEditor;
 using PointlessWaymarksCmsWpfControls.LinkStreamList;
+using PointlessWaymarksCmsWpfControls.MenuLinkEditor;
 using PointlessWaymarksCmsWpfControls.NoteList;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoList;
@@ -59,7 +60,6 @@ namespace PointlessWaymarksCmsContentEditor
         private Command _generateHtmlForAllPostContentCommand;
         private Command _generateIndexCommand;
         private string _infoTitle;
-        private LinkStreamListWithActionsContext _linkStreamContext;
         private Command _newFileContentCommand;
         private Command _newImageContentCommand;
         private Command _newLinkContentCommand;
@@ -74,6 +74,8 @@ namespace PointlessWaymarksCmsContentEditor
         private StatusControlContext _statusContext;
         private FileListWithActionsContext _tabFileListContext;
         private ImageListWithActionsContext _tabImageListContext;
+        private LinkStreamListWithActionsContext _tabLinkStreamContext;
+        private MenuLinkEditorContext _tabMenuLinkContext;
         private NoteListWithActionsContext _tabNoteListContext;
         private PhotoListWithActionsContext _tabPhotoListContext;
         private PostListWithActionsContext _tabPostListContext;
@@ -128,7 +130,6 @@ namespace PointlessWaymarksCmsContentEditor
                 new Command(() => StatusContext.RunBlockingTask(GenerateAllDailyPhotoGalleriesHtml));
             GenerateCamerRollCommand = new Command(() => StatusContext.RunBlockingTask(GenerateCameraRollHtml));
 
-
             ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
 
             ToggleDiagnosticLoggingCommand = new Command(() =>
@@ -144,8 +145,6 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanUpTemporaryFiles);
         }
-
-        public Command GenerateCamerRollCommand { get; set; }
 
 
         public Command AllEventsReportCommand { get; set; }
@@ -170,6 +169,8 @@ namespace PointlessWaymarksCmsContentEditor
         }
 
         public Command GenerateAllTagHtmlCommand { get; set; }
+
+        public Command GenerateCamerRollCommand { get; set; }
 
         public Command GenerateDailyGalleryHtmlCommand { get; set; }
 
@@ -238,17 +239,6 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (value == _infoTitle) return;
                 _infoTitle = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public LinkStreamListWithActionsContext LinkStreamContext
-        {
-            get => _linkStreamContext;
-            set
-            {
-                if (Equals(value, _linkStreamContext)) return;
-                _linkStreamContext = value;
                 OnPropertyChanged();
             }
         }
@@ -403,6 +393,28 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _tabImageListContext)) return;
                 _tabImageListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public LinkStreamListWithActionsContext TabLinkStreamContext
+        {
+            get => _tabLinkStreamContext;
+            set
+            {
+                if (Equals(value, _tabLinkStreamContext)) return;
+                _tabLinkStreamContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public MenuLinkEditorContext TabMenuLinkContext
+        {
+            get => _tabMenuLinkContext;
+            set
+            {
+                if (Equals(value, _tabMenuLinkContext)) return;
+                _tabMenuLinkContext = value;
                 OnPropertyChanged();
             }
         }
@@ -886,8 +898,9 @@ namespace PointlessWaymarksCmsContentEditor
             TabPhotoListContext = new PhotoListWithActionsContext(null);
             TabPostListContext = new PostListWithActionsContext(null);
             TabNoteListContext = new NoteListWithActionsContext(null);
-            LinkStreamContext = new LinkStreamListWithActionsContext(null);
+            TabLinkStreamContext = new LinkStreamListWithActionsContext(null);
             TagExclusionContext = new TagExclusionEditorContext(null);
+            TabMenuLinkContext = new MenuLinkEditorContext(null);
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
             SoftwareComponentsHelpContext = new HelpDisplayContext(SoftwareUsedHelpMarkdown.HelpBlock);
@@ -971,9 +984,7 @@ namespace PointlessWaymarksCmsContentEditor
             var fileList = RecentSettingsFilesNames?.Split("|").ToList() ?? new List<string>();
 
             if (fileList.Contains(UserSettingsUtilities.SettingsFileName))
-            {
                 fileList.Remove(UserSettingsUtilities.SettingsFileName);
-            }
 
             fileList = new List<string> {UserSettingsUtilities.SettingsFileName}.Concat(fileList).ToList();
 

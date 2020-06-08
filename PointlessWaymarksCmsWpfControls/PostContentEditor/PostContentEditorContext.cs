@@ -35,6 +35,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PostContent _dbEntry;
         private Command _extractNewLinksCommand;
+        private HelpDisplayContext _helpContext;
         private Command _saveAndCreateLocalCommand;
         private Command _saveUpdateDatabaseCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
@@ -42,7 +43,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
-        private HelpDisplayContext _helpContext;
 
         public PostContentEditorContext(StatusControlContext statusContext, PostContent postContent)
         {
@@ -59,17 +59,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker())));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(postContent));
-        }
-
-        public HelpDisplayContext HelpContext
-        {
-            get => _helpContext;
-            set
-            {
-                if (Equals(value, _helpContext)) return;
-                _helpContext = value;
-                OnPropertyChanged();
-            }
         }
 
         public BodyContentEditorContext BodyContent
@@ -123,6 +112,17 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 if (Equals(value, _extractNewLinksCommand)) return;
                 _extractNewLinksCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public HelpDisplayContext HelpContext
+        {
+            get => _helpContext;
+            set
+            {
+                if (Equals(value, _helpContext)) return;
+                _helpContext = value;
                 OnPropertyChanged();
             }
         }
@@ -332,6 +332,11 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                     if (existingDirectory.Exists)
                     {
                         StatusContext?.Progress("Moving to New Directory...");
+
+                        var newFolderDirectory =
+                            new DirectoryInfo(Path.Combine(settings.LocalSitePostDirectory().FullName,
+                                newEntry.Folder));
+                        if (!newFolderDirectory.Exists) newFolderDirectory.Create();
 
                         var newDirectory =
                             new DirectoryInfo(settings.LocalSitePostContentDirectory(newEntry, false).FullName);
