@@ -597,14 +597,25 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 .FirstOrDefault();
             var iptcDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<IptcDirectory>()
                 .FirstOrDefault();
+            var gpsDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<GpsDirectory>()
+                .FirstOrDefault();
             var xmpDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<XmpDirectory>()
                 .FirstOrDefault();
 
             PhotoCreatedBy = exifDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
+
             var createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
             if (string.IsNullOrWhiteSpace(createdOn))
             {
-                PhotoCreatedOn = DateTime.Now;
+                var gpsDateTime = DateTime.MinValue;
+                if (gpsDirectory?.TryGetGpsDate(out gpsDateTime) ?? false)
+                {
+                    if (gpsDateTime != DateTime.MinValue) PhotoCreatedOn = gpsDateTime.ToLocalTime();
+                }
+                else
+                {
+                    PhotoCreatedOn = DateTime.Now;
+                }
             }
             else
             {
@@ -731,6 +742,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 TitleSummarySlugFolder.Summary = description;
 
             TitleSummarySlugFolder.Slug = SlugUtility.Create(true, TitleSummarySlugFolder.Title);
+
             TagEdit.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ?? string.Empty;
         }
 

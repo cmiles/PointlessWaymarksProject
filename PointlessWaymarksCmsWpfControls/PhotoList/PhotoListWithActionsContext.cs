@@ -236,7 +236,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     return;
                 }
 
-
                 var possibleContentDirectory = settings.LocalSitePhotoContentDirectory(loopSelected.DbEntry, false);
                 if (possibleContentDirectory.Exists)
                 {
@@ -263,9 +262,21 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 StatusContext.Progress($"Submitting Db Delete for {loopSelected.DbEntry.Title}");
 
                 await context.SaveChangesAsync(true);
-            }
 
-            await LoadData();
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                //Try to update the UI - use try catch to cover all the 'no longer present' scenarios.
+                try
+                {
+                    ListContext.Items.Remove(loopSelected);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                await ThreadSwitcher.ResumeBackgroundAsync();
+            }
         }
 
         private async Task EditSelectedContent()

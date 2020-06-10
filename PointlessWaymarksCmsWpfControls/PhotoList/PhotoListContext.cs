@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -9,7 +7,6 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using MvvmHelpers;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Models;
@@ -21,16 +18,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 {
     public class PhotoListContext : INotifyPropertyChanged
     {
+        private bool _allLoaded;
         private ObservableCollection<PhotoListListItem> _items;
         private string _lastSortColumn;
+        private bool _loadRecentOnly;
         private List<PhotoListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
-        private bool _loadRecentOnly;
-        private bool _allLoaded;
 
         public PhotoListContext(StatusControlContext statusContext)
         {
@@ -56,7 +53,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             DataNotifications.PhotoContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
         }
 
-        public Command<bool> LoadRecentOnlyCommand { get; set; }
+        public bool AllLoaded
+        {
+            get => _allLoaded;
+            set
+            {
+                if (value == _allLoaded) return;
+                _allLoaded = value;
+                OnPropertyChanged();
+            }
+        }
 
 
         public ObservableCollection<PhotoListListItem> Items
@@ -69,6 +75,19 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 OnPropertyChanged();
             }
         }
+
+        public bool LoadRecentOnly
+        {
+            get => _loadRecentOnly;
+            set
+            {
+                if (value == _loadRecentOnly) return;
+                _loadRecentOnly = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<bool> LoadRecentOnlyCommand { get; set; }
 
         public List<PhotoListListItem> SelectedItems
         {
@@ -138,6 +157,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
         {
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
@@ -153,7 +174,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 var toRemove = Items.Where(x => e.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
-
             }
 
             if (e.UpdateType == DataNotificationUpdateType.New)
@@ -229,28 +249,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             };
         }
 
-        public bool LoadRecentOnly
-        {
-            get => _loadRecentOnly;
-            set
-            {
-                if (value == _loadRecentOnly) return;
-                _loadRecentOnly = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool AllLoaded
-        {
-            get => _allLoaded;
-            set
-            {
-                if (value == _allLoaded) return;
-                _allLoaded = value;
-                OnPropertyChanged();
-            }
-        }
-
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -312,7 +310,5 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
