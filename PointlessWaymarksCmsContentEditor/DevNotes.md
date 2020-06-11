@@ -37,6 +37,12 @@
 
 ## Notes
 
+6/10/2020
+
+Delete in photos was loading after the delete finished - this was an easy idea in the beginning but was essentially a bug after the addition of recent/all - changed.
+
+Make the Photo Load Mode more sophisticated to setup for using this control for a photos report window - because Photos lean heavily on imports rather than entering all the info it is pretty easy for unintended items to slip in - a good example might be 'photos with no tags' - not necessarily an 'error' but at least in my usage unintended and worth reporting on, another example since I heavily use a date prefix that the program processes a mismatch between the taken date and the title date and missing license or copyright...
+
 6/8/2020
 
 First version of the Menu Editor is in place and the generation is now using this - nicely simple since the current menu implementation is just a flexbox of links - originally I thought about reworking this to something 'more' but this style has grown on me, still needs consideration for mobile but... Added basic help.

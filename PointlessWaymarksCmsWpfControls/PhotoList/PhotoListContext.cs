@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -18,10 +20,18 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 {
     public class PhotoListContext : INotifyPropertyChanged
     {
+        public enum PhotoListLoadMode
+        {
+            Recent,
+            All,
+            ReportQuery
+        }
+
         private bool _allLoaded;
         private ObservableCollection<PhotoListListItem> _items;
         private string _lastSortColumn;
-        private bool _loadRecentOnly;
+        private PhotoListLoadMode _loadMode = PhotoListLoadMode.Recent;
+        private Expression<Func<PhotoContent, bool>> _reportFilter;
         private List<PhotoListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
@@ -39,14 +49,20 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             }));
-            LoadRecentOnlyCommand = new Command<bool>(x =>
-            {
-                var currentState = LoadRecentOnly;
-                LoadRecentOnly = x;
-                if (currentState != LoadRecentOnly) StatusContext.RunBlockingTask(LoadData);
-            });
 
-            LoadRecentOnly = true;
+            ToggleLoadRecentLoadAllCommand = new Command(x =>
+            {
+                if (LoadMode == PhotoListLoadMode.All)
+                {
+                    LoadMode = PhotoListLoadMode.Recent;
+                    StatusContext.RunBlockingTask(LoadData);
+                }
+                else if (LoadMode == PhotoListLoadMode.Recent)
+                {
+                    LoadMode = PhotoListLoadMode.All;
+                    StatusContext.RunBlockingTask(LoadData);
+                }
+            });
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
@@ -76,18 +92,27 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public bool LoadRecentOnly
+        public PhotoListLoadMode LoadMode
         {
-            get => _loadRecentOnly;
+            get => _loadMode;
             set
             {
-                if (value == _loadRecentOnly) return;
-                _loadRecentOnly = value;
+                if (value == _loadMode) return;
+                _loadMode = value;
                 OnPropertyChanged();
             }
         }
 
-        public Command<bool> LoadRecentOnlyCommand { get; set; }
+        public Expression<Func<PhotoContent, bool>> ReportFilter
+        {
+            get => _reportFilter;
+            set
+            {
+                if (Equals(value, _reportFilter)) return;
+                _reportFilter = value;
+                OnPropertyChanged();
+            }
+        }
 
         public List<PhotoListListItem> SelectedItems
         {
@@ -143,6 +168,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 OnPropertyChanged();
             }
         }
+
+        public Command ToggleLoadRecentLoadAllCommand { get; set; }
 
         public string UserFilterText
         {
@@ -259,9 +286,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             StatusContext.Progress("Getting Photo Db Entries");
 
-            var dbItems = LoadRecentOnly
-                ? db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).Take(20).ToList()
-                : db.PhotoContents.ToList();
+            List<PhotoContent> dbItems;
+
+            switch (LoadMode)
+            {
+                case PhotoListLoadMode.Recent:
+                    dbItems = db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).Take(20).ToList();
+                    break;
+                case PhotoListLoadMode.All:
+                    dbItems = db.PhotoContents.ToList();
+                    break;
+                case PhotoListLoadMode.ReportQuery:
+                    dbItems = ReportFilter == null
+                        ? db.PhotoContents.ToList()
+                        : db.PhotoContents.Where(ReportFilter).ToList();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             var listItems = new List<PhotoListListItem>();
 
@@ -284,9 +326,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             Items = new ObservableCollection<PhotoListListItem>(listItems);
 
-            AllLoaded = !LoadRecentOnly;
-
             SortDescending = true;
+
             await SortList("CreatedOn");
         }
 

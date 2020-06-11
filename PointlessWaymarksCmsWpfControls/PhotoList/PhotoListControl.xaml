@@ -20,6 +20,8 @@
             <utility:NullImageConverter x:Key="NullImage" />
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <photoList:PhotoLoadAllRecentNextActionTextMessageConverter x:Key="PhotoLoadAllRecentNextActionTextMessage" />
+            <photoList:PhotoLoadAllowsAllRecentChoiceVisibilityConverter x:Key="PhotoLoadAllowsAllRecentChoiceVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -36,31 +38,9 @@
                 <StackPanel Orientation="Vertical">
                     <TextBox MaxLines="1" AcceptsReturn="False" VerticalAlignment="Center"
                              Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
-                    <StackPanel Orientation="Horizontal">
-                        <CheckBox VerticalAlignment="Center">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Checked">
-                                    <i:InvokeCommandAction Command="{Binding LoadRecentOnlyCommand}">
-                                        <i:InvokeCommandAction.CommandParameter>
-                                            <system:Boolean>False</system:Boolean>
-                                        </i:InvokeCommandAction.CommandParameter>
-                                    </i:InvokeCommandAction>
-                                </i:EventTrigger>
-                                <i:EventTrigger EventName="Unchecked">
-                                    <i:InvokeCommandAction Command="{Binding LoadRecentOnlyCommand}">
-                                        <i:InvokeCommandAction.CommandParameter>
-                                            <system:Boolean>True</system:Boolean>
-                                        </i:InvokeCommandAction.CommandParameter>
-                                    </i:InvokeCommandAction>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                            Load All Photos
-                        </CheckBox>
-                        <TextBlock Margin="4,0,2,0" VerticalAlignment="Center"
-                                   Visibility="{Binding AllLoaded, Converter={StaticResource BooleanNotToVisibility}}">
-                            (Only Most Recent Loaded)
-                        </TextBlock>
-                    </StackPanel>
+                    <Button
+                        Content="{Binding LoadMode, Converter={StaticResource PhotoLoadAllRecentNextActionTextMessage}}"
+                        Visibility="{Binding LoadMode, Converter={StaticResource PhotoLoadAllowsAllRecentChoiceVisibility}}" />
                 </StackPanel>
             </GroupBox>
             <GroupBox Grid.Column="1" Header="Sort" Style="{StaticResource UiComponentGroupBoxStyle}">
