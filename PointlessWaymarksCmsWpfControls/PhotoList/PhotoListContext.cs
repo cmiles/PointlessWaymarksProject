@@ -39,7 +39,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
 
-        public PhotoListContext(StatusControlContext statusContext)
+        public PhotoListContext(StatusControlContext statusContext, PhotoListLoadMode photoListLoadMode)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
@@ -64,7 +64,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 }
             });
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            LoadMode = photoListLoadMode;
 
             DataNotifications.PhotoContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
         }
@@ -298,7 +298,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     break;
                 case PhotoListLoadMode.ReportQuery:
                     dbItems = ReportFilter == null
-                        ? db.PhotoContents.ToList()
+                        ? new List<PhotoContent>()
                         : db.PhotoContents.Where(ReportFilter).ToList();
                     break;
                 default:

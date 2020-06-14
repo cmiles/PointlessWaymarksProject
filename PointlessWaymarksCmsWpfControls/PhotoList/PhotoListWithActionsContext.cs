@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -33,6 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _generateSelectedHtmlCommand;
         private PhotoListContext _listContext;
         private Command _newContentCommand;
+        private Command _noTagsReportCommand;
         private Command _openUrlForPhotoListCommand;
         private Command _openUrlForSelectedCommand;
         private Command _photoCodesToClipboardForSelectedCommand;
@@ -41,28 +43,25 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
+            SetupContextAndCommands(statusContext);
 
-            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            PhotoCodesToClipboardForSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
-            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            OpenUrlForPhotoListCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForPhotoList));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            NewContentFromFilesCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await NewContentFromFiles(false)));
-            NewContentFromFilesWithAutosaveCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await NewContentFromFiles(true)));
-            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            ForcedResizeCommand = new Command(() => StatusContext.RunBlockingTask(ForcedResize));
+            ListContext = new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.Recent);
 
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
-            ExtractNewLinksInSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
+        }
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        public PhotoListWithActionsContext(StatusControlContext statusContext,
+            Expression<Func<PhotoContent, bool>> reportFilter)
+        {
+            SetupContextAndCommands(statusContext);
+
+            ListContext =
+                new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.ReportQuery)
+                {
+                    ReportFilter = reportFilter
+                };
+
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
         }
 
         public Command DeleteSelectedCommand
@@ -147,6 +146,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         public Command NewContentFromFilesCommand { get; set; }
 
         public Command NewContentFromFilesWithAutosaveCommand { get; set; }
+
+        public Command NoTagsReportCommand
+        {
+            get => _noTagsReportCommand;
+            set
+            {
+                if (Equals(value, _noTagsReportCommand)) return;
+                _noTagsReportCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command OpenUrlForPhotoListCommand
         {
@@ -391,13 +401,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        private async Task LoadData()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            ListContext = new PhotoListContext(StatusContext);
-        }
-
         private async Task NewContent()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -480,6 +483,19 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
+        private async Task NoTagsReport()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var context = new PhotoListWithActionsContext(null, content => content.Tags == "");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newWindow = new PhotoListWindow {PhotoListContext = context};
+
+            newWindow.Show();
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -537,6 +553,32 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             Clipboard.SetText(finalString);
 
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        private void SetupContextAndCommands(StatusControlContext statusContext)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
+            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            PhotoCodesToClipboardForSelectedCommand =
+                new Command(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
+            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
+            OpenUrlForPhotoListCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForPhotoList));
+            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
+            NewContentFromFilesCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await NewContentFromFiles(false)));
+            NewContentFromFilesWithAutosaveCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await NewContentFromFiles(true)));
+            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
+            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
+            ForcedResizeCommand = new Command(() => StatusContext.RunBlockingTask(ForcedResize));
+
+            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
+            ExtractNewLinksInSelectedCommand =
+                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
+
+            NoTagsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(NoTagsReport));
         }
 
         private async Task TryAutomateEditorSaveGenerateAndClose(PhotoContentEditorWindow editor, FileInfo loopFile)

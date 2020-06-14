@@ -37,6 +37,10 @@
 
 ## Notes
 
+6/14/2020
+
+No Tags report implemented - first use of the menu bar in the app - there may be enough actions and future planned actions with the reports that it might be worth it for organization now.
+
 6/10/2020
 
 Delete in photos was loading after the delete finished - this was an easy idea in the beginning but was essentially a bug after the addition of recent/all - changed.

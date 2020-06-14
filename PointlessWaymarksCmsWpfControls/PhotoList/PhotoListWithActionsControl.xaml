@@ -19,11 +19,17 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <local:PhotoListControl Margin="4,5,4,6" DataContext="{Binding ListContext}" />
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+        <Menu>
+            <MenuItem Header="Reports">
+                <MenuItem Header="No Tags" Command="{Binding NoTagsReportCommand}"/>
+            </MenuItem>
+        </Menu>
+        <local:PhotoListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
             <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Refresh" />
@@ -52,7 +58,7 @@
         </Border>
         <status:StatusControl
             Grid.Row="0"
-            Grid.RowSpan="2"
+            Grid.RowSpan="3"
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
     </Grid>
