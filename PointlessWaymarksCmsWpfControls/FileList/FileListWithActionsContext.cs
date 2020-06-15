@@ -33,7 +33,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private FileListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
-        private List<(object, string)> _pdfPreviewGenerationErrorOutput = new List<(object, string)>();
         private List<(object, string)> _pdfPreviewGenerationProgress = new List<(object, string)>();
         private StatusControlContext _statusContext;
 
@@ -225,6 +224,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 var newHistoric = new HistoricFileContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
                 await context.HistoricFileContents.AddAsync(newHistoric);
                 context.FileContents.Remove(loopToHistoric);
             }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -31,7 +30,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private ObservableCollection<PhotoListListItem> _items;
         private string _lastSortColumn;
         private PhotoListLoadMode _loadMode = PhotoListLoadMode.Recent;
-        private Expression<Func<PhotoContent, bool>> _reportFilter;
+        private Func<Task<List<PhotoContent>>> _reportGenerator;
         private List<PhotoListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
@@ -103,13 +102,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public Expression<Func<PhotoContent, bool>> ReportFilter
+        public Func<Task<List<PhotoContent>>> ReportGenerator
         {
-            get => _reportFilter;
+            get => _reportGenerator;
             set
             {
-                if (Equals(value, _reportFilter)) return;
-                _reportFilter = value;
+                if (Equals(value, _reportGenerator)) return;
+                _reportGenerator = value;
                 OnPropertyChanged();
             }
         }
@@ -297,9 +296,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     dbItems = db.PhotoContents.ToList();
                     break;
                 case PhotoListLoadMode.ReportQuery:
-                    dbItems = ReportFilter == null
-                        ? new List<PhotoContent>()
-                        : db.PhotoContents.Where(ReportFilter).ToList();
+                    dbItems = ReportGenerator == null ? new List<PhotoContent>() : await ReportGenerator();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

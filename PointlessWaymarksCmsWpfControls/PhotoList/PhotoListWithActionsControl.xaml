@@ -26,6 +26,7 @@
         <Menu>
             <MenuItem Header="Reports">
                 <MenuItem Header="No Tags" Command="{Binding NoTagsReportCommand}"/>
+                <MenuItem Header="Title and Photo Created Don't Match" Command="{Binding ReportTitleAndTakenDoNotMatchReportCommand}"/>
             </MenuItem>
         </Menu>
         <local:PhotoListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />

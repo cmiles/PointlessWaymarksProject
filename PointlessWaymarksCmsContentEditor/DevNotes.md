@@ -37,6 +37,16 @@
 
 ## Notes
 
+6/15/2020
+
+Changed the way the Photo Reports work - initially I set up a Expression so that a new db query could be issued with it - this approach is very clean for the 'no tags' report but in the Title Date and Photo Created Date mismatch report I needed to parse the Title to both check for and extract the year and month, certainly possible in pure sql but easier to just process all the entries in C# code - so the report function now generates the list rather than being an expression for filter and EF Query.
+
+In working with the mismatched Title and Photo Created dates realized that when deleting I was writing a last historic entry (good) but leaving no record of the date of the deletion - changed the list deletes to have the deleted date as the last updated date, this is a slight bend of the way things worked before where historic was really only ever a pure copy but this records the data nicely and it isn't hard to argue deleting the entry is a type of update...
+
+Fixed a missing command on the newer button to flip between load all and load recent in the Photos.
+
+In the photo import added some logic to strip out multiple white spaces - this is slightly questionable but I felt like in bulk photo updates this was a slight advantage in getting normalized titles - but on the other hand if you had a common in your title and wanted two spaces after it that is pretty reasonable? Not quite sure here...
+
 6/14/2020
 
 No Tags report implemented - first use of the menu bar in the app - there may be enough actions and future planned actions with the reports that it might be worth it for organization now.

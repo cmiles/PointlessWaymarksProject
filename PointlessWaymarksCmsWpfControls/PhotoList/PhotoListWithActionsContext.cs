@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using AngleSharp.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
@@ -39,6 +40,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _openUrlForSelectedCommand;
         private Command _photoCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
+        private Command _reportTitleAndTakenDoNotMatchReportCommand;
         private StatusControlContext _statusContext;
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
@@ -51,14 +53,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         }
 
         public PhotoListWithActionsContext(StatusControlContext statusContext,
-            Expression<Func<PhotoContent, bool>> reportFilter)
+            Func<Task<List<PhotoContent>>> reportFilter)
         {
             SetupContextAndCommands(statusContext);
 
             ListContext =
                 new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.ReportQuery)
                 {
-                    ReportFilter = reportFilter
+                    ReportGenerator = reportFilter
                 };
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
@@ -202,6 +204,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
+        public Command ReportTitleAndTakenDoNotMatchReportCommand
+        {
+            get => _reportTitleAndTakenDoNotMatchReportCommand;
+            set
+            {
+                if (Equals(value, _reportTitleAndTakenDoNotMatchReportCommand)) return;
+                _reportTitleAndTakenDoNotMatchReportCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -265,6 +278,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     var newHistoric = new HistoricPhotoContent();
                     newHistoric.InjectFrom(loopToHistoric);
                     newHistoric.Id = 0;
+                    newHistoric.LastUpdatedOn = DateTime.Now;
                     await context.HistoricPhotoContents.AddAsync(newHistoric);
                     context.PhotoContents.Remove(loopToHistoric);
                 }
@@ -483,17 +497,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        private async Task NoTagsReport()
+        private async Task<List<PhotoContent>> NoTagsReportGenerator()
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            var db = await Db.Context();
 
-            var context = new PhotoListWithActionsContext(null, content => content.Tags == "");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newWindow = new PhotoListWindow {PhotoListContext = context};
-
-            newWindow.Show();
+            return await db.PhotoContents.Where(x => x.Tags == "").ToListAsync();
         }
 
         [NotifyPropertyChangedInvocator]
@@ -555,6 +563,55 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
+
+        private async Task<List<PhotoContent>> ReportTitleAndTakenDoNotMatchReportGenerator()
+        {
+            var db = await Db.Context();
+
+            var allContents = await db.PhotoContents.ToListAsync();
+
+            var returnList = new List<PhotoContent>();
+
+            foreach (var loopContents in allContents)
+            {
+                if (string.IsNullOrWhiteSpace(loopContents.Title)) continue;
+
+                var splitName = loopContents.Title.Split(" ");
+
+                if (splitName.Length < 2) continue;
+
+                if (!splitName[0].All(x => x.IsDigit())) continue;
+
+                if (!int.TryParse(splitName[0], out var titleYear)) continue;
+
+                var dateInfo = new DateTimeFormatInfo();
+
+                if (!dateInfo.MonthNames.Contains(splitName[1])) continue;
+
+                var titleMonth = dateInfo.MonthNames.ToList().IndexOf(splitName[1]) + 1;
+
+                if (titleYear == loopContents.PhotoCreatedOn.Year &&
+                    titleMonth == loopContents.PhotoCreatedOn.Month) continue;
+
+                returnList.Add(loopContents);
+            }
+
+            return returnList;
+        }
+
+        private async Task RunReport(Func<Task<List<PhotoContent>>> toRun)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var context = new PhotoListWithActionsContext(null, toRun);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newWindow = new PhotoListWindow {PhotoListContext = context};
+
+            newWindow.Show();
+        }
+
         private void SetupContextAndCommands(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
@@ -578,7 +635,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             ExtractNewLinksInSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
 
-            NoTagsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(NoTagsReport));
+            NoTagsReportCommand = new Command(() =>
+                StatusContext.RunNonBlockingTask(async () => await RunReport(NoTagsReportGenerator)));
+            ReportTitleAndTakenDoNotMatchReportCommand = new Command(() =>
+                StatusContext.RunNonBlockingTask(async () =>
+                    await RunReport(ReportTitleAndTakenDoNotMatchReportGenerator)));
         }
 
         private async Task TryAutomateEditorSaveGenerateAndClose(PhotoContentEditorWindow editor, FileInfo loopFile)

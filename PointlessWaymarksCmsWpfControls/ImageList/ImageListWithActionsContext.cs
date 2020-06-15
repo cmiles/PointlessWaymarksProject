@@ -204,6 +204,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 var newHistoric = new HistoricImageContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
                 await context.HistoricImageContents.AddAsync(newHistoric);
                 context.ImageContents.Remove(loopToHistoric);
             }

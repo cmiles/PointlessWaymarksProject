@@ -735,6 +735,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
+                TitleSummarySlugFolder.Title = Regex.Replace(TitleSummarySlugFolder.Title, @"\s+", " ").TrimNullSafe();
+
             //Order is important here - the title supplies the summary in the code above - but overwrite that if there is a 
             //description.
             var description = exifDirectory?.GetDescription(ExifDirectoryBase.TagImageDescription) ?? string.Empty;

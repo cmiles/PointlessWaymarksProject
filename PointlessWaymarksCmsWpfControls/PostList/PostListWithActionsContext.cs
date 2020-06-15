@@ -25,6 +25,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
+        private Command _emailHtmlToClipboardForSelectedCommand;
         private Command _generateSelectedHtmlCommand;
         private PostListContext _listContext;
         private Command _newContentCommand;
@@ -32,7 +33,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         private Command _postCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
-        private Command _emailHtmlToClipboardForSelectedCommand;
 
         public PostListWithActionsContext(StatusControlContext statusContext)
         {
@@ -54,17 +54,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public Command EmailHtmlToClipboardForSelectedCommand
-        {
-            get => _emailHtmlToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _emailHtmlToClipboardForSelectedCommand)) return;
-                _emailHtmlToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Command DeleteSelectedCommand
         {
             get => _deleteSelectedCommand;
@@ -83,6 +72,17 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             {
                 if (Equals(value, _editSelectedContentCommand)) return;
                 _editSelectedContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command EmailHtmlToClipboardForSelectedCommand
+        {
+            get => _emailHtmlToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _emailHtmlToClipboardForSelectedCommand)) return;
+                _emailHtmlToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -211,6 +211,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                 var newHistoric = new HistoricPostContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
                 await context.HistoricPostContents.AddAsync(newHistoric);
                 context.PostContents.Remove(loopToHistoric);
             }
@@ -254,81 +255,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
-        }
-
-        private async Task ExtractNewLinksInSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var context = await Db.Context();
-            var frozenList = ListContext.SelectedItems;
-
-            foreach (var loopSelected in frozenList)
-            {
-                var refreshedData =
-                    context.PostContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
-
-                if (refreshedData == null) continue;
-
-                await LinkExtraction.ExtractNewAndShowLinkStreamEditors(
-                    $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
-            }
-        }
-
-        private async Task GenerateSelectedHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var loopCount = 1;
-            var totalCount = ListContext.SelectedItems.Count;
-
-            foreach (var loopSelected in ListContext.SelectedItems)
-            {
-                StatusContext.Progress(
-                    $"Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
-
-                var htmlContext = new SinglePostPage(loopSelected.DbEntry);
-
-                htmlContext.WriteLocalHtml();
-
-                StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
-
-                loopCount++;
-            }
-        }
-
-        private async Task LoadData()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            ListContext = new PostListContext(StatusContext);
-        }
-
-        private async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PostContentEditorWindow(null);
-
-            newContentWindow.Show();
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private async Task EmailBodyHtml()
@@ -421,7 +347,82 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             Clipboard.SetText(emailCenterTable.ToString());
 
-            StatusContext.ToastSuccess($"Post to Email Html on Clipboard");
+            StatusContext.ToastSuccess("Post to Email Html on Clipboard");
+        }
+
+        private async Task ExtractNewLinksInSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var context = await Db.Context();
+            var frozenList = ListContext.SelectedItems;
+
+            foreach (var loopSelected in frozenList)
+            {
+                var refreshedData =
+                    context.PostContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+
+                if (refreshedData == null) continue;
+
+                await LinkExtraction.ExtractNewAndShowLinkStreamEditors(
+                    $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
+            }
+        }
+
+        private async Task GenerateSelectedHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var loopCount = 1;
+            var totalCount = ListContext.SelectedItems.Count;
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+            {
+                StatusContext.Progress(
+                    $"Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
+
+                var htmlContext = new SinglePostPage(loopSelected.DbEntry);
+
+                htmlContext.WriteLocalHtml();
+
+                StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+
+                loopCount++;
+            }
+        }
+
+        private async Task LoadData()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            ListContext = new PostListContext(StatusContext);
+        }
+
+        private async Task NewContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PostContentEditorWindow(null);
+
+            newContentWindow.Show();
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private async Task OpenUrlForSelected()

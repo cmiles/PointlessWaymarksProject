@@ -197,6 +197,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
                 var newHistoric = new HistoricNoteContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
                 await context.HistoricNoteContents.AddAsync(newHistoric);
                 context.NoteContents.Remove(loopToHistoric);
             }

@@ -171,6 +171,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                 var newHistoric = new HistoricLinkStream();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
                 await context.HistoricLinkStreams.AddAsync(newHistoric);
                 context.LinkStreams.Remove(loopToHistoric);
             }
