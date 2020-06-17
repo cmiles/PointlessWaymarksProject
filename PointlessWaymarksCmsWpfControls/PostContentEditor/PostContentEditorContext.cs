@@ -308,7 +308,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
-            newEntry.Tags = TagEdit.Tags;
+            newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
@@ -350,28 +350,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                     }
                 }
 
-            var context = await Db.Context();
-
-            StatusContext?.Progress("Getting New Historic Entries...");
-
-            var toHistoric = await context.PostContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
-
-            StatusContext?.Progress($"Found {toHistoric.Count} versions to archive");
-
-            foreach (var loopToHistoric in toHistoric)
-            {
-                var newHistoric = new HistoricPostContent();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                await context.HistoricPostContents.AddAsync(newHistoric);
-                context.PostContents.Remove(loopToHistoric);
-            }
-
-            StatusContext?.Progress("Saving main post");
-
-            await context.PostContents.AddAsync(newEntry);
-
-            await context.SaveChangesAsync(true);
+            await Db.SavePostContent(newEntry);
 
             DbEntry = newEntry;
 

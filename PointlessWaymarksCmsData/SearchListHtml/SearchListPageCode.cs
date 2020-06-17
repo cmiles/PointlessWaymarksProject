@@ -34,7 +34,8 @@ namespace PointlessWaymarksCmsData.SearchListHtml
                 {
                     var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
                     photoListPhotoEntryDiv.Data("title", loopContentCommon.Title);
-                    photoListPhotoEntryDiv.Data("tags", string.Join(",", Db.ParseTagList(loopContentCommon, false)));
+                    photoListPhotoEntryDiv.Data("tags",
+                        string.Join(",", Db.TagListParseToSlugs(loopContentCommon, false)));
                     photoListPhotoEntryDiv.Data("summary", loopContentCommon.Summary);
                     photoListPhotoEntryDiv.Data("contenttype", TypeToFilterTag(loopContentCommon));
 
@@ -53,7 +54,8 @@ namespace PointlessWaymarksCmsData.SearchListHtml
                     if (!string.IsNullOrWhiteSpace(loopLinkContent.Author)) titleList.Add(loopLinkContent.Author);
 
                     photoListPhotoEntryDiv.Data("title", string.Join(" - ", titleList));
-                    photoListPhotoEntryDiv.Data("tags", string.Join(",", Db.ParseTagList(loopLinkContent.Tags, false)));
+                    photoListPhotoEntryDiv.Data("tags",
+                        string.Join(",", Db.TagListParseToSlugs(loopLinkContent.Tags, false)));
                     photoListPhotoEntryDiv.Data("summary", $"{loopLinkContent.Description} {loopLinkContent.Comments}");
                     photoListPhotoEntryDiv.Data("contenttype", TypeToFilterTag(loopLinkContent));
 

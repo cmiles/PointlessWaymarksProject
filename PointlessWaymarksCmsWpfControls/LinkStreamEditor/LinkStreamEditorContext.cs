@@ -558,10 +558,10 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
                 newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullSafe();
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 
-            newEntry.Tags = TagEdit.Tags.TrimNullSafe();
+            newEntry.Tags = TagEdit.TagListString();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullSafe();
             newEntry.Comments = Comments.TrimNullSafe();
             newEntry.Url = LinkUrl.TrimNullSafe();
@@ -572,30 +572,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             newEntry.LinkDate = LinkDateTime;
             newEntry.ShowInLinkRss = ShowInLinkRss;
 
-            var context = await Db.Context();
-
-            progress?.Report("Setting up new Historic Entry");
-
-            var toHistoric = await context.LinkStreams.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
-
-            foreach (var loopToHistoric in toHistoric)
-            {
-                progress?.Report("Saving Historic Entry");
-
-                var newHistoric = new HistoricLinkStream();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                await context.HistoricLinkStreams.AddAsync(newHistoric);
-                context.LinkStreams.Remove(loopToHistoric);
-            }
-
-            progress?.Report("Adding new entry");
-
-            await context.LinkStreams.AddAsync(newEntry);
-
-            progress?.Report("Saving Changes");
-
-            await context.SaveChangesAsync(true);
+            await Db.SaveLinkStream(newEntry);
 
             DbEntry = newEntry;
 
@@ -672,7 +649,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             if (!string.IsNullOrWhiteSpace(Comments)) descriptionFragments.Add($"Comments: {Comments}");
             if (!string.IsNullOrWhiteSpace(Author)) descriptionFragments.Add($"Author: {Author}");
 
-            var tagList = TagEdit.TagList();
+            var tagList = TagEdit.TagSlugList();
             tagList.Add(UserSettingsSingleton.CurrentSettings().SiteName);
             tagList = tagList.Select(x => x.Replace(" ", "-")).ToList();
 

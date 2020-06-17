@@ -76,7 +76,7 @@ namespace PointlessWaymarksCmsData.PhotoGalleryHtml
                 PhotoPageDate = startsAfterOrOn,
                 SiteName = UserSettingsSingleton.CurrentSettings().SiteName,
                 PhotoTags =
-                    datePhotos.SelectMany(x => Db.ParseTagList(x, true)).Select(x => x.Trim()).Distinct()
+                    datePhotos.SelectMany(x => Db.TagListParseToSlugs(x, true)).Select(x => x.Trim()).Distinct()
                         .OrderBy(x => x).ToList(),
                 PageUrl = UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(startsAfterOrOn)
             };

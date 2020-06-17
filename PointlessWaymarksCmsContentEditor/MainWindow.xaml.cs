@@ -42,6 +42,7 @@ using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.PostList;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
+using PointlessWaymarksCmsWpfControls.TagList;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
@@ -79,7 +80,8 @@ namespace PointlessWaymarksCmsContentEditor
         private NoteListWithActionsContext _tabNoteListContext;
         private PhotoListWithActionsContext _tabPhotoListContext;
         private PostListWithActionsContext _tabPostListContext;
-        private TagExclusionEditorContext _tagExclusionContext;
+        private TagExclusionEditorContext _tabTagExclusionContext;
+        private TagListContext _tabTagListContext;
 
         public MainWindow()
         {
@@ -452,13 +454,13 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public TagExclusionEditorContext TagExclusionContext
+        public TagExclusionEditorContext TabTagExclusionContext
         {
-            get => _tagExclusionContext;
+            get => _tabTagExclusionContext;
             set
             {
-                if (Equals(value, _tagExclusionContext)) return;
-                _tagExclusionContext = value;
+                if (Equals(value, _tabTagExclusionContext)) return;
+                _tabTagExclusionContext = value;
                 OnPropertyChanged();
             }
         }
@@ -899,11 +901,23 @@ namespace PointlessWaymarksCmsContentEditor
             TabPostListContext = new PostListWithActionsContext(null);
             TabNoteListContext = new NoteListWithActionsContext(null);
             TabLinkStreamContext = new LinkStreamListWithActionsContext(null);
-            TagExclusionContext = new TagExclusionEditorContext(null);
+            TabTagExclusionContext = new TagExclusionEditorContext(null);
             TabMenuLinkContext = new MenuLinkEditorContext(null);
+            TabTagListContext = new TagListContext(null);
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
             SoftwareComponentsHelpContext = new HelpDisplayContext(SoftwareUsedHelpMarkdown.HelpBlock);
+        }
+
+        public TagListContext TabTagListContext
+        {
+            get => _tabTagListContext;
+            set
+            {
+                if (Equals(value, _tabTagListContext)) return;
+                _tabTagListContext = value;
+                OnPropertyChanged();
+            }
         }
 
         private async Task NewFileContent()

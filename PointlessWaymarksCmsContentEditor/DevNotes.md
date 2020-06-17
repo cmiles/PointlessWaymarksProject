@@ -37,6 +37,12 @@
 
 ## Notes
 
+6/17/2020
+
+The photo imports previously tried to process all items at the same time with a number of files under 5 - but today had an error related to a daily photos related content thumbnail and generation that I believe would have been prevented by the sequential style imports so switched over to only that.
+
+More Tag display/edit work.
+
 6/15/2020
 
 Changed the way the Photo Reports work - initially I set up a Expression so that a new db query could be issued with it - this approach is very clean for the 'no tags' report but in the Title Date and Photo Created Date mismatch report I needed to parse the Title to both check for and extract the year and month, certainly possible in pure sql but easier to just process all the entries in C# code - so the report function now generates the list rather than being an expression for filter and EF Query.

@@ -10,6 +10,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
     public partial class PhotoListWindow : INotifyPropertyChanged
     {
         private PhotoListWithActionsContext _photoListContext;
+        private string _windowTitle = "Photo List";
 
         public PhotoListWindow()
         {
@@ -25,6 +26,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (Equals(value, _photoListContext)) return;
                 _photoListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string WindowTitle
+        {
+            get => _windowTitle;
+            set
+            {
+                if (value == _windowTitle) return;
+                _windowTitle = value;
                 OnPropertyChanged();
             }
         }

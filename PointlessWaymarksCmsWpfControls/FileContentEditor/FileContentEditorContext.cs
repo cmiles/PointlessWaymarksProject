@@ -590,7 +590,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
-            newEntry.Tags = TagEdit.Tags;
+            newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
@@ -621,22 +621,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                     }
                 }
 
-            var context = await Db.Context();
-
-            var toHistoric = await context.FileContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
-
-            foreach (var loopToHistoric in toHistoric)
-            {
-                var newHistoric = new HistoricFileContent();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                await context.HistoricFileContents.AddAsync(newHistoric);
-                context.FileContents.Remove(loopToHistoric);
-            }
-
-            await context.FileContents.AddAsync(newEntry);
-
-            await context.SaveChangesAsync(true);
+            await Db.SaveFileContent(newEntry);
 
             DbEntry = newEntry;
 

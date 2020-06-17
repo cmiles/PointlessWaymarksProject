@@ -22,6 +22,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             StatusContext = statusContext ?? new StatusControlContext();
             DbEntry = dbEntry;
             Tags = dbEntry?.Tags ?? string.Empty;
+            Tags = TagListString();
         }
 
         public ITag DbEntry
@@ -72,12 +73,14 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
         public void CheckForChanges()
         {
-            TagsHaveChanges = !TagList().SequenceEqual(DbTagList());
+            TagsHaveChanges = !TagSlugList().SequenceEqual(DbTagList());
         }
 
         private List<string> DbTagList()
         {
-            return string.IsNullOrWhiteSpace(DbEntry?.Tags) ? new List<string>() : Db.ParseTagList(DbEntry, false);
+            return string.IsNullOrWhiteSpace(DbEntry?.Tags)
+                ? new List<string>()
+                : Db.TagListParseToSlugs(DbEntry, false);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -89,7 +92,22 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
         public List<string> TagList()
         {
-            return string.IsNullOrWhiteSpace(Tags) ? new List<string>() : Db.ParseTagList(Tags, false);
+            return string.IsNullOrWhiteSpace(Tags) ? new List<string>() : Db.TagListParse(Tags);
+        }
+
+        public string TagListString()
+        {
+            return string.IsNullOrWhiteSpace(Tags) ? string.Empty : Db.TagListJoin(TagList());
+        }
+
+        public List<string> TagSlugList()
+        {
+            return string.IsNullOrWhiteSpace(Tags) ? new List<string>() : Db.TagListParseToSlugs(Tags, false);
+        }
+
+        public string TagSlugListString()
+        {
+            return string.IsNullOrWhiteSpace(Tags) ? string.Empty : Db.TagListJoinAsSlugs(TagSlugList(), false);
         }
     }
 }

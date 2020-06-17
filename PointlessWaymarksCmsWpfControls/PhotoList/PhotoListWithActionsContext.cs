@@ -479,11 +479,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 {
                     var editor = new PhotoContentEditorWindow(true);
 
-                    if (validFiles.Count > 5)
-                        await TryAutomateEditorSaveGenerateAndClose(editor, loopFile);
-                    else
-                        StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
-                            await TryAutomateEditorSaveGenerateAndClose(editor, loopFile));
+                    await TryAutomateEditorSaveGenerateAndClose(editor, loopFile);
                 }
                 else
                 {
@@ -599,7 +595,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             return returnList;
         }
 
-        private async Task RunReport(Func<Task<List<PhotoContent>>> toRun)
+        private async Task RunReport(Func<Task<List<PhotoContent>>> toRun, string title)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -607,7 +603,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newWindow = new PhotoListWindow {PhotoListContext = context};
+            var newWindow = new PhotoListWindow {PhotoListContext = context, WindowTitle = title};
 
             newWindow.Show();
         }
@@ -636,10 +632,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
 
             NoTagsReportCommand = new Command(() =>
-                StatusContext.RunNonBlockingTask(async () => await RunReport(NoTagsReportGenerator)));
-            ReportTitleAndTakenDoNotMatchReportCommand = new Command(() =>
                 StatusContext.RunNonBlockingTask(async () =>
-                    await RunReport(ReportTitleAndTakenDoNotMatchReportGenerator)));
+                    await RunReport(NoTagsReportGenerator, "No Tags Photo List")));
+            ReportTitleAndTakenDoNotMatchReportCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+                await RunReport(ReportTitleAndTakenDoNotMatchReportGenerator,
+                    "Title and Created Mismatch Photo List")));
         }
 
         private async Task TryAutomateEditorSaveGenerateAndClose(PhotoContentEditorWindow editor, FileInfo loopFile)

@@ -202,7 +202,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 await ThreadSwitcher.ResumeForegroundAsync();
             }
 
-            if (e.UpdateType == DataNotificationUpdateType.New)
+            if (e.UpdateType == DataNotificationUpdateType.New && LoadMode != PhotoListLoadMode.ReportQuery)
             {
                 var context = await Db.Context();
 

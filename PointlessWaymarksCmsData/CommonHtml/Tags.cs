@@ -425,7 +425,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
 
-            var tags = Db.ParseTagList(dbEntry, true);
+            var tags = Db.TagListParseToSlugs(dbEntry, true);
 
             return TagList(tags);
         }

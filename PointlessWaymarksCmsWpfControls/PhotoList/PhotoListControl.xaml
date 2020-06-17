@@ -100,6 +100,22 @@
                                             <utility:ReadOnlyTextBoxClickPass />
                                         </i:Interaction.Behaviors>
                                     </TextBox>
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                             Text="{Binding DbEntry.Tags, StringFormat='Tags: {0}'}"
+                                             TextWrapping="Wrap"
+                                             Margin="0,4,0,0">
+                                        <i:Interaction.Behaviors>
+                                            <utility:ReadOnlyTextBoxClickPass />
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                             Text="{Binding DbEntry.OriginalFileName, StringFormat='File: {0}'}"
+                                             TextWrapping="Wrap"
+                                             Margin="0,4,0,0">
+                                        <i:Interaction.Behaviors>
+                                            <utility:ReadOnlyTextBoxClickPass />
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBox Style="{StaticResource ReadOnlyTextBox}"
                                                  Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"

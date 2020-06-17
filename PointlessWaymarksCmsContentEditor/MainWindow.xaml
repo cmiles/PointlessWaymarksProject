@@ -19,6 +19,7 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:menuListEditor="clr-namespace:PointlessWaymarksCmsWpfControls.MenuLinkEditor;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:tagList="clr-namespace:PointlessWaymarksCmsWpfControls.TagList;assembly=PointlessWaymarksCmsWpfControls"
     Width="900"
     Height="650"
     Title="{Binding InfoTitle}"
@@ -56,7 +57,10 @@
                 <menuListEditor:MenuLinkEditorControl DataContext="{Binding TabMenuLinkContext}" />
             </TabItem>
             <TabItem Header="Tag Exclusions">
-                <tagExclusionEditor:TagExclusionEditorControl DataContext="{Binding TagExclusionContext}" />
+                <tagExclusionEditor:TagExclusionEditorControl DataContext="{Binding TabTagExclusionContext}" />
+            </TabItem>
+            <TabItem Header="Tags">
+                <tagList:TagListControl DataContext="{Binding TabTagListContext}" />
             </TabItem>
             <TabItem Header="Settings">
                 <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />

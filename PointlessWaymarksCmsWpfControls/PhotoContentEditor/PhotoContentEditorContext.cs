@@ -746,7 +746,36 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             TitleSummarySlugFolder.Slug = SlugUtility.Create(true, TitleSummarySlugFolder.Title);
 
-            TagEdit.Tags = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ?? string.Empty;
+            var xmpSubjectKeywordList = new List<string>();
+
+            var xmpSubjectArrayItemCount = xmpDirectory?.XmpMeta?.CountArrayItems(XmpConstants.NsDC, "subject");
+
+            if (xmpSubjectArrayItemCount != null)
+                for (var i = 1; i <= xmpSubjectArrayItemCount; i++)
+                {
+                    var subjectArrayItem = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "subject", i);
+                    if (subjectArrayItem == null || string.IsNullOrWhiteSpace(subjectArrayItem.Value)) continue;
+                    xmpSubjectKeywordList.AddRange(subjectArrayItem.Value.Replace(";", ",").Split(",")
+                        .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
+                }
+
+            xmpSubjectKeywordList = xmpSubjectKeywordList.Distinct().ToList();
+
+            var keywordTagList = new List<string>();
+
+            var keywordValue = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ??
+                               string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(keywordValue))
+                keywordTagList.AddRange(keywordValue.Replace(";", ",").Split(",")
+                    .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
+
+            if (xmpSubjectKeywordList.Count == 0 && keywordTagList.Count == 0)
+                TagEdit.Tags = string.Empty;
+            else if (xmpSubjectKeywordList.Count >= keywordTagList.Count)
+                TagEdit.Tags = string.Join(",", xmpSubjectKeywordList);
+            else
+                TagEdit.Tags = string.Join(",", keywordTagList);
         }
 
         private async Task ResizePhoto()
@@ -810,13 +839,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
 
             await WriteSelectedFileToMasterMediaArchive();
-            await SaveToDatabase();
+            var dataNotification = await SaveToDatabase();
             await WriteSelectedFileToLocalSite(false);
             await GenerateHtml();
             await Export.WriteLocalDbJson(DbEntry);
+
+            if (dataNotification != null)
+                DataNotifications.ImageContentDataNotificationEventSource.Raise(this, dataNotification);
         }
 
-        private async Task SaveToDatabase(bool skipMediaDirectoryCheck = false)
+        private async Task<DataNotificationEventArgs> SaveToDatabase(bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -849,7 +881,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.Slug = TitleSummarySlugFolder.Slug;
             newEntry.Summary = TitleSummarySlugFolder.Summary;
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
-            newEntry.Tags = TagEdit.Tags;
+            newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.AltText = AltText;
             newEntry.CameraMake = CameraMake;
@@ -883,41 +915,22 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                     }
                 }
 
-            var context = await Db.Context();
-
-            var toHistoric = await context.PhotoContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
-
-            foreach (var loopToHistoric in toHistoric)
-            {
-                var newHistoric = new HistoricPhotoContent();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                await context.HistoricPhotoContents.AddAsync(newHistoric);
-                context.PhotoContents.Remove(loopToHistoric);
-            }
-
-            await context.PhotoContents.AddAsync(newEntry);
-
-            await context.SaveChangesAsync(true);
+            await Db.SavePhotoContent(newEntry);
 
             DbEntry = newEntry;
 
             await LoadData(newEntry, skipMediaDirectoryCheck);
 
             if (isNewEntry)
-                DataNotifications.PhotoContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.New,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
-            else
-                DataNotifications.PhotoContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.Update,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
+                return new DataNotificationEventArgs
+                {
+                    UpdateType = DataNotificationUpdateType.New, ContentIds = new List<Guid> {newEntry.ContentId}
+                };
+
+            return new DataNotificationEventArgs
+            {
+                UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {newEntry.ContentId}
+            };
         }
 
         private async Task SaveToDbWithValidation()
@@ -935,7 +948,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
 
             await WriteSelectedFileToMasterMediaArchive();
-            await SaveToDatabase();
+            var dataNotification = await SaveToDatabase();
+
+            if (dataNotification != null)
+                DataNotifications.ImageContentDataNotificationEventSource.Raise(this, dataNotification);
         }
 
         private async Task SelectedFileChanged()

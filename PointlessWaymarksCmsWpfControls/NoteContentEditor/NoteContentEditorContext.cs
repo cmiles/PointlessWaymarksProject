@@ -360,7 +360,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             newEntry.Folder = Folder.TrimNullSafe();
             newEntry.Summary = Summary.TrimNullSafe();
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
-            newEntry.Tags = TagEdit.Tags;
+            newEntry.Tags = TagEdit.TagListString();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
             newEntry.BodyContent = BodyContent.BodyContent;
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
@@ -385,22 +385,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                     }
                 }
 
-            var context = await Db.Context();
-
-            var toHistoric = await context.NoteContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
-
-            foreach (var loopToHistoric in toHistoric)
-            {
-                var newHistoric = new HistoricNoteContent();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                await context.HistoricNoteContents.AddAsync(newHistoric);
-                context.NoteContents.Remove(loopToHistoric);
-            }
-
-            await context.NoteContents.AddAsync(newEntry);
-
-            await context.SaveChangesAsync(true);
+            await Db.SaveNoteContent(newEntry);
 
             DbEntry = newEntry;
 

@@ -561,13 +561,16 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
 
             await WriteSelectedFileToMasterMediaArchive();
-            await SaveToDatabase();
+            var dataNotification = await SaveToDatabase();
             await WriteSelectedFileToLocalSite();
             await GenerateHtml();
             await Export.WriteLocalDbJson(DbEntry);
+
+            if (dataNotification != null)
+                DataNotifications.ImageContentDataNotificationEventSource.Raise(this, dataNotification);
         }
 
-        private async Task SaveToDatabase(bool skipMediaDirectoryCheck = false)
+        private async Task<DataNotificationEventArgs> SaveToDatabase(bool skipMediaDirectoryCheck = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -597,7 +600,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             newEntry.Summary = TitleSummarySlugFolder.Summary;
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
             newEntry.ShowInSearch = ShowInSearch.ShowInSearch;
-            newEntry.Tags = TagEdit.Tags;
+            newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title;
             newEntry.AltText = AltText;
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
@@ -626,41 +629,21 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                     }
                 }
 
-            var context = await Db.Context();
-
-            var toHistoric = await context.ImageContents.Where(x => x.ContentId == newEntry.ContentId).ToListAsync();
-
-            foreach (var loopToHistoric in toHistoric)
-            {
-                var newHistoric = new HistoricImageContent();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                await context.HistoricImageContents.AddAsync(newHistoric);
-                context.ImageContents.Remove(loopToHistoric);
-            }
-
-            await context.ImageContents.AddAsync(newEntry);
-
-            await context.SaveChangesAsync(true);
+            await Db.SaveImageContent(newEntry);
 
             DbEntry = newEntry;
 
             await LoadData(newEntry, skipMediaDirectoryCheck);
 
             if (isNewEntry)
-                DataNotifications.ImageContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.New,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
-            else
-                DataNotifications.ImageContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.Update,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
+                return new DataNotificationEventArgs
+                {
+                    UpdateType = DataNotificationUpdateType.New, ContentIds = new List<Guid> {newEntry.ContentId}
+                };
+            return new DataNotificationEventArgs
+            {
+                UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {newEntry.ContentId}
+            };
         }
 
         private async Task SaveToDbWithValidation()
@@ -678,7 +661,10 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
 
             await WriteSelectedFileToMasterMediaArchive();
-            await SaveToDatabase();
+            var dataNotification = await SaveToDatabase();
+
+            if (dataNotification != null)
+                DataNotifications.ImageContentDataNotificationEventSource.Raise(this, dataNotification);
         }
 
         private async Task SelectedFileChanged()
