@@ -163,20 +163,21 @@ namespace PointlessWaymarksCmsData.IndexHtml
                 {
                     var post = new SinglePostDiv(loopPosts);
 
-                    string content;
+                    string content = null;
 
                     if (post.DbEntry.MainPicture != null)
                     {
                         var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
-                        content =
-                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                        if (imageInfo != null)
+                            content =
+                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                     }
-                    else
-                    {
+
+                    if (string.IsNullOrWhiteSpace(content))
                         content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                                   $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
 
                     items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
@@ -197,43 +198,45 @@ namespace PointlessWaymarksCmsData.IndexHtml
                 {
                     var post = new SinglePostDiv(loopPosts);
 
-                    string content;
+                    string content = null;
 
                     if (post.DbEntry.MainPicture != null)
                     {
                         var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
-                        content =
-                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
-                    else
-                    {
-                        content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                                  $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
 
-                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
-                        post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+                        if (imageInfo != null)
+                            content =
+                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                        if (string.IsNullOrWhiteSpace(content))
+                            content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                                      $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                        items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                            post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+                    }
                 }
 
                 if (loopPosts.GetType() == typeof(ImageContent))
                 {
                     var post = new SinglePostDiv(loopPosts);
 
-                    string content;
+                    string content = null;
 
                     if (post.DbEntry.MainPicture != null)
                     {
                         var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
-                        content =
-                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                        if (imageInfo != null)
+                            content =
+                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                     }
-                    else
-                    {
+
+                    if (string.IsNullOrWhiteSpace(content))
                         content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                                   $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
 
                     items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
@@ -243,20 +246,21 @@ namespace PointlessWaymarksCmsData.IndexHtml
                 {
                     var post = new SingleFileDiv(loopPosts);
 
-                    string content;
+                    string content = null;
 
                     if (post.DbEntry.MainPicture != null)
                     {
                         var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
-                        content =
-                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
-                            $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                        if (imageInfo != null)
+                            content =
+                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                     }
-                    else
-                    {
+
+                    if (string.IsNullOrWhiteSpace(content))
                         content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
                                   $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
 
                     items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
                         post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));

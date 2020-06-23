@@ -1,4 +1,5 @@
 ﻿## Todos
+ - A bad content code should be handled better
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - Look at the SendInBlue API - because the program doesn't actually 'publish' (it just creates the files to publish) not aiming for full auto but do want a user triggered (button!) action to generate an email.
@@ -36,6 +37,12 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+6/22/2020
+
+When I first found FontAwesome for WPF I was really thrilled - but a recent library update broke this functionality, could have been my usage or bad luck or ... and I was able to role back to an earlier library without issue - but I think in retrospect that what I should do instead is to use icons like those from http://modernuiicons.com/ and use a control for the 'wait' spinner. This version starts the process with a spinner control from http://blog.trustmycode.net/?p=133 and https://github.com/ThomasSteinbinder/WPFAnimatedLoadingSpinner.
+
+This is the first generation of the site that I ran into an issue where a page had a bracket code to a non-existant Content ID - I added some guard code, changed the generation ordering and added some code around checking for and generating missing content but this need more attention both potentially in 'pre-checks' and/or in making sure that in as many cases as possible generation can continue and a good error report is generated.
 
 6/17/2020
 

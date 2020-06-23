@@ -208,7 +208,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             var newItem = new PostListListItem {DbEntry = content};
 
             if (content.MainPicture != null)
-                newItem.SmallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)
+                newItem.SmallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?
                     .SmallPicture?.File.FullName;
 
             return newItem;

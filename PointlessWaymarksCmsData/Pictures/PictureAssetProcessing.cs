@@ -8,6 +8,28 @@ namespace PointlessWaymarksCmsData.Pictures
 {
     public static class PictureAssetProcessing
     {
+        public static void ConfirmOrGenerateImageDirectoryAndPictures(ImageContent dbEntry, IProgress<string> progress)
+        {
+            PictureResizing.CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry);
+
+            var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
+
+            var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
+
+            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, null);
+        }
+
+        public static void ConfirmOrGeneratePhotoDirectoryAndPictures(PhotoContent dbEntry, IProgress<string> progress)
+        {
+            PictureResizing.CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry);
+
+            var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
+
+            var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
+
+            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, null);
+        }
+
         public static PictureAsset ProcessImageDirectory(Guid photoOrImageContentId)
         {
             var db = Db.Context().Result;
@@ -159,6 +181,9 @@ namespace PointlessWaymarksCmsData.Pictures
             var db = Db.Context().Result;
 
             var isPhoto = db.PhotoContents.Any(x => x.ContentId == photoOrImageContentId);
+            var isImage = db.ImageContents.Any(x => x.ContentId == photoOrImageContentId);
+
+            if (!isPhoto && !isImage) return null;
 
             return isPhoto
                 ? ProcessPhotoDirectory(photoOrImageContentId)

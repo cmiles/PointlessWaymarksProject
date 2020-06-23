@@ -9,6 +9,7 @@
     xmlns:toastControl="clr-namespace:PointlessWaymarksCmsWpfControls.ToastControl"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:waitingSpinner="clr-namespace:PointlessWaymarksCmsWpfControls.WaitingSpinner"
     d:DataContext="{d:DesignInstance status:StatusControlContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -134,13 +135,8 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Vertical">
-            <fa:ImageAwesome
-                Height="30"
-                Icon="Solid_Spinner"
-                Spin="True"
-                Margin="8"
-                SpinDuration="10"
-                Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
+            <waitingSpinner:WaitingSpinnerControl Diameter="36" Color1="Green" Color2="Transparent"
+            Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
             <toastControl:ToastTray DataContext="{Binding Toast}" />
         </StackPanel>
     </Grid>

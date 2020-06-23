@@ -65,20 +65,23 @@ namespace PointlessWaymarksCmsData.Rss
             {
                 var contentUrl = await settings.ContentUrl(loopPosts.ContentId);
 
-                string itemDescription;
+                string itemDescription = null;
 
                 if (loopPosts.MainPicture != null)
                 {
                     var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(loopPosts.MainPicture.Value);
-                    itemDescription =
-                        $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
-                        $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                    if (imageInfo != null)
+                    {
+                        itemDescription =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                    }
                 }
-                else
-                {
+
+                if (string.IsNullOrWhiteSpace(itemDescription))
                     itemDescription = $"<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
                                       $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                }
 
                 items.Add(RssItemString(loopPosts.Title, $"https:{contentUrl}", itemDescription, loopPosts.CreatedOn,
                     loopPosts.ContentId.ToString()));

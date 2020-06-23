@@ -104,6 +104,8 @@ namespace PointlessWaymarksCmsContentEditor
             OpenIndexUrlCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenIndexUrl));
 
             GenerateAllHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllHtml));
+            ConfirmOrGenerateAllPhotosImagesFilesCommand = new Command(() =>
+                StatusContext.RunBlockingTask(ConfirmOrGenerateAllPhotosImagesFiles));
             GenerateAllHtmlAndCleanAndResizePicturesCommand = new Command(() =>
                 StatusContext.RunBlockingTask(GenerateAllHtmlAndCleanAndResizePictures));
             CleanAndResizePicturesCommand = new Command(() => StatusContext.RunBlockingTask(CleanAndResizePictures));
@@ -152,6 +154,8 @@ namespace PointlessWaymarksCmsContentEditor
         public Command AllEventsReportCommand { get; set; }
 
         public Command CleanAndResizePicturesCommand { get; set; }
+
+        public Command ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }
 
         public Command DiagnosticEventsReportCommand { get; set; }
 
@@ -465,6 +469,17 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        public TagListContext TabTagListContext
+        {
+            get => _tabTagListContext;
+            set
+            {
+                if (Equals(value, _tabTagListContext)) return;
+                _tabTagListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command ToggleDiagnosticLoggingCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -580,6 +595,86 @@ namespace PointlessWaymarksCmsContentEditor
                 }
         }
 
+        private async Task ConfirmAllFileContent()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            var allItems = await db.FileContents.ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Files to Confirm");
+
+            foreach (var loopItem in allItems)
+            {
+                StatusContext.Progress($"Confirm File Content for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                PictureResizing.CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem);
+
+                loopCount++;
+            }
+        }
+
+        private async Task ConfirmAllImageContent()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            var allItems = await db.ImageContents.ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Image to Confirm");
+
+            foreach (var loopItem in allItems)
+            {
+                StatusContext.Progress($"Confirming Image Content for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                PictureAssetProcessing.ConfirmOrGenerateImageDirectoryAndPictures(loopItem,
+                    StatusContext.ProgressTracker());
+
+                loopCount++;
+            }
+        }
+
+        private async Task ConfirmAllPhotoContent()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            var allItems = await db.PhotoContents.ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            StatusContext.Progress($"Found {totalCount} Photos to Confirm");
+
+            foreach (var loopItem in allItems)
+            {
+                StatusContext.Progress($"Confirming Photos for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                PictureAssetProcessing.ConfirmOrGeneratePhotoDirectoryAndPictures(loopItem,
+                    StatusContext.ProgressTracker());
+
+                loopCount++;
+            }
+        }
+
+        private async Task ConfirmOrGenerateAllPhotosImagesFiles()
+        {
+            await ConfirmAllPhotoContent();
+            await ConfirmAllImageContent();
+            await ConfirmAllFileContent();
+
+            StatusContext.ToastSuccess("All HTML Generation Finished");
+        }
+
         private async Task DiagnosticEventsReport()
         {
             var log = await Db.Log();
@@ -654,15 +749,15 @@ namespace PointlessWaymarksCmsContentEditor
 
         private async Task GenerateAllHtml()
         {
-            await GenerateAllTagHtml();
-            await GenerateAllImageHtml();
             await GenerateAllPhotoHtml();
+            await GenerateAllImageHtml();
             await GenerateAllFileHtml();
             await GenerateAllNoteHtml();
             await GenerateAllPostHtml();
-            await GenerateAllListHtml();
             await GenerateAllDailyPhotoGalleriesHtml();
             await GenerateCameraRollHtml();
+            await GenerateAllTagHtml();
+            await GenerateAllListHtml();
             await GenerateIndex();
 
             StatusContext.ToastSuccess("All HTML Generation Finished");
@@ -907,17 +1002,6 @@ namespace PointlessWaymarksCmsContentEditor
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
             SoftwareComponentsHelpContext = new HelpDisplayContext(SoftwareUsedHelpMarkdown.HelpBlock);
-        }
-
-        public TagListContext TabTagListContext
-        {
-            get => _tabTagListContext;
-            set
-            {
-                if (Equals(value, _tabTagListContext)) return;
-                _tabTagListContext = value;
-                OnPropertyChanged();
-            }
         }
 
         private async Task NewFileContent()

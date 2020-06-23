@@ -122,14 +122,16 @@ namespace PointlessWaymarksCmsData.Pictures
         }
 
         /// <summary>
-        /// This deletes Image Directory jpeg files that match this programs generated sizing naming conventions. If deleteAll is true then all
-        /// files will be deleted - otherwise only files where the width does not match one of the generated widths will be
-        /// deleted.
+        ///     This deletes Image Directory jpeg files that match this programs generated sizing naming conventions. If deleteAll
+        ///     is true then all
+        ///     files will be deleted - otherwise only files where the width does not match one of the generated widths will be
+        ///     deleted.
         /// </summary>
         /// <param name="dbEntry"></param>
         /// <param name="deleteAll"></param>
         /// <param name="progress"></param>
-        public static void CleanDisplayAndSrcSetFilesInImageDirectory(ImageContent dbEntry, bool deleteAll, IProgress<string> progress)
+        public static void CleanDisplayAndSrcSetFilesInImageDirectory(ImageContent dbEntry, bool deleteAll,
+            IProgress<string> progress)
         {
             var currentSizes = SrcSetSizeAndQualityList().Select(x => x.size).ToList();
 
@@ -148,14 +150,16 @@ namespace PointlessWaymarksCmsData.Pictures
         }
 
         /// <summary>
-        /// This deletes Photo Directory jpeg files that match this programs generated sizing naming conventions. If deleteAll is true then all
-        /// files will be deleted - otherwise only files where the width does not match one of the generated widths will be
-        /// deleted.
+        ///     This deletes Photo Directory jpeg files that match this programs generated sizing naming conventions. If deleteAll
+        ///     is true then all
+        ///     files will be deleted - otherwise only files where the width does not match one of the generated widths will be
+        ///     deleted.
         /// </summary>
         /// <param name="dbEntry"></param>
         /// <param name="deleteAll"></param>
         /// <param name="progress"></param>
-        public static void CleanDisplayAndSrcSetFilesInPhotoDirectory(PhotoContent dbEntry, bool deleteAll, IProgress<string> progress)
+        public static void CleanDisplayAndSrcSetFilesInPhotoDirectory(PhotoContent dbEntry, bool deleteAll,
+            IProgress<string> progress)
         {
             var currentSizes = SrcSetSizeAndQualityList().Select(x => x.size).ToList();
 
@@ -195,13 +199,13 @@ namespace PointlessWaymarksCmsData.Pictures
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="dbEntry"></param>
         /// <param name="deleteAllExisting"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static (bool, string) CopyCleanResizePhoto(PhotoContent dbEntry, bool deleteAllExisting, IProgress<string> progress)
+        public static (bool, string) CopyCleanResizePhoto(PhotoContent dbEntry, bool deleteAllExisting,
+            IProgress<string> progress)
         {
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
@@ -254,6 +258,30 @@ namespace PointlessWaymarksCmsData.Pictures
             }
 
             return ResizeWithForDisplayFileName(fileToProcess, originalWidth, 82, overwriteExistingFile, progress);
+        }
+
+        public static List<FileInfo> ResizeForDisplayAndSrcset(PhotoContent dbEntry, bool overwriteExistingFiles,
+            IProgress<string> progress)
+        {
+            CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry);
+
+            var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
+
+            var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
+
+            return ResizeForDisplayAndSrcset(sourceImage, overwriteExistingFiles, progress);
+        }
+
+        public static List<FileInfo> ResizeForDisplayAndSrcset(ImageContent dbEntry, bool overwriteExistingFiles,
+            IProgress<string> progress)
+        {
+            CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry);
+
+            var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
+
+            var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
+
+            return ResizeForDisplayAndSrcset(sourceImage, overwriteExistingFiles, progress);
         }
 
         public static List<FileInfo> ResizeForDisplayAndSrcset(FileInfo originalImage, bool overwriteExistingFiles,

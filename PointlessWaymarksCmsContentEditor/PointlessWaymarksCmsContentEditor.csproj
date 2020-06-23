@@ -29,7 +29,7 @@
     <PackageReference Include="FluentMigrator" Version="3.2.7" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.2.7" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.2.7" />
-    <PackageReference Include="FontAwesome5" Version="2.0.8" />
+    <PackageReference Include="FontAwesome5" Version="2.0.5" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GitInfo" Version="2.0.26">
       <PrivateAssets>all</PrivateAssets>
@@ -49,7 +49,7 @@
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.0" />
     <PackageReference Include="ObjectDumper.NET" Version="2.5.20158.1-pre" />
     <PackageReference Include="Ookii.Dialogs.Wpf.NETCore" Version="2.1.0" />
-    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.11.0" />
+    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.11.1" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112.2" />
