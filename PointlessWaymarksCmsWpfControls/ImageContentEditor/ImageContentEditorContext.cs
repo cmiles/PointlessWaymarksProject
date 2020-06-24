@@ -9,13 +9,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
-using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
+using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
@@ -437,10 +436,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
 
             {
-                PictureResizing.CheckImageOriginalFileIsInMediaAndContentDirectories(DbEntry);
+                StructureAndMediaContent.CheckImageOriginalFileIsInMediaAndContentDirectories(DbEntry,
+                    StatusContext.ProgressTracker());
 
                 var archiveFile = new FileInfo(Path.Combine(
-                    UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveImageDirectory().FullName,
+                    UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory().FullName,
                     toLoad.OriginalFileName));
 
                 if (archiveFile.Exists)
@@ -450,7 +450,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                         $"There is an original image file listed for this image - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected location of {archiveFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the image or " +
-                        "maybe your master media directory moved unexpectedly and you could close this editor " +
+                        "maybe your media directory moved unexpectedly and you could close this editor " +
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
             }
 
@@ -560,7 +560,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
-            await WriteSelectedFileToMasterMediaArchive();
+            await WriteSelectedFileToMediaArchive();
             var dataNotification = await SaveToDatabase();
             await WriteSelectedFileToLocalSite();
             await GenerateHtml();
@@ -660,7 +660,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
-            await WriteSelectedFileToMasterMediaArchive();
+            await WriteSelectedFileToMediaArchive();
             var dataNotification = await SaveToDatabase();
 
             if (dataNotification != null)
@@ -752,7 +752,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             return new List<(bool, string)>
             {
                 await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
-                await UserSettingsUtilities.ValidateLocalMasterMediaArchive(),
+                await UserSettingsUtilities.ValidateLocalMediaArchive(),
                 await TitleSummarySlugFolder.Validate(),
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()
@@ -805,12 +805,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 });
         }
 
-        private async Task WriteSelectedFileToMasterMediaArchive()
+        private async Task WriteSelectedFileToMediaArchive()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var userSettings = UserSettingsSingleton.CurrentSettings();
-            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchiveImageDirectory().FullName,
+            var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveImageDirectory().FullName,
                 SelectedFile.Name);
             if (destinationFileName == SelectedFile.FullName) return;
 

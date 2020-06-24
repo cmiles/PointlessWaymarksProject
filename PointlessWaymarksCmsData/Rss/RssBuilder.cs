@@ -72,11 +72,9 @@ namespace PointlessWaymarksCmsData.Rss
                     var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(loopPosts.MainPicture.Value);
 
                     if (imageInfo != null)
-                    {
                         itemDescription =
                             $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
                             $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
-                    }
                 }
 
                 if (string.IsNullOrWhiteSpace(itemDescription))

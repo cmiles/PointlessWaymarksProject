@@ -16,12 +16,11 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
 using MetadataExtractor.Formats.Xmp;
-using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
-using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
@@ -531,10 +530,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                PictureResizing.CheckPhotoOriginalFileIsInMediaAndContentDirectories(DbEntry);
+                StructureAndMediaContent.CheckPhotoOriginalFileIsInMediaAndContentDirectories(DbEntry,
+                    StatusContext.ProgressTracker());
 
                 var archiveFile = new FileInfo(Path.Combine(
-                    UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchivePhotoDirectory().FullName,
+                    UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
                     toLoad.OriginalFileName));
 
                 if (archiveFile.Exists)
@@ -544,7 +544,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                         $"There is an original file listed for this photo - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected location of {archiveFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the photo or " +
-                        "maybe your master media directory moved unexpectedly and you could close this editor " +
+                        "maybe your media directory moved unexpectedly and you could close this editor " +
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
             }
 
@@ -838,7 +838,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
-            await WriteSelectedFileToMasterMediaArchive();
+            await WriteSelectedFileToMediaArchive();
             var dataNotification = await SaveToDatabase();
             await WriteSelectedFileToLocalSite(false);
             await GenerateHtml();
@@ -947,7 +947,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
-            await WriteSelectedFileToMasterMediaArchive();
+            await WriteSelectedFileToMediaArchive();
             var dataNotification = await SaveToDatabase();
 
             if (dataNotification != null)
@@ -1056,7 +1056,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             return new List<(bool, string)>
             {
                 await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
-                await UserSettingsUtilities.ValidateLocalMasterMediaArchive(),
+                await UserSettingsUtilities.ValidateLocalMediaArchive(),
                 await TitleSummarySlugFolder.Validate(),
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()
@@ -1163,12 +1163,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 });
         }
 
-        private async Task WriteSelectedFileToMasterMediaArchive()
+        private async Task WriteSelectedFileToMediaArchive()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var userSettings = UserSettingsSingleton.CurrentSettings();
-            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchivePhotoDirectory().FullName,
+            var destinationFileName = Path.Combine(userSettings.LocalMediaArchivePhotoDirectory().FullName,
                 SelectedFile.Name);
             if (destinationFileName == SelectedFile.FullName) return;
 

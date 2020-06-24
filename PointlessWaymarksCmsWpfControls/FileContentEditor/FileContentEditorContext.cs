@@ -8,16 +8,14 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
-using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.FileHtml;
+using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -429,10 +427,11 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                PictureResizing.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry);
+                StructureAndMediaContent.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry,
+                    StatusContext.ProgressTracker());
 
                 var archiveFile = new FileInfo(Path.Combine(
-                    UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveFileDirectory().FullName,
+                    UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
                     DbEntry.OriginalFileName));
 
                 var fileContentDirectory =
@@ -447,7 +446,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                         $"There is an original file listed for this entry - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected locations of {archiveFile.FullName} or {contentFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the file or " +
-                        "maybe your master media directory moved unexpectedly and you could close this editor " +
+                        "maybe your media directory moved unexpectedly and you could close this editor " +
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
             }
 
@@ -510,7 +509,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            await WriteSelectedFileToMasterMediaArchive();
+            await WriteSelectedFileToMediaArchive();
             await SaveToDatabase();
             await WriteSelectedFileToLocalSite();
             await GenerateHtml();
@@ -657,7 +656,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            await WriteSelectedFileToMasterMediaArchive();
+            await WriteSelectedFileToMediaArchive();
             await SaveToDatabase();
         }
 
@@ -756,7 +755,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         }
 
 
-        private async Task WriteSelectedFileToMasterMediaArchive()
+        private async Task WriteSelectedFileToMediaArchive()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -765,7 +764,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             StatusContext.Progress("Saving File to Archive");
 
             var userSettings = UserSettingsSingleton.CurrentSettings();
-            var destinationFileName = Path.Combine(userSettings.LocalMasterMediaArchiveFileDirectory().FullName,
+            var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
                 SelectedFile.Name);
             if (destinationFileName == SelectedFile.FullName) return;
 

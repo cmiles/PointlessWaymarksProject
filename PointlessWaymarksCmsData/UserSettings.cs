@@ -12,7 +12,7 @@ namespace PointlessWaymarksCmsData
         private string _databaseFile;
         private string _defaultCreatedBy;
         private string _googleMapsApiKey = string.Empty;
-        private string _localMasterMediaArchive;
+        private string _localMediaArchive;
         private string _localSiteRootDirectory;
         private string _pdfToCairoExeDirectory;
         private string _pinboardApiToken;
@@ -90,13 +90,13 @@ namespace PointlessWaymarksCmsData
             }
         }
 
-        public string LocalMasterMediaArchive
+        public string LocalMediaArchive
         {
-            get => _localMasterMediaArchive;
+            get => _localMediaArchive;
             set
             {
-                if (value == _localMasterMediaArchive) return;
-                _localMasterMediaArchive = value;
+                if (value == _localMediaArchive) return;
+                _localMediaArchive = value;
                 OnPropertyChanged();
             }
         }

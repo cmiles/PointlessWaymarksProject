@@ -3,124 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData.Pictures
 {
     public static class PictureResizing
     {
-        public static (bool, string) CheckFileOriginalFileIsInMediaAndContentDirectories(FileContent dbContent)
-        {
-            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllFolders();
-
-            if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName)) return (true, "No Original File to process");
-
-            var archiveFile = new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveFileDirectory().FullName,
-                dbContent.OriginalFileName));
-
-            var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(dbContent);
-
-            var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
-
-            if (!archiveFile.Exists && !contentFile.Exists)
-                return (false,
-                    $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
-                    $"there appears to be a file missing for File Title {dbContent.Title} " + $"slug {dbContent.Slug}");
-
-            if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
-
-            if (!archiveFile.Exists && contentFile.Exists) contentFile.CopyTo(archiveFile.FullName);
-
-            archiveFile.Refresh();
-            contentFile.Refresh();
-
-            var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
-
-            if (bothFilesPresent)
-                return (true, $"Archive and Content File Present - {archiveFile.FullName}, {contentFile.FullName}");
-
-            return (false,
-                $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
-                $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}");
-        }
-
-        public static (bool, string) CheckImageOriginalFileIsInMediaAndContentDirectories(ImageContent dbContent)
-        {
-            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllFolders();
-
-            if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName)) return (true, "No Original File to process");
-
-            var archiveFile = new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchiveImageDirectory().FullName,
-                dbContent.OriginalFileName));
-
-            var imageContentDirectory =
-                UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbContent);
-
-            var contentFile = new FileInfo(Path.Combine(imageContentDirectory.FullName, dbContent.OriginalFileName));
-
-            if (!archiveFile.Exists && !contentFile.Exists)
-                return (false,
-                    $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
-                    $"there appears to be a file missing for Image Title {dbContent.Title} " +
-                    $"slug {dbContent.Slug}");
-
-            if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
-
-            if (!archiveFile.Exists && contentFile.Exists) contentFile.CopyTo(archiveFile.FullName);
-
-            archiveFile.Refresh();
-            contentFile.Refresh();
-
-            var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
-
-            if (bothFilesPresent)
-                return (true, $"Archive and Content File Present - {archiveFile.FullName}, {contentFile.FullName}");
-
-            return (false,
-                $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
-                $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}");
-        }
-
-        public static (bool, string) CheckPhotoOriginalFileIsInMediaAndContentDirectories(PhotoContent dbContent)
-        {
-            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllFolders();
-
-            if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName)) return (true, "No Original File to process");
-
-            var archiveFile = new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalMasterMediaArchivePhotoDirectory().FullName,
-                dbContent.OriginalFileName));
-
-            var photoContentDirectory =
-                UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbContent);
-
-            var contentFile = new FileInfo(Path.Combine(photoContentDirectory.FullName, dbContent.OriginalFileName));
-
-            if (!archiveFile.Exists && !contentFile.Exists)
-                return (false,
-                    $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
-                    $"there appears to be a file missing for Photo Title {dbContent.Title} " +
-                    $"slug {dbContent.Slug}");
-
-            if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
-
-            if (!archiveFile.Exists && contentFile.Exists) contentFile.CopyTo(archiveFile.FullName);
-
-            archiveFile.Refresh();
-            contentFile.Refresh();
-
-            var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
-
-            if (bothFilesPresent)
-                return (true, $"Archive and Content File Present - {archiveFile.FullName}, {contentFile.FullName}");
-
-            return (false,
-                $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
-                $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}");
-        }
-
         /// <summary>
         ///     This deletes Image Directory jpeg files that match this programs generated sizing naming conventions. If deleteAll
         ///     is true then all
@@ -177,53 +66,71 @@ namespace PointlessWaymarksCmsData.Pictures
             currentFiles.DisplayPicture?.File?.Delete();
         }
 
-        public static (bool, string) CopyCleanResizeImage(ImageContent dbEntry, IProgress<string> progress)
+        public static GenerationReturn CopyCleanResizeImage(ImageContent dbEntry, IProgress<string> progress)
         {
+            if (dbEntry == null)
+                return new GenerationReturn
+                {
+                    HasError = true, ErrorNote = "Null Image Content submitted to Copy Clean and Resize"
+                };
+
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
-            if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
-                return (true, "No Image to Process");
+            if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+                return new GenerationReturn
+                {
+                    HasError = true, ErrorNote = $"Image {dbEntry.Title} has no Original File"
+                };
 
             var imageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
-            var syncCopyResults = CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry);
+            var syncCopyResults =
+                StructureAndMediaContent.CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
 
-            if (!syncCopyResults.Item1) return syncCopyResults;
+            if (!syncCopyResults.HasError) return syncCopyResults;
 
             CleanDisplayAndSrcSetFilesInImageDirectory(dbEntry, true, progress);
 
             ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(imageDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);
 
-            return (true, $"Reached end of Copy, Clean and Resize for {dbEntry.Title}");
+            return GenerationReturn.NoError();
         }
 
         /// <summary>
         /// </summary>
         /// <param name="dbEntry"></param>
-        /// <param name="deleteAllExisting"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static (bool, string) CopyCleanResizePhoto(PhotoContent dbEntry, bool deleteAllExisting,
-            IProgress<string> progress)
+        public static GenerationReturn CopyCleanResizePhoto(PhotoContent dbEntry, IProgress<string> progress)
         {
+            if (dbEntry == null)
+                return new GenerationReturn
+                {
+                    HasError = true, ErrorNote = "Null Photo Content submitted to Copy Clean and Resize"
+                };
+
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
-            if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
-                return (true, "No Image to Process");
+            if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+                return new GenerationReturn
+                {
+                    HasError = true, ErrorNote = $"Photo {dbEntry.Title} has no Original File"
+                };
 
             var photoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
-            var syncCopyResults = CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry);
+            var syncCopyResults =
+                StructureAndMediaContent.CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
 
-            if (!syncCopyResults.Item1) return syncCopyResults;
+            if (!syncCopyResults.HasError) return syncCopyResults;
 
-            CleanDisplayAndSrcSetFilesInPhotoDirectory(dbEntry, deleteAllExisting, progress);
+            CleanDisplayAndSrcSetFilesInPhotoDirectory(dbEntry, true, progress);
 
             ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(photoDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);
 
-            return (true, $"Reached end of Copy, Clean and Resize for {dbEntry.Title}");
+            return GenerationReturn.NoError();
         }
 
         public static FileInfo ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
@@ -263,7 +170,7 @@ namespace PointlessWaymarksCmsData.Pictures
         public static List<FileInfo> ResizeForDisplayAndSrcset(PhotoContent dbEntry, bool overwriteExistingFiles,
             IProgress<string> progress)
         {
-            CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry);
+            StructureAndMediaContent.CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
@@ -275,7 +182,7 @@ namespace PointlessWaymarksCmsData.Pictures
         public static List<FileInfo> ResizeForDisplayAndSrcset(ImageContent dbEntry, bool overwriteExistingFiles,
             IProgress<string> progress)
         {
-            CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry);
+            StructureAndMediaContent.CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData.Pictures
@@ -10,7 +11,7 @@ namespace PointlessWaymarksCmsData.Pictures
     {
         public static void ConfirmOrGenerateImageDirectoryAndPictures(ImageContent dbEntry, IProgress<string> progress)
         {
-            PictureResizing.CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry);
+            StructureAndMediaContent.CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
@@ -21,7 +22,7 @@ namespace PointlessWaymarksCmsData.Pictures
 
         public static void ConfirmOrGeneratePhotoDirectoryAndPictures(PhotoContent dbEntry, IProgress<string> progress)
         {
-            PictureResizing.CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry);
+            StructureAndMediaContent.CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 

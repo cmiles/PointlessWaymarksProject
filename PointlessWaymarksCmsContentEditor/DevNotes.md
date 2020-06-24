@@ -38,6 +38,10 @@
 
 ## Notes
 
+6/24/2020
+
+Did some work to start trying to refactor the site generation around what I know now after working with the system - the main two items this go were to start building methods with a Generation Return object that allow better information return considering that one of the needed flows is to log an error, keep going and then pass the error information along. I don't think this is in it's final form yet but I think the current object and the methods around confirming all the folder structure and base media files are setup are a start.
+
 6/22/2020
 
 When I first found FontAwesome for WPF I was really thrilled - but a recent library update broke this functionality, could have been my usage or bad luck or ... and I was able to role back to an earlier library without issue - but I think in retrospect that what I should do instead is to use icons like those from http://modernuiicons.com/ and use a control for the 'wait' spinner. This version starts the process with a spinner control from http://blog.trustmycode.net/?p=133 and https://github.com/ThomasSteinbinder/WPFAnimatedLoadingSpinner.

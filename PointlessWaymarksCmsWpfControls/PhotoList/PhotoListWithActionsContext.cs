@@ -382,7 +382,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 if (currentLoop % 10 == 0)
                     StatusContext.Progress($"Cleaning Generated Images And Resizing {currentLoop} of {totalCount} - " +
                                            $"{loopSelected.DbEntry.Title}");
-                PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, true, StatusContext.ProgressTracker());
+                PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, StatusContext.ProgressTracker());
                 currentLoop++;
             }
         }

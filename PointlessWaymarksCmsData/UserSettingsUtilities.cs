@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData
@@ -54,10 +55,26 @@ namespace PointlessWaymarksCmsData
             return string.Empty;
         }
 
-        public static void CreateIfItDoesntExist(this DirectoryInfo directoryInfo)
+        public static GenerationReturn CreateIfItDoesNotExist(this DirectoryInfo directoryInfo)
         {
-            if (directoryInfo.Exists) return;
-            directoryInfo.Create();
+            if (directoryInfo.Exists) return GenerationReturn.NoError();
+
+            try
+            {
+                directoryInfo.Create();
+            }
+            catch (Exception e)
+            {
+                return new GenerationReturn
+                {
+                    HasError = true,
+                    Exception = e,
+                    ErrorNote =
+                        $"Trying to create Directory {directoryInfo?.FullName ?? "[No Name]"}  resulted in an Exception."
+                };
+            }
+
+            return GenerationReturn.NoError();
         }
 
         public static string CssMainStyleFileUrl(this UserSettings settings)
@@ -130,9 +147,9 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Links/LinkRss.xml";
         }
 
-        public static DirectoryInfo LocalMasterMediaArchiveFileDirectory(this UserSettings settings)
+        public static DirectoryInfo LocalMediaArchiveFileDirectory(this UserSettings settings)
         {
-            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Files"));
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Files"));
 
             if (!localDirectory.Exists) localDirectory.Create();
 
@@ -141,9 +158,9 @@ namespace PointlessWaymarksCmsData
             return localDirectory;
         }
 
-        public static DirectoryInfo LocalMasterMediaArchiveImageDirectory(this UserSettings settings)
+        public static DirectoryInfo LocalMediaArchiveImageDirectory(this UserSettings settings)
         {
-            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Images"));
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Images"));
 
             if (!localDirectory.Exists) localDirectory.Create();
 
@@ -153,9 +170,9 @@ namespace PointlessWaymarksCmsData
         }
 
 
-        public static DirectoryInfo LocalMasterMediaArchivePhotoDirectory(this UserSettings settings)
+        public static DirectoryInfo LocalMediaArchivePhotoDirectory(this UserSettings settings)
         {
-            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMasterMediaArchive, "Photos"));
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Photos"));
 
             if (!localDirectory.Exists) localDirectory.Create();
 
@@ -328,9 +345,9 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, "LinkRss")}.xml");
         }
 
-        public static DirectoryInfo LocalSiteMasterMediaArchiveDirectory(this UserSettings settings)
+        public static DirectoryInfo LocalSiteMediaArchiveDirectory(this UserSettings settings)
         {
-            var photoDirectory = new DirectoryInfo(settings.LocalMasterMediaArchive);
+            var photoDirectory = new DirectoryInfo(settings.LocalMediaArchive);
             if (!photoDirectory.Exists) photoDirectory.Create();
 
             photoDirectory.Refresh();
@@ -587,7 +604,7 @@ namespace PointlessWaymarksCmsData
                 var newRootDirectory =
                     new DirectoryInfo(Path.Combine(currentFile.Directory.FullName, timeStampForMissingValues));
 
-                newRootDirectory.CreateIfItDoesntExist();
+                newRootDirectory.CreateIfItDoesNotExist();
 
                 readResult.LocalSiteRootDirectory = newRootDirectory.FullName;
 
@@ -612,13 +629,13 @@ namespace PointlessWaymarksCmsData
                 hasUpdates = true;
             }
 
-            if (string.IsNullOrWhiteSpace(readResult.LocalMasterMediaArchive))
+            if (string.IsNullOrWhiteSpace(readResult.LocalMediaArchive))
             {
                 var newMediaArchive = new DirectoryInfo(Path.Combine(currentFile.Directory.FullName,
                     timeStampForMissingValues, $"PointlessWaymarks-MediaArchive-{timeStampForMissingValues}"));
 
                 if (!newMediaArchive.Exists) newMediaArchive.Create();
-                readResult.LocalMasterMediaArchive = newMediaArchive.FullName;
+                readResult.LocalMediaArchive = newMediaArchive.FullName;
                 hasUpdates = true;
             }
 
@@ -716,7 +733,7 @@ namespace PointlessWaymarksCmsData
                 Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsDatabase-{userFilename}.db");
 
             var mediaDirectory = new DirectoryInfo(Path.Combine(rootDirectory.FullName, "MediaArchive"));
-            newSettings.LocalMasterMediaArchive = mediaDirectory.FullName;
+            newSettings.LocalMediaArchive = mediaDirectory.FullName;
 
             progress?.Report("Adding fake default values...");
 
@@ -737,7 +754,7 @@ namespace PointlessWaymarksCmsData
 
             progress?.Report("Setting up directory structure.");
 
-            VerifyOrCreateAllFolders(newSettings);
+            newSettings.VerifyOrCreateAllTopLevelFolders(progress);
 
             return newSettings;
         }
@@ -785,22 +802,22 @@ namespace PointlessWaymarksCmsData
             return storageDirectory;
         }
 
-        public static async Task<(bool, string)> ValidateLocalMasterMediaArchive()
+        public static async Task<(bool, string)> ValidateLocalMediaArchive()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            if (string.IsNullOrWhiteSpace(settings.LocalMasterMediaArchive))
+            if (string.IsNullOrWhiteSpace(settings.LocalMediaArchive))
                 return (false, "No Local File Root User Setting Found");
 
             try
             {
-                var directory = new DirectoryInfo(settings.LocalMasterMediaArchive);
+                var directory = new DirectoryInfo(settings.LocalMediaArchive);
                 if (!directory.Exists) directory.Create();
                 directory.Refresh();
             }
             catch (Exception e)
             {
-                return (false, "Trouble with Local Master Media Archive Directory.");
+                return (false, "Trouble with Local Media Archive Directory.");
             }
 
             return (true, string.Empty);
@@ -827,34 +844,6 @@ namespace PointlessWaymarksCmsData
             return (true, string.Empty);
         }
 
-        public static void VerifyOrCreateAllFolders(this UserSettings settings)
-        {
-            settings.VerifyOrCreateMediaFolders();
-            settings.VerifyOrCreateLocalSiteFolders();
-        }
-
-        public static void VerifyOrCreateLocalSiteFolders(this UserSettings settings)
-        {
-            settings.LocalSiteDirectory().CreateIfItDoesntExist();
-            settings.LocalSitePhotoDirectory().CreateIfItDoesntExist();
-            settings.LocalSitePhotoGalleryDirectory().CreateIfItDoesntExist();
-            settings.LocalSiteDailyPhotoGalleryDirectory().CreateIfItDoesntExist();
-            settings.LocalSiteFileDirectory().CreateIfItDoesntExist();
-            settings.LocalSiteImageDirectory().CreateIfItDoesntExist();
-            settings.LocalSiteNoteDirectory().CreateIfItDoesntExist();
-            settings.LocalSitePostDirectory().CreateIfItDoesntExist();
-            settings.LocalSiteLinkDirectory().CreateIfItDoesntExist();
-            settings.LocalSiteNoteDirectory().CreateIfItDoesntExist();
-            settings.LocalSiteTagsDirectory().CreateIfItDoesntExist();
-        }
-
-        public static void VerifyOrCreateMediaFolders(this UserSettings settings)
-        {
-            settings.LocalSiteMasterMediaArchiveDirectory().CreateIfItDoesntExist();
-            settings.LocalMasterMediaArchivePhotoDirectory().CreateIfItDoesntExist();
-            settings.LocalMasterMediaArchiveImageDirectory().CreateIfItDoesntExist();
-            settings.LocalMasterMediaArchiveFileDirectory().CreateIfItDoesntExist();
-        }
 
         public static async Task WriteSettings(UserSettings toWrite)
         {

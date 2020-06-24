@@ -16,6 +16,7 @@ using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.FileHtml;
+using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.IndexHtml;
 using PointlessWaymarksCmsData.JsonFiles;
@@ -501,28 +502,30 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var db = await Db.Context();
+            var results = await StructureAndMediaContent.CleanAndResizeAllImageFiles(StatusContext.ProgressTracker());
 
-            var allItems = await db.ImageContents.ToListAsync();
-
-            var loopCount = 1;
-            var totalCount = allItems.Count;
-
-            StatusContext.Progress($"Found {totalCount} Images to Clean and Resize");
-
-            foreach (var loopItem in allItems)
+            if (results.Any())
             {
-                StatusContext.Progress($"Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
+                var frozenNow = DateTime.Now;
 
-                var fileCheck = PictureResizing.CopyCleanResizeImage(loopItem, StatusContext.ProgressTracker());
+                var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                    $"CleanAndResizeAllImageFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
-                if (!fileCheck.Item1)
-                    await StatusContext.ShowMessage("File Error",
-                        $"There was an error processing image {loopItem.Title} " +
-                        $"- {fileCheck.Item2} - after you hit Ok processing will continue but" +
-                        " the process may error...", new List<string> {"Ok"});
+                var htmlString =
+                    ($"<h1>Clean and Resize All Image Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
+                     results.ToHtmlTable(new {@class = "pure-table pure-table-striped"}))
+                    .ToHtmlDocumentWithPureCss("Clean and Resize Images Error Report", "body {margin: 12px;}");
 
-                loopCount++;
+                await File.WriteAllTextAsync(file.FullName, htmlString);
+
+                var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
+
+                Process.Start(ps);
+
+                await StatusContext.ShowMessageWithOkButton("Image Clean and Resize All Errors",
+                    $"There were {results.Count} errors while Cleaning and Resizing All Image Files - " +
+                    $"an error file - {file.FullName} - has been generated and should open automatically in " +
+                    "your browser.");
             }
         }
 
@@ -531,28 +534,30 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var db = await Db.Context();
+            var results = await StructureAndMediaContent.CleanAndResizeAllPhotoFiles(StatusContext.ProgressTracker());
 
-            var allItems = await db.PhotoContents.ToListAsync();
-
-            var loopCount = 1;
-            var totalCount = allItems.Count;
-
-            StatusContext.Progress($"Found {totalCount} Photos to Clean and Resize");
-
-            foreach (var loopItem in allItems)
+            if (results.Any())
             {
-                StatusContext.Progress($"Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
+                var frozenNow = DateTime.Now;
 
-                var fileCheck = PictureResizing.CopyCleanResizePhoto(loopItem, true, StatusContext.ProgressTracker());
+                var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                    $"CleanAndResizeAllPhotoFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
-                if (!fileCheck.Item1)
-                    await StatusContext.ShowMessage("File Error",
-                        $"There was an error processing photo {loopItem.Title} " +
-                        $"- {fileCheck.Item2} - after you hit Ok processing will continue but" +
-                        " the process may error...", new List<string> {"Ok"});
+                var htmlString =
+                    ($"<h1>Clean and Resize All Photo Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
+                     results.ToHtmlTable(new {@class = "pure-table pure-table-striped"}))
+                    .ToHtmlDocumentWithPureCss("Clean and Resize Photos Error Report", "body {margin: 12px;}");
 
-                loopCount++;
+                await File.WriteAllTextAsync(file.FullName, htmlString);
+
+                var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
+
+                Process.Start(ps);
+
+                await StatusContext.ShowMessageWithOkButton("Photo Clean and Resize All Errors",
+                    $"There were {results.Count} errors while Cleaning and Resizing All Photo Files - " +
+                    $"an error file - {file.FullName} - has been generated and should open automatically in " +
+                    "your browser.");
             }
         }
 
@@ -599,22 +604,31 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var db = await Db.Context();
+            var results =
+                await StructureAndMediaContent.ConfirmAllFileContentFilesArePresent(StatusContext.ProgressTracker());
 
-            var allItems = await db.FileContents.ToListAsync();
-
-            var loopCount = 1;
-            var totalCount = allItems.Count;
-
-            StatusContext.Progress($"Found {totalCount} Files to Confirm");
-
-            foreach (var loopItem in allItems)
+            if (results.Any())
             {
-                StatusContext.Progress($"Confirm File Content for {loopItem.Title} - {loopCount} of {totalCount}");
+                var frozenNow = DateTime.Now;
 
-                PictureResizing.CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem);
+                var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                    $"CleanAndResizeAllFilesContentFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
-                loopCount++;
+                var htmlString =
+                    ($"<h1>Confirm All File Content Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +
+                     results.ToHtmlTable(new {@class = "pure-table pure-table-striped"}))
+                    .ToHtmlDocumentWithPureCss("Confirm Files Error Report", "body {margin: 12px;}");
+
+                await File.WriteAllTextAsync(file.FullName, htmlString);
+
+                var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
+
+                Process.Start(ps);
+
+                await StatusContext.ShowMessageWithOkButton("File Content Files Check Errors",
+                    $"There were {results.Count} errors while Confirming all File Content Files - " +
+                    $"an error file - {file.FullName} - has been generated and should open automatically in " +
+                    "your browser.");
             }
         }
 
@@ -730,14 +744,6 @@ namespace PointlessWaymarksCmsContentEditor
             foreach (var loopItem in allItems)
             {
                 StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
-
-                var originalFileCheck = PictureResizing.CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem);
-
-                if (!originalFileCheck.Item1)
-                    await StatusContext.ShowMessage("File Error",
-                        $"There was an error processing file item {loopItem.Title} " +
-                        $"- {originalFileCheck.Item2} - after you hit Ok processing will continue but" +
-                        " the process may error...", new List<string> {"Ok"});
 
                 var htmlModel = new SingleFilePage(loopItem);
                 htmlModel.WriteLocalHtml();
@@ -951,7 +957,7 @@ namespace PointlessWaymarksCmsContentEditor
             ShowSettingsFileChooser = false;
 
             var settings = await UserSettingsUtilities.ReadSettings(StatusContext.ProgressTracker());
-            settings.VerifyOrCreateAllFolders();
+            settings.VerifyOrCreateAllTopLevelFolders(StatusContext.ProgressTracker());
 
             var possibleDbFile = new FileInfo(settings.DatabaseFile);
 

@@ -38,13 +38,13 @@
                              Text="{Binding EditorSettings.LocalSiteRootDirectory, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Target="{Binding ElementName=LocalMasterMediaArchiveTextBox}"
+                    <Label Target="{Binding ElementName=LocalMediaArchiveTextBox}"
                            Style="{StaticResource DataEntryLabelStyle}">
-                        Local Master Media Archive
+                        Local Media Archive
                     </Label>
-                    <TextBox Name="LocalMasterMediaArchiveTextBox"
+                    <TextBox Name="LocalMediaArchiveTextBox"
                              Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                             Text="{Binding EditorSettings.LocalMasterMediaArchive, UpdateSourceTrigger=PropertyChanged}" />
+                             Text="{Binding EditorSettings.LocalMediaArchive, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Target="{Binding ElementName=SiteUrlTextBox}" Style="{StaticResource DataEntryLabelStyle}">Url</Label>
