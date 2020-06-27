@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using AngleSharp.Text;
@@ -35,12 +36,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _generateSelectedHtmlCommand;
         private PhotoListContext _listContext;
         private Command _newContentCommand;
-        private Command _noTagsReportCommand;
         private Command _openUrlForPhotoListCommand;
         private Command _openUrlForSelectedCommand;
         private Command _photoCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
-        private Command _reportTitleAndTakenDoNotMatchReportCommand;
+        private Command _reportAllPhotosCommand;
+        private Command _reportBlankLicenseCommand;
+        private Command _reportNoTagsCommand;
+        private Command _reportTakenAndLicenseYearDoNotMatchCommand;
+        private Command _reportTitleAndTakenDoNotMatchCommand;
+        private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
@@ -149,17 +154,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
         public Command NewContentFromFilesWithAutosaveCommand { get; set; }
 
-        public Command NoTagsReportCommand
-        {
-            get => _noTagsReportCommand;
-            set
-            {
-                if (Equals(value, _noTagsReportCommand)) return;
-                _noTagsReportCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Command OpenUrlForPhotoListCommand
         {
             get => _openUrlForPhotoListCommand;
@@ -204,13 +198,68 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public Command ReportTitleAndTakenDoNotMatchReportCommand
+        public Command ReportAllPhotosCommand
         {
-            get => _reportTitleAndTakenDoNotMatchReportCommand;
+            get => _reportAllPhotosCommand;
             set
             {
-                if (Equals(value, _reportTitleAndTakenDoNotMatchReportCommand)) return;
-                _reportTitleAndTakenDoNotMatchReportCommand = value;
+                if (Equals(value, _reportAllPhotosCommand)) return;
+                _reportAllPhotosCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ReportBlankLicenseCommand
+        {
+            get => _reportBlankLicenseCommand;
+            set
+            {
+                if (Equals(value, _reportBlankLicenseCommand)) return;
+                _reportBlankLicenseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ReportNoTagsCommand
+        {
+            get => _reportNoTagsCommand;
+            set
+            {
+                if (Equals(value, _reportNoTagsCommand)) return;
+                _reportNoTagsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ReportTakenAndLicenseYearDoNotMatchCommand
+        {
+            get => _reportTakenAndLicenseYearDoNotMatchCommand;
+            set
+            {
+                if (Equals(value, _reportTakenAndLicenseYearDoNotMatchCommand)) return;
+                _reportTakenAndLicenseYearDoNotMatchCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ReportTitleAndTakenDoNotMatchCommand
+        {
+            get => _reportTitleAndTakenDoNotMatchCommand;
+            set
+            {
+                if (Equals(value, _reportTitleAndTakenDoNotMatchCommand)) return;
+                _reportTitleAndTakenDoNotMatchCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SelectedToExcelCommand
+        {
+            get => _selectedToExcelCommand;
+            set
+            {
+                if (Equals(value, _selectedToExcelCommand)) return;
+                _selectedToExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -493,13 +542,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        private async Task<List<PhotoContent>> NoTagsReportGenerator()
-        {
-            var db = await Db.Context();
-
-            return await db.PhotoContents.Where(x => x.Tags == "").ToListAsync();
-        }
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -559,12 +601,73 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
-
-        private async Task<List<PhotoContent>> ReportTitleAndTakenDoNotMatchReportGenerator()
+        private async Task<List<PhotoContent>> ReportAllPhotosGenerator()
         {
             var db = await Db.Context();
 
-            var allContents = await db.PhotoContents.ToListAsync();
+            return await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+        }
+
+        private async Task<List<PhotoContent>> ReportBlackLicenseGenerator()
+        {
+            var db = await Db.Context();
+
+            var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+
+            var returnList = new List<PhotoContent>();
+
+            foreach (var loopContents in allContents)
+                if (string.IsNullOrWhiteSpace(loopContents.License))
+                    returnList.Add(loopContents);
+
+            return returnList;
+        }
+
+        private async Task<List<PhotoContent>> ReportNoTagsGenerator()
+        {
+            var db = await Db.Context();
+
+            return await db.PhotoContents.Where(x => x.Tags == "").ToListAsync();
+        }
+
+        private async Task<List<PhotoContent>> ReportTakenAndLicenseYearDoNotMatchGenerator()
+        {
+            var db = await Db.Context();
+
+            var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+
+            var returnList = new List<PhotoContent>();
+
+            foreach (var loopContents in allContents)
+            {
+                if (string.IsNullOrWhiteSpace(loopContents.License))
+                {
+                    returnList.Add(loopContents);
+                    continue;
+                }
+
+                var possibleYear = Regex.Match(loopContents.License, @"(?<PossibleYear>[12]\d\d\d)",
+                    RegexOptions.IgnoreCase).Value;
+
+                if (string.IsNullOrWhiteSpace(possibleYear)) continue;
+
+                if (!int.TryParse(possibleYear, out var licenseYear)) continue;
+
+                var createdOn = loopContents.PhotoCreatedOn.Year;
+
+                if (createdOn == licenseYear) continue;
+
+                returnList.Add(loopContents);
+            }
+
+            return returnList;
+        }
+
+        private async Task<List<PhotoContent>> ReportTitleAndTakenDoNotMatchGenerator()
+        {
+            var db = await Db.Context();
+
+            var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
 
             var returnList = new List<PhotoContent>();
 
@@ -608,6 +711,20 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             newWindow.Show();
         }
 
+        public async Task SelectedToExcel()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing to send to Excel?");
+                return;
+            }
+
+            ExcelHelpers.ContentToExcelFileAsTable(
+                ListContext.SelectedItems.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedPhotos");
+        }
+
         private void SetupContextAndCommands(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
@@ -626,17 +743,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
             RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
             ForcedResizeCommand = new Command(() => StatusContext.RunBlockingTask(ForcedResize));
+            SelectedToExcelCommand = new Command(() => StatusContext.RunNonBlockingTask(SelectedToExcel));
 
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
             ExtractNewLinksInSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
 
-            NoTagsReportCommand = new Command(() =>
+            ReportNoTagsCommand = new Command(() =>
                 StatusContext.RunNonBlockingTask(async () =>
-                    await RunReport(NoTagsReportGenerator, "No Tags Photo List")));
-            ReportTitleAndTakenDoNotMatchReportCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-                await RunReport(ReportTitleAndTakenDoNotMatchReportGenerator,
+                    await RunReport(ReportNoTagsGenerator, "No Tags Photo List")));
+            ReportTitleAndTakenDoNotMatchCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+                await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Created Mismatch Photo List")));
+            ReportTakenAndLicenseYearDoNotMatchCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+                await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator,
                     "Title and Created Mismatch Photo List")));
+            ReportAllPhotosCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+                await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List")));
+            ReportBlankLicenseCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+                await RunReport(ReportBlackLicenseGenerator, "Title and Created Mismatch Photo List")));
         }
 
         private async Task TryAutomateEditorSaveGenerateAndClose(PhotoContentEditorWindow editor, FileInfo loopFile)

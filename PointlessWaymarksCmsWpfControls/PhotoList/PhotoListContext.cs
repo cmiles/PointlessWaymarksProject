@@ -26,7 +26,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             ReportQuery
         }
 
-        private bool _allLoaded;
         private ObservableCollection<PhotoListListItem> _items;
         private string _lastSortColumn;
         private PhotoListLoadMode _loadMode = PhotoListLoadMode.Recent;
@@ -67,18 +66,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             DataNotifications.PhotoContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
         }
-
-        public bool AllLoaded
-        {
-            get => _allLoaded;
-            set
-            {
-                if (value == _allLoaded) return;
-                _allLoaded = value;
-                OnPropertyChanged();
-            }
-        }
-
 
         public ObservableCollection<PhotoListListItem> Items
         {

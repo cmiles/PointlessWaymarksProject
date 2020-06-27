@@ -25,8 +25,14 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Reports">
-                <MenuItem Header="No Tags" Command="{Binding NoTagsReportCommand}"/>
-                <MenuItem Header="Title and Photo Created Don't Match" Command="{Binding ReportTitleAndTakenDoNotMatchReportCommand}"/>
+                <MenuItem Header="No Tags" Command="{Binding ReportNoTagsCommand}"/>
+                <MenuItem Header="Title and Photo Created Don't Match" Command="{Binding ReportTitleAndTakenDoNotMatchCommand}"/>
+                <MenuItem Header="License is Blank" Command="{Binding ReportBlankLicenseCommand}"/>
+                <MenuItem Header="License Year and Taken Year Don't Match" Command="{Binding ReportTakenAndLicenseYearDoNotMatchCommand}"/>
+                <MenuItem Header="All Photos" Command="{Binding ReportAllPhotosCommand}"/>
+            </MenuItem>
+            <MenuItem Header="Excel">
+                <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}"/>
             </MenuItem>
         </Menu>
         <local:PhotoListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />

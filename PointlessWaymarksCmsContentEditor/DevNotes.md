@@ -1,10 +1,15 @@
 ﻿## Todos
  - A bad content code should be handled better
+ - Wrap the Out of Memory that System.Drawing Image FromFile can throw that doesn't actually mean out of memory and rather means 'format issue'
+ - Look at https://github.com/cyotek/SimpleScreenshotCapture/blob/master/src/ScreenshotCapture.cs to get rid of xaml island screen shot issue.
+ - Extend To Excel to more Types
+ - Excel Import
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
- - Look at the SendInBlue API - because the program doesn't actually 'publish' (it just creates the files to publish) not aiming for full auto but do want a user triggered (button!) action to generate an email.
- - Gaurd javascript search code against null errors (this would be an error case in the generation but might be worth assuming 'will happen eventually' - came up with a naming error)
  - In Search it might be nice to have the content type on the line with date?
+ - Replace Font Awesome Usage
+ - A Generation Flow with consistent output and the goal of continuing past most errors with an error report at the end
+   - Worked on first ideas and a return type
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -16,17 +21,12 @@
 
 ## Ideas
  - Auto-validate all html output?
- - Animate changes on the Lists when filtered
  - Look at deployment options - self contained? msix? automated?
  - Watch https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/ - the source generators look like they could be quite interesting for INPC and HasChanges
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
- - What if you piped/setup your google alerts to RSS and there was integrated support for pulling them in and working with them. Obvious con is not sure even if RSS is still currently an option whether it will always be an option.
- - Backup the master media directory, database and current site to a dated folder (where?)
  - Could all font sizes be controlled by slider? I like the control in the editor but maybe everywhere would be more useful?
- - Detect image change and force over write style image generation
  - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site
  - How hard would it be to create a GridSplitter that would be easy to set the initial split based off of the last editor use - and/or that could completely hide content to one side with a shortcut
- - Look at https://github.com/saucecontrol/PhotoSauce for image resizing - for speed and quality, but also because I find it difficult to fully understand the implications of the GNU Affero General Public License v3.0 - this project is fully open with reference to the source available so I believe that all intended uses are in the spirit of that license however I am not completely sure about the mix of licenses and details...
  
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
@@ -44,9 +44,9 @@ Did some work to start trying to refactor the site generation around what I know
 
 6/22/2020
 
-When I first found FontAwesome for WPF I was really thrilled - but a recent library update broke this functionality, could have been my usage or bad luck or ... and I was able to role back to an earlier library without issue - but I think in retrospect that what I should do instead is to use icons like those from http://modernuiicons.com/ and use a control for the 'wait' spinner. This version starts the process with a spinner control from http://blog.trustmycode.net/?p=133 and https://github.com/ThomasSteinbinder/WPFAnimatedLoadingSpinner.
+When I first found FontAwesome for WPF I was really thrilled - but a recent library update broke this functionality, could have been my usage or bad luck or ... and I was able to role back to an earlier library without issue - but I think in retrospect that what I should do instead is to use icons like those from http://modernuiicons.com/ and use a control for the 'wait' spinner. This version starts the process with a spinner control from http://blog.trustmycode.net/?p=133 and https://github.com/ThomasSteinbinder/WPFAnimatedLoadingSpinner - I believe this will be more durable in the long term and especially with the extreme durability, at least in the past, of MS Desktop technologies there is a benefit to leaning in when reasonable to longer lasting approaches.
 
-This is the first generation of the site that I ran into an issue where a page had a bracket code to a non-existant Content ID - I added some guard code, changed the generation ordering and added some code around checking for and generating missing content but this need more attention both potentially in 'pre-checks' and/or in making sure that in as many cases as possible generation can continue and a good error report is generated.
+This is the first generation of the site that I ran into an issue where a page had a bracket code to a non-existent Content ID - I added some guard code, changed the generation ordering and added some code around checking for and generating missing content but this need more attention both potentially in 'pre-checks' and/or in making sure that in as many cases as possible generation can continue and a good error report is generated.
 
 6/17/2020
 
@@ -204,7 +204,7 @@ Added an initial Screen Shot implementation - originally I had thought to use ht
 
 Did some help text for the common fields - needs reformatting I think but basic idea works - test in Posts atm.
 
-In writing the help realized that the title of a photo is not actually displayed on the photo page - still happy with the current layout that doesn't put it bold or at the top - but the title should be present, so made an overload of the caption to include it. Interestly for general purpose use I ditched title in caption earlier - but for this specific case I think it makes sense.
+In writing the help realized that the title of a photo is not actually displayed on the photo page - still happy with the current layout that doesn't put it bold or at the top - but the title should be present, so made an overload of the caption to include it. Interestingly for general purpose use I ditched title in caption earlier - but for this specific case I think it makes sense.
 
 A few CSS tweaks for PointlessWaymarks.com
 
