@@ -699,6 +699,12 @@ namespace PointlessWaymarksCmsData
             return new FileInfo(Path.Combine(StorageDirectory().FullName, SettingsFileName));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userFilename">File Name for the </param>
+        /// <param name="progress"></param>
+        /// <returns></returns>
         public static async Task<UserSettings> SetupNewSite(string userFilename, IProgress<string> progress)
         {
             if (!FolderFileUtility.IsValidFilename(userFilename))

@@ -38,6 +38,10 @@
 
 ## Notes
 
+6/28/2020
+
+Jumping around a little to work on some tests - now have a start on creating a test site in a nunit OneTimeSetup, added a test that checks that the very top level folders were create and added two content files to the test project for future use. Working on the methods that check that media files are both in the media folder and the content folder made me think about how easy it would be to make a mistake that types/compiler would not catch - hoping this is a good start to getting some tests in place on all the file and directory creation.
+
 6/27/2020
 
 Expanded some on the GenerationReturn work - I like some of the details although I am slightly torn over whether this should be 'just' a log type, ie is it worth having log entries and the Generation Returns that also write to the log? Generation is such a special case I think this is 'worth it' but it is frankly a little hard to say.
