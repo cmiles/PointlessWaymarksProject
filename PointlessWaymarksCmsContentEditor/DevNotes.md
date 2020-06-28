@@ -38,6 +38,10 @@
 
 ## Notes
 
+6/27/2020
+
+Expanded some on the GenerationReturn work - I like some of the details although I am slightly torn over whether this should be 'just' a log type, ie is it worth having log entries and the Generation Returns that also write to the log? Generation is such a special case I think this is 'worth it' but it is frankly a little hard to say.
+
 6/24/2020
 
 Did some work to start trying to refactor the site generation around what I know now after working with the system - the main two items this go were to start building methods with a Generation Return object that allow better information return considering that one of the needed flows is to log an error, keep going and then pass the error information along. I don't think this is in it's final form yet but I think the current object and the methods around confirming all the folder structure and base media files are setup are a start.
