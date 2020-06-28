@@ -17,47 +17,45 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
 
             var returnList = new List<GenerationReturn>();
 
-            returnList.AddRange(GenerationReturn.FilterForErrors(db.ImageContents.ToList().Select(x =>
+            var y = await Task.WhenAll((await db.ImageContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteImageContentDirectory(x),
-                    $"Check Content Folder for Image {x.Title}")).ToList()));
+                    $"Check Content Folder for Image {x.Title}")));
 
-            returnList.AddRange(GenerationReturn.FilterForErrors(db.FileContents.ToList().Select(x =>
+            returnList.AddRange(await Task.WhenAll((await db.ImageContents.ToListAsync()).Select(x =>
+                GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteImageContentDirectory(x),
+                    $"Check Content Folder for Image {x.Title}"))));
+
+            returnList.AddRange(await Task.WhenAll((await db.FileContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteFileContentDirectory(x),
-                    $"Check Content Folder for File {x.Title}")).ToList()));
+                    $"Check Content Folder for File {x.Title}"))));
 
-            returnList.AddRange(GenerationReturn.FilterForErrors(db.NoteContents.ToList().Select(x =>
+            returnList.AddRange(await Task.WhenAll((await db.NoteContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteNoteContentDirectory(x),
-                    $"Check Content Folder for Note {x.Title}")).ToList()));
+                    $"Check Content Folder for Note {x.Title}"))));
 
-            returnList.AddRange(GenerationReturn.FilterForErrors(db.PostContents.ToList().Select(x =>
+            returnList.AddRange(await Task.WhenAll((await db.PostContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePostContentDirectory(x),
-                    $"Check Content Folder for Post {x.Title}")).ToList()));
+                    $"Check Content Folder for Post {x.Title}"))));
 
-            returnList.AddRange(GenerationReturn.FilterForErrors(db.PhotoContents.ToList().Select(x =>
+            returnList.AddRange(await Task.WhenAll((await db.PhotoContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePhotoContentDirectory(x),
-                    $"Check Content Folder for Photo {x.Title}")).ToList()));
+                    $"Check Content Folder for Photo {x.Title}"))));
 
             return returnList;
         }
 
-        public static GenerationReturn CheckFileOriginalFileIsInMediaAndContentDirectories(FileContent dbContent,
-            IProgress<string> progress)
+        public static async Task<GenerationReturn> CheckFileOriginalFileIsInMediaAndContentDirectories(
+            FileContent dbContent, IProgress<string> progress)
         {
             if (dbContent == null)
-                return new GenerationReturn
-                {
-                    HasError = true, ErrorNote = "Null File Content was submitted to the File File Check"
-                };
+                return await GenerationReturn.Error(
+                    "Null File Content was submitted to the Check of File in the Media and Content Directories");
 
             UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders(progress);
 
             if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
-                return new GenerationReturn
-                {
-                    HasError = true,
-                    ContentId = dbContent.ContentId,
-                    ErrorNote = $"File {dbContent.Title} does not have an Original File assigned"
-                };
+                return await GenerationReturn.Error($"File {dbContent.Title} does not have an Original File assigned",
+                    dbContent.ContentId);
 
             var archiveFile = new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
@@ -68,14 +66,11 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
 
             if (!archiveFile.Exists && !contentFile.Exists)
-                return new GenerationReturn
-                {
-                    HasError = true,
-                    ContentId = dbContent.ContentId,
-                    ErrorNote = $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
-                                $"there appears to be a file missing for File Title {dbContent.Title} " +
-                                $"slug {dbContent.Slug}"
-                };
+                return await GenerationReturn.Error(
+                    $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
+                    $"there appears to be a file missing for File Title {dbContent.Title} " + $"slug {dbContent.Slug}",
+                    dbContent.ContentId);
+
 
             if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
 
@@ -87,54 +82,43 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
 
             if (bothFilesPresent)
-                return GenerationReturn.NoError();
+                return await GenerationReturn.Success(
+                    $"File {dbContent.Title} Present in both Content and Media Folders", dbContent.ContentId);
 
-            return new GenerationReturn
-            {
-                HasError = true,
-                ContentId = dbContent.ContentId,
-                ErrorNote = $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
-                            $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}"
-            };
+            return await GenerationReturn.Error(
+                $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
+                $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
+                dbContent.ContentId);
         }
 
-        public static GenerationReturn CheckImageOriginalFileIsInMediaAndContentDirectories(ImageContent dbContent,
+        public static async Task<GenerationReturn> CheckImageFileIsInMediaAndContentDirectories(ImageContent dbContent,
             IProgress<string> progress)
         {
             if (dbContent == null)
-                return new GenerationReturn
-                {
-                    HasError = true, ErrorNote = "Null Image Content was submitted to the Image File Check"
-                };
+                return await GenerationReturn.Error(
+                    "Null Image Content was submitted to the Check of File in the Media and Content Directories");
 
             UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders(progress);
 
             if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
-                return new GenerationReturn
-                {
-                    HasError = true,
-                    ContentId = dbContent.ContentId,
-                    ErrorNote = $"Image {dbContent.Title} does not have an Original File assigned"
-                };
+                return await GenerationReturn.Error($"Image {dbContent.Title} does not have an Original File assigned",
+                    dbContent.ContentId);
 
             var archiveFile = new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory().FullName,
                 dbContent.OriginalFileName));
 
-            var imageContentDirectory =
+            var fileContentDirectory =
                 UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbContent);
 
-            var contentFile = new FileInfo(Path.Combine(imageContentDirectory.FullName, dbContent.OriginalFileName));
+            var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
 
             if (!archiveFile.Exists && !contentFile.Exists)
-                return new GenerationReturn
-                {
-                    HasError = true,
-                    ContentId = dbContent.ContentId,
-                    ErrorNote = $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
-                                $"there appears to be a file missing for Image Title {dbContent.Title} " +
-                                $"slug {dbContent.Slug}"
-                };
+                return await GenerationReturn.Error(
+                    $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
+                    $"there appears to be a file missing for Image Title {dbContent.Title} " + $"slug {dbContent.Slug}",
+                    dbContent.ContentId);
+
 
             if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
 
@@ -146,54 +130,42 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
 
             if (bothFilesPresent)
-                return GenerationReturn.NoError();
+                return await GenerationReturn.Success(
+                    $"Image {dbContent.Title} Present in both Content and Media Folders", dbContent.ContentId);
 
-            return new GenerationReturn
-            {
-                HasError = true,
-                ContentId = dbContent.ContentId,
-                ErrorNote = $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
-                            $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}"
-            };
+            return await GenerationReturn.Error(
+                $"There was a problem - Archive Image Present: {archiveFile.Exists}, " +
+                $"Content Image Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
+                dbContent.ContentId);
         }
 
-        public static GenerationReturn CheckPhotoOriginalFileIsInMediaAndContentDirectories(PhotoContent dbContent,
+        public static async Task<GenerationReturn> CheckPhotoFileIsInMediaAndContentDirectories(PhotoContent dbContent,
             IProgress<string> progress)
         {
             if (dbContent == null)
-                return new GenerationReturn
-                {
-                    HasError = true, ErrorNote = "Null Photo Content was submitted to the Photo File Check"
-                };
+                return await GenerationReturn.Error(
+                    "Null Photo Content was submitted to the Check of File in the Media and Content Directories");
 
             UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders(progress);
 
             if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
-                return new GenerationReturn
-                {
-                    HasError = true,
-                    ContentId = dbContent.ContentId,
-                    ErrorNote = $"Photo {dbContent.Title} does not have an Original File assigned"
-                };
+                return await GenerationReturn.Error($"Photo {dbContent.Title} does not have an Original File assigned",
+                    dbContent.ContentId);
 
             var archiveFile = new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
                 dbContent.OriginalFileName));
 
-            var photoContentDirectory =
+            var fileContentDirectory =
                 UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbContent);
 
-            var contentFile = new FileInfo(Path.Combine(photoContentDirectory.FullName, dbContent.OriginalFileName));
+            var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
 
             if (!archiveFile.Exists && !contentFile.Exists)
-                return new GenerationReturn
-                {
-                    HasError = true,
-                    ContentId = dbContent.ContentId,
-                    ErrorNote = $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
-                                $"there appears to be a file missing for Photo Title {dbContent.Title} " +
-                                $"slug {dbContent.Slug}"
-                };
+                return await GenerationReturn.Error(
+                    $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
+                    $"there appears to be a file missing for Photo Title {dbContent.Title} " + $"slug {dbContent.Slug}",
+                    dbContent.ContentId);
 
             if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
 
@@ -205,15 +177,13 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
 
             if (bothFilesPresent)
-                return GenerationReturn.NoError();
+                return await GenerationReturn.Success(
+                    $"Photo {dbContent.Title} Present in both Content and Media Folders", dbContent.ContentId);
 
-            return new GenerationReturn
-            {
-                HasError = true,
-                ContentId = dbContent.ContentId,
-                ErrorNote = $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
-                            $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}"
-            };
+            return await GenerationReturn.Error(
+                $"There was a problem - Archive Photo Present: {archiveFile.Exists}, " +
+                $"Content Photo Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
+                dbContent.ContentId);
         }
 
         public static async Task<List<GenerationReturn>> CleanAndResizeAllImageFiles(IProgress<string> progress)
@@ -233,12 +203,12 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             {
                 progress.Report($"Image Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                returnList.Add(PictureResizing.CopyCleanResizeImage(loopItem, progress));
+                returnList.Add(await PictureResizing.CopyCleanResizeImage(loopItem, progress));
 
                 loopCount++;
             }
 
-            return GenerationReturn.FilterForErrors(returnList);
+            return returnList;
         }
 
         public static async Task<List<GenerationReturn>> CleanAndResizeAllPhotoFiles(IProgress<string> progress)
@@ -258,12 +228,12 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             {
                 progress.Report($"Photo Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                returnList.Add(PictureResizing.CopyCleanResizePhoto(loopItem, progress));
+                returnList.Add(await PictureResizing.CopyCleanResizePhoto(loopItem, progress));
 
                 loopCount++;
             }
 
-            return GenerationReturn.FilterForErrors(returnList);
+            return returnList;
         }
 
         public static async Task<List<GenerationReturn>> ConfirmAllFileContentFilesArePresent(
@@ -284,12 +254,12 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             {
                 progress.Report($"File Check for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                returnList.Add(CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem, progress));
+                returnList.Add(await CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem, progress));
 
                 loopCount++;
             }
 
-            return GenerationReturn.FilterForErrors(returnList);
+            return returnList;
         }
 
         /// <summary>
@@ -302,10 +272,9 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
         public static List<GenerationReturn> VerifyOrCreateAllTopLevelFolders(this UserSettings settings,
             IProgress<string> progress)
         {
-            return GenerationReturn.FilterForErrors(new List<List<GenerationReturn>>
-            {
-                settings.VerifyOrCreateMediaArchiveFolders(), settings.VerifyOrCreateLocalTopLevelSiteFolders()
-            });
+            var mediaFolders = settings.VerifyOrCreateMediaArchiveFolders();
+            var topLevelSite = settings.VerifyOrCreateLocalTopLevelSiteFolders();
+            return mediaFolders.Concat(topLevelSite).ToList();
         }
 
         /// <summary>
@@ -315,7 +284,7 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
         /// <returns></returns>
         public static List<GenerationReturn> VerifyOrCreateLocalTopLevelSiteFolders(this UserSettings settings)
         {
-            return GenerationReturn.FilterForErrors(new List<GenerationReturn>
+            return new List<GenerationReturn>
             {
                 settings.LocalSiteDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSitePhotoDirectory().CreateIfItDoesNotExist(),
@@ -328,7 +297,7 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
                 settings.LocalSiteLinkDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteNoteDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteTagsDirectory().CreateIfItDoesNotExist()
-            });
+            };
         }
 
         /// <summary>
@@ -338,13 +307,13 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
         /// <returns></returns>
         public static List<GenerationReturn> VerifyOrCreateMediaArchiveFolders(this UserSettings settings)
         {
-            return GenerationReturn.FilterForErrors(new List<GenerationReturn>
+            return new List<GenerationReturn>
             {
                 settings.LocalSiteMediaArchiveDirectory().CreateIfItDoesNotExist(),
                 settings.LocalMediaArchivePhotoDirectory().CreateIfItDoesNotExist(),
                 settings.LocalMediaArchiveImageDirectory().CreateIfItDoesNotExist(),
                 settings.LocalMediaArchiveFileDirectory().CreateIfItDoesNotExist()
-            });
+            };
         }
     }
 }

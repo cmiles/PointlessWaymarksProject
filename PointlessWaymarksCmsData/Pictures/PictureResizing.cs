@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.Models;
 
@@ -66,26 +67,21 @@ namespace PointlessWaymarksCmsData.Pictures
             currentFiles.DisplayPicture?.File?.Delete();
         }
 
-        public static GenerationReturn CopyCleanResizeImage(ImageContent dbEntry, IProgress<string> progress)
+        public static async Task<GenerationReturn> CopyCleanResizeImage(ImageContent dbEntry,
+            IProgress<string> progress)
         {
             if (dbEntry == null)
-                return new GenerationReturn
-                {
-                    HasError = true, ErrorNote = "Null Image Content submitted to Copy Clean and Resize"
-                };
+                return await GenerationReturn.Error("Null Image Content submitted to Copy Clean and Resize");
 
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
-                return new GenerationReturn
-                {
-                    HasError = true, ErrorNote = $"Image {dbEntry.Title} has no Original File"
-                };
+                await GenerationReturn.Error($"Image {dbEntry.Title} has no Original File", dbEntry.ContentId);
 
             var imageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
             var syncCopyResults =
-                StructureAndMediaContent.CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
+                await StructureAndMediaContent.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             if (!syncCopyResults.HasError) return syncCopyResults;
 
@@ -94,7 +90,7 @@ namespace PointlessWaymarksCmsData.Pictures
             ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(imageDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);
 
-            return GenerationReturn.NoError();
+            return await GenerationReturn.Success($"{dbEntry.Title} Copied, Cleaned, Resized", dbEntry.ContentId);
         }
 
         /// <summary>
@@ -102,26 +98,21 @@ namespace PointlessWaymarksCmsData.Pictures
         /// <param name="dbEntry"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static GenerationReturn CopyCleanResizePhoto(PhotoContent dbEntry, IProgress<string> progress)
+        public static async Task<GenerationReturn> CopyCleanResizePhoto(PhotoContent dbEntry,
+            IProgress<string> progress)
         {
             if (dbEntry == null)
-                return new GenerationReturn
-                {
-                    HasError = true, ErrorNote = "Null Photo Content submitted to Copy Clean and Resize"
-                };
+                return await GenerationReturn.Error("Null Photo Content submitted to Copy Clean and Resize");
 
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
-                return new GenerationReturn
-                {
-                    HasError = true, ErrorNote = $"Photo {dbEntry.Title} has no Original File"
-                };
+                await GenerationReturn.Error($"Photo {dbEntry.Title} has no Original File", dbEntry.ContentId);
 
             var photoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
             var syncCopyResults =
-                StructureAndMediaContent.CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
+                await StructureAndMediaContent.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             if (!syncCopyResults.HasError) return syncCopyResults;
 
@@ -130,7 +121,7 @@ namespace PointlessWaymarksCmsData.Pictures
             ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(photoDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);
 
-            return GenerationReturn.NoError();
+            return await GenerationReturn.Success($"{dbEntry.Title} Copied, Cleaned, Resized", dbEntry.ContentId);
         }
 
         public static FileInfo ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
@@ -167,10 +158,10 @@ namespace PointlessWaymarksCmsData.Pictures
             return ResizeWithForDisplayFileName(fileToProcess, originalWidth, 82, overwriteExistingFile, progress);
         }
 
-        public static List<FileInfo> ResizeForDisplayAndSrcset(PhotoContent dbEntry, bool overwriteExistingFiles,
-            IProgress<string> progress)
+        public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(PhotoContent dbEntry,
+            bool overwriteExistingFiles, IProgress<string> progress)
         {
-            StructureAndMediaContent.CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
+            await StructureAndMediaContent.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
@@ -179,10 +170,10 @@ namespace PointlessWaymarksCmsData.Pictures
             return ResizeForDisplayAndSrcset(sourceImage, overwriteExistingFiles, progress);
         }
 
-        public static List<FileInfo> ResizeForDisplayAndSrcset(ImageContent dbEntry, bool overwriteExistingFiles,
-            IProgress<string> progress)
+        public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(ImageContent dbEntry,
+            bool overwriteExistingFiles, IProgress<string> progress)
         {
-            StructureAndMediaContent.CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
+            await StructureAndMediaContent.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 

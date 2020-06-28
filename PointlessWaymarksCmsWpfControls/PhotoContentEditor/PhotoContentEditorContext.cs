@@ -530,7 +530,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                StructureAndMediaContent.CheckPhotoOriginalFileIsInMediaAndContentDirectories(DbEntry,
+                await StructureAndMediaContent.CheckPhotoFileIsInMediaAndContentDirectories(DbEntry,
                     StatusContext.ProgressTracker());
 
                 var archiveFile = new FileInfo(Path.Combine(

@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData.Pictures
     {
         public static void ConfirmOrGenerateImageDirectoryAndPictures(ImageContent dbEntry, IProgress<string> progress)
         {
-            StructureAndMediaContent.CheckImageOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
+            StructureAndMediaContent.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress).Wait();
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
@@ -22,7 +22,7 @@ namespace PointlessWaymarksCmsData.Pictures
 
         public static void ConfirmOrGeneratePhotoDirectoryAndPictures(PhotoContent dbEntry, IProgress<string> progress)
         {
-            StructureAndMediaContent.CheckPhotoOriginalFileIsInMediaAndContentDirectories(dbEntry, progress);
+            StructureAndMediaContent.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress).Wait();
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 

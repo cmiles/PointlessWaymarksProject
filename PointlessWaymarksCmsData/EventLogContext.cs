@@ -119,6 +119,11 @@ namespace PointlessWaymarksCmsData
             }
         }
 
+        public static async Task TryWriteGenerationEventToLog(string message, string sender)
+        {
+            await TryWriteMessageToLog("Generation", message, sender);
+        }
+
         private static async Task TryWriteMessageToLog(string category, string message, string sender)
         {
             try

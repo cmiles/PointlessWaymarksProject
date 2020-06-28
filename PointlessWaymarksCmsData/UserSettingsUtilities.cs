@@ -57,7 +57,9 @@ namespace PointlessWaymarksCmsData
 
         public static GenerationReturn CreateIfItDoesNotExist(this DirectoryInfo directoryInfo)
         {
-            if (directoryInfo.Exists) return GenerationReturn.NoError();
+            if (directoryInfo.Exists)
+                return GenerationReturn.Success($"Create If Does Not Exists - {directoryInfo.FullName} Already Exists")
+                    .Result;
 
             try
             {
@@ -65,16 +67,13 @@ namespace PointlessWaymarksCmsData
             }
             catch (Exception e)
             {
-                return new GenerationReturn
-                {
-                    HasError = true,
-                    Exception = e,
-                    ErrorNote =
-                        $"Trying to create Directory {directoryInfo?.FullName ?? "[No Name]"}  resulted in an Exception."
-                };
+                GenerationReturn
+                    .Error(
+                        $"Trying to create Directory {directoryInfo.FullName ?? "[No Name]"}  resulted in an Exception.",
+                        null, e).Wait();
             }
 
-            return GenerationReturn.NoError();
+            return GenerationReturn.Success($"Created {directoryInfo.FullName}").Result;
         }
 
         public static string CssMainStyleFileUrl(this UserSettings settings)
