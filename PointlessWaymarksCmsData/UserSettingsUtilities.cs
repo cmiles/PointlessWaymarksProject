@@ -700,14 +700,13 @@ namespace PointlessWaymarksCmsData
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="userFilename">File Name for the </param>
         /// <param name="progress"></param>
         /// <returns></returns>
         public static async Task<UserSettings> SetupNewSite(string userFilename, IProgress<string> progress)
         {
-            if (!FolderFileUtility.IsValidFilename(userFilename))
+            if (!FolderFileUtility.IsValidWindowsFileSystemFilename(userFilename))
                 throw new InvalidDataException("New site input must be a valid filename.");
 
             var newSettings = new UserSettings();

@@ -278,6 +278,8 @@ namespace PointlessWaymarksCmsData
 
             var toHistoric = await context.PhotoContents.Where(x => x.ContentId == toSave.ContentId).ToListAsync();
 
+            var isUpdate = toHistoric.Any();
+
             foreach (var loopToHistoric in toHistoric)
             {
                 var newHistoric = new HistoricPhotoContent();
@@ -292,6 +294,20 @@ namespace PointlessWaymarksCmsData
             await context.PhotoContents.AddAsync(toSave);
 
             await context.SaveChangesAsync(true);
+
+            if (isUpdate)
+                DataNotifications.PhotoContentDataNotificationEventSource.Raise("Db Class",
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.Update,
+                        ContentIds = new List<Guid> {toSave.ContentId}
+                    });
+
+            DataNotifications.PhotoContentDataNotificationEventSource.Raise("Db Class",
+                new DataNotificationEventArgs
+                {
+                    UpdateType = DataNotificationUpdateType.New, ContentIds = new List<Guid> {toSave.ContentId}
+                });
         }
 
         public static async Task SavePostContent(PostContent toSave)
@@ -362,6 +378,11 @@ namespace PointlessWaymarksCmsData
             return listToClean.Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
         }
 
+        /// <summary>
+        ///     Use to clean up a single tag - trims and removes inner multi-space
+        /// </summary>
+        /// <param name="toClean"></param>
+        /// <returns></returns>
         public static string TagListItemCleanup(string toClean)
         {
             if (string.IsNullOrWhiteSpace(toClean)) return string.Empty;

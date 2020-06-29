@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Generation;
 
 namespace PointlessWaymarksTests
 {
@@ -28,6 +30,28 @@ namespace PointlessWaymarksTests
         {
             var outSettings = await UserSettingsUtilities.SetupNewSite(TestSiteName, ConsoleProgressTracker());
             TestSiteSettings = outSettings;
+        }
+
+        [Test]
+        public async Task ImportAndGeneratePhoto()
+        {
+            var fullSizePhotoTest = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestContent",
+                "2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg"));
+            Assert.True(fullSizePhotoTest.Exists);
+
+            var (generationReturn, newPhotoContent) =
+                await PhotoGenerator.PhotoMetadataToPhotoContent(fullSizePhotoTest, ConsoleProgressTracker());
+
+            Assert.False(generationReturn.HasError);
+
+            var validationReturn = await PhotoGenerator.Validate(newPhotoContent, fullSizePhotoTest);
+
+            Assert.False(validationReturn.HasError);
+
+            var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent, fullSizePhotoTest, true,
+                ConsoleProgressTracker());
+
+            Assert.False(saveReturn.HasError);
         }
 
         [Test]

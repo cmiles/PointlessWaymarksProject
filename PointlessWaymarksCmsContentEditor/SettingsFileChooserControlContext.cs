@@ -154,7 +154,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             UserNewFileName = UserNewFileName.Trim();
 
-            if (!FolderFileUtility.IsValidFilename(UserNewFileName))
+            if (!FolderFileUtility.IsValidWindowsFileSystemFilename(UserNewFileName))
             {
                 StatusContext.ToastError("File name is not valid - avoid special characters...");
                 return;

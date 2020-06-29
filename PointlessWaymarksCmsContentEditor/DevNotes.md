@@ -1,4 +1,8 @@
 ﻿## Todos
+ - Content Testing:
+  - The Db Save for Photo Content has been updated to send a data notification - and notifications have been extended to include 'Local Content' notifications but this change will need some thought and testing with the UI controls that respond to these events
+  - Photo Test (the first UI content test) is failing because the database is not setup
+  - The PhotoGenerator doesn't handle Folder changes like the GUI context does - need to figure out how to clean up no longer valid folders - in the GUI version they are moved, but maybe this is a generate new and the cull all older folders for the content type? I wonder if time on this is ok or a problem...
  - A bad content code should be handled better
  - Wrap the Out of Memory that System.Drawing Image FromFile can throw that doesn't actually mean out of memory and rather means 'format issue'
  - Look at https://github.com/cyotek/SimpleScreenshotCapture/blob/master/src/ScreenshotCapture.cs to get rid of xaml island screen shot issue.
@@ -37,6 +41,13 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+6/29/2020
+
+Continued work on the Photo Generator code that is basically a refactor of the GUI Photo Editor code - got to a point that seems complete enough to put in a test, but had a quick first failure on the test because it appears I am building the basic site structure but not setting up the db... Some details that came up working on the Photo Generator:
+ - Added a method to delete image files in a Photo folder where the image is not related to the current original image - this is essentially more brute force than the previous GUI version but I think is the best because it doesn't require knowing before/after details rather just acts on 'current'
+ - While working with the data notifications and thinking about issues in the past it occured to me that it might be an interesting approach to notify both on db changes (so the latest text/entries/etc is displayed) but also on 'local content' changed, since some GUI elements use images/generated content for display separating these two might allow the GUI to keep up in a nice way.
+ - Made a 'for now anyway' change to validate each file name so that URL escaping is not needed for content URLs - it might be better to instead make sure that URLs to this content is always appropriately escaped but for now I am interested in minimal hassle and as much parity between the local files and site files as possible.
 
 6/28/2020
 

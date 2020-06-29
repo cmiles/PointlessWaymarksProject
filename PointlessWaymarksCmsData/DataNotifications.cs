@@ -2,11 +2,26 @@
 using System.Collections.Generic;
 using WeakEvent;
 
-namespace PointlessWaymarksCmsWpfControls
+namespace PointlessWaymarksCmsData
 {
     public static class DataNotifications
     {
         public static readonly WeakEventSource<DataNotificationEventArgs> FileContentDataNotificationEventSource =
+            new WeakEventSource<DataNotificationEventArgs>();
+
+        public static readonly WeakEventSource<DataNotificationEventArgs> ImageContentDataNotificationEventSource =
+            new WeakEventSource<DataNotificationEventArgs>();
+
+        public static readonly WeakEventSource<DataNotificationEventArgs> LinkStreamContentDataNotificationEventSource =
+            new WeakEventSource<DataNotificationEventArgs>();
+
+        public static readonly WeakEventSource<DataNotificationEventArgs> NoteContentDataNotificationEventSource =
+            new WeakEventSource<DataNotificationEventArgs>();
+
+        public static readonly WeakEventSource<DataNotificationEventArgs> PhotoContentDataNotificationEventSource =
+            new WeakEventSource<DataNotificationEventArgs>();
+
+        public static readonly WeakEventSource<DataNotificationEventArgs> PostContentDataNotificationEventSource =
             new WeakEventSource<DataNotificationEventArgs>();
 
         public static event EventHandler<DataNotificationEventArgs> FileContentDataNotificationEvent
@@ -15,17 +30,11 @@ namespace PointlessWaymarksCmsWpfControls
             remove => FileContentDataNotificationEventSource.Unsubscribe(value);
         }
 
-        public static readonly WeakEventSource<DataNotificationEventArgs> ImageContentDataNotificationEventSource =
-            new WeakEventSource<DataNotificationEventArgs>();
-
         public static event EventHandler<DataNotificationEventArgs> ImageContentDataNotificationEvent
         {
             add => ImageContentDataNotificationEventSource.Subscribe(value);
             remove => ImageContentDataNotificationEventSource.Unsubscribe(value);
         }
-
-        public static readonly WeakEventSource<DataNotificationEventArgs> LinkStreamContentDataNotificationEventSource =
-            new WeakEventSource<DataNotificationEventArgs>();
 
         public static event EventHandler<DataNotificationEventArgs> LinkStreamContentDataNotificationEvent
         {
@@ -33,26 +42,17 @@ namespace PointlessWaymarksCmsWpfControls
             remove => LinkStreamContentDataNotificationEventSource.Unsubscribe(value);
         }
 
-        public static readonly WeakEventSource<DataNotificationEventArgs> NoteContentDataNotificationEventSource =
-            new WeakEventSource<DataNotificationEventArgs>();
-
         public static event EventHandler<DataNotificationEventArgs> NoteContentDataNotificationEvent
         {
             add => NoteContentDataNotificationEventSource.Subscribe(value);
             remove => NoteContentDataNotificationEventSource.Unsubscribe(value);
         }
 
-        public static readonly WeakEventSource<DataNotificationEventArgs> PhotoContentDataNotificationEventSource =
-            new WeakEventSource<DataNotificationEventArgs>();
-
         public static event EventHandler<DataNotificationEventArgs> PhotoContentDataNotificationEvent
         {
             add => PhotoContentDataNotificationEventSource.Subscribe(value);
             remove => PhotoContentDataNotificationEventSource.Unsubscribe(value);
         }
-
-        public static readonly WeakEventSource<DataNotificationEventArgs> PostContentDataNotificationEventSource =
-            new WeakEventSource<DataNotificationEventArgs>();
 
         public static event EventHandler<DataNotificationEventArgs> PostContentDataNotificationEvent
         {
@@ -65,12 +65,13 @@ namespace PointlessWaymarksCmsWpfControls
     {
         New,
         Update,
-        Delete
+        Delete,
+        LocalContent
     }
 
     public class DataNotificationEventArgs : EventArgs
     {
-        public DataNotificationUpdateType UpdateType { get; set; }
         public List<Guid> ContentIds { get; set; }
+        public DataNotificationUpdateType UpdateType { get; set; }
     }
 }

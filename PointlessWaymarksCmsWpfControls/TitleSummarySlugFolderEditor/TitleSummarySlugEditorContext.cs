@@ -234,7 +234,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             if (!isValid) return (isValid, errorMessage);
 
-            if (!FolderFileUtility.IsValidFilename(Folder))
+            if (!FolderFileUtility.IsNoUrlEncodingNeededFilename(Folder))
             {
                 isValid = false;
                 errorMessage += "Folders have illegal characters...";

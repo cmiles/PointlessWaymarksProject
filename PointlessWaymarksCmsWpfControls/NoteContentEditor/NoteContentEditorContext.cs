@@ -451,7 +451,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
             if (!isValid) return (false, errorMessage);
 
-            if (!FolderFileUtility.IsValidFilename(Folder))
+            if (!FolderFileUtility.IsNoUrlEncodingNeededFilename(Folder))
             {
                 isValid = false;
                 errorMessage += "Folders have illegal characters...";

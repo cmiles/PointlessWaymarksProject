@@ -658,7 +658,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             var shutterValue = new Rational();
             if (exifSubIfDirectory?.TryGetRational(37377, out shutterValue) ?? false)
-                ShutterSpeed = ShutterSpeedToHumanReadableString(shutterValue);
+                ShutterSpeed = ExifHelpers.ShutterSpeedToHumanReadableString(shutterValue);
             else
                 ShutterSpeed = string.Empty;
 
@@ -1010,23 +1010,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate90)));
             RotatePhotoLeftCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate270)));
-        }
-
-        public static string ShutterSpeedToHumanReadableString(Rational rational)
-        {
-            return ShutterSpeedToHumanReadableString((Rational?) rational);
-        }
-
-        public static string ShutterSpeedToHumanReadableString(Rational? toProcess)
-        {
-            if (toProcess == null) return string.Empty;
-
-            if (toProcess.Value.Numerator < 0)
-                return Math.Round(Math.Pow(2, (double) -1 * toProcess.Value.Numerator / toProcess.Value.Denominator), 1)
-                    .ToString("N1");
-
-            return
-                $"1/{Math.Round(Math.Pow(2, (double) toProcess.Value.Numerator / toProcess.Value.Denominator), 1):N0}";
         }
 
         private async Task<(bool, string)> Validate()
