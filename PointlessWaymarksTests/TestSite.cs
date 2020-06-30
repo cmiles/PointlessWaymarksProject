@@ -77,8 +77,10 @@ namespace PointlessWaymarksTests
             Assert.IsTrue(newPhotoContent.PhotoCreatedOn == new DateTime(2019, 1, 29, 13, 18, 25),
                 $"Photo Created On Does Not Match - Found '{newPhotoContent.PhotoCreatedOn}' Expected {new DateTime(2019, 1, 29, 13, 18, 25)}");
 
-            Assert.IsTrue(newPhotoContent.Folder == newPhotoContent.PhotoCreatedOn.ToString("yyyy"), $"Default Folder was {newPhotoContent.Folder} but should be Photo Taken on Year {newPhotoContent.PhotoCreatedOn:yyyy}");
-            Assert.IsTrue(newPhotoContent.Slug == "2019-january-bridge-under-highway-77-on-the-arizona-trail", $"Slug is {newPhotoContent.Slug} Should be 2019-january-bridge-under-highway-77-on-the-arizona-trail");
+            Assert.IsTrue(newPhotoContent.Folder == newPhotoContent.PhotoCreatedOn.ToString("yyyy"),
+                $"Default Folder was {newPhotoContent.Folder} but should be Photo Taken on Year {newPhotoContent.PhotoCreatedOn:yyyy}");
+            Assert.IsTrue(newPhotoContent.Slug == "2019-january-bridge-under-highway-77-on-the-arizona-trail",
+                $"Slug is {newPhotoContent.Slug} Should be 2019-january-bridge-under-highway-77-on-the-arizona-trail");
 
             Assert.False(generationReturn.HasError);
 
@@ -89,19 +91,26 @@ namespace PointlessWaymarksTests
             var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent, fullSizePhotoTest, true,
                 DebugProgressTracker());
 
-            Assert.IsTrue(newPhotoContent.MainPicture == newPhotoContent.ContentId, $"Main Picture - {newPhotoContent.MainPicture} - Should be set to Content Id {newPhotoContent.ContentId}");
+            Assert.IsTrue(newPhotoContent.MainPicture == newPhotoContent.ContentId,
+                $"Main Picture - {newPhotoContent.MainPicture} - Should be set to Content Id {newPhotoContent.ContentId}");
 
-            var expectedDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(newPhotoContent);
+            var expectedDirectory =
+                UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(newPhotoContent);
             Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
 
             var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSitePhotoHtmlFile(newPhotoContent);
             Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
 
-            var expectedOriginalPhotoFileInContent = new FileInfo(Path.Combine(expectedDirectory.FullName, fullSizePhotoTest.Name));
-            Assert.IsTrue(expectedOriginalPhotoFileInContent.Exists, $"Expected to find original photo in content directory but {expectedOriginalPhotoFileInContent.FullName} does not exist");
+            var expectedOriginalPhotoFileInContent =
+                new FileInfo(Path.Combine(expectedDirectory.FullName, fullSizePhotoTest.Name));
+            Assert.IsTrue(expectedOriginalPhotoFileInContent.Exists,
+                $"Expected to find original photo in content directory but {expectedOriginalPhotoFileInContent.FullName} does not exist");
 
-            var expectedOriginalPhotoFileInMediaArchive = new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName, expectedOriginalPhotoFileInContent.Name));
-            Assert.IsTrue(expectedOriginalPhotoFileInMediaArchive.Exists, $"Expected to find original photo in media archive photo directory but {expectedOriginalPhotoFileInMediaArchive.FullName} does not exist");
+            var expectedOriginalPhotoFileInMediaArchive = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
+                expectedOriginalPhotoFileInContent.Name));
+            Assert.IsTrue(expectedOriginalPhotoFileInMediaArchive.Exists,
+                $"Expected to find original photo in media archive photo directory but {expectedOriginalPhotoFileInMediaArchive.FullName} does not exist");
 
             //Checking the count of files is useful to make sure there are not any unexpected files
             var expectedNumberOfFiles =
@@ -111,7 +120,8 @@ namespace PointlessWaymarksTests
                 + 1 //Display image
                 + 1 //html file
                 + 1; //json file
-            Assert.AreEqual(expectedDirectory.GetFiles().Length, expectedNumberOfFiles, "Expected Number of Files Does Not Match" );
+            Assert.AreEqual(expectedDirectory.GetFiles().Length, expectedNumberOfFiles,
+                "Expected Number of Files Does Not Match");
 
             //Check that the Picture Asset processing finds all the files
             //Check JSON File
