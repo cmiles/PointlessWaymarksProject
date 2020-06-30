@@ -959,40 +959,7 @@ namespace PointlessWaymarksCmsContentEditor
             var settings = await UserSettingsUtilities.ReadSettings(StatusContext.ProgressTracker());
             settings.VerifyOrCreateAllTopLevelFolders(StatusContext.ProgressTracker());
 
-            var possibleDbFile = new FileInfo(settings.DatabaseFile);
-
-            if (possibleDbFile.Exists)
-            {
-                var sc = new ServiceCollection()
-                    // Add common FluentMigrator services
-                    .AddFluentMigratorCore().ConfigureRunner(rb => rb
-                        // Add SQLite support to FluentMigrator
-                        .AddSQLite()
-                        // Set the connection string
-                        .WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
-                        // Define the assembly containing the migrations
-                        .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
-                    // Enable logging to console in the FluentMigrator way
-                    .AddLogging(lb => lb.AddFluentMigratorConsole())
-                    // Build the service provider
-                    .BuildServiceProvider(false);
-
-                // Instantiate the runner
-                var runner = sc.GetRequiredService<IMigrationRunner>();
-
-                // Execute the migrations
-                runner.MigrateUp();
-            }
-
-            StatusContext.Progress("Checking for database files...");
-            var log = Db.Log().Result;
-            await log.Database.EnsureCreatedAsync();
-            await EventLogContext.TryWriteStartupMessageToLog(
-                $"{InfoTitle} - Settings File {UserSettingsUtilities.SettingsFileName}",
-                StatusContext.StatusControlContextId.ToString());
-
-            var db = Db.Context().Result;
-            await db.Database.EnsureCreatedAsync();
+            await settings.EnsureDbIsPresent(StatusContext.ProgressTracker());
 
             StatusContext.Progress("Setting up UI Controls");
 

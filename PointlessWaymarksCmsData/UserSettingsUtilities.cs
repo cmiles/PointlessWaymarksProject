@@ -3,7 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.Models;
 
@@ -697,6 +699,44 @@ namespace PointlessWaymarksCmsData
         public static FileInfo SettingsFile()
         {
             return new FileInfo(Path.Combine(StorageDirectory().FullName, SettingsFileName));
+        }
+
+        public static async Task EnsureDbIsPresent(this UserSettings settings, IProgress<string> progress)
+        {
+            var possibleDbFile = new FileInfo(settings.DatabaseFile);
+
+            if (possibleDbFile.Exists)
+            {
+                var sc = new ServiceCollection()
+                    // Add common FluentMigrator services
+                    .AddFluentMigratorCore().ConfigureRunner(rb => rb
+                        // Add SQLite support to FluentMigrator
+                        .AddSQLite()
+                        // Set the connection string
+                        .WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
+                        // Define the assembly containing the migrations
+                        .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
+                    // Enable logging to console in the FluentMigrator way
+                    .AddLogging(lb => lb.AddFluentMigratorConsole())
+                    // Build the service provider
+                    .BuildServiceProvider(false);
+
+                // Instantiate the runner
+                var runner = sc.GetRequiredService<IMigrationRunner>();
+
+                // Execute the migrations
+                runner.MigrateUp();
+            }
+
+            progress?.Report("Checking for database files...");
+            var log = Db.Log().Result;
+            await log.Database.EnsureCreatedAsync();
+            await EventLogContext.TryWriteStartupMessageToLog(
+                $"Ensure Db Is Present - Settings File {UserSettingsUtilities.SettingsFileName}",
+                "User Settings Utilities");
+
+            var db = Db.Context().Result;
+            await db.Database.EnsureCreatedAsync();
         }
 
         /// <summary>

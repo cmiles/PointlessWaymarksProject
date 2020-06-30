@@ -30,7 +30,7 @@ namespace PointlessWaymarksCmsData.Generation
         }
 
         public static async Task<(GenerationReturn, PhotoContent)> PhotoMetadataToPhotoContent(FileInfo selectedFile,
-            IProgress<string> progress)
+            string createdBy, IProgress<string> progress)
         {
             progress?.Report("Starting Metadata Processing");
 
@@ -38,7 +38,17 @@ namespace PointlessWaymarksCmsData.Generation
 
             if (!selectedFile.Exists) return (await GenerationReturn.Error("File Does Not Exist?"), null);
 
-            var toReturn = new PhotoContent();
+            var toReturn = new PhotoContent
+            {
+                OriginalFileName = selectedFile.Name,
+                ContentId = Guid.NewGuid(),
+                CreatedBy =
+                    string.IsNullOrWhiteSpace(createdBy)
+                        ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+                        : createdBy.Trim(),
+                CreatedOn = DateTime.Now,
+                ContentVersion = DateTime.Now.ToUniversalTime()
+            };
 
             progress?.Report("Getting Directories");
 

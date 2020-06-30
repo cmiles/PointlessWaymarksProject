@@ -24,7 +24,7 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             await EventLogContext.TryWriteGenerationEventToLog(
                 $"Success Generation Return; Content Guid: {(contentGuid == null ? "Null" : contentGuid.ToString())}; Note: {generationNote};{(e == null ? string.Empty : $" Exception: {e}")}",
                 "GenerationReturn");
-            return new GenerationReturn {HasError = false, GenerationNote = generationNote, ContentId = contentGuid};
+            return new GenerationReturn {HasError = true, GenerationNote = generationNote, ContentId = contentGuid};
         }
 
         private static List<GenerationReturn> FilterForErrors(List<GenerationReturn> toFilter)
