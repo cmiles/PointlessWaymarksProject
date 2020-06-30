@@ -295,6 +295,10 @@ namespace PointlessWaymarksCmsData
 
             await context.SaveChangesAsync(true);
 
+            toSave.MainPicture = toSave.ContentId;
+
+            await context.SaveChangesAsync(true);
+
             if (isUpdate)
                 DataNotifications.PhotoContentDataNotificationEventSource.Raise("Db Class",
                     new DataNotificationEventArgs
