@@ -64,17 +64,5 @@ namespace PointlessWaymarksCmsData.JsonFiles
         {
             return Directory.GetFiles(rootDirectory.FullName, "*.json", SearchOption.AllDirectories).ToList();
         }
-
-        public static List<T> HistoricContentFromFiles<T>(List<string> fileLists, string fileIdentifierPrefix)
-        {
-            var contentFiles = fileLists.Where(x => x.Contains(fileIdentifierPrefix));
-
-            var returnList = new List<T>();
-
-            foreach (var loopFiles in contentFiles)
-                returnList.Add(JsonSerializer.Deserialize<T>(File.ReadAllText(loopFiles)));
-
-            return returnList;
-        }
     }
 }

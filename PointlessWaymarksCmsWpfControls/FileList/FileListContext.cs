@@ -169,7 +169,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 Items.AddRange(dbItems);
             }
 
-            if (e.UpdateType == DataNotificationUpdateType.Update)
+            if (e.UpdateType == DataNotificationUpdateType.Update ||
+                e.UpdateType == DataNotificationUpdateType.LocalContent)
             {
                 var context = await Db.Context();
 
@@ -187,7 +188,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                         continue;
                     }
 
-                    toUpdate.DbEntry = loopUpdates.DbEntry;
+                    if (e.UpdateType == DataNotificationUpdateType.Update) toUpdate.DbEntry = loopUpdates.DbEntry;
+
                     toUpdate.SmallImageUrl = loopUpdates.SmallImageUrl;
                 }
             }
@@ -216,16 +218,28 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             };
         }
 
+        public string GetSmallImageUrl(FileContent content)
+        {
+            if (content?.MainPicture == null) return null;
+
+            string smallImageUrl;
+
+            try
+            {
+                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
+                    ?.File.FullName;
+            }
+            catch
+            {
+                smallImageUrl = null;
+            }
+
+            return smallImageUrl;
+        }
 
         public FileListListItem ListItemFromDbItem(FileContent content)
         {
-            var newItem = new FileListListItem {DbEntry = content};
-
-            if (content.MainPicture != null)
-                newItem.SmallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?
-                    .SmallPicture?.File.FullName;
-
-            return newItem;
+            return new FileListListItem {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }
 
         public async Task LoadData()

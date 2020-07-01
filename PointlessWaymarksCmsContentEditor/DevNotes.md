@@ -1,9 +1,8 @@
 ﻿## Todos
  - Content Testing:
-  - The Db Save for Photo Content has been updated to send a data notification - and notifications have been extended to include 'Local Content' notifications but this change will need some thought and testing with the UI controls that respond to these events
-  - Photo Test Needs first basic 'are files generated' asserts
   - Need to refactor the GUI code to use the Generation code - should do sooner rather than later to see if any needed code changes come up
   - The PhotoGenerator doesn't handle Folder changes like the GUI context does - need to figure out how to clean up no longer valid folders - in the GUI version they are moved, but maybe this is a generate new and the cull all older folders for the content type? I wonder if time on this is ok or a problem...
+  - Add tests for the common content validation
  - A bad content code should be handled better
  - Wrap the Out of Memory that System.Drawing Image FromFile can throw that doesn't actually mean out of memory and rather means 'format issue'
  - Look at https://github.com/cyotek/SimpleScreenshotCapture/blob/master/src/ScreenshotCapture.cs to get rid of xaml island screen shot issue.
@@ -42,6 +41,14 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/1/2020
+
+More work on the Photo Import Testing - it could of course be more comprehensive (probably most missing is some validation of the html - or maybe checking specific elements?) but I think this is a great first 'safety' sanity check to get in place and should help the project to move in this direction for all content types.
+
+Updated the data notifications in the Lists to repspond to the newer local content update notifications - also a small refactor to more easily get the gui image url without getting tripped up on nulls or other invalid values (of course truly invalid data is very important - but not here, these gui routines should display what is possible to display and as much as possible not crash due to a missing picture/invalid data).
+
+In the photo testing for the JSON data files I wanted to compare all properties and found CompareNETObjects to be very useful - https://github.com/GregFinzer/Compare-Net-Objects!
 
 6/30/2020
 

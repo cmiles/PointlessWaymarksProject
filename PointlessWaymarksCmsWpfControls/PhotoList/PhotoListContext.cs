@@ -201,7 +201,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 toAdd.ForEach(x => Items.Add(x));
             }
 
-            if (e.UpdateType == DataNotificationUpdateType.Update)
+            if (e.UpdateType == DataNotificationUpdateType.Update ||
+                e.UpdateType == DataNotificationUpdateType.LocalContent)
             {
                 var context = await Db.Context();
 
@@ -220,7 +221,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                         continue;
                     }
 
-                    toUpdate.DbEntry = loopUpdates.DbEntry;
+                    if (e.UpdateType == DataNotificationUpdateType.Update) toUpdate.DbEntry = loopUpdates.DbEntry;
+
                     toUpdate.SmallImageUrl = loopUpdates.SmallImageUrl;
                 }
             }
@@ -253,13 +255,27 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             };
         }
 
+        public string GetSmallImageUrl(PhotoContent content)
+        {
+            if (content == null) return null;
+
+            string smallImageUrl;
+
+            try
+            {
+                smallImageUrl = PictureAssetProcessing.ProcessPhotoDirectory(content).SmallPicture?.File.FullName;
+            }
+            catch
+            {
+                smallImageUrl = null;
+            }
+
+            return smallImageUrl;
+        }
+
         public PhotoListListItem ListItemFromDbItem(PhotoContent content)
         {
-            return new PhotoListListItem
-            {
-                DbEntry = content,
-                SmallImageUrl = PictureAssetProcessing.ProcessPhotoDirectory(content).SmallPicture?.File.FullName
-            };
+            return new PhotoListListItem {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }
 
         public async Task LoadData()

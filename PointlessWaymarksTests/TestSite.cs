@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
+using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Generation;
+using PointlessWaymarksCmsData.JsonFiles;
+using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 
 namespace PointlessWaymarksTests
@@ -38,7 +44,7 @@ namespace PointlessWaymarksTests
         }
 
         [Test]
-        public async Task ImportAndGeneratePhoto()
+        public async Task PhotoContentImportAndUpdate()
         {
             var fullSizePhotoTest = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestContent",
                 "2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg"));
@@ -90,6 +96,7 @@ namespace PointlessWaymarksTests
 
             var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent, fullSizePhotoTest, true,
                 DebugProgressTracker());
+            Assert.False(saveReturn.HasError);
 
             Assert.IsTrue(newPhotoContent.MainPicture == newPhotoContent.ContentId,
                 $"Main Picture - {newPhotoContent.MainPicture} - Should be set to Content Id {newPhotoContent.ContentId}");
@@ -124,10 +131,88 @@ namespace PointlessWaymarksTests
                 "Expected Number of Files Does Not Match");
 
             //Check that the Picture Asset processing finds all the files
-            //Check JSON File
-            //?Check some details of the HTML
 
-            Assert.False(saveReturn.HasError);
+            var pictureAssetInformation = PictureAssetProcessing.ProcessPictureDirectory(newPhotoContent.ContentId);
+            var pictureAssetPhotoDbEntry = (PhotoContent) pictureAssetInformation.DbEntry;
+            Assert.IsTrue(pictureAssetPhotoDbEntry.ContentId == newPhotoContent.ContentId,
+                $"Picture Asset appears to have gotten an incorrect DB entry of {pictureAssetPhotoDbEntry.ContentId} rather than {newPhotoContent.ContentId}");
+            Assert.AreEqual(pictureAssetInformation.LargePicture.Width, 4000,
+                "Picture Asset Large Width is not the expected Value");
+            Assert.AreEqual(pictureAssetInformation.SmallPicture.Width, 100,
+                "Picture Asset Small Width is not the expected Value");
+            Assert.AreEqual(pictureAssetInformation.SrcsetImages.Count,
+                PictureResizing.SrcSetSizeAndQualityList().Count, "Did not find the expected number of SrcSet Images");
+
+            //Check JSON File
+            var jsonFile =
+                new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(newPhotoContent).FullName,
+                    $"{Names.PhotoContentPrefix}{newPhotoContent.ContentId}.json"));
+            Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+
+            var jsonFileImported = Import.ContentFromFiles<PhotoContent>(
+                new List<string> {jsonFile.FullName}, Names.PhotoContentPrefix).Single();
+            var compareLogic = new CompareLogic();
+            var comparisonResult = compareLogic.Compare(newPhotoContent, jsonFileImported);
+            Assert.True(comparisonResult.AreEqual,
+                $"Json Import does not match expected Photo Content {comparisonResult.DifferencesString}");
+
+            //?Check some details of the HTML?
+            var updateWithoutUpdateResult = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent,
+                expectedOriginalPhotoFileInMediaArchive, false, DebugProgressTracker());
+            Assert.True(updateWithoutUpdateResult.HasError,
+                "Should not be able to update an entry without LastUpdated Values set");
+
+            var updatedTime = DateTime.Now;
+            newPhotoContent.Tags += ",testupdatetag";
+            newPhotoContent.Title += " Updated";
+            newPhotoContent.LastUpdatedOn = updatedTime;
+            newPhotoContent.LastUpdatedBy = "Test Photo Updater";
+
+            //?Check some details of the HTML?
+            var updateResult = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent,
+                expectedOriginalPhotoFileInMediaArchive, false, DebugProgressTracker());
+            Assert.True(!updateResult.HasError, "Problem Updating Item");
+
+            var updatedJsonFileImported = Import.ContentFromFiles<PhotoContent>(
+                new List<string> {jsonFile.FullName}, Names.PhotoContentPrefix).Single();
+            var updateComparisonResult = compareLogic.Compare(newPhotoContent, updatedJsonFileImported);
+            Assert.True(updateComparisonResult.AreEqual,
+                $"Updated Json Import does not match expected Updated Photo Content {comparisonResult.DifferencesString}");
+
+            //Check Historic JSON File
+            var historicJsonFile = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(newPhotoContent).FullName,
+                $"{Names.HistoricPhotoContentPrefix}{newPhotoContent.ContentId}.json"));
+            var historicJsonFileImported = Import
+                .ContentFromFiles<List<HistoricPhotoContent>>(new List<string> {historicJsonFile.FullName},
+                    Names.HistoricPhotoContentPrefix).SelectMany(x => x).ToList();
+
+            Assert.AreEqual(1, historicJsonFileImported.Count,
+                "Wrong number of Historic Entries in the Historic Json File");
+
+            var expectedHistoricValues = new HistoricPhotoContent();
+            expectedHistoricValues.InjectFrom(jsonFileImported);
+            expectedHistoricValues.Id = historicJsonFileImported.First().Id;
+
+            var historicJsonComparisonResult =
+                compareLogic.Compare(expectedHistoricValues, historicJsonFileImported.First());
+            Assert.IsTrue(historicJsonComparisonResult.AreEqual,
+                $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
+
+            newPhotoContent.Title += " Again";
+            newPhotoContent.LastUpdatedOn = DateTime.Now;
+            newPhotoContent.LastUpdatedBy = "Test Photo Updater 2";
+
+            var updateTwoResult = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent,
+                expectedOriginalPhotoFileInMediaArchive, false, DebugProgressTracker());
+            Assert.True(!updateTwoResult.HasError, "Problem Updating Item");
+
+            historicJsonFileImported = Import
+                .ContentFromFiles<List<HistoricPhotoContent>>(new List<string> {historicJsonFile.FullName},
+                    Names.HistoricPhotoContentPrefix).SelectMany(x => x).ToList();
+            Assert.AreEqual(2, historicJsonFileImported.Count,
+                "Wrong number of Historic Entries in the Historic Json File");
         }
 
         [Test]

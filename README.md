@@ -67,3 +67,4 @@ I am incredibly greatful to the all the people and companies who have created th
  - [Pure](https://purecss.io/) - Used in the reporting output for simple styling. BSD and MIT Licenses.
  - [Material Design Icons](http://materialdesignicons.com/)
  - [ClosedXML](https://github.com/ClosedXML/ClosedXML) - A great way to read and write Excel Files - I have years of experience with this library and it is both excellent and well maintained. MIT License.
+  - [CompareNETObjects](https://github.com/GregFinzer/Compare-Net-Objects) - Comparison of object properties that stays quick/easy to use but has more options than you would be likely to create with custom reflection code and potentially more durability than hand coded comparisons. Ms-PL License.

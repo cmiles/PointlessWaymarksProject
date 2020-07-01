@@ -77,6 +77,12 @@ namespace PointlessWaymarksCmsData.Generation
                 errorMessage.Add("Updated by can not be blank when updating an entry");
             }
 
+            if (!isNewEntry && toValidate.LastUpdatedOn == null || toValidate.LastUpdatedOn == DateTime.MinValue)
+            {
+                isValid = false;
+                errorMessage.Add("Last Updated On can not be blank/empty when updating an entry");
+            }
+
             return (isValid, string.Join(Environment.NewLine, errorMessage));
         }
     }
