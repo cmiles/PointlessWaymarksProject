@@ -9,6 +9,7 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
 using MetadataExtractor.Formats.Xmp;
+using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
@@ -29,8 +30,8 @@ namespace PointlessWaymarksCmsData.Generation
             htmlContext.WriteLocalHtml();
         }
 
-        public static async Task<(GenerationReturn, PhotoContent)> PhotoMetadataToPhotoContent(FileInfo selectedFile,
-            string createdBy, IProgress<string> progress)
+        public static async Task<(GenerationReturn generationReturn, PhotoMetadata metadata)> PhotoMetadataFromFile(
+            FileInfo selectedFile, IProgress<string> progress)
         {
             progress?.Report("Starting Metadata Processing");
 
@@ -38,17 +39,7 @@ namespace PointlessWaymarksCmsData.Generation
 
             if (!selectedFile.Exists) return (await GenerationReturn.Error("File Does Not Exist?"), null);
 
-            var toReturn = new PhotoContent
-            {
-                OriginalFileName = selectedFile.Name,
-                ContentId = Guid.NewGuid(),
-                CreatedBy =
-                    string.IsNullOrWhiteSpace(createdBy)
-                        ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
-                        : createdBy.Trim(),
-                CreatedOn = DateTime.Now,
-                ContentVersion = DateTime.Now.ToUniversalTime()
-            };
+            var toReturn = new PhotoMetadata();
 
             progress?.Report("Getting Directories");
 
@@ -86,8 +77,6 @@ namespace PointlessWaymarksCmsData.Generation
 
                 toReturn.PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
             }
-
-            toReturn.Folder = toReturn.PhotoCreatedOn.Year.ToString("F0");
 
             var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
             if (!string.IsNullOrWhiteSpace(isoString)) toReturn.Iso = int.Parse(isoString);
@@ -142,60 +131,69 @@ namespace PointlessWaymarksCmsData.Generation
 
             toReturn.Summary = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
 
-            //2020/3/22 - This matches a personal naming pattern where pictures 'always' start with 4 digit year 2 digit month
-            if (!string.IsNullOrWhiteSpace(toReturn.Title))
+            //2020/3/22 - Process out a convention that I have used for more than a decade of pre-2020s do yyMM at the start of a photo title or in the
+            //2020s yyyy MM at the start - hopefully this is matched specifically enough not to accidentally trigger on photos without this info... The
+            //base case of not matching this convention is that the year and month from photo created on are added to the front of the title or if the 
+            //title is blank the photo created on is put as a timestamp into the title. One of the ideas here is to give photos as much of a chance
+            //as possible to have valid data for an automated import even when a detail like timestamp title is probably better replaced with something
+            //more descriptive.
+            if (!string.IsNullOrWhiteSpace(toReturn.Title) && toReturn.Title.StartsWith("2"))
             {
-                if (toReturn.Title.StartsWith("2"))
-                {
-                    var possibleTitleDate =
-                        Regex.Match(toReturn.Title, @"\A(?<possibleDate>\d\d\d\d[\s-]\d\d[\s-]*).*",
-                            RegexOptions.IgnoreCase).Groups["possibleDate"].Value;
-                    if (!string.IsNullOrWhiteSpace(possibleTitleDate))
-                        try
-                        {
-                            var tempDate = new DateTime(int.Parse(possibleTitleDate.Substring(0, 4)),
-                                int.Parse(possibleTitleDate.Substring(5, 2)), 1);
-
-                            toReturn.Summary =
-                                $"{toReturn.Title.Substring(possibleTitleDate.Length, toReturn.Title.Length - possibleTitleDate.Length)}.";
-                            toReturn.Title =
-                                $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(possibleTitleDate.Length, toReturn.Title.Length - possibleTitleDate.Length)}";
-                            toReturn.Folder = $"{tempDate:yyyy}";
-
-                            progress?.Report("Title updated based on 2yyy MM start pattern for file name");
-                        }
-                        catch
-                        {
-                            progress?.Report("Did not successfully parse 2yyy MM start pattern for file name");
-                        }
-                }
-                else if (toReturn.Title.StartsWith("0") || toReturn.Title.StartsWith("1"))
-                {
+                var possibleTitleDate =
+                    Regex.Match(toReturn.Title, @"\A(?<possibleDate>\d\d\d\d[\s-]\d\d[\s-]*).*",
+                        RegexOptions.IgnoreCase).Groups["possibleDate"].Value;
+                if (!string.IsNullOrWhiteSpace(possibleTitleDate))
                     try
                     {
-                        if (Regex.IsMatch(toReturn.Title, @"\A[01]\d\d\d\s.*", RegexOptions.IgnoreCase))
-                        {
-                            var year = int.Parse(toReturn.Title.Substring(0, 2));
-                            var month = int.Parse(toReturn.Title.Substring(2, 2));
+                        var tempDate = new DateTime(int.Parse(possibleTitleDate.Substring(0, 4)),
+                            int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
-                            var tempDate = year < 20
-                                ? new DateTime(2000 + year, month, 1)
-                                : new DateTime(1900 + year, month, 1);
+                        toReturn.Summary =
+                            $"{toReturn.Title.Substring(possibleTitleDate.Length, toReturn.Title.Length - possibleTitleDate.Length)}.";
+                        toReturn.Title =
+                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(possibleTitleDate.Length, toReturn.Title.Length - possibleTitleDate.Length)}";
 
-                            toReturn.Summary = $"{toReturn.Title.Substring(5, toReturn.Title.Length - 5)}.";
-                            toReturn.Title =
-                                $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(5, toReturn.Title.Length - 5)}";
-                            toReturn.Folder = $"{tempDate:yyyy}";
-
-                            progress?.Report("Title updated based on YYMM start pattern for file name");
-                        }
+                        progress?.Report("Title updated based on 2yyy MM start pattern for file name");
                     }
                     catch
                     {
-                        progress?.Report("Did not successfully parse YYMM start pattern for file name");
+                        progress?.Report("Did not successfully parse 2yyy MM start pattern for file name");
+                    }
+            }
+            else if (!string.IsNullOrWhiteSpace(toReturn.Title) &&
+                     (toReturn.Title.StartsWith("0") || toReturn.Title.StartsWith("1")))
+            {
+                try
+                {
+                    if (Regex.IsMatch(toReturn.Title, @"\A[01]\d\d\d\s.*", RegexOptions.IgnoreCase))
+                    {
+                        var year = int.Parse(toReturn.Title.Substring(0, 2));
+                        var month = int.Parse(toReturn.Title.Substring(2, 2));
+
+                        var tempDate = year < 20
+                            ? new DateTime(2000 + year, month, 1)
+                            : new DateTime(1900 + year, month, 1);
+
+                        toReturn.Summary = $"{toReturn.Title.Substring(5, toReturn.Title.Length - 5)}.";
+                        toReturn.Title =
+                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(5, toReturn.Title.Length - 5)}";
+
+                        progress?.Report("Title updated based on YYMM start pattern for file name");
                     }
                 }
+                catch
+                {
+                    progress?.Report("Did not successfully parse YYMM start pattern for file name");
+                }
             }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(toReturn.Title))
+                    toReturn.Title = toReturn.PhotoCreatedOn.ToString("yyyy MMMM dd h-mm-ss tt");
+                else
+                    toReturn.Title = $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title}";
+            }
+
 
             if (!string.IsNullOrWhiteSpace(toReturn.Title))
                 toReturn.Title = Regex.Replace(toReturn.Title, @"\s+", " ").TrimNullSafe();
@@ -205,8 +203,6 @@ namespace PointlessWaymarksCmsData.Generation
             var description = exifDirectory?.GetDescription(ExifDirectoryBase.TagImageDescription) ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(description))
                 toReturn.Summary = description;
-
-            toReturn.Slug = SlugUtility.Create(true, toReturn.Title);
 
             var xmpSubjectKeywordList = new List<string>();
 
@@ -246,13 +242,53 @@ namespace PointlessWaymarksCmsData.Generation
                 toReturn);
         }
 
+        public static async Task<(GenerationReturn, PhotoContent)> PhotoMetadataToNewPhotoContent(FileInfo selectedFile,
+            string photoContentCreatedBy, IProgress<string> progress)
+        {
+            selectedFile.Refresh();
 
-        public static async Task<GenerationReturn> SaveAndGenerateHtml(PhotoContent toSave, FileInfo selectedFile,
-            bool overwriteExistingFiles, IProgress<string> progress)
+            if (!selectedFile.Exists) return (await GenerationReturn.Error("File Does Not Exist?"), null);
+
+            var metadataReturn = await PhotoMetadataFromFile(selectedFile, progress);
+
+            if (metadataReturn.generationReturn.HasError) return (metadataReturn.generationReturn, null);
+
+            var toReturn = new PhotoContent();
+
+            toReturn.InjectFrom(metadataReturn.metadata);
+
+            toReturn.OriginalFileName = selectedFile.Name;
+            toReturn.ContentId = Guid.NewGuid();
+            toReturn.CreatedBy = string.IsNullOrWhiteSpace(photoContentCreatedBy)
+                ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+                : photoContentCreatedBy.Trim();
+            toReturn.CreatedOn = DateTime.Now;
+            toReturn.ContentVersion = DateTime.Now.ToUniversalTime();
+            toReturn.Slug = SlugUtility.Create(true, toReturn.Title);
+
+            var possibleTitleYear = Regex
+                .Match(toReturn.Title,
+                    @"\A(?<possibleYear>\d\d\d\d) (?<possibleMonth>January?|February?|March?|April?|May|June?|July?|August?|September?|October?|November?|December?) .*",
+                    RegexOptions.IgnoreCase).Groups["possibleYear"].Value;
+            if (!string.IsNullOrWhiteSpace(possibleTitleYear))
+                if (int.TryParse(possibleTitleYear, out var convertedYear))
+                    if (convertedYear >= 1826 && convertedYear <= DateTime.Now.Year)
+                        toReturn.Folder = convertedYear.ToString("F0");
+
+            if (string.IsNullOrWhiteSpace(toReturn.Folder))
+                toReturn.Folder = toReturn.PhotoCreatedOn.Year.ToString("F0");
+
+            return (await GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"),
+                toReturn);
+        }
+
+
+        public static async Task<(GenerationReturn generationReturn, PhotoContent photoContent)> SaveAndGenerateHtml(
+            PhotoContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave, selectedFile);
 
-            if (validationReturn.HasError) return validationReturn;
+            if (validationReturn.HasError) return (validationReturn, null);
 
             WriteSelectedFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
@@ -267,7 +303,20 @@ namespace PointlessWaymarksCmsData.Generation
                     ContentIds = new List<Guid> {toSave.ContentId}
                 });
 
-            return await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}");
+            return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
+        }
+
+        public static async Task<(GenerationReturn generationReturn, PhotoContent photoContent)> SaveToDb(
+            PhotoContent toSave, FileInfo selectedFile, IProgress<string> progress)
+        {
+            var validationReturn = await Validate(toSave, selectedFile);
+
+            if (validationReturn.HasError) return (validationReturn, null);
+
+            WriteSelectedFileToMediaArchive(selectedFile);
+            await Db.SavePhotoContent(toSave);
+
+            return (await GenerationReturn.Success($"Saved {toSave.Title}"), toSave);
         }
 
         public static async Task<GenerationReturn> Validate(PhotoContent photoContent, FileInfo selectedFile)

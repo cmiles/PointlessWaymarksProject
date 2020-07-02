@@ -135,6 +135,8 @@ namespace PointlessWaymarksCmsContentEditor
                 new Command(() => StatusContext.RunBlockingTask(GenerateAllDailyPhotoGalleriesHtml));
             GenerateCamerRollCommand = new Command(() => StatusContext.RunBlockingTask(GenerateCameraRollHtml));
 
+            PurgeInvalidPhotoDirectoriesCommand = new Command(async () => await StructureAndMediaContent.PurgePhotoDirectoriesNotFoundInCurrentDatabase(StatusContext.ProgressTracker()));
+
             ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
 
             ToggleDiagnosticLoggingCommand = new Command(() =>
@@ -150,6 +152,8 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanUpTemporaryFiles);
         }
+
+        public Command PurgeInvalidPhotoDirectoriesCommand { get; set; }
 
 
         public Command AllEventsReportCommand { get; set; }

@@ -262,6 +262,56 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             return returnList;
         }
 
+        public static async Task PurgePhotoDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        {
+            progress?.Report("Starting Directory Cleanup");
+
+            var db = await Db.Context();
+            var dbPhotoFolders = db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+
+            var siteTopLevelPhotoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoDirectory();
+            var photoFolderDirectories = siteTopLevelPhotoDirectory.GetDirectories().Where(x => x.Name != "Galleries")
+                .OrderBy(x => x.Name).ToList();
+
+            progress?.Report(
+                $"Found {photoFolderDirectories.Count} Existing Photo Directories to Check against {dbPhotoFolders.Count} Photo Folders in the Database");
+
+            foreach (var loopExistingDirectories in photoFolderDirectories)
+            {
+                if (!dbPhotoFolders.Contains(loopExistingDirectories.Name))
+                {
+                    progress?.Report($"Deleting {loopExistingDirectories.FullName}");
+
+                    loopExistingDirectories.Delete(true);
+                    continue;
+                }
+
+                progress?.Report($"Staring Photo Content Directory Check for {loopExistingDirectories.FullName}");
+
+                var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
+                var dbContentSlugs = db.PhotoContents.Where(x => x.Folder == loopExistingDirectories.Name)
+                    .Select(x => x.Slug).OrderBy(x => x).ToList();
+
+                progress?.Report(
+                    $"Found {existingContentDirectories.Count} Existing Photo Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
+
+                foreach (var loopExistingContentDirectories in existingContentDirectories)
+                {
+                    if (!dbContentSlugs.Contains(loopExistingContentDirectories.Name))
+                    {
+                        progress?.Report($"Deleting {loopExistingContentDirectories.FullName}");
+                        loopExistingContentDirectories.Delete(true);
+                    }
+
+                    progress?.Report($"{loopExistingContentDirectories.FullName} matches current Photo Content");
+                }
+            }
+
+            progress?.Report("Ending Directory Cleanup");
+
+            //Daily photo purge - other
+        }
+
         /// <summary>
         ///     Verify or Create all top level folders for a site - includes both local only directories like the Media Archive and
         ///     the top level folders for the generated site.

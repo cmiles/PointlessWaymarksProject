@@ -16,7 +16,6 @@ namespace PointlessWaymarksCmsData.Models
         public string PhotoCreatedBy { get; set; }
         public DateTime PhotoCreatedOn { get; set; }
         public string ShutterSpeed { get; set; }
-        public bool ShowInMainSiteFeed { get; set; }
         public Guid ContentId { get; set; }
         public DateTime ContentVersion { get; set; }
 
@@ -25,12 +24,13 @@ namespace PointlessWaymarksCmsData.Models
         public DateTime CreatedOn { get; set; }
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
+        public Guid? MainPicture { get; set; }
+        public bool ShowInMainSiteFeed { get; set; }
         public string Tags { get; set; }
         public string Folder { get; set; }
         public string Slug { get; set; }
         public string Summary { get; set; }
         public string Title { get; set; }
-        public Guid? MainPicture { get; set; }
         public string UpdateNotes { get; set; }
         public string UpdateNotesFormat { get; set; }
     }

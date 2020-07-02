@@ -1,19 +1,18 @@
 ﻿## Todos
  - Content Testing:
-  - Need to refactor the GUI code to use the Generation code - should do sooner rather than later to see if any needed code changes come up
-  - The PhotoGenerator doesn't handle Folder changes like the GUI context does - need to figure out how to clean up no longer valid folders - in the GUI version they are moved, but maybe this is a generate new and the cull all older folders for the content type? I wonder if time on this is ok or a problem...
+  - Folder structure clean up routines - Photos written, need other content type
   - Add tests for the common content validation
  - A bad content code should be handled better
  - Wrap the Out of Memory that System.Drawing Image FromFile can throw that doesn't actually mean out of memory and rather means 'format issue'
  - Look at https://github.com/cyotek/SimpleScreenshotCapture/blob/master/src/ScreenshotCapture.cs to get rid of xaml island screen shot issue.
  - Extend To Excel to more Types
+ - To Excel for logs
  - Excel Import
+ - GUI Automation Testing https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/march/test-run-automating-ui-tests-in-wpf-applications
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - In Search it might be nice to have the content type on the line with date?
- - Replace Font Awesome Usage
- - A Generation Flow with consistent output and the goal of continuing past most errors with an error report at the end
-   - Worked on first ideas and a return type
+ - Replace Font Awesome Usage - wait spinner done
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -24,12 +23,11 @@
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
 
 ## Ideas
- - Auto-validate all html output?
  - Look at deployment options - self contained? msix? automated?
  - Watch https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/ - the source generators look like they could be quite interesting for INPC and HasChanges
- - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size doesn't match, link handler is code behind...
+ - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size don't match, link handler is code behind...
  - Could all font sizes be controlled by slider? I like the control in the editor but maybe everywhere would be more useful?
- - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site
+ - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site - or maybe look for other PDF generation strategies
  - How hard would it be to create a GridSplitter that would be easy to set the initial split based off of the last editor use - and/or that could completely hide content to one side with a shortcut
  
 ## Issues to Track
@@ -41,6 +39,14 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/2/2020
+
+Changed the Photo editor and photo automated import over to use the new Photo Generation - resulted in a few changes in the Photo Generation to accommodate needs in the GUI code but was generally smooth. The interesting thing about doing this is that even though the base methods were extracted and are now tested (good!) there is still quite a few details to get everything correct in the GUI - I'm sure that the code could always be structured better to minimize concerns but I also suspect that long term some UI Automation testing could pay off - adding it to the todo.
+
+Fixed a small layout error in the Main Window General Tab.
+
+Started work on a routine to clean/purge the folder structure - the motivation here is that the older GUI Photo save routines detected and moved folders/files as possible but for simplicity the newer photo routines do not do this so another cleanup strategy is needed.
 
 7/1/2020
 

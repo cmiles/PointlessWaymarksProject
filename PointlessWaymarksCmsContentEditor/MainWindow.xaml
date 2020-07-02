@@ -83,7 +83,7 @@
                     <Button Grid.Row="3" Margin="12" Command="{Binding GenerateIndexCommand}">Generate Index</Button>
                     <Button Grid.Row="4" Margin="12" Command="{Binding OpenIndexUrlCommand}">Open Index</Button>
                     <Button Grid.Row="5" Margin="12" Command="{Binding ImportJsonFromDirectoryCommand}">Import JSON</Button>
-                    <Grid Grid.Row="6" Margin="12">
+                    <Grid Grid.Row="7" Margin="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition />
@@ -109,6 +109,7 @@
                         <Button Command="{Binding GenerateHtmlForAllPhotoContentCommand}">Photos</Button>
                         <Button Command="{Binding GenerateCamerRollCommand}">Camera Roll</Button>
                         <Button Command="{Binding GenerateDailyGalleryHtmlCommand}">Daily Galleries</Button>
+                        <Button Command="{Binding PurgeInvalidPhotoDirectoriesCommand}">Purge Photo Folders</Button>
                     </WrapPanel>
                 </Grid>
             </TabItem>

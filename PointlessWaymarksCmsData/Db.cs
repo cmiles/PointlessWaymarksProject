@@ -300,18 +300,24 @@ namespace PointlessWaymarksCmsData
             await context.SaveChangesAsync(true);
 
             if (isUpdate)
+            {
                 DataNotifications.PhotoContentDataNotificationEventSource.Raise("Db Class",
                     new DataNotificationEventArgs
                     {
                         UpdateType = DataNotificationUpdateType.Update,
-                        ContentIds = new List<Guid> {toSave.ContentId}
+                        ContentIds = new List<Guid> { toSave.ContentId }
                     });
+            }
+            else
+            {
+                DataNotifications.PhotoContentDataNotificationEventSource.Raise("Db Class",
+                    new DataNotificationEventArgs
+                    {
+                        UpdateType = DataNotificationUpdateType.New,
+                        ContentIds = new List<Guid> { toSave.ContentId }
+                    });
+            }
 
-            DataNotifications.PhotoContentDataNotificationEventSource.Raise("Db Class",
-                new DataNotificationEventArgs
-                {
-                    UpdateType = DataNotificationUpdateType.New, ContentIds = new List<Guid> {toSave.ContentId}
-                });
         }
 
         public static async Task SavePostContent(PostContent toSave)

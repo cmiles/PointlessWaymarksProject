@@ -2,28 +2,23 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Media.Imaging;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
-using MetadataExtractor.Formats.Iptc;
 using MetadataExtractor.Formats.Xmp;
 using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
-using PointlessWaymarksCmsData.JsonFiles;
+using PointlessWaymarksCmsData.Generation;
 using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -34,7 +29,6 @@ using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
-using XmpCore;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
@@ -496,18 +490,64 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext.Progress($"Photo load - {SelectedFile.FullName} ");
 
-            if (loadMetadata) await ProcessSelectedFile();
+            if (!loadMetadata) return;
+
+            var (generationReturn, metadata) =
+                await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+
+            if (generationReturn.HasError)
+            {
+                await StatusContext.ShowMessageWithOkButton("Photo Metadata Load Issue",
+                    generationReturn.GenerationNote);
+                return;
+            }
+
+            PhotoMetadataToCurrentContent(metadata);
         }
 
-        private async Task GenerateHtml()
+        private PhotoContent CurrentStateToPhotoContent()
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            var newEntry = new PhotoContent();
 
-            StatusContext.Progress("Photo Content - Generate HTML");
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                newEntry.ContentId = Guid.NewGuid();
+                newEntry.CreatedOn = DateTime.Now;
+                newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
+            }
+            else
+            {
+                newEntry.ContentId = DbEntry.ContentId;
+                newEntry.CreatedOn = DbEntry.CreatedOn;
+                newEntry.LastUpdatedOn = DateTime.Now;
+                newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
+            }
 
-            var htmlContext = new SinglePhotoPage(DbEntry);
+            newEntry.MainPicture = newEntry.ContentId;
+            newEntry.Aperture = Aperture;
+            newEntry.Folder = TitleSummarySlugFolder.Folder;
+            newEntry.Iso = Iso;
+            newEntry.Lens = Lens;
+            newEntry.License = License;
+            newEntry.Slug = TitleSummarySlugFolder.Slug;
+            newEntry.Summary = TitleSummarySlugFolder.Summary;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
+            newEntry.Tags = TagEdit.TagListString();
+            newEntry.Title = TitleSummarySlugFolder.Title;
+            newEntry.AltText = AltText;
+            newEntry.CameraMake = CameraMake;
+            newEntry.CameraModel = CameraModel;
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
+            newEntry.FocalLength = FocalLength;
+            newEntry.ShutterSpeed = ShutterSpeed;
+            newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
+            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
+            newEntry.OriginalFileName = SelectedFile.Name;
+            newEntry.PhotoCreatedBy = PhotoCreatedBy;
+            newEntry.PhotoCreatedOn = PhotoCreatedOn;
 
-            htmlContext.WriteLocalHtml();
+            return newEntry;
         }
 
         public async Task LoadData(PhotoContent toLoad, bool skipMediaDirectoryCheck = false)
@@ -565,7 +605,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             {
                 SelectedFile = _initialPhoto;
                 _initialPhoto = null;
-                await ProcessSelectedFile();
+                var (generationReturn, metadataReturn) =
+                    await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+                if (!generationReturn.HasError) PhotoMetadataToCurrentContent(metadataReturn);
             }
         }
 
@@ -575,228 +617,23 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public async Task ProcessSelectedFile()
+        public void PhotoMetadataToCurrentContent(PhotoMetadata metadata)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            StatusContext.Progress("Starting Metadata Processing");
-
-            SelectedFile.Refresh();
-
-            if (!SelectedFile.Exists)
-            {
-                StatusContext.ToastError("File doesn't exist?");
-                return;
-            }
-
-            StatusContext.Progress("Getting Directories");
-
-            var exifSubIfDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName)
-                .OfType<ExifSubIfdDirectory>().FirstOrDefault();
-            var exifDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<ExifIfd0Directory>()
-                .FirstOrDefault();
-            var iptcDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<IptcDirectory>()
-                .FirstOrDefault();
-            var gpsDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<GpsDirectory>()
-                .FirstOrDefault();
-            var xmpDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<XmpDirectory>()
-                .FirstOrDefault();
-
-            PhotoCreatedBy = exifDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
-
-            var createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
-            if (string.IsNullOrWhiteSpace(createdOn))
-            {
-                var gpsDateTime = DateTime.MinValue;
-                if (gpsDirectory?.TryGetGpsDate(out gpsDateTime) ?? false)
-                {
-                    if (gpsDateTime != DateTime.MinValue) PhotoCreatedOn = gpsDateTime.ToLocalTime();
-                }
-                else
-                {
-                    PhotoCreatedOn = DateTime.Now;
-                }
-            }
-            else
-            {
-                var createdOnParsed = DateTime.TryParseExact(
-                    exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal), "yyyy:MM:dd HH:mm:ss",
-                    CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate);
-
-                PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
-            }
-
+            Aperture = metadata.Aperture;
+            CameraMake = metadata.CameraMake;
+            CameraModel = metadata.CameraModel;
+            FocalLength = metadata.FocalLength;
+            Iso = metadata.Iso;
+            Lens = metadata.Lens;
+            License = metadata.License;
+            PhotoCreatedBy = metadata.PhotoCreatedBy;
+            PhotoCreatedOn = metadata.PhotoCreatedOn;
+            ShutterSpeed = metadata.ShutterSpeed;
+            TitleSummarySlugFolder.Summary = metadata.Summary;
+            TagEdit.Tags = metadata.Tags;
+            TitleSummarySlugFolder.Title = metadata.Title;
+            TitleSummarySlugFolder.TitleToSlug();
             TitleSummarySlugFolder.Folder = PhotoCreatedOn.Year.ToString("F0");
-
-            var isoString = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
-            if (!string.IsNullOrWhiteSpace(isoString)) Iso = int.Parse(isoString);
-
-            CameraMake = exifDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
-            CameraModel = exifDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
-            FocalLength = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagFocalLength) ?? string.Empty;
-
-            Lens = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
-
-            if (Lens == string.Empty || Lens == "----")
-                Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsExifAux, "Lens")?.Value ?? string.Empty;
-            if (Lens == string.Empty || Lens == "----")
-            {
-                Lens = xmpDirectory?.XmpMeta?.GetProperty(XmpConstants.NsCameraraw, "LensProfileName")?.Value ??
-                       string.Empty;
-
-                if (Lens.StartsWith("Adobe ("))
-                {
-                    Lens = Lens.Substring(7, Lens.Length - 7);
-                    if (Lens.EndsWith(")")) Lens = Lens.Substring(0, Lens.Length - 1);
-                }
-            }
-
-            if (Lens == "----") Lens = string.Empty;
-
-            Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
-            License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
-
-            var shutterValue = new Rational();
-            if (exifSubIfDirectory?.TryGetRational(37377, out shutterValue) ?? false)
-                ShutterSpeed = ExifHelpers.ShutterSpeedToHumanReadableString(shutterValue);
-            else
-                ShutterSpeed = string.Empty;
-
-            //The XMP data - vs the IPTC - will hold the full Title for a very long title (the IPTC will be truncated) - 
-            //for a 'from Lightroom with no other concerns' export Title makes the most sense, but there are other possible
-            //metadata fields to pull from that could be relevant in other contexts.
-            TitleSummarySlugFolder.Title = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "title", 1)?.Value;
-
-            if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
-                TitleSummarySlugFolder.Title =
-                    iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
-            //Use a variety of guess on common file names and make that the title - while this could result in an initial title 
-            //like DSC001 style out of camera names but after having experimented with loading files I think 'default' is better
-            //than an invalid blank.
-            if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
-                TitleSummarySlugFolder.Title = Path.GetFileNameWithoutExtension(SelectedFile.Name).Replace("-", " ")
-                    .Replace("_", " ").SplitCamelCase();
-
-            TitleSummarySlugFolder.Summary = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
-
-            //2020/3/22 - This matches a personal naming pattern where pictures 'always' start with 4 digit year 2 digit month
-            if (!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
-            {
-                if (TitleSummarySlugFolder.Title.StartsWith("2"))
-                {
-                    var possibleTitleDate =
-                        Regex.Match(TitleSummarySlugFolder.Title, @"\A(?<possibleDate>\d\d\d\d[\s-]\d\d[\s-]*).*",
-                            RegexOptions.IgnoreCase).Groups["possibleDate"].Value;
-                    if (!string.IsNullOrWhiteSpace(possibleTitleDate))
-                        try
-                        {
-                            var tempDate = new DateTime(int.Parse(possibleTitleDate.Substring(0, 4)),
-                                int.Parse(possibleTitleDate.Substring(5, 2)), 1);
-
-                            TitleSummarySlugFolder.Summary =
-                                $"{TitleSummarySlugFolder.Title.Substring(possibleTitleDate.Length, TitleSummarySlugFolder.Title.Length - possibleTitleDate.Length)}.";
-                            TitleSummarySlugFolder.Title =
-                                $"{tempDate:yyyy} {tempDate:MMMM} {TitleSummarySlugFolder.Title.Substring(possibleTitleDate.Length, TitleSummarySlugFolder.Title.Length - possibleTitleDate.Length)}";
-                            TitleSummarySlugFolder.Folder = $"{tempDate:yyyy}";
-
-                            StatusContext.Progress("Title updated based on 2yyy MM start pattern for file name");
-                        }
-                        catch
-                        {
-                            StatusContext.Progress("Did not successfully parse 2yyy MM start pattern for file name");
-                        }
-                }
-                else if (TitleSummarySlugFolder.Title.StartsWith("0") || TitleSummarySlugFolder.Title.StartsWith("1"))
-                {
-                    try
-                    {
-                        if (Regex.IsMatch(TitleSummarySlugFolder.Title, @"\A[01]\d\d\d\s.*", RegexOptions.IgnoreCase))
-                        {
-                            var year = int.Parse(TitleSummarySlugFolder.Title.Substring(0, 2));
-                            var month = int.Parse(TitleSummarySlugFolder.Title.Substring(2, 2));
-
-                            var tempDate = year < 20
-                                ? new DateTime(2000 + year, month, 1)
-                                : new DateTime(1900 + year, month, 1);
-
-                            TitleSummarySlugFolder.Summary =
-                                $"{TitleSummarySlugFolder.Title.Substring(5, TitleSummarySlugFolder.Title.Length - 5)}.";
-                            TitleSummarySlugFolder.Title =
-                                $"{tempDate:yyyy} {tempDate:MMMM} {TitleSummarySlugFolder.Title.Substring(5, TitleSummarySlugFolder.Title.Length - 5)}";
-                            TitleSummarySlugFolder.Folder = $"{tempDate:yyyy}";
-
-                            StatusContext.Progress("Title updated based on YYMM start pattern for file name");
-                        }
-                    }
-                    catch
-                    {
-                        StatusContext.Progress("Did not successfully parse YYMM start pattern for file name");
-                    }
-                }
-            }
-
-            if (!string.IsNullOrWhiteSpace(TitleSummarySlugFolder.Title))
-                TitleSummarySlugFolder.Title = Regex.Replace(TitleSummarySlugFolder.Title, @"\s+", " ").TrimNullSafe();
-
-            //Order is important here - the title supplies the summary in the code above - but overwrite that if there is a 
-            //description.
-            var description = exifDirectory?.GetDescription(ExifDirectoryBase.TagImageDescription) ?? string.Empty;
-            if (!string.IsNullOrWhiteSpace(description))
-                TitleSummarySlugFolder.Summary = description;
-
-            TitleSummarySlugFolder.Slug = SlugUtility.Create(true, TitleSummarySlugFolder.Title);
-
-            var xmpSubjectKeywordList = new List<string>();
-
-            var xmpSubjectArrayItemCount = xmpDirectory?.XmpMeta?.CountArrayItems(XmpConstants.NsDC, "subject");
-
-            if (xmpSubjectArrayItemCount != null)
-                for (var i = 1; i <= xmpSubjectArrayItemCount; i++)
-                {
-                    var subjectArrayItem = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "subject", i);
-                    if (subjectArrayItem == null || string.IsNullOrWhiteSpace(subjectArrayItem.Value)) continue;
-                    xmpSubjectKeywordList.AddRange(subjectArrayItem.Value.Replace(";", ",").Split(",")
-                        .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
-                }
-
-            xmpSubjectKeywordList = xmpSubjectKeywordList.Distinct().ToList();
-
-            var keywordTagList = new List<string>();
-
-            var keywordValue = iptcDirectory?.GetDescription(IptcDirectory.TagKeywords)?.Replace(";", ",") ??
-                               string.Empty;
-
-            if (!string.IsNullOrWhiteSpace(keywordValue))
-                keywordTagList.AddRange(keywordValue.Replace(";", ",").Split(",")
-                    .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
-
-            if (xmpSubjectKeywordList.Count == 0 && keywordTagList.Count == 0)
-                TagEdit.Tags = string.Empty;
-            else if (xmpSubjectKeywordList.Count >= keywordTagList.Count)
-                TagEdit.Tags = string.Join(",", xmpSubjectKeywordList);
-            else
-                TagEdit.Tags = string.Join(",", keywordTagList);
-        }
-
-        private async Task ResizePhoto()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedFile == null)
-            {
-                StatusContext.ToastError("Can't Resize - No File?");
-                return;
-            }
-
-            SelectedFile.Refresh();
-
-            if (!SelectedFile.Exists)
-            {
-                StatusContext.ToastError("Can't Resize - No File?");
-                return;
-            }
-
-            await WriteSelectedFileToLocalSite(true);
         }
 
         private async Task RotateImage(Orientation rotationType)
@@ -824,134 +661,31 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
         }
 
-        public async Task SaveAndGenerateHtml()
+        public async Task SaveAndGenerateHtml(bool overwriteExistingFiles)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var validationList = await ValidateAll();
+            var (generationReturn, newContent) = await PhotoGenerator.SaveAndGenerateHtml(CurrentStateToPhotoContent(),
+                SelectedFile, overwriteExistingFiles, StatusContext.ProgressTracker());
 
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
-                return;
-            }
+            if (generationReturn.HasError)
+                await StatusContext.ShowMessageWithOkButton("Problem Saving and Generating Html",
+                    generationReturn.GenerationNote);
 
-            await WriteSelectedFileToMediaArchive();
-            var dataNotification = await SaveToDatabase();
-            await WriteSelectedFileToLocalSite(false);
-            await GenerateHtml();
-            await Export.WriteLocalDbJson(DbEntry);
-
-            if (dataNotification != null)
-                DataNotifications.ImageContentDataNotificationEventSource.Raise(this, dataNotification);
-        }
-
-        private async Task<DataNotificationEventArgs> SaveToDatabase(bool skipMediaDirectoryCheck = false)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var newEntry = new PhotoContent();
-
-            var isNewEntry = false;
-
-            if (DbEntry == null || DbEntry.Id < 1)
-            {
-                isNewEntry = true;
-                newEntry.ContentId = Guid.NewGuid();
-                newEntry.CreatedOn = DateTime.Now;
-                newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
-            }
-            else
-            {
-                newEntry.ContentId = DbEntry.ContentId;
-                newEntry.CreatedOn = DbEntry.CreatedOn;
-                newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
-            }
-
-            newEntry.MainPicture = newEntry.ContentId;
-            newEntry.Aperture = Aperture;
-            newEntry.Folder = TitleSummarySlugFolder.Folder;
-            newEntry.Iso = Iso;
-            newEntry.Lens = Lens;
-            newEntry.License = License;
-            newEntry.Slug = TitleSummarySlugFolder.Slug;
-            newEntry.Summary = TitleSummarySlugFolder.Summary;
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
-            newEntry.Tags = TagEdit.TagListString();
-            newEntry.Title = TitleSummarySlugFolder.Title;
-            newEntry.AltText = AltText;
-            newEntry.CameraMake = CameraMake;
-            newEntry.CameraModel = CameraModel;
-            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
-            newEntry.FocalLength = FocalLength;
-            newEntry.ShutterSpeed = ShutterSpeed;
-            newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
-            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-            newEntry.OriginalFileName = SelectedFile.Name;
-            newEntry.PhotoCreatedBy = PhotoCreatedBy;
-            newEntry.PhotoCreatedOn = PhotoCreatedOn;
-
-            if (DbEntry != null && DbEntry.Id > 0)
-                if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
-                {
-                    var settings = UserSettingsSingleton.CurrentSettings();
-                    var existingDirectory = settings.LocalSitePhotoContentDirectory(DbEntry, false);
-
-                    if (existingDirectory.Exists)
-                    {
-                        var newDirectory =
-                            new DirectoryInfo(settings.LocalSitePhotoContentDirectory(newEntry, false).FullName);
-                        existingDirectory.MoveTo(settings.LocalSitePhotoContentDirectory(newEntry, false).FullName);
-                        newDirectory.Refresh();
-
-                        var possibleOldHtmlFile =
-                            new FileInfo($"{Path.Combine(newDirectory.FullName, DbEntry.Slug)}.html");
-                        if (possibleOldHtmlFile.Exists)
-                            possibleOldHtmlFile.MoveTo(settings.LocalSitePhotoHtmlFile(newEntry).FullName);
-                    }
-                }
-
-            await Db.SavePhotoContent(newEntry);
-
-            DbEntry = newEntry;
-
-            await LoadData(newEntry, skipMediaDirectoryCheck);
-
-            if (isNewEntry)
-                return new DataNotificationEventArgs
-                {
-                    UpdateType = DataNotificationUpdateType.New, ContentIds = new List<Guid> {newEntry.ContentId}
-                };
-
-            return new DataNotificationEventArgs
-            {
-                UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {newEntry.ContentId}
-            };
+            await LoadData(newContent);
         }
 
         private async Task SaveToDbWithValidation()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var validationList = await ValidateAll();
+            var (generationReturn, newContent) = await PhotoGenerator.SaveToDb(CurrentStateToPhotoContent(),
+                SelectedFile, StatusContext.ProgressTracker());
 
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
-                return;
-            }
+            if (generationReturn.HasError)
+                await StatusContext.ShowMessageWithOkButton("Problem Saving", generationReturn.GenerationNote);
 
-            await WriteSelectedFileToMediaArchive();
-            var dataNotification = await SaveToDatabase();
-
-            if (dataNotification != null)
-                DataNotifications.ImageContentDataNotificationEventSource.Raise(this, dataNotification);
+            await LoadData(newContent);
         }
 
         private async Task SelectedFileChanged()
@@ -1001,8 +735,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ChooseFileAndFillMetadataCommand =
                 new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(true)));
             ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
-            ResizeFileCommand = new Command(() => StatusContext.RunBlockingTask(ResizePhoto));
-            SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
+            SaveAndGenerateHtmlCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
             ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
@@ -1010,40 +744,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate90)));
             RotatePhotoLeftCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate270)));
-        }
-
-        private async Task<(bool, string)> Validate()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            SelectedFile.Refresh();
-
-            if (!SelectedFile.Exists) return (false, "File doesn't exist?");
-
-            if (!FileTypeHelpers.PhotoFileTypeIsSupported(SelectedFile))
-                return (false, "The file doesn't appear to be a supported file type.");
-
-            if (await (await Db.Context()).PhotoFilenameExistsInDatabase(SelectedFile.Name, DbEntry?.ContentId))
-                return (false, "This filename already exists in the database - photo file names must be unique.");
-
-            if (await (await Db.Context()).SlugExistsInDatabase(TitleSummarySlugFolder.Slug, DbEntry?.ContentId))
-                return (false, "This slug already exists in the database - slugs must be unique.");
-
-            return (true, string.Empty);
-        }
-
-        public async Task<List<(bool, string)>> ValidateAll()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            return new List<(bool, string)>
-            {
-                await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
-                await UserSettingsUtilities.ValidateLocalMediaArchive(),
-                await TitleSummarySlugFolder.Validate(),
-                await CreatedUpdatedDisplay.Validate(),
-                await Validate()
-            };
         }
 
         private async Task ViewOnSite()
@@ -1113,53 +813,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
-        }
-
-        private async Task WriteSelectedFileToLocalSite(bool forcedResizeOverwriteExistingFiles)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var userSettings = UserSettingsSingleton.CurrentSettings();
-
-            var targetDirectory = userSettings.LocalSitePhotoContentDirectory(DbEntry);
-
-            var originalFileInTargetDirectoryFullName = Path.Combine(targetDirectory.FullName, SelectedFile.Name);
-
-            var sourceImage = new FileInfo(originalFileInTargetDirectoryFullName);
-
-            if (originalFileInTargetDirectoryFullName != SelectedFile.FullName)
-            {
-                if (sourceImage.Exists) sourceImage.Delete();
-                SelectedFile.CopyTo(originalFileInTargetDirectoryFullName);
-                sourceImage.Refresh();
-            }
-
-            PictureResizing.CleanDisplayAndSrcSetFilesInPhotoDirectory(DbEntry, true, StatusContext.ProgressTracker());
-
-            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, forcedResizeOverwriteExistingFiles,
-                StatusContext.ProgressTracker());
-
-            DataNotifications.PhotoContentDataNotificationEventSource.Raise(this,
-                new DataNotificationEventArgs
-                {
-                    UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {DbEntry.ContentId}
-                });
-        }
-
-        private async Task WriteSelectedFileToMediaArchive()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var userSettings = UserSettingsSingleton.CurrentSettings();
-            var destinationFileName = Path.Combine(userSettings.LocalMediaArchivePhotoDirectory().FullName,
-                SelectedFile.Name);
-            if (destinationFileName == SelectedFile.FullName) return;
-
-            var destinationFile = new FileInfo(destinationFileName);
-
-            if (destinationFile.Exists) destinationFile.Delete();
-
-            SelectedFile.CopyTo(destinationFileName);
         }
     }
 }

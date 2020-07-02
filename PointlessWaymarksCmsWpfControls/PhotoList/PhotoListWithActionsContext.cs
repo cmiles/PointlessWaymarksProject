@@ -17,6 +17,7 @@ using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
+using PointlessWaymarksCmsData.Generation;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.PhotoHtml;
 using PointlessWaymarksCmsData.Pictures;
@@ -522,16 +523,50 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             foreach (var loopFile in validFiles)
             {
-                await ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ResumeBackgroundAsync();
 
                 if (autoSaveAndClose)
                 {
-                    var editor = new PhotoContentEditorWindow(true);
+                    var (metaGenerationReturn, metaContent) = await PhotoGenerator.PhotoMetadataToNewPhotoContent(
+                        loopFile, UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+                        StatusContext.ProgressTracker());
 
-                    await TryAutomateEditorSaveGenerateAndClose(editor, loopFile);
+                    if (metaGenerationReturn.HasError)
+                    {
+                        await ThreadSwitcher.ResumeForegroundAsync();
+
+                        var editor = new PhotoContentEditorWindow(loopFile);
+                        editor.Show();
+#pragma warning disable 4014
+                        //Allow execution to continue so Automation can continue
+                        editor.StatusContext.ShowMessageWithOkButton("Problem Extracting Metadata",
+                            metaGenerationReturn.GenerationNote);
+#pragma warning restore 4014
+                        continue;
+                    }
+
+                    var (saveGenerationReturn, saveContent) =
+                        await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile, true,
+                            StatusContext.ProgressTracker());
+
+                    if (saveGenerationReturn.HasError)
+                    {
+                        await ThreadSwitcher.ResumeForegroundAsync();
+
+                        var editor = new PhotoContentEditorWindow(loopFile);
+                        editor.Show();
+#pragma warning disable 4014
+                        //Allow execution to continue so Automation can continue
+                        editor.StatusContext.ShowMessageWithOkButton("Problem Saving",
+                            saveGenerationReturn.GenerationNote);
+#pragma warning restore 4014
+                        continue;
+                    }
                 }
                 else
                 {
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
                     var editor = new PhotoContentEditorWindow(loopFile);
                     editor.Show();
                 }
@@ -761,46 +796,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List")));
             ReportBlankLicenseCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
                 await RunReport(ReportBlackLicenseGenerator, "Title and Created Mismatch Photo List")));
-        }
-
-        private async Task TryAutomateEditorSaveGenerateAndClose(PhotoContentEditorWindow editor, FileInfo loopFile)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            editor.StatusContext.BlockUi = true;
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            editor.Show();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            await editor.PhotoEditor.LoadData(null);
-            editor.PhotoEditor.SelectedFile = loopFile;
-            await editor.PhotoEditor.ProcessSelectedFile();
-
-            var validation = await editor.PhotoEditor.ValidateAll();
-
-            if (validation.Any(x => !x.Item1))
-            {
-                //Todo: Get validation errors to user
-                editor.StatusContext.BlockUi = false;
-                return;
-            }
-
-            try
-            {
-                await editor.PhotoEditor.SaveAndGenerateHtml();
-            }
-            catch (Exception e)
-            {
-                await editor.StatusContext.ShowMessageWithOkButton("Trouble with Autosave", e.Message);
-                return;
-            }
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            editor.Close();
         }
 
         private async Task ViewHistory()

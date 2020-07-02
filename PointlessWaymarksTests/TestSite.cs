@@ -52,7 +52,7 @@ namespace PointlessWaymarksTests
                 "Test Photo 2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg not found");
 
             var (generationReturn, newPhotoContent) =
-                await PhotoGenerator.PhotoMetadataToPhotoContent(fullSizePhotoTest, "Automated Tester",
+                await PhotoGenerator.PhotoMetadataToNewPhotoContent(fullSizePhotoTest, "Automated Tester",
                     DebugProgressTracker());
 
             //Check the Metadata
@@ -96,7 +96,7 @@ namespace PointlessWaymarksTests
 
             var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent, fullSizePhotoTest, true,
                 DebugProgressTracker());
-            Assert.False(saveReturn.HasError);
+            Assert.False(saveReturn.generationReturn.HasError);
 
             Assert.IsTrue(newPhotoContent.MainPicture == newPhotoContent.ContentId,
                 $"Main Picture - {newPhotoContent.MainPicture} - Should be set to Content Id {newPhotoContent.ContentId}");
@@ -160,7 +160,7 @@ namespace PointlessWaymarksTests
             //?Check some details of the HTML?
             var updateWithoutUpdateResult = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent,
                 expectedOriginalPhotoFileInMediaArchive, false, DebugProgressTracker());
-            Assert.True(updateWithoutUpdateResult.HasError,
+            Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
                 "Should not be able to update an entry without LastUpdated Values set");
 
             var updatedTime = DateTime.Now;
@@ -172,7 +172,7 @@ namespace PointlessWaymarksTests
             //?Check some details of the HTML?
             var updateResult = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent,
                 expectedOriginalPhotoFileInMediaArchive, false, DebugProgressTracker());
-            Assert.True(!updateResult.HasError, "Problem Updating Item");
+            Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
 
             var updatedJsonFileImported = Import.ContentFromFiles<PhotoContent>(
                 new List<string> {jsonFile.FullName}, Names.PhotoContentPrefix).Single();
@@ -206,7 +206,7 @@ namespace PointlessWaymarksTests
 
             var updateTwoResult = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent,
                 expectedOriginalPhotoFileInMediaArchive, false, DebugProgressTracker());
-            Assert.True(!updateTwoResult.HasError, "Problem Updating Item");
+            Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
 
             historicJsonFileImported = Import
                 .ContentFromFiles<List<HistoricPhotoContent>>(new List<string> {historicJsonFile.FullName},
