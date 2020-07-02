@@ -2,15 +2,15 @@
 
 This project is not truly intended for 'general public' use - it is made public under an MIT license both to share with friends and just-in-case any of the code is useful to anyone.
 
-This project is a .NET Core Windows WPF GUI for generating a static website based on database information and a settings file. This software is currently being used to create https://PointlessWaymarks.com. It is not intended as 'general purpose static site generation software' - rather only to support the creation and generation of a limited set of content types.
+This project is a .NET Core Windows WPF GUI for generating a static website based on database information and a settings file. This software is currently being used to create https://PointlessWaymarks.com. It is not intended as 'general purpose static site generation software' - it only supports the creation and generation of a limited set of content types with a limited set of options.
 
-Because this is a personal project without commercial goals it may be useful to understand that the focus of this project is to help create long-lasting beautiful free authentic content out of a love for the subject matter. The inspiration is the incredible richness and joy creating content about the landscape has added to my life - and the focus for the project is informed by the my realization that having front-page-search-results for personal content hasn't added to my happiness in any measurable way.
+Because this is a personal project without commercial goals it may be useful to understand that the focus of this project is to help create long-lasting beautiful free authentic content out of a love for the subject matter. The inspiration is the incredible richness and joy creating content about the landscape has added to my life - and the focus for the project is informed by my realization that having front page search results for personal content hasn't added to my happiness in any measurable way.
 
 Details behind this software:
- - A static site because it is currently one of the lowest cost, least maintenance, most durable way to put completely free content online.
- - Database driven because it offers a huge amount of flexibility in creating and updating content and leaves open the possibility of generating different formats.
- - Custom software rather than a generic cms/web framework so that the limited content types I want to create can be well supported - and with a limited scope I believe I can create more useful software in less time by coding something new rather than customizing existing software.
- - Desktop creation software because it is an excellent way to create zero cost software that can be used/installed by most end users - WPF because I am most frequently working in Windows, because it is my favorite Windows GUI technology atm and because working in WPF feeds back into my day job where I help to create and maintain an Inventory Management and Reporting system that has a WPF Front end component.
+ - A static site because it is currently one of the lowest cost, least maintenance, most durable ways to put completely free content online
+ - Database driven because it offers a huge amount of flexibility in creating and updating content and supports the generation of multiple formats.
+ - Custom software rather than a generic cms/web framework so that the limited content types I want to create can be specifically and well supported - and with a limited scope I believe I can create more useful software in less time by coding something new rather than customizing something existing.
+ - Desktop creation software because it is an excellent way to create zero cost software that can be used/installed by most end users - WPF because I am most frequently working in Windows, because it is my favorite Windows GUI technology atm and because it feeds back into my day job where I help to create and maintain an Inventory Management and Reporting system that has a WPF Front end component.
  
  I hope to write high quality code and I am happy to share it - but for various reason, including the narrow and personal focus of this project, I don't currently intend to make 'public use' a primary consideration.
 
