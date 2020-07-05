@@ -31,7 +31,7 @@ Post List - There is a similiar list for each Content Type.
 ![Posts List](PointlessWaymarksCmsScreenShots/PostsList.jpg "Posts List")
 
 
-Post Editor with Preview Showing - The editors, like the entire application - is relatively simple but quick and easy to work with.
+Post Editor with Preview Showing - The editors, like the entire application, are relatively simple but are desgined to be quick and easy to work with.
 
 ![Post Editor](PointlessWaymarksCmsScreenShots/PostEditorWithPreview.jpg "Post Editor")
 
