@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
-using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
@@ -392,19 +391,13 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             await LoadData(newEntry);
 
             if (isNewEntry)
-                DataNotifications.NoteContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.New,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
+                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                    DataNotificationContentType.Note, DataNotificationUpdateType.New,
+                    new List<Guid> {newEntry.ContentId});
             else
-                DataNotifications.NoteContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.Update,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
+                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                    DataNotificationContentType.Note, DataNotificationUpdateType.Update,
+                    new List<Guid> {newEntry.ContentId});
         }
 
         private async Task SaveToDbWithValidation()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -221,6 +222,22 @@ namespace PointlessWaymarksCmsData
         {
             var directory = settings.LocalSiteDailyPhotoGalleryDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, $"DailyPhotos-{galleryDate:yyyy-MM-dd}")}.html");
+        }
+
+        public static DateTime? LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(this UserSettings settings, FileInfo toParse)
+        {
+            if (toParse == null) return null;
+            var name = toParse.Name;
+            if (!name.StartsWith("DailyPhotos-")) return null;
+            name = name.Replace("DailyPhotos-", "");
+            if (!name.EndsWith(".html")) return null;
+            name = name.Replace(".html", "");
+
+            if (DateTime.TryParseExact(name, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None,
+                out var parsedDateTime))
+                return parsedDateTime;
+
+            return null;
         }
 
         public static DirectoryInfo LocalSiteDirectory(this UserSettings settings)

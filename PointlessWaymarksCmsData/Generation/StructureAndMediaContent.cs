@@ -309,7 +309,24 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
 
             progress?.Report("Ending Directory Cleanup");
 
-            //Daily photo purge - other
+            //Daily photo purge
+
+            var dailyPhotoGalleryDirectory =
+                UserSettingsSingleton.CurrentSettings().LocalSiteDailyPhotoGalleryDirectory();
+
+            var dailyGalleryFiles = dailyPhotoGalleryDirectory.GetFiles().OrderBy(x => x.Name).ToList();
+
+            var allPhotoDays = (await db.PhotoContents.Select(x => x.PhotoCreatedOn).Distinct().ToListAsync())
+                .Select(x => x.Date).Distinct().ToList();
+
+            foreach (var loopGalleryFiles in dailyGalleryFiles)
+            {
+                var dateTimeForFile = UserSettingsSingleton.CurrentSettings()
+                    .LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(loopGalleryFiles);
+
+                if(dateTimeForFile == null || !allPhotoDays.Contains(dateTimeForFile.Value)) loopGalleryFiles.Delete();
+            }
+
         }
 
         /// <summary>

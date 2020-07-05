@@ -13,6 +13,7 @@ using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsWpfControls.ImageList
 {
@@ -37,8 +38,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
-            DataNotifications.ImageContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
+            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
+
 
         public ObservableRangeCollection<ImageListListItem> Items
         {
@@ -94,45 +96,46 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
+        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
         {
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
-                await DataNotificationsOnContentDataNotificationEvent(e));
-        }
+            var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
 
-        private async Task DataNotificationsOnContentDataNotificationEvent(DataNotificationEventArgs e)
-        {
+            if (translatedMessage.HasError)
+                await EventLogContext.TryWriteDiagnosticMessageToLog(
+                    $"Data Notification Failure in PhotoListContext - {translatedMessage.ErrorNote}",
+                    StatusContext.StatusControlContextId.ToString());
+
+            if (translatedMessage.ContentType != DataNotificationContentType.Image) return;
+
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (e.UpdateType == DataNotificationUpdateType.Delete)
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
             {
-                var toRemove = Items.Where(x => e.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
+                var toRemove = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
-
-                Items.RemoveRange(toRemove);
             }
 
-            if (e.UpdateType == DataNotificationUpdateType.New)
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.New)
             {
                 var context = await Db.Context();
 
-                var dbItems = (await context.ImageContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
-                    .Select(ListItemFromDbItem).ToList();
+                var toAdd = (await context.ImageContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.AddRange(dbItems);
+                toAdd.ForEach(x => Items.Add(x));
             }
 
-            if (e.UpdateType == DataNotificationUpdateType.Update ||
-                e.UpdateType == DataNotificationUpdateType.LocalContent)
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.Update ||
+                translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent)
             {
                 var context = await Db.Context();
 
                 var dbItems =
-                    (await context.ImageContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem);
+                    (await context.ImageContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                        .ToListAsync()).Select(ListItemFromDbItem);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -145,9 +148,10 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                         continue;
                     }
 
-                    if (e.UpdateType == DataNotificationUpdateType.Update) toUpdate.DbEntry = loopUpdates.DbEntry;
+                    if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
+                        toUpdate.DbEntry = loopUpdates.DbEntry;
 
-                    toUpdate.SmallImageUrl = loopUpdates.SmallImageUrl;
+                    toUpdate.SmallImageUrl = GetSmallImageUrl(loopUpdates.DbEntry);
                 }
             }
         }
@@ -231,6 +235,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             SortDescending = true;
             await SortList("CreatedOn");
+        }
+
+        private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
+        {
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
         }
 
         [NotifyPropertyChangedInvocator]

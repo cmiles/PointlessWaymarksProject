@@ -40,6 +40,18 @@
 
 ## Notes
 
+7/5/2020
+
+This app is all about a single power user working on the desktop against a local Sqlite db - given that scenario two problems that come up:
+
+Problem 1 - Cross App Data Change Notifications:
+Because lists of things and editing those things is a very common pattern there quickly becomes a need to update the list as edits are saved in another window. Previously in this app I did that via a centralized class and Weak Events (thomaslevesque/WeakEvent: Generic weak event implementation - https://github.com/thomaslevesque/WeakEvent/ ) - MVVM Light Messenger is representative of an another  pattern that can also be used and either solves this problem rather nicely.
+
+Problem 2 - Interprocess Data Change Notifications:
+In some cases solving problem 1 is all an app will ever need, especially if you put a single instance constraint on your app. But I have found that if you have 'power users' that may launch multiple apps or have a scenario where multiple apps (or the app and a long running background 'script' app) work on the same data (and likely share common code to do that - say both an Inventory Management and Purchase Order app that both can show and edit Vendor Information) you quickly end up with a real scenario for Interprocess communication. Searching for Interprocess Communication for windows desktop apps devolves into many solutions that could work - recently I found a new library that I had not seen before that seems to work in initial experiments and takes care of an important part of dealing with this problem which is nicely wrapping up the native windows calls into something nice to work with in .NET - TinyIpc https://github.com/steamcore/TinyIpc - from the GitHub pages: ".NET inter process broadcast message bus. Intended for quick broadcast messaging in Windows desktop applications, it just works."
+
+While at the moment Interprocess updates is not an urgent need I did go ahead and update to TinyIpc because I want this for myself and I am especially intrigued with the idea for me (or maybe super power users) that you could do things via a cli and have the updates available in a GUI running at the same time (without network, polling for changes or having a db that can broadcast notification).
+
 7/2/2020
 
 Changed the Photo editor and photo automated import over to use the new Photo Generation - resulted in a few changes in the Photo Generation to accommodate needs in the GUI code but was generally smooth. The interesting thing about doing this is that even though the base methods were extracted and are now tested (good!) there is still quite a few details to get everything correct in the GUI - I'm sure that the code could always be structured better to minimize concerns but I also suspect that long term some UI Automation testing could pay off - adding it to the todo.

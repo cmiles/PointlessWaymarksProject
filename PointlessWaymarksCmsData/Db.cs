@@ -301,21 +301,13 @@ namespace PointlessWaymarksCmsData
 
             if (isUpdate)
             {
-                DataNotifications.PhotoContentDataNotificationEventSource.Raise("Db Class",
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.Update,
-                        ContentIds = new List<Guid> { toSave.ContentId }
-                    });
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
+                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
             }
             else
             {
-                DataNotifications.PhotoContentDataNotificationEventSource.Raise("Db Class",
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.New,
-                        ContentIds = new List<Guid> { toSave.ContentId }
-                    });
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
+                    DataNotificationUpdateType.New, new List<Guid> { toSave.ContentId });
             }
 
         }

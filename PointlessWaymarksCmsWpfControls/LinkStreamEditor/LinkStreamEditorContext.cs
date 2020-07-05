@@ -7,9 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AngleSharp;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
-using Omu.ValueInjecter;
 using pinboard.net;
 using pinboard.net.Models;
 using PointlessWaymarksCmsData;
@@ -579,19 +577,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             await LoadData(newEntry);
 
             if (isNewEntry)
-                DataNotifications.LinkStreamContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.New,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
+                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                    DataNotificationContentType.Link, DataNotificationUpdateType.New,
+                    new List<Guid> {newEntry.ContentId});
             else
-                DataNotifications.LinkStreamContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.Update,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
+                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                    DataNotificationContentType.Link, DataNotificationUpdateType.Update,
+                    new List<Guid> {newEntry.ContentId});
         }
 
         private async Task SaveToDbWithValidation(IProgress<string> progress)

@@ -35,7 +35,7 @@
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-preview.3.20214.6" />
     <PackageReference Include="System.Text.Json" Version="5.0.0-preview.3.20214.6" />
-    <PackageReference Include="ThomasLevesque.WeakEvent" Version="4.1.0" />
+    <PackageReference Include="TinyIpc" Version="2.1.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
   </ItemGroup>
 

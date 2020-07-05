@@ -13,6 +13,7 @@ using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsWpfControls.PostList
 {
@@ -40,8 +41,9 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
-            DataNotifications.PostContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
+            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
+
 
         public ObservableRangeCollection<PostListListItem> Items
         {
@@ -123,6 +125,25 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+
+            if (translatedMessage.HasError)
+                await EventLogContext.TryWriteDiagnosticMessageToLog(
+                    $"Data Notification Failure in PhotoListContext - {translatedMessage.ErrorNote}",
+                    StatusContext.StatusControlContextId.ToString());
+
+            if (translatedMessage.ContentType == DataNotificationContentType.Post)
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+                    await PostDataNotificationReceived(translatedMessage));
+            if (translatedMessage.ContentType != DataNotificationContentType.Post)
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+                    await PossibleMainImageUpdateDataNotificationReceived(translatedMessage));
+        }
 
         private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
         {
@@ -263,10 +284,85 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             await SortList("CreatedOn");
         }
 
+        private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+        {
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task PossibleMainImageUpdateDataNotificationReceived(
+            InterProcessDataNotification translatedMessage)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var toUpdate = Items.Where(x =>
+                    x.DbEntry.MainPicture != null && translatedMessage.ContentIds.Contains(x.DbEntry.MainPicture.Value))
+                .ToList();
+
+            toUpdate.ForEach(x =>
+            {
+                x.SmallImageUrl = null;
+                x.SmallImageUrl = GetSmallImageUrl(x.DbEntry);
+            });
+        }
+
+        private async Task PostDataNotificationReceived(InterProcessDataNotification translatedMessage)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
+            {
+                var toRemove = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Items.RemoveRange(toRemove);
+            }
+
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.New)
+            {
+                var context = await Db.Context();
+
+                var dbItems =
+                    (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                        .ToListAsync()).Select(ListItemFromDbItem).ToList();
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                Items.AddRange(dbItems);
+            }
+
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.Update ||
+                translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent)
+            {
+                var context = await Db.Context();
+
+                var dbItems =
+                    (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                        .ToListAsync()).Select(ListItemFromDbItem);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                foreach (var loopUpdates in dbItems)
+                {
+                    var toUpdate = Items.SingleOrDefault(x => x.DbEntry.ContentId == loopUpdates.DbEntry.ContentId);
+                    if (toUpdate == null)
+                    {
+                        Items.Add(loopUpdates);
+                        continue;
+                    }
+
+                    if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
+                        toUpdate.DbEntry = loopUpdates.DbEntry;
+
+                    toUpdate.SmallImageUrl = GetSmallImageUrl(loopUpdates.DbEntry);
+                }
+            }
         }
 
         private async Task SortList(string sortColumn)

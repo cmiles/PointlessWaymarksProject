@@ -627,19 +627,13 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             await LoadData(newEntry, skipMediaDirectoryCheck);
 
             if (isNewEntry)
-                DataNotifications.FileContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.New,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
+                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                    DataNotificationContentType.File, DataNotificationUpdateType.New,
+                    new List<Guid> {newEntry.ContentId});
             else
-                DataNotifications.FileContentDataNotificationEventSource.Raise(this,
-                    new DataNotificationEventArgs
-                    {
-                        UpdateType = DataNotificationUpdateType.Update,
-                        ContentIds = new List<Guid> {newEntry.ContentId}
-                    });
+                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                    DataNotificationContentType.File, DataNotificationUpdateType.Update,
+                    new List<Guid> {newEntry.ContentId});
         }
 
         private async Task SaveToDbWithValidationAndArchiveMedia()

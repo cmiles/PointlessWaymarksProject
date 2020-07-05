@@ -296,12 +296,8 @@ namespace PointlessWaymarksCmsData.Generation
             GenerateHtml(toSave, progress);
             await Export.WriteLocalDbJson(toSave);
 
-            DataNotifications.PhotoContentDataNotificationEventSource.Raise("Photo Generator",
-                new DataNotificationEventArgs
-                {
-                    UpdateType = DataNotificationUpdateType.LocalContent,
-                    ContentIds = new List<Guid> {toSave.ContentId}
-                });
+            await DataNotifications.PublishDataNotification("Photo Generator", DataNotificationContentType.Photo,
+                DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
             return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }

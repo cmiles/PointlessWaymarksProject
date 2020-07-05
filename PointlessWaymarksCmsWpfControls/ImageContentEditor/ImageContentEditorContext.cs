@@ -514,11 +514,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             PictureResizing.ResizeForDisplayAndSrcset(SelectedFile, true, StatusContext.ProgressTracker());
 
-            DataNotifications.ImageContentDataNotificationEventSource.Raise(this,
-                new DataNotificationEventArgs
-                {
-                    UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {DbEntry.ContentId}
-                });
+            await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                DataNotificationContentType.Image, DataNotificationUpdateType.LocalContent,
+                new List<Guid> {DbEntry.ContentId});
         }
 
         private async Task RotateImage(Orientation rotationType)
@@ -567,7 +565,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             await Export.WriteLocalDbJson(DbEntry);
 
             if (dataNotification != null)
-                DataNotifications.ImageContentDataNotificationEventSource.Raise(this, dataNotification);
+                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                    DataNotificationContentType.Image, dataNotification.UpdateType, dataNotification.ContentIds);
         }
 
         private async Task<DataNotificationEventArgs> SaveToDatabase(bool skipMediaDirectoryCheck = false)
@@ -664,7 +663,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             var dataNotification = await SaveToDatabase();
 
             if (dataNotification != null)
-                DataNotifications.ImageContentDataNotificationEventSource.Raise(this, dataNotification);
+                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                    DataNotificationContentType.Image, dataNotification.UpdateType, dataNotification.ContentIds);
         }
 
         private async Task SelectedFileChanged()
@@ -798,11 +798,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, StatusContext.ProgressTracker());
 
-            DataNotifications.ImageContentDataNotificationEventSource.Raise(this,
-                new DataNotificationEventArgs
-                {
-                    UpdateType = DataNotificationUpdateType.Update, ContentIds = new List<Guid> {DbEntry.ContentId}
-                });
+            await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
+                DataNotificationContentType.Image, DataNotificationUpdateType.LocalContent,
+                new List<Guid> {DbEntry.ContentId});
         }
 
         private async Task WriteSelectedFileToMediaArchive()

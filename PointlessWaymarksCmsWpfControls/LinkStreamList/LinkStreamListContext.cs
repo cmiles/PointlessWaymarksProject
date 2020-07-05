@@ -19,6 +19,7 @@ using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 {
@@ -61,7 +62,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
-            DataNotifications.LinkStreamContentDataNotificationEvent += DataNotificationsOnContentDataNotificationEvent;
+            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         public Command<string> CopyUrlCommand
@@ -179,44 +180,48 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
-        {
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
-                await DataNotificationsOnContentDataNotificationEvent(e));
-        }
-
-        private async Task DataNotificationsOnContentDataNotificationEvent(DataNotificationEventArgs e)
+        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (e.UpdateType == DataNotificationUpdateType.Delete)
+            var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+
+            if (translatedMessage.HasError)
+                await EventLogContext.TryWriteDiagnosticMessageToLog(
+                    $"Data Notification Failure in PhotoListContext - {translatedMessage.ErrorNote}",
+                    StatusContext.StatusControlContextId.ToString());
+
+            if (translatedMessage.ContentType != DataNotificationContentType.Link) return;
+
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
             {
-                var toRemove = Items.Where(x => e.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
+                var toRemove = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 Items.RemoveRange(toRemove);
             }
 
-            if (e.UpdateType == DataNotificationUpdateType.New)
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.New)
             {
                 var context = await Db.Context();
 
-                var dbItems = (await context.LinkStreams.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
-                    .Select(ListItemFromDbItem).ToList();
+                var dbItems =
+                    (await context.LinkStreams.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                        .ToListAsync()).Select(ListItemFromDbItem).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 Items.AddRange(dbItems);
             }
 
-            if (e.UpdateType == DataNotificationUpdateType.Update)
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
             {
                 var context = await Db.Context();
 
                 var dbItems =
-                    (await context.LinkStreams.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem);
+                    (await context.LinkStreams.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                        .ToListAsync()).Select(ListItemFromDbItem);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -378,6 +383,11 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             SortDescending = true;
 
             await SortList("CreatedOn");
+        }
+
+        private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+        {
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
         }
 
         [NotifyPropertyChangedInvocator]
