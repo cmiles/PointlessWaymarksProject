@@ -324,9 +324,8 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
                 var dateTimeForFile = UserSettingsSingleton.CurrentSettings()
                     .LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(loopGalleryFiles);
 
-                if(dateTimeForFile == null || !allPhotoDays.Contains(dateTimeForFile.Value)) loopGalleryFiles.Delete();
+                if (dateTimeForFile == null || !allPhotoDays.Contains(dateTimeForFile.Value)) loopGalleryFiles.Delete();
             }
-
         }
 
         /// <summary>
@@ -382,5 +381,40 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
                 settings.LocalMediaArchiveFileDirectory().CreateIfItDoesNotExist()
             };
         }
+
+        public static void WriteSelectedFileToMediaArchive(FileInfo selectedFile)
+        {
+            var userSettings = UserSettingsSingleton.CurrentSettings();
+            var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
+                selectedFile.Name);
+
+            if (destinationFileName == selectedFile.FullName) return;
+
+            var destinationFile = new FileInfo(destinationFileName);
+
+            if (destinationFile.Exists) destinationFile.Delete();
+
+            selectedFile.CopyTo(destinationFileName);
+        }
+
+        public static async Task<GenerationReturn> WriteSelectedFileToMediaArchive(FileInfo selectedFile,
+            bool replaceExisting)
+        {
+            var userSettings = UserSettingsSingleton.CurrentSettings();
+            var destinationFileName = Path.Combine(userSettings.LocalMediaArchivePhotoDirectory().FullName,
+                selectedFile.Name);
+            if (destinationFileName == selectedFile.FullName && !replaceExisting)
+                return await GenerationReturn.Success("Photo is already in Media Archive");
+
+            var destinationFile = new FileInfo(destinationFileName);
+
+            if (destinationFile.Exists) destinationFile.Delete();
+
+            selectedFile.CopyTo(destinationFileName);
+
+            return await GenerationReturn.Success("Photo is copied to Media Archive");
+        }
+
+
     }
 }

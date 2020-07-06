@@ -66,7 +66,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return null;
         }
 
-        public static string ProcessCodesAndMarkdownForSite(string input, IProgress<string> progress)
+        public static string ProcessCodesForSite(string input, IProgress<string> progress)
         {
             input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
             input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
@@ -76,10 +76,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
-            var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-            var markdownOut = Markdown.ToHtml(input, pipeline);
-
-            return markdownOut;
+            return input;
         }
 
         public static string ProcessCodesForEmail(string input, IProgress<string> progress)

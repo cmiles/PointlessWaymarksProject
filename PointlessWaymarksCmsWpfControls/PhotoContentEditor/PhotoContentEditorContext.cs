@@ -257,17 +257,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public Command ResizeFileCommand
-        {
-            get => _resizeFileCommand;
-            set
-            {
-                if (Equals(value, _resizeFileCommand)) return;
-                _resizeFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Command RotatePhotoLeftCommand
         {
             get => _rotatePhotoLeftCommand;

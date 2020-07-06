@@ -80,10 +80,8 @@
         </TabControl>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndCreateLocalCommand}"
+                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}"
                         Content="Save, _Generate Html" />
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}"
-                        Content="_Save" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ExtractNewLinksCommand}"
                         Content="_Extract New Links" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding LinkToClipboardCommand}"

@@ -12,9 +12,8 @@ using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.CommonHtml;
-using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
-using PointlessWaymarksCmsData.JsonFiles;
+using PointlessWaymarksCmsData.Generation;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
@@ -43,6 +42,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private string _pdfToImagePageToExtract = "1";
         private bool _publicDownloadLink = true;
         private Command _saveAndCreateLocalCommand;
+        private Command _saveAndExtractImageFromPdfCommand;
+        private Command _saveAndGenerateHtmlCommand;
         private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
@@ -192,27 +193,24 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public Command SaveAndCreateLocalCommand
+        public Command SaveAndExtractImageFromPdfCommand
         {
-            get => _saveAndCreateLocalCommand;
+            get => _saveAndExtractImageFromPdfCommand;
             set
             {
-                if (Equals(value, _saveAndCreateLocalCommand)) return;
-                _saveAndCreateLocalCommand = value;
+                if (Equals(value, _saveAndExtractImageFromPdfCommand)) return;
+                _saveAndExtractImageFromPdfCommand = value;
                 OnPropertyChanged();
             }
         }
 
-        public Command SaveAndExtractImageFromPdfCommand { get; set; }
-
-
-        public Command SaveUpdateDatabaseCommand
+        public Command SaveAndGenerateHtmlCommand
         {
-            get => _saveUpdateDatabaseCommand;
+            get => _saveAndGenerateHtmlCommand;
             set
             {
-                if (Equals(value, _saveUpdateDatabaseCommand)) return;
-                _saveUpdateDatabaseCommand = value;
+                if (Equals(value, _saveAndGenerateHtmlCommand)) return;
+                _saveAndGenerateHtmlCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -354,6 +352,43 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             StatusContext.Progress($"File load - {SelectedFile.FullName} ");
         }
 
+        private FileContent CurrentStateToFileContent()
+        {
+            var newEntry = new FileContent();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                newEntry.ContentId = Guid.NewGuid();
+                newEntry.CreatedOn = DateTime.Now;
+                newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
+            }
+            else
+            {
+                newEntry.ContentId = DbEntry.ContentId;
+                newEntry.CreatedOn = DbEntry.CreatedOn;
+                newEntry.LastUpdatedOn = DateTime.Now;
+                newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
+            }
+
+            newEntry.Folder = TitleSummarySlugFolder.Folder;
+            newEntry.Slug = TitleSummarySlugFolder.Slug;
+            newEntry.Summary = TitleSummarySlugFolder.Summary;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
+            newEntry.Tags = TagEdit.TagListString();
+            newEntry.Title = TitleSummarySlugFolder.Title;
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
+            newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
+            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
+            newEntry.BodyContent = BodyContent.BodyContent;
+            newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
+            newEntry.OriginalFileName = SelectedFile.Name;
+            newEntry.PublicDownloadLink = PublicDownloadLink;
+            newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
+
+            return newEntry;
+        }
+
         private async Task DownloadLinkToClipboard()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -371,17 +406,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             Clipboard.SetText(linkString);
 
             StatusContext.ToastSuccess($"To Clipboard: {linkString}");
-        }
-
-        private async Task GenerateHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            StatusContext.Progress("Generating Html...");
-
-            var htmlContext = new SingleFilePage(DbEntry);
-
-            htmlContext.WriteLocalHtml();
         }
 
         private async Task LinkToClipboard()
@@ -427,7 +451,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                StructureAndMediaContent.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry,
+                await StructureAndMediaContent.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry,
                     StatusContext.ProgressTracker());
 
                 var archiveFile = new FileInfo(Path.Combine(
@@ -442,7 +466,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 if (archiveFile.Exists)
                     SelectedFile = archiveFile;
                 else
-                    await StatusContext.ShowMessage("Missing Photo",
+                    await StatusContext.ShowMessage("Missing Fle",
                         $"There is an original file listed for this entry - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected locations of {archiveFile.FullName} or {contentFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the file or " +
@@ -497,24 +521,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             Process.Start(ps);
         }
 
-        private async Task SaveAndCreateLocal()
-        {
-            var validationList = await ValidateAll();
-
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
-                return;
-            }
-
-            await WriteSelectedFileToMediaArchive();
-            await SaveToDatabase();
-            await WriteSelectedFileToLocalSite();
-            await GenerateHtml();
-            await Export.WriteLocalDbJson(DbEntry, StatusContext.ProgressTracker());
-        }
 
         private async Task SaveAndExtractImageFromPdf()
         {
@@ -552,106 +558,32 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            await SaveAndCreateLocal();
+            var saveResult = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), SelectedFile, true,
+                StatusContext.ProgressTracker());
+
+            if (saveResult.generationReturn.HasError)
+            {
+                await StatusContext.ShowMessageWithOkButton("Trouble Saving",
+                    $"Trouble saving - you must be able to save before extracting a page - {saveResult.generationReturn.GenerationNote}");
+                return;
+            }
 
             await PdfConversion.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> {DbEntry},
                 pageNumber);
         }
 
-
-        private async Task SaveToDatabase(bool skipMediaDirectoryCheck = false)
+        public async Task SaveAndGenerateHtml(bool overwriteExistingFiles)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            StatusContext.Progress("Starting File Content Save to Database");
+            var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
+                SelectedFile, overwriteExistingFiles, StatusContext.ProgressTracker());
 
-            var newEntry = new FileContent();
+            if (generationReturn.HasError)
+                await StatusContext.ShowMessageWithOkButton("Problem Saving and Generating Html",
+                    generationReturn.GenerationNote);
 
-            var isNewEntry = false;
-
-            if (DbEntry == null || DbEntry.Id < 1)
-            {
-                isNewEntry = true;
-                newEntry.ContentId = Guid.NewGuid();
-                newEntry.CreatedOn = DateTime.Now;
-                newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
-            }
-            else
-            {
-                newEntry.ContentId = DbEntry.ContentId;
-                newEntry.CreatedOn = DbEntry.CreatedOn;
-                newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
-            }
-
-            newEntry.Folder = TitleSummarySlugFolder.Folder;
-            newEntry.Slug = TitleSummarySlugFolder.Slug;
-            newEntry.Summary = TitleSummarySlugFolder.Summary;
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
-            newEntry.Tags = TagEdit.TagListString();
-            newEntry.Title = TitleSummarySlugFolder.Title;
-            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
-            newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
-            newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
-            newEntry.BodyContent = BodyContent.BodyContent;
-            newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.OriginalFileName = SelectedFile.Name;
-            newEntry.PublicDownloadLink = PublicDownloadLink;
-            newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
-
-            if (DbEntry != null && DbEntry.Id > 0)
-                if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
-                {
-                    var settings = UserSettingsSingleton.CurrentSettings();
-                    var existingDirectory = settings.LocalSiteFileContentDirectory(DbEntry, false);
-
-                    if (existingDirectory.Exists)
-                    {
-                        var newDirectory =
-                            new DirectoryInfo(settings.LocalSiteFileContentDirectory(newEntry, false).FullName);
-                        existingDirectory.MoveTo(settings.LocalSiteFileContentDirectory(newEntry, false).FullName);
-                        newDirectory.Refresh();
-
-                        var possibleOldHtmlFile =
-                            new FileInfo($"{Path.Combine(newDirectory.FullName, DbEntry.Slug)}.html");
-                        if (possibleOldHtmlFile.Exists)
-                            possibleOldHtmlFile.MoveTo(settings.LocalSiteFileHtmlFile(newEntry).FullName);
-                    }
-                }
-
-            await Db.SaveFileContent(newEntry);
-
-            DbEntry = newEntry;
-
-            await LoadData(newEntry, skipMediaDirectoryCheck);
-
-            if (isNewEntry)
-                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
-                    DataNotificationContentType.File, DataNotificationUpdateType.New,
-                    new List<Guid> {newEntry.ContentId});
-            else
-                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
-                    DataNotificationContentType.File, DataNotificationUpdateType.Update,
-                    new List<Guid> {newEntry.ContentId});
-        }
-
-        private async Task SaveToDbWithValidationAndArchiveMedia()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var validationList = await ValidateAll();
-
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
-                return;
-            }
-
-            await WriteSelectedFileToMediaArchive();
-            await SaveToDatabase();
+            await LoadData(newContent);
         }
 
         public void SetupStatusContextAndCommands(StatusControlContext statusContext)
@@ -662,9 +594,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                                                  BracketCodeHelpMarkdown.HelpBlock);
 
             ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
-            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand =
-                new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidationAndArchiveMedia));
+            SaveAndGenerateHtmlCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
             OpenSelectedFileDirectoryCommand =
                 new Command(() => StatusContext.RunBlockingTask(OpenSelectedFileDirectory));
             OpenSelectedFileCommand = new Command(() => StatusContext.RunBlockingTask(OpenSelectedFile));
@@ -726,47 +657,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
-        }
-
-        private async Task WriteSelectedFileToLocalSite()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var userSettings = UserSettingsSingleton.CurrentSettings();
-
-            var targetDirectory = userSettings.LocalSiteFileContentDirectory(DbEntry);
-
-            var originalFileInTargetDirectoryFullName = Path.Combine(targetDirectory.FullName, SelectedFile.Name);
-
-            var sourceFile = new FileInfo(originalFileInTargetDirectoryFullName);
-            //Todo: Could use some checking here for 'same file'
-            if (originalFileInTargetDirectoryFullName != SelectedFile.FullName)
-            {
-                if (sourceFile.Exists) sourceFile.Delete();
-                SelectedFile.CopyTo(originalFileInTargetDirectoryFullName);
-                sourceFile.Refresh();
-            }
-        }
-
-
-        private async Task WriteSelectedFileToMediaArchive()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedFile == null) return;
-
-            StatusContext.Progress("Saving File to Archive");
-
-            var userSettings = UserSettingsSingleton.CurrentSettings();
-            var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
-                SelectedFile.Name);
-            if (destinationFileName == SelectedFile.FullName) return;
-
-            var destinationFile = new FileInfo(destinationFileName);
-
-            if (destinationFile.Exists) destinationFile.Delete();
-
-            SelectedFile.CopyTo(destinationFileName);
         }
     }
 }

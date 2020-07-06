@@ -21,30 +21,18 @@ namespace PointlessWaymarksTests
 
         public static UserSettings TestSiteSettings;
 
-        [OneTimeSetUp]
-        public async Task CreateTestSite()
+        [Test]
+        public void A01_TestSiteBasicStructureCheck()
         {
-            var outSettings =
-                await UserSettingsUtilities.SetupNewSite($"AutomatedTesting-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}",
-                    DebugProgressTracker());
-            TestSiteSettings = outSettings;
-            await TestSiteSettings.EnsureDbIsPresent(DebugProgressTracker());
-        }
-
-        public static IProgress<string> DebugProgressTracker()
-        {
-            var toReturn = new Progress<string>();
-            toReturn.ProgressChanged += DebugProgressTrackerChange;
-            return toReturn;
-        }
-
-        private static void DebugProgressTrackerChange(object sender, string e)
-        {
-            Debug.WriteLine(e);
+            Assert.True(TestSiteSettings.LocalMediaArchiveFileDirectory().Exists);
+            Assert.True(TestSiteSettings.LocalMediaArchiveImageDirectory().Exists);
+            Assert.True(TestSiteSettings.LocalMediaArchiveFileDirectory().Exists);
+            Assert.True(TestSiteSettings.LocalMediaArchivePhotoDirectory().Exists);
+            Assert.True(TestSiteSettings.LocalSiteDirectory().Exists);
         }
 
         [Test]
-        public async Task PhotoContentImportAndUpdate()
+        public async Task A10_PhotoContentImportAndUpdate()
         {
             var fullSizePhotoTest = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestContent",
                 "2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg"));
@@ -216,13 +204,150 @@ namespace PointlessWaymarksTests
         }
 
         [Test]
-        public void TestSiteBasicStructureCheck()
+        public async Task A20_FileContentImportAndUpdate()
         {
-            Assert.True(TestSiteSettings.LocalMediaArchiveFileDirectory().Exists);
-            Assert.True(TestSiteSettings.LocalMediaArchiveImageDirectory().Exists);
-            Assert.True(TestSiteSettings.LocalMediaArchiveFileDirectory().Exists);
-            Assert.True(TestSiteSettings.LocalMediaArchivePhotoDirectory().Exists);
-            Assert.True(TestSiteSettings.LocalSiteDirectory().Exists);
+            var fileToImport = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestContent",
+                "Papago-Saguaro-NM-Brief.pdf"));
+            Assert.True(fileToImport.Exists, "Test file Papago-Saguaro-NM-Brief.pdf not found");
+
+            var newFileContent = new FileContent
+            {
+                BodyContent = "Simple Test Content",
+                BodyContentFormat = "",
+                ContentId = Guid.NewGuid(),
+                ContentVersion = DateTime.Now.ToUniversalTime(),
+                CreatedBy = "Test Series A",
+                CreatedOn = DateTime.Now,
+                Folder = "NationalParks",
+                PublicDownloadLink = true,
+                OriginalFileName = fileToImport.Name,
+                Title = "Papago Saguaro",
+                ShowInMainSiteFeed = true,
+                Slug = SlugUtility.Create(true, "Papago Saguaro"),
+                Summary = "A Summary",
+                Tags = "national parks,phoenix,papago saguaro"
+            };
+
+            var validationReturn = await FileGenerator.Validate(newFileContent, fileToImport);
+
+            Assert.False(validationReturn.HasError);
+
+            var saveReturn = await FileGenerator.SaveAndGenerateHtml(newFileContent, fileToImport, true,
+                DebugProgressTracker());
+            Assert.False(saveReturn.generationReturn.HasError);
+
+            var expectedDirectory =
+                UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newFileContent);
+            Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
+
+            var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newFileContent);
+            Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
+
+            var expectedOriginalFileInContent =
+                new FileInfo(Path.Combine(expectedDirectory.FullName, fileToImport.Name));
+            Assert.IsTrue(expectedOriginalFileInContent.Exists,
+                $"Expected to find original file in content directory but {expectedOriginalFileInContent.FullName} does not exist");
+
+            var expectedOriginalFileInMediaArchive = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
+                expectedOriginalFileInContent.Name));
+            Assert.IsTrue(expectedOriginalFileInMediaArchive.Exists,
+                $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
+
+            Assert.AreEqual(expectedDirectory.GetFiles().Length, 3, "Expected Number of Files Does Not Match");
+
+            //Check JSON File
+            var jsonFile =
+                new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newFileContent).FullName,
+                    $"{Names.FileContentPrefix}{newFileContent.ContentId}.json"));
+            Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+
+            var jsonFileImported = Import.ContentFromFiles<FileContent>(
+                new List<string> {jsonFile.FullName}, Names.FileContentPrefix).Single();
+            var compareLogic = new CompareLogic();
+            var comparisonResult = compareLogic.Compare(newFileContent, jsonFileImported);
+            Assert.True(comparisonResult.AreEqual,
+                $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
+
+            //?Check some details of the HTML?
+            var updateWithoutUpdateResult = await FileGenerator.SaveAndGenerateHtml(newFileContent,
+                expectedOriginalFileInMediaArchive, false, DebugProgressTracker());
+            Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
+                "Should not be able to update an entry without LastUpdated Values set");
+
+            var updatedTime = DateTime.Now;
+            newFileContent.Tags += ",testupdatetag";
+            newFileContent.Title += " NP";
+            newFileContent.LastUpdatedOn = updatedTime;
+            newFileContent.LastUpdatedBy = "Test Updater";
+
+            //?Check some details of the HTML?
+            var updateResult = await FileGenerator.SaveAndGenerateHtml(newFileContent,
+                expectedOriginalFileInMediaArchive, false, DebugProgressTracker());
+            Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
+
+            var updatedJsonFileImported = Import.ContentFromFiles<FileContent>(
+                new List<string> {jsonFile.FullName}, Names.FileContentPrefix).Single();
+            var updateComparisonResult = compareLogic.Compare(newFileContent, updatedJsonFileImported);
+            Assert.True(updateComparisonResult.AreEqual,
+                $"Updated Json Import does not match expected Updated File Content {comparisonResult.DifferencesString}");
+
+            //Check Historic JSON File
+            var historicJsonFile = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newFileContent).FullName,
+                $"{Names.HistoricFileContentPrefix}{newFileContent.ContentId}.json"));
+            var historicJsonFileImported = Import
+                .ContentFromFiles<List<HistoricFileContent>>(new List<string> {historicJsonFile.FullName},
+                    Names.HistoricFileContentPrefix).SelectMany(x => x).ToList();
+
+            Assert.AreEqual(1, historicJsonFileImported.Count,
+                "Wrong number of Historic Entries in the Historic Json File");
+
+            var expectedHistoricValues = new HistoricFileContent();
+            expectedHistoricValues.InjectFrom(jsonFileImported);
+            expectedHistoricValues.Id = historicJsonFileImported.First().Id;
+
+            var historicJsonComparisonResult =
+                compareLogic.Compare(expectedHistoricValues, historicJsonFileImported.First());
+            Assert.IsTrue(historicJsonComparisonResult.AreEqual,
+                $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
+
+            newFileContent.Title += " Again";
+            newFileContent.LastUpdatedOn = DateTime.Now;
+            newFileContent.LastUpdatedBy = "Test Updater 2";
+
+            var updateTwoResult = await FileGenerator.SaveAndGenerateHtml(newFileContent,
+                expectedOriginalFileInMediaArchive, false, DebugProgressTracker());
+            Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
+
+            historicJsonFileImported = Import
+                .ContentFromFiles<List<HistoricFileContent>>(new List<string> {historicJsonFile.FullName},
+                    Names.HistoricFileContentPrefix).SelectMany(x => x).ToList();
+            Assert.AreEqual(2, historicJsonFileImported.Count,
+                "Wrong number of Historic Entries in the Historic Json File");
+        }
+
+        [OneTimeSetUp]
+        public async Task CreateTestSite()
+        {
+            var outSettings =
+                await UserSettingsUtilities.SetupNewSite($"AutomatedTesting-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}",
+                    DebugProgressTracker());
+            TestSiteSettings = outSettings;
+            await TestSiteSettings.EnsureDbIsPresent(DebugProgressTracker());
+        }
+
+        public static IProgress<string> DebugProgressTracker()
+        {
+            var toReturn = new Progress<string>();
+            toReturn.ProgressChanged += DebugProgressTrackerChange;
+            return toReturn;
+        }
+
+        private static void DebugProgressTrackerChange(object sender, string e)
+        {
+            Debug.WriteLine(e);
         }
     }
 }
