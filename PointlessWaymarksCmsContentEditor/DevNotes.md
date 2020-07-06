@@ -1,7 +1,8 @@
 ﻿## Todos
  - Content Testing:
-  - Folder structure clean up routines - Photos written, need other content type
+  - Folder structure clean up routines - Photos written, need other content types and integration
   - Add tests for the common content validation
+  - Need Generation and Integration tests for image, note, link - file and photo done
  - A bad content code should be handled better
  - Wrap the Out of Memory that System.Drawing Image FromFile can throw that doesn't actually mean out of memory and rather means 'format issue'
  - Look at https://github.com/cyotek/SimpleScreenshotCapture/blob/master/src/ScreenshotCapture.cs to get rid of xaml island screen shot issue.
@@ -39,6 +40,14 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/6/2020
+
+Added a File Generator and Integration tests.
+
+Cleaned up a few compiler warnings.
+
+Removed old code.
 
 7/5/2020
 

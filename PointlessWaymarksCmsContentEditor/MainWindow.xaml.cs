@@ -1071,7 +1071,7 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        private void SettingsFileChooserOnSettingsFileUpdatedEvent(object? sender, (bool isNew, string userString) e)
+        private void SettingsFileChooserOnSettingsFileUpdatedEvent(object sender, (bool isNew, string userString) e)
         {
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
                 await SettingsFileChooserOnSettingsFileUpdated(e));
