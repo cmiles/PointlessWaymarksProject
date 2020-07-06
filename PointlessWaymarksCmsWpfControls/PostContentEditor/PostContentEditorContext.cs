@@ -394,7 +394,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             return new List<(bool, string)>
             {
-                await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
+                UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
                 await TitleSummarySlugFolder.Validate(),
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
@@ -186,7 +187,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 var preprocessResults =
                     BracketCodeCommon.ProcessCodesForLocalDisplay(BodyContent, StatusContext.ProgressTracker());
                 var processResults =
-                    ContentProcessor.ContentHtml(BodyContentFormat.SelectedContentFormat, preprocessResults);
+                    ContentProcessing.ProcessContent(preprocessResults, BodyContentFormat.SelectedContentFormat);
 
                 var possibleStyleFile =
                     new FileInfo(Path.Combine(settings.LocalSiteDirectory().FullName, "styles.css"));
@@ -200,7 +201,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             catch (Exception e)
             {
                 BodyContentHtmlOutput =
-                    $"<h2>Not able to process input</h2><p>{e}</p>".ToHtmlDocument("Invalid", string.Empty);
+                    $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocument("Invalid", string.Empty);
             }
         }
     }

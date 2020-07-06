@@ -41,10 +41,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private Command _openSelectedFileDirectoryCommand;
         private string _pdfToImagePageToExtract = "1";
         private bool _publicDownloadLink = true;
-        private Command _saveAndCreateLocalCommand;
         private Command _saveAndExtractImageFromPdfCommand;
         private Command _saveAndGenerateHtmlCommand;
-        private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
@@ -634,7 +632,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             return new List<(bool, string)>
             {
-                await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
+                UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
                 await TitleSummarySlugFolder.Validate(),
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()

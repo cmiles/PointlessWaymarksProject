@@ -12,14 +12,18 @@ namespace PointlessWaymarksCmsData
 {
     public static class Db
     {
+#pragma warning disable 1998
         public static async Task<PointlessWaymarksContext> Context()
+#pragma warning restore 1998
         {
             var optionsBuilder = new DbContextOptionsBuilder<PointlessWaymarksContext>();
             var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseFile;
             return new PointlessWaymarksContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options);
         }
 
+#pragma warning disable 1998
         public static async Task<EventLogContext> Log()
+#pragma warning restore 1998
         {
             var optionsBuilder = new DbContextOptionsBuilder<EventLogContext>();
             var dbPath = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalMediaArchive,
@@ -300,16 +304,11 @@ namespace PointlessWaymarksCmsData
             await context.SaveChangesAsync(true);
 
             if (isUpdate)
-            {
                 await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
                     DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
-            }
             else
-            {
                 await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
-                    DataNotificationUpdateType.New, new List<Guid> { toSave.ContentId });
-            }
-
+                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
         }
 
         public static async Task SavePostContent(PostContent toSave)

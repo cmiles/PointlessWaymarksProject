@@ -1,18 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Markdig;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
     public static class ContentProcessing
     {
-        public static string ProcessContent(string toProcess, string processFormat)
+        public static string ProcessContent(string toProcess, string contentFormat)
         {
-            var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-            var markdownOut = Markdown.ToHtml(toProcess, pipeline);
+            return ProcessContent(toProcess, (ContentFormatEnum) Enum.Parse(typeof(ContentFormatEnum), contentFormat, true));
+        }
 
-            return markdownOut;
+        public static string ProcessContent(string toProcess, ContentFormatEnum contentFormat)
+        {
+            if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+            switch (contentFormat)
+            {
+                case ContentFormatEnum.MarkdigMarkdown01:
+                    var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+                    return Markdown.ToHtml(toProcess, pipeline);
+                case ContentFormatEnum.Html01:
+                    return toProcess;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

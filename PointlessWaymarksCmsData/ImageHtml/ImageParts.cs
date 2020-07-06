@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsData.ImageHtml
 
             var sourceNotesContainer = new DivTag().AddClass("image-source-notes-container");
             var sourceNotes = new DivTag().AddClass("image-source-notes-content").Encoded(false).Text(
-                BracketCodeCommon.ProcessCodesAndMarkdownForSite($"Source: {dbEntry.ImageSourceNotes}", progress));
+                ContentProcessing.ProcessContent(BracketCodeCommon.ProcessCodesForSite($"Source: {dbEntry.ImageSourceNotes}", progress), ContentFormatEnum.MarkdigMarkdown01));
             sourceNotesContainer.Children.Add(sourceNotes);
 
             return sourceNotesContainer;

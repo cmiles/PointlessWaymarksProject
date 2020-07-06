@@ -21,7 +21,9 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             foreach (var loopItems in items)
             {
-                var html = BracketCodeCommon.ProcessCodesAndMarkdownForSite(loopItems.LinkTag, progress);
+                var html = ContentProcessing.ProcessContent(
+                    BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag, progress),
+                    ContentFormatEnum.MarkdigMarkdown01);
 
                 var coreLinkContainer = new DivTag().AddClass("core-links-item").Text(html).Encoded(false);
                 coreLinksDiv.Children.Add(coreLinkContainer);
@@ -324,13 +326,10 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
-            var bodyText = BracketCodeCommon.ProcessCodesAndMarkdownForSite(dbEntry.BodyContent, progress);
+            var bodyText = ContentProcessing.ProcessContent(
+                BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress), dbEntry.BodyContentFormat);
 
-            var bodyHtmlProcessing = ContentProcessor.ContentHtml(dbEntry.BodyContentFormat, bodyText);
-
-            if (bodyHtmlProcessing.success)
-                bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false)
-                    .Text(bodyHtmlProcessing.output));
+            bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
 
             return bodyContainer;
         }
@@ -483,40 +482,6 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return titleContainer;
         }
 
-        public static HtmlTag UpdateByAndOnAndNotesDiv(ICreatedAndLastUpdateOnAndBy createdEntry,
-            IUpdateNotes updateEntry)
-        {
-            if (createdEntry.LastUpdatedOn == null) return HtmlTag.Empty();
-
-            if (createdEntry.CreatedOn.Date == createdEntry.LastUpdatedOn.Value.Date &&
-                string.IsNullOrWhiteSpace(updateEntry.UpdateNotes) &&
-                (createdEntry.CreatedBy == createdEntry.LastUpdatedBy ||
-                 string.IsNullOrWhiteSpace(createdEntry.LastUpdatedBy))) return HtmlTag.Empty();
-
-            var updateNotesDiv = new DivTag().AddClass("update-notes-container");
-
-            updateNotesDiv.Children.Add(HorizontalRule.StandardRule());
-
-            var headingTag = new HtmlTag("div").AddClass("update-notes-title").Text("Updates:");
-
-            var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
-
-            updateNotesContentContainer.Children.Add(new HtmlTag("p").AddClass("update-by-and-on-content")
-                .Text($"{createdEntry.LastUpdatedBy}, {createdEntry.LastUpdatedOn.Value:M/d/yyyy}"));
-
-            if (!string.IsNullOrWhiteSpace(updateEntry.UpdateNotes))
-            {
-                var updateNotesHtml =
-                    ContentProcessor.ContentHtml(updateEntry.UpdateNotesFormat, updateEntry.UpdateNotes);
-                if (updateNotesHtml.success) updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
-            }
-
-            updateNotesDiv.Children.Add(headingTag);
-            updateNotesDiv.Children.Add(updateNotesContentContainer);
-
-            return updateNotesDiv;
-        }
-
         public static HtmlTag UpdateNotesDiv(IUpdateNotes dbEntry)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.UpdateNotes)) return HtmlTag.Empty();
@@ -527,9 +492,10 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
             var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 
-            var updateNotesHtml = ContentProcessor.ContentHtml(dbEntry.UpdateNotesFormat, dbEntry.UpdateNotes);
+            var updateNotesHtml = ContentProcessing.ProcessContent(
+                BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes, null), dbEntry.UpdateNotes);
 
-            if (updateNotesHtml.success) updateNotesContentContainer.Encoded(false).Text(updateNotesHtml.output);
+            updateNotesContentContainer.Encoded(false).Text(updateNotesHtml);
 
             updateNotesDiv.Children.Add(updateNotesContentContainer);
 

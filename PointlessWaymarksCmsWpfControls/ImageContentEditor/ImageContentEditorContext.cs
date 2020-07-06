@@ -751,8 +751,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             return new List<(bool, string)>
             {
-                await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
-                await UserSettingsUtilities.ValidateLocalMediaArchive(),
+                UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
+                UserSettingsUtilities.ValidateLocalMediaArchive(),
                 await TitleSummarySlugFolder.Validate(),
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()

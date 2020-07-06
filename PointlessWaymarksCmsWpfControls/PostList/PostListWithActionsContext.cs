@@ -277,14 +277,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             var preprocessResults = BracketCodeCommon.ProcessCodesForEmail(frozenSelected.DbEntry.BodyContent,
                 StatusContext.ProgressTracker());
-            var (success, bodyHtmlString) =
-                ContentProcessor.ContentHtml(frozenSelected.DbEntry.BodyContentFormat, preprocessResults);
-
-            if (!success)
-            {
-                StatusContext.ToastError("Problem processing");
-                return;
-            }
+            var bodyHtmlString =
+                ContentProcessing.ProcessContent(preprocessResults, frozenSelected.DbEntry.BodyContentFormat);
 
             var emailCenterTable = new TableTag();
             emailCenterTable.Attr("width", "100%");

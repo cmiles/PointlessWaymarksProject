@@ -237,7 +237,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             await SortList("CreatedOn");
         }
 
-        private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
+        private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
         {
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
         }

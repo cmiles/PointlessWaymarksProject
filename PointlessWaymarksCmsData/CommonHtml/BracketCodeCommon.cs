@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Markdig;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
@@ -66,19 +65,6 @@ namespace PointlessWaymarksCmsData.CommonHtml
             return null;
         }
 
-        public static string ProcessCodesForSite(string input, IProgress<string> progress)
-        {
-            input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
-            input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
-            input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input, progress);
-            input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
-            input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input, progress);
-            input = BracketCodePosts.PostLinkCodeProcess(input, progress);
-            input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
-
-            return input;
-        }
-
         public static string ProcessCodesForEmail(string input, IProgress<string> progress)
         {
             input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
@@ -99,6 +85,19 @@ namespace PointlessWaymarksCmsData.CommonHtml
             input = BracketCodeImages.ImageCodeProcessForDirectLocalAccess(input, progress);
             input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
             input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input, progress);
+            input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+            input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
+
+            return input;
+        }
+
+        public static string ProcessCodesForSite(string input, IProgress<string> progress)
+        {
+            input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
+            input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
+            input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input, progress);
+            input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
+            input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 

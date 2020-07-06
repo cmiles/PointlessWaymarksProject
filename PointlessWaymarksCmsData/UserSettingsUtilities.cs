@@ -863,7 +863,7 @@ namespace PointlessWaymarksCmsData
             return storageDirectory;
         }
 
-        public static async Task<(bool, string)> ValidateLocalMediaArchive()
+        public static (bool, string) ValidateLocalMediaArchive()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -884,7 +884,7 @@ namespace PointlessWaymarksCmsData
             return (true, string.Empty);
         }
 
-        public static async Task<(bool, string)> ValidateLocalSiteRootDirectory()
+        public static (bool, string) ValidateLocalSiteRootDirectory()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 

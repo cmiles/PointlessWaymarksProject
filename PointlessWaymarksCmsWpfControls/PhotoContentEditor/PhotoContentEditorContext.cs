@@ -50,7 +50,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private string _license;
         private string _photoCreatedBy;
         private DateTime _photoCreatedOn;
-        private Command _resizeFileCommand;
         private Command _rotatePhotoLeftCommand;
         private Command _rotatePhotoRightCommand;
         private Command _saveAndGenerateHtmlCommand;

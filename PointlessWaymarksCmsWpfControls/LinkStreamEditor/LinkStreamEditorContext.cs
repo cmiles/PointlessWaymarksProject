@@ -681,7 +681,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
             return new List<(bool, string)>
             {
-                await UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
+                UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
                 await CreatedUpdatedDisplay.Validate(),
                 await Validate()
             };

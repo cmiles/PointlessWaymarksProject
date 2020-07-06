@@ -317,13 +317,13 @@ namespace PointlessWaymarksCmsData.Generation
 
         public static async Task<GenerationReturn> Validate(PhotoContent photoContent, FileInfo selectedFile)
         {
-            var rootDirectoryCheck = await UserSettingsUtilities.ValidateLocalSiteRootDirectory();
+            var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
             if (!rootDirectoryCheck.Item1)
                 return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
                     photoContent.ContentId);
 
-            var mediaArchiveCheck = await UserSettingsUtilities.ValidateLocalMediaArchive();
+            var mediaArchiveCheck = UserSettingsUtilities.ValidateLocalMediaArchive();
             if (!mediaArchiveCheck.Item1)
                 return await GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Item2}",
                     photoContent.ContentId);
