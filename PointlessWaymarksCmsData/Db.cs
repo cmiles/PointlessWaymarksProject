@@ -186,6 +186,8 @@ namespace PointlessWaymarksCmsData
 
             var toHistoric = await context.FileContents.Where(x => x.ContentId == toSave.ContentId).ToListAsync();
 
+            var isUpdate = toHistoric.Any();
+
             foreach (var loopToHistoric in toHistoric)
             {
                 var newHistoric = new HistoricFileContent();
@@ -200,6 +202,13 @@ namespace PointlessWaymarksCmsData
             await context.FileContents.AddAsync(toSave);
 
             await context.SaveChangesAsync(true);
+
+            if (isUpdate)
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
+                    DataNotificationUpdateType.Update, new List<Guid> { toSave.ContentId });
+            else
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
+                    DataNotificationUpdateType.New, new List<Guid> { toSave.ContentId });
         }
 
         public static async Task SaveImageContent(ImageContent toSave)

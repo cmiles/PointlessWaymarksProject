@@ -9,6 +9,7 @@
  - Extend To Excel to more Types
  - To Excel for logs
  - Excel Import
+ - The Data Notification responses in the Lists assume the messages come in the expected order - probably new and update should both actually be 'merge' since you might get contentupdate before new...
  - GUI Automation Testing https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/march/test-run-automating-ui-tests-in-wpf-applications
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...

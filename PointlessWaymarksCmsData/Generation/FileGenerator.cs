@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
+using PointlessWaymarksCmsData.FileHtml;
 using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
@@ -11,21 +11,16 @@ namespace PointlessWaymarksCmsData.Generation
 {
     public static class FileGenerator
     {
-        public static async Task<(GenerationReturn generationReturn, FileContent fileContent)> SaveToDb(
-            FileContent toSave, FileInfo selectedFile, IProgress<string> progress)
+        public static void GenerateHtml(FileContent toGenerate, IProgress<string> progress)
         {
-            var validationReturn = await Validate(toSave, selectedFile);
+            progress?.Report($"File Content - Generate HTML for {toGenerate.Title}");
 
-            if (validationReturn.HasError) return (validationReturn, null);
+            var htmlContext = new SingleFilePage(toGenerate);
 
-            StructureAndMediaContent.WriteSelectedFileToMediaArchive(selectedFile);
-            await Db.SaveFileContent(toSave);
-
-            return (await GenerationReturn.Success($"Saved {toSave.Title}"), toSave);
+            htmlContext.WriteLocalHtml();
         }
 
 
-        
         public static async Task<(GenerationReturn generationReturn, FileContent fileContent)> SaveAndGenerateHtml(
             FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, IProgress<string> progress)
         {
@@ -40,38 +35,22 @@ namespace PointlessWaymarksCmsData.Generation
             await Export.WriteLocalDbJson(toSave, progress);
 
             await DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
-                DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
+                DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
             return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
-        public static void WriteFileFromMediaArchiveToLocalSite(FileContent fileContent,
-            bool overwriteExisting, IProgress<string> progress)
+        public static async Task<(GenerationReturn generationReturn, FileContent fileContent)> SaveToDb(
+            FileContent toSave, FileInfo selectedFile, IProgress<string> progress)
         {
-            var userSettings = UserSettingsSingleton.CurrentSettings();
+            var validationReturn = await Validate(toSave, selectedFile);
 
-            var sourceFile = new FileInfo(Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
-                fileContent.OriginalFileName));
+            if (validationReturn.HasError) return (validationReturn, null);
 
-            var targetFile = new FileInfo(Path.Combine(
-                userSettings.LocalSiteFileContentDirectory(fileContent).FullName, fileContent.OriginalFileName));
+            StructureAndMediaContent.WriteSelectedFileToMediaArchive(selectedFile);
+            await Db.SaveFileContent(toSave);
 
-            if (targetFile.Exists && overwriteExisting)
-            {
-                targetFile.Delete();
-                targetFile.Refresh();
-            }
-
-            if (!targetFile.Exists) sourceFile.CopyTo(targetFile.FullName);
-        }
-
-        public static void GenerateHtml(FileContent toGenerate, IProgress<string> progress)
-        {
-            progress?.Report($"File Content - Generate HTML for {toGenerate.Title}");
-
-            var htmlContext = new FileHtml.SingleFilePage(toGenerate);
-
-            htmlContext.WriteLocalHtml();
+            return (await GenerationReturn.Success($"Saved {toSave.Title}"), toSave);
         }
 
         public static async Task<GenerationReturn> Validate(FileContent fileContent, FileInfo selectedFile)
@@ -103,8 +82,7 @@ namespace PointlessWaymarksCmsData.Generation
 
             if (await (await Db.Context()).FileFilenameExistsInDatabase(selectedFile.Name, fileContent.ContentId))
                 return await GenerationReturn.Error(
-                    "This filename already exists in the database - file names must be unique.",
-                    fileContent.ContentId);
+                    "This filename already exists in the database - file names must be unique.", fileContent.ContentId);
 
             if (await (await Db.Context()).SlugExistsInDatabase(fileContent.Slug, fileContent.ContentId))
                 return await GenerationReturn.Error("This slug already exists in the database - slugs must be unique.",
@@ -113,5 +91,24 @@ namespace PointlessWaymarksCmsData.Generation
             return await GenerationReturn.Success("File Content Validation Successful");
         }
 
+        public static void WriteFileFromMediaArchiveToLocalSite(FileContent fileContent, bool overwriteExisting,
+            IProgress<string> progress)
+        {
+            var userSettings = UserSettingsSingleton.CurrentSettings();
+
+            var sourceFile = new FileInfo(Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
+                fileContent.OriginalFileName));
+
+            var targetFile = new FileInfo(Path.Combine(userSettings.LocalSiteFileContentDirectory(fileContent).FullName,
+                fileContent.OriginalFileName));
+
+            if (targetFile.Exists && overwriteExisting)
+            {
+                targetFile.Delete();
+                targetFile.Refresh();
+            }
+
+            if (!targetFile.Exists) sourceFile.CopyTo(targetFile.FullName);
+        }
     }
 }

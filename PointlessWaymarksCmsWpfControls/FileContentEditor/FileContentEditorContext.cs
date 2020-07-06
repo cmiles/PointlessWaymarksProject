@@ -566,6 +566,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
+            await LoadData(saveResult.fileContent);
+
             await PdfConversion.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> {DbEntry},
                 pageNumber);
         }
