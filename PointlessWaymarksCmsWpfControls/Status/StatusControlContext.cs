@@ -238,8 +238,10 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
 
+#pragma warning disable 4014
                 Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
                     StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+#pragma warning restore 4014
             }
         }
 
@@ -315,7 +317,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 StatusLog.Add(e);
 
-                if (StatusLog.Count > 20) StatusLog.Remove(StatusLog.First());
+                if (StatusLog.Count > 100) StatusLog.Remove(StatusLog.First());
 
                 if (UserSettingsSingleton.LogDiagnosticEvents)
                     Task.Run(() =>

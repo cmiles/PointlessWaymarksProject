@@ -41,7 +41,7 @@
             <ListBox
                 Margin="24"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
+                VerticalAlignment="Center"
                 utility:ListBoxScrollBehavior.ScrollOnNewItem="True"
                 BorderThickness="0"
                 Cursor="Wait"

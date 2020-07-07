@@ -493,7 +493,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 
             var updateNotesHtml = ContentProcessing.ProcessContent(
-                BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes, null), dbEntry.UpdateNotes);
+                BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes, null), dbEntry.UpdateNotesFormat);
 
             updateNotesContentContainer.Encoded(false).Text(updateNotesHtml);
 

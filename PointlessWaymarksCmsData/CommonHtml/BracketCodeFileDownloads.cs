@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using HtmlTags;
 using PointlessWaymarksCmsData.Models;
 
 namespace PointlessWaymarksCmsData.CommonHtml
 {
-    public static class BracketCodeFileDownload
+    public static class BracketCodeFileDownloads
     {
         public const string BracketCodeToken = "filedownloadlink";
 
@@ -16,8 +14,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
 
-            var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
-                .Distinct().ToList();
+            var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
+                .Select(x => x.contentGuid).Distinct().ToList();
 
             var resultList = new List<FileContent>();
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
     {
         private ObservableRangeCollection<ImageListListItem> _items;
         private string _lastSortColumn;
+        private Command<ImageListListItem> _openFileCommand;
         private List<ImageListListItem> _selectedItems;
         private StatusControlContext _statusContext;
         private string _userFilterText;
@@ -35,6 +37,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             }));
+            OpenFileCommand = new Command<ImageListListItem>(x => StatusContext.RunNonBlockingTask(() => OpenFile(x)));
+
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
@@ -49,6 +53,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<ImageListListItem> OpenFileCommand
+        {
+            get => _openFileCommand;
+            set
+            {
+                if (Equals(value, _openFileCommand)) return;
+                _openFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -246,6 +261,36 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task OpenFile(ImageListListItem listItem)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (listItem == null)
+            {
+                StatusContext.ToastError("Nothing Items to Open?");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(listItem.DbEntry.OriginalFileName))
+            {
+                StatusContext.ToastError("No File?");
+                return;
+            }
+
+            var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentFile(listItem.DbEntry);
+
+            if (!toOpen.Exists)
+            {
+                StatusContext.ToastError("File doesn't exist?");
+                return;
+            }
+
+            var url = toOpen.FullName;
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
 
         private async Task SortList(string sortColumn)

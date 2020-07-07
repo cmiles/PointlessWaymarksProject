@@ -37,8 +37,10 @@
                         Content="New - Blank" />
                 <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Generate Html" />
-                <Button Command="{Binding ImageCodesToClipboardForSelectedCommand}"
+                <Button Command="{Binding ImageBracketCodesToClipboardForSelectedCommand}"
                         Style="{StaticResource ActionPanelButton}" Content="_Code to Clipboard" />
+                <Button Command="{Binding ImageBracketLinkCodesToClipboardForSelectedCommand}"
+                        Style="{StaticResource ActionPanelButton}" Content="Link Code to Clipboard" />
                 <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Open Selected In Browser" />
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>

@@ -23,8 +23,11 @@ Link Types:
  - filedownloadlink - a link to the File - this is a 'download' link and will only work correctly if direct downloads are enabled for the file
  - notelink - a link to a Note Page
  - image - displays an image with a link to the Image Page
- - postlink - a link to a Post Page
+ - imagelink - a link to the Image Page
  - photo - displays a photo with a link to a Photo Page
+ - photolink - a link to the Photo Page
+ - postlink - a link to a Post Page
+
 
 #### Site Link Bracket Codes
 

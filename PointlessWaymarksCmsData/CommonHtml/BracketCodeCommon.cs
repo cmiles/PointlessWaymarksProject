@@ -67,11 +67,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string ProcessCodesForEmail(string input, IProgress<string> progress)
         {
-            input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
+            input = BracketCodeFileDownloads.FileDownloadLinkCodeProcess(input, progress);
             input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
             input = BracketCodeImages.ImageCodeProcessForEmail(input, progress);
+            input = BracketCodeImageLinks.ImageLinkCodeProcess(input, progress);
             input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
             input = BracketCodePhotos.PhotoCodeProcessForEmail(input, progress);
+            input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
@@ -80,11 +82,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string ProcessCodesForLocalDisplay(string input, IProgress<string> progress)
         {
-            input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
+            input = BracketCodeFileDownloads.FileDownloadLinkCodeProcess(input, progress);
             input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
             input = BracketCodeImages.ImageCodeProcessForDirectLocalAccess(input, progress);
+            input = BracketCodeImageLinks.ImageLinkCodeProcess(input, progress);
             input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
             input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input, progress);
+            input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
@@ -93,11 +97,13 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static string ProcessCodesForSite(string input, IProgress<string> progress)
         {
-            input = BracketCodeFileDownload.FileDownloadLinkCodeProcess(input, progress);
+            input = BracketCodeFileDownloads.FileDownloadLinkCodeProcess(input, progress);
             input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
             input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input, progress);
+            input = BracketCodeImageLinks.ImageLinkCodeProcess(input, progress);
             input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
             input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input, progress);
+            input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 

@@ -220,7 +220,7 @@ namespace PointlessWaymarksCmsData.IndexHtml
 
                 if (loopPosts.GetType() == typeof(ImageContent))
                 {
-                    var post = new SinglePostDiv(loopPosts);
+                    var post = new SingleImageDiv(loopPosts);
 
                     string content = null;
 

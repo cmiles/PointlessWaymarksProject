@@ -13,6 +13,7 @@ using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.CommonHtml;
 using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
@@ -27,7 +28,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _generateSelectedHtmlCommand;
-        private Command _imageCodesToClipboardForSelectedCommand;
+        private Command _imageBracketCodesToClipboardForSelectedCommand;
+        private Command _imageBracketLinkCodesToClipboardForSelectedCommand;
         private ImageListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
@@ -40,8 +42,10 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
             EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            ImageCodesToClipboardForSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(ImageCodesToClipboardForSelected));
+            ImageBracketCodesToClipboardForSelectedCommand = new Command(() =>
+                StatusContext.RunBlockingTask(ImageBracketCodesToClipboardForSelected));
+            ImageBracketLinkCodesToClipboardForSelectedCommand = new Command(() =>
+                StatusContext.RunBlockingTask(ImageBracketLinkCodesToClipboardForSelected));
             OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
             NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
             NewContentFromFilesCommand = new Command(() => StatusContext.RunBlockingTask(NewContentFromFiles));
@@ -91,13 +95,24 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
-        public Command ImageCodesToClipboardForSelectedCommand
+        public Command ImageBracketCodesToClipboardForSelectedCommand
         {
-            get => _imageCodesToClipboardForSelectedCommand;
+            get => _imageBracketCodesToClipboardForSelectedCommand;
             set
             {
-                if (Equals(value, _imageCodesToClipboardForSelectedCommand)) return;
-                _imageCodesToClipboardForSelectedCommand = value;
+                if (Equals(value, _imageBracketCodesToClipboardForSelectedCommand)) return;
+                _imageBracketCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImageBracketLinkCodesToClipboardForSelectedCommand
+        {
+            get => _imageBracketLinkCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _imageBracketLinkCodesToClipboardForSelectedCommand)) return;
+                _imageBracketLinkCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -304,7 +319,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
-        private async Task ImageCodesToClipboardForSelected()
+        private async Task ImageBracketCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -314,11 +329,31 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 return;
             }
 
-            var finalString = string.Empty;
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + @$"{BracketCodeImages.ImageBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
 
-            foreach (var loopSelected in ListContext.SelectedItems)
-                finalString +=
-                    @$"{{{{image {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard: {finalString}");
+        }
+
+        private async Task ImageBracketLinkCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current +
+                    @$"{BracketCodeImageLinks.ImageLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

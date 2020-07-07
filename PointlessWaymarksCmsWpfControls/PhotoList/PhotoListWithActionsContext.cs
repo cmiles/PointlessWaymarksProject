@@ -40,6 +40,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _openUrlForPhotoListCommand;
         private Command _openUrlForSelectedCommand;
         private Command _photoCodesToClipboardForSelectedCommand;
+        private Command _photoLinkCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private Command _reportAllPhotosCommand;
         private Command _reportBlankLicenseCommand;
@@ -184,6 +185,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (Equals(value, _photoCodesToClipboardForSelectedCommand)) return;
                 _photoCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command PhotoLinkCodesToClipboardForSelectedCommand
+        {
+            get => _photoLinkCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _photoLinkCodesToClipboardForSelectedCommand)) return;
+                _photoLinkCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -624,10 +636,30 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 return;
             }
 
-            var finalString = string.Empty;
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + (BracketCodePhotos.PhotoBracketCode(loopSelected.DbEntry) + Environment.NewLine));
 
-            foreach (var loopSelected in ListContext.SelectedItems)
-                finalString += BracketCodePhotos.PhotoBracketCode(loopSelected.DbEntry) + Environment.NewLine;
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        private async Task PhotoLinkCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + (BracketCodePhotos.PhotoBracketCode(loopSelected.DbEntry) + Environment.NewLine));
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -768,6 +800,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
             PhotoCodesToClipboardForSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
+            PhotoLinkCodesToClipboardForSelectedCommand = new Command(() =>
+                StatusContext.RunBlockingTask(PhotoLinkCodesToClipboardForSelected));
             OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
             OpenUrlForPhotoListCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForPhotoList));
             NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));

@@ -3,6 +3,7 @@
   - Folder structure clean up routines - Photos written, need other content types and integration
   - Add tests for the common content validation
   - Need Generation and Integration tests for image, note, link - file and photo done
+ - Look at modifying images to have Body Content rather than Source Notes in light of uses where 'the image is the file'
  - A bad content code should be handled better
  - Wrap the Out of Memory that System.Drawing Image FromFile can throw that doesn't actually mean out of memory and rather means 'format issue'
  - Look at https://github.com/cyotek/SimpleScreenshotCapture/blob/master/src/ScreenshotCapture.cs to get rid of xaml island screen shot issue.
@@ -41,6 +42,17 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/7/2020
+
+Basically while adding resources for https://pointlesswaymarks.com/Posts/2020/empirita-ranch-6-18-2020/empirita-ranch-6-18-2020.html I found that in some cases I want images to do some of the things that files do because they are serving the same purpose in some cases like the Roskruge 1893 Map of Pima County - resulted in three things:
+ - Bracket codes to hyperlink to an image rather than showing the image - added for photos also
+ - Added a command to open an Image from the Image List.
+ - Added a todo to update images to be more like Files in terms of content setup
+
+Small changes to the StatusControl - thinking about changes for better appearance and layout.
+
+Bug fixes for Tags (wrong value) and Index (wrong method called for type).
 
 7/6/2020
 

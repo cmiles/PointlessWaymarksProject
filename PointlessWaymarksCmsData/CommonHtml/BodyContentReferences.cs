@@ -82,6 +82,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             contentCommonList.AddRange(await RelatedContent(db, toCheckFor));
             contentCommonList.AddRange(BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
 
@@ -100,6 +101,7 @@ namespace PointlessWaymarksCmsData.CommonHtml
             }
 
             var photoContent = BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress);
+            photoContent.AddRange(BracketCodePhotoLink.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
 
             //If the object itself is a photo add it to the list
             photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toCheckFor));
