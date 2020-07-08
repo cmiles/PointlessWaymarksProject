@@ -28,7 +28,7 @@ namespace PointlessWaymarksCmsData.Generation
 
             if (validationReturn.HasError) return (validationReturn, null);
 
-            StructureAndMediaContent.WriteSelectedFileToMediaArchive(selectedFile);
+            StructureAndMediaContent.WriteSelectedFileContentFileToMediaArchive(selectedFile);
             await Db.SaveFileContent(toSave);
             WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
             GenerateHtml(toSave, progress);
@@ -47,7 +47,7 @@ namespace PointlessWaymarksCmsData.Generation
 
             if (validationReturn.HasError) return (validationReturn, null);
 
-            StructureAndMediaContent.WriteSelectedFileToMediaArchive(selectedFile);
+            StructureAndMediaContent.WriteSelectedFileContentFileToMediaArchive(selectedFile);
             await Db.SaveFileContent(toSave);
 
             return (await GenerationReturn.Success($"Saved {toSave.Title}"), toSave);

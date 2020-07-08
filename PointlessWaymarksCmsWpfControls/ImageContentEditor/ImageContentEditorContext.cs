@@ -19,6 +19,7 @@ using PointlessWaymarksCmsData.ImageHtml;
 using PointlessWaymarksCmsData.JsonFiles;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
+using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
@@ -34,6 +35,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
     public class ImageContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private string _altText;
+        private BodyContentEditorContext _bodyContent;
         private Command _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
@@ -92,6 +94,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
+        public BodyContentEditorContext BodyContent
+        {
+            get => _bodyContent;
+            set
+            {
+                if (Equals(value, _bodyContent)) return;
+                _bodyContent = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command ChooseFileCommand
         {
             get => _chooseFileCommand;
@@ -143,17 +156,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 if (Equals(value, _extractNewLinksCommand)) return;
                 _extractNewLinksCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string ImageSourceNotes
-        {
-            get => _imageSourceNotes;
-            set
-            {
-                if (value == _imageSourceNotes) return;
-                _imageSourceNotes = value;
                 OnPropertyChanged();
             }
         }
@@ -338,17 +340,19 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
         public bool HasChanges()
         {
-            return !(StringHelper.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-                     StringHelper.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-                     StringHelper.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
-                     StringHelper.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-                     StringHelper.AreEqual(DbEntry.AltText, AltText) &&
-                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-                     StringHelper.AreEqual(DbEntry.UpdateNotesFormat,
+            return !(StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
+                     StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
+                     StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
+                     StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
+                     StringHelpers.AreEqual(DbEntry.AltText, AltText) &&
+                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
+                     StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
                          UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-                     StringHelper.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
-                     StringHelper.AreEqual(DbEntry.ImageSourceNotes, ImageSourceNotes) &&
+                     StringHelpers.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
+                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
+                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) &&
                      DbEntry.ShowInSearch == ShowInSearch.ShowInSearch &&
                      DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges);
         }
@@ -432,6 +436,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
             TagEdit = new TagsEditorContext(StatusContext, DbEntry);
+            BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
 
@@ -454,7 +459,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
             }
 
-            ImageSourceNotes = DbEntry.ImageSourceNotes ?? string.Empty;
             AltText = DbEntry.AltText ?? string.Empty;
 
             if (DbEntry.Id < 1 && _initialImage != null && _initialImage.Exists &&
@@ -606,7 +610,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes;
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
-            newEntry.ImageSourceNotes = ImageSourceNotes;
+            newEntry.BodyContent = BodyContent.BodyContent;
+            newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
             if (DbEntry != null && DbEntry.Id > 0)
                 if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
@@ -721,7 +726,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             RotateImageLeftCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate270)));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors(ImageSourceNotes, StatusContext.ProgressTracker())));
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
+                    StatusContext.ProgressTracker())));
             LinkToClipboardCommand = new Command(() => StatusContext.RunBlockingTask(LinkToClipboard));
         }
 

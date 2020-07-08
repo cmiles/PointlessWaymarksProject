@@ -61,8 +61,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
-            SummaryHasChanges = StringHelper.TrimNullSafe(DbEntry?.Summary) != Summary.TrimNullSafe();
-            FolderHasChanges = StringHelper.TrimNullSafe(DbEntry?.Folder) != Folder.TrimNullSafe();
+            SummaryHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Summary) != Summary.TrimNullSafe();
+            FolderHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Folder) != Folder.TrimNullSafe();
             // ReSharper restore InvokeAsExtensionMethod
         }
 
@@ -246,11 +246,11 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
         public bool HasChanges()
         {
-            return !(StringHelper.AreEqual(DbEntry.Folder, Folder.TrimNullSafe()) &&
-                     StringHelper.AreEqual(DbEntry.Summary, Summary.TrimNullSafe()) &&
-                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelper.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-                     StringHelper.AreEqual(DbEntry.BodyContentFormat,
+            return !(StringHelpers.AreEqual(DbEntry.Folder, Folder.TrimNullSafe()) &&
+                     StringHelpers.AreEqual(DbEntry.Summary, Summary.TrimNullSafe()) &&
+                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
                          BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
                      DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
         }

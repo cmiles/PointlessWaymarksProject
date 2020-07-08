@@ -213,7 +213,7 @@ namespace PointlessWaymarksTests
             var newFileContent = new FileContent
             {
                 BodyContent = "Simple Test Content",
-                BodyContentFormat = "",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 ContentId = Guid.NewGuid(),
                 ContentVersion = DateTime.Now.ToUniversalTime(),
                 CreatedBy = "Test Series A",

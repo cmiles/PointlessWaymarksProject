@@ -123,21 +123,21 @@ namespace PointlessWaymarksCmsData.ImageHtml
             this.Write("\">\r\n    <meta name=\"DC.Format\" content=\"text/html\">\r\n    <meta name=\"DC.Language\"" +
                     " content=\"en-US\">\r\n\r\n    ");
             
-            #line 27 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 28 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.OpenGraphImageMetaTags(PictureInformation)));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n    <link rel=\"alternate\" type=\"application/rss+xml\" \r\n      title=\"");
             
-            #line 30 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 32 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Images".HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\"\r\n      href=\"https:");
             
-            #line 31 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 34 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().ImageRssUrl()));
             
             #line default
@@ -145,70 +145,70 @@ namespace PointlessWaymarksCmsData.ImageHtml
             this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"" +
                     ">\r\n\r\n    ");
             
-            #line 35 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 39 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 36 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 40 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n</head>\r\n\r\n<body class=\"single-photo-body\">\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 45 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureWithCaptionTag("100vw")));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 42 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(ImageParts.ImageSourceNotesDivTag(DbEntry)));
+            #line 47 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 44 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 49 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 45 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 50 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 46 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 52 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 47 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 54 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 49 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 56 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 50 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
+            #line 57 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

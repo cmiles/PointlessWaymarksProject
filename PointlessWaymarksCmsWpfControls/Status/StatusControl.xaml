@@ -34,7 +34,7 @@
         <Border
             Margin="2"
             Background="White"
-            BorderBrush="LightGray"
+            BorderBrush="Green"
             BorderThickness="2"
             CornerRadius="5"
             Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
@@ -42,12 +42,22 @@
                 Margin="24"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.VerticalScrollBarVisibility="Hidden"
                 utility:ListBoxScrollBehavior.ScrollOnNewItem="True"
                 BorderThickness="0"
                 Cursor="Wait"
                 ItemsSource="{Binding StatusLog}"
                 Opacity=".7"
-                Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
+                Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,0,0,4">
+                            <TextBlock TextWrapping="Wrap" Text="{Binding .}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Border>
         <Grid Grid.Column="0"
               Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
@@ -99,7 +109,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock
-                        MaxWidth="400"
+                        MaxWidth="800"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         FontSize="24"
@@ -109,7 +119,7 @@
                         Grid.Row="1"
                         BorderThickness="0"
                         IsReadOnly="True"
-                        MaxWidth="800"
+                        MaxWidth="1200"
                         Margin="0,12,0,12"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
@@ -136,7 +146,7 @@
             VerticalAlignment="Top"
             Orientation="Vertical">
             <waitingSpinner:WaitingSpinnerControl Diameter="36" Color1="Green" Color2="Transparent"
-            Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
+                                                  Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
             <toastControl:ToastTray DataContext="{Binding Toast}" />
         </StackPanel>
     </Grid>

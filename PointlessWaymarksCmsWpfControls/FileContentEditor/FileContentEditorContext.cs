@@ -306,19 +306,19 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
         public bool HasChanges()
         {
-            return !(StringHelper.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-                     StringHelper.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-                     StringHelper.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
+            return !(StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
+                     StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
+                     StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
                      DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges &&
-                     StringHelper.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-                     StringHelper.AreEqual(DbEntry.UpdateNotesFormat,
+                     StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
+                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
+                     StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
                          UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-                     StringHelper.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-                     StringHelper.AreEqual(DbEntry.BodyContentFormat,
+                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
                          BodyContent.BodyContentFormat.SelectedContentFormatAsString) &&
-                     StringHelper.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
+                     StringHelpers.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
                      DbEntry.PublicDownloadLink == PublicDownloadLink && DbEntry.MainPicture ==
                      BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent));
         }

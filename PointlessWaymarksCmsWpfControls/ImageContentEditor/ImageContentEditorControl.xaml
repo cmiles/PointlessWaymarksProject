@@ -93,12 +93,6 @@
                                          MaxLines="2"
                                          Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical" Margin="0,4,0,0">
-                                <Label Style="{StaticResource DataEntryLabelStyle}">Image Source Notes</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxMultiLineStyle}" MinLines="2"
-                                         MaxLines="2"
-                                         Text="{Binding ImageSourceNotes, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                                 DataContext="{Binding CreatedUpdatedDisplay}"
                                 Style="{StaticResource CreatedUpdatedInPanelStyle}" />
@@ -106,6 +100,11 @@
                                                                     Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Body">
+                <Grid>
+                    <bodyContentEditor:BodyContentEditorControl DataContext="{Binding BodyContent}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">

@@ -44,8 +44,7 @@
 <body class="single-photo-body">
     <#=
                 PictureInformation.PictureFigureWithCaptionTag("100vw") #>
-    <#=
-                ImageParts.ImageSourceNotesDivTag(DbEntry) #>
+    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=

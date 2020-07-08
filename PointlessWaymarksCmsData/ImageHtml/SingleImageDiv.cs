@@ -35,14 +35,14 @@ namespace PointlessWaymarksCmsData.ImageHtml
             #line hidden
             this.Write("\r\n    ");
             
-            #line 7 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImageDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(ImageParts.ImageSourceNotesDivTag(DbEntry)));
+            #line 8 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImageDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 8 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImageDiv.tt"
+            #line 9 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\ImageHtml\SingleImageDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result));
             
             #line default

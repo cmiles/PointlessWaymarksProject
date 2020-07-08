@@ -6,7 +6,7 @@ using System.Web;
 
 namespace PointlessWaymarksCmsData
 {
-    public static class StringHelper
+    public static class StringHelpers
     {
         /// <summary>
         /// Simple expansion of Camel Case into a 'normal' string

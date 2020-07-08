@@ -158,10 +158,10 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
-            SummaryHasChanges = StringHelper.TrimNullSafe(DbEntry?.Summary) != Summary.TrimNullSafe();
-            TitleHasChanges = StringHelper.TrimNullSafe(DbEntry?.Title) != Title.TrimNullSafe();
-            SlugHasChanges = StringHelper.TrimNullSafe(DbEntry?.Slug) != Slug.TrimNullSafe();
-            FolderHasChanges = StringHelper.TrimNullSafe(DbEntry?.Folder) != Folder.TrimNullSafe();
+            SummaryHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Summary) != Summary.TrimNullSafe();
+            TitleHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Title) != Title.TrimNullSafe();
+            SlugHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Slug) != Slug.TrimNullSafe();
+            FolderHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Folder) != Folder.TrimNullSafe();
             // ReSharper restore InvokeAsExtensionMethod
         }
 

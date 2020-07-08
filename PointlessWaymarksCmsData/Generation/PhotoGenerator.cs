@@ -265,6 +265,7 @@ namespace PointlessWaymarksCmsData.Generation
             toReturn.CreatedOn = DateTime.Now;
             toReturn.ContentVersion = DateTime.Now.ToUniversalTime();
             toReturn.Slug = SlugUtility.Create(true, toReturn.Title);
+            toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
 
             var possibleTitleYear = Regex
                 .Match(toReturn.Title,
@@ -290,7 +291,7 @@ namespace PointlessWaymarksCmsData.Generation
 
             if (validationReturn.HasError) return (validationReturn, null);
 
-            StructureAndMediaContent.WriteSelectedFileToMediaArchive(selectedFile);
+            StructureAndMediaContent.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
             await WriteSelectedFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
             GenerateHtml(toSave, progress);
@@ -309,7 +310,7 @@ namespace PointlessWaymarksCmsData.Generation
 
             if (validationReturn.HasError) return (validationReturn, null);
 
-            StructureAndMediaContent.WriteSelectedFileToMediaArchive(selectedFile);
+            StructureAndMediaContent.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
 
             return (await GenerationReturn.Success($"Saved {toSave.Title}"), toSave);

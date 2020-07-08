@@ -2,11 +2,12 @@
 
 namespace PointlessWaymarksCmsData.Models
 {
-    public class ImageContent : IUpdateNotes, IContentCommon, IShowInSearch
+    public class ImageContent : IUpdateNotes, IContentCommon, IShowInSearch, IBodyContent
     {
         public string AltText { get; set; }
-        public string ImageSourceNotes { get; set; }
         public string OriginalFileName { get; set; }
+        public string BodyContent { get; set; }
+        public string BodyContentFormat { get; set; }
         public Guid ContentId { get; set; }
         public DateTime ContentVersion { get; set; }
         public int Id { get; set; }

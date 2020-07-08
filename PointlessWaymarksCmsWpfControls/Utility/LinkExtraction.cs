@@ -28,7 +28,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             progressTracker?.Report("Looking for URLs");
 
-            var allMatches = StringHelper.UrlsFromText(toExtractFrom).Where(x =>
+            var allMatches = StringHelpers.UrlsFromText(toExtractFrom).Where(x =>
                 !x.ToLower().Contains(UserSettingsSingleton.CurrentSettings().SiteUrl) &&
                 !exludedUrls.Contains(x.ToLower())).ToList();
 

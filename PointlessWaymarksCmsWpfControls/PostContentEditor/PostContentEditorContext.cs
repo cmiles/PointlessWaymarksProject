@@ -206,16 +206,16 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
         public bool HasChanges()
         {
-            return !(StringHelper.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-                     StringHelper.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-                     StringHelper.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
-                     StringHelper.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-                     StringHelper.AreEqual(DbEntry.UpdateNotesFormat,
+            return !(StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
+                     StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
+                     StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
+                     StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
+                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
+                     StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
                          UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-                     StringHelper.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-                     StringHelper.AreEqual(DbEntry.BodyContentFormat,
+                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
                          BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
                      DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
         }

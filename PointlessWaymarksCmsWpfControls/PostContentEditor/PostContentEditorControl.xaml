@@ -49,7 +49,7 @@
                     </ScrollViewer>
                 </Grid>
             </TabItem>
-            <TabItem Header="Post Body">
+            <TabItem Header="Body">
                 <Grid>
                     <bodyContentEditor:BodyContentEditorControl DataContext="{Binding BodyContent}" />
                 </Grid>

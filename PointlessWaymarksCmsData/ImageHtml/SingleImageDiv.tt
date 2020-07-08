@@ -5,8 +5,7 @@
 <div class="content-container">
     <#=
                 PictureInformation.PictureFigureWithCaptionTag("100vw") #>
-    <#=
-                ImageParts.ImageSourceNotesDivTag(DbEntry) #>
+    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#=
                 BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
 </div>

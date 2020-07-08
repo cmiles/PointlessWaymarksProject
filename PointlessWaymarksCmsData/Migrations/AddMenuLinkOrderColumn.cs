@@ -7,7 +7,7 @@ namespace PointlessWaymarksCmsData.Migrations
     {
         public override void Down()
         {
-            Delete.Column("MenuOrder").FromTable("MenuOrder");
+            Delete.Column("MenuOrder").FromTable("MenuLinks");
         }
 
         public override void Up()

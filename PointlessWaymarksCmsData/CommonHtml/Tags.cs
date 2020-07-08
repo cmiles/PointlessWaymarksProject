@@ -324,6 +324,8 @@ namespace PointlessWaymarksCmsData.CommonHtml
 
         public static HtmlTag PostBodyDiv(IBodyContent dbEntry, IProgress<string> progress = null)
         {
+            if(string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
+
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
             var bodyText = ContentProcessing.ProcessContent(

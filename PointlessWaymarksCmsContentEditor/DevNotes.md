@@ -3,7 +3,7 @@
   - Folder structure clean up routines - Photos written, need other content types and integration
   - Add tests for the common content validation
   - Need Generation and Integration tests for image, note, link - file and photo done
- - Look at modifying images to have Body Content rather than Source Notes in light of uses where 'the image is the file'
+ - Look at using NavLink tag in menu and/or wrapping with nav tag
  - A bad content code should be handled better
  - Wrap the Out of Memory that System.Drawing Image FromFile can throw that doesn't actually mean out of memory and rather means 'format issue'
  - Look at https://github.com/cyotek/SimpleScreenshotCapture/blob/master/src/ScreenshotCapture.cs to get rid of xaml island screen shot issue.
@@ -42,6 +42,20 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/8/2020
+
+Changed out Photo and Image types to have Body Content - my original thought was that a Photo with Body Content should be a post, that still strikes me as reasonable but recent images like the Roskruge map made me think about how some images are 'pure images' and some are 'resources' where the page for the item should present more information as needed. I had already started down this path a bit with the 'Image Source Notes' field for images, I think this just takes it out to a logical conclusion. At this point too based on the use of files I am more comfortable with 'views' of a file/image/photo that does give you the Body text and don't feel the need to incorporate it in every view...
+
+Had a slightly unpleasant experience with FluentMigrator where Rename and Delete columns were silently not running in migrations - this is familiar at this point as Sqlite has traditionally not supported some operations that other DBs do and working around those limits for all situations is challenging (I think Sqlite recently added column rename support so maybe this changes in the future! There is some basic explanation of the issue here at the bottom about why https://www.sqlite.org/lang_altertable.html). Changed the migration over to a sql script - because I have kept the db setup simple the script to do the changes is verbose because of all the columns but conceptually very simple and fluent migrator does make it easy to run.
+
+While working on the migrations found that I didn't have the correct matching columns in the HistoricImage type - fixed - I wonder if I should revisit how this code is written and explore using inheritance to ensure that the types are always in sync. In the past I have had trouble with inheritance and EF not acting always as expected but probably time to revisit that and see both what comes up now and what I can do with some of the ignore options.
+
+Removed more old code.
+
+Fixed bugs introduced in the FileGenerator work.
+
+A little more StatusControl appearance and layout work.
 
 7/7/2020
 

@@ -155,7 +155,6 @@ namespace PointlessWaymarksCmsContentEditor
 
         public Command PurgeInvalidPhotoDirectoriesCommand { get; set; }
 
-
         public Command AllEventsReportCommand { get; set; }
 
         public Command CleanAndResizePicturesCommand { get; set; }
@@ -195,7 +194,6 @@ namespace PointlessWaymarksCmsContentEditor
                 OnPropertyChanged();
             }
         }
-
 
         public Command GenerateHtmlForAllImageContentCommand
         {
@@ -616,7 +614,7 @@ namespace PointlessWaymarksCmsContentEditor
                 var frozenNow = DateTime.Now;
 
                 var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-                    $"CleanAndResizeAllFilesContentFiles-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
+                    $"ConfirmFileContent-ErrorReport-{frozenNow:yyyy-MM-dd---HH-mm-ss}.htm"));
 
                 var htmlString =
                     ($"<h1>Confirm All File Content Files Error Report - {frozenNow:yyyy-MM-dd---HH-mm-ss}</h1><br>" +

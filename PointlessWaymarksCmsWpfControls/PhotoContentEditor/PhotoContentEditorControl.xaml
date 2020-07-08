@@ -13,6 +13,7 @@
     xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
+    xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -162,6 +163,11 @@
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Body">
+                <Grid>
+                    <bodyContentEditor:BodyContentEditorControl DataContext="{Binding BodyContent}" />
+                </Grid>
             </TabItem>
             <TabItem Header="Update Notes">
                 <Grid>

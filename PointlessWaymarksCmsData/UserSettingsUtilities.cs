@@ -94,6 +94,43 @@ namespace PointlessWaymarksCmsData
             return Enum.GetNames(typeof(ContentFormatEnum)).First();
         }
 
+        public static async Task EnsureDbIsPresent(this UserSettings settings, IProgress<string> progress)
+        {
+            var possibleDbFile = new FileInfo(settings.DatabaseFile);
+
+            if (possibleDbFile.Exists)
+            {
+                var sc = new ServiceCollection()
+                    // Add common FluentMigrator services
+                    .AddFluentMigratorCore().ConfigureRunner(rb => rb
+                        // Add SQLite support to FluentMigrator
+                        .AddSQLite()
+                        // Set the connection string
+                        .WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
+                        // Define the assembly containing the migrations
+                        .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
+                    // Enable logging to console in the FluentMigrator way
+                    .AddLogging(lb => lb.AddFluentMigratorConsole())
+                    // Build the service provider
+                    .BuildServiceProvider(false);
+
+                // Instantiate the runner
+                var runner = sc.GetRequiredService<IMigrationRunner>();
+
+                // Execute the migrations
+                runner.MigrateUp();
+            }
+
+            progress?.Report("Checking for database files...");
+            var log = Db.Log().Result;
+            await log.Database.EnsureCreatedAsync();
+            await EventLogContext.TryWriteStartupMessageToLog(
+                $"Ensure Db Is Present - Settings File {SettingsFileName}", "User Settings Utilities");
+
+            var db = Db.Context().Result;
+            await db.Database.EnsureCreatedAsync();
+        }
+
         public static string FaviconUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/favicon.ico";
@@ -171,7 +208,6 @@ namespace PointlessWaymarksCmsData
             return localDirectory;
         }
 
-
         public static DirectoryInfo LocalMediaArchivePhotoDirectory(this UserSettings settings)
         {
             var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Photos"));
@@ -224,7 +260,8 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, $"DailyPhotos-{galleryDate:yyyy-MM-dd}")}.html");
         }
 
-        public static DateTime? LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(this UserSettings settings, FileInfo toParse)
+        public static DateTime? LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(this UserSettings settings,
+            FileInfo toParse)
         {
             if (toParse == null) return null;
             var name = toParse.Name;
@@ -271,13 +308,6 @@ namespace PointlessWaymarksCmsData
             return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
         }
 
-        public static FileInfo LocalSiteImageContentFile(this UserSettings settings, ImageContent content)
-        {
-            var directory = settings.LocalSiteImageContentDirectory(content, false);
-
-            return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
-        }
-
         public static DirectoryInfo LocalSiteFileDirectory(this UserSettings settings)
         {
             var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Files"));
@@ -318,6 +348,13 @@ namespace PointlessWaymarksCmsData
             contentDirectory.Refresh();
 
             return contentDirectory;
+        }
+
+        public static FileInfo LocalSiteImageContentFile(this UserSettings settings, ImageContent content)
+        {
+            var directory = settings.LocalSiteImageContentDirectory(content, false);
+
+            return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
         }
 
         public static DirectoryInfo LocalSiteImageDirectory(this UserSettings settings)
@@ -723,44 +760,6 @@ namespace PointlessWaymarksCmsData
         public static FileInfo SettingsFile()
         {
             return new FileInfo(Path.Combine(StorageDirectory().FullName, SettingsFileName));
-        }
-
-        public static async Task EnsureDbIsPresent(this UserSettings settings, IProgress<string> progress)
-        {
-            var possibleDbFile = new FileInfo(settings.DatabaseFile);
-
-            if (possibleDbFile.Exists)
-            {
-                var sc = new ServiceCollection()
-                    // Add common FluentMigrator services
-                    .AddFluentMigratorCore().ConfigureRunner(rb => rb
-                        // Add SQLite support to FluentMigrator
-                        .AddSQLite()
-                        // Set the connection string
-                        .WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
-                        // Define the assembly containing the migrations
-                        .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
-                    // Enable logging to console in the FluentMigrator way
-                    .AddLogging(lb => lb.AddFluentMigratorConsole())
-                    // Build the service provider
-                    .BuildServiceProvider(false);
-
-                // Instantiate the runner
-                var runner = sc.GetRequiredService<IMigrationRunner>();
-
-                // Execute the migrations
-                runner.MigrateUp();
-            }
-
-            progress?.Report("Checking for database files...");
-            var log = Db.Log().Result;
-            await log.Database.EnsureCreatedAsync();
-            await EventLogContext.TryWriteStartupMessageToLog(
-                $"Ensure Db Is Present - Settings File {UserSettingsUtilities.SettingsFileName}",
-                "User Settings Utilities");
-
-            var db = Db.Context().Result;
-            await db.Database.EnsureCreatedAsync();
         }
 
         /// <summary>

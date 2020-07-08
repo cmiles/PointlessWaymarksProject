@@ -344,13 +344,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         {
             return !(!TagEdit.TagsHaveChanges && DbEntry.ShowInLinkRss == ShowInLinkRss &&
                      DbEntry.LinkDate == LinkDateTime &&
-                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy.TrimNullSafe()) &&
-                     StringHelper.AreEqual(DbEntry.Comments, Comments.TrimNullSafe()) &&
-                     StringHelper.AreEqual(DbEntry.Url, LinkUrl.TrimNullSafe()) &&
-                     StringHelper.AreEqual(DbEntry.Title, Title.TrimNullSafe()) &&
-                     StringHelper.AreEqual(DbEntry.Site, Site.TrimNullSafe()) &&
-                     StringHelper.AreEqual(DbEntry.Author, Author.TrimNullSafe()) &&
-                     StringHelper.AreEqual(DbEntry.Description, Description.TrimNullSafe()));
+                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy.TrimNullSafe()) &&
+                     StringHelpers.AreEqual(DbEntry.Comments, Comments.TrimNullSafe()) &&
+                     StringHelpers.AreEqual(DbEntry.Url, LinkUrl.TrimNullSafe()) &&
+                     StringHelpers.AreEqual(DbEntry.Title, Title.TrimNullSafe()) &&
+                     StringHelpers.AreEqual(DbEntry.Site, Site.TrimNullSafe()) &&
+                     StringHelpers.AreEqual(DbEntry.Author, Author.TrimNullSafe()) &&
+                     StringHelpers.AreEqual(DbEntry.Description, Description.TrimNullSafe()));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -359,14 +359,14 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
-            AuthorHasChanges = StringHelper.TrimNullSafe(DbEntry?.Author) != Author.TrimNullSafe();
-            CommentsHaveChanges = StringHelper.TrimNullSafe(DbEntry?.Comments) != Comments.TrimNullSafe();
-            DescriptionHasChanges = StringHelper.TrimNullSafe(DbEntry?.Description) != Description.TrimNullSafe();
+            AuthorHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Author) != Author.TrimNullSafe();
+            CommentsHaveChanges = StringHelpers.TrimNullSafe(DbEntry?.Comments) != Comments.TrimNullSafe();
+            DescriptionHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Description) != Description.TrimNullSafe();
             LinkDateTimeHasChanges = DbEntry?.LinkDate != LinkDateTime;
-            LinkUrlHasChanges = StringHelper.TrimNullSafe(DbEntry?.Url) != LinkUrl.TrimNullSafe();
+            LinkUrlHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Url) != LinkUrl.TrimNullSafe();
             ShowInLinkRssHasChanges = DbEntry?.ShowInLinkRss != ShowInLinkRss;
-            SiteHasChanges = StringHelper.TrimNullSafe(DbEntry?.Site) != Site.TrimNullSafe();
-            TitleHasChanges = StringHelper.TrimNullSafe(DbEntry?.Title) != Title.TrimNullSafe();
+            SiteHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Site) != Site.TrimNullSafe();
+            TitleHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Title) != Title.TrimNullSafe();
             // ReSharper restore InvokeAsExtensionMethod
         }
 

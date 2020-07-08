@@ -382,7 +382,7 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             };
         }
 
-        public static void WriteSelectedFileToMediaArchive(FileInfo selectedFile)
+        public static void WriteSelectedFileContentFileToMediaArchive(FileInfo selectedFile)
         {
             var userSettings = UserSettingsSingleton.CurrentSettings();
             var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
@@ -397,10 +397,79 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
             selectedFile.CopyTo(destinationFileName);
         }
 
-        public static async Task<GenerationReturn> WriteSelectedFileToMediaArchive(FileInfo selectedFile,
+        public static async Task<GenerationReturn> WriteSelectedFileContentFileToMediaArchive(FileInfo selectedFile,
             bool replaceExisting)
         {
             var userSettings = UserSettingsSingleton.CurrentSettings();
+
+            var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
+                selectedFile.Name);
+            if (destinationFileName == selectedFile.FullName && !replaceExisting)
+                return await GenerationReturn.Success("File is already in Media Archive");
+
+            var destinationFile = new FileInfo(destinationFileName);
+
+            if (destinationFile.Exists) destinationFile.Delete();
+
+            selectedFile.CopyTo(destinationFileName);
+
+            return await GenerationReturn.Success("File is copied to Media Archive");
+        }
+
+        public static void WriteSelectedImageContentFileToMediaArchive(FileInfo selectedFile)
+        {
+            var userSettings = UserSettingsSingleton.CurrentSettings();
+            var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveImageDirectory().FullName,
+                selectedFile.Name);
+
+            if (destinationFileName == selectedFile.FullName) return;
+
+            var destinationFile = new FileInfo(destinationFileName);
+
+            if (destinationFile.Exists) destinationFile.Delete();
+
+            selectedFile.CopyTo(destinationFileName);
+        }
+
+        public static async Task<GenerationReturn> WriteSelectedImageContentFileToMediaArchive(FileInfo selectedFile,
+            bool replaceExisting)
+        {
+            var userSettings = UserSettingsSingleton.CurrentSettings();
+
+            var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveImageDirectory().FullName,
+                selectedFile.Name);
+            if (destinationFileName == selectedFile.FullName && !replaceExisting)
+                return await GenerationReturn.Success("Image is already in Media Archive");
+
+            var destinationFile = new FileInfo(destinationFileName);
+
+            if (destinationFile.Exists) destinationFile.Delete();
+
+            selectedFile.CopyTo(destinationFileName);
+
+            return await GenerationReturn.Success("Image is copied to Media Archive");
+        }
+
+        public static void WriteSelectedPhotoContentFileToMediaArchive(FileInfo selectedFile)
+        {
+            var userSettings = UserSettingsSingleton.CurrentSettings();
+            var destinationFileName = Path.Combine(userSettings.LocalMediaArchivePhotoDirectory().FullName,
+                selectedFile.Name);
+
+            if (destinationFileName == selectedFile.FullName) return;
+
+            var destinationFile = new FileInfo(destinationFileName);
+
+            if (destinationFile.Exists) destinationFile.Delete();
+
+            selectedFile.CopyTo(destinationFileName);
+        }
+
+        public static async Task<GenerationReturn> WriteSelectedPhotoContentFileToMediaArchive(FileInfo selectedFile,
+            bool replaceExisting)
+        {
+            var userSettings = UserSettingsSingleton.CurrentSettings();
+
             var destinationFileName = Path.Combine(userSettings.LocalMediaArchivePhotoDirectory().FullName,
                 selectedFile.Name);
             if (destinationFileName == selectedFile.FullName && !replaceExisting)
@@ -414,7 +483,5 @@ namespace PointlessWaymarksCmsData.FolderStructureAndGeneratedContent
 
             return await GenerationReturn.Success("Photo is copied to Media Archive");
         }
-
-
     }
 }

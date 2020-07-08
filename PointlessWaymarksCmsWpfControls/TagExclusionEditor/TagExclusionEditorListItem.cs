@@ -56,7 +56,7 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
                 return;
             }
 
-            HasChanges = !StringHelper.AreEqualWithTrim(TagValue, DbEntry.Tag);
+            HasChanges = !StringHelpers.AreEqualWithTrim(TagValue, DbEntry.Tag);
         }
 
         [NotifyPropertyChangedInvocator]

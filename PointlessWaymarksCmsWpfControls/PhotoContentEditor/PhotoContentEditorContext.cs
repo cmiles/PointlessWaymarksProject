@@ -20,6 +20,7 @@ using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
 using PointlessWaymarksCmsData.Generation;
 using PointlessWaymarksCmsData.Models;
 using PointlessWaymarksCmsData.Pictures;
+using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
@@ -36,6 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
     {
         private string _altText;
         private string _aperture;
+        private BodyContentEditorContext _bodyContent;
         private string _cameraMake;
         private string _cameraModel;
         private Command _chooseFileAndFillMetadataCommand;
@@ -43,6 +45,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PhotoContent _dbEntry;
+        private Command _extractNewLinksCommand;
         private string _focalLength;
         private FileInfo _initialPhoto;
         private int? _iso;
@@ -109,6 +112,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             {
                 if (value == _aperture) return;
                 _aperture = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public BodyContentEditorContext BodyContent
+        {
+            get => _bodyContent;
+            set
+            {
+                if (Equals(value, _bodyContent)) return;
+                _bodyContent = value;
                 OnPropertyChanged();
             }
         }
@@ -186,6 +200,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ExtractNewLinksCommand
+        {
+            get => _extractNewLinksCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksCommand)) return;
+                _extractNewLinksCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -425,24 +450,27 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
         public bool HasChanges()
         {
-            return !(StringHelper.AreEqual(DbEntry.Aperture, Aperture) &&
-                     StringHelper.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-                     StringHelper.AreEqual(DbEntry.Lens, Lens) && StringHelper.AreEqual(DbEntry.License, License) &&
-                     StringHelper.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-                     StringHelper.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
-                     StringHelper.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-                     StringHelper.AreEqual(DbEntry.AltText, AltText) &&
-                     StringHelper.AreEqual(DbEntry.CameraMake, CameraMake) &&
-                     StringHelper.AreEqual(DbEntry.CameraModel, CameraModel) &&
-                     StringHelper.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelper.AreEqual(DbEntry.FocalLength, FocalLength) &&
-                     StringHelper.AreEqual(DbEntry.ShutterSpeed, ShutterSpeed) &&
-                     StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-                     StringHelper.AreEqual(DbEntry.UpdateNotesFormat,
+            return !(StringHelpers.AreEqual(DbEntry.Aperture, Aperture) &&
+                     StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
+                     StringHelpers.AreEqual(DbEntry.Lens, Lens) && StringHelpers.AreEqual(DbEntry.License, License) &&
+                     StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
+                     StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
+                     StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
+                     StringHelpers.AreEqual(DbEntry.AltText, AltText) &&
+                     StringHelpers.AreEqual(DbEntry.CameraMake, CameraMake) &&
+                     StringHelpers.AreEqual(DbEntry.CameraModel, CameraModel) &&
+                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+                     StringHelpers.AreEqual(DbEntry.FocalLength, FocalLength) &&
+                     StringHelpers.AreEqual(DbEntry.ShutterSpeed, ShutterSpeed) &&
+                     StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
+                     StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
                          UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-                     StringHelper.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
-                     StringHelper.AreEqual(DbEntry.PhotoCreatedBy, PhotoCreatedBy) && DbEntry.Iso == Iso &&
+                     StringHelpers.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
+                     StringHelpers.AreEqual(DbEntry.PhotoCreatedBy, PhotoCreatedBy) && DbEntry.Iso == Iso &&
                      DbEntry.PhotoCreatedOn == PhotoCreatedOn &&
+                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
+                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) &&
                      DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges);
         }
 
@@ -534,6 +562,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.OriginalFileName = SelectedFile.Name;
             newEntry.PhotoCreatedBy = PhotoCreatedBy;
             newEntry.PhotoCreatedOn = PhotoCreatedOn;
+            newEntry.BodyContent = BodyContent.BodyContent;
+            newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
             return newEntry;
         }
@@ -555,6 +585,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
             TagEdit = new TagsEditorContext(StatusContext, DbEntry);
+            BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
@@ -728,6 +759,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
+            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
+                    StatusContext.ProgressTracker())));
             RotatePhotoRightCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate90)));
             RotatePhotoLeftCommand = new Command(() =>

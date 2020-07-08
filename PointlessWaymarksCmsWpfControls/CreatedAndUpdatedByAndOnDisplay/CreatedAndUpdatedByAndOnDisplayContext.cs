@@ -35,8 +35,8 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
         private void CheckForChanges()
         {
             // ReSharper disable InvokeAsExtensionMethod
-            CreatedByHasChanges = CreatedBy.TrimNullSafe() != StringHelper.TrimNullSafe(DbEntry?.CreatedBy);
-            UpdatedHasChanges = UpdatedBy.TrimNullSafe() != StringHelper.TrimNullSafe(DbEntry?.LastUpdatedBy);
+            CreatedByHasChanges = CreatedBy.TrimNullSafe() != StringHelpers.TrimNullSafe(DbEntry?.CreatedBy);
+            UpdatedHasChanges = UpdatedBy.TrimNullSafe() != StringHelpers.TrimNullSafe(DbEntry?.LastUpdatedBy);
             // ReSharper restore InvokeAsExtensionMethod
         }
 

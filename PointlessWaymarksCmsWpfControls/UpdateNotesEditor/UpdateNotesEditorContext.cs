@@ -65,7 +65,7 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
                 _userUpdateNotes = value;
                 OnPropertyChanged();
 
-                UpdateNotesHasChanges = !StringHelper.AreEqual(DbEntry.UpdateNotes, UpdateNotes);
+                UpdateNotesHasChanges = !StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes);
             }
         }
 

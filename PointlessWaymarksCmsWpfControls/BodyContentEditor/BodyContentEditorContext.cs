@@ -49,7 +49,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 _userBodyContent = value;
                 OnPropertyChanged();
 
-                BodyContentHasChanges = !StringHelper.AreEqual(DbEntry.BodyContent, BodyContent);
+                BodyContentHasChanges = !StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent);
             }
         }
 
