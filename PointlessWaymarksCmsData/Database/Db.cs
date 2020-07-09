@@ -234,6 +234,11 @@ namespace PointlessWaymarksCmsData.Database
             await context.ImageContents.AddAsync(toSave);
 
             await context.SaveChangesAsync(true);
+
+            toSave.MainPicture = toSave.ContentId;
+
+            await context.SaveChangesAsync(true);
+
         }
 
         public static async Task SaveLinkStream(LinkStream toSave)

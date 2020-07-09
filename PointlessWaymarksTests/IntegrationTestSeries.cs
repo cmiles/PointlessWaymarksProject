@@ -330,6 +330,258 @@ namespace PointlessWaymarksTests
                 "Wrong number of Historic Entries in the Historic Json File");
         }
 
+        [Test]
+        public async Task A30_ImageContentImportAndUpdate()
+        {
+            var fullSizeImageTest = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestContent",
+                "2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg"));
+            Assert.True(fullSizeImageTest.Exists,
+                "Test Image 2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg not found");
+
+            var newImageContent = new ImageContent
+            {
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                BodyContent = "Image Body Content",
+                ContentId = Guid.NewGuid(),
+                ContentVersion = DateTime.Now.ToUniversalTime(),
+                CreatedBy = "A30_ImageContentImportAndUpdate",
+                CreatedOn = DateTime.Now,
+                Folder = "Bridges",
+                ShowInSearch = false,
+                Slug = SlugUtility.Create(true, "AZT Under Highway"),
+                Summary = "A trail and bridge story",
+                Tags = "arizona trail,highway 77,wash",
+                Title = "AZT Under Highway",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            };
+
+            var validationReturn = await ImageGenerator.Validate(newImageContent, fullSizeImageTest);
+
+            Assert.False(validationReturn.HasError);
+
+            var saveReturn = await ImageGenerator.SaveAndGenerateHtml(newImageContent, fullSizeImageTest, true,
+                DebugProgressTracker());
+            Assert.False(saveReturn.generationReturn.HasError);
+
+            Assert.IsTrue(newImageContent.MainPicture == newImageContent.ContentId,
+                $"Main Picture - {newImageContent.MainPicture} - Should be set to Content Id {newImageContent.ContentId}");
+
+            var expectedDirectory =
+                UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newImageContent);
+            Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
+
+            var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteImageHtmlFile(newImageContent);
+            Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
+
+            var expectedOriginalImageFileInContent =
+                new FileInfo(Path.Combine(expectedDirectory.FullName, fullSizeImageTest.Name));
+            Assert.IsTrue(expectedOriginalImageFileInContent.Exists,
+                $"Expected to find original image in content directory but {expectedOriginalImageFileInContent.FullName} does not exist");
+
+            var expectedOriginalImageFileInMediaArchive = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory().FullName,
+                expectedOriginalImageFileInContent.Name));
+            Assert.IsTrue(expectedOriginalImageFileInMediaArchive.Exists,
+                $"Expected to find original image in media archive image directory but {expectedOriginalImageFileInMediaArchive.FullName} does not exist");
+
+            //Checking the count of files is useful to make sure there are not any unexpected files
+            var expectedNumberOfFiles =
+                PictureResizing.SrcSetSizeAndQualityList()
+                    .Count //This image should trigger all sizes atm, this will need adjustment if the size list changes
+                + 1 //Original image
+                + 1 //Display image
+                + 1 //html file
+                + 1; //json file
+            Assert.AreEqual(expectedDirectory.GetFiles().Length, expectedNumberOfFiles,
+                "Expected Number of Files Does Not Match");
+
+            //Check that the Picture Asset processing finds all the files
+
+            var pictureAssetInformation = PictureAssetProcessing.ProcessPictureDirectory(newImageContent.ContentId);
+            var pictureAssetImageDbEntry = (ImageContent) pictureAssetInformation.DbEntry;
+            Assert.IsTrue(pictureAssetImageDbEntry.ContentId == newImageContent.ContentId,
+                $"Picture Asset appears to have gotten an incorrect DB entry of {pictureAssetImageDbEntry.ContentId} rather than {newImageContent.ContentId}");
+            Assert.AreEqual(pictureAssetInformation.LargePicture.Width, 4000,
+                "Picture Asset Large Width is not the expected Value");
+            Assert.AreEqual(pictureAssetInformation.SmallPicture.Width, 100,
+                "Picture Asset Small Width is not the expected Value");
+            Assert.AreEqual(pictureAssetInformation.SrcsetImages.Count,
+                PictureResizing.SrcSetSizeAndQualityList().Count, "Did not find the expected number of SrcSet Images");
+
+            //Check JSON File
+            var jsonFile =
+                new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newImageContent).FullName,
+                    $"{Names.ImageContentPrefix}{newImageContent.ContentId}.json"));
+            Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+
+            var jsonFileImported = Import.ContentFromFiles<ImageContent>(
+                new List<string> {jsonFile.FullName}, Names.ImageContentPrefix).Single();
+            var compareLogic = new CompareLogic();
+            var comparisonResult = compareLogic.Compare(newImageContent, jsonFileImported);
+            Assert.True(comparisonResult.AreEqual,
+                $"Json Import does not match expected Image Content {comparisonResult.DifferencesString}");
+
+            //?Check some details of the HTML?
+            var updateWithoutUpdateResult = await ImageGenerator.SaveAndGenerateHtml(newImageContent,
+                expectedOriginalImageFileInMediaArchive, false, DebugProgressTracker());
+            Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
+                "Should not be able to update an entry without LastUpdated Values set");
+
+            var updatedTime = DateTime.Now;
+            newImageContent.Tags += ",testupdatetag";
+            newImageContent.Title += " Updated";
+            newImageContent.LastUpdatedOn = updatedTime;
+            newImageContent.LastUpdatedBy = "Test Image Updater";
+
+            //?Check some details of the HTML?
+            var updateResult = await ImageGenerator.SaveAndGenerateHtml(newImageContent,
+                expectedOriginalImageFileInMediaArchive, false, DebugProgressTracker());
+            Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
+
+            var updatedJsonFileImported = Import.ContentFromFiles<ImageContent>(
+                new List<string> {jsonFile.FullName}, Names.ImageContentPrefix).Single();
+            var updateComparisonResult = compareLogic.Compare(newImageContent, updatedJsonFileImported);
+            Assert.True(updateComparisonResult.AreEqual,
+                $"Updated Json Import does not match expected Updated Image Content {comparisonResult.DifferencesString}");
+
+            //Check Historic JSON File
+            var historicJsonFile = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newImageContent).FullName,
+                $"{Names.HistoricImageContentPrefix}{newImageContent.ContentId}.json"));
+            var historicJsonFileImported = Import
+                .ContentFromFiles<List<HistoricImageContent>>(new List<string> {historicJsonFile.FullName},
+                    Names.HistoricImageContentPrefix).SelectMany(x => x).ToList();
+
+            Assert.AreEqual(1, historicJsonFileImported.Count,
+                "Wrong number of Historic Entries in the Historic Json File");
+
+            var expectedHistoricValues = new HistoricImageContent();
+            expectedHistoricValues.InjectFrom(jsonFileImported);
+            expectedHistoricValues.Id = historicJsonFileImported.First().Id;
+
+            var historicJsonComparisonResult =
+                compareLogic.Compare(expectedHistoricValues, historicJsonFileImported.First());
+            Assert.IsTrue(historicJsonComparisonResult.AreEqual,
+                $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
+
+            newImageContent.Title += " Again";
+            newImageContent.LastUpdatedOn = DateTime.Now;
+            newImageContent.LastUpdatedBy = "Test Image Updater 2";
+
+            var updateTwoResult = await ImageGenerator.SaveAndGenerateHtml(newImageContent,
+                expectedOriginalImageFileInMediaArchive, false, DebugProgressTracker());
+            Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
+
+            historicJsonFileImported = Import
+                .ContentFromFiles<List<HistoricImageContent>>(new List<string> {historicJsonFile.FullName},
+                    Names.HistoricImageContentPrefix).SelectMany(x => x).ToList();
+            Assert.AreEqual(2, historicJsonFileImported.Count,
+                "Wrong number of Historic Entries in the Historic Json File");
+        }
+
+        [Test]
+        public async Task A40_NoteContentImportAndUpdate()
+        {
+            var newNoteContent = new NoteContent
+            {
+                BodyContent = "Grand Canyon Permit Info Link",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                ContentId = Guid.NewGuid(),
+                ContentVersion = DateTime.Now.ToUniversalTime(),
+                CreatedBy = "Test Series A",
+                CreatedOn = DateTime.Now,
+                Folder = "GrandCanyon",
+                ShowInMainSiteFeed = true,
+                Slug = await NoteGenerator.UniqueNoteSlug(),
+                Summary = "GC Quick Info",
+                Tags = "national parks,grand canyon,permits"
+            };
+
+            var validationReturn = await NoteGenerator.Validate(newNoteContent);
+
+            Assert.False(validationReturn.HasError);
+
+            var saveReturn = await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
+            Assert.False(saveReturn.generationReturn.HasError);
+
+            var expectedDirectory =
+                UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newNoteContent);
+            Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
+
+            var expectedNote = UserSettingsSingleton.CurrentSettings().LocalSiteNoteHtmlFile(newNoteContent);
+            Assert.IsTrue(expectedNote.Exists, $"Expected html Note {expectedNote.FullName} does not exist");
+
+            Assert.AreEqual(expectedDirectory.GetFiles().Length, 2, "Expected Number of Files Does Not Match");
+
+            //Check JSON Note
+            var jsonNote =
+                new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newNoteContent).FullName,
+                    $"{Names.NoteContentPrefix}{newNoteContent.ContentId}.json"));
+            Assert.True(jsonNote.Exists, $"Json Note {jsonNote.FullName} does not exist?");
+
+            var jsonNoteImported = Import.ContentFromFiles<NoteContent>(
+                new List<string> {jsonNote.FullName}, Names.NoteContentPrefix).Single();
+            var compareLogic = new CompareLogic();
+            var comparisonResult = compareLogic.Compare(newNoteContent, jsonNoteImported);
+            Assert.True(comparisonResult.AreEqual,
+                $"Json Import does not match expected Note Content {comparisonResult.DifferencesString}");
+
+            //?Check some details of the HTML?
+            var updateWithoutUpdateResult =
+                await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
+            Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
+                "Should not be able to update an entry without LastUpdated Values set");
+
+            var updatedTime = DateTime.Now;
+            newNoteContent.Tags += ",testupdatetag";
+            newNoteContent.LastUpdatedOn = updatedTime;
+            newNoteContent.LastUpdatedBy = "Test Updater";
+
+            //?Check some details of the HTML?
+            var updateResult = await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
+            Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
+
+            var updatedJsonNoteImported = Import.ContentFromFiles<NoteContent>(
+                new List<string> {jsonNote.FullName}, Names.NoteContentPrefix).Single();
+            var updateComparisonResult = compareLogic.Compare(newNoteContent, updatedJsonNoteImported);
+            Assert.True(updateComparisonResult.AreEqual,
+                $"Updated Json Import does not match expected Updated Note Content {comparisonResult.DifferencesString}");
+
+            //Check Historic JSON Note
+            var historicJsonNote = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newNoteContent).FullName,
+                $"{Names.HistoricNoteContentPrefix}{newNoteContent.ContentId}.json"));
+            var historicJsonNoteImported = Import
+                .ContentFromFiles<List<HistoricNoteContent>>(new List<string> {historicJsonNote.FullName},
+                    Names.HistoricNoteContentPrefix).SelectMany(x => x).ToList();
+
+            Assert.AreEqual(1, historicJsonNoteImported.Count,
+                "Wrong number of Historic Entries in the Historic Json Note");
+
+            var expectedHistoricValues = new HistoricNoteContent();
+            expectedHistoricValues.InjectFrom(jsonNoteImported);
+            expectedHistoricValues.Id = historicJsonNoteImported.First().Id;
+
+            var historicJsonComparisonResult =
+                compareLogic.Compare(expectedHistoricValues, historicJsonNoteImported.First());
+            Assert.IsTrue(historicJsonComparisonResult.AreEqual,
+                $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
+
+            newNoteContent.LastUpdatedOn = DateTime.Now;
+            newNoteContent.LastUpdatedBy = "Test Updater 2";
+
+            var updateTwoResult = await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
+            Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
+
+            historicJsonNoteImported = Import
+                .ContentFromFiles<List<HistoricNoteContent>>(new List<string> {historicJsonNote.FullName},
+                    Names.HistoricNoteContentPrefix).SelectMany(x => x).ToList();
+            Assert.AreEqual(2, historicJsonNoteImported.Count,
+                "Wrong number of Historic Entries in the Historic Json Note");
+        }
+
         [OneTimeSetUp]
         public async Task CreateTestSite()
         {

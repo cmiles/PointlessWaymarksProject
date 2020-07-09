@@ -16,7 +16,14 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsData.Html.FileHtml;
+using PointlessWaymarksCmsData.Html.ImageHtml;
+using PointlessWaymarksCmsData.Html.IndexHtml;
+using PointlessWaymarksCmsData.Html.LinkListHtml;
+using PointlessWaymarksCmsData.Html.NoteHtml;
 using PointlessWaymarksCmsData.Html.PhotoGalleryHtml;
+using PointlessWaymarksCmsData.Html.PhotoHtml;
+using PointlessWaymarksCmsData.Html.PostHtml;
 using PointlessWaymarksCmsData.Html.SearchListHtml;
 using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
@@ -39,13 +46,6 @@ using PointlessWaymarksCmsWpfControls.TagList;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
-using IndexPage = PointlessWaymarksCmsData.Html.IndexHtml.IndexPage;
-using LinkListPage = PointlessWaymarksCmsData.Html.LinkListHtml.LinkListPage;
-using SingleFilePage = PointlessWaymarksCmsData.Html.FileHtml.SingleFilePage;
-using SingleImagePage = PointlessWaymarksCmsData.Html.ImageHtml.SingleImagePage;
-using SingleNotePage = PointlessWaymarksCmsData.Html.NoteHtml.SingleNotePage;
-using SinglePhotoPage = PointlessWaymarksCmsData.Html.PhotoHtml.SinglePhotoPage;
-using SinglePostPage = PointlessWaymarksCmsData.Html.PostHtml.SinglePostPage;
 
 namespace PointlessWaymarksCmsContentEditor
 {
@@ -134,7 +134,9 @@ namespace PointlessWaymarksCmsContentEditor
                 new Command(() => StatusContext.RunBlockingTask(GenerateAllDailyPhotoGalleriesHtml));
             GenerateCamerRollCommand = new Command(() => StatusContext.RunBlockingTask(GenerateCameraRollHtml));
 
-            PurgeInvalidPhotoDirectoriesCommand = new Command(async () => await StructureAndMediaContent.PurgePhotoDirectoriesNotFoundInCurrentDatabase(StatusContext.ProgressTracker()));
+            PurgeInvalidPhotoDirectoriesCommand = new Command(async () =>
+                await StructureAndMediaContent.PurgePhotoDirectoriesNotFoundInCurrentDatabase(
+                    StatusContext.ProgressTracker()));
 
             ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
 
@@ -151,8 +153,6 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanUpTemporaryFiles);
         }
-
-        public Command PurgeInvalidPhotoDirectoriesCommand { get; set; }
 
         public Command AllEventsReportCommand { get; set; }
 
@@ -316,6 +316,8 @@ namespace PointlessWaymarksCmsContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public Command PurgeInvalidPhotoDirectoriesCommand { get; set; }
 
         public string RecentSettingsFilesNames
         {
@@ -838,7 +840,7 @@ namespace PointlessWaymarksCmsContentEditor
 
                 var htmlModel = new SingleNotePage(loopItem);
                 htmlModel.WriteLocalHtml();
-                await Export.WriteLocalDbJson(loopItem);
+                await Export.WriteLocalDbJson(loopItem, StatusContext.ProgressTracker());
 
                 loopCount++;
             }

@@ -29,6 +29,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (validationReturn.HasError) return (validationReturn, null);
 
+            toSave.OriginalFileName = selectedFile.Name;
             StructureAndMediaContent.WriteSelectedFileContentFileToMediaArchive(selectedFile);
             await Db.SaveFileContent(toSave);
             WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);

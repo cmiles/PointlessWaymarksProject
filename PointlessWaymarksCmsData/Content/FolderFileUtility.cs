@@ -33,7 +33,7 @@ namespace PointlessWaymarksCmsData.Content
             return true;
         }
 
-        public static bool PhotoFileTypeIsSupported(FileInfo toCheck)
+        public static bool PictureFileTypeIsSupported(FileInfo toCheck)
         {
             if (toCheck == null) return false;
             if (!toCheck.Exists) return false;

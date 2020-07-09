@@ -14,6 +14,7 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
+using PointlessWaymarksCmsData.Html.NoteHtml;
 using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
@@ -21,9 +22,7 @@ using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
-using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
-using SingleNotePage = PointlessWaymarksCmsData.Html.NoteHtml.SingleNotePage;
 
 namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 {
@@ -43,7 +42,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private string _summary;
         private bool _summaryHasChanges;
         private TagsEditorContext _tagEdit;
-        private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
         public NoteContentEditorContext(StatusControlContext statusContext, NoteContent noteContent)
@@ -225,17 +223,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public UpdateNotesEditorContext UpdateNotes
-        {
-            get => _updateNotes;
-            set
-            {
-                if (Equals(value, _updateNotes)) return;
-                _updateNotes = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Command ViewOnSiteCommand
         {
             get => _viewOnSiteCommand;
@@ -313,7 +300,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            if (!propertyName.Contains("HasChanges")) CheckForChanges();
+            if (!propertyName?.Contains("HasChanges") ?? false) CheckForChanges();
         }
 
         private async Task SaveAndCreateLocal()
@@ -330,7 +317,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
             await SaveToDatabase();
             await GenerateHtml();
-            await Export.WriteLocalDbJson(DbEntry);
+            await Export.WriteLocalDbJson(DbEntry, StatusContext.ProgressTracker());
         }
 
 

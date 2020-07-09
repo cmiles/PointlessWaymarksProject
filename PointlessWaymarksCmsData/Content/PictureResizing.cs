@@ -131,7 +131,7 @@ namespace PointlessWaymarksCmsData.Content
         /// </summary>
         /// <param name="dbEntry"></param>
         /// <param name="progress"></param>
-        public static void DeleteSupportedPhotoFilesInPhotoDirectoryOtherThanOriginalFile(PhotoContent dbEntry,
+        public static void DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(PhotoContent dbEntry,
             IProgress<string> progress)
         {
             if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
@@ -143,10 +143,38 @@ namespace PointlessWaymarksCmsData.Content
             var directoryInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
             var fileVariants = directoryInfo.GetFiles().Where(x =>
-                FolderFileUtility.PhotoFileTypeIsSupported(x) && !x.Name.StartsWith($"{baseFileName}--")).ToList();
+                FolderFileUtility.PictureFileTypeIsSupported(x) && !x.Name.StartsWith($"{baseFileName}--")).ToList();
 
             progress?.Report(
                 $"Found {fileVariants.Count} Supported Photo File Type files in {directoryInfo.FullName} that don't match the " +
+                $"original file name {dbEntry.OriginalFileName} from {dbEntry.Title}");
+
+            fileVariants.ForEach(x => x.Delete());
+        }
+
+        /// <summary>
+        ///     Deletes files from the local content directory of the dbEntry that are supported Photo file types but
+        ///     don't match the original file name in the dbEntry. Use with caution and make sure that the PhotoContent
+        ///     is current/has the intended values.
+        /// </summary>
+        /// <param name="dbEntry"></param>
+        /// <param name="progress"></param>
+        public static void DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(ImageContent dbEntry,
+            IProgress<string> progress)
+        {
+            if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+                progress?.Report("Nothing to delete.");
+
+            var baseFileNameList = dbEntry.OriginalFileName.Split(".").ToList();
+            var baseFileName = string.Join("", baseFileNameList.Take(baseFileNameList.Count - 1));
+
+            var directoryInfo = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
+
+            var fileVariants = directoryInfo.GetFiles().Where(x =>
+                FolderFileUtility.PictureFileTypeIsSupported(x) && !x.Name.StartsWith($"{baseFileName}--")).ToList();
+
+            progress?.Report(
+                $"Found {fileVariants.Count} Supported Image File Type files in {directoryInfo.FullName} that don't match the " +
                 $"original file name {dbEntry.OriginalFileName} from {dbEntry.Title}");
 
             fileVariants.ForEach(x => x.Delete());

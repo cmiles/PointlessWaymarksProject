@@ -293,7 +293,7 @@ namespace PointlessWaymarksCmsData.Content
 
             StructureAndMediaContent.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
-            await WriteSelectedFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
+            await WritePhotoFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
             GenerateHtml(toSave, progress);
             await Export.WriteLocalDbJson(toSave);
 
@@ -343,7 +343,7 @@ namespace PointlessWaymarksCmsData.Content
             if (!FolderFileUtility.IsNoUrlEncodingNeededFilename(selectedFile.Name))
                 return await GenerationReturn.Error("Limit File Names to A-Z a-z - . _", photoContent.ContentId);
 
-            if (!FolderFileUtility.PhotoFileTypeIsSupported(selectedFile))
+            if (!FolderFileUtility.PictureFileTypeIsSupported(selectedFile))
                 return await GenerationReturn.Error("The file doesn't appear to be a supported file type.",
                     photoContent.ContentId);
 
@@ -359,7 +359,7 @@ namespace PointlessWaymarksCmsData.Content
             return await GenerationReturn.Success("Photo Content Validation Successful");
         }
 
-        public static async Task WriteSelectedFileFromMediaArchiveToLocalSite(PhotoContent photoContent,
+        public static async Task WritePhotoFromMediaArchiveToLocalSite(PhotoContent photoContent,
             bool forcedResizeOverwriteExistingFiles, IProgress<string> progress)
         {
             var userSettings = UserSettingsSingleton.CurrentSettings();
@@ -378,7 +378,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (!targetFile.Exists) sourceFile.CopyTo(targetFile.FullName);
 
-            PictureResizing.DeleteSupportedPhotoFilesInPhotoDirectoryOtherThanOriginalFile(photoContent, progress);
+            PictureResizing.DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(photoContent, progress);
 
             PictureResizing.CleanDisplayAndSrcSetFilesInPhotoDirectory(photoContent, forcedResizeOverwriteExistingFiles,
                 progress);
