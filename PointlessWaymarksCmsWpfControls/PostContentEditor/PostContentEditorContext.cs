@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.CommonHtml;
-using PointlessWaymarksCmsData.JsonFiles;
-using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PostHtml;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -23,6 +23,7 @@ using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using SinglePostPage = PointlessWaymarksCmsData.Html.PostHtml.SinglePostPage;
 
 namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 {

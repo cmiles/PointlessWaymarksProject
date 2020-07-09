@@ -16,15 +16,15 @@ using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.CommonHtml;
-using PointlessWaymarksCmsData.Generation;
-using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PhotoHtml;
-using PointlessWaymarksCmsData.Pictures;
+using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using SinglePhotoPage = PointlessWaymarksCmsData.Html.PhotoHtml.SinglePhotoPage;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoList
 {

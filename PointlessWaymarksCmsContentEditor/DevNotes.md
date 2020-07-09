@@ -43,6 +43,11 @@
 
 ## Notes
 
+7/9/2020
+
+Reworked the organization on the data project - I'm not 100% confident that this matters or is 'right' but it does feel immediately more reasonable.
+  - The T4 templates were the biggest problem - on the eap version of resharper I am currently using the ForTea plugin doesn't seem available and I wonder if there is any chance it could have helped? At least the generated content gives good errors to work from - but I wonder if it might be time to look again at Razor templates, last time I looked it seemed possible but also messy.
+
 7/8/2020
 
 Changed out Photo and Image types to have Body Content - my original thought was that a Photo with Body Content should be a post, that still strikes me as reasonable but recent images like the Roskruge map made me think about how some images are 'pure images' and some are 'resources' where the page for the item should present more information as needed. I had already started down this path a bit with the 'Image Source Notes' field for images, I think this just takes it out to a logical conclusion. At this point too based on the use of files I am more comfortable with 'views' of a file/image/photo that does give you the Body text and don't feel the need to incorporate it in every view...

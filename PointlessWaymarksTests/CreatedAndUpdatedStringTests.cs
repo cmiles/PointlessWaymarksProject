@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
-using PointlessWaymarksCmsData.Models;
-using static PointlessWaymarksCmsData.CommonHtml.Tags;
+using PointlessWaymarksCmsData.Database.Models;
+using static PointlessWaymarksCmsData.Html.CommonHtml.Tags;
 
 namespace PointlessWaymarksTests
 {

@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
 {

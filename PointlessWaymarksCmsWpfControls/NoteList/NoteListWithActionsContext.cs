@@ -10,12 +10,13 @@ using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.NoteHtml;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.NoteContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using SingleNotePage = PointlessWaymarksCmsData.Html.NoteHtml.SingleNotePage;
 
 namespace PointlessWaymarksCmsWpfControls.NoteList
 {

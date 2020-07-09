@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 {

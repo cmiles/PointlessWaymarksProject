@@ -13,12 +13,12 @@ using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.CommonHtml;
-using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
-using PointlessWaymarksCmsData.ImageHtml;
-using PointlessWaymarksCmsData.JsonFiles;
-using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.Pictures;
+using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html;
+using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -29,6 +29,7 @@ using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using SingleImagePage = PointlessWaymarksCmsData.Html.ImageHtml.SingleImagePage;
 
 namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 {

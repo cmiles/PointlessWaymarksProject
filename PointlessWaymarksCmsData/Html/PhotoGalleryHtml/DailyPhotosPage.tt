@@ -1,0 +1,68 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="PointlessWaymarksCmsData.Html.CommonHtml" #>
+<#@ import namespace="PointlessWaymarksCmsData" #>
+<#@ import namespace="PointlessWaymarksCmsData.Database.Models" #>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title><#=Title.HtmlEncode() #></title>
+    <meta name="description" content="<#=Summary.HtmlEncode() #>">
+    <meta name="author" content="<#=CreatedBy.HtmlEncode() #>">
+    <meta name="keywords" content="<#= string.Join(",", PhotoTags).HtmlEncode() #>" >
+
+    <meta property="og:site_name" content="<#=SiteName.HtmlEncode() #>" />
+    <meta property="og:url" content="https:<#=PageUrl #>" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="<#=Title.HtmlEncode() #>" />
+    <meta property="og:description" content="<#= Summary.HtmlEncode() #>" />
+
+    <#= Tags.OpenGraphImageMetaTags(MainImage) #>
+
+    <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
+    <meta name="DC.Title" content="<#=Title.HtmlEncode() #>">
+    <meta name ="DC.Creator" content="<#=CreatedBy.HtmlEncode() #>">
+    <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
+    <meta name="DC.Description" content="<#=Summary.HtmlEncode() #>">
+    <meta name="DC.Date" content="<#=
+                PhotoPageDate.ToString("yyyy-MM-dd").HtmlEncode() #>">
+    <meta name="DC.Format" content="text/html">
+    <meta name="DC.Language" content="en-US">
+
+    <link rel="alternate" type="application/rss+xml" 
+      title="<#=
+                $"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Photos".HtmlEncode() #>"
+      href="https:<#=
+                UserSettingsSingleton.CurrentSettings().PhotoRssUrl() #>" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <#= Tags.CssStyleFileString() #>
+    <#= Tags.FavIconFileString() #>
+
+</head>
+
+<body>
+    <#= Tags.StandardHeader().ToString() #>
+    <#= HorizontalRule.StandardRule() #>
+    <#= Tags.TitleDiv(Title).ToString() #>
+    <#=
+                DailyPhotosPageParts.PhotoList(ImageList) #>
+    <#= HorizontalRule.StandardRule() #>
+    <div class="information-section">
+        <#= Tags.TagList(PhotoTags).ToString() #>
+        <#=
+                BodyContentReferences.RelatedContentTag(
+                    ImageList.Select(x => ((IContentId) x.Pictures.DbEntry).ContentId).ToList()).Result #>
+        <#=
+                DailyPhotosPageParts.PreviousAndNextPostsDiv(this) #>
+    </div>
+    <#= HorizontalRule.StandardRule() #>
+    <#= Footer.StandardFooterDiv() #>
+</body>
+
+</html>

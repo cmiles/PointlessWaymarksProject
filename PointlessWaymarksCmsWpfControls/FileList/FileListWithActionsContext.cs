@@ -13,12 +13,13 @@ using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.FileHtml;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using SingleFilePage = PointlessWaymarksCmsData.Html.FileHtml.SingleFilePage;
 
 namespace PointlessWaymarksCmsWpfControls.FileList
 {

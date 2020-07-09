@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Database;
 using WpfScreenHelper;
 using Point = System.Drawing.Point;
 

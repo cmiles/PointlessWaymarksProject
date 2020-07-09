@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using ClosedXML.Excel;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
 {

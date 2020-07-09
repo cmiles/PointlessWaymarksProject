@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 

@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PointlessWaymarksCmsData.FolderStructureAndGeneratedContent;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html;
 
 namespace PointlessWaymarksCmsData
 {

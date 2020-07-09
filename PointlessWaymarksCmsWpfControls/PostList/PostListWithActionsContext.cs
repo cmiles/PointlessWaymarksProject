@@ -11,13 +11,14 @@ using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.CommonHtml;
-using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.PostHtml;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using SinglePostPage = PointlessWaymarksCmsData.Html.PostHtml.SinglePostPage;
 
 namespace PointlessWaymarksCmsWpfControls.PostList
 {

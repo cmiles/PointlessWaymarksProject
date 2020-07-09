@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Web;
-using PointlessWaymarksCmsData.CommonHtml;
-using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.Pictures;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html.CommonHtml;
 
 namespace PointlessWaymarksCmsData.Rss
 {

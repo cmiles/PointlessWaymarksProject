@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 

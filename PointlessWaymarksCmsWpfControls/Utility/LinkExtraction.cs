@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.LinkStreamEditor;
 
 namespace PointlessWaymarksCmsWpfControls.Utility

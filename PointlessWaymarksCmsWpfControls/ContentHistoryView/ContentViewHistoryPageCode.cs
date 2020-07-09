@@ -7,6 +7,7 @@ using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using Markdig;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
 
 namespace PointlessWaymarksCmsWpfControls.ContentHistoryView
 {

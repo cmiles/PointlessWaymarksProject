@@ -4,7 +4,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 
 namespace PointlessWaymarksCmsWpfControls.TagsEditor

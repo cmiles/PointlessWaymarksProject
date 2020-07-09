@@ -7,13 +7,15 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
+
+using PointlessWaymarksCmsData.Html.CommonHtml;
+
 namespace PointlessWaymarksCmsWpfControls.ContentHistoryView
 {
     using System.Linq;
     using System.Text;
     using System.Collections.Generic;
     using AngleSharp.Text;
-    using PointlessWaymarksCmsData.CommonHtml;
     using PointlessWaymarksCmsData;
     using System;
     

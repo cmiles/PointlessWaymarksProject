@@ -1,0 +1,9 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="PointlessWaymarksCmsData.Html.CommonHtml" #>
+
+<div class="content-container">
+    <#= Tags.TitleLinkDiv(DbEntry, DbEntry).ToString() #>
+    <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
+    <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
+</div>

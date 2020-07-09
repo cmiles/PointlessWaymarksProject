@@ -10,9 +10,11 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.JsonFiles;
-using PointlessWaymarksCmsData.Models;
-using PointlessWaymarksCmsData.NoteHtml;
+using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html;
+using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -21,6 +23,7 @@ using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using SingleNotePage = PointlessWaymarksCmsData.Html.NoteHtml.SingleNotePage;
 
 namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 {

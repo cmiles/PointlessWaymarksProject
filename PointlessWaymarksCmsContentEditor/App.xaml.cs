@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using Jot;
 using Jot.Storage;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Database;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
