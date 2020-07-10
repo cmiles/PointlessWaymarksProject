@@ -79,15 +79,11 @@ namespace PointlessWaymarksCmsData.Content
                 return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
                     noteContent.ContentId);
 
-            var commonContentCheck = CommonContentValidation.ValidateContentCommon(noteContent);
-            if (!commonContentCheck.Item1)
-                return await GenerationReturn.Error(commonContentCheck.Item2, noteContent.ContentId);
+            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(noteContent);
+            if (!commonContentCheck.valid)
+                return await GenerationReturn.Error(commonContentCheck.explanation, noteContent.ContentId);
 
             if (noteContent == null) return await GenerationReturn.Error("Note Content is Null?");
-
-            if (await (await Db.Context()).SlugExistsInDatabase(noteContent.Slug, noteContent.ContentId))
-                return await GenerationReturn.Error("This slug already exists in the database - slugs must be unique.",
-                    noteContent.ContentId);
 
             return await GenerationReturn.Success("Note Content Validation Successful");
         }

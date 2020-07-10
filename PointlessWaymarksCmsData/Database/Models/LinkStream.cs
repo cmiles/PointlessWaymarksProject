@@ -16,10 +16,10 @@ namespace PointlessWaymarksCmsData.Database.Models
         public string Site { get; set; }
         public string Title { get; set; }
         public string Url { get; set; }
-        public int Id { get; set; }
 
         public Guid ContentId { get; set; }
         public DateTime ContentVersion { get; set; }
+        public int Id { get; set; }
 
 
         public string CreatedBy { get; set; }

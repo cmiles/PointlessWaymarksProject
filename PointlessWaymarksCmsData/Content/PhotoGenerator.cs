@@ -72,7 +72,7 @@ namespace PointlessWaymarksCmsData.Content
             else
             {
                 var createdOnParsed = DateTime.TryParseExact(
-                    exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal), "yyyy:MM:dd HH:mm:ss",
+                    exifSubIfDirectory.GetDescription(ExifDirectoryBase.TagDateTimeOriginal), "yyyy:MM:dd HH:mm:ss",
                     CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate);
 
                 toReturn.PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
@@ -188,10 +188,9 @@ namespace PointlessWaymarksCmsData.Content
             }
             else
             {
-                if (string.IsNullOrWhiteSpace(toReturn.Title))
-                    toReturn.Title = toReturn.PhotoCreatedOn.ToString("yyyy MMMM dd h-mm-ss tt");
-                else
-                    toReturn.Title = $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title}";
+                toReturn.Title = string.IsNullOrWhiteSpace(toReturn.Title)
+                    ? toReturn.PhotoCreatedOn.ToString("yyyy MMMM dd h-mm-ss tt")
+                    : $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title}";
             }
 
 
@@ -329,9 +328,9 @@ namespace PointlessWaymarksCmsData.Content
                 return await GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Item2}",
                     photoContent.ContentId);
 
-            var commonContentCheck = CommonContentValidation.ValidateContentCommon(photoContent);
-            if (!commonContentCheck.Item1)
-                return await GenerationReturn.Error(commonContentCheck.Item2, photoContent.ContentId);
+            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(photoContent);
+            if (!commonContentCheck.valid)
+                return await GenerationReturn.Error(commonContentCheck.explanation, photoContent.ContentId);
 
             selectedFile.Refresh();
 
@@ -340,7 +339,7 @@ namespace PointlessWaymarksCmsData.Content
             if (!selectedFile.Exists)
                 return await GenerationReturn.Error("Selected File doesn't exist?", photoContent.ContentId);
 
-            if (!FolderFileUtility.IsNoUrlEncodingNeededFilename(selectedFile.Name))
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(selectedFile.Name))
                 return await GenerationReturn.Error("Limit File Names to A-Z a-z - . _", photoContent.ContentId);
 
             if (!FolderFileUtility.PictureFileTypeIsSupported(selectedFile))
@@ -350,10 +349,6 @@ namespace PointlessWaymarksCmsData.Content
             if (await (await Db.Context()).PhotoFilenameExistsInDatabase(selectedFile.Name, photoContent.ContentId))
                 return await GenerationReturn.Error(
                     "This filename already exists in the database - photo file names must be unique.",
-                    photoContent.ContentId);
-
-            if (await (await Db.Context()).SlugExistsInDatabase(photoContent.Slug, photoContent.ContentId))
-                return await GenerationReturn.Error("This slug already exists in the database - slugs must be unique.",
                     photoContent.ContentId);
 
             return await GenerationReturn.Success("Photo Content Validation Successful");

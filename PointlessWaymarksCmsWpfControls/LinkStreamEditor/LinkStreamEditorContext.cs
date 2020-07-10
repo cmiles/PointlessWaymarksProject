@@ -531,6 +531,9 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
             if (!(propertyName.Contains("HasChanges") || propertyName.Contains("HaveChanges"))) CheckForChanges();
         }
 

@@ -87,7 +87,10 @@ namespace PointlessWaymarksCmsWpfControls.ShowInSearchEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            if (!propertyName?.Contains("HasChanges") ?? false) CheckForChanges();
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
     }
 }

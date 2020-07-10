@@ -11,13 +11,11 @@ namespace PointlessWaymarksCmsData.Content
         }
 
         /// <summary>
-        ///     This checks if a File Name 'Is Valid' which currently means only contains a limited subset of characters that do
-        ///     not
-        ///     need to be URL encoded.
+        ///     This checks if a string is 'no url encoding needed'
         /// </summary>
         /// <param name="testName"></param>
         /// <returns></returns>
-        public static bool IsNoUrlEncodingNeededFilename(string testName)
+        public static bool IsNoUrlEncodingNeeded(string testName)
         {
             if (string.IsNullOrWhiteSpace(testName)) return false;
 

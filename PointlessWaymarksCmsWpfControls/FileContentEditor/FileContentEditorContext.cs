@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,9 +11,7 @@ using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
-using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
@@ -547,16 +544,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            var validationList = await ValidateAll();
-
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
-                return;
-            }
-
             var saveResult = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), SelectedFile, true,
                 StatusContext.ProgressTracker());
 
@@ -591,8 +578,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            HelpContext = new HelpDisplayContext(FileContentHelpMarkdown.HelpBlock + Environment.NewLine +
-                                                 BracketCodeHelpMarkdown.HelpBlock);
+            HelpContext = new HelpDisplayContext(FileContentHelpMarkdown.HelpBlock + Environment.NewLine + BracketCodeHelpMarkdown.HelpBlock);
 
             ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
             SaveAndGenerateHtmlCommand = new Command(() =>
@@ -609,37 +595,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             LinkToClipboardCommand = new Command(() => StatusContext.RunNonBlockingTask(LinkToClipboard));
             DownloadLinkToClipboardCommand =
                 new Command(() => StatusContext.RunNonBlockingTask(DownloadLinkToClipboard));
-        }
-
-        private async Task<(bool, string)> Validate()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedFile == null || !SelectedFile.Exists)
-                return (false, "No Selected File?");
-
-            if (await (await Db.Context()).FileFilenameExistsInDatabase(SelectedFile.Name, DbEntry?.ContentId))
-                return (false, "This filename already exists in the database - image file names must be unique.");
-
-            if (await (await Db.Context()).SlugExistsInDatabase(TitleSummarySlugFolder.Slug, DbEntry?.ContentId))
-                return (false, "This slug already exists in the database - slugs must be unique.");
-
-            return (true, string.Empty);
-        }
-
-        private async Task<List<(bool, string)>> ValidateAll()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            StatusContext.Progress("Running Validations");
-
-            return new List<(bool, string)>
-            {
-                UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
-                await TitleSummarySlugFolder.Validate(),
-                await CreatedUpdatedDisplay.Validate(),
-                await Validate()
-            };
         }
 
         private async Task ViewOnSite()

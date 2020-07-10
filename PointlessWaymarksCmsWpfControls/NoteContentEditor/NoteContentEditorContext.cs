@@ -300,7 +300,10 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            if (!propertyName?.Contains("HasChanges") ?? false) CheckForChanges();
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
         private async Task SaveAndCreateLocal()
@@ -434,7 +437,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
             if (!isValid) return (false, errorMessage);
 
-            if (!FolderFileUtility.IsNoUrlEncodingNeededFilename(Folder))
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(Folder))
             {
                 isValid = false;
                 errorMessage += "Folders have illegal characters...";

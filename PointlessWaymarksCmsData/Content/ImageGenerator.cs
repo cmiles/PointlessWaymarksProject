@@ -41,19 +41,6 @@ namespace PointlessWaymarksCmsData.Content
             return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
-        public static async Task<(GenerationReturn generationReturn, ImageContent imageContent)> SaveToDb(
-            ImageContent toSave, FileInfo selectedFile, IProgress<string> progress)
-        {
-            var validationReturn = await Validate(toSave, selectedFile);
-
-            if (validationReturn.HasError) return (validationReturn, null);
-
-            StructureAndMediaContent.WriteSelectedImageContentFileToMediaArchive(selectedFile);
-            await Db.SaveImageContent(toSave);
-
-            return (await GenerationReturn.Success($"Saved {toSave.Title}"), toSave);
-        }
-
         public static async Task<GenerationReturn> Validate(ImageContent imageContent, FileInfo selectedFile)
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
@@ -67,9 +54,9 @@ namespace PointlessWaymarksCmsData.Content
                 return await GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Item2}",
                     imageContent.ContentId);
 
-            var commonContentCheck = CommonContentValidation.ValidateContentCommon(imageContent);
-            if (!commonContentCheck.Item1)
-                return await GenerationReturn.Error(commonContentCheck.Item2, imageContent.ContentId);
+            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(imageContent);
+            if (!commonContentCheck.valid)
+                return await GenerationReturn.Error(commonContentCheck.explanation, imageContent.ContentId);
 
             selectedFile.Refresh();
 
@@ -78,7 +65,7 @@ namespace PointlessWaymarksCmsData.Content
             if (!selectedFile.Exists)
                 return await GenerationReturn.Error("Selected File doesn't exist?", imageContent.ContentId);
 
-            if (!FolderFileUtility.IsNoUrlEncodingNeededFilename(selectedFile.Name))
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(selectedFile.Name))
                 return await GenerationReturn.Error("Limit File Names to A-Z a-z - . _", imageContent.ContentId);
 
             if (!FolderFileUtility.PictureFileTypeIsSupported(selectedFile))
@@ -88,10 +75,6 @@ namespace PointlessWaymarksCmsData.Content
             if (await (await Db.Context()).ImageFilenameExistsInDatabase(selectedFile.Name, imageContent.ContentId))
                 return await GenerationReturn.Error(
                     "This filename already exists in the database - image file names must be unique.",
-                    imageContent.ContentId);
-
-            if (await (await Db.Context()).SlugExistsInDatabase(imageContent.Slug, imageContent.ContentId))
-                return await GenerationReturn.Error("This slug already exists in the database - slugs must be unique.",
                     imageContent.ContentId);
 
             return await GenerationReturn.Success("Image Content Validation Successful");

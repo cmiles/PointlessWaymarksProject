@@ -148,50 +148,6 @@ namespace PointlessWaymarksCmsData.Html
             return imageCheck;
         }
 
-        public static (bool isValid, string explanation) FolderAndSlugCreateValidUri(List<string> folderList,
-            string slug)
-        {
-            var isValid = true;
-            var explanation = string.Empty;
-
-            if (string.IsNullOrWhiteSpace(slug))
-            {
-                isValid = false;
-                explanation = "Folder and Slug must only use lower case.";
-            }
-
-            if (!isValid) return (false, explanation);
-
-            if (slug.Any(char.IsUpper) || folderList.Any(x => x.Any(char.IsUpper)))
-            {
-                isValid = false;
-                explanation = "Folder and Slug must only use lower case.";
-            }
-
-            if (!isValid) return (false, explanation);
-
-            var uriToCheck = $@"//{string.Join("/", folderList)}{(folderList.Any() ? "/" : "")}{slug}";
-
-            if (!Uri.IsWellFormedUriString(uriToCheck, UriKind.RelativeOrAbsolute))
-            {
-                isValid = false;
-                explanation = "Folders and Slug do not form a legal uri - illegal characters?";
-            }
-
-            return (isValid, explanation);
-        }
-
-        public static async Task<bool> ImageFilenameExistsInDatabase(this PointlessWaymarksContext context,
-            string filename)
-        {
-            if (string.IsNullOrWhiteSpace(filename)) return false;
-
-            var imageCheck =
-                await context.ImageContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
-
-            return imageCheck;
-        }
-
         public static async Task<bool> ImageFilenameExistsInDatabase(this PointlessWaymarksContext context,
             string filename, Guid? exceptInThisContent)
         {
@@ -207,17 +163,6 @@ namespace PointlessWaymarksCmsData.Html
                     x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
 
             return imageCheck;
-        }
-
-        public static async Task<bool> PhotoFilenameExistsInDatabase(this PointlessWaymarksContext context,
-            string filename)
-        {
-            if (string.IsNullOrWhiteSpace(filename)) return false;
-
-            var photoCheck =
-                await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
-
-            return photoCheck;
         }
 
         public static async Task<bool> PhotoFilenameExistsInDatabase(this PointlessWaymarksContext context,

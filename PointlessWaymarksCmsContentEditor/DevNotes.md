@@ -1,9 +1,10 @@
 ﻿## Todos
  - Content Testing:
+  - Finish up link generation and testing
   - Folder structure clean up routines - Photos written, need other content types and integration
   - Add tests for the common content validation
-  - Need Generation and Integration tests for links - file, photo, image and note done
-  - Need to integrate image and note changes back into the gui editors
+  - Need to integrate image, note and link changes back into the gui editors
+ - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - Look at using NavLink tag in menu and/or wrapping with nav tag
  - A bad content code should be handled better
  - Wrap the Out of Memory that System.Drawing Image FromFile can throw that doesn't actually mean out of memory and rather means 'format issue'

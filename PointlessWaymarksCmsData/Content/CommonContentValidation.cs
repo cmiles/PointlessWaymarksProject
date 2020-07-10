@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html;
 
 namespace PointlessWaymarksCmsData.Content
 {
     public static class CommonContentValidation
     {
-        public static (bool valid, string explanation) ValidateContentCommon(IContentCommon toValidate)
+        public static async Task<(bool valid, string explanation)> ValidateContentCommon(IContentCommon toValidate)
         {
             if (toValidate == null) return (false, "Null Content to Validate");
 
@@ -19,12 +23,6 @@ namespace PointlessWaymarksCmsData.Content
             {
                 isValid = false;
                 errorMessage.Add("Content ID is Empty");
-            }
-
-            if (toValidate.CreatedOn == DateTime.MinValue)
-            {
-                isValid = false;
-                errorMessage.Add($"Created on of {toValidate.CreatedOn} is not valid.");
             }
 
             if (toValidate.ContentVersion == DateTime.MinValue)
@@ -45,10 +43,32 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add("Summary can not be blank.");
             }
 
+            var (createdUpdatedIsValid, createdUpdatedExplanation) =
+                ValidateCreatedAndUpdatedBy(toValidate, isNewEntry);
+
+            if (!createdUpdatedIsValid)
+            {
+                isValid = false;
+                errorMessage.Add(createdUpdatedExplanation);
+            }
+
             if (string.IsNullOrWhiteSpace(toValidate.Slug))
             {
                 isValid = false;
                 errorMessage.Add("Slug can not be blank.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(toValidate.Slug))
+            {
+                if (!FolderFileUtility.IsNoUrlEncodingNeeded(toValidate.Slug) || !toValidate.Slug.All(char.IsLower))
+                {
+                    isValid = false;
+                    errorMessage.Add("Limit Slugs to a-z - . _");
+                }
+
+                if (await (await Db.Context()).SlugExistsInDatabase(toValidate.Slug, toValidate.ContentId))
+                    isValid = false;
+                errorMessage.Add("This slug already exists in the database - slugs must be unique.");
             }
 
             if (string.IsNullOrWhiteSpace(toValidate.Folder))
@@ -58,17 +78,33 @@ namespace PointlessWaymarksCmsData.Content
             }
             else
             {
-                if (!FolderFileUtility.IsNoUrlEncodingNeededFilename(toValidate.Folder))
+                if (!FolderFileUtility.IsNoUrlEncodingNeeded(toValidate.Folder))
                 {
                     isValid = false;
                     errorMessage.Add("Limit Folder Names to A-Z a-z - . _");
                 }
             }
 
-            if (isNewEntry && string.IsNullOrWhiteSpace(toValidate.CreatedBy))
+
+            return (isValid, string.Join(Environment.NewLine, errorMessage));
+        }
+
+        public static (bool valid, string explanation) ValidateCreatedAndUpdatedBy(
+            ICreatedAndLastUpdateOnAndBy toValidate, bool isNewEntry)
+        {
+            var isValid = true;
+            var errorMessage = new List<string>();
+
+            if (toValidate.CreatedOn == DateTime.MinValue)
             {
                 isValid = false;
-                errorMessage.Add("Created by can not be blank for a new entry.");
+                errorMessage.Add($"Created on of {toValidate.CreatedOn} is not valid.");
+            }
+
+            if (string.IsNullOrWhiteSpace(toValidate.CreatedBy))
+            {
+                isValid = false;
+                errorMessage.Add("Created by can not be blank.");
             }
 
             if (!isNewEntry && string.IsNullOrWhiteSpace(toValidate.LastUpdatedBy))

@@ -55,8 +55,8 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
-            SelectedContentFormatHasChanges =
-                StringHelpers.TrimNullSafe(InitialValue) != SelectedContentFormatAsString.TrimNullSafe();
+            SelectedContentFormatHasChanges = StringHelpers.TrimNullSafe(InitialValue) !=
+                                              SelectedContentFormatAsString.TrimNullSafe();
             // ReSharper restore InvokeAsExtensionMethod
         }
 
@@ -116,6 +116,9 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
             if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 

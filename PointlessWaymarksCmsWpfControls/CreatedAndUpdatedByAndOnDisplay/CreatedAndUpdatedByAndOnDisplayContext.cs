@@ -15,51 +15,21 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
     {
         private string _createdAndUpdatedByAndOn;
         private string _createdBy = string.Empty;
+        private bool _createdByHasChanges;
         private DateTime? _createdOn;
         private ICreatedAndLastUpdateOnAndBy _dbEntry;
+        private bool _isNewEntry;
         private bool _showCreatedByEditor;
         private bool _showUpdatedByEditor;
         private string _updatedBy = string.Empty;
-        private DateTime? _updatedOn;
-        private bool _createdByHasChanges;
         private bool _updatedHasChanges;
-        private bool _isNewEntry;
+        private DateTime? _updatedOn;
 
         public CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
             ICreatedAndLastUpdateOnAndBy dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
-        }
-
-        private void CheckForChanges()
-        {
-            // ReSharper disable InvokeAsExtensionMethod
-            CreatedByHasChanges = CreatedBy.TrimNullSafe() != StringHelpers.TrimNullSafe(DbEntry?.CreatedBy);
-            UpdatedHasChanges = UpdatedBy.TrimNullSafe() != StringHelpers.TrimNullSafe(DbEntry?.LastUpdatedBy);
-            // ReSharper restore InvokeAsExtensionMethod
-        }
-
-        public bool UpdatedHasChanges
-        {
-            get => _updatedHasChanges;
-            set
-            {
-                if (value == _updatedHasChanges) return;
-                _updatedHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool CreatedByHasChanges
-        {
-            get => _createdByHasChanges;
-            set
-            {
-                if (value == _createdByHasChanges) return;
-                _createdByHasChanges = value;
-                OnPropertyChanged();
-            }
         }
 
         public string CreatedAndUpdatedByAndOn
@@ -84,6 +54,17 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
+        public bool CreatedByHasChanges
+        {
+            get => _createdByHasChanges;
+            set
+            {
+                if (value == _createdByHasChanges) return;
+                _createdByHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public DateTime? CreatedOn
         {
             get => _createdOn;
@@ -102,6 +83,17 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsNewEntry
+        {
+            get => _isNewEntry;
+            set
+            {
+                if (value == _isNewEntry) return;
+                _isNewEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -141,6 +133,17 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
+        public bool UpdatedHasChanges
+        {
+            get => _updatedHasChanges;
+            set
+            {
+                if (value == _updatedHasChanges) return;
+                _updatedHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public DateTime? UpdatedOn
         {
             get => _updatedOn;
@@ -152,15 +155,14 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
-        public bool IsNewEntry
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void CheckForChanges()
         {
-            get => _isNewEntry;
-            set
-            {
-                if (value == _isNewEntry) return;
-                _isNewEntry = value;
-                OnPropertyChanged();
-            }
+            // ReSharper disable InvokeAsExtensionMethod
+            CreatedByHasChanges = CreatedBy.TrimNullSafe() != StringHelpers.TrimNullSafe(DbEntry?.CreatedBy);
+            UpdatedHasChanges = UpdatedBy.TrimNullSafe() != StringHelpers.TrimNullSafe(DbEntry?.LastUpdatedBy);
+            // ReSharper restore InvokeAsExtensionMethod
         }
 
         public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)
@@ -172,13 +174,8 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             IsNewEntry = false;
 
             if (toLoad == null)
-            {
                 IsNewEntry = true;
-            }
-            else if (((IContentId) DbEntry).Id < 1)
-            {
-                IsNewEntry = true;
-            }
+            else if (((IContentId) DbEntry).Id < 1) IsNewEntry = true;
 
             CreatedBy = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
                 ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
@@ -227,6 +224,9 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
             if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
@@ -242,7 +242,5 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
 
             return (true, string.Empty);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

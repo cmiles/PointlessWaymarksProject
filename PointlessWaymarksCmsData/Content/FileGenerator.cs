@@ -42,19 +42,6 @@ namespace PointlessWaymarksCmsData.Content
             return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
-        public static async Task<(GenerationReturn generationReturn, FileContent fileContent)> SaveToDb(
-            FileContent toSave, FileInfo selectedFile, IProgress<string> progress)
-        {
-            var validationReturn = await Validate(toSave, selectedFile);
-
-            if (validationReturn.HasError) return (validationReturn, null);
-
-            StructureAndMediaContent.WriteSelectedFileContentFileToMediaArchive(selectedFile);
-            await Db.SaveFileContent(toSave);
-
-            return (await GenerationReturn.Success($"Saved {toSave.Title}"), toSave);
-        }
-
         public static async Task<GenerationReturn> Validate(FileContent fileContent, FileInfo selectedFile)
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
@@ -68,7 +55,7 @@ namespace PointlessWaymarksCmsData.Content
                 return await GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Item2}",
                     fileContent.ContentId);
 
-            var commonContentCheck = CommonContentValidation.ValidateContentCommon(fileContent);
+            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(fileContent);
             if (!commonContentCheck.Item1)
                 return await GenerationReturn.Error(commonContentCheck.Item2, fileContent.ContentId);
 
@@ -79,16 +66,12 @@ namespace PointlessWaymarksCmsData.Content
             if (!selectedFile.Exists)
                 return await GenerationReturn.Error("Selected File doesn't exist?", fileContent.ContentId);
 
-            if (!FolderFileUtility.IsNoUrlEncodingNeededFilename(selectedFile.Name))
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(selectedFile.Name))
                 return await GenerationReturn.Error("Limit File Names to A-Z a-z - . _", fileContent.ContentId);
 
             if (await (await Db.Context()).FileFilenameExistsInDatabase(selectedFile.Name, fileContent.ContentId))
                 return await GenerationReturn.Error(
                     "This filename already exists in the database - file names must be unique.", fileContent.ContentId);
-
-            if (await (await Db.Context()).SlugExistsInDatabase(fileContent.Slug, fileContent.ContentId))
-                return await GenerationReturn.Error("This slug already exists in the database - slugs must be unique.",
-                    fileContent.ContentId);
 
             return await GenerationReturn.Success("File Content Validation Successful");
         }

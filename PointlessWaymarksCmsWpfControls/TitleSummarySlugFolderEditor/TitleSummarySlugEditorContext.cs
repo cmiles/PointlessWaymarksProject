@@ -195,6 +195,9 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
             if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
@@ -236,7 +239,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             if (!isValid) return (isValid, errorMessage);
 
-            if (!FolderFileUtility.IsNoUrlEncodingNeededFilename(Folder))
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(Folder))
             {
                 isValid = false;
                 errorMessage += "Folders have illegal characters...";
