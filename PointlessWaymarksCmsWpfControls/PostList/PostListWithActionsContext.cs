@@ -14,11 +14,11 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsData.Html.PostHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
-using SinglePostPage = PointlessWaymarksCmsData.Html.PostHtml.SinglePostPage;
 
 namespace PointlessWaymarksCmsWpfControls.PostList
 {
@@ -315,8 +315,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             header.Style("text-align", "center");
             var postAddress = $"https:{UserSettingsSingleton.CurrentSettings().PostPageUrl(frozenSelected.DbEntry)}";
             var postLink =
-                new LinkTag(
-                    $"{UserSettingsSingleton.CurrentSettings().SiteName.HtmlEncode()} - {frozenSelected.DbEntry.Title.HtmlEncode()}",
+                new LinkTag($"{UserSettingsSingleton.CurrentSettings().SiteName} - {frozenSelected.DbEntry.Title}",
                     postAddress);
             header.Children.Add(postLink);
 
