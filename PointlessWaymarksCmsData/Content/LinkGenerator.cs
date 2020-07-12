@@ -180,7 +180,7 @@ namespace PointlessWaymarksCmsData.Content
         public static async Task<GenerationReturn> SaveLinkToPinboard(LinkStream toSave, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
-                return await GenerationReturn.Success("No PinkboardApiToken - skipping save to Pinboard",
+                return await GenerationReturn.Success("No PinboardApiToken - skipping save to Pinboard",
                     toSave.ContentId);
 
             var descriptionFragments = new List<string>();

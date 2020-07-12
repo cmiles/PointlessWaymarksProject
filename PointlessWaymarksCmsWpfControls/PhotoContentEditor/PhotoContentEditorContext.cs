@@ -3,15 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Web;
 using System.Windows.Media.Imaging;
-using HtmlTableHelper;
 using JetBrains.Annotations;
-using MetadataExtractor;
-using MetadataExtractor.Formats.Xmp;
 using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
@@ -21,13 +16,13 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
-using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
@@ -754,7 +749,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
             SaveAndGenerateHtmlCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
-            ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ViewPhotoMetadata));
+            ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
+                await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext)));
             SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
@@ -781,57 +777,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             var url = $@"http://{settings.PhotoPageUrl(DbEntry)}";
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
-        }
-
-        private async Task ViewPhotoMetadata()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedFile == null)
-            {
-                StatusContext.ToastError("No photo...");
-                return;
-            }
-
-            SelectedFile.Refresh();
-
-            if (!SelectedFile.Exists)
-            {
-                StatusContext.ToastError("File doesn't exist.");
-                return;
-            }
-
-            var photoMetaTags = ImageMetadataReader.ReadMetadata(SelectedFile.FullName);
-
-            var tagHtml = photoMetaTags.SelectMany(x => x.Tags).OrderBy(x => x.DirectoryName).ThenBy(x => x.Name)
-                .ToList().Select(x => new
-                {
-                    DataType = x.Type.ToString(),
-                    x.DirectoryName,
-                    Tag = x.Name,
-                    TagValue = ObjectDumper.Dump(x.Description)
-                }).ToHtmlTable(new {@class = "pure-table pure-table-striped"});
-
-            var xmpDirectory = ImageMetadataReader.ReadMetadata(SelectedFile.FullName).OfType<XmpDirectory>()
-                .FirstOrDefault();
-
-            var xmpMetadata = xmpDirectory?.GetXmpProperties().Select(x => new {XmpKey = x.Key, XmpValue = x.Value})
-                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-                $"PhotoMetadata-{Path.GetFileNameWithoutExtension(SelectedFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
-
-            var htmlString =
-                ($"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(SelectedFile.FullName)}</h1><br><h1>Metadata - Part 1</h1><br>" +
-                 tagHtml + "<br><br><h1>XMP - Part 2</h1><br>" + xmpMetadata)
-                .ToHtmlDocumentWithPureCss("Photo Metadata", "body {margin: 12px;}");
-
-            await File.WriteAllTextAsync(file.FullName, htmlString);
-
-            var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
     }

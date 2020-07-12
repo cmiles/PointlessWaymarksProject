@@ -45,6 +45,14 @@
 
 ## Notes
 
+7/12/2020
+
+Thinking some about writing more integration tests it occurred to me that it might be more useful to build something 'coherent' so that making it more complex made sense and so that the result would make more sense for visual inspection and perhaps as a decent testbed for css and new features. To that end spent time this AM getting a few Ironwood Forest National Monument pictures and PDFs setup to start with - this will mean time reworking some of the existing testing, but I think it will be worth it to have a way to build a 'more real' test site.
+
+Added the html photo metadata report to the reports menu in lists after a small refactor on the report code in the photo editor - finding it quite useful to get the metadata into a format that you I can search without an additional step.
+
+In the photo metadata extraction added Taken By and License fall backs to xmp and iptc.
+
 7/9/2020
 
 Reworked the organization on the data project - I'm not 100% confident that this matters or is 'right' but it does feel immediately more reasonable.

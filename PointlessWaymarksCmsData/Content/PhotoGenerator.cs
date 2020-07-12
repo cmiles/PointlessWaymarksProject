@@ -56,6 +56,13 @@ namespace PointlessWaymarksCmsData.Content
 
             toReturn.PhotoCreatedBy = exifDirectory?.GetDescription(ExifDirectoryBase.TagArtist) ?? string.Empty;
 
+            if (string.IsNullOrWhiteSpace(toReturn.PhotoCreatedBy))
+                toReturn.PhotoCreatedBy = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "creator", 1)?.Value ??
+                                          string.Empty;
+
+            if (string.IsNullOrWhiteSpace(toReturn.PhotoCreatedBy))
+                toReturn.PhotoCreatedBy = iptcDirectory?.GetDescription(IptcDirectory.TagByLine) ?? string.Empty;
+
             var createdOn = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
             if (string.IsNullOrWhiteSpace(createdOn))
             {
@@ -107,7 +114,15 @@ namespace PointlessWaymarksCmsData.Content
             if (toReturn.Lens == "----") toReturn.Lens = string.Empty;
 
             toReturn.Aperture = exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
+
             toReturn.License = exifDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(toReturn.License))
+                toReturn.License = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "rights", 1)?.Value ??
+                                   string.Empty;
+
+            if (string.IsNullOrWhiteSpace(toReturn.License))
+                toReturn.License = iptcDirectory?.GetDescription(IptcDirectory.TagCopyrightNotice) ?? string.Empty;
 
             var shutterValue = new Rational();
             if (exifSubIfDirectory?.TryGetRational(37377, out shutterValue) ?? false)
@@ -242,7 +257,7 @@ namespace PointlessWaymarksCmsData.Content
         }
 
         public static async Task<(GenerationReturn, PhotoContent)> PhotoMetadataToNewPhotoContent(FileInfo selectedFile,
-            string photoContentCreatedBy, IProgress<string> progress)
+            IProgress<string> progress, string photoContentCreatedBy = null)
         {
             selectedFile.Refresh();
 

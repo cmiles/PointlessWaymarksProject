@@ -30,6 +30,7 @@
                 <MenuItem Header="License is Blank" Command="{Binding ReportBlankLicenseCommand}"/>
                 <MenuItem Header="License Year and Taken Year Don't Match" Command="{Binding ReportTakenAndLicenseYearDoNotMatchCommand}"/>
                 <MenuItem Header="All Photos" Command="{Binding ReportAllPhotosCommand}"/>
+                <MenuItem Header="Selected - Metadata to Html" Command="{Binding ReportPhotoMetadataCommand}"/>
             </MenuItem>
             <MenuItem Header="Excel">
                 <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}"/>

@@ -20,11 +20,11 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsData.Html.PhotoHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
-using SinglePhotoPage = PointlessWaymarksCmsData.Html.PhotoHtml.SinglePhotoPage;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoList
 {
@@ -45,6 +45,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _reportAllPhotosCommand;
         private Command _reportBlankLicenseCommand;
         private Command _reportNoTagsCommand;
+        private Command _reportPhotoMetadataCommand;
         private Command _reportTakenAndLicenseYearDoNotMatchCommand;
         private Command _reportTitleAndTakenDoNotMatchCommand;
         private Command _selectedToExcelCommand;
@@ -240,6 +241,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (Equals(value, _reportNoTagsCommand)) return;
                 _reportNoTagsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ReportPhotoMetadataCommand
+        {
+            get => _reportPhotoMetadataCommand;
+            set
+            {
+                if (Equals(value, _reportPhotoMetadataCommand)) return;
+                _reportPhotoMetadataCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -539,9 +551,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
                 if (autoSaveAndClose)
                 {
-                    var (metaGenerationReturn, metaContent) = await PhotoGenerator.PhotoMetadataToNewPhotoContent(
-                        loopFile, UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-                        StatusContext.ProgressTracker());
+                    var (metaGenerationReturn, metaContent) =
+                        await PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, StatusContext.ProgressTracker());
 
                     if (metaGenerationReturn.HasError)
                     {
@@ -697,6 +708,33 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             return await db.PhotoContents.Where(x => x.Tags == "").ToListAsync();
         }
 
+        private async Task ReportPhotoMetadata()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var selected = ListContext.SelectedItems;
+
+            if (selected == null || !selected.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (selected.Count > 1)
+            {
+                StatusContext.ToastError("Please Select a Single Item");
+                return;
+            }
+
+            var singleSelected = selected.Single();
+
+            var archiveFile = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().ToString(),
+                singleSelected.DbEntry.OriginalFileName));
+
+            await PhotoMetadataReport.AllPhotoMetadataToHtml(archiveFile, StatusContext);
+        }
+
         private async Task<List<PhotoContent>> ReportTakenAndLicenseYearDoNotMatchGenerator()
         {
             var db = await Db.Context();
@@ -818,6 +856,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             ExtractNewLinksInSelectedCommand =
                 new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
 
+            ReportPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ReportPhotoMetadata));
             ReportNoTagsCommand = new Command(() =>
                 StatusContext.RunNonBlockingTask(async () =>
                     await RunReport(ReportNoTagsGenerator, "No Tags Photo List")));
