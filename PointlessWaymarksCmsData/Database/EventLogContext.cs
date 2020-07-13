@@ -129,6 +129,8 @@ namespace PointlessWaymarksCmsData.Database
             try
             {
                 var log = await Db.Log();
+                if (!await log.Database.CanConnectAsync()) return;
+
                 await log.EventLogs.AddAsync(new EventLog
                 {
                     Category = category,

@@ -45,6 +45,12 @@
 
 ## Notes
 
+7/13/2020
+
+More work on the newer test setup - this moves the test coverage backwards temporarily but I think the refactoring/restructuring to the tests will pay off - good first start on refactoring Photos.
+
+Replaced FontAwesome in the TitleSummarySlug editor - this turned out to be more difficult than I imagined with tooltip display and flexible sizing, to get that I ended up with a UserControl that seems overly complex for what I want to accomplish but does currently seem to meet the goals...
+
 7/12/2020
 
 Thinking some about writing more integration tests it occurred to me that it might be more useful to build something 'coherent' so that making it more complex made sense and so that the result would make more sense for visual inspection and perhaps as a decent testbed for css and new features. To that end spent time this AM getting a few Ironwood Forest National Monument pictures and PDFs setup to start with - this will mean time reworking some of the existing testing, but I think it will be worth it to have a way to build a 'more real' test site.

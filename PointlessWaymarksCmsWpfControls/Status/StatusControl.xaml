@@ -124,7 +124,7 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         TextWrapping="Wrap"
-                        VerticalScrollBarVisibility="Visible"
+                        VerticalScrollBarVisibility="Auto"
                         HorizontalScrollBarVisibility="Disabled"
                         Text="{Binding MessageBoxMessage}" />
                     <ItemsControl Grid.Row="2" ItemsSource="{Binding MessageBoxButtonList}">

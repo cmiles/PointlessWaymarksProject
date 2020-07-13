@@ -60,15 +60,17 @@ namespace PointlessWaymarksCmsData.Content
 
             if (!string.IsNullOrWhiteSpace(toValidate.Slug))
             {
-                if (!FolderFileUtility.IsNoUrlEncodingNeeded(toValidate.Slug) || !toValidate.Slug.All(char.IsLower))
+                if (!FolderFileUtility.IsNoUrlEncodingNeeded(toValidate.Slug) || !toValidate.Slug.All(x => !char.IsLetter(x) || char.IsLower(x)))
                 {
                     isValid = false;
-                    errorMessage.Add("Limit Slugs to a-z - . _");
+                    errorMessage.Add("Limit Slugs to a-z 0-9 - . _");
                 }
-
-                if (await (await Db.Context()).SlugExistsInDatabase(toValidate.Slug, toValidate.ContentId))
-                    isValid = false;
-                errorMessage.Add("This slug already exists in the database - slugs must be unique.");
+                else
+                {
+                    if (await (await Db.Context()).SlugExistsInDatabase(toValidate.Slug, toValidate.ContentId))
+                        isValid = false;
+                    errorMessage.Add("This slug already exists in the database - slugs must be unique.");
+                }
             }
 
             if (string.IsNullOrWhiteSpace(toValidate.Folder))
