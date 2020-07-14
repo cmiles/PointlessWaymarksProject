@@ -9,7 +9,6 @@
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - Look at using NavLink tag in menu and/or wrapping with nav tag
  - A bad content code should be handled better
- - Look at https://github.com/cyotek/SimpleScreenshotCapture/blob/master/src/ScreenshotCapture.cs to get rid of xaml island screen shot issue.
  - Extend To Excel to more Types
  - To Excel for logs
  - Excel Import
@@ -46,6 +45,8 @@
 ## Notes
 
 7/14/2020
+
+Used https://github.com/cyotek/SimpleScreenshotCapture/ as the basis for modified code to capture window images via native methods so that you can capture both WPF content (as you would with any WPF technique for images of windows/controls) and XamlIsland type controls also (which are rendered differently and don't show up at least with the WPF techniques I have tried).
 
 Finished out the conversion from FontAwesome to XAML/SVG Icons - more work than expected overall setting up the user control and switching out icons everywhere but I think this is a good trade (especially since so far the first version of the UserControl seems to be holding up for both icon and in button use) - of course it is not reasonable for this project to not take dependencies, but I think in the case of FontAwesome it is unreasonable to believe I could pin the current version and work for years without anything breaking, I do want this project to stay 'up to date' - but I also have ambitions for this being something that I might still use in 5-10 years, overall Windows Desktop software has proved remarkably durable and tooling from MS very supportive of older frameworks/projects (this is based on experience at work where things have run for many years between edits...) so I think this might be reasonable and but I don't think it is reasonable for FontAwesome which was a core-non-optional part of the GUI.
 
