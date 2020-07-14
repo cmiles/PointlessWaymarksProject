@@ -43,9 +43,7 @@ namespace PointlessWaymarksTests
         public PhotoContent PhotoAguaBlancaContentReference =>
             new PhotoContent
             {
-                AltText = string.Empty,
-                Aperture = "f/11",
-                BodyContent = string.Empty,
+                Aperture = "f/11.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 CameraMake = "SONY",
                 CameraModel = "ILCE-7RM2",
@@ -56,10 +54,10 @@ namespace PointlessWaymarksTests
                 License = "Public Domain",
                 PhotoCreatedOn = new DateTime(2018, 8, 6, 15, 54, 52),
                 PhotoCreatedBy = "Charles Miles",
-                ShutterSpeed = "1/1000",
+                ShutterSpeed = "1/1,000",
                 Slug = "2018-august-agua-blanca-ranch-sign-at-the-manville-road-entrance-to-the-ironwood",
                 Summary =
-                    "Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument",
+                    "Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument.",
                 Title =
                     "2018 August Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument",
                 Tags = "agua blanca ranch,ironwood forest national monument,manville road,manville road entrance",
@@ -70,14 +68,37 @@ namespace PointlessWaymarksTests
 
         public int PhotoAguaBlancaWidth => 900;
 
+        public PhotoContent PhotoDisappearingContentReference =>
+            new PhotoContent
+            {
+                Aperture = "f/11.0",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2",
+                Folder = "2020",
+                Iso = 250,
+                FocalLength = "90 mm",
+                Lens = "FE 90mm F2.8 Macro G OSS",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2020, 6, 19, 14, 49, 41),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/1,000",
+                Slug = "2020-june-disappearing-into-the-flower",
+                Summary = "Disappearing into the Flower.",
+                Title = "2020 June Disappearing into the Flower",
+                Tags = "barrel cactus,bee,flower,ironwood forest national monument,waterman mountains",
+            };
+
+        public string PhotoDisappearingFileName => "2020-06-Disappearing-into-the-Flower.jpg";
+
+        public int PhotoDisappearingWidth => 800;
+
         public string PhotoIronwood02FileName => "1705-Ironwood-02.jpg";
 
         public PhotoContent PhotoIronwood02Reference =>
             new PhotoContent
             {
-                AltText = string.Empty,
-                Aperture = "f/16",
-                BodyContent = string.Empty,
+                Aperture = "f/16.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 CameraMake = "SONY",
                 CameraModel = "ILCE-7RM2",
@@ -90,24 +111,47 @@ namespace PointlessWaymarksTests
                 PhotoCreatedBy = "Charles Miles",
                 ShutterSpeed = "1/640",
                 Slug = "2017-may-ironwood-02",
-                Summary = "Ironwood 02",
+                Summary = "Ironwood 02.",
                 Title = "2017 May Ironwood 02",
                 Tags = "ironwood,ironwood forest national monument,sun",
             };
 
         public int PhotoIronwood02Width => 734;
 
-        public PhotoContent PhotoQuarryContentReference =>
+        public PhotoContent PhotoIronwoodPodContentReference =>
             new PhotoContent
             {
-                AltText = string.Empty,
-                Aperture = "f/9",
-                BodyContent = string.Empty,
+                Aperture = "f/16.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 CameraMake = "SONY",
                 CameraModel = "ILCE-7RM2",
                 Folder = "2020",
-                Iso = 100,
+                Iso = 200,
+                FocalLength = "90 mm",
+                Lens = "FE 90mm F2.8 Macro G OSS",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2020, 5, 28, 14, 19, 10),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/320",
+                Slug = "2020-may-ironwood-pod",
+                Summary = "Ironwood Pod.",
+                Title = "2020 May Ironwood Pod",
+                Tags = "ironwood,ironwood forest national monument,seed pod,waterman mountains",
+            };
+
+        public string PhotoIronwoodPodFileName => "2020-05-Ironwood-Pod.jpg";
+
+        public int PhotoIronwoodPodWidth => 700;
+
+        public PhotoContent PhotoQuarryContentReference =>
+            new PhotoContent
+            {
+                Aperture = "f/9.0",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2",
+                Folder = "2020",
+                Iso = 125,
                 FocalLength = "150 mm",
                 Lens = "FE 24-240mm F3.5-6.3 OSS",
                 License = "Public Domain",
@@ -115,13 +159,12 @@ namespace PointlessWaymarksTests
                 PhotoCreatedBy = "Charles Miles",
                 ShutterSpeed = "1/400",
                 Slug = "2020-may-a-quarry-in-ironwood-forest-national-monument",
-                Summary = "Ironwood 02",
+                Summary = "A Quarry in Ironwood Forest National Monument.",
                 Title = "2020 May A Quarry in Ironwood Forest National Monument",
                 Tags = "agua dulce road,ironwood forest national monument,quarry",
             };
 
         public string PhotoQuarryFileName => "2020-05-A-Quarry-in-Ironwood-Forest-National-Monument.jpg";
-
 
         public int PhotoQuarryWidth => 1300;
 
@@ -158,6 +201,8 @@ namespace PointlessWaymarksTests
             await PhotoValidation(PhotoAguaBlancaFileName, PhotoAguaBlancaContentReference, PhotoAguaBlancaWidth);
             await PhotoValidation(PhotoIronwood02FileName, PhotoIronwood02Reference, PhotoIronwood02Width);
             await PhotoValidation(PhotoQuarryFileName, PhotoQuarryContentReference, PhotoQuarryWidth);
+            await PhotoValidation(PhotoIronwoodPodFileName, PhotoIronwoodPodContentReference, PhotoIronwoodPodWidth);
+            await PhotoValidation(PhotoDisappearingFileName, PhotoDisappearingContentReference, PhotoDisappearingWidth);
         }
 
         //[Test]
@@ -603,8 +648,8 @@ namespace PointlessWaymarksTests
                 $"Expected to find original photo in media archive photo directory but {expectedOriginalPhotoFileInMediaArchive.FullName} does not exist");
         }
 
-        public (bool areSame, string comparisonNotes) PhotoComparePhotoReferenceToPhotoObject(PhotoContent reference,
-            PhotoContent toCompare)
+        public (bool hasInvalidComparison, string comparisonNotes) PhotoComparePhotoReferenceToPhotoObject(
+            PhotoContent reference, PhotoContent toCompare)
         {
             var failure = false;
             var failureList = new List<string>();
@@ -785,7 +830,7 @@ namespace PointlessWaymarksTests
             Assert.False(metadataGenerationReturn.HasError, metadataGenerationReturn.GenerationNote);
 
             var photoComparison = PhotoComparePhotoReferenceToPhotoObject(photoReference, newPhotoContent);
-            Assert.True(photoComparison.areSame, photoComparison.comparisonNotes);
+            Assert.False(photoComparison.hasInvalidComparison, photoComparison.comparisonNotes);
 
             var validationReturn = await PhotoGenerator.Validate(newPhotoContent, fullSizePhotoTest);
             Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");

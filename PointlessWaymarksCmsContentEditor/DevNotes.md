@@ -1,5 +1,7 @@
 ﻿## Todos
  - Content Testing:
+  - Redo commented test types
+  - Test lists and galleries (wait until more content linked together for wider test)
   - Finish up link generation and testing
   - Folder structure clean up routines - Photos written, need other content types and integration
   - Add tests for the common content validation

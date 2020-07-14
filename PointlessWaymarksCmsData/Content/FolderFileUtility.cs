@@ -7,7 +7,7 @@ namespace PointlessWaymarksCmsData.Content
     {
         /// <summary>
         ///     Appends the Long File Prefix \\?\ to the FileInfo FullName - this should only be used to interop in situations
-        ///     not related to .NET Core - .NET Core handles this situation automatically. Only tested with absolute file paths.
+        ///     not related to .NET Core - .NET Core handles this automatically. Only tested with absolute file paths.
         /// </summary>
         /// <param name="forName"></param>
         /// <returns></returns>
