@@ -7,7 +7,6 @@
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - Look at using NavLink tag in menu and/or wrapping with nav tag
  - A bad content code should be handled better
- - Wrap the Out of Memory that System.Drawing Image FromFile can throw that doesn't actually mean out of memory and rather means 'format issue'
  - Look at https://github.com/cyotek/SimpleScreenshotCapture/blob/master/src/ScreenshotCapture.cs to get rid of xaml island screen shot issue.
  - Extend To Excel to more Types
  - To Excel for logs
@@ -48,6 +47,8 @@
 7/13/2020
 
 More work on the newer test setup - this moves the test coverage backwards temporarily but I think the refactoring/restructuring to the tests will pay off - good first start on refactoring Photos.
+
+While working on the image processing I accidentally found that the System.Drawing out of memory exception I had gotten on some images (which it is well known can be a format or other issue and the out of memory is not an accurate error) was potentially caused by a long file name bug. I originally thought it might be long metadata title - but I got a more informative error by eliminating this use of System.Drawing and using Photosauce Magicscaler instead. Magicscaler returned a Directory Not Found exception, but the fileinfo object generating the filename reports 'exists' and I could navigate to the directory and file. Some research turned up long filename related bugs - https://stackoverflow.com/questions/5188527/how-to-deal-with-files-with-a-name-longer-than-259-characters - and the extended path length prefix. Passing file names with that prefix to Magicscaler fixed the issue.
 
 Replaced FontAwesome in the TitleSummarySlug editor - this turned out to be more difficult than I imagined with tooltip display and flexible sizing, to get that I ended up with a UserControl that seems overly complex for what I want to accomplish but does currently seem to meet the goals...
 

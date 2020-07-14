@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using PhotoSauce.MagicScaler;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 
@@ -183,12 +183,9 @@ namespace PointlessWaymarksCmsData.Content
         public static FileInfo ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
             IProgress<string> progress)
         {
-            int originalWidth;
+            var imageInfo = ImageFileInfo.Load(fileToProcess.FullNameWithLongFilePrefix());
 
-            using (var sourceImage = Image.FromFile(fileToProcess.FullName))
-            {
-                originalWidth = sourceImage.Width;
-            }
+            var originalWidth = imageInfo.Frames.First().Width;
 
             if (originalWidth > 1200)
             {
@@ -256,12 +253,9 @@ namespace PointlessWaymarksCmsData.Content
         {
             var sizeQualityList = SrcSetSizeAndQualityList().OrderByDescending(x => x.size).ToList();
 
-            int originalWidth;
+            var imageInfo = ImageFileInfo.Load(fileToProcess.FullNameWithLongFilePrefix());
 
-            using (var sourceImage = Image.FromFile(fileToProcess.FullName))
-            {
-                originalWidth = sourceImage.Width;
-            }
+            var originalWidth = imageInfo.Frames.First().Width;
 
             var returnList = new List<FileInfo>();
 

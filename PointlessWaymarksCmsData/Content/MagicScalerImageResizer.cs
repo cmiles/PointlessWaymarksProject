@@ -20,7 +20,7 @@ namespace PointlessWaymarksCmsData.Content
             var settings = new ProcessImageSettings {Width = width, JpegQuality = quality};
 
             using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
-            var results = MagicImageProcessor.ProcessImage(toResize.FullName, outStream, settings);
+            var results = MagicImageProcessor.ProcessImage(toResize.FullNameWithLongFilePrefix(), outStream, settings);
 
             outStream.Dispose();
 
@@ -34,7 +34,7 @@ namespace PointlessWaymarksCmsData.Content
             return newFileInfo;
         }
 
-        public FileInfo Rotate(FileInfo toRotate, PhotoSauce.MagicScaler.Orientation orientation)
+        public FileInfo Rotate(FileInfo toRotate, Orientation orientation)
         {
             if (!toRotate.Exists) return null;
 
@@ -43,7 +43,8 @@ namespace PointlessWaymarksCmsData.Content
             var newFileInfo = new FileInfo(newFile);
             if (newFileInfo.Exists) newFileInfo.Delete();
 
-            using var pl = MagicImageProcessor.BuildPipeline(toRotate.FullName, new ProcessImageSettings());
+            using var pl =
+                MagicImageProcessor.BuildPipeline(toRotate.FullNameWithLongFilePrefix(), new ProcessImageSettings());
             pl.AddTransform(new OrientationTransform(orientation));
             using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
 
@@ -51,7 +52,7 @@ namespace PointlessWaymarksCmsData.Content
 
             pl.Dispose();
             outStream.Dispose();
-            
+
             var finalFileName = toRotate.FullName;
 
             toRotate.Delete();

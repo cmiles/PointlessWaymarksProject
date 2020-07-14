@@ -19,7 +19,6 @@ namespace PointlessWaymarksTests
 {
     public class IronwoodIntegrationTests
     {
-        public string PhotoPhotoMayIronwood02FileName = "1705-Ironwood-02.jpg";
         public const string UrlProclamationPdf = "https://www.blm.gov/sites/blm.gov/files/documents/ironwood_proc.pdf";
         public const string UrlBlmSite = "https://www.blm.gov/visit/ironwood";
 
@@ -41,7 +40,39 @@ namespace PointlessWaymarksTests
 
         public static UserSettings TestSiteSettings;
 
-        public PhotoContent PhotoMayIronwood02Reference =>
+        public PhotoContent PhotoAguaBlancaContentReference =>
+            new PhotoContent
+            {
+                AltText = string.Empty,
+                Aperture = "f/11",
+                BodyContent = string.Empty,
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2",
+                Folder = "2018",
+                Iso = 100,
+                FocalLength = "35 mm",
+                Lens = "FE 35mm F2.8 ZA",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2018, 8, 6, 15, 54, 52),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/1000",
+                Slug = "2018-august-agua-blanca-ranch-sign-at-the-manville-road-entrance-to-the-ironwood",
+                Summary =
+                    "Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument",
+                Title =
+                    "2018 August Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument",
+                Tags = "agua blanca ranch,ironwood forest national monument,manville road,manville road entrance",
+            };
+
+        public string PhotoAguaBlancaFileName =>
+            "1808-Agua-Blanca-Ranch-Sign-at-the-Manville-Road-Entrance-to-the-Ironwood-Forest-National-Monument.jpg";
+
+        public int PhotoAguaBlancaWidth => 900;
+
+        public string PhotoIronwood02FileName => "1705-Ironwood-02.jpg";
+
+        public PhotoContent PhotoIronwood02Reference =>
             new PhotoContent
             {
                 AltText = string.Empty,
@@ -64,7 +95,35 @@ namespace PointlessWaymarksTests
                 Tags = "ironwood,ironwood forest national monument,sun",
             };
 
-        public int PhotoMayIronwood02Width => 734;
+        public int PhotoIronwood02Width => 734;
+
+        public PhotoContent PhotoQuarryContentReference =>
+            new PhotoContent
+            {
+                AltText = string.Empty,
+                Aperture = "f/9",
+                BodyContent = string.Empty,
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2",
+                Folder = "2020",
+                Iso = 100,
+                FocalLength = "150 mm",
+                Lens = "FE 24-240mm F3.5-6.3 OSS",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2020, 5, 21, 15, 35, 39),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/400",
+                Slug = "2020-may-a-quarry-in-ironwood-forest-national-monument",
+                Summary = "Ironwood 02",
+                Title = "2020 May A Quarry in Ironwood Forest National Monument",
+                Tags = "agua dulce road,ironwood forest national monument,quarry",
+            };
+
+        public string PhotoQuarryFileName => "2020-05-A-Quarry-in-Ironwood-Forest-National-Monument.jpg";
+
+
+        public int PhotoQuarryWidth => 1300;
 
         [OneTimeSetUp]
         public async Task A00_CreateTestSite()
@@ -94,37 +153,11 @@ namespace PointlessWaymarksTests
         }
 
         [Test]
-        public async Task A10_Photo1705Ironwood02Import()
+        public async Task A10_PhotoLoadTest()
         {
-            var fullSizePhotoTest = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent",
-                PhotoPhotoMayIronwood02FileName));
-            Assert.True(fullSizePhotoTest.Exists, "Test File Found");
-
-            var (metadataGenerationReturn, newPhotoContent) =
-                await PhotoGenerator.PhotoMetadataToNewPhotoContent(fullSizePhotoTest, DebugProgressTracker());
-            Assert.False(metadataGenerationReturn.HasError, metadataGenerationReturn.GenerationNote);
-
-            var photoComparison = PhotoComparePhotoReferenceToPhotoObject(PhotoMayIronwood02Reference, newPhotoContent);
-            Assert.True(photoComparison.areSame, photoComparison.comparisonNotes);
-
-            var validationReturn = await PhotoGenerator.Validate(newPhotoContent, fullSizePhotoTest);
-            Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
-
-            var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent, fullSizePhotoTest, true,
-                DebugProgressTracker());
-            Assert.False(saveReturn.generationReturn.HasError,
-                $"Unexpected Save Error - {saveReturn.generationReturn.GenerationNote}");
-
-            Assert.IsTrue(newPhotoContent.MainPicture == newPhotoContent.ContentId,
-                $"Main Picture - {newPhotoContent.MainPicture} - Should be set to Content Id {newPhotoContent.ContentId}");
-
-            PhotoCheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newPhotoContent);
-
-            PhotoCheckFileCountAndPictureAssetsAfterHtmlGeneration(newPhotoContent, PhotoMayIronwood02Width);
-
-            PhotoJsonTest(newPhotoContent);
-
-            PhotoHtmlChecks(newPhotoContent);
+            await PhotoValidation(PhotoAguaBlancaFileName, PhotoAguaBlancaContentReference, PhotoAguaBlancaWidth);
+            await PhotoValidation(PhotoIronwood02FileName, PhotoIronwood02Reference, PhotoIronwood02Width);
+            await PhotoValidation(PhotoQuarryFileName, PhotoQuarryContentReference, PhotoQuarryWidth);
         }
 
         //[Test]
@@ -739,6 +772,39 @@ namespace PointlessWaymarksTests
             var comparisonResult = compareLogic.Compare(newPhotoContent, jsonFileImported);
             Assert.True(comparisonResult.AreEqual,
                 $"Json Import does not match expected Photo Content {comparisonResult.DifferencesString}");
+        }
+
+        public async Task PhotoValidation(string photoFileName, PhotoContent photoReference, int photoWidth)
+        {
+            var fullSizePhotoTest = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent",
+                photoFileName));
+            Assert.True(fullSizePhotoTest.Exists, "Test File Found");
+
+            var (metadataGenerationReturn, newPhotoContent) =
+                await PhotoGenerator.PhotoMetadataToNewPhotoContent(fullSizePhotoTest, DebugProgressTracker());
+            Assert.False(metadataGenerationReturn.HasError, metadataGenerationReturn.GenerationNote);
+
+            var photoComparison = PhotoComparePhotoReferenceToPhotoObject(photoReference, newPhotoContent);
+            Assert.True(photoComparison.areSame, photoComparison.comparisonNotes);
+
+            var validationReturn = await PhotoGenerator.Validate(newPhotoContent, fullSizePhotoTest);
+            Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
+
+            var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newPhotoContent, fullSizePhotoTest, true,
+                DebugProgressTracker());
+            Assert.False(saveReturn.generationReturn.HasError,
+                $"Unexpected Save Error - {saveReturn.generationReturn.GenerationNote}");
+
+            Assert.IsTrue(newPhotoContent.MainPicture == newPhotoContent.ContentId,
+                $"Main Picture - {newPhotoContent.MainPicture} - Should be set to Content Id {newPhotoContent.ContentId}");
+
+            PhotoCheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newPhotoContent);
+
+            PhotoCheckFileCountAndPictureAssetsAfterHtmlGeneration(newPhotoContent, photoWidth);
+
+            PhotoJsonTest(newPhotoContent);
+
+            PhotoHtmlChecks(newPhotoContent);
         }
     }
 }
