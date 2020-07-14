@@ -83,4 +83,11 @@
         <Setter Property="Margin" Value="8,8,0,0" />
         <Setter Property="Opacity" Value=".4" />
     </Style>
+    <Style x:Key="ListSortButton" TargetType="Button">
+        <Setter Property="Margin" Value="0,0,8,0"></Setter>
+        <Setter Property="Width" Value="24"></Setter>
+        <Setter Property="Height" Value="24"></Setter>
+        <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+    </Style>
 </ResourceDictionary>

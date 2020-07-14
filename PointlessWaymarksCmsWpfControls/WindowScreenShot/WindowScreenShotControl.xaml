@@ -4,14 +4,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
-             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
              mc:Ignorable="d"
              d:DesignHeight="26" d:DesignWidth="26" d:DataContext="{d:DesignInstance local:WindowScreenShotControl}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Button Opacity=".4" Height="26" Width="26" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="2"
                 Command="{Binding WindowScreenShotCommand}"
                 CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
-            <fa5:FontAwesome Icon="Solid_Camera" VerticalAlignment="Bottom" HorizontalAlignment="Right" />
+            <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                   IconPathGeometry="{StaticResource IconDataCameraOutline}"
+                                   HoverText="Take Screen Shot of Application"
+                                   IconBrush="Black" />
         </Button>
     </Grid>
 </UserControl>

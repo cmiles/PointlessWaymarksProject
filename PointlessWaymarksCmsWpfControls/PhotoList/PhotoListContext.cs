@@ -29,11 +29,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         }
 
         private ObservableCollection<PhotoListListItem> _items;
-        private string _lastSortColumn;
+        private string _lastSortColumn = "CreatedOn";
         private PhotoListLoadMode _loadMode = PhotoListLoadMode.Recent;
         private Func<Task<List<PhotoContent>>> _reportGenerator;
         private List<PhotoListListItem> _selectedItems;
-        private bool _sortDescending;
+        private bool _sortDescending = true;
         private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
@@ -333,9 +333,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             Items = new ObservableCollection<PhotoListListItem>(listItems);
 
-            SortDescending = true;
+            await SortList(_lastSortColumn);
 
-            await SortList("CreatedOn");
+            await FilterList();
         }
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)

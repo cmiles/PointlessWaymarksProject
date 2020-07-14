@@ -5,16 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList"
              xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-             xmlns:fa="http://schemas.fontawesome.com/icons/"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:NoteListContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:ImageCacheConverter x:Key="ImageCache" />
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
@@ -35,15 +34,17 @@
             </GroupBox>
             <GroupBox Grid.Column="1" Header="Sort" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <WrapPanel HorizontalAlignment="Center">
-                    <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
+                    <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
                             Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
-                        <fa:ImageAwesome Icon="Solid_ArrowUp" Height="12" Width="8" VerticalAlignment="Center"
-                                         HorizontalAlignment="Center" IsEnabled="{Binding SortDescending}" />
+                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                               IconPathGeometry="{StaticResource IconDataUpArrowThick}"
+                                               IconBrush="Black" />
                     </Button>
-                    <Button Height="24" Command="{Binding ToggleListSortDirectionCommand}"
+                    <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
                             Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
-                        <fa:ImageAwesome Icon="Solid_ArrowDown" Height="12" Width="8" VerticalAlignment="Center"
-                                         HorizontalAlignment="Center" />
+                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                               IconPathGeometry="{StaticResource IconDataDownArrowThick}"
+                                               IconBrush="Black" />
                     </Button>
                     <Button Command="{Binding SortListCommand}" Height="24" Width="90"
                             CommandParameter="PhotoCreatedOn">

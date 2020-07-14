@@ -26,7 +26,7 @@
                        Target="{Binding ElementName=TitleTextBox}" />
                 <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
                                        Visibility="{Binding TitleHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource InfoIconData}"
+                                       IconPathGeometry="{StaticResource IconDataInfo}"
                                        HoverText="{Binding DbEntry.Title, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
                                        IconBrush="Black" />
             </StackPanel>
@@ -40,7 +40,7 @@
                        Target="{Binding ElementName=SlugTextBox}" />
                 <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
                                        Visibility="{Binding SlugHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource InfoIconData}"
+                                       IconPathGeometry="{StaticResource IconDataInfo}"
                                        HoverText="{Binding DbEntry.Slug, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
                                        IconBrush="Black" />
             </StackPanel>
@@ -54,7 +54,7 @@
                        Target="{Binding ElementName=FolderTextBox}" />
                 <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
                                        Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource InfoIconData}"
+                                       IconPathGeometry="{StaticResource IconDataInfo}"
                                        HoverText="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
                                        IconBrush="Black" />
             </StackPanel>
@@ -68,7 +68,7 @@
                        Target="{Binding ElementName=SummaryTextBox}" />
                 <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
                                        Visibility="{Binding SummaryHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource InfoIconData}"
+                                       IconPathGeometry="{StaticResource IconDataInfo}"
                                        HoverText="{Binding DbEntry.Summary, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
                                        IconBrush="Black" />
             </StackPanel>

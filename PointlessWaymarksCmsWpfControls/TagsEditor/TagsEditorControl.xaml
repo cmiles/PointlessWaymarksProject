@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
-    xmlns:fa5="http://schemas.fontawesome.com/icons/"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     d:DataContext="{d:DesignInstance tagsEditor:TagsEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -14,6 +14,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
@@ -23,13 +24,11 @@
             <StackPanel Orientation="Horizontal">
                 <Label Style="{StaticResource DataEntryLabelStyle}" Content="Tags (Comma,Separated)"
                        Target="{Binding ElementName=TagsTextBox}" />
-                <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                                 Visibility="{Binding TagsHaveChanges, Converter={StaticResource BooleanToVisibility}}">
-                    <fa5:FontAwesome.ToolTip>
-                        <TextBlock
-                            Text="{Binding DbEntry.Tags, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
-                    </fa5:FontAwesome.ToolTip>
-                </fa5:FontAwesome>
+                <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                       Visibility="{Binding TagsHaveChanges, Converter={StaticResource BooleanToVisibility}}"
+                                       IconPathGeometry="{StaticResource IconDataInfo}"
+                                       HoverText="{Binding DbEntry.Tags, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                                       IconBrush="Black" />
             </StackPanel>
             <TextBox
                 Name="TagsTextBox"

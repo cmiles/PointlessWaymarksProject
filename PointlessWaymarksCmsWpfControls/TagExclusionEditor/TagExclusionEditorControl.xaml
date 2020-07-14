@@ -7,7 +7,6 @@
              xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
              xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
              xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-             xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
@@ -16,6 +15,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:BooleanToHiddenConverter x:Key="BooleanToHidden" />
         </ResourceDictionary>
@@ -56,13 +56,11 @@
                                 <Label VerticalAlignment="Center">To Exclude:</Label>
                                 <TextBox VerticalContentAlignment="Center" Height="32" Width="120"
                                          Text="{Binding TagValue, UpdateSourceTrigger=PropertyChanged}" />
-                                <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center" Margin="6,0,4,0"
-                                                 Visibility="{Binding HasChanges, Converter={StaticResource BooleanToHidden}}">
-                                    <fa5:FontAwesome.ToolTip>
-                                        <TextBlock
-                                            Text="{Binding DbEntry.Tag, StringFormat='Original Value: {0}', TargetNullValue='New Entry', FallbackValue='New Entry'}" />
-                                    </fa5:FontAwesome.ToolTip>
-                                </fa5:FontAwesome>
+                                <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                                       Visibility="{Binding HasChanges, Converter={StaticResource BooleanToHidden}}"
+                                                       IconPathGeometry="{StaticResource IconDataInfo}"
+                                                       HoverText="{Binding DbEntry.Tag, StringFormat='Original Value: {0}', TargetNullValue='New Entry', FallbackValue='New Entry'}"
+                                                       IconBrush="Black" />
                                 <Button Height="32"
                                         Command="{Binding Data.SaveItemCommand, Source={StaticResource Proxy}}"
                                         CommandParameter="{Binding .}">

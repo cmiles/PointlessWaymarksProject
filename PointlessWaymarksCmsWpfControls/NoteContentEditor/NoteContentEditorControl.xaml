@@ -9,14 +9,15 @@
              xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
              xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
              xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
-             xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
+             xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:NoteContentEditorContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
@@ -37,13 +38,11 @@
                                            Target="{Binding ElementName=FolderTextBox}">
                                         Folder
                                     </Label>
-                                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                                                     Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}">
-                                        <fa5:FontAwesome.ToolTip>
-                                            <TextBlock
-                                                Text="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
-                                        </fa5:FontAwesome.ToolTip>
-                                    </fa5:FontAwesome>
+                                    <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                                           Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                                           IconPathGeometry="{StaticResource IconDataInfo}"
+                                                           HoverText="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                                                           IconBrush="Black" />
                                 </StackPanel>
                                 <TextBox Name="FolderTextBox"
                                          Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"
@@ -55,13 +54,11 @@
                                            Target="{Binding ElementName=SummaryTextBox}">
                                         Summary
                                     </Label>
-                                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                                                     Visibility="{Binding SummaryHasChanges, Converter={StaticResource BooleanToVisibility}}">
-                                        <fa5:FontAwesome.ToolTip>
-                                            <TextBlock
-                                                Text="{Binding DbEntry.Summary, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
-                                        </fa5:FontAwesome.ToolTip>
-                                    </fa5:FontAwesome>
+                                    <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                                           Visibility="{Binding SummaryHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                                           IconPathGeometry="{StaticResource IconDataInfo}"
+                                                           HoverText="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                                                           IconBrush="Black" />
                                 </StackPanel>
                                 <TextBox
                                     Style="{StaticResource DataEntryTextBoxMultiLineStyle}"

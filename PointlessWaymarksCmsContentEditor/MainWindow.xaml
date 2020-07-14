@@ -15,7 +15,6 @@
     xmlns:linkStreamList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:tagExclusionEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagExclusionEditor;assembly=PointlessWaymarksCmsWpfControls"
-    xmlns:fa5="http://schemas.fontawesome.com/icons/"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:menuListEditor="clr-namespace:PointlessWaymarksCmsWpfControls.MenuLinkEditor;assembly=PointlessWaymarksCmsWpfControls"

@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
-    xmlns:fa5="http://schemas.fontawesome.com/icons/"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     d:DataContext="{d:DesignInstance createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -14,6 +14,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
@@ -25,13 +26,11 @@
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CreatedByTextBox}"
                            Content="Created By" />
-                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                                     Visibility="{Binding CreatedByHasChanges, Converter={StaticResource BooleanToVisibility}}">
-                        <fa5:FontAwesome.ToolTip>
-                            <TextBlock
-                                Text="{Binding DbEntry.CreatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
-                        </fa5:FontAwesome.ToolTip>
-                    </fa5:FontAwesome>
+                    <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                           Visibility="{Binding CreatedByHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                           IconPathGeometry="{StaticResource IconDataInfo}"
+                                           HoverText="{Binding DbEntry.CreatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                                           IconBrush="Black" />
                 </StackPanel>
                 <TextBox Name="CreatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                          Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
@@ -41,13 +40,11 @@
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UpdatedByTextBox}"
                            Content="Updated By" />
-                    <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                                     Visibility="{Binding UpdatedHasChanges, Converter={StaticResource BooleanToVisibility}}">
-                        <fa5:FontAwesome.ToolTip>
-                            <TextBlock
-                                Text="{Binding DbEntry.LastUpdatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
-                        </fa5:FontAwesome.ToolTip>
-                    </fa5:FontAwesome>
+                    <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                           Visibility="{Binding UpdatedHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                           IconPathGeometry="{StaticResource IconDataInfo}"
+                                           HoverText="{Binding DbEntry.LastUpdatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                                           IconBrush="Black" />
                 </StackPanel>
                 <TextBox Name="UpdatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                          Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />

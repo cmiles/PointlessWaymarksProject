@@ -17,7 +17,7 @@ namespace PointlessWaymarksCmsData.Content
             //and for some library and other alternatives.
             if (forName == null) return null;
 
-            return $"\\\\?\\{forName.FullName}";
+            return forName.FullName.Length > 240 ? $"\\\\?\\{forName.FullName}" : forName.FullName;
         }
 
         public static string InvalidFileNameCharsRegexPattern()

@@ -5,13 +5,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:contentFormat="clr-namespace:PointlessWaymarksCmsWpfControls.ContentFormat"
-    xmlns:fa5="http://schemas.fontawesome.com/icons/"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     d:DataContext="{d:DesignInstance contentFormat:ContentFormatChooserContext}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
@@ -28,12 +29,10 @@
             Grid.Column="1"
             ItemsSource="{Binding ContentFormatChoices}"
             SelectedItem="{Binding SelectedContentFormat}" />
-        <fa5:FontAwesome Margin="6,0,0,0" Grid.Column="2" Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                         Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}">
-            <fa5:FontAwesome.ToolTip>
-                <TextBlock
-                    Text="{Binding InitialValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}" />
-            </fa5:FontAwesome.ToolTip>
-        </fa5:FontAwesome>
+        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center" Margin="6,0,0,0" Grid.Column="2"
+                               Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                               IconPathGeometry="{StaticResource IconDataInfo}"
+                               HoverText="{Binding InitialValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                               IconBrush="Black" />
     </Grid>
 </UserControl>

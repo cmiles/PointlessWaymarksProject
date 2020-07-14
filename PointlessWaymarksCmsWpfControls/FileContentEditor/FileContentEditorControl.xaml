@@ -20,7 +20,9 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -47,7 +49,17 @@
                                     <Button Grid.Column="1" Command="{Binding OpenSelectedFileDirectoryCommand}">Open Directory</Button>
                                 </Grid>
                             </StackPanel>
-                            <CheckBox FontWeight="DemiBold" Margin="4,8,0,0" IsChecked="{Binding PublicDownloadLink}">Show Public Download Link</CheckBox>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox FontWeight="DemiBold" Margin="4,8,0,0"
+                                          IsChecked="{Binding PublicDownloadLink}">
+                                    Show Public Download Link
+                                </CheckBox>
+                                <utility:IndicatorIcon Margin="4,8,0,0" IconSize="14" VerticalAlignment="Center"
+                                                       Visibility="{Binding PublicDownloadLinkHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                                       IconPathGeometry="{StaticResource IconDataInfo}"
+                                                       HoverText="{Binding DbEntry.PublicDownloadLink, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                                                       IconBrush="Black" />
+                            </StackPanel>
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" Margin="0,4,0,0" />
                             <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl

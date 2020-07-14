@@ -3,18 +3,18 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:fa="http://schemas.fontawesome.com/icons/"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.PostList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    mc:Ignorable="d">
+    mc:Ignorable="d" d:DataContext="{d:DesignInstance local:PostListContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:ImageCacheConverter x:Key="ImageCache" />
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
@@ -43,28 +43,18 @@
                 Header="Sort"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <WrapPanel HorizontalAlignment="Center">
-                    <Button
-                        Height="24"
-                        Command="{Binding ToggleListSortDirectionCommand}"
-                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
-                        <fa:ImageAwesome
-                            Width="8"
-                            Height="12"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Icon="Solid_ArrowUp"
-                            IsEnabled="{Binding SortDescending}" />
+                    <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
+                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
+                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                               IconPathGeometry="{StaticResource IconDataUpArrowThick}" 
+                                               HorizontalContentAlignment="Center"
+                                               IconBrush="Black" />
                     </Button>
-                    <Button
-                        Height="24"
-                        Command="{Binding ToggleListSortDirectionCommand}"
-                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
-                        <fa:ImageAwesome
-                            Width="8"
-                            Height="12"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Icon="Solid_ArrowDown" />
+                    <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
+                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
+                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                               IconPathGeometry="{StaticResource IconDataDownArrowThick}"
+                                               IconBrush="Black" />
                     </Button>
                     <Button
                         Width="90"

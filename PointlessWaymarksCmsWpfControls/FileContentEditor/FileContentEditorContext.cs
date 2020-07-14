@@ -49,6 +49,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
+        private bool _publicDownloadLinkHasChanges;
 
         public FileContentEditorContext(StatusControlContext statusContext)
         {
@@ -185,6 +186,22 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             {
                 if (value == _publicDownloadLink) return;
                 _publicDownloadLink = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private void CheckForChanges()
+        {
+            PublicDownloadLinkHasChanges = PublicDownloadLink != (DbEntry?.PublicDownloadLink ?? true);
+        }
+
+        public bool PublicDownloadLinkHasChanges
+        {
+            get => _publicDownloadLinkHasChanges;
+            set
+            {
+                if (value == _publicDownloadLinkHasChanges) return;
+                _publicDownloadLinkHasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -481,6 +498,10 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
         private async Task OpenSelectedFile()

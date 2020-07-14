@@ -9,7 +9,6 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-    xmlns:fa5="http://schemas.fontawesome.com/icons/"
     d:DataContext="{d:DesignInstance updateNotesEditor:UpdateNotesEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -18,6 +17,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
@@ -48,9 +48,11 @@
                                    Target="{Binding ElementName=UpdateNotesContentTextBox}">
                                 Content
                             </Label>
-                            <fa5:FontAwesome Icon="Solid_InfoCircle" VerticalAlignment="Center"
-                                             ToolTip="Content Has Changes"
-                                             Visibility="{Binding UpdateNotesHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                            <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                                   Visibility="{Binding UpdateNotesHasChanges, Converter={StaticResource BooleanToVisibility}}"
+                                                   IconPathGeometry="{StaticResource IconDataInfo}"
+                                                   HoverText="Content Has Changes"
+                                                   IconBrush="Black" />
                         </StackPanel>
                     </GroupBox.Header>
                     <TextBox

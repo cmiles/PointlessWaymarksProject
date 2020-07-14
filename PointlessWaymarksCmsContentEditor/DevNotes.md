@@ -18,7 +18,6 @@
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - In Search it might be nice to have the content type on the line with date?
- - Replace Font Awesome Usage - wait spinner done
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -32,7 +31,7 @@
  - Look at deployment options - self contained? msix? automated?
  - Watch https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/ - the source generators look like they could be quite interesting for INPC and HasChanges
  - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size don't match, link handler is code behind...
- - Could all font sizes be controlled by slider? I like the control in the editor but maybe everywhere would be more useful?
+ - Could all font sizes be controlled by slider? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
  - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site - or maybe look for other PDF generation strategies
  - How hard would it be to create a GridSplitter that would be easy to set the initial split based off of the last editor use - and/or that could completely hide content to one side with a shortcut
  
@@ -45,6 +44,12 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/14/2020
+
+Finished out the conversion from FontAwesome to XAML/SVG Icons - more work than expected overall setting up the user control and switching out icons everywhere but I think this is a good trade (especially since so far the first version of the UserControl seems to be holding up for both icon and in button use) - of course it is not reasonable for this project to not take dependencies, but I think in the case of FontAwesome it is unreasonable to believe I could pin the current version and work for years without anything breaking, I do want this project to stay 'up to date' - but I also have ambitions for this being something that I might still use in 5-10 years, overall Windows Desktop software has proved remarkably durable and tooling from MS very supportive of older frameworks/projects (this is based on experience at work where things have run for many years between edits...) so I think this might be reasonable and but I don't think it is reasonable for FontAwesome which was a core-non-optional part of the GUI.
+
+Fixed a bug in the Photo List where reloading wasn't properly applying sort and filter.
 
 7/13/2020
 
