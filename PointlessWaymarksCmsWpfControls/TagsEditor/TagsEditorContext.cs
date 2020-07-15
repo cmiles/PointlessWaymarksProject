@@ -18,8 +18,8 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         private string _tags = string.Empty;
         private bool _tagsHaveChanges;
         private bool _tagsHaveValidationIssues;
-        private string _tagsValidationMessage;
         private bool _tagsHaveWarnings;
+        private string _tagsValidationMessage;
         private string _tagsWarningMessage;
 
         public TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
@@ -85,6 +85,17 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
+        public bool TagsHaveWarnings
+        {
+            get => _tagsHaveWarnings;
+            set
+            {
+                if (value == _tagsHaveWarnings) return;
+                _tagsHaveWarnings = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string TagsValidationMessage
         {
             get => _tagsValidationMessage;
@@ -92,6 +103,17 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             {
                 if (value == _tagsValidationMessage) return;
                 _tagsValidationMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string TagsWarningMessage
+        {
+            get => _tagsWarningMessage;
+            set
+            {
+                if (value == _tagsWarningMessage) return;
+                _tagsWarningMessage = value;
                 OnPropertyChanged();
             }
         }
@@ -115,38 +137,10 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
                 TagsWarningMessage = string.Empty;
             }
 
-            if (tags.Any(x => !FolderFileUtility.IsNoUrlEncodingNeededLowerCaseSpacesOk(x) || x.Length > 200))
-            {
-                TagsHaveValidationIssues = true;
-                TagsValidationMessage = "Limit tags to a-z 0-9 _ - [space] and less than 200 characters per tag.";
-            }
-            else
-            {
-                TagsHaveValidationIssues = false;
-                TagsValidationMessage = string.Empty;
-            }
-        }
+            var tagValidation = CommonContentValidation.ValidateTags(Tags);
 
-        public string TagsWarningMessage
-        {
-            get => _tagsWarningMessage;
-            set
-            {
-                if (value == _tagsWarningMessage) return;
-                _tagsWarningMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool TagsHaveWarnings
-        {
-            get => _tagsHaveWarnings;
-            set
-            {
-                if (value == _tagsHaveWarnings) return;
-                _tagsHaveWarnings = value;
-                OnPropertyChanged();
-            }
+            TagsHaveValidationIssues = !tagValidation.isValid;
+            TagsValidationMessage = tagValidation.explanation;
         }
 
         private List<string> DbTagList()

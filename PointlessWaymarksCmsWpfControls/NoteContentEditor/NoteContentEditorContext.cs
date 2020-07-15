@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
-using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsData.Html;
-using PointlessWaymarksCmsData.Html.NoteHtml;
-using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -36,7 +28,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private string _folder;
         private bool _folderHasChanges;
         private Command _saveAndCreateLocalCommand;
-        private Command _saveUpdateDatabaseCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private string _slug;
         private string _summary;
@@ -48,8 +39,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndCreateLocal));
-            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
+            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
                 LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
@@ -166,17 +156,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public Command SaveUpdateDatabaseCommand
-        {
-            get => _saveUpdateDatabaseCommand;
-            set
-            {
-                if (Equals(value, _saveUpdateDatabaseCommand)) return;
-                _saveUpdateDatabaseCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public ShowInMainSiteFeedEditorContext ShowInSiteFeed
         {
             get => _showInSiteFeed;
@@ -245,17 +224,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                      DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
         }
 
-
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private async Task GenerateHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var htmlContext = new SingleNotePage(DbEntry);
-
-            htmlContext.WriteLocalHtml();
-        }
 
         public async Task LoadData(NoteContent toLoad)
         {
@@ -274,26 +243,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
             TagEdit = new TagsEditorContext(StatusContext, DbEntry);
             BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
-
-            if (string.IsNullOrWhiteSpace(DbEntry.Slug))
-            {
-                var possibleSlug = SlugUtility.RandomLowerCaseString(6);
-
-                var db = await Db.Context();
-
-                async Task<bool> SlugAlreadyExists(string slug)
-                {
-                    return await db.NoteContents.AnyAsync(x => x.Slug == slug);
-                }
-
-                while (await SlugAlreadyExists(possibleSlug)) possibleSlug = SlugUtility.RandomLowerCaseString(6);
-
-                Slug = possibleSlug;
-            }
-            else
-            {
-                Slug = DbEntry.Slug;
-            }
         }
 
         [NotifyPropertyChangedInvocator]
@@ -306,164 +255,53 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
-        private async Task SaveAndCreateLocal()
+        private NoteContent CurrentStateToFileContent()
         {
-            var validationList = await ValidateAll();
-
-            if (validationList.Any(x => !x.Item1))
-            {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
-                return;
-            }
-
-            await SaveToDatabase();
-            await GenerateHtml();
-            await Export.WriteLocalDbJson(DbEntry, StatusContext.ProgressTracker());
-        }
-
-
-        private async Task SaveToDatabase()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
             var newEntry = new NoteContent();
-
-            var isNewEntry = false;
 
             if (DbEntry == null || DbEntry.Id < 1)
             {
-                isNewEntry = true;
                 newEntry.ContentId = Guid.NewGuid();
+                newEntry.Slug = NoteGenerator.UniqueNoteSlug().Result;
                 newEntry.CreatedOn = DateTime.Now;
                 newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
             }
             else
             {
+                newEntry.Slug = Slug.TrimNullToEmpty();
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
                 newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullToEmpty();
             }
 
-            newEntry.Slug = Slug.TrimNullToEmpty();
             newEntry.Folder = Folder.TrimNullToEmpty();
             newEntry.Summary = Summary.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
             newEntry.Tags = TagEdit.TagListString();
-            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;
-            newEntry.BodyContent = BodyContent.BodyContent;
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
+            newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
-            if (DbEntry != null && DbEntry.Id > 0)
-                if (DbEntry.Slug != newEntry.Slug || DbEntry.Folder != newEntry.Folder)
-                {
-                    var settings = UserSettingsSingleton.CurrentSettings();
-                    var existingDirectory = settings.LocalSiteNoteContentDirectory(DbEntry, false);
-
-                    if (existingDirectory.Exists)
-                    {
-                        var newDirectory =
-                            new DirectoryInfo(settings.LocalSiteNoteContentDirectory(newEntry, false).FullName);
-                        existingDirectory.MoveTo(settings.LocalSiteNoteContentDirectory(newEntry, false).FullName);
-                        newDirectory.Refresh();
-
-                        var possibleOldHtmlFile =
-                            new FileInfo($"{Path.Combine(newDirectory.FullName, DbEntry.Slug)}.html");
-                        if (possibleOldHtmlFile.Exists)
-                            possibleOldHtmlFile.MoveTo(settings.LocalSiteNoteHtmlFile(newEntry).FullName);
-                    }
-                }
-
-            await Db.SaveNoteContent(newEntry);
-
-            DbEntry = newEntry;
-
-            await LoadData(newEntry);
-
-            if (isNewEntry)
-                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
-                    DataNotificationContentType.Note, DataNotificationUpdateType.New,
-                    new List<Guid> {newEntry.ContentId});
-            else
-                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
-                    DataNotificationContentType.Note, DataNotificationUpdateType.Update,
-                    new List<Guid> {newEntry.ContentId});
+            return newEntry;
         }
 
-        private async Task SaveToDbWithValidation()
+        public async Task SaveAndGenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var validationList = await ValidateAll();
+            var (generationReturn, newContent) =
+                await NoteGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), StatusContext.ProgressTracker());
 
-            if (validationList.Any(x => !x.Item1))
+            if (generationReturn.HasError || newContent == null)
             {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
+                await StatusContext.ShowMessageWithOkButton("Problem Saving and Generating Html",
+                    generationReturn.GenerationNote);
                 return;
             }
 
-            await SaveToDatabase();
-        }
-
-        private async Task<(bool, string)> Validate()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var isValid = true;
-            var errorMessage = string.Empty;
-
-            if (string.IsNullOrWhiteSpace(Slug))
-            {
-                isValid = false;
-                errorMessage += "Slug can not be blank.";
-            }
-
-            if (string.IsNullOrWhiteSpace(Folder))
-            {
-                isValid = false;
-                errorMessage += "Folder can not be blank.";
-            }
-
-            if (string.IsNullOrWhiteSpace(Summary))
-            {
-                isValid = false;
-                errorMessage += "Summary can not be blank.";
-            }
-
-            if (!isValid) return (false, errorMessage);
-
-            if (!FolderFileUtility.IsNoUrlEncodingNeeded(Folder))
-            {
-                isValid = false;
-                errorMessage += "Folders have illegal characters...";
-            }
-
-            if (!isValid) return (false, errorMessage);
-
-            if (await (await Db.Context()).SlugExistsInDatabase(Slug, DbEntry?.ContentId))
-            {
-                isValid = false;
-                errorMessage += "Slug already exists in Database";
-            }
-
-            return (isValid, errorMessage);
-        }
-
-        private async Task<List<(bool, string)>> ValidateAll()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            return new List<(bool, string)>
-            {
-                UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
-                await CreatedUpdatedDisplay.Validate(),
-                await Validate()
-            };
+            await LoadData(newContent);
         }
 
         private async Task ViewOnSite()

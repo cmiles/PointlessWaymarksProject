@@ -39,6 +39,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private Command _openSelectedFileDirectoryCommand;
         private string _pdfToImagePageToExtract = "1";
         private bool _publicDownloadLink = true;
+        private bool _publicDownloadLinkHasChanges;
         private Command _saveAndExtractImageFromPdfCommand;
         private Command _saveAndGenerateHtmlCommand;
         private FileInfo _selectedFile;
@@ -49,7 +50,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
-        private bool _publicDownloadLinkHasChanges;
 
         public FileContentEditorContext(StatusControlContext statusContext)
         {
@@ -188,11 +188,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 _publicDownloadLink = value;
                 OnPropertyChanged();
             }
-        }
-
-        private void CheckForChanges()
-        {
-            PublicDownloadLinkHasChanges = PublicDownloadLink != (DbEntry?.PublicDownloadLink ?? true);
         }
 
         public bool PublicDownloadLinkHasChanges
@@ -339,6 +334,11 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private void CheckForChanges()
+        {
+            PublicDownloadLinkHasChanges = PublicDownloadLink != (DbEntry?.PublicDownloadLink ?? true);
+        }
 
         public async Task ChooseFile()
         {
@@ -587,9 +587,12 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
                 SelectedFile, overwriteExistingFiles, StatusContext.ProgressTracker());
 
-            if (generationReturn.HasError)
+            if (generationReturn.HasError || newContent == null)
+            {
                 await StatusContext.ShowMessageWithOkButton("Problem Saving and Generating Html",
                     generationReturn.GenerationNote);
+                return;
+            }
 
             await LoadData(newContent);
         }
@@ -598,7 +601,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            HelpContext = new HelpDisplayContext(FileContentHelpMarkdown.HelpBlock + Environment.NewLine + BracketCodeHelpMarkdown.HelpBlock);
+            HelpContext = new HelpDisplayContext(FileContentHelpMarkdown.HelpBlock + Environment.NewLine +
+                                                 BracketCodeHelpMarkdown.HelpBlock);
 
             ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
             SaveAndGenerateHtmlCommand = new Command(() =>

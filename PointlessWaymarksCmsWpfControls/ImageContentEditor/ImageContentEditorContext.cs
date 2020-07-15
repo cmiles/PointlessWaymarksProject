@@ -39,11 +39,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private Command _extractNewLinksCommand;
         private FileInfo _initialImage;
         private Command _linkToClipboardCommand;
-        private Command _resizeFileCommand;
         private Command _rotateImageLeftCommand;
         private Command _rotateImageRightCommand;
         private Command _saveAndGenerateHtmlCommand;
-        private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private BitmapSource _selectedFileBitmapSource;
         private string _selectedFileFullPath;
@@ -509,8 +507,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             var (generationReturn, newContent) = await ImageGenerator.SaveAndGenerateHtml(CurrentStateToPhotoContent(),
                 SelectedFile, overwriteExistingFiles, StatusContext.ProgressTracker());
 
-            if (generationReturn.HasError)
+            if (generationReturn.HasError || newContent == null)
+            {
                 await StatusContext.ShowMessageWithOkButton("Problem Saving", generationReturn.GenerationNote);
+                return;
+            }
 
             await LoadData(newContent);
         }

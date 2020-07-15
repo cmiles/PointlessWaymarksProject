@@ -224,14 +224,10 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
         public void ValidateTitle()
         {
-            TitleHasValidationIssues = false;
-            TitleValidationMessage = string.Empty;
+            var validationResult = CommonContentValidation.ValidateTitle(Title);
 
-            if (string.IsNullOrWhiteSpace(Title))
-            {
-                TitleHasValidationIssues = true;
-                TitleValidationMessage = "Title can't be blank or only whitespace.";
-            }
+            TitleHasValidationIssues = !validationResult.isValid;
+            TitleValidationMessage = validationResult.explanation;
         }
 
         public string TitleValidationMessage
@@ -258,14 +254,10 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
         public void ValidateSummary()
         {
-            SummaryHasValidationIssues = false;
-            SummaryValidationMessage = string.Empty;
+            var validationResult = CommonContentValidation.ValidateSummary(Summary);
 
-            if (string.IsNullOrWhiteSpace(Summary))
-            {
-                SummaryHasValidationIssues = true;
-                SummaryValidationMessage = "Summary can't be blank or only whitespace.";
-            }
+            SummaryHasValidationIssues = !validationResult.isValid;
+            SummaryValidationMessage = validationResult.explanation;
         }
 
         public string SummaryValidationMessage
@@ -292,28 +284,10 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
         public void ValidateSlug()
         {
-            SlugHasValidationIssues = false;
-            SlugValidationMessage = string.Empty;
+            var validationResult = CommonContentValidation.ValidateSlug(Slug);
 
-            if (string.IsNullOrWhiteSpace(Slug))
-            {
-                SlugHasValidationIssues = true;
-                SlugValidationMessage = "Slug can't be blank or only whitespace.";
-                return;
-            }
-
-            if (!FolderFileUtility.IsNoUrlEncodingNeeded(Slug))
-            {
-                SlugHasValidationIssues = true;
-                SlugValidationMessage = "Slug should only contain 0-9 a-z _ -";
-                return;
-            }
-
-            if (Slug.Length > 100)
-            {
-                SlugHasValidationIssues = true;
-                SlugValidationMessage = "Limit slugs to 100 characters.";
-            }
+            SlugHasValidationIssues = !validationResult.isValid;
+            SlugValidationMessage = validationResult.explanation;
         }
 
         public string SlugValidationMessage
@@ -338,25 +312,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
-        public void ValidateFolder()
-        {
-            FolderHasValidationIssues = false;
-            FolderValidationMessage = string.Empty;
-
-            if (string.IsNullOrWhiteSpace(Folder))
-            {
-                FolderHasValidationIssues = true;
-                FolderValidationMessage = "Folder can't be blank or only whitespace.";
-                return;
-            }
-
-            if (!FolderFileUtility.IsNoUrlEncodingNeeded(Folder))
-            {
-                FolderHasValidationIssues = true;
-                FolderValidationMessage = "Limit folder names to a-z A-Z 0-9 _ -";
-            }
-        }
-
         public string FolderValidationMessage
         {
             get => _folderValidationMessage;
@@ -377,6 +332,14 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
                 _folderHasValidationIssues = value;
                 OnPropertyChanged();
             }
+        }
+
+        public void ValidateFolder()
+        {
+            var validationResult = CommonContentValidation.ValidateFolder(Folder);
+
+            FolderHasValidationIssues = !validationResult.isValid;
+            FolderValidationMessage = validationResult.explanation;
         }
 
         public async Task<(bool valid, string explanation)> Validate()

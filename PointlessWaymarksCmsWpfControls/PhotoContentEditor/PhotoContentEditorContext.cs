@@ -680,9 +680,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             var (generationReturn, newContent) = await PhotoGenerator.SaveAndGenerateHtml(CurrentStateToPhotoContent(),
                 SelectedFile, overwriteExistingFiles, StatusContext.ProgressTracker());
 
-            if (generationReturn.HasError)
+            if (generationReturn.HasError || newContent == null)
+            {
                 await StatusContext.ShowMessageWithOkButton("Problem Saving and Generating Html",
                     generationReturn.GenerationNote);
+                return;
+            }
 
             await LoadData(newContent);
         }
@@ -694,8 +697,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             var (generationReturn, newContent) = await PhotoGenerator.SaveToDb(CurrentStateToPhotoContent(),
                 SelectedFile, StatusContext.ProgressTracker());
 
-            if (generationReturn.HasError)
+            if (generationReturn.HasError || newContent == null)
+            {
                 await StatusContext.ShowMessageWithOkButton("Problem Saving", generationReturn.GenerationNote);
+                return;
+            }
 
             await LoadData(newContent);
         }

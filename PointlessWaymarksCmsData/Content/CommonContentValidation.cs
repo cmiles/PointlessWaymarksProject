@@ -31,16 +31,20 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add($"Content Version of {toValidate.ContentVersion} is not valid.");
             }
 
-            if (string.IsNullOrWhiteSpace(toValidate.Title))
+            var titleValidation = ValidateTitle(toValidate.Title);
+
+            if (!titleValidation.isValid)
             {
                 isValid = false;
-                errorMessage.Add("Title can not be blank.");
+                errorMessage.Add(titleValidation.explanation);
             }
 
-            if (string.IsNullOrWhiteSpace(toValidate.Summary))
+            var summaryValidation = ValidateSummary(toValidate.Summary);
+
+            if (!summaryValidation.isValid)
             {
                 isValid = false;
-                errorMessage.Add("Summary can not be blank.");
+                errorMessage.Add(summaryValidation.explanation);
             }
 
             var (createdUpdatedIsValid, createdUpdatedExplanation) =
@@ -52,30 +56,18 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add(createdUpdatedExplanation);
             }
 
-            if (string.IsNullOrWhiteSpace(toValidate.Slug))
+            var slugValidation = ValidateSlug(toValidate.Slug);
+
+            if (!slugValidation.isValid)
             {
                 isValid = false;
-                errorMessage.Add("Slug can not be blank.");
+                errorMessage.Add(slugValidation.explanation);
             }
-
-            if (!string.IsNullOrWhiteSpace(toValidate.Slug))
+            else
             {
-                if (!FolderFileUtility.IsNoUrlEncodingNeededLowerCase(toValidate.Slug))
-                {
+                if (await (await Db.Context()).SlugExistsInDatabase(toValidate.Slug, toValidate.ContentId))
                     isValid = false;
-                    errorMessage.Add("Limit Slugs to a-z 0-9 - _");
-                }
-                else if (toValidate.Slug.Length > 100)
-                {
-                    isValid = false;
-                    errorMessage.Add("Limit Slugs to 100 characters");
-                }
-                else
-                {
-                    if (await (await Db.Context()).SlugExistsInDatabase(toValidate.Slug, toValidate.ContentId))
-                        isValid = false;
-                    errorMessage.Add("This slug already exists in the database - slugs must be unique.");
-                }
+                errorMessage.Add("This slug already exists in the database - slugs must be unique.");
             }
 
             if (string.IsNullOrWhiteSpace(toValidate.Folder))
@@ -99,7 +91,8 @@ namespace PointlessWaymarksCmsData.Content
                 if (tags.Any(x => !FolderFileUtility.IsNoUrlEncodingNeededLowerCaseSpacesOk(x) || x.Length > 200))
                 {
                     isValid = false;
-                    errorMessage.Add("Tags should be limited to a-z A-Z _ - [space] and each tag should be less than 200 characters");
+                    errorMessage.Add(
+                        "Tags should be limited to a-z A-Z _ - [space] and each tag should be less than 200 characters");
                 }
             }
 
@@ -137,6 +130,53 @@ namespace PointlessWaymarksCmsData.Content
             }
 
             return (isValid, string.Join(Environment.NewLine, errorMessage));
+        }
+
+        public static (bool isValid, string explanation) ValidateFolder(string folder)
+        {
+            if (string.IsNullOrWhiteSpace(folder)) return (false, "Folder can't be blank or only whitespace.");
+
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(folder))
+                return (false, "Limit folder names to a-z A-Z 0-9 _ -");
+
+            return (true, string.Empty);
+        }
+
+        public static (bool isValid, string explanation) ValidateSlug(string slug)
+        {
+            if (string.IsNullOrWhiteSpace(slug)) return (false, "Slug can't be blank or only whitespace.");
+
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(slug)) return (false, "Slug should only contain 0-9 a-z _ -");
+
+            if (slug.Length > 100) return (false, "Limit slugs to 100 characters.");
+
+            return (true, string.Empty);
+        }
+
+        public static (bool isValid, string explanation) ValidateSummary(string summary)
+        {
+            if (string.IsNullOrWhiteSpace(summary)) return (false, "Summary can not be blank");
+
+            return (true, string.Empty);
+        }
+
+        public static (bool isValid, string explanation) ValidateTags(string tags)
+        {
+            if (string.IsNullOrWhiteSpace(tags)) return (true, string.Empty);
+
+            var tagList = Db.TagListParse(tags);
+
+            if (tagList.Any(x => !FolderFileUtility.IsNoUrlEncodingNeededLowerCaseSpacesOk(x) || x.Length > 200))
+                return (false, "Limit tags to a-z 0-9 _ - [space] and less than 200 characters per tag.");
+
+            return (true, string.Empty);
+        }
+
+        public static (bool isValid, string explanation) ValidateTitle(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title)) return (false, "Title can not be blank");
+
+            return (true, string.Empty);
         }
     }
 }

@@ -1,11 +1,9 @@
 ﻿## Todos
  - Content Testing:
-  - Redo commented test types
-  - Test lists and galleries (wait until more content linked together for wider test)
-  - Finish up link generation and testing
+  - Post Generator and GUI Integration
+  - Ironwood Integration Tests for File, Image, Post, Note, Link
   - Folder structure clean up routines - Photos written, need other content types and integration
   - Add tests for the common content validation
-  - Need to integrate note and link changes back into the gui editors
  - The Data Notification responses in the Lists assume the messages come in the expected order - probably new and update should both actually be 'merge' since you might get contentupdate before new... PhotoList done as a test.
  - Gui Validation alerts - Title control and Tags Control Done
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
@@ -46,6 +44,10 @@
 ## Notes
 
 7/15/2020
+
+Consolidated some validation into CommonContent Validation.
+
+Fixed a bug in saving to make sure that the content editors don't reload data if generation fails (which could both leave you in a bad state and potentially wipe out your work or error trying to load null).
 
 The TitleSummarySlug and Tags editor now have validation error and warnings (only warning is in tags) for some validation (the slug is unique validation is not run at the moment to avoid issues with performance and/or more complicated issues of caching/delay bindings/etc). Working on this triggered a number of changes tightening up validations and some additional tests.
 

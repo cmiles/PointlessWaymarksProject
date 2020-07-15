@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -8,10 +7,8 @@ using System.Threading.Tasks;
 using AngleSharp;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
-using pinboard.net;
-using pinboard.net.Models;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -55,9 +52,9 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             StatusContext = statusContext ?? new StatusControlContext();
 
             SaveUpdateDatabaseCommand = new Command(() =>
-                StatusContext.RunBlockingTask(() => SaveToDbWithValidation(StatusContext?.ProgressTracker())));
+                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(false)));
             SaveUpdateDatabaseAndCloseCommand = new Command(() =>
-                StatusContext.RunBlockingTask(() => SaveToDbWithValidationAndClose(StatusContext?.ProgressTracker())));
+                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
             ExtractDataCommand = new Command(() =>
                 StatusContext.RunBlockingTask(() => ExtractDataFromLink(StatusContext?.ProgressTracker())));
             OpenUrlInBrowserCommand = new Command(() =>
@@ -362,7 +359,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             //Empty string from null will not be invoked as an extension if DbEntry is null...
             AuthorHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Author) != Author.TrimNullToEmpty();
             CommentsHaveChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Comments) != Comments.TrimNullToEmpty();
-            DescriptionHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Description) != Description.TrimNullToEmpty();
+            DescriptionHasChanges =
+                StringHelpers.TrimNullToEmpty(DbEntry?.Description) != Description.TrimNullToEmpty();
             LinkDateTimeHasChanges = DbEntry?.LinkDate != LinkDateTime;
             LinkUrlHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Url) != LinkUrl.TrimNullToEmpty();
             ShowInLinkRssHasChanges = DbEntry?.ShowInLinkRss != ShowInLinkRss;
@@ -537,19 +535,12 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             if (!(propertyName.Contains("HasChanges") || propertyName.Contains("HaveChanges"))) CheckForChanges();
         }
 
-        private async Task SaveToDatabase(IProgress<string> progress)
+        private LinkStream CurrentStateToLinkStreamContent()
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            progress?.Report("Setting up new Entry");
-
             var newEntry = new LinkStream();
-
-            var isNewEntry = false;
 
             if (DbEntry == null || DbEntry.Id < 1)
             {
-                isNewEntry = true;
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
                 newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
@@ -560,7 +551,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
                 newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullToEmpty();
             }
 
             newEntry.Tags = TagEdit.TagListString();
@@ -574,121 +565,32 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             newEntry.LinkDate = LinkDateTime;
             newEntry.ShowInLinkRss = ShowInLinkRss;
 
-            await Db.SaveLinkStream(newEntry);
-
-            DbEntry = newEntry;
-
-            await LoadData(newEntry);
-
-            if (isNewEntry)
-                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
-                    DataNotificationContentType.Link, DataNotificationUpdateType.New,
-                    new List<Guid> {newEntry.ContentId});
-            else
-                await DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
-                    DataNotificationContentType.Link, DataNotificationUpdateType.Update,
-                    new List<Guid> {newEntry.ContentId});
+            return newEntry;
         }
 
-        private async Task SaveToDbWithValidation(IProgress<string> progress)
+        public async Task SaveAndGenerateHtml(bool closeAfterSave)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var validationList = await ValidateAll();
+            var (generationReturn, newContent) =
+                await LinkGenerator.SaveAndGenerateHtml(CurrentStateToLinkStreamContent(),
+                    StatusContext.ProgressTracker());
 
-            if (validationList.Any(x => !x.Item1))
+            if (generationReturn.HasError || newContent == null)
             {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
+                await StatusContext.ShowMessageWithOkButton("Problem Saving and Generating Html",
+                    generationReturn.GenerationNote);
                 return;
             }
 
-            await SaveToDatabase(progress);
-            await SaveToPinboard(progress);
-        }
-
-        private async Task SaveToDbWithValidationAndClose(IProgress<string> progress)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var validationList = await ValidateAll();
-
-            if (validationList.Any(x => !x.Item1))
+            if (closeAfterSave)
             {
-                await StatusContext.ShowMessage("Validation Error",
-                    string.Join(Environment.NewLine, validationList.Where(x => !x.Item1).Select(x => x.Item2).ToList()),
-                    new List<string> {"Ok"});
+                await ThreadSwitcher.ResumeForegroundAsync();
+                RequestLinkStreamEditorWindowClose?.Invoke(this, new EventArgs());
                 return;
             }
 
-            await SaveToDatabase(progress);
-            await SaveToPinboard(progress);
-
-            RequestLinkStreamEditorWindowClose?.Invoke(this, new EventArgs());
-        }
-
-        private async Task SaveToPinboard(IProgress<string> progress)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
-            {
-                progress?.Report("No Pinboard Api Token... Skipping save to Pinboard.");
-                return;
-            }
-
-            var descriptionFragments = new List<string>();
-            if (!string.IsNullOrWhiteSpace(Site)) descriptionFragments.Add($"Site: {Site}");
-            if (LinkDateTime != null) descriptionFragments.Add($"Date: {LinkDateTime.Value:g}");
-            if (!string.IsNullOrWhiteSpace(Description)) descriptionFragments.Add($"Description: {Description}");
-            if (!string.IsNullOrWhiteSpace(Comments)) descriptionFragments.Add($"Comments: {Comments}");
-            if (!string.IsNullOrWhiteSpace(Author)) descriptionFragments.Add($"Author: {Author}");
-
-            var tagList = TagEdit.TagSlugList();
-            tagList.Add(UserSettingsSingleton.CurrentSettings().SiteName);
-            tagList = tagList.Select(x => x.Replace(" ", "-")).ToList();
-
-            progress?.Report("Setting up Pinboard");
-            using var pb = new PinboardAPI(UserSettingsSingleton.CurrentSettings().PinboardApiToken);
-
-            var bookmark = new Bookmark
-            {
-                Url = LinkUrl,
-                Description = Title,
-                Extended = string.Join(" ;; ", descriptionFragments),
-                Tags = tagList,
-                CreatedDate = DateTime.Now,
-                Shared = true,
-                ToRead = false,
-                Replace = true
-            };
-
-            progress?.Report("Adding Pinboard Bookmark");
-            await pb.Posts.Add(bookmark);
-
-            progress?.Report("Pinboard Bookmark Complete");
-        }
-
-        private async Task<(bool, string)> Validate()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (string.IsNullOrWhiteSpace(LinkUrl)) return (false, "Link Url can not be null");
-
-            return (true, string.Empty);
-        }
-
-        private async Task<List<(bool, string)>> ValidateAll()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            return new List<(bool, string)>
-            {
-                UserSettingsUtilities.ValidateLocalSiteRootDirectory(),
-                await CreatedUpdatedDisplay.Validate(),
-                await Validate()
-            };
+            await LoadData(newContent);
         }
     }
 }
