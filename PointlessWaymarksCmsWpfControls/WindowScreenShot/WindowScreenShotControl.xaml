@@ -19,7 +19,7 @@
         <Button Opacity=".4" Height="26" Width="26" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="2"
                 Command="{Binding WindowScreenShotCommand}"
                 CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
-            <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+            <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                    IconPathGeometry="{StaticResource IconDataCameraOutline}"
                                    HoverText="Take Screen Shot of Application"
                                    IconBrush="Black" />

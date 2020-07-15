@@ -18,9 +18,11 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <StackPanel Orientation="Horizontal">
-            <CheckBox IsChecked="{Binding ShowInMainSite}" FontWeight="DemiBold" Content="Show Post in Site _Feed" />
-            <utility:IndicatorIcon IconSize="14" Margin="4,0,0,0" VerticalAlignment="Center"
+        <StackPanel Orientation="Horizontal" Height="20">
+            <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center" IsChecked="{Binding ShowInMainSite}"
+                      FontWeight="DemiBold" Content="Show Post in Site _Feed" />
+            <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" Margin="4,0,0,0"
+                                   VerticalAlignment="Center"
                                    Visibility="{Binding ShowInMainSiteHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                    IconPathGeometry="{StaticResource IconDataInfo}"
                                    HoverText="{Binding DbEntry.ShowInMainSiteFeed, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"

@@ -54,7 +54,7 @@
                                           IsChecked="{Binding PublicDownloadLink}">
                                     Show Public Download Link
                                 </CheckBox>
-                                <utility:IndicatorIcon Margin="4,8,0,0" IconSize="14" VerticalAlignment="Center"
+                                <utility:IndicatorIcon Margin="4,8,0,0" IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                        Visibility="{Binding PublicDownloadLinkHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                        IconPathGeometry="{StaticResource IconDataInfo}"
                                                        HoverText="{Binding DbEntry.PublicDownloadLink, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"

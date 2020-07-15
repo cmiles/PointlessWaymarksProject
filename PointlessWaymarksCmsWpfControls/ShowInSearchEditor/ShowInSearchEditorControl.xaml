@@ -18,9 +18,11 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <StackPanel Orientation="Horizontal">
-            <CheckBox IsChecked="{Binding ShowInSearch}" FontWeight="DemiBold" Content="Show In Search" />
-            <utility:IndicatorIcon Margin="4,0,0,0" IconSize="14" VerticalAlignment="Center"
+        <StackPanel Orientation="Horizontal" Height="20">
+            <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center" IsChecked="{Binding ShowInSearch}"
+                      FontWeight="DemiBold" Content="Show In Search" />
+            <utility:IndicatorIcon Margin="4,0,0,0" IconSize="{StaticResource SmallIconSize}"
+                                   VerticalAlignment="Center"
                                    Visibility="{Binding ShowInSearchHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                    IconPathGeometry="{StaticResource IconDataInfo}"
                                    HoverText="{Binding DbEntry.ShowInSearch, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"

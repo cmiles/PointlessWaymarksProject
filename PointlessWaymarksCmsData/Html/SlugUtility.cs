@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -54,24 +52,24 @@ namespace PointlessWaymarksCmsData.Html
 
         /// <summary>
         ///     Creates a slug.
-        ///     References:
-        ///     https://stackoverflow.com/questions/25259/how-does-stack-overflow-generate-its-seo-friendly-urls
-        ///     http://www.unicode.org/reports/tr15/tr15-34.html
-        ///     https://meta.stackexchange.com/questions/7435/non-us-ascii-characters-dropped-from-full-profile-url/7696#7696
-        ///     https://stackoverflow.com/questions/25259/how-do-you-include-a-webpage-title-as-part-of-a-webpage-url/25486#25486
-        ///     https://stackoverflow.com/questions/3769457/how-can-i-remove-accents-on-a-string
         /// </summary>
         /// <param name="toLower"></param>
         /// <param name="value"></param>
+        /// <param name="maxLength"></param>
         /// <returns></returns>
-        public static string Create(bool toLower, string value)
+        //     References:
+        //     https://stackoverflow.com/questions/25259/how-does-stack-overflow-generate-its-seo-friendly-urls
+        //     http://www.unicode.org/reports/tr15/tr15-34.html
+        //     https://meta.stackexchange.com/questions/7435/non-us-ascii-characters-dropped-from-full-profile-url/7696#7696
+        //     https://stackoverflow.com/questions/25259/how-do-you-include-a-webpage-title-as-part-of-a-webpage-url/25486#25486
+        //     https://stackoverflow.com/questions/3769457/how-can-i-remove-accents-on-a-string
+        public static string Create(bool toLower, string value, int maxLength = 100)
         {
             if (value == null)
                 return "";
 
             var normalized = value.Normalize(NormalizationForm.FormKD);
 
-            const int maxlength = 80;
             var len = normalized.Length;
             var prevDash = false;
             var sb = new StringBuilder(len);
@@ -123,7 +121,7 @@ namespace PointlessWaymarksCmsData.Html
                     }
                 }
 
-                if (sb.Length == maxlength)
+                if (sb.Length == maxLength)
                     break;
             }
 
@@ -139,11 +137,12 @@ namespace PointlessWaymarksCmsData.Html
             bool imageCheck;
 
             if (exceptInThisContent == null)
-                imageCheck =
-                    await context.FileContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+                imageCheck = await context.FileContents.AnyAsync(x =>
+                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase));
             else
                 imageCheck = await context.FileContents.AnyAsync(x =>
-                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
+                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase) &&
+                    x.ContentId != exceptInThisContent.Value);
 
             return imageCheck;
         }
@@ -156,11 +155,12 @@ namespace PointlessWaymarksCmsData.Html
             bool imageCheck;
 
             if (exceptInThisContent == null)
-                imageCheck =
-                    await context.ImageContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+                imageCheck = await context.ImageContents.AnyAsync(x =>
+                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase));
             else
                 imageCheck = await context.ImageContents.AnyAsync(x =>
-                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
+                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase) &&
+                    x.ContentId != exceptInThisContent.Value);
 
             return imageCheck;
         }
@@ -173,17 +173,19 @@ namespace PointlessWaymarksCmsData.Html
             bool photoCheck;
 
             if (exceptInThisContent == null)
-                photoCheck =
-                    await context.PhotoContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+                photoCheck = await context.PhotoContents.AnyAsync(x =>
+                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase));
             else
                 photoCheck = await context.PhotoContents.AnyAsync(x =>
-                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
+                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase) &&
+                    x.ContentId != exceptInThisContent.Value);
 
             return photoCheck;
         }
 
         public static string RandomLowerCaseString(int length)
         {
+            // ReSharper disable once StringLiteralTypo
             var chars = "abcdefghijklmnopqrstuvwxyz";
             var stringChars = new char[length];
             var random = new Random();
@@ -208,7 +210,6 @@ namespace PointlessWaymarksCmsData.Html
 
                 return photoCheck || postCheck || imageCheck || noteCheck || fileCheck;
             }
-
 
             var photoExcludeCheck =
                 await context.PhotoContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);

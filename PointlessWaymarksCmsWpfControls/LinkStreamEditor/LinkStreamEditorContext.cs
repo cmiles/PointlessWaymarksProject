@@ -345,13 +345,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         {
             return !(!TagEdit.TagsHaveChanges && DbEntry.ShowInLinkRss == ShowInLinkRss &&
                      DbEntry.LinkDate == LinkDateTime &&
-                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy.TrimNullSafe()) &&
-                     StringHelpers.AreEqual(DbEntry.Comments, Comments.TrimNullSafe()) &&
-                     StringHelpers.AreEqual(DbEntry.Url, LinkUrl.TrimNullSafe()) &&
-                     StringHelpers.AreEqual(DbEntry.Title, Title.TrimNullSafe()) &&
-                     StringHelpers.AreEqual(DbEntry.Site, Site.TrimNullSafe()) &&
-                     StringHelpers.AreEqual(DbEntry.Author, Author.TrimNullSafe()) &&
-                     StringHelpers.AreEqual(DbEntry.Description, Description.TrimNullSafe()));
+                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty()) &&
+                     StringHelpers.AreEqual(DbEntry.Comments, Comments.TrimNullToEmpty()) &&
+                     StringHelpers.AreEqual(DbEntry.Url, LinkUrl.TrimNullToEmpty()) &&
+                     StringHelpers.AreEqual(DbEntry.Title, Title.TrimNullToEmpty()) &&
+                     StringHelpers.AreEqual(DbEntry.Site, Site.TrimNullToEmpty()) &&
+                     StringHelpers.AreEqual(DbEntry.Author, Author.TrimNullToEmpty()) &&
+                     StringHelpers.AreEqual(DbEntry.Description, Description.TrimNullToEmpty()));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -360,14 +360,14 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
-            AuthorHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Author) != Author.TrimNullSafe();
-            CommentsHaveChanges = StringHelpers.TrimNullSafe(DbEntry?.Comments) != Comments.TrimNullSafe();
-            DescriptionHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Description) != Description.TrimNullSafe();
+            AuthorHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Author) != Author.TrimNullToEmpty();
+            CommentsHaveChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Comments) != Comments.TrimNullToEmpty();
+            DescriptionHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Description) != Description.TrimNullToEmpty();
             LinkDateTimeHasChanges = DbEntry?.LinkDate != LinkDateTime;
-            LinkUrlHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Url) != LinkUrl.TrimNullSafe();
+            LinkUrlHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Url) != LinkUrl.TrimNullToEmpty();
             ShowInLinkRssHasChanges = DbEntry?.ShowInLinkRss != ShowInLinkRss;
-            SiteHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Site) != Site.TrimNullSafe();
-            TitleHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Title) != Title.TrimNullSafe();
+            SiteHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Site) != Site.TrimNullToEmpty();
+            TitleHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Title) != Title.TrimNullToEmpty();
             // ReSharper restore InvokeAsExtensionMethod
         }
 
@@ -564,13 +564,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
 
             newEntry.Tags = TagEdit.TagListString();
-            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullSafe();
-            newEntry.Comments = Comments.TrimNullSafe();
-            newEntry.Url = LinkUrl.TrimNullSafe();
-            newEntry.Title = Title.TrimNullSafe();
-            newEntry.Site = Site.TrimNullSafe();
-            newEntry.Author = Author.TrimNullSafe();
-            newEntry.Description = Description.TrimNullSafe();
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
+            newEntry.Comments = Comments.TrimNullToEmpty();
+            newEntry.Url = LinkUrl.TrimNullToEmpty();
+            newEntry.Title = Title.TrimNullToEmpty();
+            newEntry.Site = Site.TrimNullToEmpty();
+            newEntry.Author = Author.TrimNullToEmpty();
+            newEntry.Description = Description.TrimNullToEmpty();
             newEntry.LinkDate = LinkDateTime;
             newEntry.ShowInLinkRss = ShowInLinkRss;
 

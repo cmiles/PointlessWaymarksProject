@@ -198,16 +198,16 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
                 if (summaryHasValue)
                 {
                     var summaryIsInTitle = titleSummaryString.Replace(".", string.Empty).ToLower()
-                        .Contains(dbEntry.Summary.TrimNullSafe().Replace(".", string.Empty).ToLower());
+                        .Contains(dbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty).ToLower());
 
-                    if (!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullSafe()}";
+                    if (!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullToEmpty()}";
                 }
 
                 if (!titleSummaryString.EndsWith(".")) titleSummaryString += ".";
             }
             else
             {
-                titleSummaryString = dbEntry.Summary.TrimNullSafe();
+                titleSummaryString = dbEntry.Summary.TrimNullToEmpty();
                 if (!titleSummaryString.EndsWith(".")) titleSummaryString += ".";
             }
 

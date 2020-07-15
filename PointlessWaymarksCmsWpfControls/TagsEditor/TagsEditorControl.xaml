@@ -24,11 +24,21 @@
             <StackPanel Orientation="Horizontal">
                 <Label Style="{StaticResource DataEntryLabelStyle}" Content="Tags (Comma,Separated)"
                        Target="{Binding ElementName=TagsTextBox}" />
-                <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                        Visibility="{Binding TagsHaveChanges, Converter={StaticResource BooleanToVisibility}}"
                                        IconPathGeometry="{StaticResource IconDataInfo}"
                                        HoverText="{Binding DbEntry.Tags, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
                                        IconBrush="Black" />
+                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
+                                       Visibility="{Binding TagsHaveWarnings, Converter={StaticResource BooleanToVisibility}}"
+                                       IconPathGeometry="{StaticResource IconDataWarning}"
+                                       HoverText="{Binding TagsWarningMessage}"
+                                       IconBrush="Orange" />
+                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
+                                       Visibility="{Binding TagsHaveValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+                                       IconPathGeometry="{StaticResource IconDataError}"
+                                       HoverText="{Binding TagsValidationMessage}"
+                                       IconBrush="Red" />
             </StackPanel>
             <TextBox
                 Name="TagsTextBox"

@@ -48,7 +48,7 @@
                                    Target="{Binding ElementName=UpdateNotesContentTextBox}">
                                 Content
                             </Label>
-                            <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                            <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                    Visibility="{Binding UpdateNotesHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                    IconPathGeometry="{StaticResource IconDataInfo}"
                                                    HoverText="Content Has Changes"

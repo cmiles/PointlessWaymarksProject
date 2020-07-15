@@ -26,7 +26,7 @@
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CreatedByTextBox}"
                            Content="Created By" />
-                    <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                            Visibility="{Binding CreatedByHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                            IconPathGeometry="{StaticResource IconDataInfo}"
                                            HoverText="{Binding DbEntry.CreatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
@@ -40,7 +40,7 @@
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UpdatedByTextBox}"
                            Content="Updated By" />
-                    <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                            Visibility="{Binding UpdatedHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                            IconPathGeometry="{StaticResource IconDataInfo}"
                                            HoverText="{Binding DbEntry.LastUpdatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"

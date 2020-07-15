@@ -62,8 +62,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
-            SummaryHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Summary) != Summary.TrimNullSafe();
-            FolderHasChanges = StringHelpers.TrimNullSafe(DbEntry?.Folder) != Folder.TrimNullSafe();
+            SummaryHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Summary) != Summary.TrimNullToEmpty();
+            FolderHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Folder) != Folder.TrimNullToEmpty();
             // ReSharper restore InvokeAsExtensionMethod
         }
 
@@ -236,8 +236,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
         public bool HasChanges()
         {
-            return !(StringHelpers.AreEqual(DbEntry.Folder, Folder.TrimNullSafe()) &&
-                     StringHelpers.AreEqual(DbEntry.Summary, Summary.TrimNullSafe()) &&
+            return !(StringHelpers.AreEqual(DbEntry.Folder, Folder.TrimNullToEmpty()) &&
+                     StringHelpers.AreEqual(DbEntry.Summary, Summary.TrimNullToEmpty()) &&
                      StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
                      StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
                      StringHelpers.AreEqual(DbEntry.BodyContentFormat,
@@ -348,9 +348,9 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy;
             }
 
-            newEntry.Slug = Slug.TrimNullSafe();
-            newEntry.Folder = Folder.TrimNullSafe();
-            newEntry.Summary = Summary.TrimNullSafe();
+            newEntry.Slug = Slug.TrimNullToEmpty();
+            newEntry.Folder = Folder.TrimNullToEmpty();
+            newEntry.Summary = Summary.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy;

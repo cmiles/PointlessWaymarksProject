@@ -147,7 +147,7 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            tagItem.TagValue = tagItem.TagValue.TrimNullSafe();
+            tagItem.TagValue = tagItem.TagValue.TrimNullToEmpty();
 
             if (string.IsNullOrWhiteSpace(tagItem.TagValue))
             {

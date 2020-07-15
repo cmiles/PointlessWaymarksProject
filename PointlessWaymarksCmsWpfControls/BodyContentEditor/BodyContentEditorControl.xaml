@@ -58,7 +58,7 @@
                                    Target="{Binding ElementName=BodyContentTextBox}">
                                 Content
                             </Label>
-                            <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                            <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                    Visibility="{Binding BodyContentHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                    IconPathGeometry="{StaticResource IconDataInfo}"
                                                    HoverText="Content Has Changes"

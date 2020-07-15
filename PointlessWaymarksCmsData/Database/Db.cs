@@ -403,7 +403,7 @@ namespace PointlessWaymarksCmsData.Database
         {
             if (string.IsNullOrWhiteSpace(toClean)) return string.Empty;
 
-            return Regex.Replace(toClean, @"\s+", " ").TrimNullSafe().ToLower();
+            return Regex.Replace(toClean, @"\s+", " ").TrimNullToEmpty().ToLower();
         }
 
         public static string TagListJoin(List<string> tagList)
@@ -427,11 +427,11 @@ namespace PointlessWaymarksCmsData.Database
             if (removeExcludedTags)
             {
                 var db = Context().Result;
-                excludedTags = db.TagExclusions.ToList().Select(x => SlugUtility.Create(true, x.Tag)).ToList();
+                excludedTags = db.TagExclusions.ToList().Select(x => SlugUtility.Create(true, x.Tag, 200)).ToList();
             }
 
             var cleanedList = tagList.Where(x => !string.IsNullOrWhiteSpace(x))
-                .Select(x => SlugUtility.Create(true, x.Trim())).Distinct().Except(excludedTags).OrderBy(x => x)
+                .Select(x => SlugUtility.Create(true, x.Trim(), 200)).Distinct().Except(excludedTags).OrderBy(x => x)
                 .ToList();
 
             return string.Join(",", cleanedList);
@@ -456,11 +456,11 @@ namespace PointlessWaymarksCmsData.Database
             if (removeExcludedTags)
             {
                 var db = Context().Result;
-                excludedTags = db.TagExclusions.ToList().Select(x => SlugUtility.Create(true, x.Tag)).ToList();
+                excludedTags = db.TagExclusions.ToList().Select(x => SlugUtility.Create(true, x.Tag, 200)).ToList();
             }
 
             return rawTagString.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
-                .Select(x => SlugUtility.Create(true, x)).Distinct().Where(x => !excludedTags.Contains(x))
+                .Select(x => SlugUtility.Create(true, x, 200)).Distinct().Where(x => !excludedTags.Contains(x))
                 .OrderBy(x => x).ToList();
         }
 

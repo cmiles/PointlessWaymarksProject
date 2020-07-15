@@ -34,7 +34,31 @@ namespace PointlessWaymarksCmsData.Content
         {
             if (string.IsNullOrWhiteSpace(testName)) return false;
 
-            return Regex.IsMatch(testName, @"^[a-zA-Z\d_\-\.]+$", RegexOptions.IgnoreCase);
+            return Regex.IsMatch(testName, @"^[a-zA-Z\d_\-]+$");
+        }
+
+        /// <summary>
+        ///     This checks if a string is 'no url encoding needed'
+        /// </summary>
+        /// <param name="testName"></param>
+        /// <returns></returns>
+        public static bool IsNoUrlEncodingNeededLowerCase(string testName)
+        {
+            if (string.IsNullOrWhiteSpace(testName)) return false;
+
+            return Regex.IsMatch(testName, @"^[a-z\d_\-]+$");
+        }
+
+        /// <summary>
+        ///     This checks if a string is 'no url encoding needed' with the exception of spaces which are allowed
+        /// </summary>
+        /// <param name="testName"></param>
+        /// <returns></returns>
+        public static bool IsNoUrlEncodingNeededLowerCaseSpacesOk(string testName)
+        {
+            if (string.IsNullOrWhiteSpace(testName)) return false;
+
+            return Regex.IsMatch(testName, @"^[a-z \d_\-]+$");
         }
 
         public static bool IsValidWindowsFileSystemFilename(string testName)

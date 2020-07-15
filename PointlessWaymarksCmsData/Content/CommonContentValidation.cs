@@ -60,10 +60,15 @@ namespace PointlessWaymarksCmsData.Content
 
             if (!string.IsNullOrWhiteSpace(toValidate.Slug))
             {
-                if (!FolderFileUtility.IsNoUrlEncodingNeeded(toValidate.Slug) || !toValidate.Slug.All(x => !char.IsLetter(x) || char.IsLower(x)))
+                if (!FolderFileUtility.IsNoUrlEncodingNeededLowerCase(toValidate.Slug))
                 {
                     isValid = false;
-                    errorMessage.Add("Limit Slugs to a-z 0-9 - . _");
+                    errorMessage.Add("Limit Slugs to a-z 0-9 - _");
+                }
+                else if (toValidate.Slug.Length > 100)
+                {
+                    isValid = false;
+                    errorMessage.Add("Limit Slugs to 100 characters");
                 }
                 else
                 {
@@ -87,6 +92,16 @@ namespace PointlessWaymarksCmsData.Content
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(toValidate.Tags))
+            {
+                var tags = Db.TagListParse(toValidate.Tags);
+
+                if (tags.Any(x => !FolderFileUtility.IsNoUrlEncodingNeededLowerCaseSpacesOk(x) || x.Length > 200))
+                {
+                    isValid = false;
+                    errorMessage.Add("Tags should be limited to a-z A-Z _ - [space] and each tag should be less than 200 characters");
+                }
+            }
 
             return (isValid, string.Join(Environment.NewLine, errorMessage));
         }

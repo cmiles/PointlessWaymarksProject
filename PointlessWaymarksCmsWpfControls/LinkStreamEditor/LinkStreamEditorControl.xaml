@@ -32,7 +32,7 @@
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UrlTextBox}">Url</Label>
-                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                Visibility="{Binding LinkUrlHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                IconPathGeometry="{StaticResource IconDataInfo}"
                                                HoverText="{Binding DbEntry.Url, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
@@ -55,7 +55,7 @@
                                Target="{Binding ElementName=CommentsTextBox}">
                             Comments
                         </Label>
-                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                Visibility="{Binding CommentsHaveChanges, Converter={StaticResource BooleanToVisibility}}"
                                                IconPathGeometry="{StaticResource IconDataInfo}"
                                                HoverText="{Binding DbEntry.Comments, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
@@ -71,7 +71,7 @@
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=TitleTextBox}">Title</Label>
-                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                Visibility="{Binding TitleHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                IconPathGeometry="{StaticResource IconDataInfo}"
                                                HoverText="{Binding DbEntry.Title, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
@@ -83,7 +83,7 @@
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteTextBox}">Site</Label>
-                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                Visibility="{Binding SiteHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                IconPathGeometry="{StaticResource IconDataInfo}"
                                                HoverText="{Binding DbEntry.Site, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
@@ -98,7 +98,7 @@
                                Target="{Binding ElementName=AuthorTextBox}">
                             Author
                         </Label>
-                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                Visibility="{Binding AuthorHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                IconPathGeometry="{StaticResource IconDataInfo}"
                                                HoverText="{Binding DbEntry.Author, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
@@ -114,7 +114,7 @@
                                Target="{Binding ElementName=LinkDateTimeTextBox}">
                             Link Date
                         </Label>
-                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                Visibility="{Binding LinkDateTimeHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                IconPathGeometry="{StaticResource IconDataInfo}"
                                                HoverText="{Binding DbEntry.LinkDate, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
@@ -129,7 +129,7 @@
                                Target="{Binding ElementName=DescriptionTextBox}">
                             Description
                         </Label>
-                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                Visibility="{Binding DescriptionHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                IconPathGeometry="{StaticResource IconDataInfo}"
                                                HoverText="{Binding DbEntry.Description, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
@@ -146,7 +146,7 @@
                               IsChecked="{Binding ShowInLinkRss, UpdateSourceTrigger=PropertyChanged}">
                         Show in Link List _Feed
                     </CheckBox>
-                    <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center" Margin="4,8,0,0"
+                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center" Margin="4,8,0,0"
                                            Visibility="{Binding ShowInLinkRssHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                            IconPathGeometry="{StaticResource IconDataInfo}"
                                            HoverText="{Binding DbEntry.ShowInLinkRss, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"

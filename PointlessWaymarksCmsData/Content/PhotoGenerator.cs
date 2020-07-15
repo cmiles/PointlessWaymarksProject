@@ -210,7 +210,7 @@ namespace PointlessWaymarksCmsData.Content
 
 
             if (!string.IsNullOrWhiteSpace(toReturn.Title))
-                toReturn.Title = Regex.Replace(toReturn.Title, @"\s+", " ").TrimNullSafe();
+                toReturn.Title = Regex.Replace(toReturn.Title, @"\s+", " ").TrimNullToEmpty();
 
             //Order is important here - the title supplies the summary in the code above - but overwrite that if there is a 
             //description.

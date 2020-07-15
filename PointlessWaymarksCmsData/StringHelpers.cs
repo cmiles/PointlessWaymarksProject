@@ -9,17 +9,6 @@ namespace PointlessWaymarksCmsData
     public static class StringHelpers
     {
         /// <summary>
-        /// Simple expansion of Camel Case into a 'normal' string
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        public static string SplitCamelCase(this string str)
-        {
-            //https://stackoverflow.com/questions/5796383/insert-spaces-between-words-on-a-camel-cased-token
-            return Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
-        }
-
-        /// <summary>
         ///     Returns a case sensitive compare where null and empty are treated as equal
         /// </summary>
         /// <param name="a"></param>
@@ -41,8 +30,8 @@ namespace PointlessWaymarksCmsData
         /// <returns></returns>
         public static bool AreEqualWithTrim(string a, string b)
         {
-            a = a.TrimNullSafe();
-            b = b.TrimNullSafe();
+            a = a.TrimNullToEmpty();
+            b = b.TrimNullToEmpty();
 
             return string.Compare(a, b, StringComparison.InvariantCulture) == 0;
         }
@@ -74,13 +63,24 @@ namespace PointlessWaymarksCmsData
                 : toJoin.FirstOrDefault();
         }
 
+        /// <summary>
+        ///     Simple expansion of Camel Case into a 'normal' string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string SplitCamelCase(this string str)
+        {
+            //https://stackoverflow.com/questions/5796383/insert-spaces-between-words-on-a-camel-cased-token
+            return Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
+        }
+
 
         /// <summary>
         ///     If the string is null an empty string is returned - if the string has value it is trimmed
         /// </summary>
         /// <param name="toTrim"></param>
         /// <returns></returns>
-        public static string TrimNullSafe(this string toTrim)
+        public static string TrimNullToEmpty(this string toTrim)
         {
             return string.IsNullOrWhiteSpace(toTrim) ? string.Empty : toTrim.Trim();
         }

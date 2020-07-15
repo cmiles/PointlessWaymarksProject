@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -17,6 +17,10 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
         private string _tags = string.Empty;
         private bool _tagsHaveChanges;
+        private bool _tagsHaveValidationIssues;
+        private string _tagsValidationMessage;
+        private bool _tagsHaveWarnings;
+        private string _tagsWarningMessage;
 
         public TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
         {
@@ -70,11 +74,79 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
+        public bool TagsHaveValidationIssues
+        {
+            get => _tagsHaveValidationIssues;
+            set
+            {
+                if (value == _tagsHaveValidationIssues) return;
+                _tagsHaveValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string TagsValidationMessage
+        {
+            get => _tagsValidationMessage;
+            set
+            {
+                if (value == _tagsValidationMessage) return;
+                _tagsValidationMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public void CheckForChanges()
         {
             TagsHaveChanges = !TagSlugList().SequenceEqual(DbTagList());
+
+            var tags = TagList();
+
+            if (string.IsNullOrWhiteSpace(Tags))
+            {
+                TagsHaveWarnings = true;
+                TagsWarningMessage = "Tags are not required but are very helpful!";
+            }
+            else
+            {
+                TagsHaveWarnings = false;
+                TagsWarningMessage = string.Empty;
+            }
+
+            if (tags.Any(x => !FolderFileUtility.IsNoUrlEncodingNeededLowerCaseSpacesOk(x) || x.Length > 200))
+            {
+                TagsHaveValidationIssues = true;
+                TagsValidationMessage = "Limit tags to a-z 0-9 _ - [space] and less than 200 characters per tag.";
+            }
+            else
+            {
+                TagsHaveValidationIssues = false;
+                TagsValidationMessage = string.Empty;
+            }
+        }
+
+        public string TagsWarningMessage
+        {
+            get => _tagsWarningMessage;
+            set
+            {
+                if (value == _tagsWarningMessage) return;
+                _tagsWarningMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool TagsHaveWarnings
+        {
+            get => _tagsHaveWarnings;
+            set
+            {
+                if (value == _tagsHaveWarnings) return;
+                _tagsHaveWarnings = value;
+                OnPropertyChanged();
+            }
         }
 
         private List<string> DbTagList()
@@ -88,7 +160,10 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            if (!propertyName.Contains("HaveChanges")) CheckForChanges();
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HaveChanges") && !propertyName.Contains("Validation")) CheckForChanges();
         }
 
         public List<string> TagList()

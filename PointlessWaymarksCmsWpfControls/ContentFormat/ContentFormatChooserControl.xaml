@@ -29,7 +29,7 @@
             Grid.Column="1"
             ItemsSource="{Binding ContentFormatChoices}"
             SelectedItem="{Binding SelectedContentFormat}" />
-        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center" Margin="6,0,0,0" Grid.Column="2"
+        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center" Margin="6,0,0,0" Grid.Column="2"
                                Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                IconPathGeometry="{StaticResource IconDataInfo}"
                                HoverText="{Binding InitialValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"

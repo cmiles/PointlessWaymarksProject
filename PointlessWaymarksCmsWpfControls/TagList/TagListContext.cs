@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
-using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;

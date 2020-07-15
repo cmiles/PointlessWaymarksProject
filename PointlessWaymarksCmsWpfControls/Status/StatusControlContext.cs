@@ -237,7 +237,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             if (obj.IsFaulted)
             {
-                await ShowMessage("Error", obj.Exception.ToString(), new List<string> {"Ok"});
+                await ShowMessage("Error", obj.Exception?.ToString() ?? "Error with no information?!?!", new List<string> {"Ok"});
 
 #pragma warning disable 4014
                 Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
@@ -468,8 +468,10 @@ namespace PointlessWaymarksCmsWpfControls.Status
             catch (Exception e)
             {
                 if (!(e is OperationCanceledException)) Progress($"ShowMessage Exception {e.Message}");
+#pragma warning disable 4014
                 Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(),
                     await GetStatusLogEntriesString(10)));
+#pragma warning restore 4014
             }
             finally
             {

@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsData
         {
             if (contentGuidList == null || !contentGuidList.Any()) return;
 
-            var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullSafe();
+            var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
             using var transmitBus = DataNotificationChannel();
 

@@ -56,7 +56,7 @@
                                 <Label VerticalAlignment="Center">To Exclude:</Label>
                                 <TextBox VerticalContentAlignment="Center" Height="32" Width="120"
                                          Text="{Binding TagValue, UpdateSourceTrigger=PropertyChanged}" />
-                                <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                        Visibility="{Binding HasChanges, Converter={StaticResource BooleanToHidden}}"
                                                        IconPathGeometry="{StaticResource IconDataInfo}"
                                                        HoverText="{Binding DbEntry.Tag, StringFormat='Original Value: {0}', TargetNullValue='New Entry', FallbackValue='New Entry'}"

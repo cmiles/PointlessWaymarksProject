@@ -14,6 +14,8 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Json;
+using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
+using PointlessWaymarksCmsWpfControls.Status;
 
 namespace PointlessWaymarksTests
 {

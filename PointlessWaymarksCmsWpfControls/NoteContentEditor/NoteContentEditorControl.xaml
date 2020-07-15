@@ -38,7 +38,7 @@
                                            Target="{Binding ElementName=FolderTextBox}">
                                         Folder
                                     </Label>
-                                    <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                            Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                            IconPathGeometry="{StaticResource IconDataInfo}"
                                                            HoverText="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
@@ -54,7 +54,7 @@
                                            Target="{Binding ElementName=SummaryTextBox}">
                                         Summary
                                     </Label>
-                                    <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                            Visibility="{Binding SummaryHasChanges, Converter={StaticResource BooleanToVisibility}}"
                                                            IconPathGeometry="{StaticResource IconDataInfo}"
                                                            HoverText="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"

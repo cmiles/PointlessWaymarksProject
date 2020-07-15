@@ -55,8 +55,8 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
-            SelectedContentFormatHasChanges = StringHelpers.TrimNullSafe(InitialValue) !=
-                                              SelectedContentFormatAsString.TrimNullSafe();
+            SelectedContentFormatHasChanges = StringHelpers.TrimNullToEmpty(InitialValue) !=
+                                              SelectedContentFormatAsString.TrimNullToEmpty();
             // ReSharper restore InvokeAsExtensionMethod
         }
 

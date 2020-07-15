@@ -45,14 +45,14 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
                             Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
-                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                IconPathGeometry="{StaticResource IconDataUpArrowThick}" 
                                                HorizontalContentAlignment="Center"
                                                IconBrush="Black" />
                     </Button>
                     <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
                             Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
-                        <utility:IndicatorIcon IconSize="14" VerticalAlignment="Center"
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                                IconPathGeometry="{StaticResource IconDataDownArrowThick}"
                                                IconBrush="Black" />
                     </Button>
