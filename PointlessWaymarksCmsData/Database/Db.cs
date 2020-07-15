@@ -220,6 +220,8 @@ namespace PointlessWaymarksCmsData.Database
 
             var toHistoric = await context.ImageContents.Where(x => x.ContentId == toSave.ContentId).ToListAsync();
 
+            var isUpdate = toHistoric.Any();
+
             foreach (var loopToHistoric in toHistoric)
             {
                 var newHistoric = new HistoricImageContent();
@@ -238,6 +240,13 @@ namespace PointlessWaymarksCmsData.Database
             toSave.MainPicture = toSave.ContentId;
 
             await context.SaveChangesAsync(true);
+
+            if (isUpdate)
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
+                    DataNotificationUpdateType.Update, new List<Guid> { toSave.ContentId });
+            else
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
+                    DataNotificationUpdateType.New, new List<Guid> { toSave.ContentId });
 
         }
 

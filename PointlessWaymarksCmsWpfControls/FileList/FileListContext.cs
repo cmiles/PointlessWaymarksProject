@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -7,7 +8,6 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using MvvmHelpers;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
@@ -21,7 +21,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 {
     public class FileListContext : INotifyPropertyChanged
     {
-        private ObservableRangeCollection<FileListListItem> _items;
+        private ObservableCollection<FileListListItem> _items;
         private string _lastSortColumn;
         private Command<FileListListItem> _openFileCommand;
         private List<FileListListItem> _selectedItems;
@@ -49,7 +49,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         }
 
 
-        public ObservableRangeCollection<FileListListItem> Items
+        public ObservableCollection<FileListListItem> Items
         {
             get => _items;
             set
@@ -236,7 +236,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Items = new ObservableRangeCollection<FileListListItem>(listItems);
+            Items = new ObservableCollection<FileListListItem>(listItems);
 
             SortDescending = true;
             await SortList("CreatedOn");
@@ -309,7 +309,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.RemoveRange(toRemove);
+                toRemove.ForEach(x => Items.Remove(x));
             }
 
             if (translatedMessage.UpdateType == DataNotificationUpdateType.New)
@@ -322,7 +322,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.AddRange(dbItems);
+                dbItems.ForEach(x => Items.Add(x));
             }
 
             if (translatedMessage.UpdateType == DataNotificationUpdateType.Update ||

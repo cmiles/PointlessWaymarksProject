@@ -115,17 +115,8 @@
         </TabControl>
         <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button
-                    Style="{StaticResource ActionPanelButton}"
-                    Command="{Binding ResizeFileCommand}">
-                    Resize
-                </Button>
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}"
                         Content="Save, _Generate Html" />
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}"
-                        Content="Quick _Save to DB" />
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ResizeFileCommand}"
-                        Content="Forced _Resize" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ExtractNewLinksCommand}"
                         Content="_Extract New Links" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}"

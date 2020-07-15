@@ -5,7 +5,8 @@
   - Finish up link generation and testing
   - Folder structure clean up routines - Photos written, need other content types and integration
   - Add tests for the common content validation
-  - Need to integrate image, note and link changes back into the gui editors
+  - Need to integrate note and link changes back into the gui editors
+ - The Data Notification responses in the Lists assume the messages come in the expected order - probably new and update should both actually be 'merge' since you might get contentupdate before new... PhotoList done as a test.
  - Gui Validation alerts - Title control and Tags Control Done
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - Look at using NavLink tag in menu and/or wrapping with nav tag
@@ -13,7 +14,6 @@
  - Extend To Excel to more Types
  - To Excel for logs
  - Excel Import
- - The Data Notification responses in the Lists assume the messages come in the expected order - probably new and update should both actually be 'merge' since you might get contentupdate before new...
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - In Search it might be nice to have the content type on the line with date?
@@ -48,6 +48,12 @@
 7/15/2020
 
 The TitleSummarySlug and Tags editor now have validation error and warnings (only warning is in tags) for some validation (the slug is unique validation is not run at the moment to avoid issues with performance and/or more complicated issues of caching/delay bindings/etc). Working on this triggered a number of changes tightening up validations and some additional tests.
+
+Removed ObservableRangeCollection - this has been great for me in XamarinForms but I ran into some issues in WPF, potentially fixable but as with every time I have tried extensions of ObeservableCollection in the past it seems easier just to deal with the threading than work around...
+
+Removed the last of the older Event Notification code that is now switched to TinyIpc and at the same time move the Image Content Editor over to the ImageGeneration.
+
+Rewrote the DataNotification code in Photos - basically I had realized in previous work that the update code I initially wrote assumed 100% in order no error transmission and event creation from the sender - which even for small single app messaging seems improbable to be always true so code is rewritten to honor delete vs update/create but in all cases to check first for the GUI contents and update as needed. I anticipate all the lists moving to this style but for now testing in Photos.
 
 7/14/2020
 

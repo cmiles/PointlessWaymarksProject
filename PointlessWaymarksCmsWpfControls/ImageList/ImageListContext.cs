@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -7,7 +8,6 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using MvvmHelpers;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
@@ -21,7 +21,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 {
     public class ImageListContext : INotifyPropertyChanged
     {
-        private ObservableRangeCollection<ImageListListItem> _items;
+        private ObservableCollection<ImageListListItem> _items;
         private string _lastSortColumn;
         private Command<ImageListListItem> _openFileCommand;
         private List<ImageListListItem> _selectedItems;
@@ -40,14 +40,13 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }));
             OpenFileCommand = new Command<ImageListListItem>(x => StatusContext.RunNonBlockingTask(() => OpenFile(x)));
 
-
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
             DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
 
-        public ObservableRangeCollection<ImageListListItem> Items
+        public ObservableCollection<ImageListListItem> Items
         {
             get => _items;
             set
@@ -247,7 +246,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             StatusContext.Progress("Displaying Images");
 
-            Items = new ObservableRangeCollection<ImageListListItem>(listItems);
+            Items = new ObservableCollection<ImageListListItem>(listItems);
 
             SortDescending = true;
             await SortList("CreatedOn");

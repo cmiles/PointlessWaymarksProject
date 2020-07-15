@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -6,7 +7,6 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using MvvmHelpers;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
@@ -20,7 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 {
     public class PostListContext : INotifyPropertyChanged
     {
-        private ObservableRangeCollection<PostListListItem> _items;
+        private ObservableCollection<PostListListItem> _items;
         private string _lastSortColumn;
         private List<PostListListItem> _selectedItems;
         private bool _sortDescending;
@@ -46,7 +46,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         }
 
 
-        public ObservableRangeCollection<PostListListItem> Items
+        public ObservableCollection<PostListListItem> Items
         {
             get => _items;
             set
@@ -146,64 +146,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                     await PossibleMainImageUpdateDataNotificationReceived(translatedMessage));
         }
 
-        private void DataNotificationsOnContentDataNotificationEvent(object sender, DataNotificationEventArgs e)
-        {
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
-                await DataNotificationsOnContentDataNotificationEvent(e));
-        }
-
-        private async Task DataNotificationsOnContentDataNotificationEvent(DataNotificationEventArgs e)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (e.UpdateType == DataNotificationUpdateType.Delete)
-            {
-                var toRemove = Items.Where(x => e.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                Items.RemoveRange(toRemove);
-            }
-
-            if (e.UpdateType == DataNotificationUpdateType.New)
-            {
-                var context = await Db.Context();
-
-                var dbItems = (await context.PostContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync())
-                    .Select(ListItemFromDbItem).ToList();
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                Items.AddRange(dbItems);
-            }
-
-            if (e.UpdateType == DataNotificationUpdateType.Update ||
-                e.UpdateType == DataNotificationUpdateType.LocalContent)
-            {
-                var context = await Db.Context();
-
-                var dbItems =
-                    (await context.PostContents.Where(x => e.ContentIds.Contains(x.ContentId)).ToListAsync()).Select(
-                        ListItemFromDbItem);
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                foreach (var loopUpdates in dbItems)
-                {
-                    var toUpdate = Items.SingleOrDefault(x => x.DbEntry.ContentId == loopUpdates.DbEntry.ContentId);
-                    if (toUpdate == null)
-                    {
-                        Items.Add(loopUpdates);
-                        continue;
-                    }
-
-                    if (e.UpdateType == DataNotificationUpdateType.Update) toUpdate.DbEntry = loopUpdates.DbEntry;
-
-                    toUpdate.SmallImageUrl = loopUpdates.SmallImageUrl;
-                }
-            }
-        }
-
         private async Task FilterList()
         {
             if (Items == null || !Items.Any()) return;
@@ -279,7 +221,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             StatusContext.Progress("Displaying Posts");
 
-            Items = new ObservableRangeCollection<PostListListItem>(listItems);
+            Items = new ObservableCollection<PostListListItem>(listItems);
 
             SortDescending = true;
             await SortList("CreatedOn");
@@ -322,7 +264,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.RemoveRange(toRemove);
+                toRemove.ForEach(x => Items.Remove(x));
             }
 
             if (translatedMessage.UpdateType == DataNotificationUpdateType.New)
@@ -335,7 +277,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.AddRange(dbItems);
+                dbItems.ForEach(x => Items.Add(x));
             }
 
             if (translatedMessage.UpdateType == DataNotificationUpdateType.Update ||

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -10,7 +11,6 @@ using System.Windows.Data;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using MvvmHelpers;
 using MvvmHelpers.Commands;
 using pinboard.net;
 using PointlessWaymarksCmsData;
@@ -27,7 +27,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
     public class LinkStreamListContext : INotifyPropertyChanged
     {
         private Command<string> _copyUrlCommand;
-        private ObservableRangeCollection<LinkStreamListListItem> _items;
+        private ObservableCollection<LinkStreamListListItem> _items;
         private string _lastSortColumn;
         private Command _listSelectedLinksNotOnPinboardCommand;
         private Command<string> _openUrlCommand;
@@ -77,7 +77,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public ObservableRangeCollection<LinkStreamListListItem> Items
+        public ObservableCollection<LinkStreamListListItem> Items
         {
             get => _items;
             set
@@ -200,7 +200,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.RemoveRange(toRemove);
+                toRemove.ForEach(x => Items.Remove(x));
             }
 
             if (translatedMessage.UpdateType == DataNotificationUpdateType.New)
@@ -213,7 +213,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.AddRange(dbItems);
+                dbItems.ForEach(x => Items.Add(x));
             }
 
             if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
@@ -379,7 +379,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
             StatusContext.Progress("Displaying Links");
 
-            Items = new ObservableRangeCollection<LinkStreamListListItem>(listItems);
+            Items = new ObservableCollection<LinkStreamListListItem>(listItems);
 
             SortDescending = true;
 

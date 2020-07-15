@@ -192,46 +192,39 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 var toRemove = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
 
                 await ThreadSwitcher.ResumeForegroundAsync();
+
+                toRemove.ForEach(x => Items.Remove(x));
+
+                return;
             }
 
-            if (translatedMessage.UpdateType == DataNotificationUpdateType.New &&
-                LoadMode != PhotoListLoadMode.ReportQuery)
+            var context = await Db.Context();
+
+            var dbItems =
+                (await context.PhotoContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Select(ListItemFromDbItem);
+
+            var listItems = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
+
+            foreach (var loopItems in dbItems)
             {
-                var context = await Db.Context();
+                var existingItem = listItems.SingleOrDefault(x => x.DbEntry.ContentId == loopItems.DbEntry.ContentId);
 
-                var toAdd = (await context.PhotoContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                toAdd.ForEach(x => Items.Add(x));
-            }
-
-            if (translatedMessage.UpdateType == DataNotificationUpdateType.Update ||
-                translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent)
-            {
-                var context = await Db.Context();
-
-                var dbItems =
-                    (await context.PhotoContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Select(ListItemFromDbItem);
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                foreach (var loopUpdates in dbItems)
+                if (existingItem == null || LoadMode != PhotoListLoadMode.ReportQuery)
                 {
-                    var toUpdate = Items.SingleOrDefault(x => x.DbEntry.ContentId == loopUpdates.DbEntry.ContentId);
-                    if (toUpdate == null)
-                    {
-                        Items.Add(loopUpdates);
-                        continue;
-                    }
+                    await ThreadSwitcher.ResumeForegroundAsync();
 
-                    if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
-                        toUpdate.DbEntry = loopUpdates.DbEntry;
+                    Items.Add(loopItems);
 
-                    toUpdate.SmallImageUrl = GetSmallImageUrl(loopUpdates.DbEntry);
+                    await ThreadSwitcher.ResumeBackgroundAsync();
+
+                    continue;
                 }
+
+                if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
+                    existingItem.DbEntry = loopItems.DbEntry;
+
+                existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
             }
         }
 

@@ -92,10 +92,4 @@ namespace PointlessWaymarksCmsData
         Note,
         Link
     }
-
-    public class DataNotificationEventArgs : EventArgs
-    {
-        public List<Guid> ContentIds { get; set; }
-        public DataNotificationUpdateType UpdateType { get; set; }
-    }
 }

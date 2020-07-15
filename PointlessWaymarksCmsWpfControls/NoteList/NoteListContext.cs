@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -6,7 +7,6 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using MvvmHelpers;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 {
     public class NoteListContext : INotifyPropertyChanged
     {
-        private ObservableRangeCollection<NoteListListItem> _items;
+        private ObservableCollection<NoteListListItem> _items;
         private string _lastSortColumn;
         private List<NoteListListItem> _selectedItems;
         private bool _sortDescending;
@@ -45,7 +45,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
         }
 
 
-        public ObservableRangeCollection<NoteListListItem> Items
+        public ObservableCollection<NoteListListItem> Items
         {
             get => _items;
             set
@@ -146,7 +146,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.RemoveRange(toRemove);
+                toRemove.ForEach(x => Items.Remove(x));
             }
 
             if (translatedMessage.UpdateType == DataNotificationUpdateType.New)
@@ -159,7 +159,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.AddRange(dbItems);
+                dbItems.ForEach(x => Items.Add(x));
             }
 
             if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
@@ -244,7 +244,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
             StatusContext.Progress("Displaying Notes");
 
-            Items = new ObservableRangeCollection<NoteListListItem>(listItems);
+            Items = new ObservableCollection<NoteListListItem>(listItems);
 
             SortDescending = true;
             await SortList("CreatedOn");

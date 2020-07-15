@@ -1,10 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using MvvmHelpers;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
@@ -18,7 +18,7 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
     public class TagExclusionEditorContext : INotifyPropertyChanged
     {
         private string _helpMarkdown;
-        private ObservableRangeCollection<TagExclusionEditorListItem> _items;
+        private ObservableCollection<TagExclusionEditorListItem> _items;
         private StatusControlContext _statusContext;
 
         public TagExclusionEditorContext(StatusControlContext statusContext)
@@ -49,7 +49,7 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
             }
         }
 
-        public ObservableRangeCollection<TagExclusionEditorListItem> Items
+        public ObservableCollection<TagExclusionEditorListItem> Items
         {
             get => _items;
             set
@@ -116,7 +116,7 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
             if (Items == null)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                Items = new ObservableRangeCollection<TagExclusionEditorListItem>();
+                Items = new ObservableCollection<TagExclusionEditorListItem>();
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
 

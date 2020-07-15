@@ -538,7 +538,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             Process.Start(ps);
         }
 
-
         private async Task SaveAndExtractImageFromPdf()
         {
             if (SelectedFile == null || !SelectedFile.Exists || !SelectedFile.Extension.ToLower().Contains("pdf"))

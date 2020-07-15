@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MvvmHelpers;
 using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
@@ -19,8 +19,8 @@ namespace PointlessWaymarksCmsContentEditor
 {
     public class SettingsFileChooserControlContext : INotifyPropertyChanged
     {
-        private ObservableRangeCollection<SettingsFileListItem> _items =
-            new ObservableRangeCollection<SettingsFileListItem>();
+        private ObservableCollection<SettingsFileListItem> _items =
+            new ObservableCollection<SettingsFileListItem>();
 
         private StatusControlContext _statusContext;
         private string _userNewFileName;
@@ -41,7 +41,7 @@ namespace PointlessWaymarksCmsContentEditor
 
         public Command<SettingsFileListItem> ChooseRecentFileCommand { get; set; }
 
-        public ObservableRangeCollection<SettingsFileListItem> Items
+        public ObservableCollection<SettingsFileListItem> Items
         {
             get => _items;
             set
