@@ -62,7 +62,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private Command _viewOnSiteCommand;
         private Command _viewPhotoMetadataCommand;
 
-
         public PhotoContentEditorContext(StatusControlContext statusContext, bool skipInitialLoad)
         {
             SetupContextAndCommands(statusContext);
@@ -489,7 +488,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (!FileTypeHelpers.PhotoFileTypeIsSupported(newFile))
             {
-                StatusContext.ToastError("Only jpegs are supported...");
+                StatusContext.ToastError("Only Jpegs are supported...");
                 return;
             }
 

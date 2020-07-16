@@ -177,7 +177,7 @@ namespace PointlessWaymarksCmsData.Html
                     string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase));
             else
                 photoCheck = await context.PhotoContents.AnyAsync(x =>
-                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase) &&
+                    x.OriginalFileName.ToLower() == filename.ToLower()  &&
                     x.ContentId != exceptInThisContent.Value);
 
             return photoCheck;

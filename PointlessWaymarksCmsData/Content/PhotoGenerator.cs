@@ -354,7 +354,7 @@ namespace PointlessWaymarksCmsData.Content
             if (!selectedFile.Exists)
                 return await GenerationReturn.Error("Selected File doesn't exist?", photoContent.ContentId);
 
-            if (!FolderFileUtility.IsNoUrlEncodingNeeded(selectedFile.Name))
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
                 return await GenerationReturn.Error("Limit File Names to A-Z a-z 0-9 - . _", photoContent.ContentId);
 
             if (!FolderFileUtility.PictureFileTypeIsSupported(selectedFile))

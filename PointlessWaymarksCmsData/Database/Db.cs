@@ -422,6 +422,13 @@ namespace PointlessWaymarksCmsData.Database
             return returnList;
         }
 
+        public static string TagListCleanup(string tags)
+        {
+            if (string.IsNullOrWhiteSpace(tags)) return string.Empty;
+
+            return TagListJoin(TagListParse(tags));
+        }
+
         public static List<string> TagListCleanup(List<string> listToClean)
         {
             if (listToClean == null || !listToClean.Any()) return new List<string>();

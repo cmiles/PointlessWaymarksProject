@@ -34,6 +34,7 @@
             </MenuItem>
             <MenuItem Header="Excel">
                 <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}"/>
+                <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}"/>
             </MenuItem>
         </Menu>
         <local:PhotoListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />

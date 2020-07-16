@@ -1,4 +1,10 @@
 ﻿## Todos
+ - Excel Import:
+  - Were tests failing correctly when if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name))) was in place in PhotoGenerator line 357
+  - Ironwood Tests need to save back settings changes for manual testing to be useful
+  - Updated By and On don't seem quite right in this setup
+  - Looked like there might have been a double in the list on one of the import errors - check the data notifications code.
+
  - Content Testing:
   - Post Generator and GUI Integration
   - Ironwood Integration Tests for File, Image, Post, Note, Link

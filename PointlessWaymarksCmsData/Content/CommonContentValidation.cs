@@ -66,8 +66,10 @@ namespace PointlessWaymarksCmsData.Content
             else
             {
                 if (await (await Db.Context()).SlugExistsInDatabase(toValidate.Slug, toValidate.ContentId))
+                {
                     isValid = false;
-                errorMessage.Add("This slug already exists in the database - slugs must be unique.");
+                    errorMessage.Add("This slug already exists in the database - slugs must be unique.");
+                }
             }
 
             if (string.IsNullOrWhiteSpace(toValidate.Folder))

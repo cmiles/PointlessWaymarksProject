@@ -10,7 +10,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using AngleSharp.Text;
+using ClosedXML.Excel;
 using JetBrains.Annotations;
+using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
@@ -19,6 +21,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.ExcelImport;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Html.PhotoHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
@@ -35,6 +38,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _forcedResizeCommand;
         private Command _generatePhotoListCommand;
         private Command _generateSelectedHtmlCommand;
+        private Command _importFromExcelCommand;
         private PhotoListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForPhotoListCommand;
@@ -127,6 +131,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (Equals(value, _generateSelectedHtmlCommand)) return;
                 _generateSelectedHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromExcelCommand
+        {
+            get => _importFromExcelCommand;
+            set
+            {
+                if (Equals(value, _importFromExcelCommand)) return;
+                _importFromExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -456,7 +471,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 if (currentLoop % 10 == 0)
                     StatusContext.Progress($"Cleaning Generated Images And Resizing {currentLoop} of {totalCount} - " +
                                            $"{loopSelected.DbEntry.Title}");
-                PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, StatusContext.ProgressTracker());
+                await PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, StatusContext.ProgressTracker());
                 currentLoop++;
             }
         }
@@ -487,6 +502,93 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
                 loopCount++;
             }
+        }
+
+        private async Task ImportFromExcel()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.Progress("Starting excel load.");
+
+            var dialog = new VistaOpenFileDialog();
+
+            if (!(dialog.ShowDialog() ?? false)) return;
+
+            var newFile = new FileInfo(dialog.FileName);
+
+            if (!newFile.Exists)
+            {
+                StatusContext.ToastError("File doesn't exist?");
+                return;
+            }
+
+            XLWorkbook workbook;
+
+            await using Stream stream = File.Open(newFile.FullName, FileMode.Open, FileAccess.Read,
+                FileShare.ReadWrite);
+
+            try
+            {
+                workbook = new XLWorkbook(stream);
+            }
+            catch (Exception e)
+            {
+                StatusContext.ToastError($"Error opening file - {e.Message}");
+                return;
+            }
+
+            StatusContext.Progress($"Excel File Import Start - File {newFile.FullName}");
+
+            var worksheet = workbook.Worksheets.First();
+
+            var tableRange = worksheet.RangeUsed();
+
+            var importResult = await ExcelRowImports.ImportPhotoRowsWithChanges(tableRange, StatusContext.ProgressTracker());
+
+            if (importResult.hasError)
+            {
+                await StatusContext.ShowMessageWithOkButton("Import Errors",
+                    $"Import Stopped because errors were reported:{Environment.NewLine}{importResult.errorNotes}");
+                return;
+            }
+
+            var shouldContinue = await StatusContext.ShowMessage("Confirm Import",
+                $"Continue? Processed {(tableRange.Rows().Count() - 1)} " +
+                $"Rows in {newFile.FullName} and found {importResult.toUpdate.Count} updates:{Environment.NewLine}" +
+                $"{string.Join(Environment.NewLine, importResult.toUpdate.Select(x => x.Title))}",
+                new List<string> {"Yes", "No"});
+
+            if (shouldContinue == "No") return;
+
+            StatusContext.Progress($"Looping to Row {tableRange.Rows().Last().WorksheetRow().RowNumber()}");
+
+            var errorList = new List<string>();
+
+            foreach (var loopUpdates in importResult.toUpdate)
+            {
+                var mediaArchiveFile = new FileInfo(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
+                    loopUpdates.OriginalFileName));
+
+                var generationResult = await PhotoGenerator.SaveAndGenerateHtml(loopUpdates, mediaArchiveFile, true,
+                    StatusContext.ProgressTracker());
+
+                if (!generationResult.generationReturn.HasError)
+                    StatusContext.Progress(
+                        $"Updated Content Id {loopUpdates.ContentId} - Title {loopUpdates.Title} - Saved");
+                else
+                    errorList.Add(
+                        $"Updating Failed: Content Id {loopUpdates} - Title {loopUpdates.Title} - Failed:{Environment.NewLine}{generationResult.generationReturn.GenerationNote}");
+            }
+
+            if (errorList.Any())
+            {
+                await StatusContext.ShowMessageWithOkButton("Import Errors",
+                    string.Join(Environment.NewLine, errorList));
+                return;
+            }
+
+            StatusContext.ToastSuccess($"Imported changes to {importResult.toUpdate.Count} photos.");
         }
 
         private async Task NewContent()
@@ -568,9 +670,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                         continue;
                     }
 
-                    var (saveGenerationReturn, saveContent) =
-                        await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile, true,
-                            StatusContext.ProgressTracker());
+                    var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile,
+                        true, StatusContext.ProgressTracker());
 
                     if (saveGenerationReturn.HasError)
                     {
@@ -869,6 +970,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List")));
             ReportBlankLicenseCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
                 await RunReport(ReportBlackLicenseGenerator, "Title and Created Mismatch Photo List")));
+
+            ImportFromExcelCommand = new Command(() => StatusContext.RunBlockingTask(ImportFromExcel));
         }
 
         private async Task ViewHistory()
