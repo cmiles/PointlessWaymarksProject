@@ -397,6 +397,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
             newEntry.PublicDownloadLink = PublicDownloadLink;
+
             newEntry.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(newEntry.BodyContent);
 
             return newEntry;

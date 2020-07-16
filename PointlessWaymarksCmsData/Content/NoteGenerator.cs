@@ -54,7 +54,7 @@ namespace PointlessWaymarksCmsData.Content
             return possibleSlug;
         }
 
-        public static async Task<(GenerationReturn generationReturn, NoteContent NoteContent)> SaveAndGenerateHtml(
+        public static async Task<(GenerationReturn generationReturn, NoteContent noteContent)> SaveAndGenerateHtml(
             NoteContent toSave, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave);
