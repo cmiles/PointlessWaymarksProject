@@ -626,7 +626,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                         $"Updated Content Id {loopUpdates.ContentId} - Title {loopUpdates.Title} - Saved");
                 else
                     errorList.Add(
-                        $"Updating Failed: Content Id {loopUpdates} - Title {loopUpdates.Title} - Failed:{Environment.NewLine}{generationResult.generationReturn.GenerationNote}");
+                        $"Updating Failed: Content Id {loopUpdates} - Title {loopUpdates.Title} - Failed:{Environment.NewLine}{generationResult.GenerationNote}");
             }
 
             if (errorList.Any())
