@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using KellermanSoftware.CompareNetObjects;
 using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.ExcelImport
 {
@@ -13,7 +12,14 @@ namespace PointlessWaymarksCmsData.ExcelImport
     {
         public static List<string> FillFromExcel<T>(T toFill, ExcelHeaderRow headerInfo, IXLRangeRow toProcess)
         {
-            var skipColumns = new List<string> {"contentid", "id", "contentversion"};
+            var skipColumns = new List<string>
+            {
+                "contentid",
+                "id",
+                "contentversion",
+                "lastupdatedon",
+                "originalfilename"
+            };
 
             var properties = typeof(T).GetProperties().ToList();
 
@@ -77,7 +83,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 }
                 else if (loopProperties.PropertyType == typeof(int?))
                 {
-                    var excelResult = GetDateTime(headerInfo, toProcess, loopProperties.Name);
+                    var excelResult = GetInt(headerInfo, toProcess, loopProperties.Name);
 
                     if (excelResult.ValueParsed == null || !excelResult.ValueParsed.Value)
                         returnString.Add($"Row {toProcess.RowNumber()} - could not process {loopProperties.Name}");
@@ -96,7 +102,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 }
                 else if (loopProperties.PropertyType == typeof(bool?))
                 {
-                    var excelResult = GetDateTime(headerInfo, toProcess, loopProperties.Name);
+                    var excelResult = GetBool(headerInfo, toProcess, loopProperties.Name);
 
                     if (excelResult.ValueParsed == null || !excelResult.ValueParsed.Value)
                         returnString.Add($"Row {toProcess.RowNumber()} - could not process {loopProperties.Name}");
@@ -105,7 +111,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 }
                 else if (loopProperties.PropertyType == typeof(bool))
                 {
-                    var excelResult = GetInt(headerInfo, toProcess, loopProperties.Name);
+                    var excelResult = GetBool(headerInfo, toProcess, loopProperties.Name);
 
                     if (excelResult.ValueParsed == null || !excelResult.ValueParsed.Value ||
                         excelResult.ParsedValue == null)
@@ -224,16 +230,16 @@ namespace PointlessWaymarksCmsData.ExcelImport
         }
 
 
-        public static async Task<(bool hasError, string errorNotes, PhotoContent processContent)> ImportPhotoRow(
+        public static async Task<(bool hasError, string errorNotes, dynamic processContent)> ImportContentRow(
             ExcelHeaderRow headerInfo, IXLRangeRow toProcess)
         {
             var contentId = GetGuid(headerInfo, toProcess, "contentid");
 
-            if (contentId == null) return (true, "No ContentId Found", null);
+            if (contentId?.ParsedValue == null) return (true, "No ContentId Found", null);
 
             var db = await Db.Context();
 
-            var dbEntry = db.PhotoContents.SingleOrDefault(x => x.ContentId == contentId.ParsedValue.Value);
+            var dbEntry = await db.ContentFromContentId(contentId.ParsedValue.Value);
 
             if (dbEntry == null) return (true, $"No Db Entry for {contentId.ParsedValue} found", null);
 
@@ -242,22 +248,22 @@ namespace PointlessWaymarksCmsData.ExcelImport
             return (errors.Any(), string.Join(Environment.NewLine, errors), dbEntry);
         }
 
-        public static async Task<(bool hasError, string errorNotes, List<PhotoContent> toUpdate)>
-            ImportPhotoRowsWithChanges(IXLRange toProcess, IProgress<string> progress)
+        public static async Task<(bool hasError, string errorNotes, List<dynamic> toUpdate)>
+            ImportContentRowsWithChanges(IXLRange toProcess, IProgress<string> progress)
         {
             if (toProcess == null || toProcess.Rows().Count() < 2)
-                return (true, "Nothing to process", new List<PhotoContent>());
+                return (true, "Nothing to process", new List<dynamic>());
 
             var headerInfo = new ExcelHeaderRow(toProcess.Row(1));
 
             var errorNotes = new List<string>();
-            var updateList = new List<PhotoContent>();
+            var updateList = new List<object>();
 
             var db = await Db.Context();
 
             foreach (var loopRow in toProcess.Rows().Skip(1))
             {
-                var importResult = await ImportPhotoRow(headerInfo, loopRow);
+                var importResult = await ImportContentRow(headerInfo, loopRow);
 
                 if (importResult.hasError)
                 {
@@ -265,8 +271,9 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     continue;
                 }
 
-                var currentDbEntry =
-                    db.PhotoContents.SingleOrDefault(x => x.ContentId == importResult.processContent.ContentId);
+                Guid contentId = importResult.processContent.ContentId;
+
+                var currentDbEntry = await db.ContentFromContentId(contentId);
 
                 if (currentDbEntry == null)
                 {
@@ -275,16 +282,28 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     continue;
                 }
 
-                importResult.processContent.Tags = Db.TagListCleanup(importResult.processContent.Tags);
+                try
+                {
+                    importResult.processContent.Tags = Db.TagListCleanup(importResult.processContent.Tags);
+                }
+                catch
+                {
+                    await EventLogContext.TryWriteDiagnosticMessageToLog(
+                        $"Excel Import via dynamics - Tags threw an error on ContentId {contentId} - property probably not present",
+                        "Excel Import");
+                }
 
                 var compareLogic = new CompareLogic();
                 var comparisonResult = compareLogic.Compare(currentDbEntry, importResult.processContent);
 
                 if (comparisonResult.AreEqual)
                 {
-                    progress.Report($"Excel Row {loopRow.RowNumber()} - Title {currentDbEntry.Title} - no changes");
+                    progress.Report(
+                        $"Excel Row {loopRow.RowNumber()} - Content Id {currentDbEntry.Title} - no changes");
                     continue;
                 }
+
+                importResult.processContent.LastUpdatedOn = DateTime.Now;
 
                 updateList.Add(importResult.processContent);
             }

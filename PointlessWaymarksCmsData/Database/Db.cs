@@ -13,6 +13,27 @@ namespace PointlessWaymarksCmsData.Database
 {
     public static class Db
     {
+        public static async Task<dynamic> ContentFromContentId(this PointlessWaymarksContext db, Guid contentId)
+        {
+            var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possibleFile != null) return possibleFile;
+
+            var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possibleImage != null) return possibleImage;
+
+            var possibleLink = await db.LinkStreams.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possibleLink != null) return possibleLink;
+
+            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePhoto != null) return possiblePhoto;
+
+            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePost != null) return possiblePost;
+
+            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+
+            return possibleNote;
+        }
 #pragma warning disable 1998
         public static async Task<PointlessWaymarksContext> Context()
 #pragma warning restore 1998

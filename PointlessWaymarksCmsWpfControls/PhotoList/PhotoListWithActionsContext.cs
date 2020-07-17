@@ -12,7 +12,6 @@ using System.Windows;
 using AngleSharp.Text;
 using ClosedXML.Excel;
 using JetBrains.Annotations;
-using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
@@ -543,7 +542,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var tableRange = worksheet.RangeUsed();
 
-            var importResult = await ExcelRowImports.ImportPhotoRowsWithChanges(tableRange, StatusContext.ProgressTracker());
+            var importResult =
+                await ExcelRowImports.ImportContentRowsWithChanges(tableRange, StatusContext.ProgressTracker());
 
             if (importResult.hasError)
             {
@@ -566,14 +566,62 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             foreach (var loopUpdates in importResult.toUpdate)
             {
-                var mediaArchiveFile = new FileInfo(Path.Combine(
-                    UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
-                    loopUpdates.OriginalFileName));
+                GenerationReturn generationResult;
+                switch (loopUpdates)
+                {
+                    case PhotoContent photo:
+                    {
+                        var mediaArchiveFile = new FileInfo(Path.Combine(
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
+                            photo.OriginalFileName));
+                        generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo, mediaArchiveFile, true,
+                            StatusContext.ProgressTracker())).generationReturn;
+                        break;
+                    }
+                    case FileContent file:
+                    {
+                        var mediaArchiveFile = new FileInfo(Path.Combine(
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
+                            file.OriginalFileName));
+                        generationResult = (await FileGenerator.SaveAndGenerateHtml(file, mediaArchiveFile, true,
+                            StatusContext.ProgressTracker())).generationReturn;
+                        break;
+                    }
+                    case ImageContent image:
+                    {
+                        var mediaArchiveFile = new FileInfo(Path.Combine(
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory().FullName,
+                            image.OriginalFileName));
+                        generationResult = (await ImageGenerator.SaveAndGenerateHtml(image, mediaArchiveFile, true,
+                            StatusContext.ProgressTracker())).generationReturn;
+                        break;
+                    }
+                    case PostContent post:
+                    {
+                        generationResult = (await PostGenerator.SaveAndGenerateHtml(post,
+                            StatusContext.ProgressTracker())).generationReturn;
+                        break;
+                    }
+                    case NoteContent note:
+                    {
+                        generationResult = (await NoteGenerator.SaveAndGenerateHtml(note,
+                            StatusContext.ProgressTracker())).generationReturn;
+                        break;
+                    }
+                    case LinkStream link:
+                    {
+                        generationResult = (await LinkGenerator.SaveAndGenerateHtml(link,
+                            StatusContext.ProgressTracker())).generationReturn;
+                        break;
+                    }
+                    default:
+                        generationResult =
+                            await GenerationReturn.Error("Excel Import - No Content Type Generator found?");
+                        break;
+                }
 
-                var generationResult = await PhotoGenerator.SaveAndGenerateHtml(loopUpdates, mediaArchiveFile, true,
-                    StatusContext.ProgressTracker());
 
-                if (!generationResult.generationReturn.HasError)
+                if (!generationResult.HasError)
                     StatusContext.Progress(
                         $"Updated Content Id {loopUpdates.ContentId} - Title {loopUpdates.Title} - Saved");
                 else
