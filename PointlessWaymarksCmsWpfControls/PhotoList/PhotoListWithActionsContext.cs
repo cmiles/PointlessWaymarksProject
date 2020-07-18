@@ -40,6 +40,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _importFromExcelCommand;
         private PhotoListContext _listContext;
         private Command _newContentCommand;
+        private Command _newContentFromFilesCommand;
+        private Command _newContentFromFilesWithAutosaveCommand;
         private Command _openUrlForPhotoListCommand;
         private Command _openUrlForSelectedCommand;
         private Command _photoCodesToClipboardForSelectedCommand;
@@ -167,9 +169,27 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public Command NewContentFromFilesCommand { get; set; }
+        public Command NewContentFromFilesCommand
+        {
+            get => _newContentFromFilesCommand;
+            set
+            {
+                if (Equals(value, _newContentFromFilesCommand)) return;
+                _newContentFromFilesCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public Command NewContentFromFilesWithAutosaveCommand { get; set; }
+        public Command NewContentFromFilesWithAutosaveCommand
+        {
+            get => _newContentFromFilesWithAutosaveCommand;
+            set
+            {
+                if (Equals(value, _newContentFromFilesWithAutosaveCommand)) return;
+                _newContentFromFilesWithAutosaveCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command OpenUrlForPhotoListCommand
         {

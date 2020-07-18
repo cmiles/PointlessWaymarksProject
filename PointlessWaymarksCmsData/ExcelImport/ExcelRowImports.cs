@@ -245,8 +245,9 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
             var errors = FillFromExcel(dbEntry, headerInfo, toProcess);
 
-            return (errors.Any(), string.Join(Environment.NewLine, errors), dbEntry);
+            return (errors.Count > 0, string.Join(Environment.NewLine, errors), dbEntry);
         }
+
 
         public static async Task<(bool hasError, string errorNotes, List<dynamic> toUpdate)>
             ImportContentRowsWithChanges(IXLRange toProcess, IProgress<string> progress)
