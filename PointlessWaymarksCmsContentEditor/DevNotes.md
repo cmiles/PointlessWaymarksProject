@@ -1,10 +1,6 @@
 ﻿## Todos
  - Excel Import:
-  - Were tests failing correctly when if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name))) was in place in PhotoGenerator line 357
-  - Ironwood Tests need to save back settings changes for manual testing to be useful
-  - Updated By and On don't seem quite right in this setup
-  - Looked like there might have been a double in the list on one of the import errors - check the data notifications code.
-
+  - Tests
  - Content Testing:
   - Post Generator and GUI Integration
   - Ironwood Integration Tests for File, Image, Post, Note, Link
@@ -48,6 +44,10 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/18/2020
+
+Excel Import - the first Excel import code was photo content specific - currently I have more photo content than anything wlse on PointlessWaymarks.com so that was the most benefit. But in working on the code it became obvious that it was going to be reasonable and possible to design one import to handle the current content types - so over a few commits put together code to do the imports. Only 'first ad hoc tested'.
 
 7/15/2020
 

@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using AngleSharp.Text;
-using ClosedXML.Excel;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
@@ -20,7 +19,6 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsData.ExcelImport;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Html.PhotoHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
@@ -523,141 +521,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        private async Task ImportFromExcel()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            StatusContext.Progress("Starting excel load.");
-
-            var dialog = new VistaOpenFileDialog();
-
-            if (!(dialog.ShowDialog() ?? false)) return;
-
-            var newFile = new FileInfo(dialog.FileName);
-
-            if (!newFile.Exists)
-            {
-                StatusContext.ToastError("File doesn't exist?");
-                return;
-            }
-
-            XLWorkbook workbook;
-
-            await using Stream stream = File.Open(newFile.FullName, FileMode.Open, FileAccess.Read,
-                FileShare.ReadWrite);
-
-            try
-            {
-                workbook = new XLWorkbook(stream);
-            }
-            catch (Exception e)
-            {
-                StatusContext.ToastError($"Error opening file - {e.Message}");
-                return;
-            }
-
-            StatusContext.Progress($"Excel File Import Start - File {newFile.FullName}");
-
-            var worksheet = workbook.Worksheets.First();
-
-            var tableRange = worksheet.RangeUsed();
-
-            var importResult =
-                await ExcelRowImports.ImportContentRowsWithChanges(tableRange, StatusContext.ProgressTracker());
-
-            if (importResult.hasError)
-            {
-                await StatusContext.ShowMessageWithOkButton("Import Errors",
-                    $"Import Stopped because errors were reported:{Environment.NewLine}{importResult.errorNotes}");
-                return;
-            }
-
-            var shouldContinue = await StatusContext.ShowMessage("Confirm Import",
-                $"Continue? Processed {(tableRange.Rows().Count() - 1)} " +
-                $"Rows in {newFile.FullName} and found {importResult.toUpdate.Count} updates:{Environment.NewLine}" +
-                $"{string.Join(Environment.NewLine, importResult.toUpdate.Select(x => x.Title))}",
-                new List<string> {"Yes", "No"});
-
-            if (shouldContinue == "No") return;
-
-            StatusContext.Progress($"Looping to Row {tableRange.Rows().Last().WorksheetRow().RowNumber()}");
-
-            var errorList = new List<string>();
-
-            foreach (var loopUpdates in importResult.toUpdate)
-            {
-                GenerationReturn generationResult;
-                switch (loopUpdates)
-                {
-                    case PhotoContent photo:
-                    {
-                        var mediaArchiveFile = new FileInfo(Path.Combine(
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
-                            photo.OriginalFileName));
-                        generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo, mediaArchiveFile, true,
-                            StatusContext.ProgressTracker())).generationReturn;
-                        break;
-                    }
-                    case FileContent file:
-                    {
-                        var mediaArchiveFile = new FileInfo(Path.Combine(
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
-                            file.OriginalFileName));
-                        generationResult = (await FileGenerator.SaveAndGenerateHtml(file, mediaArchiveFile, true,
-                            StatusContext.ProgressTracker())).generationReturn;
-                        break;
-                    }
-                    case ImageContent image:
-                    {
-                        var mediaArchiveFile = new FileInfo(Path.Combine(
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory().FullName,
-                            image.OriginalFileName));
-                        generationResult = (await ImageGenerator.SaveAndGenerateHtml(image, mediaArchiveFile, true,
-                            StatusContext.ProgressTracker())).generationReturn;
-                        break;
-                    }
-                    case PostContent post:
-                    {
-                        generationResult = (await PostGenerator.SaveAndGenerateHtml(post,
-                            StatusContext.ProgressTracker())).generationReturn;
-                        break;
-                    }
-                    case NoteContent note:
-                    {
-                        generationResult = (await NoteGenerator.SaveAndGenerateHtml(note,
-                            StatusContext.ProgressTracker())).generationReturn;
-                        break;
-                    }
-                    case LinkStream link:
-                    {
-                        generationResult = (await LinkGenerator.SaveAndGenerateHtml(link,
-                            StatusContext.ProgressTracker())).generationReturn;
-                        break;
-                    }
-                    default:
-                        generationResult =
-                            await GenerationReturn.Error("Excel Import - No Content Type Generator found?");
-                        break;
-                }
-
-
-                if (!generationResult.HasError)
-                    StatusContext.Progress(
-                        $"Updated Content Id {loopUpdates.ContentId} - Title {loopUpdates.Title} - Saved");
-                else
-                    errorList.Add(
-                        $"Updating Failed: Content Id {loopUpdates} - Title {loopUpdates.Title} - Failed:{Environment.NewLine}{generationResult.GenerationNote}");
-            }
-
-            if (errorList.Any())
-            {
-                await StatusContext.ShowMessageWithOkButton("Import Errors",
-                    string.Join(Environment.NewLine, errorList));
-                return;
-            }
-
-            StatusContext.ToastSuccess($"Imported changes to {importResult.toUpdate.Count} photos.");
-        }
 
         private async Task NewContent()
         {
@@ -1039,7 +902,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             ReportBlankLicenseCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
                 await RunReport(ReportBlackLicenseGenerator, "Title and Created Mismatch Photo List")));
 
-            ImportFromExcelCommand = new Command(() => StatusContext.RunBlockingTask(ImportFromExcel));
+            ImportFromExcelCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await ExcelHelpers.ImportFromExcel(StatusContext)));
         }
 
         private async Task ViewHistory()
