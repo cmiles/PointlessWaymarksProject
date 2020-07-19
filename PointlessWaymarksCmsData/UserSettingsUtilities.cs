@@ -74,7 +74,7 @@ namespace PointlessWaymarksCmsData
             {
                 GenerationReturn
                     .Error(
-                        $"Trying to create Directory {directoryInfo.FullName ?? "[No Name]"}  resulted in an Exception.",
+                        $"Trying to create Directory {directoryInfo.FullName}  resulted in an Exception.",
                         null, e).Wait();
             }
 
@@ -102,19 +102,10 @@ namespace PointlessWaymarksCmsData
 
             if (possibleDbFile.Exists)
             {
-                var sc = new ServiceCollection()
-                    // Add common FluentMigrator services
-                    .AddFluentMigratorCore().ConfigureRunner(rb => rb
-                        // Add SQLite support to FluentMigrator
-                        .AddSQLite()
-                        // Set the connection string
-                        .WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
-                        // Define the assembly containing the migrations
-                        .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
-                    // Enable logging to console in the FluentMigrator way
-                    .AddLogging(lb => lb.AddFluentMigratorConsole())
-                    // Build the service provider
-                    .BuildServiceProvider(false);
+                var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
+                        rb.AddSQLite().WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
+                            .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
+                    .AddLogging(lb => lb.AddFluentMigratorConsole()).BuildServiceProvider(false);
 
                 // Instantiate the runner
                 var runner = sc.GetRequiredService<IMigrationRunner>();
@@ -646,6 +637,9 @@ namespace PointlessWaymarksCmsData
             if (!currentFile.Exists)
                 throw new InvalidDataException($"Settings file {currentFile.FullName} doesn't exist?");
 
+            if (currentFile.Directory == null)
+                throw new InvalidDataException($"Settings file {currentFile.FullName} doesn't have a valid directory?");
+
             UserSettings readResult;
 
             progress?.Report($"Reading and deserializing {currentFile.FullName}");
@@ -886,7 +880,7 @@ namespace PointlessWaymarksCmsData
             }
             catch (Exception e)
             {
-                return (false, "Trouble with Local Media Archive Directory.");
+                return (false, $"Trouble with Local Media Archive Directory - {e.Message}");
             }
 
             return (true, string.Empty);
@@ -907,14 +901,14 @@ namespace PointlessWaymarksCmsData
             }
             catch (Exception e)
             {
-                return (false, "Trouble with Local File Root Directory.");
+                return (false, $"Trouble with Local File Root Directory - {e.Message}");
             }
 
             return (true, string.Empty);
         }
 
 
-        public static async Task WriteSettings(UserSettings toWrite)
+        public static async Task WriteSettings(this UserSettings toWrite)
         {
             var currentFile = SettingsFile();
             await File.WriteAllTextAsync(currentFile.FullName, JsonSerializer.Serialize(toWrite));

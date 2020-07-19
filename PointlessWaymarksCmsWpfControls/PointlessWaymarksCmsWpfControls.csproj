@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-825" />
+    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-827" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="ClosedXML" Version="0.95.3" />
     <PackageReference Include="CompareNETObjects" Version="4.66.0" />
@@ -23,7 +23,7 @@
     <PackageReference Include="JetBrains.Annotations" Version="2020.2.0-eap" />
     <PackageReference Include="Markdig" Version="0.18.3" />
     <PackageReference Include="Markdig.Wpf" Version="0.3.1" />
-    <PackageReference Include="MetadataExtractor" Version="2.4.2" />
+    <PackageReference Include="MetadataExtractor" Version="2.4.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />

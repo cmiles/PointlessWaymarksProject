@@ -11,7 +11,7 @@ using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.ExcelImport
 {
-    public static class ExcelRowImports
+    public static class ExcelContentImports
     {
         public static ExcelValueParse<bool?> GetBoolFromExcelRow(ExcelHeaderRow headerInfo, IXLRangeRow toProcess,
             string columnName)

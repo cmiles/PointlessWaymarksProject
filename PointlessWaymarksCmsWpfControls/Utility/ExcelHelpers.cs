@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             bool openAfterSaving = true)
         {
             var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-                $"PhotoMetadata-{FolderFileUtility.TryMakeFilenameValid(fileName)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.xlsx"));
+                $"ContentExport-{FolderFileUtility.TryMakeFilenameValid(fileName)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.xlsx"));
 
             var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("PW Data");
@@ -53,12 +53,12 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 return;
             }
 
-            ExcelRowImports.ExcelContentTableImportResults contentTableImportResult;
+            ExcelContentImports.ExcelContentTableImportResults contentTableImportResult;
 
             try
             {
                 contentTableImportResult =
-                    await ExcelRowImports.ImportFromFile(newFile.FullName, statusContext.ProgressTracker());
+                    await ExcelContentImports.ImportFromFile(newFile.FullName, statusContext.ProgressTracker());
             }
             catch (Exception e)
             {
@@ -82,7 +82,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             if (shouldContinue == "No") return;
 
             var saveResult =
-                await ExcelRowImports.SaveAndGenerateHtmlFromExcelImport(contentTableImportResult,
+                await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(contentTableImportResult,
                     statusContext.ProgressTracker());
 
             if (saveResult.hasError)

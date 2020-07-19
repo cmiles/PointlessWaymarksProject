@@ -2,11 +2,10 @@
 
 namespace PointlessWaymarksCmsData.Database.Models
 {
-    public class HistoricPostContent : IUpdateNotes, IBodyContent, IContentCommon
+    public class HistoricPostContent : IUpdateNotes, IContentCommon
     {
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
-        public bool ShowInMainSiteFeed { get; set; }
         public Guid ContentId { get; set; }
         public DateTime ContentVersion { get; set; }
 
@@ -17,6 +16,7 @@ namespace PointlessWaymarksCmsData.Database.Models
         public DateTime? LastUpdatedOn { get; set; }
 
         public Guid? MainPicture { get; set; }
+        public bool ShowInMainSiteFeed { get; set; }
         public string Tags { get; set; }
         public string Folder { get; set; }
         public string Slug { get; set; }

@@ -165,6 +165,9 @@ namespace PointlessWaymarksCmsData.Content
 
             if (validationReturn.HasError) return (validationReturn, null);
 
+            StringHelpers.TrimNullToEmptyAllStringProperties(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
+
             await Db.SaveLinkStream(toSave);
             await SaveLinkToPinboard(toSave, progress);
             GenerateHtmlAndJson(progress);

@@ -280,6 +280,7 @@ namespace PointlessWaymarksCmsData.Content
             toReturn.ContentVersion = DateTime.Now.ToUniversalTime();
             toReturn.Slug = SlugUtility.Create(true, toReturn.Title);
             toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
+            toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
 
             var possibleTitleYear = Regex
                 .Match(toReturn.Title,
@@ -304,6 +305,9 @@ namespace PointlessWaymarksCmsData.Content
             var validationReturn = await Validate(toSave, selectedFile);
 
             if (validationReturn.HasError) return (validationReturn, null);
+
+            StringHelpers.TrimNullToEmptyAllStringProperties(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             StructureAndMediaContent.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
@@ -347,9 +351,11 @@ namespace PointlessWaymarksCmsData.Content
             if (!commonContentCheck.valid)
                 return await GenerationReturn.Error(commonContentCheck.explanation, photoContent.ContentId);
 
-            selectedFile.Refresh();
+            var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(photoContent.UpdateNotesFormat);
+            if (!updateFormatCheck.isValid)
+                return await GenerationReturn.Error(updateFormatCheck.explanation, photoContent.ContentId);
 
-            if (photoContent == null) return await GenerationReturn.Error("Photo Content is Null?");
+            selectedFile.Refresh();
 
             if (!selectedFile.Exists)
                 return await GenerationReturn.Error("Selected File doesn't exist?", photoContent.ContentId);

@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarksCmsData.Database.Models
 {
-    public class FileContent : IUpdateNotes, IBodyContent, IContentCommon
+    public class FileContent : IUpdateNotes, IContentCommon
     {
         public string OriginalFileName { get; set; }
 

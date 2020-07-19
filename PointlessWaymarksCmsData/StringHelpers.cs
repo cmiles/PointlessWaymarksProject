@@ -37,7 +37,7 @@ namespace PointlessWaymarksCmsData
         }
 
         /// <summary>
-        ///     Html that transforms null or whitespace only strings into string.Empty
+        ///     Html Encode that transforms null or whitespace only strings into string.Empty
         /// </summary>
         /// <param name="toEncode"></param>
         /// <returns></returns>
@@ -48,14 +48,13 @@ namespace PointlessWaymarksCmsData
 
         /// <summary>
         ///     Given a List of String "Joe", "Jorge" and "Jeff" joins to "Joe, Jorge and Jeff" - performs as expected with single
-        ///     items lists remaining
-        ///     single items.
-        ///     https://stackoverflow.com/questions/17560201/join-liststring-together-with-commas-plus-and-for-last-element
+        ///     items lists remaining single items.
         /// </summary>
         /// <param name="toJoin"></param>
         /// <returns></returns>
         public static string JoinListOfStringsToCommonUsageListWithAnd(this List<string> toJoin)
         {
+            //https://stackoverflow.com/questions/17560201/join-liststring-together-with-commas-plus-and-for-last-element
             toJoin ??= new List<string>();
 
             return toJoin.Count > 1
@@ -83,6 +82,22 @@ namespace PointlessWaymarksCmsData
         public static string TrimNullToEmpty(this string toTrim)
         {
             return string.IsNullOrWhiteSpace(toTrim) ? string.Empty : toTrim.Trim();
+        }
+
+        /// <summary>
+        ///     Uses reflection to call TrimNullToEmpty on all string properties.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="toProcess"></param>
+        /// <returns></returns>
+        public static T TrimNullToEmptyAllStringProperties<T>(T toProcess)
+        {
+            var properties = typeof(T).GetProperties().Where(x => x.PropertyType == typeof(string)).ToList();
+
+            foreach (var loopProperties in properties)
+                loopProperties.SetValue(toProcess, ((string) loopProperties.GetValue(toProcess)).TrimNullToEmpty());
+
+            return toProcess;
         }
 
 

@@ -10,6 +10,16 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class CommonContentValidation
     {
+        public static (bool isValid, string explanation) ValidateBodyContentFormat(string contentFormat)
+        {
+            if (string.IsNullOrWhiteSpace(contentFormat)) return (false, "Body Content Format must be set");
+
+            if (Enum.TryParse(typeof(ContentFormatEnum), contentFormat, true, out _))
+                return (true, string.Empty);
+
+            return (false, $"Could not parse {contentFormat} into a known Content Format");
+        }
+
         public static async Task<(bool valid, string explanation)> ValidateContentCommon(IContentCommon toValidate)
         {
             if (toValidate == null) return (false, "Null Content to Validate");
@@ -56,46 +66,36 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add(createdUpdatedExplanation);
             }
 
-            var slugValidation = ValidateSlug(toValidate.Slug);
+            var slugValidation = await ValidateSlugLocalAndDb(toValidate.Slug, toValidate.ContentId);
 
             if (!slugValidation.isValid)
             {
                 isValid = false;
                 errorMessage.Add(slugValidation.explanation);
             }
-            else
-            {
-                if (await (await Db.Context()).SlugExistsInDatabase(toValidate.Slug, toValidate.ContentId))
-                {
-                    isValid = false;
-                    errorMessage.Add("This slug already exists in the database - slugs must be unique.");
-                }
-            }
 
-            if (string.IsNullOrWhiteSpace(toValidate.Folder))
+            var folderValidation = ValidateFolder(toValidate.Folder);
+
+            if (!folderValidation.isValid)
             {
                 isValid = false;
-                errorMessage.Add("Folder can not be blank.");
-            }
-            else
-            {
-                if (!FolderFileUtility.IsNoUrlEncodingNeeded(toValidate.Folder))
-                {
-                    isValid = false;
-                    errorMessage.Add("Limit Folder Names to A-Z a-z - . _");
-                }
+                errorMessage.Add(folderValidation.explanation);
             }
 
-            if (!string.IsNullOrWhiteSpace(toValidate.Tags))
-            {
-                var tags = Db.TagListParse(toValidate.Tags);
+            var tagValidation = ValidateTags(toValidate.Tags);
 
-                if (tags.Any(x => !FolderFileUtility.IsNoUrlEncodingNeededLowerCaseSpacesOk(x) || x.Length > 200))
-                {
-                    isValid = false;
-                    errorMessage.Add(
-                        "Tags should be limited to a-z A-Z _ - [space] and each tag should be less than 200 characters");
-                }
+            if (!tagValidation.isValid)
+            {
+                isValid = false;
+                errorMessage.Add(tagValidation.explanation);
+            }
+
+            var bodyContentFormatValidation = ValidateBodyContentFormat(toValidate.BodyContentFormat);
+
+            if (!bodyContentFormatValidation.isValid)
+            {
+                isValid = false;
+                errorMessage.Add(bodyContentFormatValidation.explanation);
             }
 
             return (isValid, string.Join(Environment.NewLine, errorMessage));
@@ -144,13 +144,25 @@ namespace PointlessWaymarksCmsData.Content
             return (true, string.Empty);
         }
 
-        public static (bool isValid, string explanation) ValidateSlug(string slug)
+        public static (bool isValid, string explanation) ValidateSlugLocal(string slug)
         {
             if (string.IsNullOrWhiteSpace(slug)) return (false, "Slug can't be blank or only whitespace.");
 
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(slug)) return (false, "Slug should only contain 0-9 a-z _ -");
 
             if (slug.Length > 100) return (false, "Limit slugs to 100 characters.");
+
+            return (true, string.Empty);
+        }
+
+        public static async Task<(bool isValid, string explanation)> ValidateSlugLocalAndDb(string slug, Guid contentId)
+        {
+            var localValidation = ValidateSlugLocal(slug);
+
+            if (!localValidation.isValid) return localValidation;
+
+            if (await (await Db.Context()).SlugExistsInDatabase(slug, contentId))
+                return (false, "This slug already exists in the database - slugs must be unique.");
 
             return (true, string.Empty);
         }
@@ -179,6 +191,16 @@ namespace PointlessWaymarksCmsData.Content
             if (string.IsNullOrWhiteSpace(title)) return (false, "Title can not be blank");
 
             return (true, string.Empty);
+        }
+
+        public static (bool isValid, string explanation) ValidateUpdateContentFormat(string contentFormat)
+        {
+            if (string.IsNullOrWhiteSpace(contentFormat)) return (false, "Update Content Format must be set");
+
+            if (Enum.TryParse(typeof(ContentFormatEnum), contentFormat, true, out _))
+                return (true, string.Empty);
+
+            return (false, $"Could not parse {contentFormat} into a known Content Format");
         }
     }
 }

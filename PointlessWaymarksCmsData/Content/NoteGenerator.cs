@@ -22,6 +22,26 @@ namespace PointlessWaymarksCmsData.Content
             htmlContext.WriteLocalHtml();
         }
 
+        public static async Task<(GenerationReturn generationReturn, NoteContent noteContent)> SaveAndGenerateHtml(
+            NoteContent toSave, IProgress<string> progress)
+        {
+            var validationReturn = await Validate(toSave);
+
+            if (validationReturn.HasError) return (validationReturn, null);
+
+            StringHelpers.TrimNullToEmptyAllStringProperties(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
+
+            await Db.SaveNoteContent(toSave);
+            GenerateHtml(toSave, progress);
+            await Export.WriteLocalDbJson(toSave, progress);
+
+            await DataNotifications.PublishDataNotification("Note Generator", DataNotificationContentType.Note,
+                DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
+
+            return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
+        }
+
         public static async Task<string> UniqueNoteSlug()
         {
             var attemptCount = 1;
@@ -31,7 +51,7 @@ namespace PointlessWaymarksCmsData.Content
             var currentLength = 6;
 
             if (await db.NoteContents.AnyAsync())
-            { 
+            {
                 var dbMaxLength = await db.NoteContents.MaxAsync(x => x.Slug.Length);
                 currentLength = dbMaxLength > currentLength ? dbMaxLength : currentLength;
             }
@@ -45,30 +65,15 @@ namespace PointlessWaymarksCmsData.Content
 
             while (await SlugAlreadyExists(possibleSlug))
             {
-                if(attemptCount > 1000) throw new DataException("Could not create a unique note slug in 1000 iterations - this almost certainly represents an error.");
+                if (attemptCount > 1000)
+                    throw new DataException(
+                        "Could not create a unique note slug in 1000 iterations - this almost certainly represents an error.");
                 if (attemptCount % 10 == 0) currentLength++;
                 attemptCount++;
                 possibleSlug = SlugUtility.RandomLowerCaseString(currentLength);
             }
 
             return possibleSlug;
-        }
-
-        public static async Task<(GenerationReturn generationReturn, NoteContent noteContent)> SaveAndGenerateHtml(
-            NoteContent toSave, IProgress<string> progress)
-        {
-            var validationReturn = await Validate(toSave);
-
-            if (validationReturn.HasError) return (validationReturn, null);
-
-            await Db.SaveNoteContent(toSave);
-            GenerateHtml(toSave, progress);
-            await Export.WriteLocalDbJson(toSave, progress);
-
-            await DataNotifications.PublishDataNotification("Note Generator", DataNotificationContentType.Note,
-                DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
-
-            return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
         public static async Task<GenerationReturn> Validate(NoteContent noteContent)
@@ -82,8 +87,6 @@ namespace PointlessWaymarksCmsData.Content
             var commonContentCheck = await CommonContentValidation.ValidateContentCommon(noteContent);
             if (!commonContentCheck.valid)
                 return await GenerationReturn.Error(commonContentCheck.explanation, noteContent.ContentId);
-
-            if (noteContent == null) return await GenerationReturn.Error("Note Content is Null?");
 
             return await GenerationReturn.Success("Note Content Validation Successful");
         }

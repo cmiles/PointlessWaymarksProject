@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using AngleSharp;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
@@ -55,8 +53,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
                 StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(false)));
             SaveUpdateDatabaseAndCloseCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
-            ExtractDataCommand = new Command(() =>
-                StatusContext.RunBlockingTask(() => ExtractDataFromLink(StatusContext?.ProgressTracker())));
+            ExtractDataCommand = new Command(() => StatusContext.RunBlockingTask(ExtractDataFromLink));
             OpenUrlInBrowserCommand = new Command(() =>
             {
                 try
@@ -369,136 +366,23 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             // ReSharper restore InvokeAsExtensionMethod
         }
 
-        private async Task ExtractDataFromLink(IProgress<string> progress)
+        private async Task ExtractDataFromLink()
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            var (generationReturn, linkMetadata) =
+                await LinkGenerator.LinkMetadataFromUrl(LinkUrl, StatusContext.ProgressTracker());
 
-            progress?.Report("Setting up and Downloading Site");
-
-            var config = Configuration.Default.WithDefaultLoader().WithJs();
-            var context = BrowsingContext.New(config);
-            var document = await context.OpenAsync(LinkUrl);
-
-            progress?.Report("Looking for Title");
-
-            var titleString = document.Head.Children.FirstOrDefault(x => x.TagName == "TITLE")?.TextContent;
-
-            if (string.IsNullOrWhiteSpace(titleString))
-                titleString = document.QuerySelector("meta[property='og:title']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(titleString))
-                titleString = document.QuerySelector("meta[name='DC.title']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(titleString))
-                titleString = document.QuerySelector("meta[name='twitter:title']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "value")?.Value;
-
-            if (!string.IsNullOrWhiteSpace(titleString)) Title = titleString;
-
-            progress?.Report("Looking for Author");
-
-
-            var authorString = document.QuerySelector("meta[property='og:author']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(authorString))
-                authorString = document.QuerySelector("meta[name='DC.contributor']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(authorString))
-                authorString = document.QuerySelector("meta[property='article:author']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(authorString))
-                authorString = document.QuerySelector("meta[name='author']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(authorString))
-                authorString = document.QuerySelector("a[rel~=\"author\"]")?.TextContent;
-
-            if (string.IsNullOrWhiteSpace(authorString))
-                authorString = document.QuerySelector(".author__name")?.TextContent;
-
-            if (string.IsNullOrWhiteSpace(authorString))
-                authorString = document.QuerySelector(".author_name")?.TextContent;
-
-            if (!string.IsNullOrWhiteSpace(authorString)) Author = authorString;
-
-            progress?.Report($"Looking for Author - Found {Author}");
-
-
-            progress?.Report("Looking for Date Time");
-
-            var linkDateString = document.QuerySelector("meta[property='article:modified_time']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(linkDateString))
-                linkDateString = document.QuerySelector("meta[property='og:updated_time']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(linkDateString))
-                linkDateString = document.QuerySelector("meta[property='article:published_time']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(linkDateString))
-                linkDateString = document.QuerySelector("meta[property='article:published_time']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(linkDateString))
-                linkDateString = document.QuerySelector("meta[name='DC.date.created']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            progress?.Report($"Looking for Date Time - Found {linkDateString}");
-
-            if (!string.IsNullOrWhiteSpace(linkDateString))
+            if (generationReturn.HasError)
             {
-                if (DateTime.TryParse(linkDateString, out var parsedDateTime))
-                {
-                    LinkDateTime = parsedDateTime;
-                    progress?.Report($"Looking for Date Time - Parsed to {parsedDateTime}");
-                }
-                else
-                {
-                    progress?.Report("Did not parse Date Time");
-                }
+                StatusContext.ToastError(generationReturn.GenerationNote);
+                return;
             }
 
-            progress?.Report("Looking for Site Name");
-
-            var siteString = document.QuerySelector("meta[property='og:site_name']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(siteString))
-                siteString = document.QuerySelector("meta[name='DC.publisher']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(siteString))
-                siteString = document.QuerySelector("meta[name='twitter:site']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "value")?.Value.Replace("@", "");
-
-            if (!string.IsNullOrWhiteSpace(siteString)) Site = siteString;
-
-            progress?.Report($"Looking for Site Name - Found {Site}");
-
-
-            progress?.Report("Looking for Description");
-
-            var descriptionString = document.QuerySelector("meta[name='description']")?.Attributes
-                .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(descriptionString))
-                descriptionString = document.QuerySelector("meta[property='og:description']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (string.IsNullOrWhiteSpace(descriptionString))
-                descriptionString = document.QuerySelector("meta[name='twitter:description']")?.Attributes
-                    .FirstOrDefault(x => x.LocalName == "content")?.Value;
-
-            if (!string.IsNullOrWhiteSpace(descriptionString)) Description = descriptionString;
-
-            progress?.Report($"Looking for Description - Found {Description}");
+            if (!string.IsNullOrWhiteSpace(linkMetadata.Title)) Title = linkMetadata.Title.TrimNullToEmpty();
+            if (!string.IsNullOrWhiteSpace(linkMetadata.Author)) Author = linkMetadata.Author.TrimNullToEmpty();
+            if (!string.IsNullOrWhiteSpace(linkMetadata.Description))
+                Description = linkMetadata.Description.TrimNullToEmpty();
+            if (!string.IsNullOrWhiteSpace(linkMetadata.Site)) Site = linkMetadata.Site.TrimNullToEmpty();
+            if (linkMetadata.LinkDate != null) LinkDateTime = linkMetadata.LinkDate;
         }
 
         private async Task LoadData(LinkStream toLoad, bool extractDataOnLoad = false)
@@ -522,7 +406,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             TagEdit = new TagsEditorContext(StatusContext, DbEntry);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
 
-            if (extractDataOnLoad) await ExtractDataFromLink(StatusContext?.ProgressTracker());
+            if (extractDataOnLoad) await ExtractDataFromLink();
         }
 
         [NotifyPropertyChangedInvocator]

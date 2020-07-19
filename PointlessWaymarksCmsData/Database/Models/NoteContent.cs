@@ -4,7 +4,7 @@ using PointlessWaymarksCmsData.Html.NoteHtml;
 
 namespace PointlessWaymarksCmsData.Database.Models
 {
-    public class NoteContent : IBodyContent, IContentCommon
+    public class NoteContent : IContentCommon
     {
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }

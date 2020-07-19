@@ -210,8 +210,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 var existingItem = listItems.SingleOrDefault(x => x.DbEntry.ContentId == loopItems.DbEntry.ContentId);
 
-                if (existingItem == null && LoadMode != PhotoListLoadMode.ReportQuery)
+                if (existingItem == null)
                 {
+                    if (LoadMode == PhotoListLoadMode.ReportQuery) continue;
+
                     await ThreadSwitcher.ResumeForegroundAsync();
 
                     Items.Add(loopItems);

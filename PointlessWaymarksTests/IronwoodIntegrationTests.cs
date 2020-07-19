@@ -4,18 +4,23 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using AngleSharp;
 using AngleSharp.Html.Parser;
 using KellermanSoftware.CompareNetObjects;
+using Microsoft.Extensions.Logging.Console;
 using NUnit.Framework;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.ExcelImport;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.ToastControl;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksTests
 {
@@ -63,6 +68,7 @@ namespace PointlessWaymarksTests
                 Title =
                     "2018 August Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument",
                 Tags = "agua blanca ranch,ironwood forest national monument,manville road,manville road entrance",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
         public string PhotoAguaBlancaFileName =>
@@ -89,15 +95,16 @@ namespace PointlessWaymarksTests
                 Summary = "Disappearing into the Flower.",
                 Title = "2020 June Disappearing into the Flower",
                 Tags = "barrel cactus,bee,flower,ironwood forest national monument,waterman mountains",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
         public string PhotoDisappearingFileName => "2020-06-Disappearing-into-the-Flower.jpg";
 
         public int PhotoDisappearingWidth => 800;
 
-        public string PhotoIronwood02FileName => "1705-Ironwood-02.jpg";
+        public string PhotoIronwoodTreeFileName => "1705-Ironwood-02.jpg";
 
-        public PhotoContent PhotoIronwood02Reference =>
+        public PhotoContent PhotoIronwoodTreeReference01 =>
             new PhotoContent
             {
                 Aperture = "f/16.0",
@@ -116,11 +123,36 @@ namespace PointlessWaymarksTests
                 Summary = "Ironwood 02.",
                 Title = "2017 May Ironwood 02",
                 Tags = "ironwood,ironwood forest national monument,sun",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
-        public int PhotoIronwood02Width => 734;
+        public PhotoContent PhotoIronwoodTreeReference02_SlugTitleSummaryTagsUpdateNotesUpdatedBy =>
+            new PhotoContent
+            {
+                Aperture = "f/16.0",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2",
+                Folder = "2017",
+                Iso = 100,
+                FocalLength = "35 mm",
+                Lens = "FE 35mm F2.8 ZA",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2017, 05, 15, 14, 49, 49),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/640",
+                Slug = "2017-may-ironwood-tree-against-the-sky",
+                Summary = "An Ironwood Tree against the Sky.",
+                Title = "2017 May Ironwood Tree Against The Sky",
+                Tags = "ironwood,ironwood forest national monument,sun,tree,sky",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+                UpdateNotes = "Improved Title, Summary and Tags for Photo",
+                LastUpdatedBy = "Charles Miles"
+            };
 
-        public PhotoContent PhotoIronwoodPodContentReference =>
+        public int PhotoIronwoodTreeWidth => 734;
+
+        public PhotoContent PhotoIronwoodPodContentReference01 =>
             new PhotoContent
             {
                 Aperture = "f/16.0",
@@ -139,13 +171,36 @@ namespace PointlessWaymarksTests
                 Summary = "Ironwood Pod.",
                 Title = "2020 May Ironwood Pod",
                 Tags = "ironwood,ironwood forest national monument,seed pod,waterman mountains",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            };
+
+        public PhotoContent PhotoIronwoodPodContentReference02_CamerModelLensSummary =>
+            new PhotoContent
+            {
+                Aperture = "f/16.0",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2 (A7RII)",
+                Folder = "2020",
+                Iso = 200,
+                FocalLength = "90 mm",
+                Lens = "FE 90mm F2.8 Macro G OSS (Super Zoom)",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2020, 5, 28, 14, 19, 10),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/320",
+                Slug = "2020-may-ironwood-pod",
+                Summary = "A browning Ironwood Pod under the summer sun.",
+                Title = "2020 May Ironwood Pod",
+                Tags = "ironwood,ironwood forest national monument,seed pod,waterman mountains",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
         public string PhotoIronwoodPodFileName => "2020-05-Ironwood-Pod.jpg";
 
         public int PhotoIronwoodPodWidth => 700;
 
-        public PhotoContent PhotoQuarryContentReference =>
+        public PhotoContent PhotoQuarryContentReference01 =>
             new PhotoContent
             {
                 Aperture = "f/9.0",
@@ -164,6 +219,31 @@ namespace PointlessWaymarksTests
                 Summary = "A Quarry in Ironwood Forest National Monument.",
                 Title = "2020 May A Quarry in Ironwood Forest National Monument",
                 Tags = "agua dulce road,ironwood forest national monument,quarry",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            };
+
+        public PhotoContent PhotoQuarryContentReference02_BodyContentUpdateNotesTags =>
+            new PhotoContent
+            {
+                Aperture = "f/9.0",
+                BodyContent = "Mining is part of both the past and the future of the Waterman Mountains.",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2",
+                Folder = "2020",
+                Iso = 125,
+                FocalLength = "150 mm",
+                Lens = "FE 24-240mm F3.5-6.3 OSS",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2020, 5, 21, 15, 35, 39),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/400",
+                Slug = "2020-may-a-quarry-in-ironwood-forest-national-monument",
+                Summary = "A Quarry in Ironwood Forest National Monument.",
+                Title = "2020 May A Quarry in Ironwood Forest National Monument",
+                Tags = "agua dulce road,ironwood forest national monument,mining,quarry,waterman mountains",
+                UpdateNotes = "Updated information on mining in the Waterman Mountains.",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
         public string PhotoQuarryFileName => "2020-05-A-Quarry-in-Ironwood-Forest-National-Monument.jpg";
@@ -185,6 +265,7 @@ namespace PointlessWaymarksTests
             TestSiteSettings.SiteSummary = TestSummary;
             TestSiteSettings.SiteUrl = "IronwoodTest.com";
             await TestSiteSettings.EnsureDbIsPresent(DebugProgressTracker());
+            await TestSiteSettings.WriteSettings();
         }
 
         [Test]
@@ -201,390 +282,521 @@ namespace PointlessWaymarksTests
         public async Task A10_PhotoLoadTest()
         {
             await PhotoValidation(PhotoAguaBlancaFileName, PhotoAguaBlancaContentReference, PhotoAguaBlancaWidth);
-            await PhotoValidation(PhotoIronwood02FileName, PhotoIronwood02Reference, PhotoIronwood02Width);
-            await PhotoValidation(PhotoQuarryFileName, PhotoQuarryContentReference, PhotoQuarryWidth);
-            await PhotoValidation(PhotoIronwoodPodFileName, PhotoIronwoodPodContentReference, PhotoIronwoodPodWidth);
+            await PhotoValidation(PhotoIronwoodTreeFileName, PhotoIronwoodTreeReference01, PhotoIronwoodTreeWidth);
+            await PhotoValidation(PhotoQuarryFileName, PhotoQuarryContentReference01, PhotoQuarryWidth);
+            await PhotoValidation(PhotoIronwoodPodFileName, PhotoIronwoodPodContentReference01, PhotoIronwoodPodWidth);
             await PhotoValidation(PhotoDisappearingFileName, PhotoDisappearingContentReference, PhotoDisappearingWidth);
         }
 
-        //[Test]
-        //public async Task A20_FileContentImportAndUpdate()
-        //{
-        //    var fileToImport = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestContent",
-        //        "Papago-Saguaro-NM-Brief.pdf"));
-        //    Assert.True(fileToImport.Exists, "Test file Papago-Saguaro-NM-Brief.pdf not found");
-
-        //    var newFileContent = new FileContent
-        //    {
-        //        BodyContent = "Simple Test Content",
-        //        BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-        //        ContentId = Guid.NewGuid(),
-        //        ContentVersion = DateTime.Now.ToUniversalTime(),
-        //        CreatedBy = "Test Series A",
-        //        CreatedOn = DateTime.Now,
-        //        Folder = "NationalParks",
-        //        PublicDownloadLink = true,
-        //        OriginalFileName = fileToImport.Name,
-        //        Title = "Papago Saguaro",
-        //        ShowInMainSiteFeed = true,
-        //        Slug = SlugUtility.Create(true, "Papago Saguaro"),
-        //        Summary = "A Summary",
-        //        Tags = "national parks,phoenix,papago saguaro"
-        //    };
-
-        //    var validationReturn = await FileGenerator.Validate(newFileContent, fileToImport);
-
-        //    Assert.False(validationReturn.HasError);
-
-        //    var saveReturn = await FileGenerator.SaveAndGenerateHtml(newFileContent, fileToImport, true,
-        //        DebugProgressTracker());
-        //    Assert.False(saveReturn.generationReturn.HasError);
-
-        //    var expectedDirectory =
-        //        UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newFileContent);
-        //    Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
-
-        //    var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newFileContent);
-        //    Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
-
-        //    var expectedOriginalFileInContent =
-        //        new FileInfo(Path.Combine(expectedDirectory.FullName, fileToImport.Name));
-        //    Assert.IsTrue(expectedOriginalFileInContent.Exists,
-        //        $"Expected to find original file in content directory but {expectedOriginalFileInContent.FullName} does not exist");
-
-        //    var expectedOriginalFileInMediaArchive = new FileInfo(Path.Combine(
-        //        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
-        //        expectedOriginalFileInContent.Name));
-        //    Assert.IsTrue(expectedOriginalFileInMediaArchive.Exists,
-        //        $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
-
-        //    Assert.AreEqual(expectedDirectory.GetFiles().Length, 3, "Expected Number of Files Does Not Match");
-
-        //    //Check JSON File
-        //    var jsonFile =
-        //        new FileInfo(Path.Combine(
-        //            UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newFileContent).FullName,
-        //            $"{Names.FileContentPrefix}{newFileContent.ContentId}.json"));
-        //    Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
-
-        //    var jsonFileImported = Import.ContentFromFiles<FileContent>(
-        //        new List<string> {jsonFile.FullName}, Names.FileContentPrefix).Single();
-        //    var compareLogic = new CompareLogic();
-        //    var comparisonResult = compareLogic.Compare(newFileContent, jsonFileImported);
-        //    Assert.True(comparisonResult.AreEqual,
-        //        $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
-
-        //    //?Check some details of the HTML?
-        //    var updateWithoutUpdateResult = await FileGenerator.SaveAndGenerateHtml(newFileContent,
-        //        expectedOriginalFileInMediaArchive, false, DebugProgressTracker());
-        //    Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
-        //        "Should not be able to update an entry without LastUpdated Values set");
-
-        //    var updatedTime = DateTime.Now;
-        //    newFileContent.Tags += ",testupdatetag";
-        //    newFileContent.Title += " NP";
-        //    newFileContent.LastUpdatedOn = updatedTime;
-        //    newFileContent.LastUpdatedBy = "Test Updater";
-
-        //    //?Check some details of the HTML?
-        //    var updateResult = await FileGenerator.SaveAndGenerateHtml(newFileContent,
-        //        expectedOriginalFileInMediaArchive, false, DebugProgressTracker());
-        //    Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
-
-        //    var updatedJsonFileImported = Import.ContentFromFiles<FileContent>(
-        //        new List<string> {jsonFile.FullName}, Names.FileContentPrefix).Single();
-        //    var updateComparisonResult = compareLogic.Compare(newFileContent, updatedJsonFileImported);
-        //    Assert.True(updateComparisonResult.AreEqual,
-        //        $"Updated Json Import does not match expected Updated File Content {comparisonResult.DifferencesString}");
-
-        //    //Check Historic JSON File
-        //    var historicJsonFile = new FileInfo(Path.Combine(
-        //        UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newFileContent).FullName,
-        //        $"{Names.HistoricFileContentPrefix}{newFileContent.ContentId}.json"));
-        //    var historicJsonFileImported = Import
-        //        .ContentFromFiles<List<HistoricFileContent>>(new List<string> {historicJsonFile.FullName},
-        //            Names.HistoricFileContentPrefix).SelectMany(x => x).ToList();
-
-        //    Assert.AreEqual(1, historicJsonFileImported.Count,
-        //        "Wrong number of Historic Entries in the Historic Json File");
-
-        //    var expectedHistoricValues = new HistoricFileContent();
-        //    expectedHistoricValues.InjectFrom(jsonFileImported);
-        //    expectedHistoricValues.Id = historicJsonFileImported.First().Id;
-
-        //    var historicJsonComparisonResult =
-        //        compareLogic.Compare(expectedHistoricValues, historicJsonFileImported.First());
-        //    Assert.IsTrue(historicJsonComparisonResult.AreEqual,
-        //        $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
-
-        //    newFileContent.Title += " Again";
-        //    newFileContent.LastUpdatedOn = DateTime.Now;
-        //    newFileContent.LastUpdatedBy = "Test Updater 2";
-
-        //    var updateTwoResult = await FileGenerator.SaveAndGenerateHtml(newFileContent,
-        //        expectedOriginalFileInMediaArchive, false, DebugProgressTracker());
-        //    Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
-
-        //    historicJsonFileImported = Import
-        //        .ContentFromFiles<List<HistoricFileContent>>(new List<string> {historicJsonFile.FullName},
-        //            Names.HistoricFileContentPrefix).SelectMany(x => x).ToList();
-        //    Assert.AreEqual(2, historicJsonFileImported.Count,
-        //        "Wrong number of Historic Entries in the Historic Json File");
-        //}
-
-        //[Test]
-        //public async Task A30_ImageContentImportAndUpdate()
-        //{
-        //    var fullSizeImageTest = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestContent",
-        //        "2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg"));
-        //    Assert.True(fullSizeImageTest.Exists,
-        //        "Test Image 2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg not found");
-
-        //    var newImageContent = new ImageContent
-        //    {
-        //        BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-        //        BodyContent = "Image Body Content",
-        //        ContentId = Guid.NewGuid(),
-        //        ContentVersion = DateTime.Now.ToUniversalTime(),
-        //        CreatedBy = "A30_ImageContentImportAndUpdate",
-        //        CreatedOn = DateTime.Now,
-        //        Folder = "Bridges",
-        //        ShowInSearch = false,
-        //        Slug = SlugUtility.Create(true, "AZT Under Highway"),
-        //        Summary = "A trail and bridge story",
-        //        Tags = "arizona trail,highway 77,wash",
-        //        Title = "AZT Under Highway",
-        //        UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
-        //    };
-
-        //    var validationReturn = await ImageGenerator.Validate(newImageContent, fullSizeImageTest);
-
-        //    Assert.False(validationReturn.HasError);
-
-        //    var saveReturn = await ImageGenerator.SaveAndGenerateHtml(newImageContent, fullSizeImageTest, true,
-        //        DebugProgressTracker());
-        //    Assert.False(saveReturn.generationReturn.HasError);
-
-        //    Assert.IsTrue(newImageContent.MainPicture == newImageContent.ContentId,
-        //        $"Main Picture - {newImageContent.MainPicture} - Should be set to Content Id {newImageContent.ContentId}");
-
-        //    var expectedDirectory =
-        //        UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newImageContent);
-        //    Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
-
-        //    var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteImageHtmlFile(newImageContent);
-        //    Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
-
-        //    var expectedOriginalImageFileInContent =
-        //        new FileInfo(Path.Combine(expectedDirectory.FullName, fullSizeImageTest.Name));
-        //    Assert.IsTrue(expectedOriginalImageFileInContent.Exists,
-        //        $"Expected to find original image in content directory but {expectedOriginalImageFileInContent.FullName} does not exist");
-
-        //    var expectedOriginalImageFileInMediaArchive = new FileInfo(Path.Combine(
-        //        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory().FullName,
-        //        expectedOriginalImageFileInContent.Name));
-        //    Assert.IsTrue(expectedOriginalImageFileInMediaArchive.Exists,
-        //        $"Expected to find original image in media archive image directory but {expectedOriginalImageFileInMediaArchive.FullName} does not exist");
-
-        //    //Checking the count of files is useful to make sure there are not any unexpected files
-        //    var expectedNumberOfFiles =
-        //        PictureResizing.SrcSetSizeAndQualityList()
-        //            .Count //This image should trigger all sizes atm, this will need adjustment if the size list changes
-        //        + 1 //Original image
-        //        + 1 //Display image
-        //        + 1 //html file
-        //        + 1; //json file
-        //    Assert.AreEqual(expectedDirectory.GetFiles().Length, expectedNumberOfFiles,
-        //        "Expected Number of Files Does Not Match");
-
-        //    //Check that the Picture Asset processing finds all the files
-
-        //    var pictureAssetInformation = PictureAssetProcessing.ProcessPictureDirectory(newImageContent.ContentId);
-        //    var pictureAssetImageDbEntry = (ImageContent) pictureAssetInformation.DbEntry;
-        //    Assert.IsTrue(pictureAssetImageDbEntry.ContentId == newImageContent.ContentId,
-        //        $"Picture Asset appears to have gotten an incorrect DB entry of {pictureAssetImageDbEntry.ContentId} rather than {newImageContent.ContentId}");
-        //    Assert.AreEqual(pictureAssetInformation.LargePicture.Width, 4000,
-        //        "Picture Asset Large Width is not the expected Value");
-        //    Assert.AreEqual(pictureAssetInformation.SmallPicture.Width, 100,
-        //        "Picture Asset Small Width is not the expected Value");
-        //    Assert.AreEqual(pictureAssetInformation.SrcsetImages.Count,
-        //        PictureResizing.SrcSetSizeAndQualityList().Count, "Did not find the expected number of SrcSet Images");
-
-        //    //Check JSON File
-        //    var jsonFile =
-        //        new FileInfo(Path.Combine(
-        //            UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newImageContent).FullName,
-        //            $"{Names.ImageContentPrefix}{newImageContent.ContentId}.json"));
-        //    Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
-
-        //    var jsonFileImported = Import.ContentFromFiles<ImageContent>(
-        //        new List<string> {jsonFile.FullName}, Names.ImageContentPrefix).Single();
-        //    var compareLogic = new CompareLogic();
-        //    var comparisonResult = compareLogic.Compare(newImageContent, jsonFileImported);
-        //    Assert.True(comparisonResult.AreEqual,
-        //        $"Json Import does not match expected Image Content {comparisonResult.DifferencesString}");
-
-        //    //?Check some details of the HTML?
-        //    var updateWithoutUpdateResult = await ImageGenerator.SaveAndGenerateHtml(newImageContent,
-        //        expectedOriginalImageFileInMediaArchive, false, DebugProgressTracker());
-        //    Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
-        //        "Should not be able to update an entry without LastUpdated Values set");
-
-        //    var updatedTime = DateTime.Now;
-        //    newImageContent.Tags += ",testupdatetag";
-        //    newImageContent.Title += " Updated";
-        //    newImageContent.LastUpdatedOn = updatedTime;
-        //    newImageContent.LastUpdatedBy = "Test Image Updater";
-
-        //    //?Check some details of the HTML?
-        //    var updateResult = await ImageGenerator.SaveAndGenerateHtml(newImageContent,
-        //        expectedOriginalImageFileInMediaArchive, false, DebugProgressTracker());
-        //    Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
-
-        //    var updatedJsonFileImported = Import.ContentFromFiles<ImageContent>(
-        //        new List<string> {jsonFile.FullName}, Names.ImageContentPrefix).Single();
-        //    var updateComparisonResult = compareLogic.Compare(newImageContent, updatedJsonFileImported);
-        //    Assert.True(updateComparisonResult.AreEqual,
-        //        $"Updated Json Import does not match expected Updated Image Content {comparisonResult.DifferencesString}");
-
-        //    //Check Historic JSON File
-        //    var historicJsonFile = new FileInfo(Path.Combine(
-        //        UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newImageContent).FullName,
-        //        $"{Names.HistoricImageContentPrefix}{newImageContent.ContentId}.json"));
-        //    var historicJsonFileImported = Import
-        //        .ContentFromFiles<List<HistoricImageContent>>(new List<string> {historicJsonFile.FullName},
-        //            Names.HistoricImageContentPrefix).SelectMany(x => x).ToList();
-
-        //    Assert.AreEqual(1, historicJsonFileImported.Count,
-        //        "Wrong number of Historic Entries in the Historic Json File");
-
-        //    var expectedHistoricValues = new HistoricImageContent();
-        //    expectedHistoricValues.InjectFrom(jsonFileImported);
-        //    expectedHistoricValues.Id = historicJsonFileImported.First().Id;
-
-        //    var historicJsonComparisonResult =
-        //        compareLogic.Compare(expectedHistoricValues, historicJsonFileImported.First());
-        //    Assert.IsTrue(historicJsonComparisonResult.AreEqual,
-        //        $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
-
-        //    newImageContent.Title += " Again";
-        //    newImageContent.LastUpdatedOn = DateTime.Now;
-        //    newImageContent.LastUpdatedBy = "Test Image Updater 2";
-
-        //    var updateTwoResult = await ImageGenerator.SaveAndGenerateHtml(newImageContent,
-        //        expectedOriginalImageFileInMediaArchive, false, DebugProgressTracker());
-        //    Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
-
-        //    historicJsonFileImported = Import
-        //        .ContentFromFiles<List<HistoricImageContent>>(new List<string> {historicJsonFile.FullName},
-        //            Names.HistoricImageContentPrefix).SelectMany(x => x).ToList();
-        //    Assert.AreEqual(2, historicJsonFileImported.Count,
-        //        "Wrong number of Historic Entries in the Historic Json File");
-        //}
-
-        //[Test]
-        //public async Task A40_NoteContentImportAndUpdate()
-        //{
-        //    var newNoteContent = new NoteContent
-        //    {
-        //        BodyContent = "Grand Canyon Permit Info Link",
-        //        BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-        //        ContentId = Guid.NewGuid(),
-        //        ContentVersion = DateTime.Now.ToUniversalTime(),
-        //        CreatedBy = "Test Series A",
-        //        CreatedOn = DateTime.Now,
-        //        Folder = "GrandCanyon",
-        //        ShowInMainSiteFeed = true,
-        //        Slug = await NoteGenerator.UniqueNoteSlug(),
-        //        Summary = "GC Quick Info",
-        //        Tags = "national parks,grand canyon,permits"
-        //    };
-
-        //    var validationReturn = await NoteGenerator.Validate(newNoteContent);
-
-        //    Assert.False(validationReturn.HasError);
-
-        //    var saveReturn = await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
-        //    Assert.False(saveReturn.generationReturn.HasError);
-
-        //    var expectedDirectory =
-        //        UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newNoteContent);
-        //    Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
-
-        //    var expectedNote = UserSettingsSingleton.CurrentSettings().LocalSiteNoteHtmlFile(newNoteContent);
-        //    Assert.IsTrue(expectedNote.Exists, $"Expected html Note {expectedNote.FullName} does not exist");
-
-        //    Assert.AreEqual(expectedDirectory.GetFiles().Length, 2, "Expected Number of Files Does Not Match");
-
-        //    //Check JSON Note
-        //    var jsonNote =
-        //        new FileInfo(Path.Combine(
-        //            UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newNoteContent).FullName,
-        //            $"{Names.NoteContentPrefix}{newNoteContent.ContentId}.json"));
-        //    Assert.True(jsonNote.Exists, $"Json Note {jsonNote.FullName} does not exist?");
-
-        //    var jsonNoteImported = Import.ContentFromFiles<NoteContent>(
-        //        new List<string> {jsonNote.FullName}, Names.NoteContentPrefix).Single();
-        //    var compareLogic = new CompareLogic();
-        //    var comparisonResult = compareLogic.Compare(newNoteContent, jsonNoteImported);
-        //    Assert.True(comparisonResult.AreEqual,
-        //        $"Json Import does not match expected Note Content {comparisonResult.DifferencesString}");
-
-        //    //?Check some details of the HTML?
-        //    var updateWithoutUpdateResult =
-        //        await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
-        //    Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
-        //        "Should not be able to update an entry without LastUpdated Values set");
-
-        //    var updatedTime = DateTime.Now;
-        //    newNoteContent.Tags += ",testupdatetag";
-        //    newNoteContent.LastUpdatedOn = updatedTime;
-        //    newNoteContent.LastUpdatedBy = "Test Updater";
-
-        //    //?Check some details of the HTML?
-        //    var updateResult = await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
-        //    Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
-
-        //    var updatedJsonNoteImported = Import.ContentFromFiles<NoteContent>(
-        //        new List<string> {jsonNote.FullName}, Names.NoteContentPrefix).Single();
-        //    var updateComparisonResult = compareLogic.Compare(newNoteContent, updatedJsonNoteImported);
-        //    Assert.True(updateComparisonResult.AreEqual,
-        //        $"Updated Json Import does not match expected Updated Note Content {comparisonResult.DifferencesString}");
-
-        //    //Check Historic JSON Note
-        //    var historicJsonNote = new FileInfo(Path.Combine(
-        //        UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newNoteContent).FullName,
-        //        $"{Names.HistoricNoteContentPrefix}{newNoteContent.ContentId}.json"));
-        //    var historicJsonNoteImported = Import
-        //        .ContentFromFiles<List<HistoricNoteContent>>(new List<string> {historicJsonNote.FullName},
-        //            Names.HistoricNoteContentPrefix).SelectMany(x => x).ToList();
-
-        //    Assert.AreEqual(1, historicJsonNoteImported.Count,
-        //        "Wrong number of Historic Entries in the Historic Json Note");
-
-        //    var expectedHistoricValues = new HistoricNoteContent();
-        //    expectedHistoricValues.InjectFrom(jsonNoteImported);
-        //    expectedHistoricValues.Id = historicJsonNoteImported.First().Id;
-
-        //    var historicJsonComparisonResult =
-        //        compareLogic.Compare(expectedHistoricValues, historicJsonNoteImported.First());
-        //    Assert.IsTrue(historicJsonComparisonResult.AreEqual,
-        //        $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
-
-        //    newNoteContent.LastUpdatedOn = DateTime.Now;
-        //    newNoteContent.LastUpdatedBy = "Test Updater 2";
-
-        //    var updateTwoResult = await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
-        //    Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
-
-        //    historicJsonNoteImported = Import
-        //        .ContentFromFiles<List<HistoricNoteContent>>(new List<string> {historicJsonNote.FullName},
-        //            Names.HistoricNoteContentPrefix).SelectMany(x => x).ToList();
-        //    Assert.AreEqual(2, historicJsonNoteImported.Count,
-        //        "Wrong number of Historic Entries in the Historic Json Note");
-        //}
-
-        public static IProgress<string> DebugProgressTracker()
+        [Test]
+        public async Task A20_PhotoEditorContextEditOfQuarryPhoto()
+        {
+            ThreadSwitcher.PinnedDispatcher = Dispatcher.CurrentDispatcher;
+
+            var db = await Db.Context();
+            var quarryPhoto = db.PhotoContents.Single(x => x.Title == PhotoQuarryContentReference01.Title);
+
+            var newContext = new PhotoContentEditorContext(null, true);
+
+            await newContext.LoadData(quarryPhoto);
+
+            newContext.TitleSummarySlugFolder.Title = string.Empty;
+            Assert.True(newContext.TitleSummarySlugFolder.TitleHasChanges);
+            Assert.True(newContext.TitleSummarySlugFolder.TitleHasValidationIssues);
+            newContext.TitleSummarySlugFolder.Title = PhotoQuarryContentReference01.Title;
+            Assert.False(newContext.TitleSummarySlugFolder.TitleHasChanges);
+
+            newContext.TitleSummarySlugFolder.Slug += "\\\\";
+            Assert.True(newContext.TitleSummarySlugFolder.SlugHasValidationIssues);
+            Assert.True(newContext.TitleSummarySlugFolder.SlugHasChanges);
+            newContext.TitleSummarySlugFolder.Slug = PhotoQuarryContentReference02_BodyContentUpdateNotesTags.Slug;
+            Assert.False(newContext.TitleSummarySlugFolder.SlugHasValidationIssues);
+
+            newContext.TitleSummarySlugFolder.Folder = PhotoQuarryContentReference02_BodyContentUpdateNotesTags.Folder;
+            Assert.False(newContext.TitleSummarySlugFolder.SlugHasValidationIssues);
+
+            newContext.TagEdit.Tags = PhotoQuarryContentReference02_BodyContentUpdateNotesTags.Tags;
+            Assert.False(newContext.TagEdit.TagsHaveValidationIssues);
+            Assert.True(newContext.TagEdit.TagsHaveChanges);
+
+            newContext.BodyContent.BodyContent = PhotoQuarryContentReference02_BodyContentUpdateNotesTags.BodyContent;
+            Assert.True(newContext.BodyContent.BodyContentHasChanges);
+
+            newContext.UpdateNotes.UpdateNotes = PhotoQuarryContentReference02_BodyContentUpdateNotesTags.UpdateNotes;
+            Assert.True(newContext.UpdateNotes.UpdateNotesHasChanges);
+
+            await newContext.SaveAndGenerateHtml(true);
+
+            var comparison = PhotoComparePhotoReferenceToPhotoObject(PhotoQuarryContentReference02_BodyContentUpdateNotesTags, newContext.DbEntry);
+            Assert.False(comparison.hasInvalidComparison, comparison.comparisonNotes);
+        }
+
+        [Test]
+        public async Task A30_PhotoExcelUpdate()
+        {
+            var db = await Db.Context();
+            var podPhoto = db.PhotoContents.Single(x => x.Title == PhotoIronwoodPodContentReference01.Title);
+            var treePhoto = db.PhotoContents.Single(x => x.Title == PhotoIronwoodTreeReference01.Title);
+
+            var items = new List<object> {podPhoto, treePhoto};
+
+            var excelFileExport = ExcelHelpers.ContentToExcelFileAsTable(items, "IronwoodTestExport01", false);
+
+            var workbook = new ClosedXML.Excel.XLWorkbook(excelFileExport.FullName);
+            var worksheet = workbook.Worksheets.First();
+            var headerRow = worksheet.RangeUsed().Rows(1,1);
+
+            var contentIdSheetColumn = headerRow.Cells().First(x => x.Value.ToString() == "ContentId").WorksheetColumn().ColumnNumber();
+            var slugSheetColumn = headerRow.Cells().First(x => x.Value.ToString() == "Slug").WorksheetColumn().ColumnNumber();
+            var titleSheetColumn = headerRow.Cells().First(x => x.Value.ToString() == "Title").WorksheetColumn().ColumnNumber();
+            var summarySheetColumn = headerRow.Cells().First(x => x.Value.ToString() == "Summary").WorksheetColumn().ColumnNumber();
+            var tagsSheetColumn = headerRow.Cells().First(x => x.Value.ToString() == "Tags").WorksheetColumn().ColumnNumber();
+            var updateNotesSheetColumn = headerRow.Cells().First(x => x.Value.ToString() == "UpdateNotes").WorksheetColumn().ColumnNumber();
+            var updatedBySheetColumn = headerRow.Cells().First(x => x.Value.ToString() == "LastUpdatedBy").WorksheetColumn().ColumnNumber();
+
+            var lensSheetColumn = headerRow.Cells().First(x => x.Value.ToString() == "Lens").WorksheetColumn().ColumnNumber();
+            var cameraModelSheetColumn = headerRow.Cells().First(x => x.Value.ToString() == "CamerModel").WorksheetColumn().ColumnNumber();
+
+            var idColumn = worksheet.Column(contentIdSheetColumn).Intersection(worksheet.RangeUsed()).AsRange();
+
+            var treeSheetRow = idColumn.Cells().First(x => x.Value.ToString() == treePhoto.ContentId.ToString())
+                .WorksheetRow().RowNumber();
+
+            worksheet.Cell(treeSheetRow, slugSheetColumn).Value =
+                PhotoIronwoodTreeReference02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.Slug;
+
+            worksheet.Cell(treeSheetRow, titleSheetColumn).Value =
+                PhotoIronwoodTreeReference02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.Title;
+
+            worksheet.Cell(treeSheetRow, summarySheetColumn).Value =
+                PhotoIronwoodTreeReference02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.Summary;
+
+            worksheet.Cell(treeSheetRow, tagsSheetColumn).Value =
+                PhotoIronwoodTreeReference02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.Tags;
+
+            worksheet.Cell(treeSheetRow, updateNotesSheetColumn).Value =
+                PhotoIronwoodTreeReference02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.UpdateNotes;
+
+            worksheet.Cell(treeSheetRow, updatedBySheetColumn).Value =
+                PhotoIronwoodTreeReference02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.LastUpdatedBy;
+
+            var podSheetRow = idColumn.Cells().First(x => x.Value.ToString() == podPhoto.ContentId.ToString())
+                .WorksheetRow().RowNumber();
+
+            worksheet.Cell(podSheetRow, cameraModelSheetColumn).Value =
+                PhotoIronwoodPodContentReference02_CamerModelLensSummary.CameraModel;
+
+            worksheet.Cell(podSheetRow, lensSheetColumn).Value =
+                PhotoIronwoodPodContentReference02_CamerModelLensSummary.Lens;
+
+            worksheet.Cell(podSheetRow, summarySheetColumn).Value =
+                PhotoIronwoodPodContentReference02_CamerModelLensSummary.Summary;
+
+            workbook.Save();
+
+            var importResult =
+                await ExcelContentImports.ImportFromFile(excelFileExport.FullName, DebugProgressTracker());
+            Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
+            Assert.AreEqual(2, importResult.ToUpdate.Count, "Unexpected number of rows to update");
+
+            var updateSaveResult = await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult, DebugProgressTracker());
+
+            Assert.False(updateSaveResult.hasError);
+
+            var updatedPodPhoto = db.PhotoContents.Single(x => x.Title == PhotoIronwoodPodContentReference01.Title);
+            var updatedTreePhoto = db.PhotoContents.Single(x => x.Title == PhotoIronwoodTreeReference01.Title);
+
+            var podReference = PhotoIronwoodPodContentReference02_CamerModelLensSummary;
+            podReference.LastUpdatedOn = updatedPodPhoto.LastUpdatedOn;
+
+            var updatedPodComparison = PhotoComparePhotoReferenceToPhotoObject(podReference, updatedPodPhoto);
+            Assert.True(updatedPodComparison.hasInvalidComparison);
+
+            var treeReference = PhotoIronwoodTreeReference02_SlugTitleSummaryTagsUpdateNotesUpdatedBy;
+            treeReference.LastUpdatedOn = updatedTreePhoto.LastUpdatedOn;
+
+            var updatedTreeComparison = PhotoComparePhotoReferenceToPhotoObject(treeReference, updatedTreePhoto);
+            Assert.True(updatedTreeComparison.hasInvalidComparison);
+        }
+
+            //[Test]
+            //public async Task A20_FileContentImportAndUpdate()
+            //{
+            //    var fileToImport = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestContent",
+            //        "Papago-Saguaro-NM-Brief.pdf"));
+            //    Assert.True(fileToImport.Exists, "Test file Papago-Saguaro-NM-Brief.pdf not found");
+
+            //    var newFileContent = new FileContent
+            //    {
+            //        BodyContent = "Simple Test Content",
+            //        BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+            //        ContentId = Guid.NewGuid(),
+            //        ContentVersion = DateTime.Now.ToUniversalTime(),
+            //        CreatedBy = "Test Series A",
+            //        CreatedOn = DateTime.Now,
+            //        Folder = "NationalParks",
+            //        PublicDownloadLink = true,
+            //        OriginalFileName = fileToImport.Name,
+            //        Title = "Papago Saguaro",
+            //        ShowInMainSiteFeed = true,
+            //        Slug = SlugUtility.Create(true, "Papago Saguaro"),
+            //        Summary = "A Summary",
+            //        Tags = "national parks,phoenix,papago saguaro"
+            //    };
+
+            //    var validationReturn = await FileGenerator.Validate(newFileContent, fileToImport);
+
+            //    Assert.False(validationReturn.HasError);
+
+            //    var saveReturn = await FileGenerator.SaveAndGenerateHtml(newFileContent, fileToImport, true,
+            //        DebugProgressTracker());
+            //    Assert.False(saveReturn.generationReturn.HasError);
+
+            //    var expectedDirectory =
+            //        UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newFileContent);
+            //    Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
+
+            //    var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newFileContent);
+            //    Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
+
+            //    var expectedOriginalFileInContent =
+            //        new FileInfo(Path.Combine(expectedDirectory.FullName, fileToImport.Name));
+            //    Assert.IsTrue(expectedOriginalFileInContent.Exists,
+            //        $"Expected to find original file in content directory but {expectedOriginalFileInContent.FullName} does not exist");
+
+            //    var expectedOriginalFileInMediaArchive = new FileInfo(Path.Combine(
+            //        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
+            //        expectedOriginalFileInContent.Name));
+            //    Assert.IsTrue(expectedOriginalFileInMediaArchive.Exists,
+            //        $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
+
+            //    Assert.AreEqual(expectedDirectory.GetFiles().Length, 3, "Expected Number of Files Does Not Match");
+
+            //    //Check JSON File
+            //    var jsonFile =
+            //        new FileInfo(Path.Combine(
+            //            UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newFileContent).FullName,
+            //            $"{Names.FileContentPrefix}{newFileContent.ContentId}.json"));
+            //    Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+
+            //    var jsonFileImported = Import.ContentFromFiles<FileContent>(
+            //        new List<string> {jsonFile.FullName}, Names.FileContentPrefix).Single();
+            //    var compareLogic = new CompareLogic();
+            //    var comparisonResult = compareLogic.Compare(newFileContent, jsonFileImported);
+            //    Assert.True(comparisonResult.AreEqual,
+            //        $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
+
+            //    //?Check some details of the HTML?
+            //    var updateWithoutUpdateResult = await FileGenerator.SaveAndGenerateHtml(newFileContent,
+            //        expectedOriginalFileInMediaArchive, false, DebugProgressTracker());
+            //    Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
+            //        "Should not be able to update an entry without LastUpdated Values set");
+
+            //    var updatedTime = DateTime.Now;
+            //    newFileContent.Tags += ",testupdatetag";
+            //    newFileContent.Title += " NP";
+            //    newFileContent.LastUpdatedOn = updatedTime;
+            //    newFileContent.LastUpdatedBy = "Test Updater";
+
+            //    //?Check some details of the HTML?
+            //    var updateResult = await FileGenerator.SaveAndGenerateHtml(newFileContent,
+            //        expectedOriginalFileInMediaArchive, false, DebugProgressTracker());
+            //    Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
+
+            //    var updatedJsonFileImported = Import.ContentFromFiles<FileContent>(
+            //        new List<string> {jsonFile.FullName}, Names.FileContentPrefix).Single();
+            //    var updateComparisonResult = compareLogic.Compare(newFileContent, updatedJsonFileImported);
+            //    Assert.True(updateComparisonResult.AreEqual,
+            //        $"Updated Json Import does not match expected Updated File Content {comparisonResult.DifferencesString}");
+
+            //    //Check Historic JSON File
+            //    var historicJsonFile = new FileInfo(Path.Combine(
+            //        UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newFileContent).FullName,
+            //        $"{Names.HistoricFileContentPrefix}{newFileContent.ContentId}.json"));
+            //    var historicJsonFileImported = Import
+            //        .ContentFromFiles<List<HistoricFileContent>>(new List<string> {historicJsonFile.FullName},
+            //            Names.HistoricFileContentPrefix).SelectMany(x => x).ToList();
+
+            //    Assert.AreEqual(1, historicJsonFileImported.Count,
+            //        "Wrong number of Historic Entries in the Historic Json File");
+
+            //    var expectedHistoricValues = new HistoricFileContent();
+            //    expectedHistoricValues.InjectFrom(jsonFileImported);
+            //    expectedHistoricValues.Id = historicJsonFileImported.First().Id;
+
+            //    var historicJsonComparisonResult =
+            //        compareLogic.Compare(expectedHistoricValues, historicJsonFileImported.First());
+            //    Assert.IsTrue(historicJsonComparisonResult.AreEqual,
+            //        $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
+
+            //    newFileContent.Title += " Again";
+            //    newFileContent.LastUpdatedOn = DateTime.Now;
+            //    newFileContent.LastUpdatedBy = "Test Updater 2";
+
+            //    var updateTwoResult = await FileGenerator.SaveAndGenerateHtml(newFileContent,
+            //        expectedOriginalFileInMediaArchive, false, DebugProgressTracker());
+            //    Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
+
+            //    historicJsonFileImported = Import
+            //        .ContentFromFiles<List<HistoricFileContent>>(new List<string> {historicJsonFile.FullName},
+            //            Names.HistoricFileContentPrefix).SelectMany(x => x).ToList();
+            //    Assert.AreEqual(2, historicJsonFileImported.Count,
+            //        "Wrong number of Historic Entries in the Historic Json File");
+            //}
+
+            //[Test]
+            //public async Task A30_ImageContentImportAndUpdate()
+            //{
+            //    var fullSizeImageTest = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestContent",
+            //        "2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg"));
+            //    Assert.True(fullSizeImageTest.Exists,
+            //        "Test Image 2019-01-Bridge-Under-Highway-77-on-the-Arizona-Trail.jpg not found");
+
+            //    var newImageContent = new ImageContent
+            //    {
+            //        BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+            //        BodyContent = "Image Body Content",
+            //        ContentId = Guid.NewGuid(),
+            //        ContentVersion = DateTime.Now.ToUniversalTime(),
+            //        CreatedBy = "A30_ImageContentImportAndUpdate",
+            //        CreatedOn = DateTime.Now,
+            //        Folder = "Bridges",
+            //        ShowInSearch = false,
+            //        Slug = SlugUtility.Create(true, "AZT Under Highway"),
+            //        Summary = "A trail and bridge story",
+            //        Tags = "arizona trail,highway 77,wash",
+            //        Title = "AZT Under Highway",
+            //        UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            //    };
+
+            //    var validationReturn = await ImageGenerator.Validate(newImageContent, fullSizeImageTest);
+
+            //    Assert.False(validationReturn.HasError);
+
+            //    var saveReturn = await ImageGenerator.SaveAndGenerateHtml(newImageContent, fullSizeImageTest, true,
+            //        DebugProgressTracker());
+            //    Assert.False(saveReturn.generationReturn.HasError);
+
+            //    Assert.IsTrue(newImageContent.MainPicture == newImageContent.ContentId,
+            //        $"Main Picture - {newImageContent.MainPicture} - Should be set to Content Id {newImageContent.ContentId}");
+
+            //    var expectedDirectory =
+            //        UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newImageContent);
+            //    Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
+
+            //    var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteImageHtmlFile(newImageContent);
+            //    Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
+
+            //    var expectedOriginalImageFileInContent =
+            //        new FileInfo(Path.Combine(expectedDirectory.FullName, fullSizeImageTest.Name));
+            //    Assert.IsTrue(expectedOriginalImageFileInContent.Exists,
+            //        $"Expected to find original image in content directory but {expectedOriginalImageFileInContent.FullName} does not exist");
+
+            //    var expectedOriginalImageFileInMediaArchive = new FileInfo(Path.Combine(
+            //        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory().FullName,
+            //        expectedOriginalImageFileInContent.Name));
+            //    Assert.IsTrue(expectedOriginalImageFileInMediaArchive.Exists,
+            //        $"Expected to find original image in media archive image directory but {expectedOriginalImageFileInMediaArchive.FullName} does not exist");
+
+            //    //Checking the count of files is useful to make sure there are not any unexpected files
+            //    var expectedNumberOfFiles =
+            //        PictureResizing.SrcSetSizeAndQualityList()
+            //            .Count //This image should trigger all sizes atm, this will need adjustment if the size list changes
+            //        + 1 //Original image
+            //        + 1 //Display image
+            //        + 1 //html file
+            //        + 1; //json file
+            //    Assert.AreEqual(expectedDirectory.GetFiles().Length, expectedNumberOfFiles,
+            //        "Expected Number of Files Does Not Match");
+
+            //    //Check that the Picture Asset processing finds all the files
+
+            //    var pictureAssetInformation = PictureAssetProcessing.ProcessPictureDirectory(newImageContent.ContentId);
+            //    var pictureAssetImageDbEntry = (ImageContent) pictureAssetInformation.DbEntry;
+            //    Assert.IsTrue(pictureAssetImageDbEntry.ContentId == newImageContent.ContentId,
+            //        $"Picture Asset appears to have gotten an incorrect DB entry of {pictureAssetImageDbEntry.ContentId} rather than {newImageContent.ContentId}");
+            //    Assert.AreEqual(pictureAssetInformation.LargePicture.Width, 4000,
+            //        "Picture Asset Large Width is not the expected Value");
+            //    Assert.AreEqual(pictureAssetInformation.SmallPicture.Width, 100,
+            //        "Picture Asset Small Width is not the expected Value");
+            //    Assert.AreEqual(pictureAssetInformation.SrcsetImages.Count,
+            //        PictureResizing.SrcSetSizeAndQualityList().Count, "Did not find the expected number of SrcSet Images");
+
+            //    //Check JSON File
+            //    var jsonFile =
+            //        new FileInfo(Path.Combine(
+            //            UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newImageContent).FullName,
+            //            $"{Names.ImageContentPrefix}{newImageContent.ContentId}.json"));
+            //    Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
+
+            //    var jsonFileImported = Import.ContentFromFiles<ImageContent>(
+            //        new List<string> {jsonFile.FullName}, Names.ImageContentPrefix).Single();
+            //    var compareLogic = new CompareLogic();
+            //    var comparisonResult = compareLogic.Compare(newImageContent, jsonFileImported);
+            //    Assert.True(comparisonResult.AreEqual,
+            //        $"Json Import does not match expected Image Content {comparisonResult.DifferencesString}");
+
+            //    //?Check some details of the HTML?
+            //    var updateWithoutUpdateResult = await ImageGenerator.SaveAndGenerateHtml(newImageContent,
+            //        expectedOriginalImageFileInMediaArchive, false, DebugProgressTracker());
+            //    Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
+            //        "Should not be able to update an entry without LastUpdated Values set");
+
+            //    var updatedTime = DateTime.Now;
+            //    newImageContent.Tags += ",testupdatetag";
+            //    newImageContent.Title += " Updated";
+            //    newImageContent.LastUpdatedOn = updatedTime;
+            //    newImageContent.LastUpdatedBy = "Test Image Updater";
+
+            //    //?Check some details of the HTML?
+            //    var updateResult = await ImageGenerator.SaveAndGenerateHtml(newImageContent,
+            //        expectedOriginalImageFileInMediaArchive, false, DebugProgressTracker());
+            //    Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
+
+            //    var updatedJsonFileImported = Import.ContentFromFiles<ImageContent>(
+            //        new List<string> {jsonFile.FullName}, Names.ImageContentPrefix).Single();
+            //    var updateComparisonResult = compareLogic.Compare(newImageContent, updatedJsonFileImported);
+            //    Assert.True(updateComparisonResult.AreEqual,
+            //        $"Updated Json Import does not match expected Updated Image Content {comparisonResult.DifferencesString}");
+
+            //    //Check Historic JSON File
+            //    var historicJsonFile = new FileInfo(Path.Combine(
+            //        UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newImageContent).FullName,
+            //        $"{Names.HistoricImageContentPrefix}{newImageContent.ContentId}.json"));
+            //    var historicJsonFileImported = Import
+            //        .ContentFromFiles<List<HistoricImageContent>>(new List<string> {historicJsonFile.FullName},
+            //            Names.HistoricImageContentPrefix).SelectMany(x => x).ToList();
+
+            //    Assert.AreEqual(1, historicJsonFileImported.Count,
+            //        "Wrong number of Historic Entries in the Historic Json File");
+
+            //    var expectedHistoricValues = new HistoricImageContent();
+            //    expectedHistoricValues.InjectFrom(jsonFileImported);
+            //    expectedHistoricValues.Id = historicJsonFileImported.First().Id;
+
+            //    var historicJsonComparisonResult =
+            //        compareLogic.Compare(expectedHistoricValues, historicJsonFileImported.First());
+            //    Assert.IsTrue(historicJsonComparisonResult.AreEqual,
+            //        $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
+
+            //    newImageContent.Title += " Again";
+            //    newImageContent.LastUpdatedOn = DateTime.Now;
+            //    newImageContent.LastUpdatedBy = "Test Image Updater 2";
+
+            //    var updateTwoResult = await ImageGenerator.SaveAndGenerateHtml(newImageContent,
+            //        expectedOriginalImageFileInMediaArchive, false, DebugProgressTracker());
+            //    Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
+
+            //    historicJsonFileImported = Import
+            //        .ContentFromFiles<List<HistoricImageContent>>(new List<string> {historicJsonFile.FullName},
+            //            Names.HistoricImageContentPrefix).SelectMany(x => x).ToList();
+            //    Assert.AreEqual(2, historicJsonFileImported.Count,
+            //        "Wrong number of Historic Entries in the Historic Json File");
+            //}
+
+            //[Test]
+            //public async Task A40_NoteContentImportAndUpdate()
+            //{
+            //    var newNoteContent = new NoteContent
+            //    {
+            //        BodyContent = "Grand Canyon Permit Info Link",
+            //        BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+            //        ContentId = Guid.NewGuid(),
+            //        ContentVersion = DateTime.Now.ToUniversalTime(),
+            //        CreatedBy = "Test Series A",
+            //        CreatedOn = DateTime.Now,
+            //        Folder = "GrandCanyon",
+            //        ShowInMainSiteFeed = true,
+            //        Slug = await NoteGenerator.UniqueNoteSlug(),
+            //        Summary = "GC Quick Info",
+            //        Tags = "national parks,grand canyon,permits"
+            //    };
+
+            //    var validationReturn = await NoteGenerator.Validate(newNoteContent);
+
+            //    Assert.False(validationReturn.HasError);
+
+            //    var saveReturn = await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
+            //    Assert.False(saveReturn.generationReturn.HasError);
+
+            //    var expectedDirectory =
+            //        UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newNoteContent);
+            //    Assert.IsTrue(expectedDirectory.Exists, $"Expected directory {expectedDirectory.FullName} does not exist");
+
+            //    var expectedNote = UserSettingsSingleton.CurrentSettings().LocalSiteNoteHtmlFile(newNoteContent);
+            //    Assert.IsTrue(expectedNote.Exists, $"Expected html Note {expectedNote.FullName} does not exist");
+
+            //    Assert.AreEqual(expectedDirectory.GetFiles().Length, 2, "Expected Number of Files Does Not Match");
+
+            //    //Check JSON Note
+            //    var jsonNote =
+            //        new FileInfo(Path.Combine(
+            //            UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newNoteContent).FullName,
+            //            $"{Names.NoteContentPrefix}{newNoteContent.ContentId}.json"));
+            //    Assert.True(jsonNote.Exists, $"Json Note {jsonNote.FullName} does not exist?");
+
+            //    var jsonNoteImported = Import.ContentFromFiles<NoteContent>(
+            //        new List<string> {jsonNote.FullName}, Names.NoteContentPrefix).Single();
+            //    var compareLogic = new CompareLogic();
+            //    var comparisonResult = compareLogic.Compare(newNoteContent, jsonNoteImported);
+            //    Assert.True(comparisonResult.AreEqual,
+            //        $"Json Import does not match expected Note Content {comparisonResult.DifferencesString}");
+
+            //    //?Check some details of the HTML?
+            //    var updateWithoutUpdateResult =
+            //        await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
+            //    Assert.True(updateWithoutUpdateResult.generationReturn.HasError,
+            //        "Should not be able to update an entry without LastUpdated Values set");
+
+            //    var updatedTime = DateTime.Now;
+            //    newNoteContent.Tags += ",testupdatetag";
+            //    newNoteContent.LastUpdatedOn = updatedTime;
+            //    newNoteContent.LastUpdatedBy = "Test Updater";
+
+            //    //?Check some details of the HTML?
+            //    var updateResult = await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
+            //    Assert.True(!updateResult.generationReturn.HasError, "Problem Updating Item");
+
+            //    var updatedJsonNoteImported = Import.ContentFromFiles<NoteContent>(
+            //        new List<string> {jsonNote.FullName}, Names.NoteContentPrefix).Single();
+            //    var updateComparisonResult = compareLogic.Compare(newNoteContent, updatedJsonNoteImported);
+            //    Assert.True(updateComparisonResult.AreEqual,
+            //        $"Updated Json Import does not match expected Updated Note Content {comparisonResult.DifferencesString}");
+
+            //    //Check Historic JSON Note
+            //    var historicJsonNote = new FileInfo(Path.Combine(
+            //        UserSettingsSingleton.CurrentSettings().LocalSiteNoteContentDirectory(newNoteContent).FullName,
+            //        $"{Names.HistoricNoteContentPrefix}{newNoteContent.ContentId}.json"));
+            //    var historicJsonNoteImported = Import
+            //        .ContentFromFiles<List<HistoricNoteContent>>(new List<string> {historicJsonNote.FullName},
+            //            Names.HistoricNoteContentPrefix).SelectMany(x => x).ToList();
+
+            //    Assert.AreEqual(1, historicJsonNoteImported.Count,
+            //        "Wrong number of Historic Entries in the Historic Json Note");
+
+            //    var expectedHistoricValues = new HistoricNoteContent();
+            //    expectedHistoricValues.InjectFrom(jsonNoteImported);
+            //    expectedHistoricValues.Id = historicJsonNoteImported.First().Id;
+
+            //    var historicJsonComparisonResult =
+            //        compareLogic.Compare(expectedHistoricValues, historicJsonNoteImported.First());
+            //    Assert.IsTrue(historicJsonComparisonResult.AreEqual,
+            //        $"Historic JSON Entry doesn't have the expected values {historicJsonComparisonResult.DifferencesString}");
+
+            //    newNoteContent.LastUpdatedOn = DateTime.Now;
+            //    newNoteContent.LastUpdatedBy = "Test Updater 2";
+
+            //    var updateTwoResult = await NoteGenerator.SaveAndGenerateHtml(newNoteContent, DebugProgressTracker());
+            //    Assert.True(!updateTwoResult.generationReturn.HasError, "Problem Updating Item");
+
+            //    historicJsonNoteImported = Import
+            //        .ContentFromFiles<List<HistoricNoteContent>>(new List<string> {historicJsonNote.FullName},
+            //            Names.HistoricNoteContentPrefix).SelectMany(x => x).ToList();
+            //    Assert.AreEqual(2, historicJsonNoteImported.Count,
+            //        "Wrong number of Historic Entries in the Historic Json Note");
+            //}
+
+            public static IProgress<string> DebugProgressTracker()
         {
             var toReturn = new Progress<string>();
             toReturn.ProgressChanged += DebugProgressTrackerChange;
@@ -653,6 +865,12 @@ namespace PointlessWaymarksTests
         public (bool hasInvalidComparison, string comparisonNotes) PhotoComparePhotoReferenceToPhotoObject(
             PhotoContent reference, PhotoContent toCompare)
         {
+            StringHelpers.TrimNullToEmptyAllStringProperties(reference);
+            reference.Tags = Db.TagListCleanup(reference.Tags);
+
+            StringHelpers.TrimNullToEmptyAllStringProperties(toCompare);
+            toCompare.Tags = Db.TagListCleanup(toCompare.Tags);
+
             var failure = false;
             var failureList = new List<string>();
 

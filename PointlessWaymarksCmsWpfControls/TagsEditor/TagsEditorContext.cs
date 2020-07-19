@@ -124,8 +124,6 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         {
             TagsHaveChanges = !TagSlugList().SequenceEqual(DbTagList());
 
-            var tags = TagList();
-
             if (string.IsNullOrWhiteSpace(Tags))
             {
                 TagsHaveWarnings = true;
@@ -173,11 +171,6 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         public List<string> TagSlugList()
         {
             return string.IsNullOrWhiteSpace(Tags) ? new List<string>() : Db.TagListParseToSlugs(Tags, false);
-        }
-
-        public string TagSlugListString()
-        {
-            return string.IsNullOrWhiteSpace(Tags) ? string.Empty : Db.TagListJoinAsSlugs(TagSlugList(), false);
         }
     }
 }

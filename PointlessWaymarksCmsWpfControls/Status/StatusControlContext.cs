@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
@@ -38,7 +39,9 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public StatusControlContext()
         {
-            Toast = new ToastSource();
+            ContextDispatcher = Application.Current?.Dispatcher ?? ThreadSwitcher.PinnedDispatcher ?? Dispatcher.CurrentDispatcher;
+
+            Toast = new ToastSource(ContextDispatcher);
             StatusLog = new ObservableCollection<string>();
 
             UserMessageBoxResponseCommand = new Command<string>(UserMessageBoxResponse);
@@ -314,7 +317,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public void Progress(string e)
         {
-            Application.Current.Dispatcher?.InvokeAsync(() =>
+            ContextDispatcher?.InvokeAsync(() =>
             {
                 StatusLog.Add(e);
 
@@ -325,6 +328,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
                         EventLogContext.TryWriteDiagnosticMessageToLog(e, StatusControlContextId.ToString()));
             });
         }
+
+        public Dispatcher ContextDispatcher { get; set; }
 
         public IProgress<string> ProgressTracker()
         {
@@ -501,7 +506,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public void ToastError(string toastText)
         {
-            Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Error));
+            ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Error));
             if (UserSettingsSingleton.LogDiagnosticEvents)
                 Task.Run(() =>
                     EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}",
@@ -510,7 +515,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public void ToastSuccess(string toastText)
         {
-            Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Success));
+            ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Success));
             if (UserSettingsSingleton.LogDiagnosticEvents)
                 Task.Run(() =>
                     EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}",
@@ -519,7 +524,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public void ToastWarning(string toastText)
         {
-            Application.Current.Dispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
+            ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
             if (UserSettingsSingleton.LogDiagnosticEvents)
                 Task.Run(() =>
                     EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}",

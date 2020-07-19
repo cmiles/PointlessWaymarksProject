@@ -37,13 +37,24 @@
  
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
- - https://github.com/dotnet/efcore/issues/14257 - Saving an Entity with an IPoint with Ordinates.XYZ in SpatiaLite throws an exception #14257 - reported in 2018 but still open...
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
 
 ## Projects to Review
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/19/2020
+
+Validation improvements and fixes including a model Interface simplification.
+
+Added to the Generator Save methods a routine that uses reflection to run null safe trim to empty string on any incoming string fields - that plus a tag cleanup should produce a cleaner more standard db input.
+
+Added a pinned dispatcher property to ThreadSwitcher to facilitate setting up and using a consistent dispatcher in situations like tests where Application.Current.Dispatcher is not going to work.
+
+Working photo context test! Haven't test a backing class like this before - still doesn't tell you if it is actually wired correctly to the UI (and as noted maybe testing the GUI is the way to go - ie if it isn't wired up and displaying correctly does it matter it is technically correct?) but very interesting to get this working.
+
+Failing Excel Import/Export test added - not sure what is failing but happy to get this into testing!!!
 
 7/18/2020
 

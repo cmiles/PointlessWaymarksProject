@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarksCmsData.Database.Models
 {
-    public class PostContent : IUpdateNotes, IBodyContent, IContentCommon, IShowInSiteFeed
+    public class PostContent : IUpdateNotes, IContentCommon
     {
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
@@ -16,12 +16,12 @@ namespace PointlessWaymarksCmsData.Database.Models
         public DateTime? LastUpdatedOn { get; set; }
 
         public Guid? MainPicture { get; set; }
+        public bool ShowInMainSiteFeed { get; set; }
         public string Tags { get; set; }
         public string Folder { get; set; }
         public string Slug { get; set; }
         public string Summary { get; set; }
         public string Title { get; set; }
-        public bool ShowInMainSiteFeed { get; set; }
         public string UpdateNotes { get; set; }
         public string UpdateNotesFormat { get; set; }
     }

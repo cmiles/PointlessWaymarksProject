@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 
@@ -11,16 +10,12 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
 {
     public class ToastSource : INotifyPropertyChanged
     {
+        private bool _isOpen;
+
+        private readonly DispatcherTimer _timer;
         public const int UnlimitedNotifications = -1;
 
         public static readonly TimeSpan NeverEndingNotification = TimeSpan.MaxValue;
-
-        private readonly DispatcherTimer _timer;
-        private bool _isOpen;
-
-        public ToastSource() : this(Application.Current.Dispatcher)
-        {
-        }
 
         public ToastSource(Dispatcher dispatcher)
         {
@@ -49,6 +44,8 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
         public long MaximumNotificationCount { get; set; }
         public TimeSpan NotificationLifeTime { get; set; }
         public ObservableCollection<ToastViewModel> NotificationMessages { get; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public void Hide(Guid id)
         {
@@ -132,7 +129,5 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
 
             foreach (var id in itemsToRemove) Hide(id);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

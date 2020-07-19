@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-825" />
+    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-827" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="CompareNETObjects" Version="4.66.0" />
     <PackageReference Include="FluentMigrator" Version="3.2.7" />

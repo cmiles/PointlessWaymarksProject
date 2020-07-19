@@ -28,6 +28,9 @@ namespace PointlessWaymarksCmsData.Content
 
             if (validationReturn.HasError) return (validationReturn, null);
 
+            StringHelpers.TrimNullToEmptyAllStringProperties(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
+
             toSave.OriginalFileName = selectedFile.Name;
             StructureAndMediaContent.WriteSelectedImageContentFileToMediaArchive(selectedFile);
             await Db.SaveImageContent(toSave);
@@ -58,9 +61,11 @@ namespace PointlessWaymarksCmsData.Content
             if (!commonContentCheck.valid)
                 return await GenerationReturn.Error(commonContentCheck.explanation, imageContent.ContentId);
 
-            selectedFile.Refresh();
+            var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(imageContent.UpdateNotesFormat);
+            if (!updateFormatCheck.isValid)
+                return await GenerationReturn.Error(updateFormatCheck.explanation, imageContent.ContentId);
 
-            if (imageContent == null) return await GenerationReturn.Error("Image Content is Null?");
+            selectedFile.Refresh();
 
             if (!selectedFile.Exists)
                 return await GenerationReturn.Error("Selected File doesn't exist?", imageContent.ContentId);

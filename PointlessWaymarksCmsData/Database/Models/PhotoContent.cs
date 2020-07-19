@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarksCmsData.Database.Models
 {
-    public class PhotoContent : IUpdateNotes, IContentCommon, IBodyContent
+    public class PhotoContent : IUpdateNotes, IContentCommon
     {
         public string AltText { get; set; }
         public string Aperture { get; set; }

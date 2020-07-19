@@ -284,7 +284,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
         public void ValidateSlug()
         {
-            var validationResult = CommonContentValidation.ValidateSlug(Slug);
+            var validationResult = CommonContentValidation.ValidateSlugLocal(Slug);
 
             SlugHasValidationIssues = !validationResult.isValid;
             SlugValidationMessage = validationResult.explanation;
