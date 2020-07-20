@@ -120,7 +120,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             var htmlTransform = htmlModel.TransformText();
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) htmlTransform);
+            var htmlDoc = parser.ParseDocument(htmlTransform);
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

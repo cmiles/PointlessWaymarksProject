@@ -35,17 +35,6 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             }
         }
 
-        public List<object> ContentObjects
-        {
-            get => _contentObjects;
-            set
-            {
-                if (Equals(value, _contentObjects)) return;
-                _contentObjects = value;
-                OnPropertyChanged();
-            }
-        }
-
         public string TagName
         {
             get => _tagName;

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
@@ -26,6 +27,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
     {
         private TagListItemDetailDisplay _detailDisplay;
         private Command<object> _editContentCommand;
+        private Command _importFromExcelCommand;
         private ObservableCollection<TagListListItem> _items;
         private Command _refreshDataCommand;
         private Command<TagListListItem> _showDetailsCommand;
@@ -35,6 +37,8 @@ namespace PointlessWaymarksCmsWpfControls.TagList
         private Command _tagDetailRemoveCommand;
         private Command _tagDetailRenameCommand;
         private Command _tagsToClipboardCommand;
+        private string _userFilterText;
+        private Command<object> _visibleTagsToExcelCommand;
 
         public TagListContext(StatusControlContext context)
         {
@@ -60,6 +64,9 @@ namespace PointlessWaymarksCmsWpfControls.TagList
                 StatusContext.RunBlockingTask(async () => await SingleTagContentToExcel(x)));
             EditContentCommand = new Command<object>(x =>
                 StatusContext.RunBlockingTask(async () => await EditContent(x)));
+            VisibleTagsToExcelCommand = new Command<object>(x => StatusContext.RunBlockingTask(VisibleTagsToExcel));
+            ImportFromExcelCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () => await ExcelHelpers.ImportFromExcel(StatusContext)));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -82,6 +89,17 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             {
                 if (Equals(value, _editContentCommand)) return;
                 _editContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromExcelCommand
+        {
+            get => _importFromExcelCommand;
+            set
+            {
+                if (Equals(value, _importFromExcelCommand)) return;
+                _importFromExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -174,6 +192,30 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             }
         }
 
+        public string UserFilterText
+        {
+            get => _userFilterText;
+            set
+            {
+                if (value == _userFilterText) return;
+                _userFilterText = value;
+                OnPropertyChanged();
+
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+            }
+        }
+
+        public Command<object> VisibleTagsToExcelCommand
+        {
+            get => _visibleTagsToExcelCommand;
+            set
+            {
+                if (Equals(value, _visibleTagsToExcelCommand)) return;
+                _visibleTagsToExcelCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string AddTagAndCreateTagString(List<string> currentTags, string toAdd)
@@ -230,6 +272,29 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             }
         }
 
+        private async Task FilterList()
+        {
+            if (Items == null || !Items.Any()) return;
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            ((CollectionView) CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+            {
+                if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
+
+                var itemToFilter = (TagListListItem) o;
+
+                return ListFilter(itemToFilter);
+            };
+        }
+
+        public bool ListFilter(TagListListItem toFilter)
+        {
+            if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
+
+            return toFilter.TagName.Contains(UserFilterText);
+        }
+
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -239,7 +304,6 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             {
                 TagName = x.tag,
                 ContentIds = x.contentObjects.Cast<IContentId>().Select(y => y.ContentId).ToList(),
-                ContentObjects = x.contentObjects,
                 ContentCount = x.contentObjects.Count
             }).ToList();
 
@@ -621,8 +685,10 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             newDetails.UserNewTagName = item.TagName;
             newDetails.ContentList = new List<TagListItemDetailDisplayContentItem>();
 
+            var db = await Db.Context();
+            var content = db.ContentFromContentIds(item.ContentIds);
 
-            foreach (var loopContents in item.ContentObjects)
+            foreach (var loopContents in content)
                 switch (loopContents)
                 {
                     case FileContent c:
@@ -664,7 +730,10 @@ namespace PointlessWaymarksCmsWpfControls.TagList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var toTransfer = item.ContentObjects.Select(x => new ContentCommonShell().InjectFrom(x)).ToList();
+            var db = await Db.Context();
+            var content = db.ContentFromContentIds(item.ContentIds);
+
+            var toTransfer = content.Select(x => StaticValueInjecter.InjectFrom(new ContentCommonShell(), x)).ToList();
 
             ExcelHelpers.ContentToExcelFileAsTable(toTransfer, $"TagDetailFor{item.TagName}");
         }
@@ -682,6 +751,18 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             var clipboardText = string.Join(Environment.NewLine, Items.Select(x => x.TagName));
 
             Clipboard.SetText(clipboardText);
+        }
+
+        public async Task VisibleTagsToExcel()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var tagsProjection = Items.Where(ListFilter).Select(x => new {x.TagName, x.ContentCount,}).Cast<object>()
+                .ToList();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags");
         }
     }
 }

@@ -1,8 +1,7 @@
 ﻿## Todos
  - Excel Imports
   - Where to put in 'all' windows
- - Tags:
-  - List must filter
+ - Tags List better interface
  - Content Testing:
   - Post Generator and GUI Integration
   - Ironwood Integration Tests for File, Image, Post, Note, Link
@@ -58,7 +57,7 @@ It was great to get the Excel Import integration test working early in the proce
 
 Ran into an interesting issue with the Status Context dialog - I was using Task.Delay to block for 3 minutes so that the program didn't get 'completely stuck' in a dialog - I think that concern resonated most strongly when I was first working on and having trouble with setting everything up correctly on the dialogs... I finally let a dialog 'expire' and an import started that I wasn't actually ready to run yet. After some searching added a WhenCancelled extension method for the cancellation token to make it easy to wait as long as needed.
 
-Started the first bit of rework on the tag list - changed it into a true listbox and added Excel Export (added a supporting class the implements ICommonContent as an easy way of getting most fields for most content types all together in one list) so you can work in Excel and import tag changes to multiple content types at once. 
+Started the first bit of rework on the tag list - changed it into a true listbox and added Excel Export (added a supporting class the implements ICommonContent as an easy way of getting most fields for most content types all together in one list) so you can work in Excel and import tag changes to multiple content types at once.
 
 7/19/2020
 

@@ -53,8 +53,23 @@ namespace PointlessWaymarksCmsData.Database
             if (possiblePost != null) return possiblePost;
 
             var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
-
             return possibleNote;
+        }
+
+        public static List<dynamic> ContentFromContentIds(this PointlessWaymarksContext db, List<Guid> contentIds)
+        {
+            if (contentIds == null || !contentIds.Any()) return new List<dynamic>();
+
+            var returnList = new List<dynamic>();
+
+            returnList.AddRange(db.FileContents.Where(x => contentIds.Contains(x.ContentId)));
+            returnList.AddRange(db.LinkStreams.Where(x => contentIds.Contains(x.ContentId)));
+            returnList.AddRange(db.PhotoContents.Where(x => contentIds.Contains(x.ContentId)));
+            returnList.AddRange(db.PostContents.Where(x => contentIds.Contains(x.ContentId)));
+            returnList.AddRange(db.ImageContents.Where(x => contentIds.Contains(x.ContentId)));
+            returnList.AddRange(db.NoteContents.Where(x => contentIds.Contains(x.ContentId)));
+
+            return returnList;
         }
 #pragma warning disable 1998
         public static async Task<PointlessWaymarksContext> Context()
