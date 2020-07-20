@@ -202,12 +202,11 @@ namespace PointlessWaymarksCmsData.Html
             bool imageCheck;
 
             if (exceptInThisContent == null)
-                imageCheck = await context.FileContents.AnyAsync(x =>
-                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase));
+                imageCheck =
+                    await context.FileContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
             else
                 imageCheck = await context.FileContents.AnyAsync(x =>
-                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase) &&
-                    x.ContentId != exceptInThisContent.Value);
+                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
 
             return imageCheck;
         }
@@ -221,11 +220,10 @@ namespace PointlessWaymarksCmsData.Html
 
             if (exceptInThisContent == null)
                 imageCheck = await context.ImageContents.AnyAsync(x =>
-                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase));
+                    x.OriginalFileName.ToLower() == filename.ToLower());
             else
                 imageCheck = await context.ImageContents.AnyAsync(x =>
-                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase) &&
-                    x.ContentId != exceptInThisContent.Value);
+                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
 
             return imageCheck;
         }
@@ -239,7 +237,7 @@ namespace PointlessWaymarksCmsData.Html
 
             if (exceptInThisContent == null)
                 photoCheck = await context.PhotoContents.AnyAsync(x =>
-                    string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase));
+                    x.OriginalFileName.ToLower() == filename.ToLower());
             else
                 photoCheck = await context.PhotoContents.AnyAsync(x =>
                     x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
