@@ -144,6 +144,8 @@ namespace PointlessWaymarksCmsData.Content
                 toReturn.Title = Path.GetFileNameWithoutExtension(selectedFile.Name).Replace("-", " ").Replace("_", " ")
                     .SplitCamelCase();
 
+            if (!string.IsNullOrWhiteSpace(toReturn.Title)) toReturn.Title = Regex.Replace(toReturn.Title, @"\s+", " ");
+
             toReturn.Summary = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
 
             //2020/3/22 - Process out a convention that I have used for more than a decade of pre-2020s do yyMM at the start of a photo title or in the
@@ -306,7 +308,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (validationReturn.HasError) return (validationReturn, null);
 
-            StringHelpers.TrimNullToEmptyAllStringProperties(toSave);
+            Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             StructureAndMediaContent.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);

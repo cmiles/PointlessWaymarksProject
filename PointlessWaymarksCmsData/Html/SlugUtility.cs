@@ -128,6 +128,71 @@ namespace PointlessWaymarksCmsData.Html
             return sb.ToString();
         }
 
+        public static string CreateSpacedString(bool toLower, string value, int maxLength = 100)
+        {
+            if (value == null)
+                return "";
+
+            var normalized = value.Normalize(NormalizationForm.FormKD);
+
+            var len = normalized.Length;
+            var prevDash = false;
+            var sb = new StringBuilder(len);
+
+            for (var i = 0; i < len; i++)
+            {
+                var c = normalized[i];
+                if (c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_' || c == '-')
+                {
+                    if (prevDash)
+                    {
+                        sb.Append(' ');
+                        prevDash = false;
+                    }
+
+                    sb.Append(c);
+                }
+                else if (c >= 'A' && c <= 'Z')
+                {
+                    if (prevDash)
+                    {
+                        sb.Append(' ');
+                        prevDash = false;
+                    }
+
+                    // Tricky way to convert to lowercase
+                    if (toLower)
+                        sb.Append((char) (c | 32));
+                    else
+                        sb.Append(c);
+                }
+                else if (c == ',' || c == '.' || c == '/' || c == '\\' || c == '=' || c == ' ' || c == ';')
+                {
+                    if (!prevDash && sb.Length > 0) prevDash = true;
+                }
+                else
+                {
+                    var swap = ConvertEdgeCases(c, toLower);
+
+                    if (swap != null)
+                    {
+                        if (prevDash)
+                        {
+                            sb.Append(' ');
+                            prevDash = false;
+                        }
+
+                        sb.Append(swap);
+                    }
+                }
+
+                if (sb.Length == maxLength)
+                    break;
+            }
+
+            return sb.ToString();
+        }
+
 
         public static async Task<bool> FileFilenameExistsInDatabase(this PointlessWaymarksContext context,
             string filename, Guid? exceptInThisContent)
@@ -177,8 +242,7 @@ namespace PointlessWaymarksCmsData.Html
                     string.Equals(x.OriginalFileName, filename, StringComparison.CurrentCultureIgnoreCase));
             else
                 photoCheck = await context.PhotoContents.AnyAsync(x =>
-                    x.OriginalFileName.ToLower() == filename.ToLower()  &&
-                    x.ContentId != exceptInThisContent.Value);
+                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
 
             return photoCheck;
         }

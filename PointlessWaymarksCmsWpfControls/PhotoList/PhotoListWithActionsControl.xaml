@@ -25,16 +25,19 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Reports">
-                <MenuItem Header="No Tags" Command="{Binding ReportNoTagsCommand}"/>
-                <MenuItem Header="Title and Photo Created Don't Match" Command="{Binding ReportTitleAndTakenDoNotMatchCommand}"/>
-                <MenuItem Header="License is Blank" Command="{Binding ReportBlankLicenseCommand}"/>
-                <MenuItem Header="License Year and Taken Year Don't Match" Command="{Binding ReportTakenAndLicenseYearDoNotMatchCommand}"/>
-                <MenuItem Header="All Photos" Command="{Binding ReportAllPhotosCommand}"/>
-                <MenuItem Header="Selected - Metadata to Html" Command="{Binding ReportPhotoMetadataCommand}"/>
+                <MenuItem Header="No Tags" Command="{Binding ReportNoTagsCommand}" />
+                <MenuItem Header="Title and Photo Created Don't Match"
+                          Command="{Binding ReportTitleAndTakenDoNotMatchCommand}" />
+                <MenuItem Header="License is Blank" Command="{Binding ReportBlankLicenseCommand}" />
+                <MenuItem Header="License Year and Taken Year Don't Match"
+                          Command="{Binding ReportTakenAndLicenseYearDoNotMatchCommand}" />
+                <MenuItem Header="Titles with Multiple Spaces" Command="{Binding ReportMultiSpacesInTitleCommand}" />
+                <MenuItem Header="All Photos" Command="{Binding ReportAllPhotosCommand}" />
+                <MenuItem Header="Selected - Metadata to Html" Command="{Binding ReportPhotoMetadataCommand}" />
             </MenuItem>
             <MenuItem Header="Excel">
-                <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}"/>
-                <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}"/>
+                <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}" />
+                <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}" />
             </MenuItem>
         </Menu>
         <local:PhotoListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />

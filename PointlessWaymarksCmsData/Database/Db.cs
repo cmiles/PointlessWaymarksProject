@@ -13,6 +13,28 @@ namespace PointlessWaymarksCmsData.Database
 {
     public static class Db
     {
+        public static async Task<ContentCommonShell> ContentCommonShellFromContentId(this PointlessWaymarksContext db,
+            Guid contentId)
+        {
+            var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possibleFile != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleFile);
+
+            var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possibleImage != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleImage);
+
+            var possibleLink = await db.LinkStreams.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possibleLink != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleLink);
+
+            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePhoto != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePhoto);
+
+            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePost != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePost);
+
+            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleNote);
+        }
+
         public static async Task<dynamic> ContentFromContentId(this PointlessWaymarksContext db, Guid contentId)
         {
             var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
@@ -41,6 +63,18 @@ namespace PointlessWaymarksCmsData.Database
             var optionsBuilder = new DbContextOptionsBuilder<PointlessWaymarksContext>();
             var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseFile;
             return new PointlessWaymarksContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options);
+        }
+
+        /// <summary>
+        ///     Uses reflection to Trim and Convert Nulls to Empty on all string properties and to truncate DateTimes to the
+        ///     second.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="toProcess"></param>
+        public static void DefaultPropertyCleanup<T>(T toProcess)
+        {
+            StringHelpers.TrimNullToEmptyAllStringProperties(toProcess);
+            DateTimeHelpers.TrimDateTimesToSecond(toProcess);
         }
 
 #pragma warning disable 1998
@@ -466,7 +500,8 @@ namespace PointlessWaymarksCmsData.Database
         {
             if (string.IsNullOrWhiteSpace(toClean)) return string.Empty;
 
-            return Regex.Replace(toClean, @"\s+", " ").TrimNullToEmpty().ToLower();
+            return Regex.Replace(SlugUtility.CreateSpacedString(true, toClean, 200), @"\s+", " ").TrimNullToEmpty()
+                .ToLower();
         }
 
         public static string TagListJoin(List<string> tagList)

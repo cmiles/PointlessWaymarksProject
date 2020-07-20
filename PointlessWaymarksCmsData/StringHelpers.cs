@@ -92,7 +92,8 @@ namespace PointlessWaymarksCmsData
         /// <returns></returns>
         public static T TrimNullToEmptyAllStringProperties<T>(T toProcess)
         {
-            var properties = typeof(T).GetProperties().Where(x => x.PropertyType == typeof(string)).ToList();
+            var properties = typeof(T).GetProperties()
+                .Where(x => x.PropertyType == typeof(string) && x.GetSetMethod() != null).ToList();
 
             foreach (var loopProperties in properties)
                 loopProperties.SetValue(toProcess, ((string) loopProperties.GetValue(toProcess)).TrimNullToEmpty());

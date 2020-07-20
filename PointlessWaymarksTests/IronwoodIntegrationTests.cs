@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Threading;
 using AngleSharp;
 using AngleSharp.Html.Parser;
+using ClosedXML.Excel;
 using KellermanSoftware.CompareNetObjects;
-using Microsoft.Extensions.Logging.Console;
 using NUnit.Framework;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
@@ -18,8 +18,6 @@ using PointlessWaymarksCmsData.ExcelImport;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
-using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.ToastControl;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksTests
@@ -102,6 +100,55 @@ namespace PointlessWaymarksTests
 
         public int PhotoDisappearingWidth => 800;
 
+        public PhotoContent PhotoIronwoodPodContentReference01 =>
+            new PhotoContent
+            {
+                Aperture = "f/16.0",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2",
+                Folder = "2020",
+                Iso = 200,
+                FocalLength = "90 mm",
+                Lens = "FE 90mm F2.8 Macro G OSS",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2020, 5, 28, 14, 19, 10),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/320",
+                Slug = "2020-may-ironwood-pod",
+                Summary = "Ironwood Pod.",
+                Title = "2020 May Ironwood Pod",
+                Tags = "ironwood,ironwood forest national monument,seed pod,waterman mountains",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            };
+
+        public PhotoContent PhotoIronwoodPodContentReference02_CamerModelLensSummary =>
+            new PhotoContent
+            {
+                Aperture = "f/16.0",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2 (A7RII)",
+                Folder = "2020",
+                Iso = 200,
+                FocalLength = "90 mm",
+                Lens = "FE 90mm F2.8 Macro G OSS (Super Zoom)",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2020, 5, 28, 14, 19, 10),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/320",
+                Slug = "2020-may-ironwood-pod",
+                Summary = "A browning Ironwood Pod under the summer sun.",
+                Title = "2020 May Ironwood Pod",
+                Tags = "ironwood,ironwood forest national monument,seed pod,waterman mountains",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+                LastUpdatedBy = "Integration Tester"
+            };
+
+        public string PhotoIronwoodPodFileName => "2020-05-Ironwood-Pod.jpg";
+
+        public int PhotoIronwoodPodWidth => 700;
+
         public string PhotoIronwoodTreeFileName => "1705-Ironwood-02.jpg";
 
         public PhotoContent PhotoIronwoodTreeReference01 =>
@@ -151,55 +198,6 @@ namespace PointlessWaymarksTests
             };
 
         public int PhotoIronwoodTreeWidth => 734;
-
-        public PhotoContent PhotoIronwoodPodContentReference01 =>
-            new PhotoContent
-            {
-                Aperture = "f/16.0",
-                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-                CameraMake = "SONY",
-                CameraModel = "ILCE-7RM2",
-                Folder = "2020",
-                Iso = 200,
-                FocalLength = "90 mm",
-                Lens = "FE 90mm F2.8 Macro G OSS",
-                License = "Public Domain",
-                PhotoCreatedOn = new DateTime(2020, 5, 28, 14, 19, 10),
-                PhotoCreatedBy = "Charles Miles",
-                ShutterSpeed = "1/320",
-                Slug = "2020-may-ironwood-pod",
-                Summary = "Ironwood Pod.",
-                Title = "2020 May Ironwood Pod",
-                Tags = "ironwood,ironwood forest national monument,seed pod,waterman mountains",
-                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
-            };
-
-        public PhotoContent PhotoIronwoodPodContentReference02_CamerModelLensSummary =>
-            new PhotoContent
-            {
-                Aperture = "f/16.0",
-                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-                CameraMake = "SONY",
-                CameraModel = "ILCE-7RM2 (A7RII)",
-                Folder = "2020",
-                Iso = 200,
-                FocalLength = "90 mm",
-                Lens = "FE 90mm F2.8 Macro G OSS (Super Zoom)",
-                License = "Public Domain",
-                PhotoCreatedOn = new DateTime(2020, 5, 28, 14, 19, 10),
-                PhotoCreatedBy = "Charles Miles",
-                ShutterSpeed = "1/320",
-                Slug = "2020-may-ironwood-pod",
-                Summary = "A browning Ironwood Pod under the summer sun.",
-                Title = "2020 May Ironwood Pod",
-                Tags = "ironwood,ironwood forest national monument,seed pod,waterman mountains",
-                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
-                LastUpdatedBy = "Integration Tester"
-            };
-
-        public string PhotoIronwoodPodFileName => "2020-05-Ironwood-Pod.jpg";
-
-        public int PhotoIronwoodPodWidth => 700;
 
         public PhotoContent PhotoQuarryContentReference01 =>
             new PhotoContent
@@ -345,7 +343,7 @@ namespace PointlessWaymarksTests
 
             var excelFileExport = ExcelHelpers.ContentToExcelFileAsTable(items, "IronwoodTestExport01", false);
 
-            var workbook = new ClosedXML.Excel.XLWorkbook(excelFileExport.FullName);
+            var workbook = new XLWorkbook(excelFileExport.FullName);
             var worksheet = workbook.Worksheets.First();
             var headerRow = worksheet.RangeUsed().Rows(1, 1);
 
@@ -888,10 +886,10 @@ namespace PointlessWaymarksTests
         public (bool hasInvalidComparison, string comparisonNotes) PhotoComparePhotoReferenceToPhotoObject(
             PhotoContent reference, PhotoContent toCompare)
         {
-            StringHelpers.TrimNullToEmptyAllStringProperties(reference);
+            Db.DefaultPropertyCleanup(reference);
             reference.Tags = Db.TagListCleanup(reference.Tags);
 
-            StringHelpers.TrimNullToEmptyAllStringProperties(toCompare);
+            Db.DefaultPropertyCleanup(toCompare);
             toCompare.Tags = Db.TagListCleanup(toCompare.Tags);
 
             var failure = false;

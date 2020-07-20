@@ -1,6 +1,8 @@
 ﻿## Todos
- - Excel Import:
-  - Tests
+ - Excel Imports
+  - Where to put in 'all' windows
+ - Tags:
+  - List must filter
  - Content Testing:
   - Post Generator and GUI Integration
   - Ironwood Integration Tests for File, Image, Post, Note, Link
@@ -43,6 +45,20 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/20/2020
+
+It was great to get the Excel Import integration test working early in the process but today's changes are a result of that hitting me doing 'actual real world' importing and it produced a lot of changes.
+ - The Excel import wasn't validating content until trying to save - now it validates it before returning info on the import.
+ - The import last updated by is now excluded from the object comparison to avoid falsely registering a difference when the only change is the updated by - this could be more sophisticated and does leave a hole where if you were really trying to update only the last updated that it would be frustrating but I think this is good enough for now.
+ - Improved the Excel import progress - still chaotic for sure but better than showing nothing
+ - Imports with files were set to regenerate the files - changed, that doesn't make sense since the selected file is not going to update in the import
+ - In working with an import from excel the high precision times that EF was storing were triggering changes as ClosedXML was picking up only readable times (to the second) from the default format. In general I don't like loosing time precision but in thinking about 'by-hand' editing the full precision is not helpful. Added a DateTime helper that reflects over an object and truncates DateTimes to seconds - I guess this could play havoc with the apparent ordering of high speed photos but that is a highly imaginary concern at this point.
+ - The Excel imports were partly inspired by some Photo clean up that I needed to do - in working on that I found tags that didn't meet the current tagging limitations on characters - ultimately I decided to make the tag clean up more aggressive. This could create some frustration with not being able to fully enter what you want but should help keep the tags clean in the way I currently am thinking about them.
+
+Ran into an interesting issue with the Status Context dialog - I was using Task.Delay to block for 3 minutes so that the program didn't get 'completely stuck' in a dialog - I think that concern resonated most strongly when I was first working on and having trouble with setting everything up correctly on the dialogs... I finally let a dialog 'expire' and an import started that I wasn't actually ready to run yet. After some searching added a WhenCancelled extension method for the cancellation token to make it easy to wait as long as needed.
+
+Started the first bit of rework on the tag list - changed it into a true listbox and added Excel Export (added a supporting class the implements ICommonContent as an easy way of getting most fields for most content types all together in one list) so you can work in Excel and import tag changes to multiple content types at once. 
 
 7/19/2020
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
+using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
@@ -28,6 +29,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
         private ObservableCollection<TagListListItem> _items;
         private Command _refreshDataCommand;
         private Command<TagListListItem> _showDetailsCommand;
+        private Command<TagListListItem> _singleTagContentToExcelCommand;
 
         private StatusControlContext _statusContext;
         private Command _tagDetailRemoveCommand;
@@ -54,6 +56,8 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             TagsToClipboardCommand = new Command(() => StatusContext.RunBlockingTask(TagsToClipboard));
             ShowDetailsCommand = new Command<TagListListItem>(x =>
                 StatusContext.RunBlockingTask(async () => await ShowDetails(x)));
+            SingleTagContentToExcelCommand = new Command<TagListListItem>(x =>
+                StatusContext.RunBlockingTask(async () => await SingleTagContentToExcel(x)));
             EditContentCommand = new Command<object>(x =>
                 StatusContext.RunBlockingTask(async () => await EditContent(x)));
 
@@ -111,6 +115,17 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             {
                 if (Equals(value, _showDetailsCommand)) return;
                 _showDetailsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<TagListListItem> SingleTagContentToExcelCommand
+        {
+            get => _singleTagContentToExcelCommand;
+            set
+            {
+                if (Equals(value, _singleTagContentToExcelCommand)) return;
+                _singleTagContentToExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -643,6 +658,15 @@ namespace PointlessWaymarksCmsWpfControls.TagList
                 }
 
             DetailDisplay = newDetails;
+        }
+
+        public async Task SingleTagContentToExcel(TagListListItem item)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var toTransfer = item.ContentObjects.Select(x => new ContentCommonShell().InjectFrom(x)).ToList();
+
+            ExcelHelpers.ContentToExcelFileAsTable(toTransfer, $"TagDetailFor{item.TagName}");
         }
 
         public async Task TagsToClipboard()

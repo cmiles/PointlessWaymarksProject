@@ -147,6 +147,8 @@ namespace PointlessWaymarksCmsContentEditor
             DiagnosticEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(DiagnosticEventsReport));
             AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
 
+            TemporaryCommand = new Command(() => StatusContext.RunNonBlockingTask(Temporary));
+
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
 
             SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
@@ -483,6 +485,8 @@ namespace PointlessWaymarksCmsContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public Command TemporaryCommand { get; set; }
 
         public Command ToggleDiagnosticLoggingCommand { get; set; }
 
@@ -1074,6 +1078,35 @@ namespace PointlessWaymarksCmsContentEditor
         {
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
                 await SettingsFileChooserOnSettingsFileUpdated(e));
+        }
+
+        private void TempClean(List<dynamic> toClean)
+        {
+            toClean.ForEach(x =>
+            {
+                Db.DefaultPropertyCleanup(x);
+                x.Tags = Db.TagListCleanup(x.Tags);
+            });
+        }
+
+        private async Task Temporary()
+        {
+            var db = await Db.Context();
+
+            TempClean(db.FileContents.Cast<dynamic>().ToList());
+            TempClean(db.HistoricFileContents.Cast<dynamic>().ToList());
+            TempClean(db.ImageContents.Cast<dynamic>().ToList());
+            TempClean(db.HistoricImageContents.Cast<dynamic>().ToList());
+            TempClean(db.LinkStreams.Cast<dynamic>().ToList());
+            TempClean(db.HistoricLinkStreams.Cast<dynamic>().ToList());
+            TempClean(db.NoteContents.Cast<dynamic>().ToList());
+            TempClean(db.HistoricNoteContents.Cast<dynamic>().ToList());
+            TempClean(db.PhotoContents.Cast<dynamic>().ToList());
+            TempClean(db.HistoricPhotoContents.Cast<dynamic>().ToList());
+            TempClean(db.PostContents.Cast<dynamic>().ToList());
+            TempClean(db.HistoricPostContents.Cast<dynamic>().ToList());
+
+            await db.SaveChangesAsync(true);
         }
     }
 }

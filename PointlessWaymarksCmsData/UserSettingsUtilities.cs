@@ -73,9 +73,8 @@ namespace PointlessWaymarksCmsData
             catch (Exception e)
             {
                 GenerationReturn
-                    .Error(
-                        $"Trying to create Directory {directoryInfo.FullName}  resulted in an Exception.",
-                        null, e).Wait();
+                    .Error($"Trying to create Directory {directoryInfo.FullName}  resulted in an Exception.", null, e)
+                    .Wait();
             }
 
             return GenerationReturn.Success($"Created {directoryInfo.FullName}").Result;
@@ -179,6 +178,15 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Links/LinkRss.xml";
         }
 
+        public static FileInfo LocalMediaArchiveFileContentFile(this UserSettings settings, FileContent content)
+        {
+            if (content == null) return null;
+
+            var directory = settings.LocalMediaArchiveFileDirectory();
+
+            return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
+        }
+
         public static DirectoryInfo LocalMediaArchiveFileDirectory(this UserSettings settings)
         {
             var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Files"));
@@ -190,6 +198,15 @@ namespace PointlessWaymarksCmsData
             return localDirectory;
         }
 
+        public static FileInfo LocalMediaArchiveImageContentFile(this UserSettings settings, ImageContent content)
+        {
+            if (content == null) return null;
+
+            var directory = settings.LocalMediaArchiveImageDirectory();
+
+            return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
+        }
+
         public static DirectoryInfo LocalMediaArchiveImageDirectory(this UserSettings settings)
         {
             var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Images"));
@@ -199,6 +216,15 @@ namespace PointlessWaymarksCmsData
             localDirectory.Refresh();
 
             return localDirectory;
+        }
+
+        public static FileInfo LocalMediaArchivePhotoContentFile(this UserSettings settings, PhotoContent content)
+        {
+            if (content == null) return null;
+
+            var directory = settings.LocalMediaArchivePhotoDirectory();
+
+            return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
         }
 
         public static DirectoryInfo LocalMediaArchivePhotoDirectory(this UserSettings settings)

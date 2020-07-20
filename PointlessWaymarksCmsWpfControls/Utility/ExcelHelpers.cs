@@ -75,8 +75,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             }
 
             var shouldContinue = await statusContext.ShowMessage("Confirm Import",
-                $"Continue? Processed  {newFile.FullName} and found {contentTableImportResult.ToUpdate.Count} updates:{Environment.NewLine}" +
-                $"{string.Join(Environment.NewLine, contentTableImportResult.ToUpdate.Select(x => $"{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
+                $"Continue?{Environment.NewLine}{Environment.NewLine}{contentTableImportResult.ToUpdate.Count} updates from {newFile.FullName} {Environment.NewLine}" +
+                $"{string.Join(Environment.NewLine, contentTableImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{x.DifferenceNotes}"))}",
                 new List<string> {"Yes", "No"});
 
             if (shouldContinue == "No") return;

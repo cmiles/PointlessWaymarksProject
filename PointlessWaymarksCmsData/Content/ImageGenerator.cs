@@ -28,7 +28,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (validationReturn.HasError) return (validationReturn, null);
 
-            StringHelpers.TrimNullToEmptyAllStringProperties(toSave);
+            Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             toSave.OriginalFileName = selectedFile.Name;

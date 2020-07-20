@@ -39,7 +39,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public StatusControlContext()
         {
-            ContextDispatcher = Application.Current?.Dispatcher ?? ThreadSwitcher.PinnedDispatcher ?? Dispatcher.CurrentDispatcher;
+            ContextDispatcher = Application.Current?.Dispatcher ??
+                                ThreadSwitcher.PinnedDispatcher ?? Dispatcher.CurrentDispatcher;
 
             Toast = new ToastSource(ContextDispatcher);
             StatusLog = new ObservableCollection<string>();
@@ -59,6 +60,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
                 OnPropertyChanged();
             }
         }
+
+        public Dispatcher ContextDispatcher { get; set; }
 
         public List<string> MessageBoxButtonList
         {
@@ -240,7 +243,8 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             if (obj.IsFaulted)
             {
-                await ShowMessage("Error", obj.Exception?.ToString() ?? "Error with no information?!?!", new List<string> {"Ok"});
+                await ShowMessage("Error", obj.Exception?.ToString() ?? "Error with no information?!?!",
+                    new List<string> {"Ok"});
 
 #pragma warning disable 4014
                 Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
@@ -329,8 +333,6 @@ namespace PointlessWaymarksCmsWpfControls.Status
             });
         }
 
-        public Dispatcher ContextDispatcher { get; set; }
-
         public IProgress<string> ProgressTracker()
         {
             var toReturn = new Progress<string>();
@@ -410,6 +412,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
         }
 
+
         public async Task<string> ShowMessage(string title, string body, List<string> buttons)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -425,7 +428,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             try
             {
-                await Task.Delay(TimeSpan.FromMinutes(3), _currentFullScreenCancellationSource.Token);
+                await _currentFullScreenCancellationSource.Token.WhenCancelled();
             }
             catch (Exception e)
             {

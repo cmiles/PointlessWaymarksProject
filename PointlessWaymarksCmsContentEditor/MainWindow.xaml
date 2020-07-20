@@ -109,6 +109,7 @@
                         <Button Command="{Binding GenerateCamerRollCommand}">Camera Roll</Button>
                         <Button Command="{Binding GenerateDailyGalleryHtmlCommand}">Daily Galleries</Button>
                         <Button Command="{Binding PurgeInvalidPhotoDirectoriesCommand}">Purge Photo Folders</Button>
+                        <Button Command="{Binding TemporaryCommand}">Temp</Button>
                     </WrapPanel>
                 </Grid>
             </TabItem>

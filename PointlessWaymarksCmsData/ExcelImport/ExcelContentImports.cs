@@ -153,6 +153,10 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
             var db = await Db.Context();
 
+            var lastRow = toProcess.Rows().Last().RowNumber();
+
+            progress?.Report($"{lastRow} to Process");
+
             foreach (var loopRow in toProcess.Rows().Skip(1))
             {
                 var importResult = await ImportContentFromExcelRow(headerInfo, loopRow);
@@ -169,13 +173,14 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
                 if (currentDbEntry == null)
                 {
-                    progress.Report(
-                        $"Excel Row {loopRow.RowNumber()} - Title {importResult.processContent.Title} - skipping, no longer in db");
+                    progress?.Report(
+                        $"Excel Row {loopRow.RowNumber()} of {lastRow} - Skipping, No Longer in Db - Title {importResult.processContent.Title}");
                     continue;
                 }
 
                 try
                 {
+                    Db.DefaultPropertyCleanup(importResult.processContent);
                     importResult.processContent.Tags = Db.TagListCleanup(importResult.processContent.Tags);
                 }
                 catch
@@ -183,26 +188,73 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     await EventLogContext.TryWriteDiagnosticMessageToLog(
                         $"Excel Import via dynamics - Tags threw an error on ContentId {contentId} - property probably not present",
                         "Excel Import");
+                    continue;
                 }
 
-                var compareLogic = new CompareLogic();
+                var compareLogic = new CompareLogic
+                {
+                    Config = {MembersToIgnore = new List<string> {"LastUpdatedBy"}, MaxDifferences = 100}
+                };
                 ComparisonResult comparisonResult = compareLogic.Compare(currentDbEntry, importResult.processContent);
 
                 if (comparisonResult.AreEqual)
                 {
-                    progress.Report(
-                        $"Excel Row {loopRow.RowNumber()} - Content Id {currentDbEntry.Title} - no changes");
+                    progress?.Report(
+                        $"Excel Row {loopRow.RowNumber()} of {lastRow} - No Changes - Content Id {currentDbEntry.Title}");
                     continue;
                 }
 
                 importResult.processContent.LastUpdatedOn = DateTime.Now;
 
+                GenerationReturn validationResult;
+
+                switch (importResult.processContent)
+                {
+                    case PhotoContent p:
+                        validationResult = await PhotoGenerator.Validate(p,
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(p));
+                        break;
+                    case FileContent f:
+                        validationResult = await FileGenerator.Validate(f,
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(f));
+                        break;
+                    case ImageContent i:
+                        validationResult = await ImageGenerator.Validate(i,
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i));
+                        break;
+                    case PostContent pc:
+                        validationResult = await PostGenerator.Validate(pc);
+                        break;
+                    case LinkStream l:
+                        validationResult = await LinkGenerator.Validate(l);
+                        break;
+                    case NoteContent n:
+                        validationResult = await NoteGenerator.Validate(n);
+                        break;
+                    default:
+                        validationResult =
+                            await GenerationReturn.Error("Excel Import - No Content Type Generator found?");
+                        break;
+                }
+
+                if (validationResult.HasError)
+                {
+                    errorNotes.Add(validationResult.GenerationNote);
+                    progress?.Report($"Excel Row {loopRow.RowNumber()} of {lastRow} - Validation Error.");
+                    continue;
+                }
+
                 updateList.Add(new ExcelImportContentUpdateSuggestion
                 {
-                    DifferenceNotes = string.Join(Environment.NewLine, comparisonResult.Differences),
+                    DifferenceNotes =
+                        comparisonResult
+                            .DifferencesString, //string.Join(Environment.NewLine, comparisonResult.Differences),
                     Title = importResult.processContent.Title,
                     ToUpdate = importResult.processContent
                 });
+
+                progress?.Report(
+                    $"Excel Row {loopRow.RowNumber()} of {lastRow} - Adding To Changed List ({updateList.Count}) - Content Id {currentDbEntry.Title}");
             }
 
             return new ExcelContentTableImportResults
@@ -236,35 +288,36 @@ namespace PointlessWaymarksCmsData.ExcelImport
         {
             var errorList = new List<string>();
 
+            var totalToUpdate = contentTableImportResult.ToUpdate.Count;
+            var currentUpdate = 0;
+
             foreach (var loopUpdates in contentTableImportResult.ToUpdate)
             {
+                currentUpdate++;
+
+                progress?.Report($"Excel Import Update {currentUpdate} of {totalToUpdate}");
+
                 GenerationReturn generationResult;
                 switch (loopUpdates.ToUpdate)
                 {
                     case PhotoContent photo:
                     {
-                        var mediaArchiveFile = new FileInfo(Path.Combine(
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
-                            photo.OriginalFileName));
-                        generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo, mediaArchiveFile, true,
+                        generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo,
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(photo), false,
                             progress)).generationReturn;
                         break;
                     }
                     case FileContent file:
                     {
-                        var mediaArchiveFile = new FileInfo(Path.Combine(
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
-                            file.OriginalFileName));
-                        generationResult = (await FileGenerator.SaveAndGenerateHtml(file, mediaArchiveFile, true,
+                        generationResult = (await FileGenerator.SaveAndGenerateHtml(file,
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(file), false,
                             progress)).generationReturn;
                         break;
                     }
                     case ImageContent image:
                     {
-                        var mediaArchiveFile = new FileInfo(Path.Combine(
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageDirectory().FullName,
-                            image.OriginalFileName));
-                        generationResult = (await ImageGenerator.SaveAndGenerateHtml(image, mediaArchiveFile, true,
+                        generationResult = (await ImageGenerator.SaveAndGenerateHtml(image,
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(image), false,
                             progress)).generationReturn;
                         break;
                     }

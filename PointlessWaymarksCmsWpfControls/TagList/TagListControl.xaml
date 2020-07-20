@@ -29,35 +29,34 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <GroupBox Header="Tags" Grid.Column="0" Style="{StaticResource UiComponentGroupBoxStyle}">
-                <ScrollViewer>
-                    <ItemsControl ItemsSource="{Binding Items}">
-                        <ItemsControl.Resources>
-                            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
-                        </ItemsControl.Resources>
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel IsItemsHost="True" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="local:TagListListItem">
-                                    <Border Margin="4" BorderThickness="1" CornerRadius="4" BorderBrush="DarkGray">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding TagName}" FontSize="18" VerticalAlignment="Center" />
-                                            <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                                     VerticalAlignment="Center"
-                                                     Text="{Binding ContentCount, StringFormat='({0})'}" />
-                                            <Button VerticalAlignment="Center" Height="24"
-                                                    Command="{Binding Data.ShowDetailsCommand, Source={StaticResource Proxy}}"
-                                                    CommandParameter="{Binding .}">
-                                                Show Content
-                                            </Button>
-                                        </StackPanel>
-                                    </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                <ListBox ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch">
+                    <ListBox.Resources>
+                        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+                    </ListBox.Resources>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="local:TagListListItem">
+                            <Border Margin="4" BorderThickness="1" CornerRadius="4" BorderBrush="DarkGray">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding TagName}"
+                                             FontSize="18" VerticalAlignment="Center" />
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                             VerticalAlignment="Center"
+                                             Text="{Binding ContentCount, StringFormat='({0})'}" />
+                                    <Button VerticalAlignment="Center" Height="24"
+                                            Command="{Binding Data.ShowDetailsCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding .}">
+                                        Show Content
+                                    </Button>
+                                    <Button VerticalAlignment="Center" Height="24"
+                                            Command="{Binding Data.SingleTagContentToExcelCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding .}">
+                                        To Excel
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </GroupBox>
             <GroupBox Header="{Binding DetailDisplay.ListItem.TagName, StringFormat='Tag Detail {0}'}" Grid.Column="1"
                       Style="{StaticResource UiComponentGroupBoxStyle}">
@@ -66,16 +65,21 @@
                     <Label>Rename Tag To:</Label>
                     <TextBox Text="{Binding DetailDisplay.UserNewTagName, UpdateSourceTrigger=PropertyChanged}" />
                     <Button>Rename</Button>
-                    <ListBox ItemsSource="{Binding DetailDisplay.ContentList}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox ItemsSource="{Binding DetailDisplay.ContentList}" HorizontalContentAlignment="Stretch"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.Resources>
                             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
                         </ListBox.Resources>
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="local:TagListItemDetailDisplayContentItem">
-                                <Button 
-                                        Command="{Binding Data.EditContentCommand, Source={StaticResource Proxy}}"
-                                        CommandParameter="{Binding Content}">
-                                    <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DisplayText, StringFormat='{}{0} - Edit'}" TextWrapping="Wrap" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Background="Transparent" IsHitTestVisible="False"></TextBox>
+                                <Button
+                                    Command="{Binding Data.EditContentCommand, Source={StaticResource Proxy}}"
+                                    CommandParameter="{Binding Content}">
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                             Text="{Binding DisplayText, StringFormat='{}{0} - Edit'}"
+                                             TextWrapping="Wrap" HorizontalAlignment="Center"
+                                             HorizontalContentAlignment="Center" Background="Transparent"
+                                             IsHitTestVisible="False" />
                                 </Button>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

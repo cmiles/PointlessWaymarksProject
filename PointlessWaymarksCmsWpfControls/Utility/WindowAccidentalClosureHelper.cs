@@ -8,6 +8,10 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 {
     public class WindowAccidentalClosureHelper
     {
+        private bool _closeConfirmed;
+        private readonly IHasUnsavedChanges _hasUnsavedChangesToCheck;
+        private readonly Window _toClose;
+
         public WindowAccidentalClosureHelper(Window toClose, StatusControlContext context, IHasUnsavedChanges toCheck)
         {
             StatusContext = context;
@@ -18,10 +22,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         }
 
         public StatusControlContext StatusContext { get; set; }
-
-        private bool _closeConfirmed;
-        private readonly IHasUnsavedChanges _hasUnsavedChangesToCheck;
-        private readonly Window _toClose;
 
         private void FileContentEditorWindow_OnClosing(object sender, CancelEventArgs e)
         {

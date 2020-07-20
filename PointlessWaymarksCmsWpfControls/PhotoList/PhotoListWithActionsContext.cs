@@ -47,6 +47,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _refreshDataCommand;
         private Command _reportAllPhotosCommand;
         private Command _reportBlankLicenseCommand;
+        private Command _reportMultiSpacesInTitleCommand;
         private Command _reportNoTagsCommand;
         private Command _reportPhotoMetadataCommand;
         private Command _reportTakenAndLicenseYearDoNotMatchCommand;
@@ -262,6 +263,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (Equals(value, _reportBlankLicenseCommand)) return;
                 _reportBlankLicenseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ReportMultiSpacesInTitleCommand
+        {
+            get => _reportMultiSpacesInTitleCommand;
+            set
+            {
+                if (Equals(value, _reportMultiSpacesInTitleCommand)) return;
+                _reportMultiSpacesInTitleCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -718,7 +730,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             return await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
         }
 
-        private async Task<List<PhotoContent>> ReportBlackLicenseGenerator()
+        private async Task<List<PhotoContent>> ReportBlankLicenseGenerator()
         {
             var db = await Db.Context();
 
@@ -731,6 +743,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     returnList.Add(loopContents);
 
             return returnList;
+        }
+
+        private async Task<List<PhotoContent>> ReportMultiSpacesInTitleGenerator()
+        {
+            var db = await Db.Context();
+
+            return await db.PhotoContents.Where(x => x.Title.Contains("  ")).OrderByDescending(x => x.PhotoCreatedOn)
+                .ToListAsync();
         }
 
         private async Task<List<PhotoContent>> ReportNoTagsGenerator()
@@ -900,7 +920,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             ReportAllPhotosCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
                 await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List")));
             ReportBlankLicenseCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-                await RunReport(ReportBlackLicenseGenerator, "Title and Created Mismatch Photo List")));
+                await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List")));
+            ReportMultiSpacesInTitleCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+                await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces")));
 
             ImportFromExcelCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await ExcelHelpers.ImportFromExcel(StatusContext)));
