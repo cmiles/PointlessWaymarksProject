@@ -85,15 +85,16 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             foreach (var loopSelected in toProcess)
             {
-                string executionParameters;
+                if (loopSelected.destinationFile.Directory == null)
+                {
+                    statusContext.ToastError(
+                        $"Problem with {loopSelected.destinationFile.FullName} - Directory is Null?");
+                    continue;
+                }
 
-
-                if (pageNumber == 1)
-                    executionParameters =
-                        $"-jpeg -singlefile \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\"";
-                else
-                    executionParameters =
-                        $"-jpeg -f {pageNumber} -l {pageNumber} \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\"";
+                var executionParameters = pageNumber == 1
+                    ? $"-jpeg -singlefile \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\""
+                    : $"-jpeg -f {pageNumber} -l {pageNumber} \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\"";
 
                 var (success, _, errorOutput) = Processes.ExecuteProcess(pdfToCairoExe.FullName, executionParameters,
                     statusContext.ProgressTracker());
@@ -119,7 +120,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 else
                 {
                     var directoryToSearch = loopSelected.destinationFile.Directory;
-                    var baseName = loopSelected.targetFile.Name;
 
                     var possibleFiles = directoryToSearch
                         .EnumerateFiles($"{Path.GetFileNameWithoutExtension(loopSelected.destinationFile.Name)}-*.jpg")

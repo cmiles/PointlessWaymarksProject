@@ -46,6 +46,8 @@
 
 7/19/2020
 
+Excel Photo Update import test is passing.
+
 Validation improvements and fixes including a model Interface simplification.
 
 Added to the Generator Save methods a routine that uses reflection to run null safe trim to empty string on any incoming string fields - that plus a tag cleanup should produce a cleaner more standard db input.
