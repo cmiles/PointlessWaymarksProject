@@ -45,7 +45,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
 
             SaveAndGenerateHtmlCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
+                StatusContext.RunBlockingTask(SaveAndGenerateHtml));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
                 LinkExtraction.ExtractNewAndShowLinkStreamEditors(
@@ -268,7 +268,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public async Task SaveAndGenerateHtml(bool overwriteExistingFiles)
+        public async Task SaveAndGenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 

@@ -149,15 +149,60 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             if (translatedMessage.HasError)
                 await EventLogContext.TryWriteDiagnosticMessageToLog(
-                    $"Data Notification Failure in PhotoListContext - {translatedMessage.ErrorNote}",
+                    $"Data Notification Failure in FileListContext - {translatedMessage.ErrorNote}",
                     StatusContext.StatusControlContextId.ToString());
 
             if (translatedMessage.ContentType == DataNotificationContentType.File)
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
-                    await PostDataNotificationReceived(translatedMessage));
+                    await DataNotificationReceived(translatedMessage));
             if (translatedMessage.ContentType != DataNotificationContentType.File)
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
                     await PossibleMainImageUpdateDataNotificationReceived(translatedMessage));
+        }
+
+        private async Task DataNotificationReceived(InterProcessDataNotification translatedMessage)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
+            {
+                var toRemove = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                toRemove.ForEach(x => Items.Remove(x));
+
+                return;
+            }
+
+            var context = await Db.Context();
+
+            var dbItems =
+                (await context.FileContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Select(ListItemFromDbItem);
+
+            var listItems = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
+
+            foreach (var loopItems in dbItems)
+            {
+                var existingItem = listItems.SingleOrDefault(x => x.DbEntry.ContentId == loopItems.DbEntry.ContentId);
+
+                if (existingItem == null)
+                {
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
+                    Items.Add(loopItems);
+
+                    await ThreadSwitcher.ResumeBackgroundAsync();
+
+                    continue;
+                }
+
+                if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
+                    existingItem.DbEntry = loopItems.DbEntry;
+
+                existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
+            }
         }
 
         private async Task FilterList()
@@ -292,65 +337,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                     x.DbEntry.MainPicture != null && translatedMessage.ContentIds.Contains(x.DbEntry.MainPicture.Value))
                 .ToList();
 
-            toUpdate.ForEach(x =>
-            {
-                x.SmallImageUrl = null;
-                x.SmallImageUrl = GetSmallImageUrl(x.DbEntry);
-            });
-        }
-
-        private async Task PostDataNotificationReceived(InterProcessDataNotification translatedMessage)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
-            {
-                var toRemove = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                toRemove.ForEach(x => Items.Remove(x));
-            }
-
-            if (translatedMessage.UpdateType == DataNotificationUpdateType.New)
-            {
-                var context = await Db.Context();
-
-                var dbItems =
-                    (await context.FileContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Select(ListItemFromDbItem).ToList();
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                dbItems.ForEach(x => Items.Add(x));
-            }
-
-            if (translatedMessage.UpdateType == DataNotificationUpdateType.Update ||
-                translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent)
-            {
-                var context = await Db.Context();
-
-                var dbItems =
-                    (await context.FileContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Select(ListItemFromDbItem);
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                foreach (var loopUpdates in dbItems)
-                {
-                    var toUpdate = Items.SingleOrDefault(x => x.DbEntry.ContentId == loopUpdates.DbEntry.ContentId);
-                    if (toUpdate == null)
-                    {
-                        Items.Add(loopUpdates);
-                        continue;
-                    }
-
-                    if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
-                        toUpdate.DbEntry = loopUpdates.DbEntry;
-
-                    toUpdate.SmallImageUrl = GetSmallImageUrl(loopUpdates.DbEntry);
-                }
-            }
+            toUpdate.ForEach(x => { x.SmallImageUrl = GetSmallImageUrl(x.DbEntry); });
         }
 
 

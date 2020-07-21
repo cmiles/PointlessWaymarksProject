@@ -132,11 +132,10 @@ namespace PointlessWaymarksCmsContentEditor
 
             GenerateDailyGalleryHtmlCommand =
                 new Command(() => StatusContext.RunBlockingTask(GenerateAllDailyPhotoGalleriesHtml));
-            GenerateCamerRollCommand = new Command(() => StatusContext.RunBlockingTask(GenerateCameraRollHtml));
+            GenerateCameraRollCommand = new Command(() => StatusContext.RunBlockingTask(GenerateCameraRollHtml));
 
-            PurgeInvalidPhotoDirectoriesCommand = new Command(async () =>
-                await StructureAndMediaContent.PurgePhotoDirectoriesNotFoundInCurrentDatabase(
-                    StatusContext.ProgressTracker()));
+            RemoveUnusedFilesFromMediaArchiveCommand = new Command(() => StatusContext.RunBlockingTask(RemoveUnusedFilesFromMediaArchive));
+            RemoveUnusedFoldersAndFilesFromContentCommand = new Command(() => StatusContext.RunBlockingTask(RemoveUnusedFoldersAndFilesFromContent));
 
             ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
 
@@ -153,8 +152,12 @@ namespace PointlessWaymarksCmsContentEditor
 
             SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanUpTemporaryFiles);
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanupTemporaryFiles);
         }
+
+        public Command RemoveUnusedFoldersAndFilesFromContentCommand { get; set; }
+
+        public Command RemoveUnusedFilesFromMediaArchiveCommand { get; set; }
 
         public Command AllEventsReportCommand { get; set; }
 
@@ -181,7 +184,7 @@ namespace PointlessWaymarksCmsContentEditor
 
         public Command GenerateAllTagHtmlCommand { get; set; }
 
-        public Command GenerateCamerRollCommand { get; set; }
+        public Command GenerateCameraRollCommand { get; set; }
 
         public Command GenerateDailyGalleryHtmlCommand { get; set; }
 
@@ -318,8 +321,6 @@ namespace PointlessWaymarksCmsContentEditor
                 OnPropertyChanged();
             }
         }
-
-        public Command PurgeInvalidPhotoDirectoriesCommand { get; set; }
 
         public string RecentSettingsFilesNames
         {
@@ -574,37 +575,22 @@ namespace PointlessWaymarksCmsContentEditor
             await CleanAndResizeAllImageFiles();
         }
 
-        private async Task CleanUpTemporaryFiles()
+        private async Task RemoveUnusedFilesFromMediaArchive()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+            await StructureAndMediaContent.RemoveMediaArchiveFilesNotInDatabase(StatusContext.ProgressTracker());
+        }
 
-            var temporaryDirectory = UserSettingsUtilities.TempStorageDirectory();
+        private async Task RemoveUnusedFoldersAndFilesFromContent()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            await StructureAndMediaContent.RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(StatusContext.ProgressTracker());
+        }
 
-            if (!temporaryDirectory.Exists)
-            {
-                temporaryDirectory.Create();
-                return;
-            }
-
-            var allFiles = temporaryDirectory.GetFiles().ToList();
-
-            var frozenUtcNow = DateTime.UtcNow;
-
-            foreach (var loopFiles in allFiles)
-                try
-                {
-                    var creationDayDiff = frozenUtcNow.Subtract(loopFiles.CreationTimeUtc).Days;
-                    var lastAccessDayDiff = frozenUtcNow.Subtract(loopFiles.LastAccessTimeUtc).Days;
-                    var lastWriteDayDiff = frozenUtcNow.Subtract(loopFiles.LastWriteTimeUtc).Days;
-
-                    if (creationDayDiff > 2 && lastAccessDayDiff > 2 && lastWriteDayDiff > 2)
-                        loopFiles.Delete();
-                }
-                catch (Exception e)
-                {
-                    await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(),
-                        $"Could not delete temporary file - {e}");
-                }
+        private async Task CleanupTemporaryFiles()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            await StructureAndMediaContent.CleanUpTemporaryFiles();
         }
 
         private async Task ConfirmAllFileContent()

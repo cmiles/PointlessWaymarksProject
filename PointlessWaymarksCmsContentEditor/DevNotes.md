@@ -1,20 +1,15 @@
 ﻿## Todos
- - Excel Imports
-  - Where to put in 'all' windows
  - Tags List better interface
  - Content Testing:
-  - Post Generator and GUI Integration
   - Ironwood Integration Tests for File, Image, Post, Note, Link
-  - Folder structure clean up routines - Photos written, need other content types and integration
   - Add tests for the common content validation
- - The Data Notification responses in the Lists assume the messages come in the expected order - probably new and update should both actually be 'merge' since you might get contentupdate before new... PhotoList done as a test.
  - Gui Validation alerts - Title control and Tags Control Done
+ - Where to integrate the Excel Import to make it more obvious to fine?
+ - Consider integrating the Media and Content Cleanup into a 'Full Generation'
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - Look at using NavLink tag in menu and/or wrapping with nav tag
  - A bad content code should be handled better
- - Extend To Excel to more Types
  - To Excel for logs
- - Excel Import
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - In Search it might be nice to have the content type on the line with date?
@@ -44,6 +39,12 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/21/2020
+
+Added methods to purge content not in the db from both generated content folders and the Media Archives - made these accessible in the Main form but at this point did not integrate them into the 'generate all' process, still wondering if that is the way to go...
+
+Updated the data notifications response codes in the list context to the better form found in the Photo list - the idea here is to basically distrust current state and message order and regardless of whether the send says update or new check and add it only if not already in the list and update in either case.
 
 7/20/2020
 
