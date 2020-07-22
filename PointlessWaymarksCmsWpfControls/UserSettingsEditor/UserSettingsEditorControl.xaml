@@ -135,6 +135,14 @@
                     </Label>
                     <TextBox Name="PdfToCairoDirectoryTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                              Text="{Binding EditorSettings.PdfToCairoExeDirectory, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Label Target="{Binding ElementName=LastRecordedGenerationDirectoryTextBox}"
+                           Style="{StaticResource DataEntryLabelStyle}">
+                        Last Recorded HTML Generation
+                    </Label>
+                    <TextBox Margin="6,0,0,0" Name="LastRecordedGenerationDirectoryTextBox" Style="{StaticResource ReadOnlyTextBox}"
+                             Text="{Binding EditorSettings.LastGenerationUtc, UpdateSourceTrigger=PropertyChanged, StringFormat='UTC {0}'}" />
                     <wpf:MarkdownViewer Markdown="{Binding PdfToCairoHelpText}" />
                 </StackPanel>
             </StackPanel>

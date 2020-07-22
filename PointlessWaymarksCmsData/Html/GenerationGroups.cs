@@ -66,6 +66,8 @@ namespace PointlessWaymarksCmsData.Html
             GenerateAllListHtml(progress);
             GenerateIndex(progress);
 
+            progress?.Report(
+                $"Generation Complete - Writing Generation Date Time of UTC {frozenNow} in settings as Last Generation");
             UserSettingsSingleton.CurrentSettings().LastGenerationUtc = frozenNow;
             await UserSettingsSingleton.CurrentSettings().WriteSettings();
         }
@@ -243,6 +245,8 @@ namespace PointlessWaymarksCmsData.Html
 
             await db.GenerationContentIdReferences.AddRangeAsync(contentChanges.Distinct()
                 .Select(x => new GenerationContentIdReference {ContentId = x}).ToList());
+
+            await db.SaveChangesAsync();
         }
 
         public static async Task GenerateChangeFilteredFileHtml(IProgress<string> progress)
@@ -369,8 +373,21 @@ namespace PointlessWaymarksCmsData.Html
         {
             var frozenNow = DateTime.Now.ToUniversalTime();
 
-            await RelatedContentReference.GenerateRelatedContentDbTable(frozenNow, progress);
-            await GenerateChangedContentIdReferencesReferences(frozenNow, progress);
+            if (UserSettingsSingleton.CurrentSettings().LastGenerationUtc == null)
+            {
+                progress?.Report("No value for Last Generation in Settings - Generating All HTML");
+
+                await GenerateAllHtml(progress);
+                return;
+            }
+
+            progress?.Report(
+                $"Generation HTML based on changes after UTC - {UserSettingsSingleton.CurrentSettings().LastGenerationUtc}");
+
+            await RelatedContentReference.GenerateRelatedContentDbTable(
+                UserSettingsSingleton.CurrentSettings().LastGenerationUtc.Value, progress);
+            await GenerateChangedContentIdReferencesReferences(
+                UserSettingsSingleton.CurrentSettings().LastGenerationUtc.Value, progress);
 
             await GenerateChangeFilteredPhotoHtml(progress);
             await GenerateChangeFilteredImageHtml(progress);
@@ -383,6 +400,7 @@ namespace PointlessWaymarksCmsData.Html
             GenerateAllListHtml(progress);
             GenerateIndex(progress);
 
+            progress?.Report($"Generation Complete - writing {frozenNow} as Last Generation UTC into settings");
             UserSettingsSingleton.CurrentSettings().LastGenerationUtc = frozenNow;
             await UserSettingsSingleton.CurrentSettings().WriteSettings();
         }

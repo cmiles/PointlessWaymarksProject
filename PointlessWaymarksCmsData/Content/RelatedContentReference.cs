@@ -56,6 +56,8 @@ namespace PointlessWaymarksCmsData.Content
             var dbEntries = toAdd.Select(x => new RelatedContent {ContentOne = content.ContentId, ContentTwo = x});
 
             await db.RelatedContents.AddRangeAsync(dbEntries);
+
+            await db.SaveChangesAsync();
         }
 
         public static async Task GenerateRelatedContentDbTable(DateTime contentAfter, IProgress<string> progress)

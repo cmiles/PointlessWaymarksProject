@@ -80,8 +80,7 @@ namespace PointlessWaymarksCmsData.Content
 
             var imageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
-            var syncCopyResults =
-                await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
+            var syncCopyResults = await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             if (!syncCopyResults.HasError) return syncCopyResults;
 
@@ -111,8 +110,7 @@ namespace PointlessWaymarksCmsData.Content
 
             var photoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
-            var syncCopyResults =
-                await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
+            var syncCopyResults = await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             if (!syncCopyResults.HasError) return syncCopyResults;
 
