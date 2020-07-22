@@ -32,7 +32,7 @@ namespace PointlessWaymarksCmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             toSave.OriginalFileName = selectedFile.Name;
-            StructureAndMediaContent.WriteSelectedImageContentFileToMediaArchive(selectedFile);
+            FileManagement.WriteSelectedImageContentFileToMediaArchive(selectedFile);
             await Db.SaveImageContent(toSave);
             await WriteImageFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
             GenerateHtml(toSave, progress);

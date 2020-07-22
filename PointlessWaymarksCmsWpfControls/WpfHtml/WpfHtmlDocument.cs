@@ -11,13 +11,14 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 <html lang=en>
 <head>
     <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta charset=utf-8>
+    <meta charset=""utf-8"">
     <title>{HtmlEncoder.Default.Encode(title)}</title>
     <style>{styleBlock}</style>
 </head>
 <body>
     {body}
-</body>";
+</body>
+</html>";
 
             return htmlDoc;
         }
@@ -30,13 +31,14 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 <html lang=en>
 <head>
     <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta charset=utf-8>
+    <meta charset=""utf-8"">
     <title>{HtmlEncoder.Default.Encode(title)}</title>
     <style>{pureInline.TransformText()} {styleBlock}</style>
 </head>
 <body>
     {body}
-</body>";
+</body>
+</html>";
 
             return htmlDoc;
         }

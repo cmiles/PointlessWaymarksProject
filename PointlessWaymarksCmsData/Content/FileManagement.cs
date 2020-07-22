@@ -9,7 +9,7 @@ using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.Content
 {
-    public static class StructureAndMediaContent
+    public static class FileManagement
     {
         public static async Task<List<GenerationReturn>> CheckContentFolderStructure(this UserSettings settings)
         {
@@ -262,7 +262,7 @@ namespace PointlessWaymarksCmsData.Content
                 }
                 catch (Exception e)
                 {
-                    await EventLogContext.TryWriteExceptionToLog(e, "StructureAndMediaContent.CleanUpTemporaryFiles",
+                    await EventLogContext.TryWriteExceptionToLog(e, "FileManagement.CleanUpTemporaryFiles",
                         $"Could not delete temporary file - {e}");
                 }
         }

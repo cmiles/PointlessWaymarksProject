@@ -81,7 +81,7 @@ namespace PointlessWaymarksCmsData.Content
             var imageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
             var syncCopyResults =
-                await StructureAndMediaContent.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
+                await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             if (!syncCopyResults.HasError) return syncCopyResults;
 
@@ -112,7 +112,7 @@ namespace PointlessWaymarksCmsData.Content
             var photoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
             var syncCopyResults =
-                await StructureAndMediaContent.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
+                await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             if (!syncCopyResults.HasError) return syncCopyResults;
 
@@ -214,7 +214,7 @@ namespace PointlessWaymarksCmsData.Content
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(PhotoContent dbEntry,
             bool overwriteExistingFiles, IProgress<string> progress)
         {
-            await StructureAndMediaContent.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
+            await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
@@ -226,7 +226,7 @@ namespace PointlessWaymarksCmsData.Content
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(ImageContent dbEntry,
             bool overwriteExistingFiles, IProgress<string> progress)
         {
-            await StructureAndMediaContent.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
+            await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 

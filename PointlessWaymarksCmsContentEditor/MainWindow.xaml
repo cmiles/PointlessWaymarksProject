@@ -25,12 +25,20 @@
     d:DataContext="{d:DesignInstance local:MainWindow}"
     mc:Ignorable="d">
     <Window.Resources>
-        <utility:BindingProxy x:Key="MainWindowProxy" Data="{Binding}" />
-        <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-        <Style TargetType="Button">
-            <Setter Property="Margin" Value="4" />
-            <Setter Property="Height" Value="40" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="pack://application:,,,/PointlessWaymarksCmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/PointlessWaymarksCmsWpfControls;component/Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <utility:BindingProxy x:Key="MainWindowProxy" Data="{Binding}" />
+            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <Style TargetType="Button">
+                <Setter Property="Margin" Value="4" />
+                <Setter Property="Height" Value="40" />
+            </Style>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <TabControl BorderBrush="Green">
@@ -64,7 +72,7 @@
             <TabItem Header="Settings">
                 <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />
             </TabItem>
-            <TabItem Header="General">
+            <TabItem Header="HTML Generation">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -76,43 +84,97 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Button Grid.Row="0" Margin="12" Command="{Binding GenerateAllHtmlCommand}">Generate All Html</Button>
-                    <Button Grid.Row="1" Margin="12" Command="{Binding ConfirmOrGenerateAllPhotosImagesFilesCommand}">Confirm or Generate All Photo, Image and File Content</Button>
-                    <Button Grid.Row="2" Margin="12" Command="{Binding CleanAndResizePicturesCommand}">Clean And Resize Pictures</Button>
-                    <Button Grid.Row="3" Margin="12" Command="{Binding GenerateIndexCommand}">Generate Index</Button>
-                    <Button Grid.Row="4" Margin="12" Command="{Binding OpenIndexUrlCommand}">Open Index</Button>
-                    <Button Grid.Row="5" Margin="12" Command="{Binding ImportJsonFromDirectoryCommand}">Import JSON</Button>
-                    <Grid Grid.Row="7" Margin="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Button Command="{Binding ExceptionEventsReportCommand}">Exceptions Report</Button>
-                        <Button Grid.Column="1" Command="{Binding DiagnosticEventsReportCommand}">Diagnostics Report</Button>
-                        <Button Grid.Column="2" Command="{Binding AllEventsReportCommand}">All Events Report</Button>
-                    </Grid>
-                    <CheckBox Margin="24,6,0,0" Grid.Row="6" Command="{Binding ToggleDiagnosticLoggingCommand}">Log Diagnostic Events</CheckBox>
+                    <GroupBox Header="Common Actions" Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <StackPanel Orientation="Vertical">
+                            <Button Margin="12" Command="{Binding GenerateAllHtmlCommand}">Generate HTML From Content With Changes</Button>
+                            <Button Margin="12"
+                                    Command="{Binding RemoveUnusedFoldersAndFilesFromContentCommand}">
+                                Remove Unused Files and Folders from Generated Site
+                            </Button>
+                            <Button Margin="12"
+                                    Command="{Binding RemoveUnusedFilesFromMediaArchiveCommand}">
+                                Remove Unused Files From Media Archive
+                            </Button>
+                            <Button Margin="12" Command="{Binding GenerateIndexCommand}">Generate Index</Button>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Grid.Row="1" Header="Complete Regenerations"
+                              Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <StackPanel Orientation="Vertical">
+                            <Button Margin="12" Command="{Binding GenerateAllHtmlCommand}">Generate All HTML</Button>
+                            <Button Margin="12" Command="{Binding ConfirmOrGenerateAllPhotosImagesFilesCommand}">Confirm And Copy/Generate As Needed All Photos, Images and Files (Existing Files Will Not be Deleted)</Button>
+                            <Button Margin="12" Command="{Binding DeleteAndResizePicturesCommand}">Delete And Resize All Photos and Images</Button>
+                        </StackPanel>
+                    </GroupBox>
+
+
                 </Grid>
             </TabItem>
-            <TabItem Header="Part Generation">
-                <Grid>
-                    <WrapPanel>
-                        <WrapPanel.Resources>
-                            <Style TargetType="Button">
-                                <Setter Property="Height" Value="90" />
-                                <Setter Property="Width" Value="90" />
-                            </Style>
-                        </WrapPanel.Resources>
-                        <Button Command="{Binding GenerateAllTagHtmlCommand}">Tags</Button>
-                        <Button Command="{Binding GenerateHtmlForAllPhotoContentCommand}">Photos</Button>
-                        <Button Command="{Binding GenerateCameraRollCommand}">Camera Roll</Button>
-                        <Button Command="{Binding GenerateDailyGalleryHtmlCommand}">Daily Galleries</Button>
-                        <Button Command="{Binding RemoveUnusedFilesFromMediaArchiveCommand}">Purge Media Archive</Button>
-                        <Button Command="{Binding RemoveUnusedFoldersAndFilesFromContentCommand}">Purge Content</Button>
-                        <Button Command="{Binding TemporaryCommand}">Temp</Button>
-                    </WrapPanel>
-                </Grid>
+            <TabItem Header="Diagnostics">
+                <StackPanel Orientation="Vertical">
+                    <GroupBox Header="Logging" Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox Margin="24,6,0,0" Command="{Binding ToggleDiagnosticLoggingCommand}">Log Diagnostic Events</CheckBox>
+                            <Grid Margin="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Button Command="{Binding ExceptionEventsReportCommand}">Exceptions Report</Button>
+                                <Button Grid.Column="1" Command="{Binding DiagnosticEventsReportCommand}">Diagnostics Report</Button>
+                                <Button Grid.Column="2" Command="{Binding AllEventsReportCommand}">All Events Report</Button>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Generate Content Parts" Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <Grid>
+                            <WrapPanel>
+                                <WrapPanel.Resources>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Height" Value="90" />
+                                        <Setter Property="Width" Value="90" />
+                                    </Style>
+                                </WrapPanel.Resources>
+                                <Button Command="{Binding GenerateHtmlForAllFileContentCommand}">Files</Button>
+                                <Button Command="{Binding GenerateHtmlForAllImageContentCommand}">Images</Button>
+                                <Button Command="{Binding GenerateHtmlForAllNoteContentCommand}">Notes</Button>
+                                <Button Command="{Binding GenerateHtmlForAllPhotoContentCommand}">Photos</Button>
+                                <Button Command="{Binding GenerateHtmlForAllPostContentCommand}">Posts</Button>
+                            </WrapPanel>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Generate Lists and Galleries" Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <Grid>
+                            <WrapPanel>
+                                <WrapPanel.Resources>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Height" Value="90" />
+                                        <Setter Property="Width" Value="90" />
+                                    </Style>
+                                </WrapPanel.Resources>
+                                <Button Command="{Binding GenerateAllListHtmlCommand}">Lists</Button>
+                                <Button Command="{Binding GenerateAllTagHtmlCommand}">Tags</Button>
+                                <Button Command="{Binding GenerateCameraRollCommand}">Camera Roll</Button>
+                                <Button Command="{Binding GenerateDailyGalleryHtmlCommand}">Daily Photos</Button>
+                            </WrapPanel>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Restore from JSON" Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <Grid>
+                            <WrapPanel>
+                                <WrapPanel.Resources>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Height" Value="90" />
+                                        <Setter Property="Width" Value="90" />
+                                    </Style>
+                                </WrapPanel.Resources>
+                                <Button Command="{Binding ImportJsonFromDirectoryCommand}">Import Json</Button>
+                            </WrapPanel>
+                        </Grid>
+                    </GroupBox>
+
+                </StackPanel>
             </TabItem>
             <TabItem Header="About">
                 <helpDisplay:HelpDisplayControl DataContext="{Binding SoftwareComponentsHelpContext}" />

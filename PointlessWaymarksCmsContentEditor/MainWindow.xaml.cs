@@ -15,30 +15,17 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
-using PointlessWaymarksCmsData.Html.FileHtml;
-using PointlessWaymarksCmsData.Html.ImageHtml;
-using PointlessWaymarksCmsData.Html.IndexHtml;
-using PointlessWaymarksCmsData.Html.LinkListHtml;
-using PointlessWaymarksCmsData.Html.NoteHtml;
-using PointlessWaymarksCmsData.Html.PhotoGalleryHtml;
-using PointlessWaymarksCmsData.Html.PhotoHtml;
-using PointlessWaymarksCmsData.Html.PostHtml;
-using PointlessWaymarksCmsData.Html.SearchListHtml;
 using PointlessWaymarksCmsData.Json;
-using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
-using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.ImageList;
-using PointlessWaymarksCmsWpfControls.LinkStreamEditor;
 using PointlessWaymarksCmsWpfControls.LinkStreamList;
 using PointlessWaymarksCmsWpfControls.MenuLinkEditor;
 using PointlessWaymarksCmsWpfControls.NoteList;
-using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoList;
-using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.PostList;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
@@ -54,19 +41,7 @@ namespace PointlessWaymarksCmsContentEditor
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private Command _generateAllHtmlCommand;
-        private Command _generateHtmlForAllFileContentCommand;
-        private Command _generateHtmlForAllImageContentCommand;
-        private Command _generateHtmlForAllPhotoContentCommand;
-        private Command _generateHtmlForAllPostContentCommand;
-        private Command _generateIndexCommand;
         private string _infoTitle;
-        private Command _newFileContentCommand;
-        private Command _newImageContentCommand;
-        private Command _newLinkContentCommand;
-        private Command _newPhotoContentCommand;
-        private Command _newPostContentCommand;
-        private Command _openIndexUrlCommand;
         private string _recentSettingsFilesNames;
         private UserSettingsEditorContext _settingsEditorContext;
         private SettingsFileChooserControlContext _settingsFileChooser;
@@ -100,45 +75,29 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext = new StatusControlContext();
 
-            GenerateIndexCommand = new Command(() => StatusContext.RunNonBlockingTask(GenerateIndex));
-            OpenIndexUrlCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenIndexUrl));
+            //Common
+            GenerateChangedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
+                await GenerationGroups.GenerateChangesToHtml(StatusContext.ProgressTracker())));
 
-            GenerateAllHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllHtml));
+            RemoveUnusedFilesFromMediaArchiveCommand =
+                new Command(() => StatusContext.RunBlockingTask(RemoveUnusedFilesFromMediaArchive));
+
+            RemoveUnusedFoldersAndFilesFromContentCommand = new Command(() =>
+                StatusContext.RunBlockingTask(RemoveUnusedFoldersAndFilesFromContent));
+
+            GenerateIndexCommand = new Command(() =>
+                StatusContext.RunBlockingAction(() => GenerationGroups.GenerateIndex(StatusContext.ProgressTracker())));
+
+            //All/Forced Regeneration
+            GenerateAllHtmlCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
+                await GenerationGroups.GenerateAllHtml(StatusContext.ProgressTracker())));
+
             ConfirmOrGenerateAllPhotosImagesFilesCommand = new Command(() =>
                 StatusContext.RunBlockingTask(ConfirmOrGenerateAllPhotosImagesFiles));
-            GenerateAllHtmlAndCleanAndResizePicturesCommand = new Command(() =>
-                StatusContext.RunBlockingTask(GenerateAllHtmlAndCleanAndResizePictures));
-            CleanAndResizePicturesCommand = new Command(() => StatusContext.RunBlockingTask(CleanAndResizePictures));
 
-            NewPhotoContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewPhotoContent));
-            GenerateHtmlForAllPhotoContentCommand =
-                new Command(() => StatusContext.RunBlockingTask(GenerateAllPhotoHtml));
+            DeleteAndResizePicturesCommand = new Command(() => StatusContext.RunBlockingTask(CleanAndResizePictures));
 
-            NewPostContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewPostContent));
-            GenerateHtmlForAllPostContentCommand =
-                new Command(() => StatusContext.RunBlockingTask(GenerateAllPostHtml));
-
-            NewImageContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewImageContent));
-            GenerateHtmlForAllImageContentCommand =
-                new Command(() => StatusContext.RunBlockingTask(GenerateAllImageHtml));
-
-            NewFileContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewFileContent));
-            GenerateHtmlForAllFileContentCommand =
-                new Command(() => StatusContext.RunBlockingTask(GenerateAllFileHtml));
-
-            NewLinkContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewLinkContent));
-
-            GenerateAllTagHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateAllTagHtml));
-
-            GenerateDailyGalleryHtmlCommand =
-                new Command(() => StatusContext.RunBlockingTask(GenerateAllDailyPhotoGalleriesHtml));
-            GenerateCameraRollCommand = new Command(() => StatusContext.RunBlockingTask(GenerateCameraRollHtml));
-
-            RemoveUnusedFilesFromMediaArchiveCommand = new Command(() => StatusContext.RunBlockingTask(RemoveUnusedFilesFromMediaArchive));
-            RemoveUnusedFoldersAndFilesFromContentCommand = new Command(() => StatusContext.RunBlockingTask(RemoveUnusedFoldersAndFilesFromContent));
-
-            ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
-
+            //Diagnostics
             ToggleDiagnosticLoggingCommand = new Command(() =>
                 UserSettingsSingleton.LogDiagnosticEvents = !UserSettingsSingleton.LogDiagnosticEvents);
 
@@ -146,7 +105,45 @@ namespace PointlessWaymarksCmsContentEditor
             DiagnosticEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(DiagnosticEventsReport));
             AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
 
-            TemporaryCommand = new Command(() => StatusContext.RunNonBlockingTask(Temporary));
+            //Main Parts
+            GenerateHtmlForAllFileContentCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () =>
+                    await GenerationGroups.GenerateAllFileHtml(StatusContext.ProgressTracker())));
+
+            GenerateHtmlForAllImageContentCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () =>
+                    await GenerationGroups.GenerateAllImageHtml(StatusContext.ProgressTracker())));
+
+            GenerateHtmlForAllNoteContentCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () =>
+                    await GenerationGroups.GenerateAllNoteHtml(StatusContext.ProgressTracker())));
+
+            GenerateHtmlForAllPhotoContentCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () =>
+                    await GenerationGroups.GenerateAllPhotoHtml(StatusContext.ProgressTracker())));
+
+            GenerateHtmlForAllPostContentCommand = new Command(() =>
+                StatusContext.RunBlockingTask(async () =>
+                    await GenerationGroups.GenerateAllPostHtml(StatusContext.ProgressTracker())));
+
+            //Derived
+            GenerateAllListHtmlCommand = new Command(() =>
+                StatusContext.RunBlockingAction(() =>
+                    GenerationGroups.GenerateAllListHtml(StatusContext.ProgressTracker())));
+
+            GenerateAllTagHtmlCommand = new Command(() =>
+                StatusContext.RunBlockingAction(() =>
+                    GenerationGroups.GenerateAllTagHtml(StatusContext.ProgressTracker())));
+
+            GenerateCameraRollCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
+                await GenerationGroups.GenerateCameraRollHtml(StatusContext.ProgressTracker())));
+
+            GenerateDailyGalleryHtmlCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
+                await GenerationGroups.GenerateAllDailyPhotoGalleriesHtml(StatusContext.ProgressTracker())));
+
+            //Rebuild
+            ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
+
 
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
 
@@ -155,93 +152,39 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanupTemporaryFiles);
         }
 
-        public Command RemoveUnusedFoldersAndFilesFromContentCommand { get; set; }
-
-        public Command RemoveUnusedFilesFromMediaArchiveCommand { get; set; }
-
         public Command AllEventsReportCommand { get; set; }
 
-        public Command CleanAndResizePicturesCommand { get; set; }
-
         public Command ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }
+
+        public Command DeleteAndResizePicturesCommand { get; set; }
 
         public Command DiagnosticEventsReportCommand { get; set; }
 
         public Command ExceptionEventsReportCommand { get; set; }
 
-        public Command GenerateAllHtmlAndCleanAndResizePicturesCommand { get; set; }
+        public Command GenerateAllHtmlCommand { get; set; }
 
-        public Command GenerateAllHtmlCommand
-        {
-            get => _generateAllHtmlCommand;
-            set
-            {
-                if (Equals(value, _generateAllHtmlCommand)) return;
-                _generateAllHtmlCommand = value;
-                OnPropertyChanged();
-            }
-        }
+        public Command GenerateAllListHtmlCommand { get; set; }
 
         public Command GenerateAllTagHtmlCommand { get; set; }
 
         public Command GenerateCameraRollCommand { get; set; }
 
+        public Command GenerateChangedHtmlCommand { get; set; }
+
         public Command GenerateDailyGalleryHtmlCommand { get; set; }
 
-        public Command GenerateHtmlForAllFileContentCommand
-        {
-            get => _generateHtmlForAllFileContentCommand;
-            set
-            {
-                if (Equals(value, _generateHtmlForAllFileContentCommand)) return;
-                _generateHtmlForAllFileContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
+        public Command GenerateHtmlForAllFileContentCommand { get; set; }
 
-        public Command GenerateHtmlForAllImageContentCommand
-        {
-            get => _generateHtmlForAllImageContentCommand;
-            set
-            {
-                if (Equals(value, _generateHtmlForAllImageContentCommand)) return;
-                _generateHtmlForAllImageContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
+        public Command GenerateHtmlForAllImageContentCommand { get; set; }
 
-        public Command GenerateHtmlForAllPhotoContentCommand
-        {
-            get => _generateHtmlForAllPhotoContentCommand;
-            set
-            {
-                if (Equals(value, _generateHtmlForAllPhotoContentCommand)) return;
-                _generateHtmlForAllPhotoContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
+        public Command GenerateHtmlForAllNoteContentCommand { get; set; }
 
-        public Command GenerateHtmlForAllPostContentCommand
-        {
-            get => _generateHtmlForAllPostContentCommand;
-            set
-            {
-                if (Equals(value, _generateHtmlForAllPostContentCommand)) return;
-                _generateHtmlForAllPostContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
+        public Command GenerateHtmlForAllPhotoContentCommand { get; set; }
 
-        public Command GenerateIndexCommand
-        {
-            get => _generateIndexCommand;
-            set
-            {
-                if (Equals(value, _generateIndexCommand)) return;
-                _generateIndexCommand = value;
-                OnPropertyChanged();
-            }
-        }
+        public Command GenerateHtmlForAllPostContentCommand { get; set; }
+
+        public Command GenerateIndexCommand { get; set; }
 
         public Command ImportJsonFromDirectoryCommand { get; set; }
 
@@ -256,72 +199,6 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public Command NewFileContentCommand
-        {
-            get => _newFileContentCommand;
-            set
-            {
-                if (Equals(value, _newFileContentCommand)) return;
-                _newFileContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command NewImageContentCommand
-        {
-            get => _newImageContentCommand;
-            set
-            {
-                if (Equals(value, _newImageContentCommand)) return;
-                _newImageContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command NewLinkContentCommand
-        {
-            get => _newLinkContentCommand;
-            set
-            {
-                if (Equals(value, _newLinkContentCommand)) return;
-                _newLinkContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command NewPhotoContentCommand
-        {
-            get => _newPhotoContentCommand;
-            set
-            {
-                if (Equals(value, _newPhotoContentCommand)) return;
-                _newPhotoContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command NewPostContentCommand
-        {
-            get => _newPostContentCommand;
-            set
-            {
-                if (Equals(value, _newPostContentCommand)) return;
-                _newPostContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command OpenIndexUrlCommand
-        {
-            get => _openIndexUrlCommand;
-            set
-            {
-                if (Equals(value, _openIndexUrlCommand)) return;
-                _openIndexUrlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public string RecentSettingsFilesNames
         {
             get => _recentSettingsFilesNames;
@@ -332,6 +209,11 @@ namespace PointlessWaymarksCmsContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public Command RemoveUnusedFilesFromMediaArchiveCommand { get; set; }
+
+
+        public Command RemoveUnusedFoldersAndFilesFromContentCommand { get; set; }
 
         public UserSettingsEditorContext SettingsEditorContext
         {
@@ -487,8 +369,6 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public Command TemporaryCommand { get; set; }
-
         public Command ToggleDiagnosticLoggingCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -510,7 +390,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var results = await StructureAndMediaContent.CleanAndResizeAllImageFiles(StatusContext.ProgressTracker());
+            var results = await FileManagement.CleanAndResizeAllImageFiles(StatusContext.ProgressTracker());
 
             if (results.Any())
             {
@@ -542,7 +422,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var results = await StructureAndMediaContent.CleanAndResizeAllPhotoFiles(StatusContext.ProgressTracker());
+            var results = await FileManagement.CleanAndResizeAllPhotoFiles(StatusContext.ProgressTracker());
 
             if (results.Any())
             {
@@ -575,30 +455,17 @@ namespace PointlessWaymarksCmsContentEditor
             await CleanAndResizeAllImageFiles();
         }
 
-        private async Task RemoveUnusedFilesFromMediaArchive()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-            await StructureAndMediaContent.RemoveMediaArchiveFilesNotInDatabase(StatusContext.ProgressTracker());
-        }
-
-        private async Task RemoveUnusedFoldersAndFilesFromContent()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-            await StructureAndMediaContent.RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(StatusContext.ProgressTracker());
-        }
-
         private async Task CleanupTemporaryFiles()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-            await StructureAndMediaContent.CleanUpTemporaryFiles();
+            await FileManagement.CleanUpTemporaryFiles();
         }
 
         private async Task ConfirmAllFileContent()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var results =
-                await StructureAndMediaContent.ConfirmAllFileContentFilesArePresent(StatusContext.ProgressTracker());
+            var results = await FileManagement.ConfirmAllFileContentFilesArePresent(StatusContext.ProgressTracker());
 
             if (results.Any())
             {
@@ -712,206 +579,6 @@ namespace PointlessWaymarksCmsContentEditor
             reportWindow.Show();
         }
 
-        private async Task GenerateAllDailyPhotoGalleriesHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var allPages = await DailyPhotoPageGenerators.DailyPhotoGalleries(StatusContext.ProgressTracker());
-
-            allPages.ForEach(x => x.WriteLocalHtml());
-        }
-
-        private async Task GenerateAllFileHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            var allItems = await db.FileContents.ToListAsync();
-
-            var loopCount = 1;
-            var totalCount = allItems.Count;
-
-            StatusContext.Progress($"Found {totalCount} Files to Generate");
-
-            foreach (var loopItem in allItems)
-            {
-                StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
-
-                var htmlModel = new SingleFilePage(loopItem);
-                htmlModel.WriteLocalHtml();
-                await Export.WriteLocalDbJson(loopItem, StatusContext.ProgressTracker());
-
-                loopCount++;
-            }
-        }
-
-        private async Task GenerateAllHtml()
-        {
-            await GenerateAllPhotoHtml();
-            await GenerateAllImageHtml();
-            await GenerateAllFileHtml();
-            await GenerateAllNoteHtml();
-            await GenerateAllPostHtml();
-            await GenerateAllDailyPhotoGalleriesHtml();
-            await GenerateCameraRollHtml();
-            await GenerateAllTagHtml();
-            await GenerateAllListHtml();
-            await GenerateIndex();
-
-            StatusContext.ToastSuccess("All HTML Generation Finished");
-        }
-
-        private async Task GenerateAllHtmlAndCleanAndResizePictures()
-        {
-            await CleanAndResizePictures();
-
-            await GenerateAllHtml();
-        }
-
-        private async Task GenerateAllImageHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            var allItems = await db.ImageContents.ToListAsync();
-
-            var loopCount = 1;
-            var totalCount = allItems.Count;
-
-            StatusContext.Progress($"Found {totalCount} Images to Generate");
-
-            foreach (var loopItem in allItems)
-            {
-                StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
-
-                var htmlModel = new SingleImagePage(loopItem);
-                htmlModel.WriteLocalHtml();
-                await Export.WriteLocalDbJson(loopItem);
-
-                loopCount++;
-            }
-        }
-
-        private async Task GenerateAllListHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            SearchListPageGenerators.WriteAllContentCommonSearchListHtml();
-            SearchListPageGenerators.WriteFileContentListHtml();
-            SearchListPageGenerators.WriteImageContentListHtml();
-            SearchListPageGenerators.WritePhotoContentListHtml();
-            SearchListPageGenerators.WritePostContentListHtml();
-            SearchListPageGenerators.WriteNoteContentListHtml();
-
-            var linkListPage = new LinkListPage();
-            linkListPage.WriteLocalHtmlRssAndJson();
-            Export.WriteLinkListJson();
-        }
-
-        private async Task GenerateAllNoteHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            var allItems = await db.NoteContents.ToListAsync();
-
-            var loopCount = 1;
-            var totalCount = allItems.Count;
-
-            StatusContext.Progress($"Found {totalCount} Posts to Generate");
-
-            foreach (var loopItem in allItems)
-            {
-                StatusContext.Progress(
-                    $"Writing HTML for Note Dated {loopItem.CreatedOn:d} - {loopCount} of {totalCount}");
-
-                var htmlModel = new SingleNotePage(loopItem);
-                htmlModel.WriteLocalHtml();
-                await Export.WriteLocalDbJson(loopItem, StatusContext.ProgressTracker());
-
-                loopCount++;
-            }
-        }
-
-        private async Task GenerateAllPhotoHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            var allItems = await db.PhotoContents.ToListAsync();
-
-            var loopCount = 1;
-            var totalCount = allItems.Count;
-
-            StatusContext.Progress($"Found {totalCount} Photos to Generate");
-
-            foreach (var loopItem in allItems)
-            {
-                StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
-
-                var htmlModel = new SinglePhotoPage(loopItem);
-                htmlModel.WriteLocalHtml();
-                await Export.WriteLocalDbJson(loopItem);
-
-                loopCount++;
-            }
-        }
-
-        private async Task GenerateAllPostHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            var allItems = await db.PostContents.ToListAsync();
-
-            var loopCount = 1;
-            var totalCount = allItems.Count;
-
-            StatusContext.Progress($"Found {totalCount} Posts to Generate");
-
-            foreach (var loopItem in allItems)
-            {
-                StatusContext.Progress($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
-
-                var htmlModel = new SinglePostPage(loopItem);
-                htmlModel.WriteLocalHtml();
-                await Export.WriteLocalDbJson(loopItem);
-
-                loopCount++;
-            }
-        }
-
-        private async Task GenerateAllTagHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            SearchListPageGenerators.WriteTagListAndTagPages(StatusContext.ProgressTracker());
-        }
-
-        private async Task GenerateCameraRollHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var cameraRollPage = await CameraRollGalleryPageGenerator.CameraRoll(StatusContext.ProgressTracker());
-
-            cameraRollPage.WriteLocalHtml();
-        }
-
-        private async Task GenerateIndex()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var index = new IndexPage();
-            index.WriteLocalHtml();
-
-            StatusContext.ToastSuccess($"Generated {index.PageUrl}");
-        }
-
         private static DateTime? GetBuildDate(Assembly assembly)
         {
             var attribute = assembly.GetCustomAttribute<BuildDateAttribute>();
@@ -970,46 +637,6 @@ namespace PointlessWaymarksCmsContentEditor
             SoftwareComponentsHelpContext = new HelpDisplayContext(SoftwareUsedHelpMarkdown.HelpBlock);
         }
 
-        private async Task NewFileContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new FileContentEditorWindow {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
-        }
-
-        private async Task NewImageContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new ImageContentEditorWindow {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
-        }
-
-        private async Task NewLinkContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new LinkStreamEditorWindow(null) {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
-        }
-
-        private async Task NewPhotoContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PhotoContentEditorWindow {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
-        }
-
-        private async Task NewPostContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PostContentEditorWindow(null) {Left = Left + 4, Top = Top + 4};
-            newContentWindow.Show();
-        }
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -1026,6 +653,19 @@ namespace PointlessWaymarksCmsContentEditor
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
+        }
+
+        private async Task RemoveUnusedFilesFromMediaArchive()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            await FileManagement.RemoveMediaArchiveFilesNotInDatabase(StatusContext.ProgressTracker());
+        }
+
+        private async Task RemoveUnusedFoldersAndFilesFromContent()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            await FileManagement.RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(
+                StatusContext.ProgressTracker());
         }
 
         private async Task SettingsFileChooserOnSettingsFileUpdated((bool isNew, string userInput) settingReturn)

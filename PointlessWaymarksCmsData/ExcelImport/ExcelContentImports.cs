@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using KellermanSoftware.CompareNetObjects;
+using KellermanSoftware.CompareNetObjects.Reports;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
@@ -244,11 +245,11 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     continue;
                 }
 
+                var friendlyReport = new UserFriendlyReport();
+
                 updateList.Add(new ExcelImportContentUpdateSuggestion
                 {
-                    DifferenceNotes =
-                        comparisonResult
-                            .DifferencesString, //string.Join(Environment.NewLine, comparisonResult.Differences),
+                    DifferenceNotes = friendlyReport.OutputString(comparisonResult.Differences),
                     Title = importResult.processContent.Title,
                     ToUpdate = importResult.processContent
                 });

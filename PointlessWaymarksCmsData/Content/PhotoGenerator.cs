@@ -311,7 +311,7 @@ namespace PointlessWaymarksCmsData.Content
             Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-            StructureAndMediaContent.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
+            FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
             await WritePhotoFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
             GenerateHtml(toSave, progress);
@@ -330,7 +330,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (validationReturn.HasError) return (validationReturn, null);
 
-            StructureAndMediaContent.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
+            FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
 
             return (await GenerationReturn.Success($"Saved {toSave.Title}"), toSave);

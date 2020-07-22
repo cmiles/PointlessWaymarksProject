@@ -4,7 +4,7 @@
   - Ironwood Integration Tests for File, Image, Post, Note, Link
   - Add tests for the common content validation
  - Gui Validation alerts - Title control and Tags Control Done
- - Where to integrate the Excel Import to make it more obvious to fine?
+ - Where to integrate the Excel Import to make it more obvious to find?
  - Consider integrating the Media and Content Cleanup into a 'Full Generation'
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - Look at using NavLink tag in menu and/or wrapping with nav tag
@@ -40,7 +40,20 @@
 
 ## Notes
 
+7/22/2020
+
+Overall 'Generate All' time is not currently a concern - it is in set the computer down and get a coffee range which is essentially on target for my goals for this project. What is getting tougher with  2,000+ photos is the sync to Amazon S3. One issue might be that I am currently using BeyondCompare - it may not be the ideal tool because of the slow scan of S3 for changes and what seems to be single thread upload to Amazon - but regardless of tool choice (and short of custom tooling) with any tool one item that is currently becoming and issue is that the All generation touches every html and JSON file adding up an impressive list of changes on items that likely didn't change causing way more delay updating the site on S3 and dwarfing the time to generate.
+
+To address that this update detects changed content and related content to give a 'generate changes' option. This could be taken farther as the Daily Photos, Lists, Tags, etc. still always regenerate but I think this is a good starting spot.
+ - Routines to extract bracket codes and main image and write a related content table - intent here is this is wiped and regenerated every use
+ - Started writing the last generation time into settings
+ - Routines to detect changed and related content and a db table to hold that info to easily join content against in getting content to update
+
+ Related to this the Main window had quite a bit of key HTML generation code in it - refactored that back into the data class and did a light rework of the related tabs.
+
 7/21/2020
+
+Changed the Excel import differences string to a format suggested by https://github.com/GregFinzer/Compare-Net-Objects/wiki/User-Friendly-Report.
 
 Added methods to purge content not in the db from both generated content folders and the Media Archives - made these accessible in the Main form but at this point did not integrate them into the 'generate all' process, still wondering if that is the way to go...
 

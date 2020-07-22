@@ -11,6 +11,8 @@ namespace PointlessWaymarksCmsData.Database
 
         public DbSet<FileContent> FileContents { get; set; }
 
+        public DbSet<GenerationContentIdReference> GenerationContentIdReferences { get; set; }
+
         public DbSet<HistoricFileContent> HistoricFileContents { get; set; }
 
         public DbSet<HistoricImageContent> HistoricImageContents { get; set; }
@@ -29,18 +31,18 @@ namespace PointlessWaymarksCmsData.Database
         //public DbSet<LineContent> LineContents { get; set; }
 
         public DbSet<LinkStream> LinkStreams { get; set; }
+        public DbSet<MenuLink> MenuLinks { get; set; }
         public DbSet<NoteContent> NoteContents { get; set; }
 
         public DbSet<PhotoContent> PhotoContents { get; set; }
 
         //public DbSet<PointContent> PointContents { get; set; }
         public DbSet<PostContent> PostContents { get; set; }
+
+        public DbSet<RelatedContent> RelatedContents { get; set; }
         //public DbSet<TrailSegment> TrailSegments { get; set; }
 
         public DbSet<TagExclusion> TagExclusions { get; set; }
-        public DbSet<MenuLink> MenuLinks { get; set; }
-
-        public DbSet<RelatedContent> RelatedContents { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,6 +55,8 @@ namespace PointlessWaymarksCmsData.Database
             modelBuilder.Entity<PostContent>().HasIndex(b => b.ContentId).IsUnique();
             //modelBuilder.Entity<TrailSegment>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<LinkStream>().HasIndex(b => b.ContentId).IsUnique();
+
+            modelBuilder.Entity<GenerationContentIdReference>().Property(e => e.ContentId).ValueGeneratedNever();
         }
     }
 }

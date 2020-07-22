@@ -7,6 +7,29 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
     public static class BracketCodeCommon
     {
         /// <summary>
+        ///     Extracts a list of Bracket Code ContentIds from the string.
+        /// </summary>
+        /// <param name="toProcess"></param>
+        /// <returns></returns>
+        public static List<Guid> BracketCodeContentIds(string toProcess)
+        {
+            var returnList = new List<Guid>();
+
+            if (string.IsNullOrWhiteSpace(toProcess)) return returnList;
+
+            var regexObj = new Regex(@"{{.* (?<siteGuid>[\dA-Za-z-]*);[^}]*}}");
+            var matchResult = regexObj.Match(toProcess);
+            while (matchResult.Success)
+            {
+                if (Guid.TryParse(matchResult.Value, out var toAdd)) returnList.Add(toAdd);
+
+                matchResult = matchResult.NextMatch();
+            }
+
+            return returnList;
+        }
+
+        /// <summary>
         ///     Returns Bracket Code Information from a string
         /// </summary>
         /// <param name="toProcess"></param>
