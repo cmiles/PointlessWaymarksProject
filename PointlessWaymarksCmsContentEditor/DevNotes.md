@@ -1,15 +1,16 @@
 ﻿## Todos
- - Tags List better interface
+ - Tag List should respond to DataNotifications?
+ - To Excel needs some formatting for Body Content and Maybe an option to Exclude it?
  - Content Testing:
   - Ironwood Integration Tests for File, Image, Post, Note, Link
   - Add tests for the common content validation
  - Gui Validation alerts - Title control and Tags Control Done
  - Where to integrate the Excel Import to make it more obvious to find?
- - Consider integrating the Media and Content Cleanup into a 'Full Generation'
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - Look at using NavLink tag in menu and/or wrapping with nav tag
  - A bad content code should be handled better
  - To Excel for logs
+ - The Changed Html generation doesn't detect changes to settings that should trigger a full generation
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - In Search it might be nice to have the content type on the line with date?
@@ -41,6 +42,8 @@
 ## Notes
 
 7/23/2020
+
+The Tag List UI is now in a more reasonable place. For a general purpose application the current design is easily criticized as not giving intermediate users good options - for beginners the easy option to edit each content item for a tag is probably best - and for advanced users it is hard beat spreadsheet style editing (Lightroom might give an interesting model here with the way it *s tags in multiple photos - but I don't think that is actually as good as editing in Excel even though it is very workable for advanced users in a compact space that doesn't require moving away and back into lightroom... And worth noting in Lightroom for confusing/messy/problem edits I think many people at some point end up wanting to edit and reimport from a spreadsheet...). But best for intermediate would be some editing tools to rename/delete/merge tags in the UI - leaving out because of a combination of the complexity of doing this well and the extremely high utility of the Excel import (fwiw I wouldn't rate this as the best 'beginner' interface, I think there is just too much possible confusion of what is changing where and the consequences of details like merging or splitting tags even with a really beautiful interface that guides/warns, provides undo/redo, gives a great display of what is changing).
 
 Take advantage of the 'changed' information and add a few more filters to generating only changes - Daily Photos (which were originally designed with 'interlocking' previous and next pages for generation) and Tags (where detecting changes is not simple) are still 'full' generations for now.
 

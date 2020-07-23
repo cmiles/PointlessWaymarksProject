@@ -455,7 +455,7 @@ namespace PointlessWaymarksCmsData.Database
                     DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task<List<(string tag, List<object> contentObjects)>> TagAndContentList(
+        public static async Task<List<(string tag, List<dynamic> contentObjects)>> TagAndContentList(
             bool includePagesExcludedFromSearch, IProgress<string> progress)
         {
             var db = await Context();

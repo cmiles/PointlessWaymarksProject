@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.TagList"
              xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-             xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
              xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:TagListContext}">
     <UserControl.Resources>
@@ -14,7 +14,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BooleanToHiddenConverter x:Key="BooleanToHidden" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -25,7 +24,6 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Excel">
-                <MenuItem Header="Visible To Excel" Command="{Binding VisibleTagsToExcelCommand}" />
                 <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}" />
             </MenuItem>
         </Menu>
@@ -39,67 +37,114 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <GroupBox Header="Filter Tags">
-                        <TextBox Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}"></TextBox>
+                        <TextBox Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
                     </GroupBox>
-                    <ListBox Grid.Row="1" ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch">
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Items}"
+                             HorizontalContentAlignment="Stretch"
+                             SelectionMode="Extended"
+                             SelectionChanged="Selector_OnSelectionChanged"
+                             x:Name="TagListBox"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="local:TagListListItem">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
+                                             FontSize="14" VerticalAlignment="Center" TextWrapping="Wrap">
+                                        <TextBox.Text>
+                                            <MultiBinding StringFormat="{}{0} ({1})">
+                                                <Binding Path="TagName" />
+                                                <Binding Path="ContentCount" />
+                                            </MultiBinding>
+                                        </TextBox.Text>
+                                        <b:Interaction.Behaviors>
+                                            <utility:ReadOnlyTextBoxClickPass />
+                                        </b:Interaction.Behaviors>
+                                    </TextBox>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
+                        <WrapPanel
+                            HorizontalAlignment="Center"
+                            Orientation="Horizontal">
+                            <Button Style="{StaticResource ActionPanelButton}"
+                                    Content="Visible To Excel" Command="{Binding VisibleTagsToExcelCommand}" />
+                            <Button Style="{StaticResource ActionPanelButton}"
+                                    Content="Selected To Excel" Command="{Binding SelectedTagsToExcelCommand}" />
+                        </WrapPanel>
+                    </Border>
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="Selected Tag Content" Grid.Column="1"
+                      Style="{StaticResource UiComponentGroupBoxStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <ListBox x:Name="DetailsListBox" ItemsSource="{Binding DetailsList}"
+                             HorizontalContentAlignment="Stretch"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             SelectionChanged="Details_Selector_OnSelectionChanged">
                         <ListBox.Resources>
                             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
                         </ListBox.Resources>
                         <ListBox.ItemTemplate>
-                            <DataTemplate DataType="local:TagListListItem">
-                                <Border Margin="4" BorderThickness="1" CornerRadius="4" BorderBrush="DarkGray">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding TagName}"
-                                                 FontSize="18" VerticalAlignment="Center" />
-                                        <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                                 VerticalAlignment="Center"
-                                                 Text="{Binding ContentCount, StringFormat='({0})'}" />
-                                        <Button VerticalAlignment="Center" Height="24"
-                                                Command="{Binding Data.ShowDetailsCommand, Source={StaticResource Proxy}}"
-                                                CommandParameter="{Binding .}">
-                                            Show Content
+                            <DataTemplate DataType="local:TagItemContentInformation">
+                                <Border BorderThickness="1" BorderBrush="LightGray">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBox Style="{StaticResource ReadOnlyTextBox}" TextWrapping="Wrap"
+                                                     Margin="4" FontWeight="Bold" Text="{Binding Title}">
+                                                <b:Interaction.Behaviors>
+                                                    <utility:ReadOnlyTextBoxClickPass />
+                                                </b:Interaction.Behaviors>
+                                            </TextBox>
+                                            <TextBox Style="{StaticResource ReadOnlyTextBox}" TextWrapping="Wrap"
+                                                     Margin="6,0,0,0" Text="{Binding ContentType}">
+                                                <b:Interaction.Behaviors>
+                                                    <utility:ReadOnlyTextBoxClickPass />
+                                                </b:Interaction.Behaviors>
+                                            </TextBox>
+                                            <TextBox Style="{StaticResource ReadOnlyTextBox}" Margin="6,0,0,6"
+                                                     TextWrapping="Wrap"
+                                                     Text="{Binding Tags, StringFormat='Tags: {0}'}">
+                                                <b:Interaction.Behaviors>
+                                                    <utility:ReadOnlyTextBoxClickPass />
+                                                </b:Interaction.Behaviors>
+                                            </TextBox>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Width="45" Height="45"
+                                                Command="{Binding Data.EditContentCommand,Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding ContentId}">
+                                            Edit
                                         </Button>
-                                        <Button VerticalAlignment="Center" Height="24"
-                                                Command="{Binding Data.SingleTagContentToExcelCommand, Source={StaticResource Proxy}}"
-                                                CommandParameter="{Binding .}">
-                                            To Excel
-                                        </Button>
-                                    </StackPanel>
+                                    </Grid>
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                    <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+                        <WrapPanel
+                            HorizontalAlignment="Center"
+                            Orientation="Horizontal">
+                            <Button Style="{StaticResource ActionPanelButton}"
+                                    Content="All To Excel" Command="{Binding AllDetailItemsToExcelCommand}" />
+                            <Button Style="{StaticResource ActionPanelButton}"
+                                    Content="Selected To Excel" Command="{Binding SelectedDetailItemsToExcelCommand}" />
+                        </WrapPanel>
+                    </Border>
                 </Grid>
-            </GroupBox>
-            <GroupBox Header="{Binding DetailDisplay.ListItem.TagName, StringFormat='Tag Detail {0}'}" Grid.Column="1"
-                      Style="{StaticResource UiComponentGroupBoxStyle}">
-                <StackPanel Orientation="Vertical">
-                    <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DetailDisplay.ListItem.TagName}" />
-                    <Label>Rename Tag To:</Label>
-                    <TextBox Text="{Binding DetailDisplay.UserNewTagName, UpdateSourceTrigger=PropertyChanged}" />
-                    <Button>Rename</Button>
-                    <ListBox ItemsSource="{Binding DetailDisplay.ContentList}" HorizontalContentAlignment="Stretch"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                        <ListBox.Resources>
-                            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
-                        </ListBox.Resources>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate DataType="local:TagListItemDetailDisplayContentItem">
-                                <Button
-                                    Command="{Binding Data.EditContentCommand, Source={StaticResource Proxy}}"
-                                    CommandParameter="{Binding Content}">
-                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                             Text="{Binding DisplayText, StringFormat='{}{0} - Edit'}"
-                                             TextWrapping="Wrap" HorizontalAlignment="Center"
-                                             HorizontalContentAlignment="Center" Background="Transparent"
-                                             IsHitTestVisible="False" />
-                                </Button>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </StackPanel>
+
             </GroupBox>
         </Grid>
 
@@ -107,13 +152,8 @@
             <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Refresh" />
-                <Button Command="{Binding TagsToClipboardCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="Tags to Clipboard" />
             </WrapPanel>
         </Border>
-
-        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"
-                                                  VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right" />
         <status:StatusControl
             Grid.Row="0"
             Grid.RowSpan="2"

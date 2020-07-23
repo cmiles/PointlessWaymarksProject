@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -9,8 +8,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
     public class TagListListItem : INotifyPropertyChanged
     {
         private int _contentCount;
-        private List<Guid> _contentIds;
-        private List<object> _contentObjects;
+        private List<TagItemContentInformation> _contentInformation;
         private string _tagName;
 
         public int ContentCount
@@ -24,13 +22,13 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             }
         }
 
-        public List<Guid> ContentIds
+        public List<TagItemContentInformation> ContentInformation
         {
-            get => _contentIds;
+            get => _contentInformation;
             set
             {
-                if (Equals(value, _contentIds)) return;
-                _contentIds = value;
+                if (Equals(value, _contentInformation)) return;
+                _contentInformation = value;
                 OnPropertyChanged();
             }
         }
