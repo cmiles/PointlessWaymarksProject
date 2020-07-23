@@ -40,6 +40,10 @@
 
 ## Notes
 
+7/23/2020
+
+Take advantage of the 'changed' information and add a few more filters to generating only changes - Daily Photos (which were originally designed with 'interlocking' previous and next pages for generation) and Tags (where detecting changes is not simple) are still 'full' generations for now.
+
 7/22/2020
 
 Overall 'Generate All' time is not currently a concern - it is in set the computer down and get a coffee range which is essentially on target for my goals for this project. What is getting tougher with  2,000+ photos is the sync to Amazon S3. One issue might be that I am currently using BeyondCompare - it may not be the ideal tool because of the slow scan of S3 for changes and what seems to be single thread upload to Amazon - but regardless of tool choice (and short of custom tooling) with any tool one item that is currently becoming and issue is that the All generation touches every html and JSON file adding up an impressive list of changes on items that likely didn't change causing way more delay updating the site on S3 and dwarfing the time to generate.

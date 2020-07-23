@@ -249,6 +249,97 @@ namespace PointlessWaymarksCmsData.Html
             await db.SaveChangesAsync();
         }
 
+        public static async Task GenerateChangedListHtml(IProgress<string> progress)
+        {
+            SearchListPageGenerators.WriteAllContentCommonSearchListHtml();
+
+            var db = await Db.Context();
+            var filesChanged =
+                db.FileContents.Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o)
+                    .Any() || db.FileContents.Where(x => x.MainPicture != null).Join(db.GenerationContentIdReferences,
+                    o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+            if (filesChanged) SearchListPageGenerators.WriteFileContentListHtml();
+            else progress?.Report("Skipping File List Generation - no file or file main picture changes found");
+
+            var imagesChanged = db.ImageContents
+                .Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+            if (imagesChanged) SearchListPageGenerators.WriteImageContentListHtml();
+            else progress?.Report("Skipping Image List Generation - no image changes found");
+
+            var photosChanged = db.PhotoContents
+                .Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+            if (photosChanged) SearchListPageGenerators.WritePhotoContentListHtml();
+            else progress?.Report("Skipping Photo List Generation - no image changes found");
+
+            var postChanged =
+                db.PostContents.Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o)
+                    .Any() || db.PostContents.Where(x => x.MainPicture != null).Join(db.GenerationContentIdReferences,
+                    o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+            if (postChanged) SearchListPageGenerators.WritePostContentListHtml();
+            else progress?.Report("Skipping Post List Generation - no file or file main picture changes found");
+
+            var notesChanged = db.NoteContents
+                .Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+            if (notesChanged) SearchListPageGenerators.WriteNoteContentListHtml();
+            else progress?.Report("Skipping Note List Generation - no image changes found");
+
+            var linkListPage = new LinkListPage();
+            linkListPage.WriteLocalHtmlRssAndJson();
+            Export.WriteLinkListJson();
+        }
+
+        public static async Task GenerateChangedToHtml(IProgress<string> progress)
+        {
+            var frozenNow = DateTime.Now.ToUniversalTime();
+
+            if (UserSettingsSingleton.CurrentSettings().LastGenerationUtc == null)
+            {
+                progress?.Report("No value for Last Generation in Settings - Generating All HTML");
+
+                await GenerateAllHtml(progress);
+                return;
+            }
+
+            progress?.Report(
+                $"Generation HTML based on changes after UTC - {UserSettingsSingleton.CurrentSettings().LastGenerationUtc}");
+
+            await RelatedContentReference.GenerateRelatedContentDbTable(
+                UserSettingsSingleton.CurrentSettings().LastGenerationUtc.Value, progress);
+            await GenerateChangedContentIdReferencesReferences(
+                UserSettingsSingleton.CurrentSettings().LastGenerationUtc.Value, progress);
+
+            var db = await Db.Context();
+            if (!(await db.GenerationContentIdReferences.AnyAsync()))
+                progress?.Report("No Changes Detected - ending HTML generation.");
+
+            await GenerateChangeFilteredPhotoHtml(progress);
+            await GenerateChangeFilteredImageHtml(progress);
+            await GenerateChangeFilteredFileHtml(progress);
+            await GenerateChangeFilteredNoteHtml(progress);
+            await GenerateChangeFilteredPostHtml(progress);
+
+            var hasDirectPhotoChanges = db.PhotoContents.Join(db.GenerationContentIdReferences, o => o.ContentId,
+                i => i.ContentId, (o, i) => o.PhotoCreatedOn).Any();
+            var hasRelatedPhotoChanges = db.PhotoContents.Join(db.RelatedContents, o => o.ContentId, i => i.ContentTwo,
+                (o, i) => o.PhotoCreatedOn).Any();
+
+            if (hasDirectPhotoChanges || hasRelatedPhotoChanges) await GenerateAllDailyPhotoGalleriesHtml(progress);
+            else
+                progress?.Report(
+                    "No changes to Photos directly or thru related content - skipping Daily Photo Page generation.");
+
+            if (hasDirectPhotoChanges) await GenerateCameraRollHtml(progress);
+            else progress?.Report("No changes to Photo content - skipping Photo Gallery generation.");
+
+            GenerateAllTagHtml(progress);
+            await GenerateChangedListHtml(progress);
+            GenerateIndex(progress);
+
+            progress?.Report($"Generation Complete - writing {frozenNow} as Last Generation UTC into settings");
+            UserSettingsSingleton.CurrentSettings().LastGenerationUtc = frozenNow;
+            await UserSettingsSingleton.CurrentSettings().WriteSettings();
+        }
+
         public static async Task GenerateChangeFilteredFileHtml(IProgress<string> progress)
         {
             var db = await Db.Context();
@@ -367,42 +458,6 @@ namespace PointlessWaymarksCmsData.Html
 
                 loopCount++;
             }
-        }
-
-        public static async Task GenerateChangesToHtml(IProgress<string> progress)
-        {
-            var frozenNow = DateTime.Now.ToUniversalTime();
-
-            if (UserSettingsSingleton.CurrentSettings().LastGenerationUtc == null)
-            {
-                progress?.Report("No value for Last Generation in Settings - Generating All HTML");
-
-                await GenerateAllHtml(progress);
-                return;
-            }
-
-            progress?.Report(
-                $"Generation HTML based on changes after UTC - {UserSettingsSingleton.CurrentSettings().LastGenerationUtc}");
-
-            await RelatedContentReference.GenerateRelatedContentDbTable(
-                UserSettingsSingleton.CurrentSettings().LastGenerationUtc.Value, progress);
-            await GenerateChangedContentIdReferencesReferences(
-                UserSettingsSingleton.CurrentSettings().LastGenerationUtc.Value, progress);
-
-            await GenerateChangeFilteredPhotoHtml(progress);
-            await GenerateChangeFilteredImageHtml(progress);
-            await GenerateChangeFilteredFileHtml(progress);
-            await GenerateChangeFilteredNoteHtml(progress);
-            await GenerateChangeFilteredPostHtml(progress);
-            await GenerateAllDailyPhotoGalleriesHtml(progress);
-            await GenerateCameraRollHtml(progress);
-            GenerateAllTagHtml(progress);
-            GenerateAllListHtml(progress);
-            GenerateIndex(progress);
-
-            progress?.Report($"Generation Complete - writing {frozenNow} as Last Generation UTC into settings");
-            UserSettingsSingleton.CurrentSettings().LastGenerationUtc = frozenNow;
-            await UserSettingsSingleton.CurrentSettings().WriteSettings();
         }
 
         public static void GenerateIndex(IProgress<string> progress)

@@ -77,7 +77,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             //Common
             GenerateChangedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
-                await GenerationGroups.GenerateChangesToHtml(StatusContext.ProgressTracker())));
+                await GenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker())));
 
             RemoveUnusedFilesFromMediaArchiveCommand =
                 new Command(() => StatusContext.RunBlockingTask(RemoveUnusedFilesFromMediaArchive));
