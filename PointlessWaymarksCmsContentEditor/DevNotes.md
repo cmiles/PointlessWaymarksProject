@@ -43,6 +43,10 @@
 
 7/23/2020
 
+Fixed a bug in the Excel Import where Content Version was not being set causing the Change Detecting import to not see all the changes - fixed by moving the Content Version assignment into the db save routines and removing other places they are assigned.
+
+Fixed the Status Control on the Tag page that wasn't spanning all rows. Improved the changed message for the Excel Import - the change to the friendly printing reporting was nice but a newline was missing between the title and changes.
+
 The Tag List UI is now in a more reasonable place. For a general purpose application the current design is easily criticized as not giving intermediate users good options - for beginners the easy option to edit each content item for a tag is probably best - and for advanced users it is hard beat spreadsheet style editing (Lightroom might give an interesting model here with the way it *s tags in multiple photos - but I don't think that is actually as good as editing in Excel even though it is very workable for advanced users in a compact space that doesn't require moving away and back into lightroom... And worth noting in Lightroom for confusing/messy/problem edits I think many people at some point end up wanting to edit and reimport from a spreadsheet...). But best for intermediate would be some editing tools to rename/delete/merge tags in the UI - leaving out because of a combination of the complexity of doing this well and the extremely high utility of the Excel import (fwiw I wouldn't rate this as the best 'beginner' interface, I think there is just too much possible confusion of what is changing where and the consequences of details like merging or splitting tags even with a really beautiful interface that guides/warns, provides undo/redo, gives a great display of what is changing).
 
 Take advantage of the 'changed' information and add a few more filters to generating only changes - Daily Photos (which were originally designed with 'interlocking' previous and next pages for generation) and Tags (where detecting changes is not simple) are still 'full' generations for now.

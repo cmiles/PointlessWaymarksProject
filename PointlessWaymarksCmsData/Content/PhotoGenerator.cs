@@ -279,7 +279,6 @@ namespace PointlessWaymarksCmsData.Content
                 ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
                 : photoContentCreatedBy.Trim();
             toReturn.CreatedOn = DateTime.Now;
-            toReturn.ContentVersion = DateTime.Now.ToUniversalTime();
             toReturn.Slug = SlugUtility.Create(true, toReturn.Title);
             toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
             toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();

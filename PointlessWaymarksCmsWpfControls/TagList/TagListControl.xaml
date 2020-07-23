@@ -156,7 +156,7 @@
         </Border>
         <status:StatusControl
             Grid.Row="0"
-            Grid.RowSpan="2"
+            Grid.RowSpan="3"
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
     </Grid>

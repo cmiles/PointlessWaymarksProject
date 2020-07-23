@@ -35,12 +35,6 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add("Content ID is Empty");
             }
 
-            if (toValidate.ContentVersion == DateTime.MinValue)
-            {
-                isValid = false;
-                errorMessage.Add($"Content Version of {toValidate.ContentVersion} is not valid.");
-            }
-
             var titleValidation = ValidateTitle(toValidate.Title);
 
             if (!titleValidation.isValid)

@@ -44,8 +44,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             HelpContext =
                 new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
 
-            SaveAndGenerateHtmlCommand = new Command(() =>
-                StatusContext.RunBlockingTask(SaveAndGenerateHtml));
+            SaveAndGenerateHtmlCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
                 LinkExtraction.ExtractNewAndShowLinkStreamEditors(
@@ -214,14 +213,12 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DateTime.Now;
-                newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
             }
             else
             {
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullToEmpty();
             }
 

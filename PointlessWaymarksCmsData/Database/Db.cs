@@ -269,6 +269,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
+            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
 
             await context.FileContents.AddAsync(toSave);
 
@@ -302,6 +303,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
+            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
 
             await context.ImageContents.AddAsync(toSave);
 
@@ -339,6 +341,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
+            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
 
             await context.LinkStreams.AddAsync(toSave);
 
@@ -372,6 +375,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
+            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
 
             await context.NoteContents.AddAsync(toSave);
 
@@ -405,6 +409,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
+            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
 
             await context.PhotoContents.AddAsync(toSave);
 
@@ -442,6 +447,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
+            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
 
             await context.PostContents.AddAsync(toSave);
 

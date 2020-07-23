@@ -264,7 +264,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.Slug = NoteGenerator.UniqueNoteSlug().Result;
                 newEntry.CreatedOn = DateTime.Now;
-                newEntry.ContentVersion = newEntry.CreatedOn.ToUniversalTime();
             }
             else
             {
@@ -272,7 +271,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.ContentVersion = newEntry.LastUpdatedOn.Value.ToUniversalTime();
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullToEmpty();
             }
 
