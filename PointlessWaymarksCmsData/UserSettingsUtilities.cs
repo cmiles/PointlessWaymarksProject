@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -611,6 +612,23 @@ namespace PointlessWaymarksCmsData
         public static string NoteRssUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Notes/NoteRss.xml";
+        }
+
+        public static async Task<string> PageUrl(this UserSettings settings, Guid contentGuid)
+        {
+            var db = await Db.Context();
+            var content = await db.ContentFromContentId(contentGuid);
+
+            return content switch
+            {
+                FileContent c => settings.FilePageUrl(c),
+                ImageContent c => settings.ImagePageUrl(c),
+                LinkStream _ => settings.LinkListUrl(),
+                NoteContent c => settings.NotePageUrl(c),
+                PhotoContent c => settings.PhotoPageUrl(c),
+                PostContent c => settings.PostPageUrl(c),
+                _ => throw new DataException("Content not Found")
+            };
         }
 
         public static string PhotoListUrl(this UserSettings settings)

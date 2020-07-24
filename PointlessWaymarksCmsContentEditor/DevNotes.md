@@ -2,14 +2,17 @@
  - Tag List should respond to DataNotifications?
  - To Excel needs some formatting for Body Content and Maybe an option to Exclude it?
  - Content Testing:
+  - IronwoodPhotoInfo refactor names
+  - Photo Test recheck after refactor/comparison changes (LastUpdatedOn?)
   - Ironwood Integration Tests for File, Image, Post, Note, Link
   - Add tests for the common content validation
  - Gui Validation alerts - Title control and Tags Control Done
- - Where to integrate the Excel Import to make it more obvious to find?
+ - Where to integrate the Excel Import to make it more obvious to find? Title bar all lists?
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - Look at using NavLink tag in menu and/or wrapping with nav tag
  - A bad content code should be handled better
  - To Excel for logs
+ - Content Version as metadata (maybe data-) in the HTML Head of content pages?
  - The Changed Html generation doesn't detect changes to settings that should trigger a full generation
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
