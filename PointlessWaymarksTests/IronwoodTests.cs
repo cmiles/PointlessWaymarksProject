@@ -7,8 +7,10 @@ using System.Windows.Threading;
 using ClosedXML.Excel;
 using NUnit.Framework;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.ExcelImport;
+using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -82,7 +84,7 @@ namespace PointlessWaymarksTests
         }
 
         [Test]
-        public async Task A20_PhotoEditorContextEditOfQuarryPhoto()
+        public async Task A21_PhotoEditorContextEditOfQuarryPhoto()
         {
             ThreadSwitcher.PinnedDispatcher = Dispatcher.CurrentDispatcher;
 
@@ -124,13 +126,13 @@ namespace PointlessWaymarksTests
             await newContext.SaveAndGenerateHtml(true);
 
             var comparison =
-                IronwoodPhotoInfo.ComparePhotoReferenceToPhotoObject(
-                    IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags, newContext.DbEntry);
+                IronwoodPhotoInfo.CompareContent(IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags,
+                    newContext.DbEntry);
             Assert.False(comparison.hasInvalidComparison, comparison.comparisonNotes);
         }
 
         [Test]
-        public async Task A30_PhotoExcelUpdate()
+        public async Task A22_PhotoExcelUpdate()
         {
             var db = await Db.Context();
             var podPhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.IronwoodPodContent01.Title);
@@ -225,16 +227,14 @@ namespace PointlessWaymarksTests
             var podReference = IronwoodPhotoInfo.IronwoodPodContent02_CamerModelLensSummary;
             podReference.LastUpdatedOn = updatedPodPhoto.LastUpdatedOn;
 
-            var updatedPodComparison =
-                IronwoodPhotoInfo.ComparePhotoReferenceToPhotoObject(podReference, updatedPodPhoto);
+            var updatedPodComparison = IronwoodPhotoInfo.CompareContent(podReference, updatedPodPhoto);
             Assert.False(updatedPodComparison.hasInvalidComparison,
                 $"Excel Pod Picture Update Issues: {updatedPodComparison.comparisonNotes}");
 
             var treeReference = IronwoodPhotoInfo.IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy;
             treeReference.LastUpdatedOn = updatedTreePhoto.LastUpdatedOn;
 
-            var updatedTreeComparison =
-                IronwoodPhotoInfo.ComparePhotoReferenceToPhotoObject(treeReference, updatedTreePhoto);
+            var updatedTreeComparison = IronwoodPhotoInfo.CompareContent(treeReference, updatedTreePhoto);
             Assert.False(updatedTreeComparison.hasInvalidComparison,
                 $"Excel Tree Picture Update Issues: {updatedPodComparison.comparisonNotes}");
         }
@@ -243,6 +243,40 @@ namespace PointlessWaymarksTests
         public async Task B10_FileMapLoadTest()
         {
             await IronwoodFileInfo.FileTest(IronwoodFileInfo.MapFilename, IronwoodFileInfo.MapContent01);
+        }
+
+        [Test]
+        public async Task B20_ImageMapLoadTest()
+        {
+            await IronwoodImageInfo.ImageTest(IronwoodImageInfo.MapFilename, IronwoodImageInfo.MapContent01,
+                IronwoodImageInfo.MapWidth);
+        }
+
+        [Test]
+        public async Task B21_FileMapAddingImageMapBracketCodeToBody()
+        {
+            var db = await Db.Context();
+
+            var mapImage = db.ImageContents.Single(x => x.Title == IronwoodImageInfo.MapContent01.Title);
+
+            var mapFile = db.FileContents.Single(x => x.Title == IronwoodFileInfo.MapContent01.Title);
+
+            mapFile.BodyContent =
+                $"{BracketCodeImages.ImageBracketCode(mapImage)} {Environment.NewLine}{Environment.NewLine}{mapFile.BodyContent}";
+
+            mapFile.LastUpdatedBy = "Test B21";
+            mapFile.LastUpdatedOn = DateTime.Now;
+
+            var bodyUpdateReturn = await FileGenerator.SaveAndGenerateHtml(mapFile,
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(mapFile), false,
+                DebugProgressTracker());
+
+            Assert.False(bodyUpdateReturn.generationReturn.HasError, bodyUpdateReturn.generationReturn.GenerationNote);
+
+            var mapFileRefresh = db.FileContents.Single(x => x.Title == IronwoodFileInfo.MapContent01.Title);
+
+            Assert.AreEqual(mapImage.ContentId, mapFileRefresh.MainPicture,
+                "Adding an image code to the Map File Content Body didn't result in Main Image being set.");
         }
 
         public static IProgress<string> DebugProgressTracker()

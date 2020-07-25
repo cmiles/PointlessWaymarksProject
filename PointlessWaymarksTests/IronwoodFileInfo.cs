@@ -5,12 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
+using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
-using PointlessWaymarksCmsData.Json;EF
+using PointlessWaymarksCmsData.Json;
 
 namespace PointlessWaymarksTests
 {
@@ -27,7 +28,7 @@ namespace PointlessWaymarksTests
                 Folder = "Maps",
                 PublicDownloadLink = true,
                 Title = "Ironwood Forest National Monument Map",
-                ShowInMainSiteFeed = false,
+                ShowInMainSiteFeed = true,
                 Slug = SlugUtility.Create(true, "Ironwood Forest National Monument Map"),
                 Summary = "A map of Ironwood.",
                 Tags = "ironwood forest national monument,map",
@@ -68,7 +69,7 @@ namespace PointlessWaymarksTests
                 $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
         }
 
-        public static (bool hasInvalidComparison, string comparisonNotes) Compare(FileContent reference,
+        public static (bool hasInvalidComparison, string comparisonNotes) CompareContent(FileContent reference,
             FileContent toCompare)
         {
             Db.DefaultPropertyCleanup(reference);
@@ -85,6 +86,36 @@ namespace PointlessWaymarksTests
             var compareResult = compareLogic.Compare(reference, toCompare);
 
             return (compareResult.AreEqual, compareResult.DifferencesString);
+        }
+
+        public static async Task<FileContent> FileTest(string fileName, FileContent contentReference)
+        {
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", fileName));
+            Assert.True(testFile.Exists, "Test File Found");
+
+            var contentToSave = new FileContent();
+            contentToSave.InjectFrom(contentReference);
+
+            var validationReturn = await FileGenerator.Validate(contentToSave, testFile);
+            Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
+
+            var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(contentToSave, testFile, true,
+                IronwoodTests.DebugProgressTracker());
+            Assert.False(generationReturn.HasError,
+                $"Unexpected Save Error - {generationReturn.GenerationNote}");
+
+            var contentComparison = CompareContent(contentReference, newContent);
+            Assert.False(contentComparison.hasInvalidComparison, contentComparison.comparisonNotes);
+
+            CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newContent);
+
+            CheckFileCountsAfterHtmlGeneration(newContent);
+
+            JsonTest(newContent);
+
+            await HtmlChecks(newContent);
+
+            return newContent;
         }
 
         public static async Task HtmlChecks(FileContent newFileContent)
@@ -113,28 +144,6 @@ namespace PointlessWaymarksTests
             var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
             Assert.True(comparisonResult.AreEqual,
                 $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
-        }
-
-        public static async Task FileTest(string fileName, FileContent newFileReference)
-        {
-            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", fileName));
-            Assert.True(testFile.Exists, "Test File Found");
-
-            var validationReturn = await FileGenerator.Validate(newFileReference, testFile);
-            Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
-
-            var saveReturn = await FileGenerator.SaveAndGenerateHtml(newFileReference, testFile, true,
-                IronwoodTests.DebugProgressTracker());
-            Assert.False(saveReturn.generationReturn.HasError,
-                $"Unexpected Save Error - {saveReturn.generationReturn.GenerationNote}");
-
-            CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newFileReference);
-
-            CheckFileCountsAfterHtmlGeneration(newFileReference);
-
-            JsonTest(newFileReference);
-
-            await HtmlChecks(newFileReference);
         }
     }
 }

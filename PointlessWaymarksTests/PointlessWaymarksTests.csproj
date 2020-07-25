@@ -58,6 +58,9 @@
     <None Update="IronwoodTestContent\2020-06-Disappearing-into-the-Flower.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="IronwoodTestContent\AZ_IronwoodForest_NM_map-CoverPage.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="IronwoodTestContent\AZ_IronwoodForest_NM_map.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

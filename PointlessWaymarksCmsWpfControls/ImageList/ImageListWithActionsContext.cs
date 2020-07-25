@@ -406,7 +406,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 StatusContext.ToastError("Files don't exist?");
                 return;
             }
-            EF
+            
             selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
             if (!selectedFileInfos.Any(FileTypeHelpers.ImageFileTypeIsSupported))

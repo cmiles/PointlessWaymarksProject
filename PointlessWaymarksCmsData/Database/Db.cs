@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
+using PointlessWaymarksCmsData.Html.CommonHtml;
 
 namespace PointlessWaymarksCmsData.Database
 {
@@ -70,6 +71,13 @@ namespace PointlessWaymarksCmsData.Database
             returnList.AddRange(db.NoteContents.Where(x => contentIds.Contains(x.ContentId)));
 
             return returnList;
+        }
+
+        private static DateTime ContentVersionDateTime()
+        {
+            var frozenNow = DateTime.Now.ToUniversalTime();
+            return new DateTime(frozenNow.Year, frozenNow.Month, frozenNow.Day, frozenNow.Hour, frozenNow.Minute,
+                frozenNow.Second, frozenNow.Kind);
         }
 #pragma warning disable 1998
         public static async Task<PointlessWaymarksContext> Context()
@@ -269,7 +277,9 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
-            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
+            toSave.ContentVersion = ContentVersionDateTime();
+
+            toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
 
             await context.FileContents.AddAsync(toSave);
 
@@ -303,7 +313,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
-            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
+            toSave.ContentVersion = ContentVersionDateTime();
 
             await context.ImageContents.AddAsync(toSave);
 
@@ -341,7 +351,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
-            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
+            toSave.ContentVersion = ContentVersionDateTime();
 
             await context.LinkStreams.AddAsync(toSave);
 
@@ -375,7 +385,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
-            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
+            toSave.ContentVersion = ContentVersionDateTime();
 
             await context.NoteContents.AddAsync(toSave);
 
@@ -409,7 +419,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
-            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
+            toSave.ContentVersion = ContentVersionDateTime();
 
             await context.PhotoContents.AddAsync(toSave);
 
@@ -447,7 +457,9 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
-            toSave.ContentVersion = DateTime.Now.ToUniversalTime();
+            toSave.ContentVersion = ContentVersionDateTime();
+
+            toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
 
             await context.PostContents.AddAsync(toSave);
 

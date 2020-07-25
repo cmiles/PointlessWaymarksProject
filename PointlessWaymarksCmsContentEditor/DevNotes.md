@@ -44,6 +44,10 @@
 
 ## Notes
 
+7/25/2020
+
+While working on the Image Testing ran into a situation where it appears between the .net, sqlite and json datetime representations that, at least as I was handling everything, some precision was lost in the ContentVersion. ContentVersion is now truncated to seconds on the DB Save - the precision simply isn't needed and between all formats it seems as if seconds is handled without any additional work which is a huge bonus.
+
 7/23/2020
 
 Fixed a bug in the Excel Import where Content Version was not being set causing the Change Detecting import to not see all the changes - fixed by moving the Content Version assignment into the db save routines and removing other places they are assigned.
