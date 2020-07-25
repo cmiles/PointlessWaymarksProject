@@ -220,7 +220,7 @@ namespace PointlessWaymarksTests
 
         public static int QuarryWidth => 1300;
 
-        public static void PhotoCheckFileCountAndPictureAssetsAfterHtmlGeneration(PhotoContent newPhotoContent,
+        public static void CheckFileCountAndPictureAssetsAfterHtmlGeneration(PhotoContent newPhotoContent,
             int photoWidth)
         {
             var contentDirectory = UserSettingsSingleton.CurrentSettings()
@@ -254,7 +254,7 @@ namespace PointlessWaymarksTests
                 "Did not find the expected number of SrcSet Images");
         }
 
-        public static void PhotoCheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(
+        public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(
             PhotoContent newPhotoContent)
         {
             var expectedDirectory =
@@ -276,7 +276,7 @@ namespace PointlessWaymarksTests
                 $"Expected to find original photo in media archive photo directory but {expectedOriginalPhotoFileInMediaArchive.FullName} does not exist");
         }
 
-        public static (bool hasInvalidComparison, string comparisonNotes) PhotoComparePhotoReferenceToPhotoObject(
+        public static (bool hasInvalidComparison, string comparisonNotes) ComparePhotoReferenceToPhotoObject(
             PhotoContent reference, PhotoContent toCompare)
         {
             Db.DefaultPropertyCleanup(reference);
@@ -295,7 +295,7 @@ namespace PointlessWaymarksTests
             return (compareResult.AreEqual, compareResult.DifferencesString);
         }
 
-        public static void PhotoHtmlChecks(PhotoContent newPhotoContent)
+        public static async Task HtmlChecks(PhotoContent newPhotoContent)
         {
             var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSitePhotoHtmlFile(newPhotoContent);
 
@@ -303,12 +303,12 @@ namespace PointlessWaymarksTests
 
             var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
 
-            IronwoodHtmlHelpers.CommonContentChecks(document, newPhotoContent);
+            await IronwoodHtmlHelpers.CommonContentChecks(document, newPhotoContent);
 
             //Todo: Continue checking...
         }
 
-        public static void PhotoJsonTest(PhotoContent newPhotoContent)
+        public static void JsonTest(PhotoContent newPhotoContent)
         {
             //Check JSON File
             var jsonFile =
@@ -336,7 +336,7 @@ namespace PointlessWaymarksTests
                     IronwoodTests.DebugProgressTracker());
             Assert.False(metadataGenerationReturn.HasError, metadataGenerationReturn.GenerationNote);
 
-            var photoComparison = PhotoComparePhotoReferenceToPhotoObject(photoReference, newPhotoContent);
+            var photoComparison = ComparePhotoReferenceToPhotoObject(photoReference, newPhotoContent);
             Assert.False(photoComparison.hasInvalidComparison, photoComparison.comparisonNotes);
 
             var validationReturn = await PhotoGenerator.Validate(newPhotoContent, fullSizePhotoTest);
@@ -350,13 +350,13 @@ namespace PointlessWaymarksTests
             Assert.IsTrue(newPhotoContent.MainPicture == newPhotoContent.ContentId,
                 $"Main Picture - {newPhotoContent.MainPicture} - Should be set to Content Id {newPhotoContent.ContentId}");
 
-            PhotoCheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newPhotoContent);
+            CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newPhotoContent);
 
-            PhotoCheckFileCountAndPictureAssetsAfterHtmlGeneration(newPhotoContent, photoWidth);
+            CheckFileCountAndPictureAssetsAfterHtmlGeneration(newPhotoContent, photoWidth);
 
-            PhotoJsonTest(newPhotoContent);
+            JsonTest(newPhotoContent);
 
-            PhotoHtmlChecks(newPhotoContent);
+            await HtmlChecks(newPhotoContent);
         }
     }
 }

@@ -406,7 +406,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 StatusContext.ToastError("Files don't exist?");
                 return;
             }
-
+            EF
             selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
             if (!selectedFileInfos.Any(FileTypeHelpers.ImageFileTypeIsSupported))
@@ -423,7 +423,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var editor = new ImageContentEditorWindow(loopFile);
+                var editor = new ImageContentEditorWindow(initialImage: loopFile);
                 editor.Show();
 
                 StatusContext.Progress($"New Image Editor - {loopFile.FullName} ");

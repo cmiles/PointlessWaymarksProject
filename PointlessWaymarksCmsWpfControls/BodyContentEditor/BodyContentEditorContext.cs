@@ -201,7 +201,8 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             catch (Exception e)
             {
                 BodyContentHtmlOutput =
-                    $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocument("Invalid", string.Empty);
+                    $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocument("Invalid",
+                        string.Empty);
             }
         }
     }

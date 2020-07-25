@@ -124,7 +124,7 @@ namespace PointlessWaymarksTests
             await newContext.SaveAndGenerateHtml(true);
 
             var comparison =
-                IronwoodPhotoInfo.PhotoComparePhotoReferenceToPhotoObject(
+                IronwoodPhotoInfo.ComparePhotoReferenceToPhotoObject(
                     IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags, newContext.DbEntry);
             Assert.False(comparison.hasInvalidComparison, comparison.comparisonNotes);
         }
@@ -226,7 +226,7 @@ namespace PointlessWaymarksTests
             podReference.LastUpdatedOn = updatedPodPhoto.LastUpdatedOn;
 
             var updatedPodComparison =
-                IronwoodPhotoInfo.PhotoComparePhotoReferenceToPhotoObject(podReference, updatedPodPhoto);
+                IronwoodPhotoInfo.ComparePhotoReferenceToPhotoObject(podReference, updatedPodPhoto);
             Assert.False(updatedPodComparison.hasInvalidComparison,
                 $"Excel Pod Picture Update Issues: {updatedPodComparison.comparisonNotes}");
 
@@ -234,9 +234,15 @@ namespace PointlessWaymarksTests
             treeReference.LastUpdatedOn = updatedTreePhoto.LastUpdatedOn;
 
             var updatedTreeComparison =
-                IronwoodPhotoInfo.PhotoComparePhotoReferenceToPhotoObject(treeReference, updatedTreePhoto);
+                IronwoodPhotoInfo.ComparePhotoReferenceToPhotoObject(treeReference, updatedTreePhoto);
             Assert.False(updatedTreeComparison.hasInvalidComparison,
                 $"Excel Tree Picture Update Issues: {updatedPodComparison.comparisonNotes}");
+        }
+
+        [Test]
+        public async Task B10_FileMapLoadTest()
+        {
+            await IronwoodFileInfo.FileTest(IronwoodFileInfo.MapFilename, IronwoodFileInfo.MapContent01);
         }
 
         public static IProgress<string> DebugProgressTracker()

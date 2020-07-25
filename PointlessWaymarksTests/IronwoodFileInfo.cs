@@ -10,7 +10,7 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
-using PointlessWaymarksCmsData.Json;
+using PointlessWaymarksCmsData.Json;EF
 
 namespace PointlessWaymarksTests
 {
@@ -21,6 +21,7 @@ namespace PointlessWaymarksTests
             {
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 BodyContent = "A map of Ironwood Forest National Monument",
+                ContentId = Guid.NewGuid(),
                 CreatedBy = "File Test",
                 CreatedOn = new DateTime(2020, 7, 24, 5, 55, 55),
                 Folder = "Maps",
@@ -29,7 +30,8 @@ namespace PointlessWaymarksTests
                 ShowInMainSiteFeed = false,
                 Slug = SlugUtility.Create(true, "Ironwood Forest National Monument Map"),
                 Summary = "A map of Ironwood.",
-                Tags = "ironwood forest national monument,map"
+                Tags = "ironwood forest national monument,map",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
         public static string MapFilename => "AZ_IronwoodForest_NM_map.pdf";
@@ -54,16 +56,16 @@ namespace PointlessWaymarksTests
             var expectedFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newContent);
             Assert.IsTrue(expectedFile.Exists, $"Expected html file {expectedFile.FullName} does not exist");
 
-            var expectedOriginalPhotoFileInContent =
+            var expectedOriginalFileInContent =
                 new FileInfo(Path.Combine(expectedDirectory.FullName, newContent.OriginalFileName));
-            Assert.IsTrue(expectedOriginalPhotoFileInContent.Exists,
-                $"Expected to find original photo in content directory but {expectedOriginalPhotoFileInContent.FullName} does not exist");
+            Assert.IsTrue(expectedOriginalFileInContent.Exists,
+                $"Expected to find original file in content directory but {expectedOriginalFileInContent.FullName} does not exist");
 
-            var expectedOriginalPhotoFileInMediaArchive = new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
-                expectedOriginalPhotoFileInContent.Name));
-            Assert.IsTrue(expectedOriginalPhotoFileInMediaArchive.Exists,
-                $"Expected to find original photo in media archive photo directory but {expectedOriginalPhotoFileInMediaArchive.FullName} does not exist");
+            var expectedOriginalFileInMediaArchive = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
+                expectedOriginalFileInContent.Name));
+            Assert.IsTrue(expectedOriginalFileInMediaArchive.Exists,
+                $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
         }
 
         public static (bool hasInvalidComparison, string comparisonNotes) Compare(FileContent reference,
@@ -85,7 +87,7 @@ namespace PointlessWaymarksTests
             return (compareResult.AreEqual, compareResult.DifferencesString);
         }
 
-        public static void HtmlChecks(FileContent newFileContent)
+        public static async Task HtmlChecks(FileContent newFileContent)
         {
             var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSiteFileHtmlFile(newFileContent);
 
@@ -93,7 +95,7 @@ namespace PointlessWaymarksTests
 
             var document = IronwoodHtmlHelpers.DocumentFromFile(htmlFile);
 
-            IronwoodHtmlHelpers.CommonContentChecks(document, newFileContent);
+            await IronwoodHtmlHelpers.CommonContentChecks(document, newFileContent);
         }
 
         public static void JsonTest(FileContent newContent)
@@ -102,7 +104,7 @@ namespace PointlessWaymarksTests
             var jsonFile =
                 new FileInfo(Path.Combine(
                     UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent).FullName,
-                    $"{Names.PhotoContentPrefix}{newContent.ContentId}.json"));
+                    $"{Names.FileContentPrefix}{newContent.ContentId}.json"));
             Assert.True(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
             var jsonFileImported = Import.ContentFromFiles<FileContent>(
@@ -110,10 +112,10 @@ namespace PointlessWaymarksTests
             var compareLogic = new CompareLogic();
             var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
             Assert.True(comparisonResult.AreEqual,
-                $"Json Import does not match expected Photo Content {comparisonResult.DifferencesString}");
+                $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
         }
 
-        public static async Task PhotoTest(string fileName, FileContent newFileReference)
+        public static async Task FileTest(string fileName, FileContent newFileReference)
         {
             var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", fileName));
             Assert.True(testFile.Exists, "Test File Found");
@@ -132,7 +134,7 @@ namespace PointlessWaymarksTests
 
             JsonTest(newFileReference);
 
-            HtmlChecks(newFileReference);
+            await HtmlChecks(newFileReference);
         }
     }
 }

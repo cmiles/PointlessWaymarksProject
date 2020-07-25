@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using AngleSharp;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
@@ -11,7 +12,7 @@ namespace PointlessWaymarksTests
 {
     public static class IronwoodHtmlHelpers
     {
-        public static void CommonContentChecks(IHtmlDocument document, IContentCommon toCheck)
+        public static async Task CommonContentChecks(IHtmlDocument document, IContentCommon toCheck)
         {
             Assert.AreEqual(toCheck.Title, document.Title);
 
@@ -25,7 +26,7 @@ namespace PointlessWaymarksTests
                 document.QuerySelector("meta[property='og:site_name']")?.Attributes
                     .FirstOrDefault(x => x.LocalName == "content")?.Value);
 
-            Assert.AreEqual($"https:{UserSettingsSingleton.CurrentSettings().PageUrl(toCheck.ContentId)}",
+            Assert.AreEqual($"https:{await UserSettingsSingleton.CurrentSettings().PageUrl(toCheck.ContentId)}",
                 document.QuerySelector("meta[property='og:url']")?.Attributes
                     .FirstOrDefault(x => x.LocalName == "content")?.Value);
 

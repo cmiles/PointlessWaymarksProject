@@ -24,29 +24,18 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
         }
 
+        public ImageContentEditorWindow(ImageContent contentToLoad = null, FileInfo initialImage = null)
+        {
+            InitializeComponent();
+
+            StatusContext = new StatusControlContext();
+            ImageEditor = new ImageContentEditorContext(StatusContext, contentToLoad, initialImage);
+
+            DataContext = this;
+            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
+        }
+
         public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
-        public ImageContentEditorWindow(FileInfo initialImage)
-        {
-            InitializeComponent();
-
-            StatusContext = new StatusControlContext();
-            ImageEditor = new ImageContentEditorContext(StatusContext, initialImage);
-
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
-        }
-
-        public ImageContentEditorWindow(ImageContent toLoad)
-        {
-            InitializeComponent();
-
-            StatusContext = new StatusControlContext();
-            ImageEditor = new ImageContentEditorContext(StatusContext, toLoad);
-
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
-        }
 
         public ImageContentEditorContext ImageEditor
         {
@@ -70,12 +59,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

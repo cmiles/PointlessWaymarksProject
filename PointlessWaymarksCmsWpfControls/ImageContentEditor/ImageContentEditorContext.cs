@@ -53,27 +53,14 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
-        public ImageContentEditorContext(StatusControlContext statusContext)
-        {
-            SetupContextAndCommands(statusContext);
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
-        }
-
-        public ImageContentEditorContext(StatusControlContext statusContext, FileInfo initialImage)
+        public ImageContentEditorContext(StatusControlContext statusContext, ImageContent contentToLoad = null,
+            FileInfo initialImage = null)
         {
             SetupContextAndCommands(statusContext);
 
             if (initialImage != null && initialImage.Exists) _initialImage = initialImage;
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
-        }
-
-        public ImageContentEditorContext(StatusControlContext statusContext, ImageContent toLoad)
-        {
-            SetupContextAndCommands(statusContext);
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(contentToLoad));
         }
 
         public string AltText
