@@ -126,7 +126,11 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (string.IsNullOrWhiteSpace(contentChoice)) return false;
+            if (string.IsNullOrWhiteSpace(contentChoice))
+            {
+                SelectedContentFormat = ContentFormatDefaults.Content;
+                return true;
+            }
 
             var toSelect = Enum.TryParse(typeof(ContentFormatEnum), contentChoice, true, out var parsedSelection);
             if (toSelect && parsedSelection != null) SelectedContentFormat = (ContentFormatEnum) parsedSelection;

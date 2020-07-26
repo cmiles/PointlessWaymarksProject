@@ -1,10 +1,9 @@
 ﻿## Todos
  - Tag List should respond to DataNotifications?
+ - Changed generation needs to check for deletes
  - To Excel needs some formatting for Body Content and Maybe an option to Exclude it?
  - Content Testing:
-  - IronwoodPhotoInfo refactor names
-  - Photo Test recheck after refactor/comparison changes (LastUpdatedOn?)
-  - Ironwood Integration Tests for File, Image, Post, Note, Link
+  - Ironwood Integration Tests for Context File Add, Context Image Add, Post, Note, Link
   - Add tests for the common content validation
  - Gui Validation alerts - Title control and Tags Control Done
  - Where to integrate the Excel Import to make it more obvious to find? Title bar all lists?
