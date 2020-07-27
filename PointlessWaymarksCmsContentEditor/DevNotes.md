@@ -1,6 +1,5 @@
 ﻿## Todos
  - Tag List should respond to DataNotifications?
- - Changed generation needs to check for deletes
  - To Excel needs some formatting for Body Content and Maybe an option to Exclude it?
  - Content Testing:
   - Ironwood Integration Tests for Context File Add, Context Image Add, Post, Note, Link
@@ -10,7 +9,9 @@
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - Look at using NavLink tag in menu and/or wrapping with nav tag
  - A bad content code should be handled better
+ - Bad Content Code Content Scan
  - To Excel for logs
+ - Deleted Content Report so it is possible to restore completely deleted
  - Content Version as metadata (maybe data-) in the HTML Head of content pages?
  - The Changed Html generation doesn't detect changes to settings that should trigger a full generation
  - Refactor the Email HTML so you code send any current type to it
@@ -42,6 +43,14 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/27/2020
+
+Realized that the 'Changed' only generation was missing detection for content that has been deleted when determining whether to regenerate photo gallery and list content. This triggered several changes:
+ - Added methods to the DB class for deleting content from the DB and refactored the lists to use this - previously the delete routines were in the list contexts, this makes it easier to reuse the methods (for testing at this point)
+ - The list delete refactoring enables multi item delete in all lists, improves the multi-item delete message and moves the responsibility of removing items from the list from the delete method to the data notifications
+ - Added DB Methods to get the last historic entry from any 'completely deleted' items, ie historic items where the content id no longer exists in the content table, and used these methods to help determine what lists and galleries to generate in the Changed Html methods.
+ - Added a basic photo test for delete, get deleted and re-save.
 
 7/25/2020
 

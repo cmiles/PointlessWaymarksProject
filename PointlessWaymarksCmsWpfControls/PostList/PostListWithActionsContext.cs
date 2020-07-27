@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -9,10 +10,8 @@ using HtmlTags;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
-using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Html.PostHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
@@ -175,7 +174,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext.SelectedItems;
+            var selected = ListContext?.SelectedItems?.OrderBy(x => x.DbEntry.Title).ToList();
 
             if (selected == null || !selected.Any())
             {
@@ -184,42 +183,32 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             }
 
             if (selected.Count > 1)
-            {
-                StatusContext.ToastError("Sorry - please delete one at a time");
-                return;
-            }
+                if (await StatusContext.ShowMessage("Delete Multiple Items",
+                    $"You are about to delete {selected.Count} items - do you really want to delete all of these items?" +
+                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, selected.Select(x => x.DbEntry.Title))}",
+                    new List<string> {"Yes", "No"}) == "No")
+                    return;
 
-            var selectedItem = selected.Single();
-
-            if (selectedItem.DbEntry == null || selectedItem.DbEntry.Id < 1)
-            {
-                StatusContext.ToastError("Entry is not saved?");
-                return;
-            }
-
+            var selectedItems = selected.ToList();
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var possibleContentDirectory = settings.LocalSitePostContentDirectory(selectedItem.DbEntry, false);
-            if (possibleContentDirectory.Exists) possibleContentDirectory.Delete(true);
-
-            var context = await Db.Context();
-
-            var toHistoric = await context.PostContents.Where(x => x.ContentId == selectedItem.DbEntry.ContentId)
-                .ToListAsync();
-
-            foreach (var loopToHistoric in toHistoric)
+            foreach (var loopSelected in selectedItems)
             {
-                var newHistoric = new HistoricPostContent();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                newHistoric.LastUpdatedOn = DateTime.Now;
-                await context.HistoricPostContents.AddAsync(newHistoric);
-                context.PostContents.Remove(loopToHistoric);
+                if (loopSelected.DbEntry == null || loopSelected.DbEntry.Id < 1)
+                {
+                    StatusContext.ToastError("Entry is not saved - Skipping?");
+                    return;
+                }
+
+                await Db.DeletePostContent(loopSelected.DbEntry.ContentId, StatusContext.ProgressTracker());
+
+                var possibleContentDirectory = settings.LocalSitePostContentDirectory(loopSelected.DbEntry, false);
+                if (possibleContentDirectory.Exists)
+                {
+                    StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
+                    possibleContentDirectory.Delete(true);
+                }
             }
-
-            await context.SaveChangesAsync(true);
-
-            await LoadData();
         }
 
         private async Task EditSelectedContent()
@@ -281,6 +270,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             var bodyHtmlString =
                 ContentProcessing.ProcessContent(preprocessResults, frozenSelected.DbEntry.BodyContentFormat);
 
+            // ReSharper disable StringLiteralTypo
             var emailCenterTable = new TableTag();
             emailCenterTable.Attr("width", "100%");
             emailCenterTable.Attr("border", "0");
@@ -304,6 +294,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             emailCenterRightCell.Attr("align", "center");
             emailCenterRightCell.Attr("valign", "top");
             emailCenterRightCell.Text("&nbsp;").Encoded(false);
+            // ReSharper restore StringLiteralTypo
 
 
             var outerTable = new TableTag();

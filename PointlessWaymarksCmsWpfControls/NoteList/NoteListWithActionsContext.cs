@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -8,15 +9,13 @@ using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
-using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html.NoteHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.NoteContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
-using SingleNotePage = PointlessWaymarksCmsData.Html.NoteHtml.SingleNotePage;
 
 namespace PointlessWaymarksCmsWpfControls.NoteList
 {
@@ -161,7 +160,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext.SelectedItems;
+            var selected = ListContext?.SelectedItems?.OrderBy(x => x.DbEntry.Title).ToList();
 
             if (selected == null || !selected.Any())
             {
@@ -170,42 +169,32 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             }
 
             if (selected.Count > 1)
-            {
-                StatusContext.ToastError("Sorry - please delete one at a time");
-                return;
-            }
+                if (await StatusContext.ShowMessage("Delete Multiple Items",
+                    $"You are about to delete {selected.Count} items - do you really want to delete all of these items?" +
+                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, selected.Select(x => x.DbEntry.Title))}",
+                    new List<string> {"Yes", "No"}) == "No")
+                    return;
 
-            var selectedItem = selected.Single();
-
-            if (selectedItem.DbEntry == null || selectedItem.DbEntry.Id < 1)
-            {
-                StatusContext.ToastError("Entry is not saved?");
-                return;
-            }
-
+            var selectedItems = selected.ToList();
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var possibleContentDirectory = settings.LocalSiteNoteContentDirectory(selectedItem.DbEntry, false);
-            if (possibleContentDirectory.Exists) possibleContentDirectory.Delete(true);
-
-            var context = await Db.Context();
-
-            var toHistoric = await context.NoteContents.Where(x => x.ContentId == selectedItem.DbEntry.ContentId)
-                .ToListAsync();
-
-            foreach (var loopToHistoric in toHistoric)
+            foreach (var loopSelected in selectedItems)
             {
-                var newHistoric = new HistoricNoteContent();
-                newHistoric.InjectFrom(loopToHistoric);
-                newHistoric.Id = 0;
-                newHistoric.LastUpdatedOn = DateTime.Now;
-                await context.HistoricNoteContents.AddAsync(newHistoric);
-                context.NoteContents.Remove(loopToHistoric);
+                if (loopSelected.DbEntry == null || loopSelected.DbEntry.Id < 1)
+                {
+                    StatusContext.ToastError("Entry is not saved - Skipping?");
+                    return;
+                }
+
+                await Db.DeleteNoteContent(loopSelected.DbEntry.ContentId, StatusContext.ProgressTracker());
+
+                var possibleContentDirectory = settings.LocalSiteNoteContentDirectory(loopSelected.DbEntry, false);
+                if (possibleContentDirectory.Exists)
+                {
+                    StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
+                    possibleContentDirectory.Delete(true);
+                }
             }
-
-            await context.SaveChangesAsync(true);
-
-            await LoadData();
         }
 
         private async Task EditSelectedContent()

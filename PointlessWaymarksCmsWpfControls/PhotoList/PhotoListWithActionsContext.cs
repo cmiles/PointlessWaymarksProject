@@ -13,7 +13,6 @@ using AngleSharp.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
-using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
@@ -352,7 +351,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext.SelectedItems;
+            var selected = ListContext?.SelectedItems?.OrderBy(x => x.DbEntry.Title).ToList();
 
             if (selected == null || !selected.Any())
             {
@@ -362,7 +361,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             if (selected.Count > 1)
                 if (await StatusContext.ShowMessage("Delete Multiple Items",
-                    $"You are about to delete {selected.Count} items - do you really want to delete all of these photos?",
+                    $"You are about to delete {selected.Count} items - do you really want to delete all of these items?" +
+                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, selected.Select(x => x.DbEntry.Title))}",
                     new List<string> {"Yes", "No"}) == "No")
                     return;
 
@@ -377,47 +377,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     return;
                 }
 
+                await Db.DeletePhotoContent(loopSelected.DbEntry.ContentId, StatusContext.ProgressTracker());
+
                 var possibleContentDirectory = settings.LocalSitePhotoContentDirectory(loopSelected.DbEntry, false);
                 if (possibleContentDirectory.Exists)
                 {
                     StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
                     possibleContentDirectory.Delete(true);
                 }
-
-                var context = await Db.Context();
-
-                var toHistoric = await context.PhotoContents.Where(x => x.ContentId == loopSelected.DbEntry.ContentId)
-                    .ToListAsync();
-
-                StatusContext.Progress($"Writing {loopSelected.DbEntry.Title} Last Historic Entry");
-
-                foreach (var loopToHistoric in toHistoric)
-                {
-                    var newHistoric = new HistoricPhotoContent();
-                    newHistoric.InjectFrom(loopToHistoric);
-                    newHistoric.Id = 0;
-                    newHistoric.LastUpdatedOn = DateTime.Now;
-                    await context.HistoricPhotoContents.AddAsync(newHistoric);
-                    context.PhotoContents.Remove(loopToHistoric);
-                }
-
-                StatusContext.Progress($"Submitting Db Delete for {loopSelected.DbEntry.Title}");
-
-                await context.SaveChangesAsync(true);
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                //Try to update the UI - use try catch to cover all the 'no longer present' scenarios.
-                try
-                {
-                    ListContext.Items.Remove(loopSelected);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
             }
         }
 

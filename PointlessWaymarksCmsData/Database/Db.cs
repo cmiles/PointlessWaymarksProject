@@ -100,6 +100,246 @@ namespace PointlessWaymarksCmsData.Database
             DateTimeHelpers.TrimDateTimesToSecond(toProcess);
         }
 
+        public static async Task<List<HistoricFileContent>> DeletedFileContent()
+        {
+            var db = await Context();
+
+            var deletedContent = await (from h in db.HistoricFileContents
+                where !db.FileContents.Any(x => x.ContentId == h.ContentId)
+                select h).ToListAsync();
+
+            return deletedContent.GroupBy(x => x.ContentId)
+                .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        }
+
+        public static async Task<List<HistoricImageContent>> DeletedImageContent()
+        {
+            var db = await Context();
+
+            var deletedContent = await (from h in db.HistoricImageContents
+                where !db.ImageContents.Any(x => x.ContentId == h.ContentId)
+                select h).ToListAsync();
+
+            return deletedContent.GroupBy(x => x.ContentId)
+                .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        }
+
+        public static async Task<List<HistoricLinkStream>> DeletedLinkContent()
+        {
+            var db = await Context();
+
+            var deletedContent = await (from h in db.HistoricLinkStreams
+                where !db.LinkStreams.Any(x => x.ContentId == h.ContentId)
+                select h).ToListAsync();
+
+            return deletedContent.GroupBy(x => x.ContentId)
+                .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        }
+
+        public static async Task<List<HistoricNoteContent>> DeletedNoteContent()
+        {
+            var db = await Context();
+
+            var deletedContent = await (from h in db.HistoricNoteContents
+                where !db.NoteContents.Any(x => x.ContentId == h.ContentId)
+                select h).ToListAsync();
+
+            return deletedContent.GroupBy(x => x.ContentId)
+                .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        }
+
+        public static async Task<List<HistoricPhotoContent>> DeletedPhotoContent()
+        {
+            var db = await Context();
+
+            var deletedContent = await (from h in db.HistoricPhotoContents
+                where !db.PhotoContents.Any(x => x.ContentId == h.ContentId)
+                select h).ToListAsync();
+
+            return deletedContent.GroupBy(x => x.ContentId)
+                .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        }
+
+        public static async Task<List<HistoricPostContent>> DeletedPostContent()
+        {
+            var db = await Context();
+
+            var deletedContent = await (from h in db.HistoricPostContents
+                where !db.PostContents.Any(x => x.ContentId == h.ContentId)
+                select h).ToListAsync();
+
+            return deletedContent.GroupBy(x => x.ContentId)
+                .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        }
+
+        public static async Task DeleteFileContent(Guid contentId, IProgress<string> progress)
+        {
+            var context = await Context();
+
+            var toHistoric = await context.FileContents.Where(x => x.ContentId == contentId).ToListAsync();
+
+            if (!toHistoric.Any()) return;
+
+            progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricFileContent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                await context.HistoricFileContents.AddAsync(newHistoric);
+                context.FileContents.Remove(loopToHistoric);
+            }
+
+            await context.SaveChangesAsync(true);
+
+            progress?.Report($"{toHistoric.First().Title} Deleted");
+
+            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
+                DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+        }
+
+        public static async Task DeleteImageContent(Guid contentId, IProgress<string> progress)
+        {
+            var context = await Context();
+
+            var toHistoric = await context.ImageContents.Where(x => x.ContentId == contentId).ToListAsync();
+
+            if (!toHistoric.Any()) return;
+
+            progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricImageContent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                await context.HistoricImageContents.AddAsync(newHistoric);
+                context.ImageContents.Remove(loopToHistoric);
+            }
+
+            await context.SaveChangesAsync(true);
+
+            progress?.Report($"{toHistoric.First().Title} Deleted");
+
+            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Image,
+                DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+        }
+
+        public static async Task DeleteLinkStreamContent(Guid contentId, IProgress<string> progress)
+        {
+            var context = await Context();
+
+            var toHistoric = await context.LinkStreams.Where(x => x.ContentId == contentId).ToListAsync();
+
+            if (!toHistoric.Any()) return;
+
+            progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricLinkStream();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                await context.HistoricLinkStreams.AddAsync(newHistoric);
+                context.LinkStreams.Remove(loopToHistoric);
+            }
+
+            await context.SaveChangesAsync(true);
+
+            progress?.Report($"{toHistoric.First().Title} Deleted");
+
+            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
+                DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+        }
+
+        public static async Task DeleteNoteContent(Guid contentId, IProgress<string> progress)
+        {
+            var context = await Context();
+
+            var toHistoric = await context.NoteContents.Where(x => x.ContentId == contentId).ToListAsync();
+
+            if (!toHistoric.Any()) return;
+
+            progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricNoteContent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                await context.HistoricNoteContents.AddAsync(newHistoric);
+                context.NoteContents.Remove(loopToHistoric);
+            }
+
+            await context.SaveChangesAsync(true);
+
+            progress?.Report($"{toHistoric.First().Title} Deleted");
+
+            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Note,
+                DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+        }
+
+        public static async Task DeletePhotoContent(Guid contentId, IProgress<string> progress)
+        {
+            var context = await Context();
+
+            var toHistoric = await context.PhotoContents.Where(x => x.ContentId == contentId).ToListAsync();
+
+            if (!toHistoric.Any()) return;
+
+            progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricPhotoContent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                await context.HistoricPhotoContents.AddAsync(newHistoric);
+                context.PhotoContents.Remove(loopToHistoric);
+            }
+
+            await context.SaveChangesAsync(true);
+
+            progress?.Report($"{toHistoric.First().Title} Deleted");
+
+            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
+                DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+        }
+
+        public static async Task DeletePostContent(Guid contentId, IProgress<string> progress)
+        {
+            var context = await Context();
+
+            var toHistoric = await context.PostContents.Where(x => x.ContentId == contentId).ToListAsync();
+
+            if (!toHistoric.Any()) return;
+
+            progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricPostContent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                await context.HistoricPostContents.AddAsync(newHistoric);
+                context.PostContents.Remove(loopToHistoric);
+            }
+
+            await context.SaveChangesAsync(true);
+
+            progress?.Report($"{toHistoric.First().Title} Deleted");
+
+            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
+                DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+        }
+
 #pragma warning disable 1998
         public static async Task<EventLogContext> Log()
 #pragma warning restore 1998

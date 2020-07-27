@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using Windows.Media.AppRecording;
 using ClosedXML.Excel;
 using NUnit.Framework;
 using PointlessWaymarksCmsData;
@@ -237,6 +238,45 @@ namespace PointlessWaymarksTests
             var updatedTreeComparison = IronwoodPhotoInfo.CompareContent(treeReference, updatedTreePhoto);
             Assert.False(updatedTreeComparison.hasInvalidComparison,
                 $"Excel Tree Picture Update Issues: {updatedPodComparison.comparisonNotes}");
+        }
+
+        [Test]
+        public async Task A23_PhotoDeleteAndRestoreTest()
+        {
+            var db = await Db.Context();
+            var treePhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.Title);
+
+            var preDeleteTreePhotoHistoricEntryCount =
+                db.HistoricPhotoContents.Count(x => x.ContentId == treePhoto.ContentId);
+            
+            await Db.DeletePhotoContent(treePhoto.ContentId, DebugProgressTracker());
+
+            var postDeleteTreePhotoHistoricEntryCount =
+                db.HistoricPhotoContents.Count(x => x.ContentId == treePhoto.ContentId);
+
+            Assert.AreEqual(preDeleteTreePhotoHistoricEntryCount + 1, postDeleteTreePhotoHistoricEntryCount, $"After deleting the historic entry count should have increased by one but " +
+                $"found {preDeleteTreePhotoHistoricEntryCount} entries before and {postDeleteTreePhotoHistoricEntryCount} entries after?");
+
+            Assert.IsEmpty(db.PhotoContents.Where(x => x.ContentId == treePhoto.ContentId).ToList(), $"Photo Content Id {treePhoto.ContentId} still" +
+                "found in DB after delete.");
+
+            var deletedItem = await Db.DeletedPhotoContent();
+
+            Assert.AreEqual(1, deletedItem.Count, $"There should be one deleted content return - found {deletedItem.Count}");
+            Assert.AreEqual(treePhoto.ContentId, deletedItem.First().ContentId, 
+                "Deleted Item doesn't have the correct Content Id");
+
+            var latestHistoricEntry = db.HistoricPhotoContents
+                .Where(x => x.ContentId == treePhoto.ContentId)
+                .OrderByDescending(x => x.ContentVersion).First();
+
+            Assert.AreEqual(latestHistoricEntry.Id, latestHistoricEntry.Id, "Deleted Item doesn't match the Id of the last historic entry?");
+
+            var saveAgainResult = await PhotoGenerator.SaveAndGenerateHtml(treePhoto,
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(treePhoto), true,
+                DebugProgressTracker());
+
+            Assert.IsFalse(saveAgainResult.generationReturn.HasError, $"Error Saving after Deleting? {saveAgainResult.generationReturn.GenerationNote}");
         }
 
         [Test]

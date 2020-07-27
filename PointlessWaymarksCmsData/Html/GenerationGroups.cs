@@ -198,27 +198,27 @@ namespace PointlessWaymarksCmsData.Html
             progress?.Report("Clearing GenerationContentIdReferences Table");
             await db.Database.ExecuteSqlRawAsync("DELETE FROM [" + "GenerationContentIdReferences" + "];");
 
-            var files = await db.FileContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
+            var files = await db.FileContents.Where(x => x.ContentVersion >= contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {files.Count} File Content Entries Changed After {contentAfter}");
 
-            var images = await db.ImageContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
+            var images = await db.ImageContents.Where(x => x.ContentVersion >= contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {images.Count} Image Content Entries Changed After {contentAfter}");
 
-            var links = await db.LinkStreams.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
+            var links = await db.LinkStreams.Where(x => x.ContentVersion >= contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {links.Count} Link Content Entries Changed After {contentAfter}");
 
-            var notes = await db.NoteContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
+            var notes = await db.NoteContents.Where(x => x.ContentVersion >= contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {notes.Count} Note Content Entries Changed After {contentAfter}");
 
-            var photos = await db.PhotoContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
+            var photos = await db.PhotoContents.Where(x => x.ContentVersion >= contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {photos.Count} Photo Content Entries Changed After {contentAfter}");
 
-            var posts = await db.PostContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
+            var posts = await db.PostContents.Where(x => x.ContentVersion >= contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
 
@@ -253,34 +253,43 @@ namespace PointlessWaymarksCmsData.Html
         {
             SearchListPageGenerators.WriteAllContentCommonSearchListHtml();
 
+            var lastGenerationSetting = UserSettingsSingleton.CurrentSettings().LastGenerationUtc;
+
+            var lastGenerationDateTime = lastGenerationSetting ?? DateTime.MinValue;
+
             var db = await Db.Context();
             var filesChanged =
                 db.FileContents.Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o)
                     .Any() || db.FileContents.Where(x => x.MainPicture != null).Join(db.GenerationContentIdReferences,
                     o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
-            if (filesChanged) SearchListPageGenerators.WriteFileContentListHtml();
+            var filesDeleted = (await Db.DeletedFileContent()).Any(x => x.ContentVersion >= lastGenerationDateTime);
+            if (filesChanged || filesDeleted) SearchListPageGenerators.WriteFileContentListHtml();
             else progress?.Report("Skipping File List Generation - no file or file main picture changes found");
 
             var imagesChanged = db.ImageContents
                 .Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
-            if (imagesChanged) SearchListPageGenerators.WriteImageContentListHtml();
+            var imagesDeleted = (await Db.DeletedImageContent()).Any(x => x.ContentVersion >= lastGenerationDateTime);
+            if (imagesChanged || imagesDeleted) SearchListPageGenerators.WriteImageContentListHtml();
             else progress?.Report("Skipping Image List Generation - no image changes found");
 
             var photosChanged = db.PhotoContents
                 .Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
-            if (photosChanged) SearchListPageGenerators.WritePhotoContentListHtml();
+            var photosDeleted = (await Db.DeletedPhotoContent()).Any(x => x.ContentVersion >= lastGenerationDateTime);
+            if (photosChanged || photosDeleted) SearchListPageGenerators.WritePhotoContentListHtml();
             else progress?.Report("Skipping Photo List Generation - no image changes found");
 
             var postChanged =
                 db.PostContents.Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o)
                     .Any() || db.PostContents.Where(x => x.MainPicture != null).Join(db.GenerationContentIdReferences,
                     o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
-            if (postChanged) SearchListPageGenerators.WritePostContentListHtml();
+            var postsDeleted = (await Db.DeletedPostContent()).Any(x => x.ContentVersion >= lastGenerationDateTime);
+            if (postChanged || postsDeleted) SearchListPageGenerators.WritePostContentListHtml();
             else progress?.Report("Skipping Post List Generation - no file or file main picture changes found");
 
             var notesChanged = db.NoteContents
                 .Join(db.GenerationContentIdReferences, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
-            if (notesChanged) SearchListPageGenerators.WriteNoteContentListHtml();
+            var notesDeleted = (await Db.DeletedNoteContent()).Any(x => x.ContentVersion >= lastGenerationDateTime);
+            if (notesChanged || notesDeleted) SearchListPageGenerators.WriteNoteContentListHtml();
             else progress?.Report("Skipping Note List Generation - no image changes found");
 
             var linkListPage = new LinkListPage();
@@ -292,7 +301,9 @@ namespace PointlessWaymarksCmsData.Html
         {
             var frozenNow = DateTime.Now.ToUniversalTime();
 
-            if (UserSettingsSingleton.CurrentSettings().LastGenerationUtc == null)
+            var lastGenerationSetting = UserSettingsSingleton.CurrentSettings().LastGenerationUtc;
+
+            if (lastGenerationSetting == null)
             {
                 progress?.Report("No value for Last Generation in Settings - Generating All HTML");
 
@@ -300,13 +311,13 @@ namespace PointlessWaymarksCmsData.Html
                 return;
             }
 
+            var lastGenerationDateTime = lastGenerationSetting.Value;
+
             progress?.Report(
                 $"Generation HTML based on changes after UTC - {UserSettingsSingleton.CurrentSettings().LastGenerationUtc}");
 
-            await RelatedContentReference.GenerateRelatedContentDbTable(
-                UserSettingsSingleton.CurrentSettings().LastGenerationUtc.Value, progress);
-            await GenerateChangedContentIdReferencesReferences(
-                UserSettingsSingleton.CurrentSettings().LastGenerationUtc.Value, progress);
+            await RelatedContentReference.GenerateRelatedContentDbTable(lastGenerationDateTime, progress);
+            await GenerateChangedContentIdReferencesReferences(lastGenerationDateTime, progress);
 
             var db = await Db.Context();
             if (!(await db.GenerationContentIdReferences.AnyAsync()))
@@ -322,13 +333,16 @@ namespace PointlessWaymarksCmsData.Html
                 i => i.ContentId, (o, i) => o.PhotoCreatedOn).Any();
             var hasRelatedPhotoChanges = db.PhotoContents.Join(db.RelatedContents, o => o.ContentId, i => i.ContentTwo,
                 (o, i) => o.PhotoCreatedOn).Any();
+            var hasDeletedPhotoChanges =
+                (await Db.DeletedPhotoContent()).Any(x => x.ContentVersion >= lastGenerationDateTime);
 
-            if (hasDirectPhotoChanges || hasRelatedPhotoChanges) await GenerateAllDailyPhotoGalleriesHtml(progress);
+            if (hasDirectPhotoChanges || hasRelatedPhotoChanges || hasDeletedPhotoChanges)
+                await GenerateAllDailyPhotoGalleriesHtml(progress);
             else
                 progress?.Report(
                     "No changes to Photos directly or thru related content - skipping Daily Photo Page generation.");
 
-            if (hasDirectPhotoChanges) await GenerateCameraRollHtml(progress);
+            if (hasDirectPhotoChanges || hasDeletedPhotoChanges) await GenerateCameraRollHtml(progress);
             else progress?.Report("No changes to Photo content - skipping Photo Gallery generation.");
 
             GenerateAllTagHtml(progress);

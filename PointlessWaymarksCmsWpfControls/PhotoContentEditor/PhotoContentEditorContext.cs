@@ -488,7 +488,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (!FileTypeHelpers.PhotoFileTypeIsSupported(newFile))
             {
-                StatusContext.ToastError("Only Jpegs are supported...");
+                StatusContext.ToastError("Only JPEGs are supported...");
                 return;
             }
 

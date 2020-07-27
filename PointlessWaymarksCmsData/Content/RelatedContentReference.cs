@@ -67,34 +67,34 @@ namespace PointlessWaymarksCmsData.Content
             progress?.Report("Clearing RelatedContents Db Table");
             await db.Database.ExecuteSqlRawAsync("DELETE FROM [" + "RelatedContents" + "];");
 
-            var files = (await db.FileContents.Where(x => x.ContentVersion > contentAfter).ToListAsync())
+            var files = (await db.FileContents.Where(x => x.ContentVersion >= contentAfter).ToListAsync())
                 .Cast<IContentCommon>().ToList();
             progress?.Report($"Processing {files.Count} File Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(files, db, progress);
 
-            var images = (await db.ImageContents.Where(x => x.ContentVersion > contentAfter).ToListAsync())
+            var images = (await db.ImageContents.Where(x => x.ContentVersion >= contentAfter).ToListAsync())
                 .Cast<IContentCommon>().ToList();
             progress?.Report($"Processing {images.Count} Image Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(images, db, progress);
 
-            var links = await db.LinkStreams.Where(x => x.ContentVersion > contentAfter)
+            var links = await db.LinkStreams.Where(x => x.ContentVersion >= contentAfter)
                 .Select(x => new {x.ContentId, toCheck = x.Comments + x.Description}).ToListAsync();
             progress?.Report($"Processing {links.Count} Link Content Entries for Related Content");
             foreach (var loopLink in links)
                 await ExtractAndWriteRelatedConteDbReferencesFromString(loopLink.ContentId, loopLink.toCheck, db,
                     progress);
 
-            var notes = (await db.NoteContents.Where(x => x.ContentVersion > contentAfter).ToListAsync())
+            var notes = (await db.NoteContents.Where(x => x.ContentVersion >= contentAfter).ToListAsync())
                 .Cast<IContentCommon>().ToList();
             progress?.Report($"Processing {notes.Count} Note Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(notes, db, progress);
 
-            var photos = (await db.PhotoContents.Where(x => x.ContentVersion > contentAfter).ToListAsync())
+            var photos = (await db.PhotoContents.Where(x => x.ContentVersion >= contentAfter).ToListAsync())
                 .Cast<IContentCommon>().ToList();
             progress?.Report($"Processing {photos.Count} Photo Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(photos, db, progress);
 
-            var posts = (await db.PostContents.Where(x => x.ContentVersion > contentAfter).ToListAsync())
+            var posts = (await db.PostContents.Where(x => x.ContentVersion >= contentAfter).ToListAsync())
                 .Cast<IContentCommon>().ToList();
             progress?.Report($"Processing {posts.Count} Post Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(posts, db, progress);

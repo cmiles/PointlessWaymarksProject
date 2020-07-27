@@ -6,9 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Omu.ValueInjecter;
-using PointlessWaymarksCmsData.Models;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 
-namespace PointlessWaymarksCmsData.JsonFiles
+namespace PointlessWaymarksCmsData.Json
 {
     public static class DbImport
     {
