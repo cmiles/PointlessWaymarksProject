@@ -17,7 +17,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             if (!items.Any()) return HtmlTag.Empty();
 
-            var coreLinksDiv = new DivTag().AddClass("core-links-container");
+            var coreLinksDiv = new HtmlTag("nav").AddClass("core-links-container");
 
             foreach (var loopItems in items)
             {

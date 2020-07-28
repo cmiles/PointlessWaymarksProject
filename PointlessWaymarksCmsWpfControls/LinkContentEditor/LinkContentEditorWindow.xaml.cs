@@ -5,20 +5,20 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
-namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
+namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 {
-    public partial class LinkStreamEditorWindow : INotifyPropertyChanged
+    public partial class LinkContentEditorWindow : INotifyPropertyChanged
     {
-        private LinkStreamEditorContext _editorContent;
+        private LinkContentEditorContext _editorContent;
         private StatusControlContext _statusContext;
 
-        public LinkStreamEditorWindow(LinkStream toLoad, bool extractDataFromLink = false)
+        public LinkContentEditorWindow(LinkContent toLoad, bool extractDataFromLink = false)
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
-            EditorContent = new LinkStreamEditorContext(StatusContext, toLoad, extractDataFromLink);
+            EditorContent = new LinkContentEditorContext(StatusContext, toLoad, extractDataFromLink);
 
-            EditorContent.RequestLinkStreamEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+            EditorContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
 
             DataContext = this;
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, EditorContent);
@@ -26,7 +26,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
 
         public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
-        public LinkStreamEditorContext EditorContent
+        public LinkContentEditorContext EditorContent
         {
             get => _editorContent;
             set

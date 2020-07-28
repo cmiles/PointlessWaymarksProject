@@ -18,7 +18,7 @@ namespace PointlessWaymarksCmsData.Database
         public DbSet<HistoricImageContent> HistoricImageContents { get; set; }
 
         //public DbSet<HistoricLineContent> HistoricLineContents { get; set; }
-        public DbSet<HistoricLinkStream> HistoricLinkStreams { get; set; }
+        public DbSet<HistoricLinkContent> HistoricLinkContents { get; set; }
         public DbSet<HistoricNoteContent> HistoricNoteContents { get; set; }
 
         public DbSet<HistoricPhotoContent> HistoricPhotoContents { get; set; }
@@ -30,7 +30,7 @@ namespace PointlessWaymarksCmsData.Database
         public DbSet<ImageContent> ImageContents { get; set; }
         //public DbSet<LineContent> LineContents { get; set; }
 
-        public DbSet<LinkStream> LinkStreams { get; set; }
+        public DbSet<LinkContent> LinkContents { get; set; }
         public DbSet<MenuLink> MenuLinks { get; set; }
         public DbSet<NoteContent> NoteContents { get; set; }
 
@@ -54,7 +54,7 @@ namespace PointlessWaymarksCmsData.Database
             //modelBuilder.Entity<PointContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<PostContent>().HasIndex(b => b.ContentId).IsUnique();
             //modelBuilder.Entity<TrailSegment>().HasIndex(b => b.ContentId).IsUnique();
-            modelBuilder.Entity<LinkStream>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<LinkContent>().HasIndex(b => b.ContentId).IsUnique();
 
             modelBuilder.Entity<GenerationContentIdReference>().Property(e => e.ContentId).ValueGeneratedNever();
         }

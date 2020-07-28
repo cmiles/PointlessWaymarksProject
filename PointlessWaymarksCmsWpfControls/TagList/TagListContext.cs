@@ -15,7 +15,7 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.ImageContentEditor;
-using PointlessWaymarksCmsWpfControls.LinkStreamEditor;
+using PointlessWaymarksCmsWpfControls.LinkContentEditor;
 using PointlessWaymarksCmsWpfControls.NoteContentEditor;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
@@ -204,7 +204,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
                     return "Photo";
                 case PostContent _:
                     return "Post";
-                case LinkStream _:
+                case LinkContent _:
                     return "Link";
                 default:
                     StatusContext.ToastError("Unknown Content Type - Unusual Error...");
@@ -353,8 +353,8 @@ namespace PointlessWaymarksCmsWpfControls.TagList
                 case PostContent c:
                     new PostContentEditorWindow(c).Show();
                     break;
-                case LinkStream c:
-                    new LinkStreamEditorWindow(c).Show();
+                case LinkContent c:
+                    new LinkContentEditorWindow(c).Show();
                     break;
                 default:
                     StatusContext.ToastError("Content Type is Unknown?");

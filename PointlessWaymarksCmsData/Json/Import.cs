@@ -33,8 +33,8 @@ namespace PointlessWaymarksCmsData.Json
 
             DbImport.FileContentToDb(ContentFromFiles<FileContent>(allFiles, Names.FileContentPrefix), progress);
             DbImport.ImageContentToDb(ContentFromFiles<ImageContent>(allFiles, Names.ImageContentPrefix), progress);
-            DbImport.LinkStreamToDb(
-                ContentFromFiles<List<LinkStream>>(allFiles, Names.LinkListFileName).SelectMany(x => x).ToList(),
+            DbImport.LinkContentToDb(
+                ContentFromFiles<List<LinkContent>>(allFiles, Names.LinkListFileName).SelectMany(x => x).ToList(),
                 progress);
             DbImport.NoteContentToDb(ContentFromFiles<NoteContent>(allFiles, Names.NoteContentPrefix), progress);
             DbImport.PhotoContentToDb(ContentFromFiles<PhotoContent>(allFiles, Names.PhotoContentPrefix), progress);
@@ -49,8 +49,8 @@ namespace PointlessWaymarksCmsData.Json
             DbImport.HistoricImageContentToDb(
                 ContentFromFiles<List<HistoricImageContent>>(allFiles, Names.HistoricImageContentPrefix)
                     .SelectMany(x => x).ToList(), progress);
-            DbImport.HistoricLinkStreamToDb(
-                ContentFromFiles<List<HistoricLinkStream>>(allFiles, Names.HistoricLinkListFileName).SelectMany(x => x)
+            DbImport.HistoricLinkContentToDb(
+                ContentFromFiles<List<HistoricLinkContent>>(allFiles, Names.HistoricLinkListFileName).SelectMany(x => x)
                     .ToList(), progress);
             DbImport.HistoricNoteContentToDb(
                 ContentFromFiles<List<HistoricNoteContent>>(allFiles, Names.HistoricNoteContentPrefix)

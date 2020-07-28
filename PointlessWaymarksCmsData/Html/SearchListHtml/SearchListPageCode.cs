@@ -44,7 +44,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
 
                     allContentContainer.Children.Add(photoListPhotoEntryDiv);
                 }
-                else if (loopContent is LinkStream loopLinkContent)
+                else if (loopContent is LinkContent loopLinkContent)
                 {
                     var photoListPhotoEntryDiv = new DivTag().AddClass("content-list-item-container");
 
@@ -60,7 +60,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
                     photoListPhotoEntryDiv.Data("summary", $"{loopLinkContent.Description} {loopLinkContent.Comments}");
                     photoListPhotoEntryDiv.Data("contenttype", TypeToFilterTag(loopLinkContent));
 
-                    photoListPhotoEntryDiv.Children.Add(ContentCompact.FromLinkStream(loopLinkContent));
+                    photoListPhotoEntryDiv.Children.Add(ContentCompact.FromLinkContent(loopLinkContent));
 
                     allContentContainer.Children.Add(photoListPhotoEntryDiv);
                 }
@@ -104,7 +104,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
                 ImageContent _ => "image",
                 PhotoContent _ => "image",
                 FileContent _ => "file",
-                LinkStream _ => "link",
+                LinkContent _ => "link",
                 _ => "other"
             };
         }

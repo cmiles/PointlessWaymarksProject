@@ -355,7 +355,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
                 if (refreshedData == null) continue;
 
-                await LinkExtraction.ExtractNewAndShowLinkStreamEditors(
+                await LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
             }
         }

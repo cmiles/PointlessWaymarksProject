@@ -206,7 +206,7 @@ namespace PointlessWaymarksCmsData.Html
                 .ToListAsync();
             progress?.Report($"Found {images.Count} Image Content Entries Changed After {contentAfter}");
 
-            var links = await db.LinkStreams.Where(x => x.ContentVersion >= contentAfter).Select(x => x.ContentId)
+            var links = await db.LinkContents.Where(x => x.ContentVersion >= contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {links.Count} Link Content Entries Changed After {contentAfter}");
 

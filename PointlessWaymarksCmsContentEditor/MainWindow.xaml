@@ -12,13 +12,13 @@
     xmlns:postList="clr-namespace:PointlessWaymarksCmsWpfControls.PostList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:noteList="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList;assembly=PointlessWaymarksCmsWpfControls"
-    xmlns:linkStreamList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:tagExclusionEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagExclusionEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:menuListEditor="clr-namespace:PointlessWaymarksCmsWpfControls.MenuLinkEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:tagList="clr-namespace:PointlessWaymarksCmsWpfControls.TagList;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:linkList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkList;assembly=PointlessWaymarksCmsWpfControls"
     Width="900"
     Height="650"
     Title="{Binding InfoTitle}"
@@ -58,7 +58,7 @@
                 <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />
             </TabItem>
             <TabItem Header="Links">
-                <linkStreamList:LinkStreamListWithActionsControl DataContext="{Binding TabLinkStreamContext}" />
+                <linkList:LinkListWithActionsControl DataContext="{Binding TabLinkContext}" />
             </TabItem>
             <TabItem Header="Menu Links">
                 <menuListEditor:MenuLinkEditorControl DataContext="{Binding TabMenuLinkContext}" />

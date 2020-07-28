@@ -279,7 +279,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
                 if (refreshedData == null) continue;
 
-                await LinkExtraction.ExtractNewAndShowLinkStreamEditors(
+                await LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
             }
         }

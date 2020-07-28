@@ -22,23 +22,23 @@ using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarksCmsWpfControls.LinkStreamList
+namespace PointlessWaymarksCmsWpfControls.LinkList
 {
-    public class LinkStreamListContext : INotifyPropertyChanged
+    public class LinkListContext : INotifyPropertyChanged
     {
         private Command<string> _copyUrlCommand;
-        private ObservableCollection<LinkStreamListListItem> _items;
+        private ObservableCollection<LinkListListItem> _items;
         private string _lastSortColumn;
         private Command _listSelectedLinksNotOnPinboardCommand;
         private Command<string> _openUrlCommand;
-        private List<LinkStreamListListItem> _selectedItems;
+        private List<LinkListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
 
-        public LinkStreamListContext(StatusControlContext statusContext)
+        public LinkListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
@@ -75,7 +75,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public ObservableCollection<LinkStreamListListItem> Items
+        public ObservableCollection<LinkListListItem> Items
         {
             get => _items;
             set
@@ -109,7 +109,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         }
 
 
-        public List<LinkStreamListListItem> SelectedItems
+        public List<LinkListListItem> SelectedItems
         {
             get => _selectedItems;
             set
@@ -209,7 +209,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             var context = await Db.Context();
 
             var dbItems =
-                (await context.LinkStreams.Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                (await context.LinkContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
                 .Select(ListItemFromDbItem);
 
             var listItems = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
@@ -246,7 +246,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
                 var loweredString = UserFilterText.ToLower();
 
-                if (!(o is LinkStreamListListItem pi)) return false;
+                if (!(o is LinkListListItem pi)) return false;
                 if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Comments ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
@@ -260,9 +260,9 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         }
 
 
-        public LinkStreamListListItem ListItemFromDbItem(LinkStream content)
+        public LinkListListItem ListItemFromDbItem(LinkContent content)
         {
-            var newItem = new LinkStreamListListItem {DbEntry = content};
+            var newItem = new LinkListListItem {DbEntry = content};
 
             return newItem;
         }
@@ -290,7 +290,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
             using var pb = new PinboardAPI(UserSettingsSingleton.CurrentSettings().PinboardApiToken);
 
-            var notFoundList = new List<LinkStream>();
+            var notFoundList = new List<LinkContent>();
 
             foreach (var loopSelected in selected)
             {
@@ -355,8 +355,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             var db = await Db.Context();
 
             StatusContext.Progress("Getting Link Db Entries");
-            var dbItems = db.LinkStreams.ToList();
-            var listItems = new List<LinkStreamListListItem>();
+            var dbItems = db.LinkContents.ToList();
+            var listItems = new List<LinkListListItem>();
 
             var totalCount = dbItems.Count;
             var currentLoop = 1;
@@ -375,7 +375,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
             StatusContext.Progress("Displaying Links");
 
-            Items = new ObservableCollection<LinkStreamListListItem>(listItems);
+            Items = new ObservableCollection<LinkListListItem>(listItems);
 
             SortDescending = true;
 

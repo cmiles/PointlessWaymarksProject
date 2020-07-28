@@ -11,24 +11,24 @@ using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
-using PointlessWaymarksCmsWpfControls.LinkStreamEditor;
+using PointlessWaymarksCmsWpfControls.LinkContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
-namespace PointlessWaymarksCmsWpfControls.LinkStreamList
+namespace PointlessWaymarksCmsWpfControls.LinkList
 {
-    public class LinkStreamListWithActionsContext : INotifyPropertyChanged
+    public class LinkListWithActionsContext : INotifyPropertyChanged
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _generateSelectedHtmlCommand;
-        private LinkStreamListContext _listContext;
+        private LinkListContext _listContext;
         private Command _newContentCommand;
         private Command _postCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
 
-        public LinkStreamListWithActionsContext(StatusControlContext statusContext)
+        public LinkListWithActionsContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
@@ -76,7 +76,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             }
         }
 
-        public LinkStreamListContext ListContext
+        public LinkListContext ListContext
         {
             get => _listContext;
             set
@@ -165,7 +165,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                     return;
                 }
 
-                await Db.DeleteLinkStreamContent(loopSelected.DbEntry.ContentId, StatusContext.ProgressTracker());
+                await Db.DeleteLinkContent(loopSelected.DbEntry.ContentId, StatusContext.ProgressTracker());
             }
         }
 
@@ -185,7 +185,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             foreach (var loopSelected in frozenList)
             {
                 var refreshedData =
-                    context.LinkStreams.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+                    context.LinkContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
 
                 if (refreshedData == null)
                 {
@@ -197,7 +197,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var newContentWindow = new LinkStreamEditorWindow(refreshedData);
+                var newContentWindow = new LinkContentEditorWindow(refreshedData);
 
                 newContentWindow.Show();
 
@@ -209,7 +209,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new LinkStreamListContext(StatusContext);
+            ListContext = new LinkListContext(StatusContext);
         }
 
         private async Task MdLinkCodesToClipboardForSelected()
@@ -236,7 +236,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new LinkStreamEditorWindow(null);
+            var newContentWindow = new LinkContentEditorWindow(null);
 
             newContentWindow.Show();
         }
@@ -277,7 +277,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
 
             StatusContext.Progress($"Looking up Historic Entries for {singleSelected.DbEntry.Title}");
 
-            var historicItems = await db.HistoricLinkStreams.Where(x => x.ContentId == singleSelected.DbEntry.ContentId)
+            var historicItems = await db.HistoricLinkContents.Where(x => x.ContentId == singleSelected.DbEntry.ContentId)
                 .ToListAsync();
 
             StatusContext.Progress($"Found {historicItems.Count} Historic Entries");

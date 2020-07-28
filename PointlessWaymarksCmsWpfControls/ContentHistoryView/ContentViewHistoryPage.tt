@@ -4,12 +4,12 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="AngleSharp.Text" #>
-<#@ import namespace="PointlessWaymarksCmsData.CommonHtml" #>
+<#@ import namespace="PointlessWaymarksCmsData.Html.CommonHtml" #>
 <#@ import namespace="PointlessWaymarksCmsData" #>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta charset="utf-8">
     <title><#= PageTitle.HtmlEncode() #> - Photographs</title>
 

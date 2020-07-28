@@ -1,15 +1,16 @@
-﻿<Window x:Class="PointlessWaymarksCmsWpfControls.LinkStreamEditor.LinkStreamEditorWindow"
+﻿<Window x:Class="PointlessWaymarksCmsWpfControls.LinkContentEditor.LinkContentEditorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamEditor"
+        xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkContentEditor"
         xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+        xmlns:linkContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.LinkContentEditor"
         mc:Ignorable="d"
-        Title="Link Editor" Height="660" Width="600" d:DataContext="{d:DesignInstance local:LinkStreamEditorWindow}">
+        Title="Link Editor" Height="660" Width="600" d:DataContext="{d:DesignInstance local:LinkContentEditorWindow}">
     <Grid>
         <Grid>
-            <local:LinkStreamEditorControl DataContext="{Binding EditorContent}" />
+            <linkContentEditor:LinkContentEditorControl DataContext="{Binding EditorContent}" />
             <status:StatusControl Grid.Column="0" d:IsHidden="true"
                                   DataContext="{Binding StatusContext}" />
         </Grid>

@@ -623,7 +623,7 @@ namespace PointlessWaymarksCmsData
             {
                 FileContent c => settings.FilePageUrl(c),
                 ImageContent c => settings.ImagePageUrl(c),
-                LinkStream _ => settings.LinkListUrl(),
+                LinkContent _ => settings.LinkListUrl(),
                 NoteContent c => settings.NotePageUrl(c),
                 PhotoContent c => settings.PhotoPageUrl(c),
                 PostContent c => settings.PostPageUrl(c),

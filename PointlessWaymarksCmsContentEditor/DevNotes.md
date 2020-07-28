@@ -7,13 +7,11 @@
  - Gui Validation alerts - Title control and Tags Control Done
  - Where to integrate the Excel Import to make it more obvious to find? Title bar all lists?
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
- - Look at using NavLink tag in menu and/or wrapping with nav tag
  - A bad content code should be handled better
  - Bad Content Code Content Scan
  - To Excel for logs
  - Deleted Content Report so it is possible to restore completely deleted
- - Content Version as metadata (maybe data-) in the HTML Head of content pages?
- - The Changed Html generation doesn't detect changes to settings that should trigger a full generation
+ - The Changed Html generation doesn't detect changes to settings that should trigger a full generation (but need to avoid writing the settings into the database - keeping secrets out of the db means it can be pushed to the public site as a 'backup' strategy)
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - In Search it might be nice to have the content type on the line with date?
@@ -45,6 +43,8 @@
 ## Notes
 
 7/28/2020
+
+When I added the model for LinkStreams I didn't want to call it 'Content' because the links don't get a 'content page' they are always intended as just a list - at the time this difference seemed huge and important - over time that concern faded as everything is in a list and as more operations work over all 'content types' and it became somewhat mentally offputting to have this naming exception.
 
 First version of the DataNotification support in the tags list - light manual testing suggests this is working nicely!
 

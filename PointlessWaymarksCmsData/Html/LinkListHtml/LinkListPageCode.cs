@@ -30,7 +30,7 @@ namespace PointlessWaymarksCmsData.Html.LinkListHtml
         {
             var db = Db.Context().Result;
 
-            var allContent = db.LinkStreams.OrderByDescending(x => x.CreatedOn).ToList();
+            var allContent = db.LinkContents.OrderByDescending(x => x.CreatedOn).ToList();
 
             var allContentContainer = new DivTag().AddClass("content-list-container");
 
@@ -49,7 +49,7 @@ namespace PointlessWaymarksCmsData.Html.LinkListHtml
                 photoListPhotoEntryDiv.Data("description", loopContent.Description);
                 photoListPhotoEntryDiv.Data("comment", loopContent.Comments);
 
-                photoListPhotoEntryDiv.Children.Add(ContentCompact.FromLinkStream(loopContent));
+                photoListPhotoEntryDiv.Children.Add(ContentCompact.FromLinkContent(loopContent));
 
                 allContentContainer.Children.Add(photoListPhotoEntryDiv);
             }
@@ -63,7 +63,7 @@ namespace PointlessWaymarksCmsData.Html.LinkListHtml
 
             var db = Db.Context().Result;
 
-            var content = db.LinkStreams.Where(x => x.ShowInLinkRss).OrderByDescending(x => x.CreatedOn).ToList();
+            var content = db.LinkContents.Where(x => x.ShowInLinkRss).OrderByDescending(x => x.CreatedOn).ToList();
 
             var feed = new SyndicationFeed(settings.SiteName, $"{settings.SiteSummary} - Links",
                 new Uri($"https://{settings.SiteUrl}"), $"https:{settings.LinkRssUrl()}", DateTime.Now)

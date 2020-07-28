@@ -15,7 +15,7 @@ namespace PointlessWaymarksCmsData.Json
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var db = Db.Context().Result;
-            var allContent = db.LinkStreams.OrderByDescending(x => x.CreatedOn).ToList();
+            var allContent = db.LinkContents.OrderByDescending(x => x.CreatedOn).ToList();
 
             var jsonDbEntry = JsonSerializer.Serialize(allContent);
 
@@ -27,7 +27,7 @@ namespace PointlessWaymarksCmsData.Json
 
             File.WriteAllText(jsonFile.FullName, jsonDbEntry);
 
-            var latestHistoricEntries = db.HistoricLinkStreams.ToList();
+            var latestHistoricEntries = db.HistoricLinkContents.ToList();
 
             if (!latestHistoricEntries.Any()) return;
 

@@ -2,7 +2,7 @@
 <#@ import namespace="CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head data-contentversion="<#=DbEntry.ContentVersion.ToString("O") #>">
     <meta charset="utf-8">
     <title><#=DbEntry.Title.HtmlEncode() #></title>
     <meta name="description" content="<#=DbEntry.Summary.HtmlEncode() #>">

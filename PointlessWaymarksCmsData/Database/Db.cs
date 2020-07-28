@@ -23,7 +23,7 @@ namespace PointlessWaymarksCmsData.Database
             var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possibleImage != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleImage);
 
-            var possibleLink = await db.LinkStreams.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            var possibleLink = await db.LinkContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possibleLink != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleLink);
 
             var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
@@ -44,7 +44,7 @@ namespace PointlessWaymarksCmsData.Database
             var possibleImage = await db.ImageContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possibleImage != null) return possibleImage;
 
-            var possibleLink = await db.LinkStreams.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            var possibleLink = await db.LinkContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possibleLink != null) return possibleLink;
 
             var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
@@ -64,7 +64,7 @@ namespace PointlessWaymarksCmsData.Database
             var returnList = new List<dynamic>();
 
             returnList.AddRange(db.FileContents.Where(x => contentIds.Contains(x.ContentId)));
-            returnList.AddRange(db.LinkStreams.Where(x => contentIds.Contains(x.ContentId)));
+            returnList.AddRange(db.LinkContents.Where(x => contentIds.Contains(x.ContentId)));
             returnList.AddRange(db.PhotoContents.Where(x => contentIds.Contains(x.ContentId)));
             returnList.AddRange(db.PostContents.Where(x => contentIds.Contains(x.ContentId)));
             returnList.AddRange(db.ImageContents.Where(x => contentIds.Contains(x.ContentId)));
@@ -124,12 +124,12 @@ namespace PointlessWaymarksCmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
-        public static async Task<List<HistoricLinkStream>> DeletedLinkContent()
+        public static async Task<List<HistoricLinkContent>> DeletedLinkContent()
         {
             var db = await Context();
 
-            var deletedContent = await (from h in db.HistoricLinkStreams
-                where !db.LinkStreams.Any(x => x.ContentId == h.ContentId)
+            var deletedContent = await (from h in db.HistoricLinkContents
+                where !db.LinkContents.Any(x => x.ContentId == h.ContentId)
                 select h).ToListAsync();
 
             return deletedContent.GroupBy(x => x.ContentId)
@@ -228,11 +228,11 @@ namespace PointlessWaymarksCmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
-        public static async Task DeleteLinkStreamContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeleteLinkContent(Guid contentId, IProgress<string> progress)
         {
             var context = await Context();
 
-            var toHistoric = await context.LinkStreams.Where(x => x.ContentId == contentId).ToListAsync();
+            var toHistoric = await context.LinkContents.Where(x => x.ContentId == contentId).ToListAsync();
 
             if (!toHistoric.Any()) return;
 
@@ -240,12 +240,12 @@ namespace PointlessWaymarksCmsData.Database
 
             foreach (var loopToHistoric in toHistoric)
             {
-                var newHistoric = new HistoricLinkStream();
+                var newHistoric = new HistoricLinkContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
-                await context.HistoricLinkStreams.AddAsync(newHistoric);
-                context.LinkStreams.Remove(loopToHistoric);
+                await context.HistoricLinkContents.AddAsync(newHistoric);
+                context.LinkContents.Remove(loopToHistoric);
             }
 
             await context.SaveChangesAsync(true);
@@ -571,29 +571,29 @@ namespace PointlessWaymarksCmsData.Database
                     DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task SaveLinkStream(LinkStream toSave)
+        public static async Task SaveLinkContent(LinkContent toSave)
         {
             if (toSave == null) return;
 
             var context = await Context();
 
-            var toHistoric = await context.LinkStreams.Where(x => x.ContentId == toSave.ContentId).ToListAsync();
+            var toHistoric = await context.LinkContents.Where(x => x.ContentId == toSave.ContentId).ToListAsync();
 
             var isUpdate = toHistoric.Any();
 
             foreach (var loopToHistoric in toHistoric)
             {
-                var newHistoric = new HistoricLinkStream();
+                var newHistoric = new HistoricLinkContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
-                await context.HistoricLinkStreams.AddAsync(newHistoric);
-                context.LinkStreams.Remove(loopToHistoric);
+                await context.HistoricLinkContents.AddAsync(newHistoric);
+                context.LinkContents.Remove(loopToHistoric);
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
             toSave.ContentVersion = ContentVersionDateTime();
 
-            await context.LinkStreams.AddAsync(toSave);
+            await context.LinkContents.AddAsync(toSave);
 
             await context.SaveChangesAsync(true);
 
@@ -743,7 +743,7 @@ namespace PointlessWaymarksCmsData.Database
             ParseToTagAndContentList(returnList, (await db.NoteContents.ToListAsync()).Cast<ITag>().ToList(), progress);
 
             progress?.Report("Process Link Content Tags");
-            ParseToTagAndContentList(returnList, (await db.LinkStreams.ToListAsync()).Cast<ITag>().ToList(), progress);
+            ParseToTagAndContentList(returnList, (await db.LinkContents.ToListAsync()).Cast<ITag>().ToList(), progress);
 
             progress?.Report("Finished Parsing Tag Content");
 

@@ -158,8 +158,8 @@ namespace PointlessWaymarksCmsData.Content
             return (await GenerationReturn.Success($"Parsed URL Metadata for {url} without error"), toReturn);
         }
 
-        public static async Task<(GenerationReturn generationReturn, LinkStream LinkStream)> SaveAndGenerateHtml(
-            LinkStream toSave, IProgress<string> progress)
+        public static async Task<(GenerationReturn generationReturn, LinkContent linkContent)> SaveAndGenerateHtml(
+            LinkContent toSave, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave);
 
@@ -168,7 +168,7 @@ namespace PointlessWaymarksCmsData.Content
             Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-            await Db.SaveLinkStream(toSave);
+            await Db.SaveLinkContent(toSave);
             await SaveLinkToPinboard(toSave, progress);
             GenerateHtmlAndJson(progress);
 
@@ -180,7 +180,7 @@ namespace PointlessWaymarksCmsData.Content
                 toSave);
         }
 
-        public static async Task<GenerationReturn> SaveLinkToPinboard(LinkStream toSave, IProgress<string> progress)
+        public static async Task<GenerationReturn> SaveLinkToPinboard(LinkContent toSave, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
                 return await GenerationReturn.Success("No PinboardApiToken - skipping save to Pinboard",
@@ -228,7 +228,7 @@ namespace PointlessWaymarksCmsData.Content
             return await GenerationReturn.Success("Saved to Pinboard", toSave.ContentId);
         }
 
-        public static async Task<GenerationReturn> Validate(LinkStream linkContent)
+        public static async Task<GenerationReturn> Validate(LinkContent linkContent)
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
@@ -250,7 +250,7 @@ namespace PointlessWaymarksCmsData.Content
             var db = await Db.Context();
 
             var duplicateUrl =
-                await db.LinkStreams.AnyAsync(x => x.ContentId != linkContent.ContentId && x.Url == linkContent.Url);
+                await db.LinkContents.AnyAsync(x => x.ContentId != linkContent.ContentId && x.Url == linkContent.Url);
 
             if (duplicateUrl)
                 return await GenerationReturn.Error("The Link URL already exists in the database.",

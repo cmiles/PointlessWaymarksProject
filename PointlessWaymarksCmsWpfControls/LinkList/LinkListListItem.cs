@@ -4,14 +4,14 @@ using System.Text;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Database.Models;
 
-namespace PointlessWaymarksCmsWpfControls.LinkStreamList
+namespace PointlessWaymarksCmsWpfControls.LinkList
 {
-    public class LinkStreamListListItem : INotifyPropertyChanged
+    public class LinkListListItem : INotifyPropertyChanged
     {
-        private LinkStream _dbEntry;
+        private LinkContent _dbEntry;
         private string _linkContentString;
 
-        public LinkStream DbEntry
+        public LinkContent DbEntry
         {
             get => _dbEntry;
             set

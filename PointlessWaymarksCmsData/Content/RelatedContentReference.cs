@@ -77,7 +77,7 @@ namespace PointlessWaymarksCmsData.Content
             progress?.Report($"Processing {images.Count} Image Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(images, db, progress);
 
-            var links = await db.LinkStreams.Where(x => x.ContentVersion >= contentAfter)
+            var links = await db.LinkContents.Where(x => x.ContentVersion >= contentAfter)
                 .Select(x => new {x.ContentId, toCheck = x.Comments + x.Description}).ToListAsync();
             progress?.Report($"Processing {links.Count} Link Content Entries for Related Content");
             foreach (var loopLink in links)

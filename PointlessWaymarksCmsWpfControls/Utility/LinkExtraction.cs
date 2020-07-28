@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsWpfControls.LinkStreamEditor;
+using PointlessWaymarksCmsWpfControls.LinkContentEditor;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
 {
     public static class LinkExtraction
     {
-        public static async Task ExtractNewAndShowLinkStreamEditors(string toExtractFrom,
+        public static async Task ExtractNewAndShowLinkContentEditors(string toExtractFrom,
             IProgress<string> progressTracker, List<string> exludedUrls = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -43,7 +43,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             {
                 progressTracker?.Report($"Checking to see if {loopMatches} exists in database...");
 
-                var alreadyExists = await db.LinkStreams.AnyAsync(x => x.Url.ToLower() == loopMatches.ToLower());
+                var alreadyExists = await db.LinkContents.AnyAsync(x => x.Url.ToLower() == loopMatches.ToLower());
                 if (alreadyExists)
                 {
                     progressTracker?.Report($"{loopMatches} exists in database...");
@@ -64,8 +64,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             {
                 progressTracker?.Report($"Launching an editor for {loopLinks}...");
 
-                var newWindow = new LinkStreamEditorWindow(
-                    new LinkStream
+                var newWindow = new LinkContentEditorWindow(
+                    new LinkContent
                     {
                         ContentId = Guid.NewGuid(),
                         CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,

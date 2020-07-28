@@ -554,7 +554,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             RotateImageLeftCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate270)));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
+                LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker())));
             LinkToClipboardCommand = new Command(() => StatusContext.RunBlockingTask(LinkToClipboard));
         }

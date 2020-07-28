@@ -1,15 +1,15 @@
 ﻿<UserControl
-    x:Class="PointlessWaymarksCmsWpfControls.LinkStreamEditor.LinkStreamEditorControl"
+    x:Class="PointlessWaymarksCmsWpfControls.LinkContentEditor.LinkContentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamEditor"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-    d:DataContext="{d:DesignInstance local:LinkStreamEditorContext}"
+    d:DataContext="{d:DesignInstance local:LinkContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">

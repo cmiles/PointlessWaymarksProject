@@ -1,15 +1,14 @@
 ﻿<UserControl
-    x:Class="PointlessWaymarksCmsWpfControls.LinkStreamList.LinkStreamListControl"
+    x:Class="PointlessWaymarksCmsWpfControls.LinkList.LinkListControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkStreamList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    mc:Ignorable="d" d:DataContext="{d:DesignInstance local:LinkStreamListContext}">
+    mc:Ignorable="d" d:DataContext="{d:DesignInstance local:LinkListContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -89,7 +88,7 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="local:LinkStreamListListItem">
+                    <DataTemplate DataType="local:LinkListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
                                 <StackPanel Margin="2" Orientation="Vertical">

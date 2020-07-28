@@ -13,16 +13,16 @@ using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 
-namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
+namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 {
-    public class LinkStreamEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
+    public class LinkContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private string _author;
         private bool _authorHasChanges;
         private string _comments;
         private bool _commentsHaveChanges;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-        private LinkStream _dbEntry;
+        private LinkContent _dbEntry;
         private string _description;
         private bool _descriptionHasChanges;
         private Command _extractDataCommand;
@@ -42,9 +42,9 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
         private string _title;
         private bool _titleHasChanges;
 
-        public EventHandler RequestLinkStreamEditorWindowClose;
+        public EventHandler RequestLinkContentEditorWindowClose;
 
-        public LinkStreamEditorContext(StatusControlContext statusContext, LinkStream linkContent,
+        public LinkContentEditorContext(StatusControlContext statusContext, LinkContent linkContent,
             bool extractDataOnLoad = false)
         {
             StatusContext = statusContext ?? new StatusControlContext();
@@ -126,7 +126,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             }
         }
 
-        public LinkStream DbEntry
+        public LinkContent DbEntry
         {
             get => _dbEntry;
             set
@@ -385,11 +385,11 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             if (linkMetadata.LinkDate != null) LinkDateTime = linkMetadata.LinkDate;
         }
 
-        private async Task LoadData(LinkStream toLoad, bool extractDataOnLoad = false)
+        private async Task LoadData(LinkContent toLoad, bool extractDataOnLoad = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new LinkStream
+            DbEntry = toLoad ?? new LinkContent
             {
                 ShowInLinkRss = true, CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
             };
@@ -419,9 +419,9 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             if (!(propertyName.Contains("HasChanges") || propertyName.Contains("HaveChanges"))) CheckForChanges();
         }
 
-        private LinkStream CurrentStateToLinkStreamContent()
+        private LinkContent CurrentStateToLinkContent()
         {
-            var newEntry = new LinkStream();
+            var newEntry = new LinkContent();
 
             if (DbEntry == null || DbEntry.Id < 1)
             {
@@ -455,7 +455,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var (generationReturn, newContent) =
-                await LinkGenerator.SaveAndGenerateHtml(CurrentStateToLinkStreamContent(),
+                await LinkGenerator.SaveAndGenerateHtml(CurrentStateToLinkContent(),
                     StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
@@ -468,7 +468,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamEditor
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestLinkStreamEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
                 return;
             }
 

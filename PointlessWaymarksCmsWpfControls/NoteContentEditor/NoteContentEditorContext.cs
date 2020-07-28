@@ -42,7 +42,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
             ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
             ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
-                LinkExtraction.ExtractNewAndShowLinkStreamEditors(BodyContent.BodyContent,
+                LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker())));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(noteContent));

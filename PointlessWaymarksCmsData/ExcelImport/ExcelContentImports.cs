@@ -226,7 +226,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     case PostContent pc:
                         validationResult = await PostGenerator.Validate(pc);
                         break;
-                    case LinkStream l:
+                    case LinkContent l:
                         validationResult = await LinkGenerator.Validate(l);
                         break;
                     case NoteContent n:
@@ -332,7 +332,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                         generationResult = (await NoteGenerator.SaveAndGenerateHtml(note, progress)).generationReturn;
                         break;
                     }
-                    case LinkStream link:
+                    case LinkContent link:
                     {
                         generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, progress)).generationReturn;
                         break;

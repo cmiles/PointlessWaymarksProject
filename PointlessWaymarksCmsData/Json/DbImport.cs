@@ -415,25 +415,25 @@ namespace PointlessWaymarksCmsData.Json
              progress?.Report("NoteContent - Finished");
 
          }
-         public static void LinkStreamToDb(List<LinkStream> toImport, IProgress<string> progress)
+         public static void LinkContentToDb(List<LinkContent> toImport, IProgress<string> progress)
          {
-             progress?.Report("LinkStream - Starting");
+             progress?.Report("LinkContent - Starting");
 
              if (toImport == null || !toImport.Any())
              {
-                 progress?.Report("No LinkStream items to import...");
+                 progress?.Report("No LinkContent items to import...");
                  return;
              }
 
-             progress?.Report($"LinkStream - Working with {toImport.Count} Entries");
+             progress?.Report($"LinkContent - Working with {toImport.Count} Entries");
 
              var db = Db.Context().Result;
 
              foreach (var loopImportItem in toImport) {
 
-                 progress?.Report($"{loopImportItem.Title} - Starting LinkStream");
+                 progress?.Report($"{loopImportItem.Title} - Starting LinkContent");
              
-                 var exactMatch = db.LinkStreams.Any(x =>
+                 var exactMatch = db.LinkContents.Any(x =>
                      x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
 
                  if (exactMatch)
@@ -442,58 +442,58 @@ namespace PointlessWaymarksCmsData.Json
                      continue;
                  }
 
-                 var laterEntries = db.LinkStreams.Any(x =>
+                 var laterEntries = db.LinkContents.Any(x =>
                      x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
 
                  if (laterEntries)
                  {
 
-                     if (db.HistoricLinkStreams.Any(x =>
+                     if (db.HistoricLinkContents.Any(x =>
                          x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                     {
-                         progress?.Report($"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic LinkStream");
+                         progress?.Report($"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic LinkContent");
                     }
                     else
                     {
-                       progress?.Report($"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricLinkStreams");
+                       progress?.Report($"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricLinkContents");
 
-                       var newHistoricEntry = new HistoricLinkStream();
+                       var newHistoricEntry = new HistoricLinkContent();
                        newHistoricEntry.InjectFrom(loopImportItem);
                        newHistoricEntry.Id = 0;
 
-                       db.HistoricLinkStreams.Add(newHistoricEntry);
+                       db.HistoricLinkContents.Add(newHistoricEntry);
                        db.SaveChanges(true);
                     }
 
                     continue;
                  }
 
-                 var existingItems = db.LinkStreams.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
+                 var existingItems = db.LinkContents.Where(x => x.ContentId == loopImportItem.ContentId).ToList();
 
                  if (existingItems.Any())
                      progress?.Report($"{loopImportItem.Title} - Found {existingItems.Count} current items");
 
                  foreach (var loopExisting in existingItems)
                  {
-                     var newHistoricEntry = new HistoricLinkStream();
+                     var newHistoricEntry = new HistoricLinkContent();
                      newHistoricEntry.InjectFrom(loopExisting);
                      newHistoricEntry.Id = 0;
 
-                     db.HistoricLinkStreams.Add(newHistoricEntry);
-                     db.LinkStreams.Remove(loopExisting);
+                     db.HistoricLinkContents.Add(newHistoricEntry);
+                     db.LinkContents.Remove(loopExisting);
                      db.SaveChanges(true);
                  }
 
-                 progress?.Report($"{loopImportItem.Title} - Adding LinkStream");
+                 progress?.Report($"{loopImportItem.Title} - Adding LinkContent");
     
-                 db.LinkStreams.Add(loopImportItem);
+                 db.LinkContents.Add(loopImportItem);
     
                  db.SaveChanges(true);
 
                  progress?.Report($"{loopImportItem.Title} - Imported");
              }
 
-             progress?.Report("LinkStream - Finished");
+             progress?.Report("LinkContent - Finished");
 
          }
 
@@ -682,9 +682,9 @@ namespace PointlessWaymarksCmsData.Json
 
             progress?.Report("FileContent - Finished");
         }
-        public static void HistoricLinkStreamToDb(List<HistoricLinkStream> toImport, IProgress<string> progress)
+        public static void HistoricLinkContentToDb(List<HistoricLinkContent> toImport, IProgress<string> progress)
         {
-            progress?.Report("HistoricLinkStream - Starting");
+            progress?.Report("HistoricLinkContent - Starting");
 
             if (toImport == null || !toImport.Any())
             {
@@ -692,7 +692,7 @@ namespace PointlessWaymarksCmsData.Json
                 return;
             }
 
-            progress?.Report($"HistoricLinkStream - Working with {toImport.Count} Entries");
+            progress?.Report($"HistoricLinkContent - Working with {toImport.Count} Entries");
 
             var db = Db.Context().Result;
 
@@ -703,7 +703,7 @@ namespace PointlessWaymarksCmsData.Json
             {
                 progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
 
-                if (db.HistoricLinkStreams.Any(x =>
+                if (db.HistoricLinkContents.Any(x =>
                     x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
                     progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
@@ -712,7 +712,7 @@ namespace PointlessWaymarksCmsData.Json
 
                 loopImportItem.Id = 0;
                 
-                db.HistoricLinkStreams.Add(loopImportItem);
+                db.HistoricLinkContents.Add(loopImportItem);
 
                 db.SaveChanges(true);
             }

@@ -22,7 +22,7 @@ using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.ImageList;
-using PointlessWaymarksCmsWpfControls.LinkStreamList;
+using PointlessWaymarksCmsWpfControls.LinkList;
 using PointlessWaymarksCmsWpfControls.MenuLinkEditor;
 using PointlessWaymarksCmsWpfControls.NoteList;
 using PointlessWaymarksCmsWpfControls.PhotoList;
@@ -50,7 +50,7 @@ namespace PointlessWaymarksCmsContentEditor
         private StatusControlContext _statusContext;
         private FileListWithActionsContext _tabFileListContext;
         private ImageListWithActionsContext _tabImageListContext;
-        private LinkStreamListWithActionsContext _tabLinkStreamContext;
+        private LinkListWithActionsContext _tabLinkContext;
         private MenuLinkEditorContext _tabMenuLinkContext;
         private NoteListWithActionsContext _tabNoteListContext;
         private PhotoListWithActionsContext _tabPhotoListContext;
@@ -292,13 +292,13 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
-        public LinkStreamListWithActionsContext TabLinkStreamContext
+        public LinkListWithActionsContext TabLinkContext
         {
-            get => _tabLinkStreamContext;
+            get => _tabLinkContext;
             set
             {
-                if (Equals(value, _tabLinkStreamContext)) return;
-                _tabLinkStreamContext = value;
+                if (Equals(value, _tabLinkContext)) return;
+                _tabLinkContext = value;
                 OnPropertyChanged();
             }
         }
@@ -628,7 +628,7 @@ namespace PointlessWaymarksCmsContentEditor
             TabPhotoListContext = new PhotoListWithActionsContext(null);
             TabPostListContext = new PostListWithActionsContext(null);
             TabNoteListContext = new NoteListWithActionsContext(null);
-            TabLinkStreamContext = new LinkStreamListWithActionsContext(null);
+            TabLinkContext = new LinkListWithActionsContext(null);
             TabTagExclusionContext = new TagExclusionEditorContext(null);
             TabMenuLinkContext = new MenuLinkEditorContext(null);
             TabTagListContext = new TagListContext(null);
@@ -723,8 +723,8 @@ namespace PointlessWaymarksCmsContentEditor
             TempClean(db.HistoricFileContents.Cast<dynamic>().ToList());
             TempClean(db.ImageContents.Cast<dynamic>().ToList());
             TempClean(db.HistoricImageContents.Cast<dynamic>().ToList());
-            TempClean(db.LinkStreams.Cast<dynamic>().ToList());
-            TempClean(db.HistoricLinkStreams.Cast<dynamic>().ToList());
+            TempClean(db.LinkContents.Cast<dynamic>().ToList());
+            TempClean(db.HistoricLinkContents.Cast<dynamic>().ToList());
             TempClean(db.NoteContents.Cast<dynamic>().ToList());
             TempClean(db.HistoricNoteContents.Cast<dynamic>().ToList());
             TempClean(db.PhotoContents.Cast<dynamic>().ToList());

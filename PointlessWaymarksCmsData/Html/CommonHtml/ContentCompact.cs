@@ -57,7 +57,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return compactContentContainerDiv;
         }
 
-        public static HtmlTag FromLinkStream(LinkStream content)
+        public static HtmlTag FromLinkContent(LinkContent content)
         {
             if (content == null) return HtmlTag.Empty();
 
