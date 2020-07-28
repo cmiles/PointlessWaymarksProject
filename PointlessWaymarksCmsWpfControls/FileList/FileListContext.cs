@@ -44,8 +44,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             OpenFileCommand = new Command<FileListListItem>(x => StatusContext.RunNonBlockingTask(() => OpenFile(x)));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
-
-            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
 
@@ -148,9 +146,12 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
 
             if (translatedMessage.HasError)
+            {
                 await EventLogContext.TryWriteDiagnosticMessageToLog(
-                    $"Data Notification Failure in FileListContext - {translatedMessage.ErrorNote}",
+                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
                     StatusContext.StatusControlContextId.ToString());
+                return;
+            }
 
             if (translatedMessage.ContentType == DataNotificationContentType.File)
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
@@ -256,6 +257,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
             StatusContext.Progress("Connecting to DB");
 
             var db = await Db.Context();
@@ -285,6 +288,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             SortDescending = true;
             await SortList("CreatedOn");
+
+            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)

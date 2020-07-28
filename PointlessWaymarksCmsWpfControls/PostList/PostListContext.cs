@@ -134,9 +134,12 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
 
             if (translatedMessage.HasError)
+            {
                 await EventLogContext.TryWriteDiagnosticMessageToLog(
                     $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
                     StatusContext.StatusControlContextId.ToString());
+                return;
+            }
 
             if (translatedMessage.ContentType == DataNotificationContentType.Post)
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
@@ -195,6 +198,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
             StatusContext.Progress("Connecting to DB");
 

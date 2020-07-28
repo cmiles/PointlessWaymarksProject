@@ -62,8 +62,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
                     await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker())));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
-
-            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         public Command<string> CopyUrlCommand
@@ -186,9 +184,12 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
 
             if (translatedMessage.HasError)
+            {
                 await EventLogContext.TryWriteDiagnosticMessageToLog(
-                    $"Data Notification Failure in PhotoListContext - {translatedMessage.ErrorNote}",
+                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
                     StatusContext.StatusControlContextId.ToString());
+                return;
+            }
 
             if (translatedMessage.ContentType != DataNotificationContentType.Photo) return;
 
@@ -347,6 +348,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
             StatusContext.Progress("Connecting to DB");
 
             var db = await Db.Context();
@@ -377,6 +380,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkStreamList
             SortDescending = true;
 
             await SortList("CreatedOn");
+
+            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)

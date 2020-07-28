@@ -1,9 +1,9 @@
 ﻿## Todos
- - Tag List should respond to DataNotifications?
  - To Excel needs some formatting for Body Content and Maybe an option to Exclude it?
  - Content Testing:
   - Ironwood Integration Tests for Context File Add, Context Image Add, Post, Note, Link
   - Add tests for the common content validation
+ - Rework the Daily Photos generation so specific days can be build
  - Gui Validation alerts - Title control and Tags Control Done
  - Where to integrate the Excel Import to make it more obvious to find? Title bar all lists?
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
@@ -43,6 +43,12 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/28/2020
+
+First version of the DataNotification support in the tags list - light manual testing suggests this is working nicely!
+
+In looking at the DataNotification support for the tags list I made a bug fix - errors were falling thru rather than returning - and improvement - data notification subscriptions detach before load and attach after load to minimize the overlap of working on the data via notifications and loading overlapping - to the list data notifications.
 
 7/27/2020
 

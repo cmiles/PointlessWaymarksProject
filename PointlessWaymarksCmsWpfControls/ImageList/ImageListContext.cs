@@ -41,8 +41,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             OpenFileCommand = new Command<ImageListListItem>(x => StatusContext.RunNonBlockingTask(() => OpenFile(x)));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
-
-            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
 
@@ -116,9 +114,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
 
             if (translatedMessage.HasError)
+            {
                 await EventLogContext.TryWriteDiagnosticMessageToLog(
-                    $"Data Notification Failure in ImageListContext - {translatedMessage.ErrorNote}",
+                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
                     StatusContext.StatusControlContextId.ToString());
+                return;
+            }
 
             if (translatedMessage.ContentType != DataNotificationContentType.Image) return;
 
@@ -215,6 +216,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
             StatusContext.Progress("Connecting to DB");
 
             var db = await Db.Context();
@@ -244,6 +247,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             SortDescending = true;
             await SortList("CreatedOn");
+
+            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)

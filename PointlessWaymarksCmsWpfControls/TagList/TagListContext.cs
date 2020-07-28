@@ -7,10 +7,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
-using AngleSharp.Dom;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
+using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
@@ -21,6 +21,7 @@ using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsWpfControls.TagList
 {
@@ -189,6 +190,139 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private string ContentTypeString(dynamic content)
+        {
+            switch (content)
+            {
+                case FileContent _:
+                    return "File";
+                case ImageContent _:
+                    return "Image";
+                case NoteContent _:
+                    return "Note";
+                case PhotoContent _:
+                    return "Photo";
+                case PostContent _:
+                    return "Post";
+                case LinkStream _:
+                    return "Link";
+                default:
+                    StatusContext.ToastError("Unknown Content Type - Unusual Error...");
+                    EventLogContext.TryWriteExceptionToLogBlocking(
+                        new DataException("The Content Object was of Unknown Type"), "TagListContent Load", "");
+                    return "Unknown";
+            }
+        }
+
+        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+
+            if (translatedMessage.HasError)
+            {
+                await EventLogContext.TryWriteDiagnosticMessageToLog(
+                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
+                    StatusContext.StatusControlContextId.ToString());
+                return;
+            }
+
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent) return;
+
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
+            {
+                var relatedEntries = ListItemsWithContentIds(translatedMessage.ContentIds);
+
+                foreach (var loopEntries in relatedEntries)
+                {
+                    var contentToRemoveList = loopEntries.ContentInformation
+                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToList();
+
+                    var newContentList = loopEntries.ContentInformation.Except(contentToRemoveList).ToList();
+
+                    if (!newContentList.Any())
+                    {
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        Items.Remove(loopEntries);
+                        await ThreadSwitcher.ResumeBackgroundAsync();
+                        continue;
+                    }
+
+                    loopEntries.ContentInformation = newContentList;
+                    loopEntries.ContentCount = newContentList.Count;
+                }
+
+                return;
+            }
+
+            var db = await Db.Context();
+
+            foreach (var loopContent in translatedMessage.ContentIds)
+            {
+                var content = await db.ContentFromContentId(loopContent);
+                var tags = Db.TagListParseToSlugs((ITag) content, false);
+
+                var listContent = ListItemsWithContentIds(loopContent.AsList());
+
+                var tagsToRemove = listContent.Select(x => x.TagName).Except(tags).ToList();
+                var tagListEntriesToRemove = Items.Where(x => tagsToRemove.Contains(x.TagName)).ToList();
+
+                foreach (var loopEntries in tagListEntriesToRemove)
+                {
+                    var contentToRemoveList = loopEntries.ContentInformation
+                        .Where(x => x.ContentId == loopContent).ToList();
+
+                    var newContentList = loopEntries.ContentInformation.Except(contentToRemoveList).ToList();
+
+                    if (!newContentList.Any())
+                    {
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        Items.Remove(loopEntries);
+                        await ThreadSwitcher.ResumeBackgroundAsync();
+                        continue;
+                    }
+
+                    loopEntries.ContentInformation = newContentList;
+                    loopEntries.ContentCount = newContentList.Count;
+                }
+
+                foreach (var loopTags in tags)
+                {
+                    var possibleTagEntry = Items.SingleOrDefault(x => x.TagName == loopTags);
+                    var newContentEntry = new TagItemContentInformation
+                    {
+                        ContentId = content.ContentId,
+                        Title = content.Title,
+                        Tags = content.Tags,
+                        ContentType = ContentTypeString(content)
+                    };
+
+                    if (possibleTagEntry == null)
+                    {
+                        var toAdd = new TagListListItem
+                        {
+                            TagName = loopTags, ContentInformation = newContentEntry.AsList(), ContentCount = 1
+                        };
+
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        Items.Add(toAdd);
+                        await ThreadSwitcher.ResumeBackgroundAsync();
+                    }
+                    else
+                    {
+                        var existingContentEntries = possibleTagEntry.ContentInformation
+                            .Where(x => x.ContentId == newContentEntry.ContentId).ToList();
+                        var adjustedContentEntries = possibleTagEntry.ContentInformation.Except(existingContentEntries)
+                            .Concat(newContentEntry.AsList()).OrderBy(x => x.Title).ToList();
+
+                        possibleTagEntry.ContentInformation = adjustedContentEntries;
+                        possibleTagEntry.ContentCount = adjustedContentEntries.Count;
+                    }
+                }
+            }
+        }
+
         public async Task EditContent(Guid contentId)
         {
             var db = await Db.Context();
@@ -251,9 +385,23 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             return toFilter.TagName.Contains(UserFilterText);
         }
 
+        private List<TagListListItem> ListItemsWithContentIds(List<Guid> contentIds)
+        {
+            var returnList = new List<TagListListItem>();
+
+            if (contentIds == null || !contentIds.Any()) return returnList;
+
+            foreach (var loopIds in contentIds)
+                returnList.AddRange(Items.Where(x => x.ContentInformation.Select(y => y.ContentId).Contains(loopIds)));
+
+            return returnList;
+        }
+
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
             var allTags = await Db.TagAndContentList(true, StatusContext.ProgressTracker());
 
@@ -272,50 +420,10 @@ namespace PointlessWaymarksCmsWpfControls.TagList
                 {
                     var detailToAdd = new TagItemContentInformation {ContentId = loopContent.ContentId};
 
-                    switch (loopContent)
-                    {
-                        case FileContent c:
-                            detailToAdd.ContentId = c.ContentId;
-                            detailToAdd.Title = c.Title;
-                            detailToAdd.ContentType = "File";
-                            detailToAdd.Tags = c.Tags;
-                            break;
-                        case ImageContent c:
-                            detailToAdd.ContentId = c.ContentId;
-                            detailToAdd.Title = c.Title;
-                            detailToAdd.ContentType = "File";
-                            detailToAdd.Tags = c.Tags;
-                            break;
-                        case NoteContent c:
-                            detailToAdd.ContentId = c.ContentId;
-                            detailToAdd.Title = c.Title;
-                            detailToAdd.ContentType = "File";
-                            detailToAdd.Tags = c.Tags;
-                            break;
-                        case PhotoContent c:
-                            detailToAdd.ContentId = c.ContentId;
-                            detailToAdd.Title = c.Title;
-                            detailToAdd.ContentType = "File";
-                            detailToAdd.Tags = c.Tags;
-                            break;
-                        case PostContent c:
-                            detailToAdd.ContentId = c.ContentId;
-                            detailToAdd.Title = c.Title;
-                            detailToAdd.ContentType = "File";
-                            detailToAdd.Tags = c.Tags;
-                            break;
-                        case LinkStream c:
-                            detailToAdd.ContentId = c.ContentId;
-                            detailToAdd.Title = c.Title;
-                            detailToAdd.ContentType = "File";
-                            detailToAdd.Tags = c.Tags;
-                            break;
-                        default:
-                            StatusContext.ToastError("Unknown Content Type - Unusual Error...");
-                            await EventLogContext.TryWriteExceptionToLog(
-                                new DataException("The Content Object was of Unknown Type"), "TagListContent Load", "");
-                            break;
-                    }
+                    detailToAdd.ContentId = loopContent.ContentId;
+                    detailToAdd.Title = loopContent.Title;
+                    detailToAdd.ContentType = ContentTypeString(loopContent);
+                    detailToAdd.Tags = loopContent.Tags;
 
                     contentDetails.Add(detailToAdd);
                 }
@@ -331,6 +439,15 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             Items.Clear();
 
             listItems.OrderBy(x => x.TagName).ToList().ForEach(x => Items.Add(x));
+
+            await SortList("TagName");
+
+            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+        }
+
+        private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+        {
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
         }
 
         [NotifyPropertyChangedInvocator]
@@ -360,6 +477,18 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags");
+        }
+
+        private async Task SortList(string sortColumn)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var collectionView = ((CollectionView) CollectionViewSource.GetDefaultView(Items));
+            collectionView.SortDescriptions.Clear();
+
+            if (string.IsNullOrWhiteSpace(sortColumn)) return;
+            collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
+                ListSortDirection.Ascending));
         }
 
         public async Task TagContentToExcel(List<TagItemContentInformation> items)

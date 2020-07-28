@@ -40,8 +40,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             }));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
-
-            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
 
@@ -132,9 +130,12 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
 
             if (translatedMessage.HasError)
+            {
                 await EventLogContext.TryWriteDiagnosticMessageToLog(
-                    $"Data Notification Failure in NoteListContext - {translatedMessage.ErrorNote}",
+                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
                     StatusContext.StatusControlContextId.ToString());
+                return;
+            }
 
             if (translatedMessage.ContentType != DataNotificationContentType.Photo) return;
 
@@ -212,6 +213,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
             StatusContext.Progress("Connecting to DB");
 
             var db = await Db.Context();
@@ -241,6 +244,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
             SortDescending = true;
             await SortList("CreatedOn");
+
+            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
