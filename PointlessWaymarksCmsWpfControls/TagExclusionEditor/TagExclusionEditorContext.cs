@@ -26,7 +26,7 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
             StatusContext = statusContext ?? new StatusControlContext();
 
             HelpMarkdown = TagExclusionHelpMarkdown.HelpBlock;
-            AddNewItemCommand = new Command(async () => await AddNewItem());
+            AddNewItemCommand = StatusContext.RunBlockingTaskCommand(async () => await AddNewItem());
             SaveItemCommand = new Command<TagExclusionEditorListItem>(x => StatusContext.RunBlockingTask(SaveItem, x));
             DeleteItemCommand =
                 new Command<TagExclusionEditorListItem>(x => StatusContext.RunBlockingTask(DeleteItem, x));

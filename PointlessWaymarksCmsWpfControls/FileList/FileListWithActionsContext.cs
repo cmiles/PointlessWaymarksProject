@@ -29,33 +29,17 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private Command _filePageLinkCodesToClipboardForSelectedCommand;
         private Command _firstPagePreviewFromPdfToCairoCommand;
         private Command _generateSelectedHtmlCommand;
+        private Command _importFromExcelCommand;
         private FileListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
         private List<(object, string)> _pdfPreviewGenerationProgress = new List<(object, string)>();
+        private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
 
         public FileListWithActionsContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-
-            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            FilePageLinkCodesToClipboardForSelectedCommand = new Command(() =>
-                StatusContext.RunBlockingTask(FilePageLinkCodesToClipboardForSelected));
-            FileDownloadLinkCodesToClipboardForSelectedCommand = new Command(() =>
-                StatusContext.RunBlockingTask(FileDownloadLinkCodesToClipboardForSelected));
-            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            NewContentFromFilesCommand = new Command(() => StatusContext.RunBlockingTask(NewContentFromFiles));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
-            FirstPagePreviewFromPdfToCairoCommand =
-                new Command(() => StatusContext.RunBlockingTask(FirstPagePreviewFromPdfToCairo));
-            ExtractNewLinksInSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
-            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
-
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -130,6 +114,17 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
+        public Command ImportFromExcelCommand
+        {
+            get => _importFromExcelCommand;
+            set
+            {
+                if (Equals(value, _importFromExcelCommand)) return;
+                _importFromExcelCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public FileListContext ListContext
         {
             get => _listContext;
@@ -166,6 +161,17 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         }
 
         public Command RefreshDataCommand { get; set; }
+
+        public Command SelectedToExcelCommand
+        {
+            get => _selectedToExcelCommand;
+            set
+            {
+                if (Equals(value, _selectedToExcelCommand)) return;
+                _selectedToExcelCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public StatusControlContext StatusContext
         {
@@ -378,6 +384,27 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new FileListContext(StatusContext);
+
+            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+            GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
+            EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
+            FilePageLinkCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(FilePageLinkCodesToClipboardForSelected);
+            FileDownloadLinkCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
+            OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
+            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
+            NewContentFromFilesCommand = StatusContext.RunBlockingTaskCommand(NewContentFromFiles);
+            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
+            FirstPagePreviewFromPdfToCairoCommand =
+                StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdfToCairo);
+            ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+
+            ImportFromExcelCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
+            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
         }
 
         private async Task NewContent()

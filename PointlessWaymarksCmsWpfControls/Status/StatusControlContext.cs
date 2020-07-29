@@ -355,21 +355,31 @@ namespace PointlessWaymarksCmsWpfControls.Status
             RunBlockingTask(() => Task.Run(() => toRun(parameter)));
         }
 
+        public Command<T> RunBlockingTaskCommand<T>(Func<T, Task> toRun)
+        {
+            return new Command<T>( x => RunBlockingTask(async () => await toRun(x)));
+        }
+
+        public Command RunBlockingActionCommand(Action toRun)
+        {
+            return new Command(() => RunBlockingAction(toRun));
+        }
+
         public void RunBlockingTask(Func<Task> toRun)
         {
             IncrementBlockingTasks();
             Task.Run(toRun).ContinueWith(BlockTaskCompleted);
         }
 
-        public Command RunBlockingTaskCommand(Func<Task> toRun)
-        {
-            return new Command(() => RunBlockingTask(toRun));
-        }
-
         public void RunBlockingTask<T>(Func<T, Task> toRun, T parameter)
         {
             IncrementBlockingTasks();
             Task.Run(async () => await toRun(parameter)).ContinueWith(BlockTaskCompleted);
+        }
+
+        public Command RunBlockingTaskCommand(Func<Task> toRun)
+        {
+            return new Command(() => RunBlockingTask(toRun));
         }
 
         public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
@@ -411,6 +421,16 @@ namespace PointlessWaymarksCmsWpfControls.Status
             RunNonBlockingTask(() => Task.Run(toRun));
         }
 
+        public Command RunNonBlockingActionCommand(Action toRun)
+        {
+            return new Command(() => RunNonBlockingAction(toRun));
+        }
+
+        public Command<T> RunNonBlockingTaskCommand<T>(Func<T, Task> toRun)
+        {
+            return new Command<T>(x => RunNonBlockingTask(async () => await toRun(x)));
+        }
+
         public void RunNonBlockingTask(Func<Task> toRun)
         {
             IncrementNonBlockingTasks();
@@ -421,7 +441,6 @@ namespace PointlessWaymarksCmsWpfControls.Status
         {
             return new Command(() => RunNonBlockingTask(toRun));
         }
-
 
         public async Task<string> ShowMessage(string title, string body, List<string> buttons)
         {

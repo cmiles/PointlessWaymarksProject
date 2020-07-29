@@ -49,12 +49,12 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            SaveUpdateDatabaseCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(false)));
-            SaveUpdateDatabaseAndCloseCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
-            ExtractDataCommand = new Command(() => StatusContext.RunBlockingTask(ExtractDataFromLink));
-            OpenUrlInBrowserCommand = new Command(() =>
+            SaveUpdateDatabaseCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+            SaveUpdateDatabaseAndCloseCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            ExtractDataCommand = StatusContext.RunBlockingTaskCommand(ExtractDataFromLink);
+            OpenUrlInBrowserCommand = StatusContext.RunNonBlockingActionCommand(() =>
             {
                 try
                 {
@@ -455,8 +455,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var (generationReturn, newContent) =
-                await LinkGenerator.SaveAndGenerateHtml(CurrentStateToLinkContent(),
-                    StatusContext.ProgressTracker());
+                await LinkGenerator.SaveAndGenerateHtml(CurrentStateToLinkContent(), StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {

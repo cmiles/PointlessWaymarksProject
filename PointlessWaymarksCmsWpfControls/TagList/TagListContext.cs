@@ -44,17 +44,19 @@ namespace PointlessWaymarksCmsWpfControls.TagList
         {
             StatusContext = context ?? new StatusControlContext();
 
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(LoadData));
+            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(LoadData);
 
-            SelectedDetailItemsToExcelCommand = new Command(async () => await TagContentToExcel(DetailsSelectedItems));
-            AllDetailItemsToExcelCommand = new Command(async () => await TagContentToExcel(DetailsList));
+            SelectedDetailItemsToExcelCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await TagContentToExcel(DetailsSelectedItems));
+            AllDetailItemsToExcelCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await TagContentToExcel(DetailsList));
 
             EditContentCommand = new Command<Guid>(x =>
                 StatusContext.RunBlockingTask(async () => await EditContent(x)));
             VisibleTagsToExcelCommand = new Command<object>(x => StatusContext.RunBlockingTask(VisibleTagsToExcel));
             SelectedTagsToExcelCommand = new Command<object>(x => StatusContext.RunBlockingTask(SelectedTagsToExcel));
-            ImportFromExcelCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await ExcelHelpers.ImportFromExcel(StatusContext)));
+            ImportFromExcelCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }

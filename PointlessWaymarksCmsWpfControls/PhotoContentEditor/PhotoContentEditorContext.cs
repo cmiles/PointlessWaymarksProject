@@ -747,22 +747,20 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            ChooseFileAndFillMetadataCommand =
-                new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(true)));
-            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile(false)));
-            SaveAndGenerateHtmlCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
-            ViewPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
-                await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext)));
-            SaveUpdateDatabaseCommand = new Command(() => StatusContext.RunBlockingTask(SaveToDbWithValidation));
-            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+            ChooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
+            ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
+            SaveAndGenerateHtmlCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            ViewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext));
+            SaveUpdateDatabaseCommand = StatusContext.RunBlockingTaskCommand(SaveToDbWithValidation);
+            ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
-                    StatusContext.ProgressTracker())));
-            RotatePhotoRightCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate90)));
-            RotatePhotoLeftCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate270)));
+                    StatusContext.ProgressTracker()));
+            RotatePhotoRightCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
+            RotatePhotoLeftCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
         }
 
         private async Task ViewOnSite()

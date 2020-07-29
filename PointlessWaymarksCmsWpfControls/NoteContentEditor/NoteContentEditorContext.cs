@@ -39,11 +39,11 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            SaveAndCreateLocalCommand = new Command(() => StatusContext.RunBlockingTask(SaveAndGenerateHtml));
-            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+            SaveAndCreateLocalCommand = StatusContext.RunBlockingTaskCommand(SaveAndGenerateHtml);
+            ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
-                    StatusContext.ProgressTracker())));
+                    StatusContext.ProgressTracker()));
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(noteContent));
         }

@@ -186,7 +186,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            TitleToSlugCommand = new Command(() => StatusContext.RunBlockingAction(TitleToSlug));
+            TitleToSlugCommand = StatusContext.RunBlockingActionCommand(TitleToSlug);
 
             DbEntry = dbEntry;
 

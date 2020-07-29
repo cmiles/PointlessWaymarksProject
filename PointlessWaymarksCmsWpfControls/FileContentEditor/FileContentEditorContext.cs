@@ -601,21 +601,18 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             HelpContext = new HelpDisplayContext(FileContentHelpMarkdown.HelpBlock + Environment.NewLine +
                                                  BracketCodeHelpMarkdown.HelpBlock);
 
-            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
-            SaveAndGenerateHtmlCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
-            OpenSelectedFileDirectoryCommand =
-                new Command(() => StatusContext.RunBlockingTask(OpenSelectedFileDirectory));
-            OpenSelectedFileCommand = new Command(() => StatusContext.RunBlockingTask(OpenSelectedFile));
-            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+            ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
+            SaveAndGenerateHtmlCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            OpenSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
+            OpenSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
+            ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
-                    $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker())));
-            SaveAndExtractImageFromPdfCommand =
-                new Command(() => StatusContext.RunBlockingTask(SaveAndExtractImageFromPdf));
-            LinkToClipboardCommand = new Command(() => StatusContext.RunNonBlockingTask(LinkToClipboard));
-            DownloadLinkToClipboardCommand =
-                new Command(() => StatusContext.RunNonBlockingTask(DownloadLinkToClipboard));
+                    $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
+            SaveAndExtractImageFromPdfCommand = StatusContext.RunBlockingTaskCommand(SaveAndExtractImageFromPdf);
+            LinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(LinkToClipboard);
+            DownloadLinkToClipboardCommand = StatusContext.RunNonBlockingTaskCommand(DownloadLinkToClipboard);
         }
 
         private async Task ViewOnSite()

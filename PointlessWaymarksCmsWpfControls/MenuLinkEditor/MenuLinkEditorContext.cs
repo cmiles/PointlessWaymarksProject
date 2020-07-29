@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
-using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
@@ -28,13 +27,13 @@ namespace PointlessWaymarksCmsWpfControls.MenuLinkEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            AddItemCommand = new Command(() => StatusContext.RunBlockingTask(AddItem));
-            DeleteItemCommand = new Command(() => StatusContext.RunBlockingTask(DeleteItems));
+            AddItemCommand = StatusContext.RunBlockingTaskCommand(AddItem);
+            DeleteItemCommand = StatusContext.RunBlockingTaskCommand(DeleteItems);
             MoveItemUpCommand =
                 new Command<MenuLinkListItem>(x => StatusContext.RunNonBlockingTask(() => MoveItemUp(x)));
             MoveItemDownCommand =
                 new Command<MenuLinkListItem>(x => StatusContext.RunNonBlockingTask(() => MoveItemDown(x)));
-            SaveCommand = new Command(x => StatusContext.RunNonBlockingTask(Save));
+            SaveCommand = StatusContext.RunBlockingTaskCommand(Save);
             InsertIndexTagIndexCommand = new Command<MenuLinkListItem>(x =>
                 StatusContext.RunNonBlockingTask(() => InsertIntoLinkTag(x, "{{index; text Main;}}")));
             InsertTagSearchCommand = new Command<MenuLinkListItem>(x =>

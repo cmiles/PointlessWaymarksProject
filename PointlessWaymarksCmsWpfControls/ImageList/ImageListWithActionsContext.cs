@@ -39,22 +39,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            ImageBracketCodesToClipboardForSelectedCommand = new Command(() =>
-                StatusContext.RunBlockingTask(ImageBracketCodesToClipboardForSelected));
-            ImageBracketLinkCodesToClipboardForSelectedCommand = new Command(() =>
-                StatusContext.RunBlockingTask(ImageBracketLinkCodesToClipboardForSelected));
-            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            NewContentFromFilesCommand = new Command(() => StatusContext.RunBlockingTask(NewContentFromFiles));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
-            ExtractNewLinksInSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
-            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
-
-
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
@@ -116,6 +100,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
+        public Command ImportFromExcelCommand { get; set; }
+
         public ImageListContext ListContext
         {
             get => _listContext;
@@ -161,6 +147,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 OnPropertyChanged();
             }
         }
+
+        public Command SelectedToExcelCommand { get; set; }
 
         public StatusControlContext StatusContext
         {
@@ -356,6 +344,26 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new ImageListContext(StatusContext);
+
+            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+
+            GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
+            EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
+            ImageBracketCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(ImageBracketCodesToClipboardForSelected);
+            ImageBracketLinkCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(ImageBracketLinkCodesToClipboardForSelected);
+            OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
+            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
+            NewContentFromFilesCommand = StatusContext.RunBlockingTaskCommand(NewContentFromFiles);
+            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
+            ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+
+            ImportFromExcelCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
+            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
         }
 
         private async Task NewContent()

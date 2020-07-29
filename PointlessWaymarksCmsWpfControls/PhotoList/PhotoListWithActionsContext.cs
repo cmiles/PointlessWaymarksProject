@@ -56,9 +56,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
         {
-            SetupContextAndCommands(statusContext);
+            StatusContext = statusContext ?? new StatusControlContext();
 
             ListContext = new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.Recent);
+
+            SetupCommands(statusContext);
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
         }
@@ -66,13 +68,15 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         public PhotoListWithActionsContext(StatusControlContext statusContext,
             Func<Task<List<PhotoContent>>> reportFilter)
         {
-            SetupContextAndCommands(statusContext);
+            StatusContext = statusContext ?? new StatusControlContext();
 
             ListContext =
                 new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.ReportQuery)
                 {
                     ReportGenerator = reportFilter
                 };
+
+            SetupCommands(statusContext);
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
         }
@@ -835,50 +839,47 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             newWindow.Show();
         }
 
-        private void SetupContextAndCommands(StatusControlContext statusContext)
+        private void SetupCommands(StatusControlContext statusContext)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
 
-            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
+            EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
             PhotoCodesToClipboardForSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
-            PhotoLinkCodesToClipboardForSelectedCommand = new Command(() =>
-                StatusContext.RunBlockingTask(PhotoLinkCodesToClipboardForSelected));
-            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            OpenUrlForPhotoListCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForPhotoList));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            NewContentFromFilesCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await NewContentFromFiles(false)));
-            NewContentFromFilesWithAutosaveCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await NewContentFromFiles(true)));
-            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            ForcedResizeCommand = new Command(() => StatusContext.RunBlockingTask(ForcedResize));
+                StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
+            PhotoLinkCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
+            OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
+            OpenUrlForPhotoListCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForPhotoList);
+            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
+            NewContentFromFilesCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await NewContentFromFiles(false));
+            NewContentFromFilesWithAutosaveCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await NewContentFromFiles(true));
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+            ForcedResizeCommand = StatusContext.RunBlockingTaskCommand(ForcedResize);
 
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
-            ExtractNewLinksInSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
+            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
+            ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
 
-            ReportPhotoMetadataCommand = new Command(() => StatusContext.RunBlockingTask(ReportPhotoMetadata));
-            ReportNoTagsCommand = new Command(() =>
-                StatusContext.RunNonBlockingTask(async () =>
-                    await RunReport(ReportNoTagsGenerator, "No Tags Photo List")));
-            ReportTitleAndTakenDoNotMatchCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-                await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Created Mismatch Photo List")));
-            ReportTakenAndLicenseYearDoNotMatchCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-                await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator,
-                    "Title and Created Mismatch Photo List")));
-            ReportAllPhotosCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-                await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List")));
-            ReportBlankLicenseCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-                await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List")));
-            ReportMultiSpacesInTitleCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
-                await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces")));
+            ReportPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(ReportPhotoMetadata);
+            ReportNoTagsCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await RunReport(ReportNoTagsGenerator, "No Tags Photo List"));
+            ReportTitleAndTakenDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await RunReport(ReportTitleAndTakenDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
+            ReportTakenAndLicenseYearDoNotMatchCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await RunReport(ReportTakenAndLicenseYearDoNotMatchGenerator, "Title and Created Mismatch Photo List"));
+            ReportAllPhotosCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await RunReport(ReportAllPhotosGenerator, "Title and Created Mismatch Photo List"));
+            ReportBlankLicenseCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List"));
+            ReportMultiSpacesInTitleCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces"));
 
-            SelectedToExcelCommand = new Command(() => StatusContext.RunNonBlockingTask(SelectedToExcel));
-            ImportFromExcelCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await ExcelHelpers.ImportFromExcel(StatusContext)));
+            ImportFromExcelCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
+            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
         }
 
         private async Task ViewHistory()

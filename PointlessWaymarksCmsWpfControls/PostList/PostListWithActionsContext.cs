@@ -40,22 +40,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
-            EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
-            PostCodesToClipboardForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
-            EmailHtmlToClipboardForSelectedCommand = StatusContext.RunBlockingTaskCommand(EmailBodyHtml);
-            OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
-            NewContentCommand = StatusContext.RunBlockingTaskCommand(NewContent);
-            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
-            ExtractNewLinksInSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
-            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
-
-            ImportFromExcelCommand = StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
-            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () => await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems.Cast<dynamic>().ToList(), StatusContext));
-
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
@@ -420,6 +404,23 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new PostListContext(StatusContext);
+
+            GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
+            EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
+            PostCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
+            EmailHtmlToClipboardForSelectedCommand = StatusContext.RunBlockingTaskCommand(EmailBodyHtml);
+            OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
+            NewContentCommand = StatusContext.RunBlockingTaskCommand(NewContent);
+            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
+            ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+
+            ImportFromExcelCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
+            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
         }
 
         private async Task NewContent()

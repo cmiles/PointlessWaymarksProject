@@ -112,7 +112,7 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 
             DbEntry = toLoad;
 
-            RefreshPreviewCommand = new Command(() => StatusContext.RunBlockingTask(UpdateUpdateNotesContentHtml));
+            RefreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateUpdateNotesContentHtml);
 
             UpdateNotesFormat.InitialValue = DbEntry?.UpdateNotesFormat;
 
@@ -149,7 +149,9 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             }
             catch (Exception e)
             {
-                UpdateNotesHtmlOutput = $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocument("Invalid", string.Empty);
+                UpdateNotesHtmlOutput =
+                    $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocument("Invalid",
+                        string.Empty);
             }
         }
     }

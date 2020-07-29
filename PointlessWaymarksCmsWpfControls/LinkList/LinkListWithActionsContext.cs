@@ -22,23 +22,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _generateSelectedHtmlCommand;
+        private Command _importFromExcelCommand;
         private LinkListContext _listContext;
         private Command _newContentCommand;
         private Command _postCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
+        private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
 
         public LinkListWithActionsContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            MdLinkCodesToClipboardForSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(MdLinkCodesToClipboardForSelected));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
-            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -72,6 +66,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             {
                 if (Equals(value, _generateSelectedHtmlCommand)) return;
                 _generateSelectedHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromExcelCommand
+        {
+            get => _importFromExcelCommand;
+            set
+            {
+                if (Equals(value, _importFromExcelCommand)) return;
+                _importFromExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -116,6 +121,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             {
                 if (Equals(value, _refreshDataCommand)) return;
                 _refreshDataCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SelectedToExcelCommand
+        {
+            get => _selectedToExcelCommand;
+            set
+            {
+                if (Equals(value, _selectedToExcelCommand)) return;
+                _selectedToExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -210,6 +226,19 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new LinkListContext(StatusContext);
+
+            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+            EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
+            MdLinkCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(MdLinkCodesToClipboardForSelected);
+            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
+            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+
+            ImportFromExcelCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
+            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
         }
 
         private async Task MdLinkCodesToClipboardForSelected()
@@ -277,8 +306,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
 
             StatusContext.Progress($"Looking up Historic Entries for {singleSelected.DbEntry.Title}");
 
-            var historicItems = await db.HistoricLinkContents.Where(x => x.ContentId == singleSelected.DbEntry.ContentId)
-                .ToListAsync();
+            var historicItems = await db.HistoricLinkContents
+                .Where(x => x.ContentId == singleSelected.DbEntry.ContentId).ToListAsync();
 
             StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
 

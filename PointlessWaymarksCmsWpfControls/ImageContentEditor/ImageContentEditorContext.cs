@@ -545,18 +545,18 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            ChooseFileCommand = new Command(() => StatusContext.RunBlockingTask(async () => await ChooseFile()));
-            SaveAndGenerateHtmlCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await SaveAndGenerateHtml(true)));
-            ViewOnSiteCommand = new Command(() => StatusContext.RunBlockingTask(ViewOnSite));
-            RotateImageRightCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate90)));
-            RotateImageLeftCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () => await RotateImage(Orientation.Rotate270)));
-            ExtractNewLinksCommand = new Command(() => StatusContext.RunBlockingTask(() =>
+            ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
+            SaveAndGenerateHtmlCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+            RotateImageRightCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
+            RotateImageLeftCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
-                    StatusContext.ProgressTracker())));
-            LinkToClipboardCommand = new Command(() => StatusContext.RunBlockingTask(LinkToClipboard));
+                    StatusContext.ProgressTracker()));
+            LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
         }
 
 

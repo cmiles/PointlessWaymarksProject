@@ -44,13 +44,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             StatusContext = statusContext ?? new StatusControlContext();
 
             SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
-            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+            ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
-            }));
+            });
 
-            ToggleLoadRecentLoadAllCommand = new Command(x =>
+            ToggleLoadRecentLoadAllCommand = new Command(() =>
             {
                 if (LoadMode == PhotoListLoadMode.All)
                 {

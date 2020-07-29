@@ -49,20 +49,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             return file;
         }
 
-        public static async Task SelectedToExcel(List<dynamic> selected, StatusControlContext statusContext)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (selected == null || !selected.Any())
-            {
-                statusContext.ToastError("Nothing to send to Excel?");
-                return;
-            }
-
-            ContentToExcelFileAsTable(
-                selected.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedPhotos");
-        }
-
         public static async Task ImportFromExcel(StatusControlContext statusContext)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -122,6 +108,19 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             statusContext.ToastSuccess(
                 $"Imported {contentTableImportResult.ToUpdate.Count} items with changes from {newFile.FullName}");
+        }
+
+        public static async Task SelectedToExcel(List<dynamic> selected, StatusControlContext statusContext)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (selected == null || !selected.Any())
+            {
+                statusContext.ToastError("Nothing to send to Excel?");
+                return;
+            }
+
+            ContentToExcelFileAsTable(selected.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedPhotos");
         }
     }
 }

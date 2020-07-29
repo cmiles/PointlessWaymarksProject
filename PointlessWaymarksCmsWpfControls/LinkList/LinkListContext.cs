@@ -43,11 +43,11 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             StatusContext = statusContext ?? new StatusControlContext();
 
             SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
-            ToggleListSortDirectionCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
+            ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
-            }));
+            });
             OpenUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => OpenUrl(x)));
             CopyUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(async () =>
             {
@@ -57,9 +57,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
 
                 StatusContext.ToastSuccess($"To Clipboard {x}");
             }));
-            ListSelectedLinksNotOnPinboardCommand = new Command(x =>
-                StatusContext.RunBlockingTask(async () =>
-                    await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker())));
+            ListSelectedLinksNotOnPinboardCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                    await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker()));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -209,8 +208,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             var context = await Db.Context();
 
             var dbItems =
-                (await context.LinkContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
-                .Select(ListItemFromDbItem);
+                (await context.LinkContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Select(ListItemFromDbItem);
 
             var listItems = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
 

@@ -34,8 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             StatusContext = statusContext ?? new StatusControlContext();
             BodyContentFormat = new ContentFormatChooserContext(StatusContext);
 
-            RemoveLineBreaksFromSelectedCommand =
-                new Command(() => StatusContext.RunBlockingAction(RemoveLineBreaksFromSelected));
+            RemoveLineBreaksFromSelectedCommand = StatusContext.RunBlockingActionCommand(RemoveLineBreaksFromSelected);
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
@@ -142,7 +141,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
             DbEntry = toLoad;
 
-            RefreshPreviewCommand = new Command(() => StatusContext.RunBlockingTask(UpdateContentHtml));
+            RefreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateContentHtml);
 
             BodyContentFormat.InitialValue = toLoad?.BodyContentFormat;
 

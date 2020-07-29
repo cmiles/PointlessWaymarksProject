@@ -73,7 +73,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            SaveSettingsCommand = new Command(() => StatusContext.RunBlockingTask(SaveSettings));
+            SaveSettingsCommand = StatusContext.RunBlockingTaskCommand(SaveSettings);
 
             EditorSettings = toLoad;
         }

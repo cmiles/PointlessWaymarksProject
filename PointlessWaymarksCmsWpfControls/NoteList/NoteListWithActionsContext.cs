@@ -24,28 +24,18 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _generateSelectedHtmlCommand;
+        private Command _importFromExcelCommand;
         private NoteListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
         private Command _postCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
+        private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
 
         public NoteListWithActionsContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-
-            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
-            NoteCodesToClipboardForSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(NoteCodesToClipboardForSelected));
-            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
-            ExtractNewLinksInSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
-            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -82,6 +72,17 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             {
                 if (Equals(value, _generateSelectedHtmlCommand)) return;
                 _generateSelectedHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromExcelCommand
+        {
+            get => _importFromExcelCommand;
+            set
+            {
+                if (Equals(value, _importFromExcelCommand)) return;
+                _importFromExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -137,6 +138,17 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             {
                 if (Equals(value, _refreshDataCommand)) return;
                 _refreshDataCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SelectedToExcelCommand
+        {
+            get => _selectedToExcelCommand;
+            set
+            {
+                if (Equals(value, _selectedToExcelCommand)) return;
+                _selectedToExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -292,6 +304,23 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListContext = new NoteListContext(StatusContext);
+
+            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+            GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
+            EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
+            NoteCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(NoteCodesToClipboardForSelected);
+            OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
+            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
+            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
+            ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+
+            ImportFromExcelCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
+            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
+
         }
 
         private async Task NewContent()
