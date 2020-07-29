@@ -27,29 +27,34 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         private Command _editSelectedContentCommand;
         private Command _emailHtmlToClipboardForSelectedCommand;
         private Command _generateSelectedHtmlCommand;
+        private Command _importFromExcelCommand;
         private PostListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
         private Command _postCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
+        private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
 
         public PostListWithActionsContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            GenerateSelectedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(GenerateSelectedHtml));
-            EditSelectedContentCommand = new Command(() => StatusContext.RunBlockingTask(EditSelectedContent));
+            GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
+            EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
             PostCodesToClipboardForSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(PhotoCodesToClipboardForSelected));
-            EmailHtmlToClipboardForSelectedCommand = new Command(() => StatusContext.RunBlockingTask(EmailBodyHtml));
-            OpenUrlForSelectedCommand = new Command(() => StatusContext.RunNonBlockingTask(OpenUrlForSelected));
-            NewContentCommand = new Command(() => StatusContext.RunNonBlockingTask(NewContent));
-            RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
-            DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
+                StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
+            EmailHtmlToClipboardForSelectedCommand = StatusContext.RunBlockingTaskCommand(EmailBodyHtml);
+            OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
+            NewContentCommand = StatusContext.RunBlockingTaskCommand(NewContent);
+            RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
+            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
             ExtractNewLinksInSelectedCommand =
-                new Command(() => StatusContext.RunBlockingTask(ExtractNewLinksInSelected));
-            ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
+                StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+
+            ImportFromExcelCommand = StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
+            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () => await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems.Cast<dynamic>().ToList(), StatusContext));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -96,6 +101,17 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             {
                 if (Equals(value, _generateSelectedHtmlCommand)) return;
                 _generateSelectedHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromExcelCommand
+        {
+            get => _importFromExcelCommand;
+            set
+            {
+                if (Equals(value, _importFromExcelCommand)) return;
+                _importFromExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -151,6 +167,17 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             {
                 if (Equals(value, _refreshDataCommand)) return;
                 _refreshDataCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SelectedToExcelCommand
+        {
+            get => _selectedToExcelCommand;
+            set
+            {
+                if (Equals(value, _selectedToExcelCommand)) return;
+                _selectedToExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -451,7 +478,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
-
 
         private async Task ViewHistory()
         {

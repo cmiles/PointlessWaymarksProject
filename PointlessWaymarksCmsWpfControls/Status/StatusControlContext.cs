@@ -361,6 +361,11 @@ namespace PointlessWaymarksCmsWpfControls.Status
             Task.Run(toRun).ContinueWith(BlockTaskCompleted);
         }
 
+        public Command RunBlockingTaskCommand(Func<Task> toRun)
+        {
+            return new Command(() => RunBlockingTask(toRun));
+        }
+
         public void RunBlockingTask<T>(Func<T, Task> toRun, T parameter)
         {
             IncrementBlockingTasks();
@@ -410,6 +415,11 @@ namespace PointlessWaymarksCmsWpfControls.Status
         {
             IncrementNonBlockingTasks();
             Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
+        }
+
+        public Command RunNonBlockingTaskCommand(Func<Task> toRun)
+        {
+            return new Command(() => RunNonBlockingTask(toRun));
         }
 
 

@@ -7,7 +7,7 @@
              xmlns:linkList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkList"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance local:LinkListWithActionsContext}">
+             d:DataContext="{d:DesignInstance linkList:LinkListWithActionsContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -17,11 +17,18 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <linkList:LinkListControl Margin="4,5,4,6" DataContext="{Binding ListContext}" />
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+        <Menu>
+            <MenuItem Header="Excel">
+                <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}" />
+                <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}" />
+            </MenuItem>
+        </Menu>
+        <linkList:LinkListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Refresh" />

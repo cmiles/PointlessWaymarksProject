@@ -1,5 +1,5 @@
 ﻿## Todos
- - To Excel needs some formatting for Body Content and Maybe an option to Exclude it?
+ - Menu links to Json import/export
  - Content Testing:
   - Ironwood Integration Tests for Context File Add, Context Image Add, Post, Note, Link
   - Add tests for the common content validation
@@ -41,6 +41,10 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/29/2020
+
+Added some basic formatting to Excel - by setting some limits on the column width and row height after autofit runs I think the format is much improved without the need to create a plethora of specific formats.
 
 7/28/2020
 

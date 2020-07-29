@@ -835,20 +835,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             newWindow.Show();
         }
 
-        public async Task SelectedToExcel()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-            {
-                StatusContext.ToastError("Nothing to send to Excel?");
-                return;
-            }
-
-            ExcelHelpers.ContentToExcelFileAsTable(
-                ListContext.SelectedItems.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedPhotos");
-        }
-
         private void SetupContextAndCommands(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
@@ -869,7 +855,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             ViewHistoryCommand = new Command(() => StatusContext.RunNonBlockingTask(ViewHistory));
             RefreshDataCommand = new Command(() => StatusContext.RunBlockingTask(ListContext.LoadData));
             ForcedResizeCommand = new Command(() => StatusContext.RunBlockingTask(ForcedResize));
-            SelectedToExcelCommand = new Command(() => StatusContext.RunNonBlockingTask(SelectedToExcel));
 
             DeleteSelectedCommand = new Command(() => StatusContext.RunBlockingTask(Delete));
             ExtractNewLinksInSelectedCommand =
@@ -891,6 +876,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             ReportMultiSpacesInTitleCommand = new Command(() => StatusContext.RunNonBlockingTask(async () =>
                 await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces")));
 
+            SelectedToExcelCommand = new Command(() => StatusContext.RunNonBlockingTask(SelectedToExcel));
             ImportFromExcelCommand = new Command(() =>
                 StatusContext.RunBlockingTask(async () => await ExcelHelpers.ImportFromExcel(StatusContext)));
         }

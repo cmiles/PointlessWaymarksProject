@@ -23,7 +23,21 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("PW Data");
-            ws.Cell(1, 1).InsertTable(toDisplay);
+
+            var insertedTable = ws.Cell(1, 1).InsertTable(toDisplay);
+
+            ws.Columns().AdjustToContents();
+
+            foreach (var loopColumn in ws.ColumnsUsed().Where(x => x.Width > 70))
+            {
+                loopColumn.Width = 70;
+                loopColumn.Style.Alignment.WrapText = true;
+            }
+
+            ws.Rows().AdjustToContents();
+
+            foreach (var loopRow in ws.RowsUsed().Where(x => x.Height > 70)) loopRow.Height = 70;
+
             wb.SaveAs(file.FullName);
 
             if (openAfterSaving)
@@ -33,6 +47,20 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             }
 
             return file;
+        }
+
+        public static async Task SelectedToExcel(List<dynamic> selected, StatusControlContext statusContext)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (selected == null || !selected.Any())
+            {
+                statusContext.ToastError("Nothing to send to Excel?");
+                return;
+            }
+
+            ContentToExcelFileAsTable(
+                selected.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedPhotos");
         }
 
         public static async Task ImportFromExcel(StatusControlContext statusContext)

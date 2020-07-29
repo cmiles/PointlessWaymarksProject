@@ -19,11 +19,18 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <local:PostListControl Margin="4,5,4,6" DataContext="{Binding ListContext}" />
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+        <Menu>
+            <MenuItem Header="Excel">
+                <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}" />
+                <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}" />
+            </MenuItem>
+        </Menu>
+        <local:PostListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
             <WrapPanel
                 HorizontalAlignment="Center"
                 Orientation="Horizontal">
@@ -48,7 +55,7 @@
         </Border>
         <status:StatusControl
             Grid.Row="0"
-            Grid.RowSpan="2"
+            Grid.RowSpan="3"
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
     </Grid>
