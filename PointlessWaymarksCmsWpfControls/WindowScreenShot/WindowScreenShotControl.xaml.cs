@@ -43,7 +43,7 @@ namespace PointlessWaymarksCmsWpfControls.WindowScreenShot
                     Console.WriteLine(e);
                 }
 
-                var result = await ScreenShot .NativeCapture.TryWindowScreenShotToClipboardAsync(x);
+                var result = await NativeCapture.TryWindowScreenShotToClipboardAsync(x);
 
                 if (statusContext != null)
                 {

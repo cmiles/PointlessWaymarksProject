@@ -42,21 +42,21 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
+            SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             });
-            OpenUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => OpenUrl(x)));
-            CopyUrlCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(async () =>
+            OpenUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(OpenUrl);
+            CopyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 Clipboard.SetText(x);
 
                 StatusContext.ToastSuccess($"To Clipboard {x}");
-            }));
+            });
             ListSelectedLinksNotOnPinboardCommand = StatusContext.RunBlockingTaskCommand(async () =>
                     await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker()));
 

@@ -51,10 +51,9 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             AllDetailItemsToExcelCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await TagContentToExcel(DetailsList));
 
-            EditContentCommand = new Command<Guid>(x =>
-                StatusContext.RunBlockingTask(async () => await EditContent(x)));
-            VisibleTagsToExcelCommand = new Command<object>(x => StatusContext.RunBlockingTask(VisibleTagsToExcel));
-            SelectedTagsToExcelCommand = new Command<object>(x => StatusContext.RunBlockingTask(SelectedTagsToExcel));
+            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<Guid>(async x => await EditContent(x));
+            VisibleTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(VisibleTagsToExcel);
+            SelectedTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedTagsToExcel);
             ImportFromExcelCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
 
@@ -153,7 +152,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             }
         }
 
-        public Command<object> SelectedTagsToExcelCommand { get; set; }
+        public Command SelectedTagsToExcelCommand { get; set; }
 
         public StatusControlContext StatusContext
         {
@@ -179,7 +178,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             }
         }
 
-        public Command<object> VisibleTagsToExcelCommand
+        public Command VisibleTagsToExcelCommand
         {
             get => _visibleTagsToExcelCommand;
             set

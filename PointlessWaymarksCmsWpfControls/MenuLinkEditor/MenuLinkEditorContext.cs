@@ -30,20 +30,15 @@ namespace PointlessWaymarksCmsWpfControls.MenuLinkEditor
             AddItemCommand = StatusContext.RunBlockingTaskCommand(AddItem);
             DeleteItemCommand = StatusContext.RunBlockingTaskCommand(DeleteItems);
             MoveItemUpCommand =
-                new Command<MenuLinkListItem>(x => StatusContext.RunNonBlockingTask(() => MoveItemUp(x)));
+                StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(MoveItemUp);
             MoveItemDownCommand =
-                new Command<MenuLinkListItem>(x => StatusContext.RunNonBlockingTask(() => MoveItemDown(x)));
+                StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(MoveItemDown);
             SaveCommand = StatusContext.RunBlockingTaskCommand(Save);
-            InsertIndexTagIndexCommand = new Command<MenuLinkListItem>(x =>
-                StatusContext.RunNonBlockingTask(() => InsertIntoLinkTag(x, "{{index; text Main;}}")));
-            InsertTagSearchCommand = new Command<MenuLinkListItem>(x =>
-                StatusContext.RunNonBlockingTask(() => InsertIntoLinkTag(x, "{{tagspage; text Tags;}}")));
-            InsertPhotoGalleryCommand = new Command<MenuLinkListItem>(x =>
-                StatusContext.RunNonBlockingTask(() => InsertIntoLinkTag(x, "{{photogallerypage; text Photos;}}")));
-            InsertSearchPageCommand = new Command<MenuLinkListItem>(x =>
-                StatusContext.RunNonBlockingTask(() => InsertIntoLinkTag(x, "{{searchpage; text Search;}}")));
-            InsertLinkListCommand = new Command<MenuLinkListItem>(x =>
-                StatusContext.RunNonBlockingTask(() => InsertIntoLinkTag(x, "{{linklistpage; text Links;}}")));
+            InsertIndexTagIndexCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{index; text Main;}}"));
+            InsertTagSearchCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{tagspage; text Tags;}}"));
+            InsertPhotoGalleryCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{photogallerypage; text Photos;}}"));
+            InsertSearchPageCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{searchpage; text Search;}}"));
+            InsertLinkListCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{linklistpage; text Links;}}"));
 
             HelpMarkdown = MenuLinksHelpMarkdown.HelpBlock;
 

@@ -44,11 +44,13 @@
 
 7/29/2020
 
+Refactored the Command Syntax. Commands in the project were verbose in large part because my preference is to call what runs in the command thru one of the 'Run' methods in the StatusControlContext - in other projects I have reduced the verbosity by creating Command Classes that encapsulated the call to the StatusControlContext (so for example a 'BackgroundTaskCommand'), this has worked reasonably well but here I took another approach that eliminates having to create the custom command classes and gave the StatusContext classes that create and return a command to use. Light testing appears this is working and the code is more expressive and pleasant! (Note: I like the approach of commands calling a wrapper in the StatusControlContext because it provides quite a lot of functionality and utility (both UI cues (the spinner for non-blocking tasks, a full screen progress list for blocking tasks), backgrounding Actions/Tasks and catch/display exceptions) for very low effort. I do think this pattern is a 'shortcut' - I don't think anyone would have to try to hard to find objections and alternative approaches especially in an 'ideal' or 'recommended architecture' situation and if I was writing an enterprise app with a team I doubt I would use this approach - but for this app it seems very attractive.
+
 Added some basic formatting to Excel - by setting some limits on the column width and row height after autofit runs I think the format is much improved without the need to create a plethora of specific formats.
 
 7/28/2020
 
-When I added the model for LinkStreams I didn't want to call it 'Content' because the links don't get a 'content page' they are always intended as just a list - at the time this difference seemed huge and important - over time that concern faded as everything is in a list and as more operations work over all 'content types' and it became somewhat mentally offputting to have this naming exception.
+When I added the model for LinkStreams I didn't want to call it 'Content' because the links don't get a 'content page' they are always intended as just a list - at the time this difference seemed huge and important - over time that concern faded as everything is in a list and as more operations work over all 'content types' and it became somewhat mentally off putting to have this naming exception.
 
 First version of the DataNotification support in the tags list - light manual testing suggests this is working nicely!
 

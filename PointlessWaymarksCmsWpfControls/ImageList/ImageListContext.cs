@@ -32,13 +32,13 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            SortListCommand = new Command<string>(x => StatusContext.RunNonBlockingTask(() => SortList(x)));
+            SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             });
-            OpenFileCommand = new Command<ImageListListItem>(x => StatusContext.RunNonBlockingTask(() => OpenFile(x)));
+            OpenFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageListListItem>(OpenFile);
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
