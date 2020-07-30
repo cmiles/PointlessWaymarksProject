@@ -10,11 +10,13 @@
  - A bad content code should be handled better
  - Bad Content Code Content Scan
  - To Excel for logs
+ - Investigate improved text to speech via https://github.com/jamesmontemagno/TextToSpeechPlugin/blob/master/src/TextToSpeech.Plugin/TextToSpeech.uwp.cs - at least look at cancellation...
  - Deleted Content Report so it is possible to restore completely deleted
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - In Search it might be nice to have the content type on the line with date?
  - Clean up the main window - split out context - consider creating a control?
+ - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
  - Sorting needs better visual indicators
  - Should temp files be auto-deleted or live forever?
  - Folder Name in Lists needs to open in Explorer when clicked
@@ -43,6 +45,8 @@
 ## Notes
 
 7/30/2020
+
+Quick hack in of local no cost text to speech! In the Body Content Editor to help with proofreading.
 
 Added Json import and export for the Menu Links and Tag Exclusions so that the Json information on the site is complete - I am still convinced the Json Files from a nice part of a layered backup strategy - looking at the Json again and thinking about backup made me realize that if the settings file was split into public and private that the public part could be tracked in the db and copied to the site which would facilitate triggering generation based on changes to the settings and backing up the settings.
 
