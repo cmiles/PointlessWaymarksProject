@@ -38,7 +38,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
         private StatusControlContext _statusContext;
         private string _userFilterText;
-        private Command<object> _visibleTagsToExcelCommand;
+        private Command _visibleTagsToExcelCommand;
 
         public TagListContext(StatusControlContext context)
         {

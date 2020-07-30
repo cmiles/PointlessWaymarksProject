@@ -37,9 +37,14 @@
                                                IconPathGeometry="{StaticResource IconDataInfo}"
                                                HoverText="{Binding DbEntry.Url, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
                                                IconBrush="Black" />
+                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
+                                               Visibility="{Binding LinkUrlHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+                                               IconPathGeometry="{StaticResource IconDataError}"
+                                               HoverText="{Binding LinkUrlHasValidationMessage}"
+                                               IconBrush="Red" />
                     </StackPanel>
                     <TextBox Name="UrlTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                             Text="{Binding LinkUrl, UpdateSourceTrigger=PropertyChanged}" />
+                             Text="{Binding LinkUrl, UpdateSourceTrigger=PropertyChanged, Delay=100}" />
                 </StackPanel>
                 <Grid Margin="6,2,0,0">
                     <Grid.ColumnDefinitions>

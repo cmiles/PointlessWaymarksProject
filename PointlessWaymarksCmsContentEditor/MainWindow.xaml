@@ -116,14 +116,22 @@
                         <StackPanel Orientation="Vertical">
                             <CheckBox Margin="24,6,0,0" Command="{Binding ToggleDiagnosticLoggingCommand}">Log Diagnostic Events</CheckBox>
                             <Grid Margin="12">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition />
                                     <ColumnDefinition />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Button Command="{Binding ExceptionEventsReportCommand}">Exceptions Report</Button>
-                                <Button Grid.Column="1" Command="{Binding DiagnosticEventsReportCommand}">Diagnostics Report</Button>
-                                <Button Grid.Column="2" Command="{Binding AllEventsReportCommand}">All Events Report</Button>
+                                <Button Grid.Row="0" Grid.Column="0" Command="{Binding ExceptionEventsHtmlReportCommand}">Exceptions Html Report</Button>
+                                <Button Grid.Row="0" Grid.Column="1" Command="{Binding DiagnosticEventsHtmlReportCommand}">Diagnostics Html Report</Button>
+                                <Button Grid.Row="0" Grid.Column="2" Command="{Binding AllEventsHtmlReportCommand}">All Events Html Report</Button>
+
+                                <Button Grid.Row="1" Grid.Column="0" Command="{Binding ExceptionEventsExcelReportCommand}">Exceptions Excel Report</Button>
+                                <Button Grid.Row="1" Grid.Column="1" Command="{Binding DiagnosticEventsExcelReportCommand}">Diagnostics Excel Report</Button>
+                                <Button Grid.Row="1" Grid.Column="2" Command="{Binding AllEventsExcelReportCommand}">All Events Excel Report</Button>
                             </Grid>
                         </StackPanel>
                     </GroupBox>

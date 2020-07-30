@@ -145,7 +145,7 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Vertical">
-            <waitingSpinner:WaitingSpinnerControl Diameter="36" Color1="Green" Color2="Transparent"
+            <waitingSpinner:WaitingSpinnerControl Margin="0,4,8,0" Diameter="36" Color1="Green" Color2="Transparent"
                                                   Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
             <toastControl:ToastTray DataContext="{Binding Toast}" />
         </StackPanel>

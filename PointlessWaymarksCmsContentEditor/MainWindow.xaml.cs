@@ -18,9 +18,9 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Json;
+using PointlessWaymarksCmsWpfControls.Diagnostics;
 using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
-using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.ImageList;
 using PointlessWaymarksCmsWpfControls.LinkList;
 using PointlessWaymarksCmsWpfControls.MenuLinkEditor;
@@ -76,73 +76,74 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext = new StatusControlContext();
 
             //Common
-            GenerateChangedHtmlCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
-                await GenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker())));
+            GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker()));
 
             RemoveUnusedFilesFromMediaArchiveCommand =
-                new Command(() => StatusContext.RunBlockingTask(RemoveUnusedFilesFromMediaArchive));
+                StatusContext.RunBlockingTaskCommand(RemoveUnusedFilesFromMediaArchive);
 
-            RemoveUnusedFoldersAndFilesFromContentCommand = new Command(() =>
-                StatusContext.RunBlockingTask(RemoveUnusedFoldersAndFilesFromContent));
+            RemoveUnusedFoldersAndFilesFromContentCommand =
+                StatusContext.RunBlockingTaskCommand(RemoveUnusedFoldersAndFilesFromContent);
 
-            GenerateIndexCommand = new Command(() =>
-                StatusContext.RunBlockingAction(() => GenerationGroups.GenerateIndex(StatusContext.ProgressTracker())));
+            GenerateIndexCommand =
+                StatusContext.RunBlockingActionCommand(() =>
+                    GenerationGroups.GenerateIndex(StatusContext.ProgressTracker()));
 
             //All/Forced Regeneration
-            GenerateAllHtmlCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
-                await GenerationGroups.GenerateAllHtml(StatusContext.ProgressTracker())));
+            GenerateAllHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllHtml(StatusContext.ProgressTracker()));
 
-            ConfirmOrGenerateAllPhotosImagesFilesCommand = new Command(() =>
-                StatusContext.RunBlockingTask(ConfirmOrGenerateAllPhotosImagesFiles));
+            ConfirmOrGenerateAllPhotosImagesFilesCommand =
+                StatusContext.RunBlockingTaskCommand(ConfirmOrGenerateAllPhotosImagesFiles);
 
-            DeleteAndResizePicturesCommand = new Command(() => StatusContext.RunBlockingTask(CleanAndResizePictures));
+            DeleteAndResizePicturesCommand = StatusContext.RunBlockingTaskCommand(CleanAndResizePictures);
 
             //Diagnostics
             ToggleDiagnosticLoggingCommand = new Command(() =>
                 UserSettingsSingleton.LogDiagnosticEvents = !UserSettingsSingleton.LogDiagnosticEvents);
 
-            ExceptionEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(ExceptionEventsReport));
-            DiagnosticEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(DiagnosticEventsReport));
-            AllEventsReportCommand = new Command(() => StatusContext.RunNonBlockingTask(AllEventsReport));
+            ExceptionEventsHtmlReportCommand =
+                StatusContext.RunNonBlockingTaskCommand(Reports.ExceptionEventsHtmlReport);
+            DiagnosticEventsHtmlReportCommand =
+                StatusContext.RunNonBlockingTaskCommand(Reports.DiagnosticEventsHtmlReport);
+            ExceptionEventsExcelReportCommand =
+                StatusContext.RunNonBlockingTaskCommand(Reports.ExceptionEventsExcelReport);
+            DiagnosticEventsExcelReportCommand =
+                StatusContext.RunNonBlockingTaskCommand(Reports.DiagnosticEventsExcelReport);
+            AllEventsHtmlReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsHtmlReport);
+            AllEventsExcelReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsExcelReport);
 
             //Main Parts
-            GenerateHtmlForAllFileContentCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () =>
-                    await GenerationGroups.GenerateAllFileHtml(StatusContext.ProgressTracker())));
+            GenerateHtmlForAllFileContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllFileHtml(StatusContext.ProgressTracker()));
 
-            GenerateHtmlForAllImageContentCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () =>
-                    await GenerationGroups.GenerateAllImageHtml(StatusContext.ProgressTracker())));
+            GenerateHtmlForAllImageContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllImageHtml(StatusContext.ProgressTracker()));
 
-            GenerateHtmlForAllNoteContentCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () =>
-                    await GenerationGroups.GenerateAllNoteHtml(StatusContext.ProgressTracker())));
+            GenerateHtmlForAllNoteContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllNoteHtml(StatusContext.ProgressTracker()));
 
-            GenerateHtmlForAllPhotoContentCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () =>
-                    await GenerationGroups.GenerateAllPhotoHtml(StatusContext.ProgressTracker())));
+            GenerateHtmlForAllPhotoContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllPhotoHtml(StatusContext.ProgressTracker()));
 
-            GenerateHtmlForAllPostContentCommand = new Command(() =>
-                StatusContext.RunBlockingTask(async () =>
-                    await GenerationGroups.GenerateAllPostHtml(StatusContext.ProgressTracker())));
+            GenerateHtmlForAllPostContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllPostHtml(StatusContext.ProgressTracker()));
 
             //Derived
-            GenerateAllListHtmlCommand = new Command(() =>
-                StatusContext.RunBlockingAction(() =>
-                    GenerationGroups.GenerateAllListHtml(StatusContext.ProgressTracker())));
+            GenerateAllListHtmlCommand = StatusContext.RunBlockingActionCommand(() =>
+                GenerationGroups.GenerateAllListHtml(StatusContext.ProgressTracker()));
 
-            GenerateAllTagHtmlCommand = new Command(() =>
-                StatusContext.RunBlockingAction(() =>
-                    GenerationGroups.GenerateAllTagHtml(StatusContext.ProgressTracker())));
+            GenerateAllTagHtmlCommand = StatusContext.RunBlockingActionCommand(() =>
+                GenerationGroups.GenerateAllTagHtml(StatusContext.ProgressTracker()));
 
-            GenerateCameraRollCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
-                await GenerationGroups.GenerateCameraRollHtml(StatusContext.ProgressTracker())));
+            GenerateCameraRollCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateCameraRollHtml(StatusContext.ProgressTracker()));
 
-            GenerateDailyGalleryHtmlCommand = new Command(() => StatusContext.RunBlockingTask(async () =>
-                await GenerationGroups.GenerateAllDailyPhotoGalleriesHtml(StatusContext.ProgressTracker())));
+            GenerateDailyGalleryHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllDailyPhotoGalleriesHtml(StatusContext.ProgressTracker()));
 
             //Rebuild
-            ImportJsonFromDirectoryCommand = new Command(() => StatusContext.RunBlockingTask(ImportJsonFromDirectory));
+            ImportJsonFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(ImportJsonFromDirectory);
 
 
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
@@ -152,15 +153,21 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanupTemporaryFiles);
         }
 
-        public Command AllEventsReportCommand { get; set; }
+        public Command AllEventsExcelReportCommand { get; set; }
+
+        public Command AllEventsHtmlReportCommand { get; set; }
 
         public Command ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }
 
         public Command DeleteAndResizePicturesCommand { get; set; }
 
-        public Command DiagnosticEventsReportCommand { get; set; }
+        public Command DiagnosticEventsExcelReportCommand { get; set; }
 
-        public Command ExceptionEventsReportCommand { get; set; }
+        public Command DiagnosticEventsHtmlReportCommand { get; set; }
+
+        public Command ExceptionEventsExcelReportCommand { get; set; }
+
+        public Command ExceptionEventsHtmlReportCommand { get; set; }
 
         public Command GenerateAllHtmlCommand { get; set; }
 
@@ -373,19 +380,6 @@ namespace PointlessWaymarksCmsContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private async Task AllEventsReport()
-        {
-            var log = await Db.Log();
-
-            var htmlTable = log.EventLogs.Take(5000).OrderByDescending(x => x.RecordedOn).ToList()
-                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var reportWindow = new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Events Report", string.Empty));
-            reportWindow.Show();
-        }
-
         private async Task CleanAndResizeAllImageFiles()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -549,35 +543,6 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext.ToastSuccess("All HTML Generation Finished");
         }
 
-        private async Task DiagnosticEventsReport()
-        {
-            var log = await Db.Log();
-
-            var htmlTable = log.EventLogs.Where(x => x.Category == "Diagnostic" || x.Category == "Startup").Take(5000)
-                .OrderByDescending(x => x.RecordedOn).ToList()
-                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var reportWindow =
-                new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Diagnostic Events Report", string.Empty));
-            reportWindow.Show();
-        }
-
-        private async Task ExceptionEventsReport()
-        {
-            var log = await Db.Log();
-
-            var htmlTable = log.EventLogs.Where(x => x.Category == "Exception" || x.Category == "Startup").Take(1000)
-                .OrderByDescending(x => x.RecordedOn).ToList()
-                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var reportWindow =
-                new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Exception Events Report", string.Empty));
-            reportWindow.Show();
-        }
 
         private static DateTime? GetBuildDate(Assembly assembly)
         {
@@ -635,24 +600,15 @@ namespace PointlessWaymarksCmsContentEditor
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
             SoftwareComponentsHelpContext = new HelpDisplayContext(SoftwareUsedHelpMarkdown.HelpBlock);
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+                await EventLogContext.DeleteLogEntriesMoreThanMonthsOld(3));
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async Task OpenIndexUrl()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            var url = $@"http://{settings.SiteUrl}";
-
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
         }
 
         private async Task RemoveUnusedFilesFromMediaArchive()
@@ -704,35 +660,6 @@ namespace PointlessWaymarksCmsContentEditor
         {
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
                 await SettingsFileChooserOnSettingsFileUpdated(e));
-        }
-
-        private void TempClean(List<dynamic> toClean)
-        {
-            toClean.ForEach(x =>
-            {
-                Db.DefaultPropertyCleanup(x);
-                x.Tags = Db.TagListCleanup(x.Tags);
-            });
-        }
-
-        private async Task Temporary()
-        {
-            var db = await Db.Context();
-
-            TempClean(db.FileContents.Cast<dynamic>().ToList());
-            TempClean(db.HistoricFileContents.Cast<dynamic>().ToList());
-            TempClean(db.ImageContents.Cast<dynamic>().ToList());
-            TempClean(db.HistoricImageContents.Cast<dynamic>().ToList());
-            TempClean(db.LinkContents.Cast<dynamic>().ToList());
-            TempClean(db.HistoricLinkContents.Cast<dynamic>().ToList());
-            TempClean(db.NoteContents.Cast<dynamic>().ToList());
-            TempClean(db.HistoricNoteContents.Cast<dynamic>().ToList());
-            TempClean(db.PhotoContents.Cast<dynamic>().ToList());
-            TempClean(db.HistoricPhotoContents.Cast<dynamic>().ToList());
-            TempClean(db.PostContents.Cast<dynamic>().ToList());
-            TempClean(db.HistoricPostContents.Cast<dynamic>().ToList());
-
-            await db.SaveChangesAsync(true);
         }
     }
 }

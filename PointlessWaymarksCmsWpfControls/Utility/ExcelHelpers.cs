@@ -19,10 +19,10 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             bool openAfterSaving = true)
         {
             var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-                $"ContentExport-{FolderFileUtility.TryMakeFilenameValid(fileName)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.xlsx"));
+                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FolderFileUtility.TryMakeFilenameValid(fileName)}.xlsx"));
 
             var wb = new XLWorkbook();
-            var ws = wb.Worksheets.Add("PW Data");
+            var ws = wb.Worksheets.Add("Exported Data");
 
             var insertedTable = ws.Cell(1, 1).InsertTable(toDisplay);
 

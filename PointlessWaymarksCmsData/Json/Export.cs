@@ -198,5 +198,41 @@ namespace PointlessWaymarksCmsData.Json
 
             await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
+
+        public static void WriteMenuLinksJson()
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var db = Db.Context().Result;
+            var allContent = db.MenuLinks.OrderByDescending(x => x.MenuOrder).ToList();
+
+            var jsonDbEntry = JsonSerializer.Serialize(allContent);
+
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteDirectory().FullName,
+                $"{Names.MenuLinksFileName}.json"));
+
+            if (jsonFile.Exists) jsonFile.Delete();
+            jsonFile.Refresh();
+
+            File.WriteAllText(jsonFile.FullName, jsonDbEntry);
+        }
+
+        public static void WriteTagExclusionsJson()
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var db = Db.Context().Result;
+            var allContent = db.TagExclusions.OrderByDescending(x => x.Tag).ToList();
+
+            var jsonDbEntry = JsonSerializer.Serialize(allContent);
+
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteTagsDirectory().FullName,
+                $"{Names.TagExclusionsFileName}.json"));
+
+            if (jsonFile.Exists) jsonFile.Delete();
+            jsonFile.Refresh();
+
+            File.WriteAllText(jsonFile.FullName, jsonDbEntry);
+        }
     }
 }

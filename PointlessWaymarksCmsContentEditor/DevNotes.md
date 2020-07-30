@@ -1,22 +1,22 @@
 ﻿## Todos
- - Menu links to Json import/export
+ - Split settings into a public and private so that the public settings can be copied to the site for backup and the private can stay in the archive.
+   - Public settings file snapshots into the db on generation so changes can be detected and full generation potentially triggered
  - Content Testing:
   - Ironwood Integration Tests for Context File Add, Context Image Add, Post, Note, Link
   - Add tests for the common content validation
  - Rework the Daily Photos generation so specific days can be build
- - Gui Validation alerts - Title control and Tags Control Done
- - Where to integrate the Excel Import to make it more obvious to find? Title bar all lists?
+ - Gui Validation alerts - Title control, Tags Control, Link Url Done
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - A bad content code should be handled better
  - Bad Content Code Content Scan
  - To Excel for logs
  - Deleted Content Report so it is possible to restore completely deleted
- - The Changed Html generation doesn't detect changes to settings that should trigger a full generation (but need to avoid writing the settings into the database - keeping secrets out of the db means it can be pushed to the public site as a 'backup' strategy)
  - Refactor the Email HTML so you code send any current type to it
     - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - In Search it might be nice to have the content type on the line with date?
  - Clean up the main window - split out context - consider creating a control?
  - Sorting needs better visual indicators
+ - Should temp files be auto-deleted or live forever?
  - Folder Name in Lists needs to open in Explorer when clicked
  - Folder in editor should help you with existing choices
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
@@ -41,6 +41,20 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+7/30/2020
+
+Added Json import and export for the Menu Links and Tag Exclusions so that the Json information on the site is complete - I am still convinced the Json Files from a nice part of a layered backup strategy - looking at the Json again and thinking about backup made me realize that if the settings file was split into public and private that the public part could be tracked in the db and copied to the site which would facilitate triggering generation based on changes to the settings and backing up the settings.
+
+Worked on LinkUrl validation and validation indicator.
+
+Added Excel export for the diagnostics and changed the Excel naming convention (with the files all saved into the temp directory the date is now first - I think this is a no win where depending on your needs this will quickly be wrong but I think this is a better default - worth noting too that since the files open automatically there is a good chance for the user to save the file where and how they want).
+
+Added a clean up routine for the Log db to only keep a couple of months worth of logs.
+
+Changed the temp file clean up to 28 days - there is a chance that a user could have files unexpectedly deleted which I don't like, but unsure whether letting files build up forever is ok? Maybe now that the files are default date sorted?
+
+Changed the Main Form commands to the newer style.
 
 7/29/2020
 

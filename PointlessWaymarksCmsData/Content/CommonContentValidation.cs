@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
@@ -10,6 +11,32 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class CommonContentValidation
     {
+        public static async Task<(bool isValid, string explanation)> ValidateLinkContentLinkUrl(string url, Guid? contentGuid)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return (false, "Link URL can not be blank");
+
+            var db = await Db.Context();
+
+            if (contentGuid == null)
+            {
+                var duplicateUrl =
+                    await db.LinkContents.AnyAsync(x => x.Url.ToLower() == url.ToLower());
+                if (duplicateUrl)
+                    return (false,
+                        "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
+            }
+            else
+            {
+                var duplicateUrl =
+                    await db.LinkContents.AnyAsync(x => x.ContentId != contentGuid.Value && x.Url.ToLower() == url.ToLower());
+                if (duplicateUrl)
+                    return (false,
+                        "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
+            }
+
+            return (true, string.Empty);
+        }
+
         public static (bool isValid, string explanation) ValidateBodyContentFormat(string contentFormat)
         {
             if (string.IsNullOrWhiteSpace(contentFormat)) return (false, "Body Content Format must be set");

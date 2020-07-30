@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,19 @@ namespace PointlessWaymarksCmsData.Database
         }
 
         public DbSet<EventLog> EventLogs { get; set; }
+
+        public static async Task DeleteLogEntriesMoreThanMonthsOld(int numberOfMonths)
+        {
+            var cutoff = DateTime.Now.AddMonths(-1 * Math.Abs(numberOfMonths));
+
+            var db = await Db.Log();
+
+            var toRemove = db.EventLogs.Where(x => x.RecordedOn < cutoff);
+
+            db.EventLogs.RemoveRange(toRemove);
+
+            await db.SaveChangesAsync(true);
+        }
 
         public static async Task TryWriteDiagnosticMessageToLog(string message, string sender)
         {

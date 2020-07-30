@@ -75,6 +75,28 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
+        public bool FolderHasValidationIssues
+        {
+            get => _folderHasValidationIssues;
+            set
+            {
+                if (value == _folderHasValidationIssues) return;
+                _folderHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string FolderValidationMessage
+        {
+            get => _folderValidationMessage;
+            set
+            {
+                if (value == _folderValidationMessage) return;
+                _folderValidationMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string Slug
         {
             get => _slug;
@@ -93,6 +115,28 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             {
                 if (value == _slugHasChanges) return;
                 _slugHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SlugHasValidationIssues
+        {
+            get => _slugHasValidationIssues;
+            set
+            {
+                if (value == _slugHasValidationIssues) return;
+                _slugHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SlugValidationMessage
+        {
+            get => _slugValidationMessage;
+            set
+            {
+                if (value == _slugValidationMessage) return;
+                _slugValidationMessage = value;
                 OnPropertyChanged();
             }
         }
@@ -131,6 +175,28 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
+        public bool SummaryHasValidationIssues
+        {
+            get => _summaryHasValidationIssues;
+            set
+            {
+                if (value == _summaryHasValidationIssues) return;
+                _summaryHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SummaryValidationMessage
+        {
+            get => _summaryValidationMessage;
+            set
+            {
+                if (value == _summaryValidationMessage) return;
+                _summaryValidationMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string Title
         {
             get => _title;
@@ -153,6 +219,17 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
+        public bool TitleHasValidationIssues
+        {
+            get => _titleHasValidationIssues;
+            set
+            {
+                if (value == _titleHasValidationIssues) return;
+                _titleHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command TitleToSlugCommand
         {
             get => _titleToSlugCommand;
@@ -160,6 +237,17 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             {
                 if (Equals(value, _titleToSlugCommand)) return;
                 _titleToSlugCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string TitleValidationMessage
+        {
+            get => _titleValidationMessage;
+            set
+            {
+                if (value == _titleValidationMessage) return;
+                _titleValidationMessage = value;
                 OnPropertyChanged();
             }
         }
@@ -180,6 +268,14 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             ValidateSummary();
             ValidateSlug();
             ValidateFolder();
+        }
+
+        public void ValidateSummary()
+        {
+            var validationResult = CommonContentValidation.ValidateSummary(Summary);
+
+            SummaryHasValidationIssues = !validationResult.isValid;
+            SummaryValidationMessage = validationResult.explanation;
         }
 
         public async Task LoadData(ITitleSummarySlugFolder dbEntry)
@@ -230,58 +326,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             TitleValidationMessage = validationResult.explanation;
         }
 
-        public string TitleValidationMessage
-        {
-            get => _titleValidationMessage;
-            set
-            {
-                if (value == _titleValidationMessage) return;
-                _titleValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool TitleHasValidationIssues
-        {
-            get => _titleHasValidationIssues;
-            set
-            {
-                if (value == _titleHasValidationIssues) return;
-                _titleHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public void ValidateSummary()
-        {
-            var validationResult = CommonContentValidation.ValidateSummary(Summary);
-
-            SummaryHasValidationIssues = !validationResult.isValid;
-            SummaryValidationMessage = validationResult.explanation;
-        }
-
-        public string SummaryValidationMessage
-        {
-            get => _summaryValidationMessage;
-            set
-            {
-                if (value == _summaryValidationMessage) return;
-                _summaryValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool SummaryHasValidationIssues
-        {
-            get => _summaryHasValidationIssues;
-            set
-            {
-                if (value == _summaryHasValidationIssues) return;
-                _summaryHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
         public void ValidateSlug()
         {
             var validationResult = CommonContentValidation.ValidateSlugLocal(Slug);
@@ -290,77 +334,12 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             SlugValidationMessage = validationResult.explanation;
         }
 
-        public string SlugValidationMessage
-        {
-            get => _slugValidationMessage;
-            set
-            {
-                if (value == _slugValidationMessage) return;
-                _slugValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool SlugHasValidationIssues
-        {
-            get => _slugHasValidationIssues;
-            set
-            {
-                if (value == _slugHasValidationIssues) return;
-                _slugHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string FolderValidationMessage
-        {
-            get => _folderValidationMessage;
-            set
-            {
-                if (value == _folderValidationMessage) return;
-                _folderValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool FolderHasValidationIssues
-        {
-            get => _folderHasValidationIssues;
-            set
-            {
-                if (value == _folderHasValidationIssues) return;
-                _folderHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
         public void ValidateFolder()
         {
             var validationResult = CommonContentValidation.ValidateFolder(Folder);
 
             FolderHasValidationIssues = !validationResult.isValid;
             FolderValidationMessage = validationResult.explanation;
-        }
-
-        public async Task<(bool valid, string explanation)> Validate()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            ValidateTitle();
-            ValidateSummary();
-            ValidateSlug();
-            ValidateFolder();
-
-            var allPassed = !TitleHasValidationIssues && !SummaryHasValidationIssues && !SlugHasValidationIssues &&
-                            !FolderHasValidationIssues;
-
-            var returnMessage = string.Join(Environment.NewLine,
-                new List<string>
-                {
-                    TitleValidationMessage, SummaryValidationMessage, SlugValidationMessage, FolderValidationMessage
-                });
-
-            return (allPassed, returnMessage);
         }
     }
 }

@@ -64,6 +64,7 @@ namespace PointlessWaymarksCmsData.Html
             await GenerateCameraRollHtml(progress);
             GenerateAllTagHtml(progress);
             GenerateAllListHtml(progress);
+            GenerateAllUtilityJson(progress);
             GenerateIndex(progress);
 
             progress?.Report(
@@ -107,6 +108,7 @@ namespace PointlessWaymarksCmsData.Html
 
             var linkListPage = new LinkListPage();
             linkListPage.WriteLocalHtmlRssAndJson();
+            progress?.Report("Creating Link List Json");
             Export.WriteLinkListJson();
         }
 
@@ -182,6 +184,15 @@ namespace PointlessWaymarksCmsData.Html
         public static void GenerateAllTagHtml(IProgress<string> progress)
         {
             SearchListPageGenerators.WriteTagListAndTagPages(progress);
+        }
+
+        public static void GenerateAllUtilityJson(IProgress<string> progress)
+        {
+            progress?.Report("Creating Menu Links Json");
+            Export.WriteMenuLinksJson();
+
+            progress?.Report("Creating Tag Exclusion Json");
+            Export.WriteTagExclusionsJson();
         }
 
         public static async Task GenerateCameraRollHtml(IProgress<string> progress)
@@ -294,6 +305,7 @@ namespace PointlessWaymarksCmsData.Html
 
             var linkListPage = new LinkListPage();
             linkListPage.WriteLocalHtmlRssAndJson();
+            progress?.Report("Creating Link List Json");
             Export.WriteLinkListJson();
         }
 
@@ -347,6 +359,7 @@ namespace PointlessWaymarksCmsData.Html
 
             GenerateAllTagHtml(progress);
             await GenerateChangedListHtml(progress);
+            GenerateAllUtilityJson(progress);
             GenerateIndex(progress);
 
             progress?.Report($"Generation Complete - writing {frozenNow} as Last Generation UTC into settings");

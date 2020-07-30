@@ -257,7 +257,7 @@ namespace PointlessWaymarksCmsData.Content
                     var lastAccessDayDiff = frozenUtcNow.Subtract(loopFiles.LastAccessTimeUtc).Days;
                     var lastWriteDayDiff = frozenUtcNow.Subtract(loopFiles.LastWriteTimeUtc).Days;
 
-                    if (creationDayDiff > 2 && lastAccessDayDiff > 2 && lastWriteDayDiff > 2)
+                    if (creationDayDiff > 28 && lastAccessDayDiff > 28 && lastWriteDayDiff > 28)
                         loopFiles.Delete();
                 }
                 catch (Exception e)

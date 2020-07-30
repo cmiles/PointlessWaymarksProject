@@ -2,6 +2,8 @@
 {
     public static class Names
     {
+        public static string MenuLinksFileName = "MenuLinks";
+        public static string TagExclusionsFileName = "TagExclusions";
         public static string HistoricLinkListFileName = "HistoricLinkList";
         public static string LinkListFileName = "LinkList";
         public static string FileContentPrefix = "File---";

@@ -43,6 +43,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
         private bool _titleHasChanges;
 
         public EventHandler RequestLinkContentEditorWindowClose;
+        private bool _linkUrlHasValidationIssues;
+        private string _linkUrlHasValidationMessage;
 
         public LinkContentEditorContext(StatusControlContext statusContext, LinkContent linkContent,
             bool extractDataOnLoad = false)
@@ -203,6 +205,28 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
+        public bool LinkUrlHasValidationIssues
+        {
+            get => _linkUrlHasValidationIssues;
+            set
+            {
+                if (value == _linkUrlHasValidationIssues) return;
+                _linkUrlHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string LinkUrlHasValidationMessage
+        {
+            get => _linkUrlHasValidationMessage;
+            set
+            {
+                if (value == _linkUrlHasValidationMessage) return;
+                _linkUrlHasValidationMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool LinkUrlHasChanges
         {
             get => _linkUrlHasChanges;
@@ -350,7 +374,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void CheckForChanges()
+        private async Task CheckForChangesAndValidate()
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
@@ -364,6 +388,16 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             SiteHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Site) != Site.TrimNullToEmpty();
             TitleHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Title) != Title.TrimNullToEmpty();
             // ReSharper restore InvokeAsExtensionMethod
+
+            await ValidateUrl();
+        }
+
+        public async Task ValidateUrl()
+        {
+            var validationResult = await CommonContentValidation.ValidateLinkContentLinkUrl(LinkUrl, DbEntry?.ContentId);
+
+            LinkUrlHasValidationIssues = !validationResult.isValid;
+            LinkUrlHasValidationMessage = validationResult.explanation;
         }
 
         private async Task ExtractDataFromLink()
@@ -416,7 +450,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!(propertyName.Contains("HasChanges") || propertyName.Contains("HaveChanges"))) CheckForChanges();
+            if (!(propertyName.Contains("HasChanges") || propertyName.Contains("HaveChanges"))) StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CheckForChangesAndValidate);
         }
 
         private LinkContent CurrentStateToLinkContent()

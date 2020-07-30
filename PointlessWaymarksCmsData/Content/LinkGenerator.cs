@@ -172,7 +172,7 @@ namespace PointlessWaymarksCmsData.Content
             await SaveLinkToPinboard(toSave, progress);
             GenerateHtmlAndJson(progress);
 
-            await DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Note,
+            await DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Link,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
             return (
@@ -244,19 +244,12 @@ namespace PointlessWaymarksCmsData.Content
             if (!createdUpdatedValid)
                 return await GenerationReturn.Error(createdUpdatedValidationMessage, linkContent.ContentId);
 
-            if (string.IsNullOrWhiteSpace(linkContent.Url))
-                return await GenerationReturn.Error("The Link URL can not be blank.", linkContent.ContentId);
+            var urlValidation = await CommonContentValidation.ValidateLinkContentLinkUrl(linkContent.Url, linkContent.ContentId);
 
-            var db = await Db.Context();
+            if (!urlValidation.isValid)
+                return await GenerationReturn.Error(urlValidation.explanation, linkContent.ContentId);
 
-            var duplicateUrl =
-                await db.LinkContents.AnyAsync(x => x.ContentId != linkContent.ContentId && x.Url == linkContent.Url);
-
-            if (duplicateUrl)
-                return await GenerationReturn.Error("The Link URL already exists in the database.",
-                    linkContent.ContentId);
-
-            return await GenerationReturn.Success("Note Content Validation Successful");
+            return await GenerationReturn.Success("Link Content Validation Successful");
         }
 
         public class LinkMetadata
