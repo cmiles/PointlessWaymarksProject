@@ -19,6 +19,98 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
         public PictureAsset Pictures { get; set; }
 
+        private HtmlTag EmailImageTableTag(ImageContent dbEntry)
+        {
+            var tableContainer = new TableTag();
+            tableContainer.Style("margin", "20px").Style("text-align", "center");
+            var pictureRow = tableContainer.AddBodyRow();
+            var pictureCell = pictureRow.Cell();
+            pictureCell.Children.Add(Tags.PictureEmailImgTag(Pictures, true));
+
+            var captionRow = tableContainer.AddBodyRow();
+            var captionCell = captionRow.Cell(Tags.ImageCaptionText(dbEntry));
+            captionCell.Style("opacity", ".5");
+
+            return tableContainer;
+        }
+
+        private HtmlTag EmailPhotoTableTag(PhotoContent dbEntry)
+        {
+            var emailCenterTable = new TableTag();
+            emailCenterTable.Attr("width", "94%");
+            emailCenterTable.Attr("margin", "20");
+            emailCenterTable.Attr("border", "0");
+            emailCenterTable.Attr("cellspacing", "0");
+            emailCenterTable.Attr("cellpadding", "0");
+
+            var topMarginRow = emailCenterTable.AddBodyRow();
+            topMarginRow.Attr("height", "10");
+            var topMarginCell = topMarginRow.Cell();
+            topMarginCell.Text("&nbsp;").Encoded(false);
+
+            var emailImageRow = emailCenterTable.AddBodyRow();
+
+            var emailImageCenterLeftCell = emailImageRow.Cell();
+            emailImageCenterLeftCell.Attr("max-width", "1%");
+            emailImageCenterLeftCell.Attr("align", "center");
+            emailImageCenterLeftCell.Attr("valign", "top");
+            emailImageCenterLeftCell.Text("&nbsp;").Encoded(false);
+
+            var emailCenterContentCell = emailImageRow.Cell();
+            emailCenterContentCell.Attr("width", "100%");
+            emailCenterContentCell.Attr("align", "center");
+            emailCenterContentCell.Attr("valign", "top");
+
+            emailCenterContentCell.Children.Add(Tags.PictureEmailImgTag(Pictures, true));
+
+            var emailCenterRightCell = emailImageRow.Cell();
+            emailCenterRightCell.Attr("max-width", "1%");
+            emailCenterRightCell.Attr("align", "center");
+            emailCenterRightCell.Attr("valign", "top");
+            emailCenterRightCell.Text("&nbsp;").Encoded(false);
+
+            var captionImageRow = emailCenterTable.AddBodyRow();
+
+            var captionImageCenterLeftCell = captionImageRow.Cell();
+            captionImageCenterLeftCell.Attr("max-width", "1%");
+            captionImageCenterLeftCell.Attr("align", "center");
+            captionImageCenterLeftCell.Attr("valign", "top");
+            captionImageCenterLeftCell.Text("&nbsp;").Encoded(false);
+
+            var captionCenterContentCell = captionImageRow.Cell();
+            captionCenterContentCell.Attr("width", "100%");
+            captionCenterContentCell.Attr("align", "center");
+            captionCenterContentCell.Attr("valign", "top");
+
+            captionCenterContentCell.Text(Tags.PhotoCaptionText(dbEntry));
+
+            var captionCenterRightCell = captionImageRow.Cell();
+            captionCenterRightCell.Attr("max-width", "1%");
+            captionCenterRightCell.Attr("align", "center");
+            captionCenterRightCell.Attr("valign", "top");
+            captionCenterRightCell.Text("&nbsp;").Encoded(false);
+
+            var bottomMarginRow = emailCenterTable.AddBodyRow();
+            bottomMarginRow.Attr("height", "10");
+            var bottomMarginCell = bottomMarginRow.Cell();
+            bottomMarginCell.Text("&nbsp;").Encoded(false);
+
+            return emailCenterTable;
+        }
+
+        public HtmlTag EmailPictureTableTag()
+        {
+            switch (Pictures.DbEntry)
+            {
+                case PhotoContent p:
+                    return EmailPhotoTableTag(p);
+                case ImageContent i:
+                    return EmailImageTableTag(i);
+                default:
+                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
+            }
+        }
+
         public HtmlTag ImageFigureTag(ImageContent dbEntry, string sizes)
         {
             var figureTag = new HtmlTag("figure").AddClass("single-image-container");
@@ -84,42 +176,12 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return figureTag;
         }
 
-        private HtmlTag EmailImageTableTag(ImageContent dbEntry)
-        {
-            var tableContainer = new TableTag();
-            tableContainer.Style("margin", "20px").Style("text-align", "center");
-            var pictureRow = tableContainer.AddBodyRow();
-            var pictureCell = pictureRow.Cell();
-            pictureCell.Children.Add(Tags.PictureEmailImgTag(Pictures, true));
-
-            var captionRow = tableContainer.AddBodyRow();
-            var captionCell = captionRow.Cell(Tags.ImageCaptionText(dbEntry, false));
-            captionCell.Style("opacity", ".5");
-
-            return tableContainer;
-        }
-
         private HtmlTag LocalPhotoFigureTag(PhotoContent dbEntry)
         {
             var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
             figureTag.Children.Add(LocalDisplayPhotoImageTag());
             figureTag.Children.Add(Tags.PhotoFigCaptionTag(dbEntry));
             return figureTag;
-        }
-
-        private HtmlTag EmailPhotoTableTag(PhotoContent dbEntry)
-        {
-            var tableContainer = new TableTag();
-            tableContainer.Style("margin", "20px").Style("text-align", "center");
-            var pictureRow = tableContainer.AddBodyRow();
-            var pictureCell = pictureRow.Cell();
-            pictureCell.Children.Add(Tags.PictureEmailImgTag(Pictures, true));
-
-            var captionRow = tableContainer.AddBodyRow();
-            var captionCell = captionRow.Cell(Tags.PhotoCaptionText(dbEntry, false));
-            captionCell.Style("opacity", ".5");
-
-            return tableContainer;
         }
 
         public HtmlTag LocalPictureFigureTag()
@@ -130,19 +192,6 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
                     return LocalPhotoFigureTag(p);
                 case ImageContent i:
                     return LocalImageFigureTag(i);
-                default:
-                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
-            }
-        }
-
-        public HtmlTag EmailPictureTableTag()
-        {
-            switch (Pictures.DbEntry)
-            {
-                case PhotoContent p:
-                    return EmailPhotoTableTag(p);
-                case ImageContent i:
-                    return EmailImageTableTag(i);
                 default:
                     throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
             }

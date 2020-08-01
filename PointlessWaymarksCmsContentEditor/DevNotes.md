@@ -44,6 +44,12 @@
 
 ## Notes
 
+8/1/2020
+
+The recent San Pedro email showed some problems in the email template so reworked it into a form that does work with that email as a test. This translation puts everything into rows, centers pictures using the 3 cell technique and varies the width setting based on horizontal vs vertical size.
+
+Noticed that a snapped right window didn't reappear in the same spot on startup - adjusted the EnsureWindowIsVisible to not pad the height when checking (the original padding was probably for the task bar but I believe dpi scaling has made that value, even the 'default' more varied) and more tolerant about right side off screen (since while the math seems correct the app snapped right is supposedly off screen but is not? something seems incorrect but with a good fix in place not digging in more to screens and scaling at this point...)
+
 7/30/2020
 
 Quick hack in of local no cost text to speech! In the Body Content Editor to help with proofreading.

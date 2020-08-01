@@ -235,8 +235,14 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             var emailSize = pictureDirectoryInfo.SrcsetImages.Where(x => x.Width < 800).OrderByDescending(x => x.Width)
                 .First();
 
+            var stringWidth = "94%";
+            if (emailSize.Width < emailSize.Height)
+            {
+                stringWidth = emailSize.Height > 600 ? ((int) (600M / emailSize.Height * emailSize.Width)).ToString("F0") : emailSize.Width.ToString("F0");
+            }
+
             var imageTag = new HtmlTag("img").Attr("src", $"https:{emailSize.SiteUrl}")
-                .Attr("max-height", emailSize.Height).Attr("max-width", emailSize.Width).Attr("width", "94%");
+                .Attr("max-height", emailSize.Height).Attr("max-width", emailSize.Width).Attr("width", stringWidth);
 
             if (!string.IsNullOrWhiteSpace(emailSize.AltText))
                 imageTag.Attr("alt", emailSize.AltText);

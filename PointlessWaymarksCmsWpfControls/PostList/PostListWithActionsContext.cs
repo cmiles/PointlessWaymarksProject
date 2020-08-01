@@ -4,8 +4,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using AngleSharp;
+using AngleSharp.Dom;
+using AngleSharp.Html.Parser;
 using HtmlTags;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -281,6 +285,17 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             var bodyHtmlString =
                 ContentProcessing.ProcessContent(preprocessResults, frozenSelected.DbEntry.BodyContentFormat);
 
+            var config = Configuration.Default;
+            var context = BrowsingContext.New(config);
+            var parser = context.GetService<IHtmlParser>();
+            var document = parser.ParseDocument(bodyHtmlString);
+
+            var tableBuilder = new StringBuilder();
+
+            var childNodes = document.QuerySelector("body").ChildNodes.Where(x => x.NodeType != NodeType.Text).ToList();
+
+            foreach (var topNodes in childNodes) tableBuilder.AppendLine($"<tr><td>{topNodes.ToHtml()}</td></tr>");
+
             // ReSharper disable StringLiteralTypo
             var emailCenterTable = new TableTag();
             emailCenterTable.Attr("width", "100%");
@@ -325,9 +340,10 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             var headerCell = headerRow.Header();
             headerCell.Children.Add(header);
 
-            var bodyRow = outerTable.AddBodyRow();
-            var bodyCell = bodyRow.Cell();
-            bodyCell.Text(bodyHtmlString).Encoded(false);
+            outerTable.TBody.Text(tableBuilder.ToString()).Encoded(false);
+            //var bodyRow = outerTable.AddBodyRow();
+            //var bodyCell = bodyRow.Cell();
+            //bodyCell.Text(tableBuilder.ToString()).Encoded(false);
 
             var footer = new HtmlTag("h4");
             footer.Style("text-align", "center");

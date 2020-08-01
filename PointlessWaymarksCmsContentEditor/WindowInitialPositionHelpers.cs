@@ -42,7 +42,7 @@ namespace PointlessWaymarksCmsContentEditor
             var windowLeftAbsolute = window.Left + screenX; // absolute Left
             var windowTopAbsolute = window.Top + screenY; // absolute Top
 
-            if (window.Left + window.Width > screenWidth)
+            if (window.Left + window.Width > screenWidth * 1.1)
             {
                 window.Left = screenX + screenWidth - window.Width;
                 windowLeftAbsolute = window.Left;
@@ -55,9 +55,9 @@ namespace PointlessWaymarksCmsContentEditor
                     window.Width = screenWidth - 40;
             }
 
-            if (window.Top + window.Height > screenHeight - 40)
+            if (window.Top + window.Height > screenHeight)
             {
-                window.Top = screenY + screenHeight - window.Height - 40;
+                window.Top = screenY + screenHeight - window.Height;
                 windowTopAbsolute = window.Top;
             }
 
