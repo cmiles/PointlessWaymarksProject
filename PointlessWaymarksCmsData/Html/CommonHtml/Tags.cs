@@ -237,9 +237,9 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             var stringWidth = "94%";
             if (emailSize.Width < emailSize.Height)
-            {
-                stringWidth = emailSize.Height > 600 ? ((int) (600M / emailSize.Height * emailSize.Width)).ToString("F0") : emailSize.Width.ToString("F0");
-            }
+                stringWidth = emailSize.Height > 600
+                    ? ((int) (600M / emailSize.Height * emailSize.Width)).ToString("F0")
+                    : emailSize.Width.ToString("F0");
 
             var imageTag = new HtmlTag("img").Attr("src", $"https:{emailSize.SiteUrl}")
                 .Attr("max-height", emailSize.Height).Attr("max-width", emailSize.Width).Attr("width", stringWidth);
@@ -330,7 +330,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
         public static HtmlTag PostBodyDiv(IBodyContent dbEntry, IProgress<string> progress = null)
         {
-            if(string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
+            if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
 
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
@@ -458,6 +458,40 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
                 tagLinkContainer.Children.Add(tagLink);
                 tagsContainer.Children.Add(tagLinkContainer);
             }
+
+            return tagsContainer;
+        }
+
+        public static HtmlTag TagListTextLinkList(ITag dbEntry)
+        {
+            if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
+
+            var tags = Db.TagListParseToSlugs(dbEntry, true);
+
+            return TagListTextLinkList(tags);
+        }
+
+        public static HtmlTag TagListTextLinkList(List<string> tags)
+        {
+            tags ??= new List<string>();
+
+            tags = tags.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
+
+            if (!tags.Any()) return HtmlTag.Empty();
+
+            var tagsContainer = new HtmlTag("p");
+
+            var innerContent = new List<string>();
+
+            foreach (var loopTag in tags)
+            {
+                var tagLink =
+                    new LinkTag(loopTag.Replace("-", " "), UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag))
+                        .AddClass("tag-detail-link");
+                innerContent.Add(tagLink.ToString());
+            }
+
+            tagsContainer.Text($"Tags: {string.Join(", ", innerContent)}").Encoded(false);
 
             return tagsContainer;
         }

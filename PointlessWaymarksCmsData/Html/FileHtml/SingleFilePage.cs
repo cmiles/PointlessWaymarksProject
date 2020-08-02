@@ -209,14 +209,14 @@ namespace PointlessWaymarksCmsData.Html.FileHtml
             this.Write("\r\n    ");
             
             #line 51 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\FileHtml\SingleFilePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DownloadLinkTag()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.DownloadLinkTag(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 52 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\FileHtml\SingleFilePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRuleIfNotEmptyTag(DownloadLinkTag())));
+            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRuleIfNotEmptyTag(FileParts.DownloadLinkTag(DbEntry))));
             
             #line default
             #line hidden

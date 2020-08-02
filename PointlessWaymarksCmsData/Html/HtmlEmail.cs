@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
@@ -9,12 +11,14 @@ namespace PointlessWaymarksCmsData.Html
 {
     public static class HtmlEmail
     {
-        public static string FromHtml(string bodyHtmlString)
+        public static string ChildrenIntoTableCells(string html)
         {
+            if (string.IsNullOrWhiteSpace(html)) return string.Empty;
+
             var config = Configuration.Default;
             var context = BrowsingContext.New(config);
             var parser = context.GetService<IHtmlParser>();
-            var document = parser.ParseDocument(bodyHtmlString);
+            var document = parser.ParseDocument(html);
 
             var tableBuilder = new StringBuilder();
 
@@ -22,6 +26,36 @@ namespace PointlessWaymarksCmsData.Html
 
             foreach (var topNodes in childNodes) tableBuilder.AppendLine($"<tr><td>{topNodes.ToHtml()}</td></tr>");
 
+            return tableBuilder.ToString();
+        }
+
+        public static HtmlTag EmailSimpleFooter()
+        {
+            var footer = new HtmlTag("h4");
+            footer.Style("text-align", "center");
+            var siteLink = new LinkTag(UserSettingsSingleton.CurrentSettings().SiteUrl,
+                @$"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}");
+            footer.Children.Add(siteLink);
+
+            return footer;
+        }
+
+        public static async Task<HtmlTag> EmailSimpleTitle(dynamic content)
+        {
+            Guid contentId = content.ContentId;
+            string title = content.Title;
+
+            var header = new HtmlTag("h3");
+            header.Style("text-align", "center");
+            var postAddress = $"https:{await UserSettingsSingleton.CurrentSettings().ContentUrl(contentId)}";
+            var postLink = new LinkTag($"{UserSettingsSingleton.CurrentSettings().SiteName} - {title}", postAddress);
+            header.Children.Add(postLink);
+
+            return header;
+        }
+
+        public static string WrapInNestedCenteringTable(string htmlString)
+        {
             // ReSharper disable StringLiteralTypo
             var emailCenterTable = new TableTag();
             emailCenterTable.Attr("width", "100%");
@@ -53,7 +87,7 @@ namespace PointlessWaymarksCmsData.Html
             outerTable.Style("width", "100%");
             outerTable.Style("max-width", "900px");
 
-            outerTable.TBody.Text(tableBuilder.ToString()).Encoded(false);
+            outerTable.TBody.Text(htmlString).Encoded(false);
 
             return emailCenterTable.ToString();
         }

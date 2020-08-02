@@ -5,5 +5,6 @@
     <#= Tags.TitleLinkDiv(DbEntry, DbEntry).ToString() #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
+    <#= FileParts.DownloadLinkTag(DbEntry) #>
     <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
 </div>

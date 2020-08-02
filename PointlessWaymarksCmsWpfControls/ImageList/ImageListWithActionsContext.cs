@@ -26,6 +26,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
+        private Command _emailHtmlToClipboardCommand;
         private Command _generateSelectedHtmlCommand;
         private Command _imageBracketCodesToClipboardForSelectedCommand;
         private Command _imageBracketLinkCodesToClipboardForSelectedCommand;
@@ -60,6 +61,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             {
                 if (Equals(value, _editSelectedContentCommand)) return;
                 _editSelectedContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command EmailHtmlToClipboardCommand
+        {
+            get => _emailHtmlToClipboardCommand;
+            set
+            {
+                if (Equals(value, _emailHtmlToClipboardCommand)) return;
+                _emailHtmlToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -243,6 +255,33 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
+        private async Task EmailHtmlToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (ListContext.SelectedItems.Count > 1)
+            {
+                StatusContext.ToastError("Please select only 1 item...");
+                return;
+            }
+
+            var frozenSelected = ListContext.SelectedItems.First();
+
+            var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            HtmlClipboardHelper.CopyToClipboard(emailHtml, emailHtml);
+
+            StatusContext.ToastSuccess("Email Html on Clipboard");
+        }
+
         private async Task ExtractNewLinksInSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -359,6 +398,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
             ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+
+            EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
             ImportFromExcelCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));

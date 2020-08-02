@@ -6,13 +6,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using HtmlTags;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Html.PostHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
@@ -26,7 +24,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
-        private Command _emailHtmlToClipboardForSelectedCommand;
+        private Command _emailHtmlToClipboardCommand;
         private Command _generateSelectedHtmlCommand;
         private Command _importFromExcelCommand;
         private PostListContext _listContext;
@@ -66,13 +64,13 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             }
         }
 
-        public Command EmailHtmlToClipboardForSelectedCommand
+        public Command EmailHtmlToClipboardCommand
         {
-            get => _emailHtmlToClipboardForSelectedCommand;
+            get => _emailHtmlToClipboardCommand;
             set
             {
-                if (Equals(value, _emailHtmlToClipboardForSelectedCommand)) return;
-                _emailHtmlToClipboardForSelectedCommand = value;
+                if (Equals(value, _emailHtmlToClipboardCommand)) return;
+                _emailHtmlToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -259,7 +257,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             }
         }
 
-        private async Task EmailBodyHtml()
+        private async Task EmailHtmlToClipboard()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -277,32 +275,13 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             var frozenSelected = ListContext.SelectedItems.First();
 
-            var header = new HtmlTag("h3");
-            header.Style("text-align", "center");
-            var postAddress = $"https:{UserSettingsSingleton.CurrentSettings().PostPageUrl(frozenSelected.DbEntry)}";
-            var postLink =
-                new LinkTag($"{UserSettingsSingleton.CurrentSettings().SiteName} - {frozenSelected.DbEntry.Title}",
-                    postAddress);
-            header.Children.Add(postLink);
-
-            var preprocessResults = BracketCodeCommon.ProcessCodesForEmail(frozenSelected.DbEntry.BodyContent,
-                StatusContext.ProgressTracker());
-            var bodyHtmlString =
-                ContentProcessing.ProcessContent(preprocessResults, frozenSelected.DbEntry.BodyContentFormat);
-
-            var footer = new HtmlTag("h4");
-            footer.Style("text-align", "center");
-            var siteLink = new LinkTag(UserSettingsSingleton.CurrentSettings().SiteUrl,
-                @$"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}");
-            footer.Children.Add(siteLink);
-
-            var emailHtml = HtmlEmail.FromHtml($"{header}{bodyHtmlString}{footer}");
+            var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
             HtmlClipboardHelper.CopyToClipboard(emailHtml, emailHtml);
 
-            StatusContext.ToastSuccess("Post to Email Html on Clipboard");
+            StatusContext.ToastSuccess("Email Html on Clipboard");
         }
 
         private async Task ExtractNewLinksInSelected()
@@ -368,7 +347,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
             PostCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
-            EmailHtmlToClipboardForSelectedCommand = StatusContext.RunBlockingTaskCommand(EmailBodyHtml);
+            EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
             OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
             NewContentCommand = StatusContext.RunBlockingTaskCommand(NewContent);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);

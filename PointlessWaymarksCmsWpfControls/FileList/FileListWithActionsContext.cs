@@ -25,6 +25,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
+        private Command _emailHtmlToClipboardCommand;
         private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
         private Command _filePageLinkCodesToClipboardForSelectedCommand;
         private Command _firstPagePreviewFromPdfToCairoCommand;
@@ -33,7 +34,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private FileListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
-        private List<(object, string)> _pdfPreviewGenerationProgress = new List<(object, string)>();
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
 
@@ -62,6 +62,17 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             {
                 if (Equals(value, _editSelectedContentCommand)) return;
                 _editSelectedContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command EmailHtmlToClipboardCommand
+        {
+            get => _emailHtmlToClipboardCommand;
+            set
+            {
+                if (Equals(value, _emailHtmlToClipboardCommand)) return;
+                _emailHtmlToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -265,6 +276,33 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
+        private async Task EmailHtmlToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (ListContext.SelectedItems.Count > 1)
+            {
+                StatusContext.ToastError("Please select only 1 item...");
+                return;
+            }
+
+            var frozenSelected = ListContext.SelectedItems.First();
+
+            var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            HtmlClipboardHelper.CopyToClipboard(emailHtml, emailHtml);
+
+            StatusContext.ToastSuccess("Email Html on Clipboard");
+        }
+
         private async Task ExtractNewLinksInSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -379,6 +417,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
+
         private async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -400,6 +439,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdfToCairo);
             ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+
+            EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
             ImportFromExcelCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
@@ -486,12 +527,6 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
                 Process.Start(ps);
             }
-        }
-
-        private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
-        {
-            //* Do your stuff with the output (write to console/log/StringBuilder)
-            _pdfPreviewGenerationProgress.Add((sendingProcess, outLine.Data));
         }
 
         private async Task ViewHistory()

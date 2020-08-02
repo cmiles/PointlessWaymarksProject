@@ -34,19 +34,7 @@ namespace PointlessWaymarksCmsData.Html.FileHtml
 
         public string SiteUrl { get; set; }
 
-        public HtmlTag DownloadLinkTag()
-        {
-            if (!DbEntry.PublicDownloadLink) return HtmlTag.Empty();
 
-            var downloadLinkContainer = new DivTag().AddClass("file-download-container");
-
-            var settings = UserSettingsSingleton.CurrentSettings();
-            var downloadLink =
-                new LinkTag("Download", settings.FileDownloadUrl(DbEntry)).AddClass("file-download-link");
-            downloadLinkContainer.Children.Add(downloadLink);
-
-            return downloadLinkContainer;
-        }
 
         public void WriteLocalHtml()
         {

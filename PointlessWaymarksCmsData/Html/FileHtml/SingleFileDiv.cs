@@ -50,6 +50,13 @@ namespace PointlessWaymarksCmsData.Html.FileHtml
             this.Write("\r\n    ");
             
             #line 8 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\FileHtml\SingleFileDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(FileParts.DownloadLinkTag(DbEntry)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 9 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\FileHtml\SingleFileDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result));
             
             #line default

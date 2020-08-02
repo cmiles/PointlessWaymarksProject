@@ -28,6 +28,9 @@
                 <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}" />
                 <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}" />
             </MenuItem>
+            <MenuItem Header="Email">
+                <MenuItem Header="Selected To Html Email on Clipboard" Command="{Binding EmailHtmlToClipboardCommand}" />
+            </MenuItem>
         </Menu>
         <local:PostListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
@@ -42,9 +45,7 @@
                         Content="_New Content" />
                 <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Generate Html" />
-                <Button Command="{Binding PostCodesToClipboardForSelectedCommand}"
-                        Style="{StaticResource ActionPanelButton}" Content="_Code to Clipboard" />
-                <Button Command="{Binding EmailHtmlToClipboardForSelectedCommand}"
+                <Button Command="{Binding EmailHtmlToClipboardCommand}"
                         Style="{StaticResource ActionPanelButton}" Content="Email to Clipboard" />
                 <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}"
                         Content="_Open Selected In Browser" />

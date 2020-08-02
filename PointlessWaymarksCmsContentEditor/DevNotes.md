@@ -1,4 +1,7 @@
 ﻿## Todos
+ - Email Html
+  - Link Content Functionality
+  - Check formatting - could spacing be better in multiple clients?
  - Split settings into a public and private so that the public settings can be copied to the site for backup and the private can stay in the archive.
    - Public settings file snapshots into the db on generation so changes can be detected and full generation potentially triggered
  - Content Testing:
@@ -12,8 +15,6 @@
  - To Excel for logs
  - Investigate improved text to speech via https://github.com/jamesmontemagno/TextToSpeechPlugin/blob/master/src/TextToSpeech.Plugin/TextToSpeech.uwp.cs - at least look at cancellation...
  - Deleted Content Report so it is possible to restore completely deleted
- - Refactor the Email HTML so you code send any current type to it
-    - Look at setting this up so that you could also use this to create a custom one off email to someone with content? So if someone asked a question you could go to your email client, type a short message and then paste in the content block (only a modest gain over sending a link but there is some value in 'last mile' convenience) - I suspect the detail here is getting the html to the clipboard correctly...
  - In Search it might be nice to have the content type on the line with date?
  - Clean up the main window - split out context - consider creating a control?
  - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
@@ -43,6 +44,10 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/2/2020
+
+Added Html Email to Clipboard functionality to most content including some refactoring to support the process - still some todos from this but I believe the basic functionality is done. Not sure this feature would connect with other people - almost by definition everything created here could be sent as a link to a webpage with better formating and better support (HTML email/email clients are just not as good as browsers...), but this feature is from my own experience where people ask you a question and they want an answer, not a way to get to an answer and pasting in content and adding a quick reply could be really useful.
 
 8/1/2020
 

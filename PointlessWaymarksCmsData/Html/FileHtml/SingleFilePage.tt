@@ -48,9 +48,9 @@
                 Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
-    <#= DownloadLinkTag() #>
+    <#= FileParts.DownloadLinkTag(DbEntry) #>
     <#=
-                HorizontalRule.StandardRuleIfNotEmptyTag(DownloadLinkTag()) #>
+                HorizontalRule.StandardRuleIfNotEmptyTag(FileParts.DownloadLinkTag(DbEntry)) #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=

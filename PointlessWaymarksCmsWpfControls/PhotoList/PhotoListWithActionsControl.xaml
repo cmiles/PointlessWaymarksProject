@@ -39,6 +39,9 @@
                 <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}" />
                 <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}" />
             </MenuItem>
+            <MenuItem Header="Email">
+                <MenuItem Header="Selected To Html Email on Clipboard" Command="{Binding EmailHtmlToClipboardCommand}" />
+            </MenuItem>
         </Menu>
         <local:PhotoListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
