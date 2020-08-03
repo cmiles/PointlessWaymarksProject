@@ -1,13 +1,12 @@
 ﻿## Todos
  - Email Html
-  - Link Content Functionality
   - Check formatting - could spacing be better in multiple clients?
  - Split settings into a public and private so that the public settings can be copied to the site for backup and the private can stay in the archive.
    - Public settings file snapshots into the db on generation so changes can be detected and full generation potentially triggered
  - Content Testing:
   - Ironwood Integration Tests for Context File Add, Context Image Add, Post, Note, Link
   - Add tests for the common content validation
- - Rework the Daily Photos generation so specific days can be build
+ - Rework the Daily Photos generation so specific days can be built
  - Gui Validation alerts - Title control, Tags Control, Link Url Done
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - A bad content code should be handled better
@@ -44,6 +43,12 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/3/2020
+
+Control C for the link list for url to clipboard implemented (this is essentially the link list version of email html to clipboard).
+
+Main window Tabs now load only if selected - not perfect (it should setup everything in the background while you work!) but a very practical quick fix to the interaction delays I was experiencing. I think the hard detail here is that I could design more of the data to load without UI thread interaction, but the challenge is that with a larger complex list it seems like there is a significant hit on initial load (and in fact maybe enough of a hit that the difference between pulling db data and GUI load and already pulled db data and GUI load is not enough to matter)...
 
 8/2/2020
 

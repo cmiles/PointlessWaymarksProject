@@ -19,6 +19,7 @@
     xmlns:menuListEditor="clr-namespace:PointlessWaymarksCmsWpfControls.MenuLinkEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:tagList="clr-namespace:PointlessWaymarksCmsWpfControls.TagList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:linkList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkList;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     Width="900"
     Height="650"
     Title="{Binding InfoTitle}"
@@ -41,7 +42,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <TabControl BorderBrush="Green">
+        <TabControl x:Name="MainTabControl" BorderBrush="Green" SelectedItem="{Binding SelectedTab}">
             <TabItem Header="Posts">
                 <postList:PostListWithActionsControl DataContext="{Binding TabPostListContext}" />
             </TabItem>

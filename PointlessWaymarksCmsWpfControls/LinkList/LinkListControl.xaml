@@ -92,7 +92,7 @@
                     <utility:AttachCommandBindingsBehavior CommandBindings="{Binding ListBoxAppCommandBindings}"/>
                 </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="local:LinkListListItem">
+                    <DataTemplate DataType="linkList:LinkListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
                                 <StackPanel Margin="2" Orientation="Vertical">

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,7 @@ namespace PointlessWaymarksCmsContentEditor
     {
         private string _infoTitle;
         private string _recentSettingsFilesNames;
+        private TabItem _selectedTab;
         private UserSettingsEditorContext _settingsEditorContext;
         private SettingsFileChooserControlContext _settingsFileChooser;
         private bool _showSettingsFileChooser;
@@ -221,6 +223,19 @@ namespace PointlessWaymarksCmsContentEditor
 
 
         public Command RemoveUnusedFoldersAndFilesFromContentCommand { get; set; }
+
+        public TabItem SelectedTab
+        {
+            get => _selectedTab;
+            set
+            {
+                if (Equals(value, _selectedTab)) return;
+                _selectedTab = value;
+                OnPropertyChanged();
+
+                LoadSelectedTabAsNeeded();
+            }
+        }
 
         public UserSettingsEditorContext SettingsEditorContext
         {
@@ -588,21 +603,40 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.Progress("Setting up UI Controls");
 
-            TabImageListContext = new ImageListWithActionsContext(null);
-            TabFileListContext = new FileListWithActionsContext(null);
-            TabPhotoListContext = new PhotoListWithActionsContext(null);
             TabPostListContext = new PostListWithActionsContext(null);
-            TabNoteListContext = new NoteListWithActionsContext(null);
-            TabLinkContext = new LinkListWithActionsContext(null);
-            TabTagExclusionContext = new TagExclusionEditorContext(null);
-            TabMenuLinkContext = new MenuLinkEditorContext(null);
-            TabTagListContext = new TagListContext(null);
+
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
             SoftwareComponentsHelpContext = new HelpDisplayContext(SoftwareUsedHelpMarkdown.HelpBlock);
 
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            MainTabControl.SelectedIndex = 0;
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
                 await EventLogContext.DeleteLogEntriesMoreThanMonthsOld(3));
+        }
+
+        private void LoadSelectedTabAsNeeded()
+        {
+            if (SelectedTab == null) return;
+
+            if (SelectedTab.Header.ToString() == "Photos" && TabPhotoListContext == null)
+                TabPhotoListContext = new PhotoListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Images" && TabImageListContext == null)
+                TabImageListContext = new ImageListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Files" && TabFileListContext == null)
+                TabFileListContext = new FileListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Notes" && TabNoteListContext == null)
+                TabNoteListContext = new NoteListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Links" && TabLinkContext == null)
+                TabLinkContext = new LinkListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Tag Exclusions" && TabTagExclusionContext == null)
+                TabTagExclusionContext = new TagExclusionEditorContext(null);
+            if (SelectedTab.Header.ToString() == "Menu Links" && TabMenuLinkContext == null)
+                TabMenuLinkContext = new MenuLinkEditorContext(null);
+            if (SelectedTab.Header.ToString() == "Tags" && TabTagListContext == null)
+                TabTagListContext = new TagListContext(null);
         }
 
         [NotifyPropertyChangedInvocator]
