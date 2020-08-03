@@ -88,6 +88,9 @@
                 ItemsSource="{Binding Items}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
+                <i:Interaction.Behaviors>
+                    <utility:AttachCommandBindingsBehavior CommandBindings="{Binding ListBoxAppCommandBindings}"/>
+                </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:LinkListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">

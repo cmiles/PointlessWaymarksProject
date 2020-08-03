@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,10 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
         private Command<string> _copyUrlCommand;
         private ObservableCollection<LinkListListItem> _items;
         private string _lastSortColumn;
+
+        private ObservableCollection<CommandBinding> _listBoxAppCommandBindings =
+            new ObservableCollection<CommandBinding>();
+
         private Command _listSelectedLinksNotOnPinboardCommand;
         private Command<string> _openUrlCommand;
         private List<LinkListListItem> _selectedItems;
@@ -58,7 +63,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
                 StatusContext.ToastSuccess($"To Clipboard {x}");
             });
             ListSelectedLinksNotOnPinboardCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                    await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker()));
+                await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker()));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -81,6 +86,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<CommandBinding> ListBoxAppCommandBindings
+        {
+            get => _listBoxAppCommandBindings;
+            set
+            {
+                if (Equals(value, _listBoxAppCommandBindings)) return;
+                _listBoxAppCommandBindings = value;
                 OnPropertyChanged();
             }
         }

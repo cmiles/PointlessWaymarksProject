@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
@@ -21,7 +22,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
-        private Command _generateSelectedHtmlCommand;
         private Command _importFromExcelCommand;
         private LinkListContext _listContext;
         private Command _newContentCommand;
@@ -55,17 +55,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             {
                 if (Equals(value, _editSelectedContentCommand)) return;
                 _editSelectedContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command GenerateSelectedHtmlCommand
-        {
-            get => _generateSelectedHtmlCommand;
-            set
-            {
-                if (Equals(value, _generateSelectedHtmlCommand)) return;
-                _generateSelectedHtmlCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -151,6 +140,25 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private async Task CopySelectedItemUrlsToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var frozenSelected = ListContext.SelectedItems;
+
+            if (!frozenSelected.Any())
+            {
+                StatusContext.ToastWarning("Nothing selected?");
+                return;
+            }
+
+            var clipboardText = string.Join(Environment.NewLine, frozenSelected.Select(x => x.DbEntry.Url));
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(clipboardText);
+        }
+
         private async Task Delete()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -171,7 +179,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
                     return;
 
             var selectedItems = selected.ToList();
-            var settings = UserSettingsSingleton.CurrentSettings();
 
             foreach (var loopSelected in selectedItems)
             {
@@ -221,6 +228,11 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             }
         }
 
+        private void ExecuteListBoxItemsCopy(object sender, ExecutedRoutedEventArgs e)
+        {
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CopySelectedItemUrlsToClipboard);
+        }
+
         private async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -239,6 +251,9 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
+
+            ListContext.ListBoxAppCommandBindings.Add(new CommandBinding(ApplicationCommands.Copy,
+                ExecuteListBoxItemsCopy));
         }
 
         private async Task MdLinkCodesToClipboardForSelected()
