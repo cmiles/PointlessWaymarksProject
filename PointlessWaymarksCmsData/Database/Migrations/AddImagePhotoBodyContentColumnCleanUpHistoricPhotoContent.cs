@@ -8,7 +8,8 @@ namespace PointlessWaymarksCmsData.Database.Migrations
     {
         public override void Down()
         {
-            throw new DataException("No Down Available for Migration AddImagePhotoBodyContentColumnCleanUpHistoricPhotoContent");
+            throw new DataException(
+                "No Down Available for Migration AddImagePhotoBodyContentColumnCleanUpHistoricPhotoContent");
         }
 
         public override void Up()

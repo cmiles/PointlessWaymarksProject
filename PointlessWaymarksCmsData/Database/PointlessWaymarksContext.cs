@@ -10,38 +10,26 @@ namespace PointlessWaymarksCmsData.Database
         }
 
         public DbSet<FileContent> FileContents { get; set; }
-
         public DbSet<GenerationContentIdReference> GenerationContentIdReferences { get; set; }
-
         public DbSet<HistoricFileContent> HistoricFileContents { get; set; }
-
         public DbSet<HistoricImageContent> HistoricImageContents { get; set; }
-
-        //public DbSet<HistoricLineContent> HistoricLineContents { get; set; }
         public DbSet<HistoricLinkContent> HistoricLinkContents { get; set; }
         public DbSet<HistoricNoteContent> HistoricNoteContents { get; set; }
-
         public DbSet<HistoricPhotoContent> HistoricPhotoContents { get; set; }
-
-        //public DbSet<HistoricPointContent> HistoricPointContents { get; set; }
+        public DbSet<HistoricPointContent> HistoricPointContents { get; set; }
+        public DbSet<HistoricPointContentPointDetailLink> HistoricPointContentPointDetailLinks { get; set; }
+        public DbSet<HistoricPointDetail> HistoricPointDetails { get; set; }
         public DbSet<HistoricPostContent> HistoricPostContents { get; set; }
-
-        //public DbSet<HistoricTrailSegment> HistoricTrailSegments { get; set; }
         public DbSet<ImageContent> ImageContents { get; set; }
-        //public DbSet<LineContent> LineContents { get; set; }
-
         public DbSet<LinkContent> LinkContents { get; set; }
         public DbSet<MenuLink> MenuLinks { get; set; }
         public DbSet<NoteContent> NoteContents { get; set; }
-
         public DbSet<PhotoContent> PhotoContents { get; set; }
-
-        //public DbSet<PointContent> PointContents { get; set; }
+        public DbSet<PointContent> PointContents { get; set; }
+        public DbSet<PointContentPointDetailLink> PointContentPointDetailLinks { get; set; }
+        public DbSet<PointDetail> PointDetails { get; set; }
         public DbSet<PostContent> PostContents { get; set; }
-
         public DbSet<RelatedContent> RelatedContents { get; set; }
-        //public DbSet<TrailSegment> TrailSegments { get; set; }
-
         public DbSet<TagExclusion> TagExclusions { get; set; }
 
 
@@ -49,12 +37,15 @@ namespace PointlessWaymarksCmsData.Database
         {
             modelBuilder.Entity<FileContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<ImageContent>().HasIndex(b => b.ContentId).IsUnique();
-            //modelBuilder.Entity<LineContent>().HasIndex(b => b.ContentId).IsUnique();
-            modelBuilder.Entity<PhotoContent>().HasIndex(b => b.ContentId).IsUnique();
-            //modelBuilder.Entity<PointContent>().HasIndex(b => b.ContentId).IsUnique();
-            modelBuilder.Entity<PostContent>().HasIndex(b => b.ContentId).IsUnique();
-            //modelBuilder.Entity<TrailSegment>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<LinkContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<NoteContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<PhotoContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<PointContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<PointDetail>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<PostContent>().HasIndex(b => b.ContentId).IsUnique();
+
+            modelBuilder.Entity<PointContentPointDetailLink>()
+                .HasIndex(p => new { p.PointContentId });
 
             modelBuilder.Entity<GenerationContentIdReference>().Property(e => e.ContentId).ValueGeneratedNever();
         }

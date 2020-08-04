@@ -46,6 +46,10 @@
 
 8/3/2020
 
+Data structures for the PointContent - point content was in the initial version of the project and I did some work on Points/Lines/Segments but in the end those turned out to be secondary to getting the current content types working, but now circling back around to this with, I think, a slightly better idea about how to structure the data.
+
+In looking at the databases to add the new Point Tables I realized that I had missed adding some indexes - the dbs are small so for performance it doesn't really matter but many of the indexes have unique constraints which are the ultimate protection against duplicated ContentIds.
+
 Control C for the link list for url to clipboard implemented (this is essentially the link list version of email html to clipboard).
 
 Main window Tabs now load only if selected - not perfect (it should setup everything in the background while you work!) but a very practical quick fix to the interaction delays I was experiencing. I think the hard detail here is that I could design more of the data to load without UI thread interaction, but the challenge is that with a larger complex list it seems like there is a significant hit on initial load (and in fact maybe enough of a hit that the difference between pulling db data and GUI load and already pulled db data and GUI load is not enough to matter)...
