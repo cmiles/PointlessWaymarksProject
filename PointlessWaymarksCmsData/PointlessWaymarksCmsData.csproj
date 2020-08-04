@@ -66,6 +66,16 @@
       <LastGenOutput>IndexPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.Html.IndexHtml</CustomToolNamespace>
     </None>
+    <None Update="Html\PointHtml\SinglePointDiv.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SinglePointDiv.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.Html.PointHtml</CustomToolNamespace>
+    </None>
+    <None Update="Html\PointHtml\SinglePointPage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SinglePointPage.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.Html.PointHtml</CustomToolNamespace>
+    </None>
     <None Update="Html\SearchListHtml\SearchListPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SearchListPage.cs</LastGenOutput>
@@ -156,6 +166,16 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>IndexPage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Html\PointHtml\SinglePointDiv.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SinglePointDiv.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Html\PointHtml\SinglePointPage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SinglePointPage.tt</DependentUpon>
     </Compile>
     <Compile Update="Json\DbImport.cs">
       <DesignTime>True</DesignTime>

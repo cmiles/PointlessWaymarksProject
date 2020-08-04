@@ -699,6 +699,7 @@ namespace PointlessWaymarksCmsData.Content
                 settings.LocalSiteFileDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteImageDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteNoteDirectory().CreateIfItDoesNotExist(),
+                settings.LocalSitePointDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSitePostDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteLinkDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteNoteDirectory().CreateIfItDoesNotExist(),

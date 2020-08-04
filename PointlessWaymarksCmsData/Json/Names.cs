@@ -10,6 +10,8 @@
         public static string HistoricFileContentPrefix = "HistoricFiles---";
         public static string PostContentPrefix = "Post---";
         public static string HistoricPostContentPrefix = "HistoricPosts---";
+        public static string PointContentPrefix = "Point---";
+        public static string HistoricPointContentPrefix = "HistoricPoints---";
         public static string NoteContentPrefix = "Note---";
         public static string HistoricNoteContentPrefix = "HistoricNotes---";
         public static string ImageContentPrefix = "Image---";

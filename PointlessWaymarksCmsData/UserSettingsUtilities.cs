@@ -532,6 +532,48 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, "PhotoRss")}.xml");
         }
 
+        public static DirectoryInfo LocalSitePointContentDirectory(this UserSettings settings, PointContent content,
+            bool createDirectoryIfNotFound = true)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePointDirectory().FullName,
+                content.Folder, content.Slug));
+
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+        public static DirectoryInfo LocalSitePointDirectory(this UserSettings settings)
+        {
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Points"));
+            if (!localDirectory.Exists) localDirectory.Create();
+
+            localDirectory.Refresh();
+
+            return localDirectory;
+        }
+
+        public static FileInfo LocalSitePointHtmlFile(this UserSettings settings, PointContent content)
+        {
+            var directory = settings.LocalSitePointContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
+        public static FileInfo LocalSitePointListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSitePointDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "PointList")}.html");
+        }
+
+        public static FileInfo LocalSitePointRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSitePointDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "PointRss")}.xml");
+        }
+
         public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content,
             bool createDirectoryIfNotFound = true)
         {
@@ -657,6 +699,21 @@ namespace PointlessWaymarksCmsData
             if (possibleImageContent != null) return settings.ImagePageUrl(possibleImageContent);
 
             return string.Empty;
+        }
+
+        public static string PointPageUrl(this UserSettings settings, PointContent content)
+        {
+            return $"//{settings.SiteUrl}/Points/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static string PointsListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Points/PointList.html";
+        }
+
+        public static string PointsRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Points/PointRss.xml";
         }
 
         public static string PostPageUrl(this UserSettings settings, PostContent content)

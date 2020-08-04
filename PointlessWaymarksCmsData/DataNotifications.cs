@@ -90,6 +90,8 @@ namespace PointlessWaymarksCmsData
         Post,
         Image,
         Note,
-        Link
+        Link,
+        Point,
+        PointDetail
     }
 }

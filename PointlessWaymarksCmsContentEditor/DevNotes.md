@@ -1,4 +1,12 @@
 ﻿## Todos
+
+ - Points:
+  - Details Json - save into folder with content? or whole list to parent folder? both?
+  - JsonImport - maybe a partial class for the details?
+  - Setup RSS Feed
+  - Create Pages
+  - Validation when saving - lat/long, Details (make sure content id is linked correctly to detail)
+
  - Email Html
   - Check formatting - could spacing be better in multiple clients?
  - Split settings into a public and private so that the public settings can be copied to the site for backup and the private can stay in the archive.
@@ -43,6 +51,10 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/4/2020
+
+Started working on Points.
 
 8/3/2020
 

@@ -677,6 +677,120 @@ namespace PointlessWaymarksCmsData.Database
                     DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
         }
 
+        public static async Task SavePointContent(PointContent toSave, List<PointDetail> relatedDetails)
+        {
+            if (toSave == null) return;
+            relatedDetails ??= new List<PointDetail>();
+
+            var context = await Context();
+
+            var toHistoric = await context.PointContents.Where(x => x.ContentId == toSave.ContentId).ToListAsync();
+
+            var isUpdate = toHistoric.Any();
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricPointContent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                await context.HistoricPointContents.AddAsync(newHistoric);
+                context.PointContents.Remove(loopToHistoric);
+            }
+
+            if (toSave.Id > 0) toSave.Id = 0;
+            toSave.ContentVersion = ContentVersionDateTime();
+
+            toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+
+            await context.PointContents.AddAsync(toSave);
+
+            await context.SaveChangesAsync(true);
+
+            foreach (var loopDetail in relatedDetails) await SavePointDetailContent(loopDetail);
+
+            var relatedDetailContentIds = relatedDetails.Select(x => x.ContentId).ToList();
+
+            var invalidLinks = await context.PointContentPointDetailLinks.Where(x =>
+                    x.PointContentId == toSave.ContentId && !relatedDetailContentIds.Contains(x.PointDetailContentId))
+                .ToListAsync();
+
+            foreach (var loopInvalids in invalidLinks)
+            {
+                var newHistoric = new HistoricPointContentPointDetailLink();
+                newHistoric.InjectFrom(loopInvalids);
+                newHistoric.Id = 0;
+                await context.HistoricPointContentPointDetailLinks.AddAsync(newHistoric);
+                context.PointContentPointDetailLinks.Remove(loopInvalids);
+            }
+
+            await context.SaveChangesAsync(true);
+
+            if (isUpdate)
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
+                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
+            else
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
+                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+        }
+
+        public static async Task SavePointDetailContent(PointContentPointDetailLink toSave)
+        {
+            if (toSave == null) return;
+
+            var context = await Context();
+
+            var existing = await context.PointContentPointDetailLinks.AnyAsync(x =>
+                x.PointContentId == toSave.PointContentId && x.PointDetailContentId == toSave.PointDetailContentId);
+
+            if (existing) return;
+
+            if (toSave.Id > 0) toSave.Id = 0;
+            toSave.ContentVersion = ContentVersionDateTime();
+
+            await context.PointContentPointDetailLinks.AddAsync(toSave);
+
+            await context.SaveChangesAsync(true);
+
+            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
+                DataNotificationUpdateType.Update, new List<Guid> {toSave.PointContentId});
+            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
+                DataNotificationUpdateType.Update, new List<Guid> {toSave.PointDetailContentId});
+        }
+
+        public static async Task SavePointDetailContent(PointDetail toSave)
+        {
+            if (toSave == null) return;
+
+            var context = await Context();
+
+            var toHistoric = await context.PointDetails.Where(x => x.ContentId == toSave.ContentId).ToListAsync();
+
+            var isUpdate = toHistoric.Any();
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricPointDetail();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                await context.HistoricPointDetails.AddAsync(newHistoric);
+                context.PointDetails.Remove(loopToHistoric);
+            }
+
+            if (toSave.Id > 0) toSave.Id = 0;
+            toSave.ContentVersion = ContentVersionDateTime();
+
+            await context.PointDetails.AddAsync(toSave);
+
+            await context.SaveChangesAsync(true);
+
+            if (isUpdate)
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
+                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
+            else
+                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
+                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+        }
+
         public static async Task SavePostContent(PostContent toSave)
         {
             if (toSave == null) return;
