@@ -33,6 +33,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private Command _importFromExcelCommand;
         private FileListContext _listContext;
         private Command _newContentCommand;
+        private Command _newContentFromFilesCommand;
         private Command _openUrlForSelectedCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
@@ -158,7 +159,16 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public Command NewContentFromFilesCommand { get; set; }
+        public Command NewContentFromFilesCommand
+        {
+            get => _newContentFromFilesCommand;
+            set
+            {
+                if (Equals(value, _newContentFromFilesCommand)) return;
+                _newContentFromFilesCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command OpenUrlForSelectedCommand
         {
