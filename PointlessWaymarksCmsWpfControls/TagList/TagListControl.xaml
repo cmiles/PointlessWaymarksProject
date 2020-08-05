@@ -61,7 +61,7 @@
                                             </MultiBinding>
                                         </TextBox.Text>
                                         <b:Interaction.Behaviors>
-                                            <utility:ReadOnlyTextBoxClickPass />
+                                            <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </b:Interaction.Behaviors>
                                     </TextBox>
                                 </StackPanel>
@@ -106,20 +106,20 @@
                                             <TextBox Style="{StaticResource ReadOnlyTextBox}" TextWrapping="Wrap"
                                                      Margin="4" FontWeight="Bold" Text="{Binding Title}">
                                                 <b:Interaction.Behaviors>
-                                                    <utility:ReadOnlyTextBoxClickPass />
+                                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                             <TextBox Style="{StaticResource ReadOnlyTextBox}" TextWrapping="Wrap"
                                                      Margin="6,0,0,0" Text="{Binding ContentType}">
                                                 <b:Interaction.Behaviors>
-                                                    <utility:ReadOnlyTextBoxClickPass />
+                                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                             <TextBox Style="{StaticResource ReadOnlyTextBox}" Margin="6,0,0,6"
                                                      TextWrapping="Wrap"
                                                      Text="{Binding Tags, StringFormat='Tags: {0}'}">
                                                 <b:Interaction.Behaviors>
-                                                    <utility:ReadOnlyTextBoxClickPass />
+                                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                         </StackPanel>

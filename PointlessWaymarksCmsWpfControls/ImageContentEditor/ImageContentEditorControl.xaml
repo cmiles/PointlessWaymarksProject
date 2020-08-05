@@ -57,6 +57,7 @@
                             <RowDefinition />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Image Source="{Binding SelectedFileBitmapSource}" />
                         <TextBlock
@@ -68,6 +69,11 @@
                             <Button Command="{Binding RotateImageLeftCommand}">Rotate Left</Button>
                             <Button Command="{Binding RotateImageRightCommand}">Rotate Right</Button>
                         </StackPanel>
+                        <Button Grid.Row="3"
+                                Height="28"
+                                Margin="4" Command="{Binding ViewSelectedFileCommand}">
+                            View Image
+                        </Button>
                     </Grid>
                 </Border>
             </Grid>

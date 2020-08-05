@@ -144,8 +144,6 @@ namespace PointlessWaymarksCmsData.Content
                 toReturn.Title = Path.GetFileNameWithoutExtension(selectedFile.Name).Replace("-", " ").Replace("_", " ")
                     .SplitCamelCase();
 
-            if (!string.IsNullOrWhiteSpace(toReturn.Title)) toReturn.Title = Regex.Replace(toReturn.Title, @"\s+", " ");
-
             toReturn.Summary = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
 
             //2020/3/22 - Process out a convention that I have used for more than a decade of pre-2020s do yyMM at the start of a photo title or in the
@@ -166,7 +164,7 @@ namespace PointlessWaymarksCmsData.Content
                             int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
                         toReturn.Summary =
-                            $"{toReturn.Title.Substring(possibleTitleDate.Length, toReturn.Title.Length - possibleTitleDate.Length)}.";
+                            $"{toReturn.Title.Substring(possibleTitleDate.Length, toReturn.Title.Length - possibleTitleDate.Length)}";
                         toReturn.Title =
                             $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(possibleTitleDate.Length, toReturn.Title.Length - possibleTitleDate.Length)}";
 
@@ -191,7 +189,7 @@ namespace PointlessWaymarksCmsData.Content
                             ? new DateTime(2000 + year, month, 1)
                             : new DateTime(1900 + year, month, 1);
 
-                        toReturn.Summary = $"{toReturn.Title.Substring(5, toReturn.Title.Length - 5)}.";
+                        toReturn.Summary = $"{toReturn.Title.Substring(5, toReturn.Title.Length - 5)}";
                         toReturn.Title =
                             $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(5, toReturn.Title.Length - 5)}";
 
@@ -210,15 +208,22 @@ namespace PointlessWaymarksCmsData.Content
                     : $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title}";
             }
 
-
-            if (!string.IsNullOrWhiteSpace(toReturn.Title))
-                toReturn.Title = Regex.Replace(toReturn.Title, @"\s+", " ").TrimNullToEmpty();
-
             //Order is important here - the title supplies the summary in the code above - but overwrite that if there is a 
             //description.
             var description = exifDirectory?.GetDescription(ExifDirectoryBase.TagImageDescription) ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(description))
                 toReturn.Summary = description;
+
+            //Add a trailing . to the summary if it doesn't end with ! ? .
+            if (!toReturn.Summary.EndsWith(".") && !toReturn.Summary.EndsWith("!") && !toReturn.Summary.EndsWith("?"))
+                toReturn.Summary = $"{toReturn.Summary}.";
+
+            //Remove multi space from title and summary
+            if (!string.IsNullOrWhiteSpace(toReturn.Title))
+                toReturn.Title = Regex.Replace(toReturn.Title, @"\s+", " ").TrimNullToEmpty();
+
+            if (!string.IsNullOrWhiteSpace(toReturn.Summary))
+                toReturn.Summary = Regex.Replace(toReturn.Summary, @"\s+", " ").TrimNullToEmpty();
 
             var xmpSubjectKeywordList = new List<string>();
 

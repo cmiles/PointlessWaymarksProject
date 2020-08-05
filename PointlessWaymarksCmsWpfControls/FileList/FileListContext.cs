@@ -204,6 +204,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
                 existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
             }
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
         private async Task FilterList()

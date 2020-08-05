@@ -302,6 +302,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
                 existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
             }
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
         private async Task SortList(string sortColumn)

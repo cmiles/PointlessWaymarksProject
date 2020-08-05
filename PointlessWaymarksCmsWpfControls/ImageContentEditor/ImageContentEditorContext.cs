@@ -52,6 +52,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
+        private Command _viewSelectedFileCommand;
 
         public ImageContentEditorContext(StatusControlContext statusContext, ImageContent contentToLoad = null,
             FileInfo initialImage = null)
@@ -292,6 +293,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 if (Equals(value, _viewOnSiteCommand)) return;
                 _viewOnSiteCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ViewSelectedFileCommand
+        {
+            get => _viewSelectedFileCommand;
+            set
+            {
+                if (Equals(value, _viewSelectedFileCommand)) return;
+                _viewSelectedFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -549,6 +561,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             SaveAndGenerateHtmlCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+            ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
             RotateImageRightCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
             RotateImageLeftCommand =
@@ -575,6 +588,23 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             var url = $@"http://{settings.ImagePageUrl(DbEntry)}";
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
+        }
+
+        private async Task ViewSelectedFile()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null || !SelectedFile.Exists || SelectedFile.Directory == null ||
+                !SelectedFile.Directory.Exists)
+            {
+                StatusContext.ToastError("No Selected File or Selected File no longer exists?");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
     }

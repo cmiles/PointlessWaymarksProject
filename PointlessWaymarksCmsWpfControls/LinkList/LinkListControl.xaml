@@ -99,7 +99,7 @@
                                     <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DbEntry.Title}"
                                              TextWrapping="Wrap" FontWeight="Bold">
                                         <i:Interaction.Behaviors>
-                                            <utility:ReadOnlyTextBoxClickPass />
+                                            <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </i:Interaction.Behaviors>
                                     </TextBox>
                                     <TextBox Style="{StaticResource ReadOnlyTextBox}"
@@ -107,7 +107,7 @@
                                              TextWrapping="Wrap"
                                              Margin="0,2,0,0">
                                         <i:Interaction.Behaviors>
-                                            <utility:ReadOnlyTextBoxClickPass />
+                                            <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </i:Interaction.Behaviors>
                                     </TextBox>
                                     <WrapPanel Orientation="Horizontal">
@@ -133,7 +133,7 @@
                                             Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
                                             TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>
-                                                <utility:ReadOnlyTextBoxClickPass />
+                                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                             </i:Interaction.Behaviors>
                                         </TextBox>
                                         <TextBox
@@ -142,7 +142,7 @@
                                             Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
                                             TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>
-                                                <utility:ReadOnlyTextBoxClickPass />
+                                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                             </i:Interaction.Behaviors>
                                         </TextBox>
                                     </WrapPanel>

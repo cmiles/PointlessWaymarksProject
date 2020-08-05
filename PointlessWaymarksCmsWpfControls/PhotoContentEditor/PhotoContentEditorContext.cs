@@ -48,6 +48,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private DateTime _photoCreatedOn;
         private Command _rotatePhotoLeftCommand;
         private Command _rotatePhotoRightCommand;
+        private Command _saveAndGenerateHtmlAndCloseCommand;
         private Command _saveAndGenerateHtmlCommand;
         private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
@@ -61,6 +62,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
         private Command _viewPhotoMetadataCommand;
+        private Command _viewSelectedFileCommand;
+
+        public EventHandler RequestContentEditorWindowClose;
+
 
         public PhotoContentEditorContext(StatusControlContext statusContext, bool skipInitialLoad)
         {
@@ -295,6 +300,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public Command SaveAndGenerateHtmlAndCloseCommand
+        {
+            get => _saveAndGenerateHtmlAndCloseCommand;
+            set
+            {
+                if (Equals(value, _saveAndGenerateHtmlAndCloseCommand)) return;
+                _saveAndGenerateHtmlAndCloseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command SaveAndGenerateHtmlCommand
         {
             get => _saveAndGenerateHtmlCommand;
@@ -436,6 +452,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             {
                 if (Equals(value, _viewPhotoMetadataCommand)) return;
                 _viewPhotoMetadataCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ViewSelectedFileCommand
+        {
+            get => _viewSelectedFileCommand;
+            set
+            {
+                if (Equals(value, _viewSelectedFileCommand)) return;
+                _viewSelectedFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -670,7 +697,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
         }
 
-        public async Task SaveAndGenerateHtml(bool overwriteExistingFiles)
+        public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -685,6 +712,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
 
             await LoadData(newContent);
+
+            if (closeAfterSave)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
+            }
         }
 
         private async Task SaveToDbWithValidation()
@@ -749,10 +782,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             ChooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
             ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
-            SaveAndGenerateHtmlCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            SaveAndGenerateHtmlCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            SaveAndGenerateHtmlAndCloseCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
             ViewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext));
             SaveUpdateDatabaseCommand = StatusContext.RunBlockingTaskCommand(SaveToDbWithValidation);
+            ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
@@ -778,6 +815,23 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             var url = $@"http://{settings.PhotoPageUrl(DbEntry)}";
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
+        }
+
+        private async Task ViewSelectedFile()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (SelectedFile == null || !SelectedFile.Exists || SelectedFile.Directory == null ||
+                !SelectedFile.Directory.Exists)
+            {
+                StatusContext.ToastError("No Selected Photo or Selected Photo no longer exists?");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
     }

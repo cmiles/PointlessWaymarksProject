@@ -488,8 +488,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;
-            collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
-                ListSortDirection.Ascending));
+            collectionView.SortDescriptions.Add(new SortDescription($"{sortColumn}", ListSortDirection.Ascending));
         }
 
         public async Task TagContentToExcel(List<TagItemContentInformation> items)

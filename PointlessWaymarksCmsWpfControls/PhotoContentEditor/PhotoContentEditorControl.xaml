@@ -80,13 +80,19 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-                <Button
-                    Grid.Row="3"
-                    Height="28"
-                    Margin="4"
-                    Command="{Binding ViewPhotoMetadataCommand}">
-                    Show All Metadata
-                </Button>
+                <Grid Grid.Row="3"
+                      Height="28"
+                      Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        Command="{Binding ViewPhotoMetadataCommand}">
+                        Show All Metadata
+                    </Button>
+                    <Button Grid.Column="1" Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
+                </Grid>
             </Grid>
         </GroupBox>
         <TabControl Grid.Row="0" Grid.Column="1" Margin="4,9,4,5">
@@ -179,6 +185,9 @@
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}"
                         Content="Save, _Generate Html" />
+                <Button Style="{StaticResource ActionPanelButton}"
+                        Command="{Binding SaveAndGenerateHtmlAndCloseCommand}"
+                        Content="Save, _Generate Html, Close" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}"
                         Content="Quick _Save to DB" />
                 <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}"

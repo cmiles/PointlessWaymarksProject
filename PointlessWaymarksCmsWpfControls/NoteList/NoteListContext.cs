@@ -178,6 +178,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
                 if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                     existingItem.DbEntry = loopItems.DbEntry;
             }
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
         private async Task FilterList()

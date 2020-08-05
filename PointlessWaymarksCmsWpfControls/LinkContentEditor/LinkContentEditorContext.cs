@@ -30,6 +30,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
         private bool _linkDateTimeHasChanges;
         private string _linkUrl;
         private bool _linkUrlHasChanges;
+        private bool _linkUrlHasValidationIssues;
+        private string _linkUrlHasValidationMessage;
         private Command _openUrlInBrowserCommand;
         private Command _saveUpdateDatabaseAndCloseCommand;
         private Command _saveUpdateDatabaseCommand;
@@ -43,8 +45,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
         private bool _titleHasChanges;
 
         public EventHandler RequestLinkContentEditorWindowClose;
-        private bool _linkUrlHasValidationIssues;
-        private string _linkUrlHasValidationMessage;
 
         public LinkContentEditorContext(StatusControlContext statusContext, LinkContent linkContent,
             bool extractDataOnLoad = false)
@@ -205,6 +205,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
+        public bool LinkUrlHasChanges
+        {
+            get => _linkUrlHasChanges;
+            set
+            {
+                if (value == _linkUrlHasChanges) return;
+                _linkUrlHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool LinkUrlHasValidationIssues
         {
             get => _linkUrlHasValidationIssues;
@@ -223,17 +234,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             {
                 if (value == _linkUrlHasValidationMessage) return;
                 _linkUrlHasValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool LinkUrlHasChanges
-        {
-            get => _linkUrlHasChanges;
-            set
-            {
-                if (value == _linkUrlHasChanges) return;
-                _linkUrlHasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -394,7 +394,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 
         public async Task ValidateUrl()
         {
-            var validationResult = await CommonContentValidation.ValidateLinkContentLinkUrl(LinkUrl, DbEntry?.ContentId);
+            var validationResult =
+                await CommonContentValidation.ValidateLinkContentLinkUrl(LinkUrl, DbEntry?.ContentId);
 
             LinkUrlHasValidationIssues = !validationResult.isValid;
             LinkUrlHasValidationMessage = validationResult.explanation;
@@ -450,7 +451,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!(propertyName.Contains("HasChanges") || propertyName.Contains("HaveChanges"))) StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CheckForChangesAndValidate);
+            if (!(propertyName.Contains("HasChanges") || propertyName.Contains("HaveChanges")))
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CheckForChangesAndValidate);
         }
 
         private LinkContent CurrentStateToLinkContent()
@@ -498,14 +500,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
                 return;
             }
 
+            await LoadData(newContent);
+
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
                 RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
-                return;
             }
-
-            await LoadData(newContent);
         }
     }
 }

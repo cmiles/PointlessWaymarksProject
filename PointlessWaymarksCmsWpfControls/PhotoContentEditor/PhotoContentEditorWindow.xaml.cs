@@ -20,6 +20,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             StatusContext = new StatusControlContext();
             PhotoEditor = new PhotoContentEditorContext(StatusContext, false);
 
+            PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+
             DataContext = this;
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
         }
@@ -31,11 +33,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             StatusContext = new StatusControlContext();
             PhotoEditor = new PhotoContentEditorContext(StatusContext, forAutomation);
 
+            PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+
             DataContext = this;
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
         }
-
-        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
         public PhotoContentEditorWindow(FileInfo initialPhoto)
         {
@@ -43,6 +45,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext = new StatusControlContext();
             PhotoEditor = new PhotoContentEditorContext(StatusContext, initialPhoto);
+
+            PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
 
             DataContext = this;
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
@@ -55,9 +59,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             StatusContext = new StatusControlContext();
             PhotoEditor = new PhotoContentEditorContext(StatusContext, toLoad);
 
+            PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+
             DataContext = this;
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
         }
+
+        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
         public PhotoContentEditorContext PhotoEditor
         {
@@ -81,12 +89,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

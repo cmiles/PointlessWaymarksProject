@@ -1,5 +1,4 @@
 ﻿## Todos
-
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
@@ -53,6 +52,14 @@
 ## Notes
 
 8/4/2020
+
+Photo Editor gets a close after save option - putting this in place helped me find a bug in the Link List implementation of this where I reloaded the data last in the method - which is efficient and makes sense but if you get a dialog or error on saving and the save doesn't finish you don't know if you have the current data loaded...
+
+Tag List wasn't sorting - had a typo in the sort by field.
+
+Adding re-filtering to lists after data notifications.
+
+The lists use read only textboxes to present data so that you can select and copy the text - this is accomplished via a behaviour that passes the click to the listbox so selection gets handled. This has worked surprisingly well for such a quick and simple solution but it has meant that if an item is selected by a passed click that subsequent use of the arrow/page/navigation keys won't work - because this behaviour is only attached to read only textboxes I took the same approach as the mouse click and pass the event along after marking it handled to avoid any doubling of the key press. This is working great in the first tests and it will be interesting to see if it holds up.
 
 Started working on Points.
 
