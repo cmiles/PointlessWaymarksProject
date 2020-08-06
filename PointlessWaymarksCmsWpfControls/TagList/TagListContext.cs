@@ -39,10 +39,13 @@ namespace PointlessWaymarksCmsWpfControls.TagList
         private StatusControlContext _statusContext;
         private string _userFilterText;
         private Command _visibleTagsToExcelCommand;
+        private DataNotificationsWorkQueue _dataNotificationsProcessor;
 
         public TagListContext(StatusControlContext context)
         {
             StatusContext = context ?? new StatusControlContext();
+
+            DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(LoadData);
 
@@ -58,6 +61,17 @@ namespace PointlessWaymarksCmsWpfControls.TagList
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public DataNotificationsWorkQueue DataNotificationsProcessor
+        {
+            get => _dataNotificationsProcessor;
+            set
+            {
+                if (Equals(value, _dataNotificationsProcessor)) return;
+                _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
         }
 
         public Command AllDetailItemsToExcelCommand { get; set; }
@@ -448,7 +462,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
         {
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
+            DataNotificationsProcessor.Enqueue(e);
         }
 
         [NotifyPropertyChangedInvocator]

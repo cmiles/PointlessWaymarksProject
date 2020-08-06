@@ -19,6 +19,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 {
     public class NoteListContext : INotifyPropertyChanged
     {
+        private DataNotificationsWorkQueue _dataNotificationsProcessor;
         private ObservableCollection<NoteListListItem> _items;
         private string _lastSortColumn;
         private List<NoteListListItem> _selectedItems;
@@ -32,6 +33,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
@@ -40,6 +43,17 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             });
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public DataNotificationsWorkQueue DataNotificationsProcessor
+        {
+            get => _dataNotificationsProcessor;
+            set
+            {
+                if (Equals(value, _dataNotificationsProcessor)) return;
+                _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
         }
 
 
@@ -252,7 +266,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
         {
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
+            DataNotificationsProcessor.Enqueue(e);
         }
 
         [NotifyPropertyChangedInvocator]

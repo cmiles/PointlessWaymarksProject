@@ -33,6 +33,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
@@ -44,6 +46,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
+
+        public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
 
         public ObservableCollection<PostListListItem> Items
@@ -234,7 +238,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
         {
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
+            DataNotificationsProcessor.Enqueue(e);
         }
 
         [NotifyPropertyChangedInvocator]

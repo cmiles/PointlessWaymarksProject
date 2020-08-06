@@ -21,6 +21,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 {
     public class FileListContext : INotifyPropertyChanged
     {
+        private DataNotificationsWorkQueue _dataNotificationsProcessor;
         private ObservableCollection<FileListListItem> _items;
         private string _lastSortColumn;
         private Command<FileListListItem> _openFileCommand;
@@ -35,6 +36,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
@@ -44,6 +47,17 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             OpenFileCommand = StatusContext.RunNonBlockingTaskCommand<FileListListItem>(OpenFile);
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public DataNotificationsWorkQueue DataNotificationsProcessor
+        {
+            get => _dataNotificationsProcessor;
+            set
+            {
+                if (Equals(value, _dataNotificationsProcessor)) return;
+                _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
         }
 
 
@@ -296,7 +310,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
         {
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
+            DataNotificationsProcessor.Enqueue(e);
         }
 
         [NotifyPropertyChangedInvocator]

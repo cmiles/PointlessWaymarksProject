@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
@@ -28,6 +30,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             ReportQuery
         }
 
+        private DataNotificationsWorkQueue _dataNotificationsProcessor;
+
         private ObservableCollection<PhotoListListItem> _items;
         private string _lastSortColumn = "CreatedOn";
         private PhotoListLoadMode _loadMode = PhotoListLoadMode.Recent;
@@ -42,6 +46,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         public PhotoListContext(StatusControlContext statusContext, PhotoListLoadMode photoListLoadMode)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -65,6 +71,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             });
 
             LoadMode = photoListLoadMode;
+        }
+
+        public DataNotificationsWorkQueue DataNotificationsProcessor
+        {
+            get => _dataNotificationsProcessor;
+            set
+            {
+                if (Equals(value, _dataNotificationsProcessor)) return;
+                _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
         }
 
         public ObservableCollection<PhotoListListItem> Items
@@ -342,7 +359,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
         {
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await DataNotificationReceived(e));
+            DataNotificationsProcessor.Enqueue(e);
         }
 
 
@@ -365,5 +382,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
+
+
     }
 }

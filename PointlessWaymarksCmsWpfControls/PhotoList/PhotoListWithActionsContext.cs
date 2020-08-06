@@ -569,15 +569,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            const int maxLimit = 100;
-
-            if (selectedFiles.Count > maxLimit)
-            {
-                StatusContext.ToastError(
-                    $"Sorry - max limit is {maxLimit} files at once, {selectedFiles.Count} selected...");
-                return;
-            }
-
             var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
 
             if (!selectedFileInfos.Any(x => x.Exists))

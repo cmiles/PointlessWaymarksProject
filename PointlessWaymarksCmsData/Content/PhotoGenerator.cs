@@ -201,6 +201,51 @@ namespace PointlessWaymarksCmsData.Content
                     progress?.Report("Did not successfully parse YYMM start pattern for file name");
                 }
             }
+            else if (Regex.IsMatch(toReturn.Title, @".*[\s-][01]\d\d\d\z", RegexOptions.IgnoreCase))
+            {
+                try
+                {
+                    var year = int.Parse(toReturn.Title.Substring(toReturn.Title.Length - 4, 2));
+                    var month = int.Parse(toReturn.Title.Substring(toReturn.Title.Length - 2, 2));
+
+                    var tempDate = year < 20
+                        ? new DateTime(2000 + year, month, 1)
+                        : new DateTime(1900 + year, month, 1);
+
+                    toReturn.Summary = $"{toReturn.Title.Substring(0, toReturn.Title.Length - 5)}";
+                    toReturn.Title =
+                        $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(0, toReturn.Title.Length - 5)}";
+
+                    progress?.Report("Title updated based on YYMM end pattern for file name");
+                }
+                catch
+                {
+                    progress?.Report("Did not successfully parse YYMM end pattern for file name");
+                }
+            }
+            else if (Regex.IsMatch(toReturn.Title, @".*[\s-]\d\d\d\d[\s-]\d\d\z", RegexOptions.IgnoreCase))
+            {
+                var possibleTitleDate =
+                    Regex.Match(toReturn.Title, @".*[\s-](?<possibleDate>\d\d\d\d[\s-]\d\d)\z", RegexOptions.IgnoreCase)
+                        .Groups["possibleDate"].Value;
+                if (!string.IsNullOrWhiteSpace(possibleTitleDate))
+                    try
+                    {
+                        var tempDate = new DateTime(int.Parse(possibleTitleDate.Substring(0, 4)),
+                            int.Parse(possibleTitleDate.Substring(5, 2)), 1);
+
+                        toReturn.Summary =
+                            $"{toReturn.Title.Substring(0, toReturn.Title.Length - possibleTitleDate.Length)}";
+                        toReturn.Title =
+                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(0, toReturn.Title.Length - possibleTitleDate.Length)}";
+
+                        progress?.Report("Title updated based on 2yyy MM end pattern for file name");
+                    }
+                    catch
+                    {
+                        progress?.Report("Did not successfully parse 2yyy MM end pattern for file name");
+                    }
+            }
             else
             {
                 toReturn.Title = string.IsNullOrWhiteSpace(toReturn.Title)

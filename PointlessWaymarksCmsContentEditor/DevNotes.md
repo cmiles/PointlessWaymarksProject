@@ -1,4 +1,6 @@
 ﻿## Todos
+ - Photo/Multi File import needs cancellation
+
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
@@ -50,6 +52,12 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/5/2020
+
+In processing in 100s of 2018 pictures for HikeLemmon I ran into a bug in the data notification processing code where multiple notifications where running at the same time creating unexpected duplicates in the list - at first I tried making the processing code more error tolerant and having it eliminate duplicates, but this quickly led to conflicts with the collection changing... The code already handles notifications coming in unordered - but it can not handle multiple notification updates running at the same time - used the BlockingCollection based queue from https://michaelscodingspot.com/c-job-queues/ to receive the notifications concurrently however needed but process one at a time.
+
+Some of the Hikelemmon pictures have an end date code in the title - I am still not completely sure if I want to import all of these by default, but will absolutely want some of them imported for specific use esp. in point data so added photo import code for that case.
 
 8/4/2020
 
