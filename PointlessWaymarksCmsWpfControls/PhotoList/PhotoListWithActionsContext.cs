@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AngleSharp.Text;
@@ -553,7 +554,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             newContentWindow.Show();
         }
 
-        private async Task NewContentFromFiles(bool autoSaveAndClose)
+        private async Task NewContentFromFiles(bool autoSaveAndClose, CancellationToken cancellationToken)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -593,6 +594,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             foreach (var loopFile in validFiles)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 await ThreadSwitcher.ResumeBackgroundAsync();
 
                 if (autoSaveAndClose)
@@ -881,9 +884,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             OpenUrlForPhotoListCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForPhotoList);
             NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             NewContentFromFilesCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await NewContentFromFiles(false));
+                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewContentFromFiles(false, x),
+                    "Cancel Photo Import");
             NewContentFromFilesWithAutosaveCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await NewContentFromFiles(true));
+                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewContentFromFiles(true, x),
+                    "Cancel Photo Import");
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             ForcedResizeCommand = StatusContext.RunBlockingTaskCommand(ForcedResize);

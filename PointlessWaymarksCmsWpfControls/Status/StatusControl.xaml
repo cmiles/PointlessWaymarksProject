@@ -98,6 +98,21 @@
                 </Grid>
             </Border>
         </Grid>
+        <ListBox Background="Transparent" BorderThickness="0" VerticalAlignment="Bottom" Opacity=".7" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Visibility="{Binding ShowCancellations, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" ItemsSource="{Binding CancellationList}">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="status:UserCancellations">
+                    <Button Command="{Binding Cancel}" IsEnabled="{Binding IsEnabled}">
+                        <TextBlock Text="{Binding Description}" Margin="24,0,24,0"></TextBlock>
+                    </Button>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel IsItemsHost="True" Orientation="Horizontal"  />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
+
         <Grid Grid.Column="0"
               Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Border Background="White" CornerRadius="8">

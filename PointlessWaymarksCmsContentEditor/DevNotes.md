@@ -1,13 +1,11 @@
 ﻿## Todos
- - Photo/Multi File import needs cancellation
-
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
   - Setup RSS Feed
   - Create Pages
   - Validation when saving - lat/long, Details (make sure content id is linked correctly to detail)
-
+ - Try using XAML Styler command line .net tool
  - Email Html
   - Check formatting - could spacing be better in multiple clients?
  - Split settings into a public and private so that the public settings can be copied to the site for backup and the private can stay in the archive.
@@ -55,9 +53,11 @@
 
 8/5/2020
 
+Added basic cancellation support for blocking tasks - only supporting method for the moment is the Photo import (the only spot at the moment where I am doing more than a handful of files at once).
+
 In processing in 100s of 2018 pictures for HikeLemmon I ran into a bug in the data notification processing code where multiple notifications where running at the same time creating unexpected duplicates in the list - at first I tried making the processing code more error tolerant and having it eliminate duplicates, but this quickly led to conflicts with the collection changing... The code already handles notifications coming in unordered - but it can not handle multiple notification updates running at the same time - used the BlockingCollection based queue from https://michaelscodingspot.com/c-job-queues/ to receive the notifications concurrently however needed but process one at a time.
 
-Some of the Hikelemmon pictures have an end date code in the title - I am still not completely sure if I want to import all of these by default, but will absolutely want some of them imported for specific use esp. in point data so added photo import code for that case.
+Some of the HikeLemmon pictures have an end date code in the title - I am still not completely sure if I want to import all of these by default, but will absolutely want some of them imported for specific use esp. in point data so added photo import code for that case.
 
 8/4/2020
 
@@ -67,7 +67,7 @@ Tag List wasn't sorting - had a typo in the sort by field.
 
 Adding re-filtering to lists after data notifications.
 
-The lists use read only textboxes to present data so that you can select and copy the text - this is accomplished via a behaviour that passes the click to the listbox so selection gets handled. This has worked surprisingly well for such a quick and simple solution but it has meant that if an item is selected by a passed click that subsequent use of the arrow/page/navigation keys won't work - because this behaviour is only attached to read only textboxes I took the same approach as the mouse click and pass the event along after marking it handled to avoid any doubling of the key press. This is working great in the first tests and it will be interesting to see if it holds up.
+The lists use read only textboxes to present data so that you can select and copy the text - this is accomplished via a behavior that passes the click to the listbox so selection gets handled. This has worked surprisingly well for such a quick and simple solution but it has meant that if an item is selected by a passed click that subsequent use of the arrow/page/navigation keys won't work - because this behavior is only attached to read only textboxes I took the same approach as the mouse click and pass the event along after marking it handled to avoid any doubling of the key press. This is working great in the first tests and it will be interesting to see if it holds up.
 
 Started working on Points.
 

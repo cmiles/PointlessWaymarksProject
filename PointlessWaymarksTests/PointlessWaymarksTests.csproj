@@ -13,7 +13,7 @@
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="ClosedXML" Version="0.95.3" />
     <PackageReference Include="CompareNETObjects" Version="4.66.0" />
-    <PackageReference Include="GitInfo" Version="2.0.26">
+    <PackageReference Include="GitInfo" Version="2.0.31">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

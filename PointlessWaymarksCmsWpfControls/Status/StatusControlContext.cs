@@ -20,6 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
     public class StatusControlContext : INotifyPropertyChanged
     {
         private bool _blockUi;
+        private ObservableCollection<UserCancellations> _cancellationList;
         private int _countOfRunningBlockingTasks;
         private int _countOfRunningNonBlockingTasks;
 
@@ -29,6 +30,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
         private string _messageBoxTitle;
         private bool _messageBoxVisible;
         private bool _nonBlockingTaskAreRunning;
+        private bool _showCancellations;
         private ObservableCollection<string> _statusLog;
         private bool _stringEntryApproved;
         private string _stringEntryMessage;
@@ -44,6 +46,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             Toast = new ToastSource(ContextDispatcher);
             StatusLog = new ObservableCollection<string>();
+            CancellationList = new ObservableCollection<UserCancellations>();
 
             UserMessageBoxResponseCommand = new Command<string>(UserMessageBoxResponse);
             UserStringEntryApprovedResponseCommand = new Command(UserStringEntryApprovedResponse);
@@ -57,6 +60,17 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 if (value == _blockUi) return;
                 _blockUi = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<UserCancellations> CancellationList
+        {
+            get => _cancellationList;
+            set
+            {
+                if (Equals(value, _cancellationList)) return;
+                _cancellationList = value;
                 OnPropertyChanged();
             }
         }
@@ -114,6 +128,17 @@ namespace PointlessWaymarksCmsWpfControls.Status
             {
                 if (value == _nonBlockingTaskAreRunning) return;
                 _nonBlockingTaskAreRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowCancellations
+        {
+            get => _showCancellations;
+            set
+            {
+                if (value == _showCancellations) return;
+                _showCancellations = value;
                 OnPropertyChanged();
             }
         }
@@ -208,6 +233,35 @@ namespace PointlessWaymarksCmsWpfControls.Status
         private void BlockTaskCompleted(Task obj)
         {
             DecrementBlockingTasks();
+
+            if (obj.IsCanceled)
+            {
+                ToastWarning("Canceled Task");
+                return;
+            }
+
+            if (obj.IsFaulted)
+            {
+                ToastError($"Error: {obj.Exception?.Message}");
+                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
+                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+            }
+        }
+
+        private void BlockTaskCompleted(Task obj, CancellationTokenSource cancellationSource)
+        {
+            DecrementBlockingTasks();
+
+            var toRemove = CancellationList.Where(x => x.CancelSource == cancellationSource).ToList();
+
+            if (toRemove.Any())
+                ContextDispatcher?.InvokeAsync(() =>
+                {
+                    toRemove.ForEach(x => CancellationList.Remove(x));
+                    ShowCancellations = CancellationList.Any();
+                });
+
+            cancellationSource?.Dispose();
 
             if (obj.IsCanceled)
             {
@@ -355,11 +409,6 @@ namespace PointlessWaymarksCmsWpfControls.Status
             RunBlockingTask(() => Task.Run(() => toRun(parameter)));
         }
 
-        public Command<T> RunBlockingTaskCommand<T>(Func<T, Task> toRun)
-        {
-            return new Command<T>( x => RunBlockingTask(async () => await toRun(x)));
-        }
-
         public Command RunBlockingActionCommand(Action toRun)
         {
             return new Command(() => RunBlockingAction(toRun));
@@ -377,9 +426,38 @@ namespace PointlessWaymarksCmsWpfControls.Status
             Task.Run(async () => await toRun(parameter)).ContinueWith(BlockTaskCompleted);
         }
 
+        public Command<T> RunBlockingTaskCommand<T>(Func<T, Task> toRun)
+        {
+            return new Command<T>(x => RunBlockingTask(async () => await toRun(x)));
+        }
+
         public Command RunBlockingTaskCommand(Func<Task> toRun)
         {
             return new Command(() => RunBlockingTask(toRun));
+        }
+
+        public void RunBlockingTaskWithCancellation(Func<CancellationToken, Task> toRun, string cancelDescription)
+        {
+            IncrementBlockingTasks();
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
+
+            ContextDispatcher?.InvokeAsync(() =>
+            {
+                CancellationList.Add(
+                    new UserCancellations {CancelSource = tokenSource, Description = cancelDescription});
+                ShowCancellations = CancellationList.Any();
+            });
+
+
+            // ReSharper disable once MethodSupportsCancellation No token for final cancellation
+            Task.Run(async () => await toRun(token), token).ContinueWith(x => BlockTaskCompleted(x, tokenSource));
+        }
+
+        public Command RunBlockingTaskWithCancellationCommand(Func<CancellationToken, Task> toRun,
+            string cancelDescription)
+        {
+            return new Command(() => RunBlockingTaskWithCancellation(toRun, cancelDescription));
         }
 
         public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
@@ -426,15 +504,15 @@ namespace PointlessWaymarksCmsWpfControls.Status
             return new Command(() => RunNonBlockingAction(toRun));
         }
 
-        public Command<T> RunNonBlockingTaskCommand<T>(Func<T, Task> toRun)
-        {
-            return new Command<T>(x => RunNonBlockingTask(async () => await toRun(x)));
-        }
-
         public void RunNonBlockingTask(Func<Task> toRun)
         {
             IncrementNonBlockingTasks();
             Task.Run(toRun).ContinueWith(NonBlockTaskCompleted);
+        }
+
+        public Command<T> RunNonBlockingTaskCommand<T>(Func<T, Task> toRun)
+        {
+            return new Command<T>(x => RunNonBlockingTask(async () => await toRun(x)));
         }
 
         public Command RunNonBlockingTaskCommand(Func<Task> toRun)
@@ -465,7 +543,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             }
             finally
             {
-                _currentFullScreenCancellationSource = null;
+                _currentFullScreenCancellationSource.Dispose();
             }
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -500,7 +578,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
             try
             {
-                await Task.Delay(TimeSpan.FromMinutes(3), _currentFullScreenCancellationSource.Token);
+                await _currentFullScreenCancellationSource.Token.WhenCancelled();
             }
             catch (Exception e)
             {
@@ -512,7 +590,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
             }
             finally
             {
-                _currentFullScreenCancellationSource = null;
+                _currentFullScreenCancellationSource.Dispose();
             }
 
             await ThreadSwitcher.ResumeForegroundAsync();
