@@ -5,7 +5,7 @@
   - Setup RSS Feed
   - Create Pages
   - Validation when saving - lat/long, Details (make sure content id is linked correctly to detail)
- - Try using XAML Styler command line .net tool
+ - Integrate Xaml Styler - git hook maybe? https://github.com/Xavalon/XamlStyler
  - Email Html
   - Check formatting - could spacing be better in multiple clients?
  - Split settings into a public and private so that the public settings can be copied to the site for backup and the private can stay in the archive.
@@ -14,7 +14,7 @@
   - Ironwood Integration Tests for Context File Add, Context Image Add, Post, Note, Link
   - Add tests for the common content validation
  - Rework the Daily Photos generation so specific days can be built
- - Gui Validation alerts - Title control, Tags Control, Link Url Done
+ - Gui Validation alerts - Title control, Tags Control, Link Url Done - (Add validation for the 'selected file' in Files/Photos/Images)
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - A bad content code should be handled better
  - Bad Content Code Content Scan
@@ -34,6 +34,7 @@
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
 
 ## Ideas
+ - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well.
  - GUI Automation Testing https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/march/test-run-automating-ui-tests-in-wpf-applications and/or ViewModel testing (the ViewModels should be testable without the views - however an interesting issue is that testing the GUI will test both...)
  - Look at deployment options - self contained? msix? automated?
  - Watch https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/ - the source generators look like they could be quite interesting for INPC and HasChanges
@@ -52,6 +53,8 @@
 ## Notes
 
 8/9/2020
+
+Reformatted the xaml with the https://github.com/Xavalon/XamlStyler - in the past I have used the VS plugin but for a period I had problems with a lock/crash on save all so have moved away from that - but I miss the formatting work it does and when I saw the console/tool version I thought that was something I could easily integrate. No integration yet but did a first run and it was quick and easy to reformat all the files in the solution.
 
 Worked on importing 2015 photos into HikeLemmon - as a result worked on File Renaming to be able to fix a problem where the imported photo has illegal (for this program) characters in the name. The fix is simple enough - rename the file on the file system and select it again - but much nicer now to just get help in the program.
 
