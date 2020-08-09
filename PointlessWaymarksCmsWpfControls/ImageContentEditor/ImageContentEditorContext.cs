@@ -39,12 +39,15 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private Command _extractNewLinksCommand;
         private FileInfo _initialImage;
         private Command _linkToClipboardCommand;
+        private FileInfo _loadedFile;
+        private Command _renameSelectedFileCommand;
         private Command _rotateImageLeftCommand;
         private Command _rotateImageRightCommand;
         private Command _saveAndGenerateHtmlCommand;
         private FileInfo _selectedFile;
         private BitmapSource _selectedFileBitmapSource;
         private string _selectedFileFullPath;
+        private bool _selectedFileHasPathOrNameChanges;
         private ShowInSearchEditorContext _showInSearch;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private StatusControlContext _statusContext;
@@ -152,6 +155,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
+        public Command RenameSelectedFileCommand
+        {
+            get => _renameSelectedFileCommand;
+            set
+            {
+                if (Equals(value, _renameSelectedFileCommand)) return;
+                _renameSelectedFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command RotateImageLeftCommand
         {
             get => _rotateImageLeftCommand;
@@ -216,6 +230,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 if (value == _selectedFileFullPath) return;
                 _selectedFileFullPath = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SelectedFileHasPathOrNameChanges
+        {
+            get => _selectedFileHasPathOrNameChanges;
+            set
+            {
+                if (value == _selectedFileHasPathOrNameChanges) return;
+                _selectedFileHasPathOrNameChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -349,7 +374,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
-            if (!FileTypeHelpers.ImageFileTypeIsSupported(newFile))
+            if (!FileHelpers.ImageFileTypeIsSupported(newFile))
             {
                 StatusContext.ToastError("Only jpeg files are supported...");
                 return;
@@ -446,20 +471,25 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                     toLoad.OriginalFileName));
 
                 if (archiveFile.Exists)
+                {
                     SelectedFile = archiveFile;
+                    _loadedFile = archiveFile;
+                }
                 else
+                {
                     await StatusContext.ShowMessage("Missing Photo",
                         $"There is an original image file listed for this image - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected location of {archiveFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the image or " +
                         "maybe your media directory moved unexpectedly and you could close this editor " +
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
+                }
             }
 
             AltText = DbEntry.AltText ?? string.Empty;
 
             if (DbEntry.Id < 1 && _initialImage != null && _initialImage.Exists &&
-                FileTypeHelpers.ImageFileTypeIsSupported(_initialImage))
+                FileHelpers.ImageFileTypeIsSupported(_initialImage))
             {
                 SelectedFile = _initialImage;
                 _initialImage = null;
@@ -517,6 +547,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            SelectedFileHasPathOrNameChanges =
+                (SelectedFile?.FullName ?? string.Empty) != (_loadedFile?.FullName ?? string.Empty);
+
             if (SelectedFile == null)
             {
                 SelectedFileFullPath = string.Empty;
@@ -562,6 +595,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
+            RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             RotateImageRightCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
             RotateImageLeftCommand =

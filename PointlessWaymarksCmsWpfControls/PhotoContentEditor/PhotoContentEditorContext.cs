@@ -12,7 +12,6 @@ using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
-using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
@@ -45,8 +44,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private int? _iso;
         private string _lens;
         private string _license;
+        private FileInfo _loadedFile;
         private string _photoCreatedBy;
         private DateTime _photoCreatedOn;
+        private Command _renameSelectedFileCommand;
         private Command _rotatePhotoLeftCommand;
         private Command _rotatePhotoRightCommand;
         private Command _saveAndGenerateHtmlAndCloseCommand;
@@ -54,7 +55,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private BitmapSource _selectedFileBitmapSource = ImageConstants.BlankImage;
-        private string _selectedFileFullPath;
+        private bool _selectedFileHasPathOrNameChanges;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private string _shutterSpeed;
         private StatusControlContext _statusContext;
@@ -66,7 +67,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private Command _viewSelectedFileCommand;
 
         public EventHandler RequestContentEditorWindowClose;
-        private Command _renameSelectedFileCommand;
 
 
         public PhotoContentEditorContext(StatusControlContext statusContext, bool skipInitialLoad)
@@ -280,6 +280,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public Command RenameSelectedFileCommand
+        {
+            get => _renameSelectedFileCommand;
+            set
+            {
+                if (Equals(value, _renameSelectedFileCommand)) return;
+                _renameSelectedFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command RotatePhotoLeftCommand
         {
             get => _rotatePhotoLeftCommand;
@@ -359,13 +370,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public string SelectedFileFullPath
+        public bool SelectedFileHasPathOrNameChanges
         {
-            get => _selectedFileFullPath;
+            get => _selectedFileHasPathOrNameChanges;
             set
             {
-                if (value == _selectedFileFullPath) return;
-                _selectedFileFullPath = value;
+                if (value == _selectedFileHasPathOrNameChanges) return;
+                _selectedFileHasPathOrNameChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -515,7 +526,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
-            if (!FileTypeHelpers.PhotoFileTypeIsSupported(newFile))
+            if (!FileHelpers.PhotoFileTypeIsSupported(newFile))
             {
                 StatusContext.ToastError("Only JPEGs are supported...");
                 return;
@@ -616,14 +627,19 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                     toLoad.OriginalFileName));
 
                 if (archiveFile.Exists)
+                {
                     SelectedFile = archiveFile;
+                    _loadedFile = archiveFile;
+                }
                 else
+                {
                     await StatusContext.ShowMessage("Missing Photo",
                         $"There is an original file listed for this photo - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected location of {archiveFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the photo or " +
                         "maybe your media directory moved unexpectedly and you could close this editor " +
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
+                }
             }
 
             Aperture = DbEntry.Aperture ?? string.Empty;
@@ -639,7 +655,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             PhotoCreatedOn = DbEntry.PhotoCreatedOn;
 
             if (DbEntry.Id < 1 && _initialPhoto != null && _initialPhoto.Exists &&
-                FileTypeHelpers.PhotoFileTypeIsSupported(_initialPhoto))
+                FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
             {
                 SelectedFile = _initialPhoto;
                 _initialPhoto = null;
@@ -742,9 +758,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            SelectedFileHasPathOrNameChanges =
+                (SelectedFile?.FullName ?? string.Empty) != (_loadedFile?.FullName ?? string.Empty);
+
             if (SelectedFile == null)
             {
-                SelectedFileFullPath = string.Empty;
                 SelectedFileBitmapSource = ImageConstants.BlankImage;
                 return;
             }
@@ -753,7 +771,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (!SelectedFile.Exists)
             {
-                SelectedFileFullPath = SelectedFile.FullName;
                 SelectedFileBitmapSource = ImageConstants.BlankImage;
                 return;
             }
@@ -774,8 +791,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             uiImage.Freeze();
 
             SelectedFileBitmapSource = uiImage;
-
-            SelectedFileFullPath = SelectedFile.FullName;
         }
 
         public void SetupContextAndCommands(StatusControlContext statusContext)
@@ -793,7 +808,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             SaveUpdateDatabaseCommand = StatusContext.RunBlockingTaskCommand(SaveToDbWithValidation);
             ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
-            RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(RenameSelectedFile);
+            RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker()));
@@ -801,17 +817,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
             RotatePhotoLeftCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
-        }
-
-        public Command RenameSelectedFileCommand
-        {
-            get => _renameSelectedFileCommand;
-            set
-            {
-                if (Equals(value, _renameSelectedFileCommand)) return;
-                _renameSelectedFileCommand = value;
-                OnPropertyChanged();
-            }
         }
 
         private async Task ViewOnSite()
@@ -847,70 +852,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
-        }
-
-        private async Task RenameSelectedFile()
-        {
-            if (SelectedFile == null || !SelectedFile.Exists)
-            {
-                StatusContext.ToastWarning("No file to rename?");
-                return;
-            }
-
-            var newName = await StatusContext.ShowStringEntry("Rename File",
-                $"Rename {Path.GetFileNameWithoutExtension(SelectedFile.Name)} - " +
-                "File Names must be limited to A-Z a-z 0-9 - . _  :",
-                Path.GetFileNameWithoutExtension(SelectedFile.Name));
-
-            if (!newName.Item1) return;
-
-            var cleanedName = newName.Item2.TrimNullToEmpty();
-
-            if (string.IsNullOrWhiteSpace(cleanedName))
-            {
-                StatusContext.ToastError("Can't rename the file to an empty string...");
-                return;
-            }
-
-            var noExtensionCleaned = Path.GetFileNameWithoutExtension(cleanedName);
-
-            if (string.IsNullOrWhiteSpace(noExtensionCleaned))
-            {
-                StatusContext.ToastError("Not a valid filename...");
-                return;
-            }
-
-            if (!FolderFileUtility.IsNoUrlEncodingNeeded(noExtensionCleaned))
-            {
-                StatusContext.ToastError("File Names must be limited to A - Z a - z 0 - 9 - . _");
-                return;
-            }
-
-            var moveToName = Path.Combine(SelectedFile.Directory?.FullName ?? string.Empty,
-                $"{noExtensionCleaned}{Path.GetExtension(SelectedFile.Name)}");
-
-            try
-            {
-                File.Copy(SelectedFile.FullName, moveToName);
-            }
-            catch (Exception e)
-            {
-                await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(), "Exception while trying to rename file.");
-                StatusContext.ToastError($"Error Copying File: {e.Message}");
-                return;
-            }
-
-            var finalFile = new FileInfo(moveToName);
-
-            if (!finalFile.Exists)
-            {
-                StatusContext.ToastError("Unknown error renaming file - original file still selected.");
-                return;
-            }
-
-            SelectedFile = finalFile;
-
-            StatusContext.ToastSuccess($"Selected file now {SelectedFile.FullName}");
         }
     }
 }

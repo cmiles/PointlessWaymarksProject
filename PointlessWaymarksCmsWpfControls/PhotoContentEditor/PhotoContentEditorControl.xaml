@@ -22,8 +22,9 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:ImageCacheConverter x:Key="ImageCache" />
+            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -35,12 +36,26 @@
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox Margin="4,0,0,4" Header="Photo" Style="{StaticResource UiComponentGroupBoxStyle}">
+        <GroupBox Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource DataEntryLabelStyle}">
+                        Photo
+                    </Label>
+                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
+                                           Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}"
+                                           IconPathGeometry="{StaticResource IconDataInfo}"
+                                           HoverText="Selected File Path or Name has Changed"
+                                           IconBrush="Black" />
+                </StackPanel>
+            </GroupBox.Header>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Button
                     Grid.Row="0"
@@ -53,38 +68,34 @@
                     Grid.Row="1"
                     Grid.ColumnSpan="2"
                     Height="28"
-                    Margin="4"
+                    Margin="4,4,4,18"
                     Command="{Binding ChooseFileCommand}">
                     Choose Photo
                 </Button>
-                <Border
-                    Grid.Row="2"
-                    Grid.Column="0"
-                    Style="{StaticResource ActionPanelBorder}">
-                    <Grid Margin="4">
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Image Source="{Binding SelectedFileBitmapSource}" />
-                        <TextBlock
-                            Grid.Row="1"
-                            HorizontalAlignment="Center"
-                            Text="{Binding SelectedFile.FullName}"
-                            TextWrapping="Wrap" />
-                        <WrapPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Command="{Binding RotatePhotoLeftCommand}">Rotate Left</Button>
-                            <Button Command="{Binding RotatePhotoRightCommand}">Rotate Right</Button>
-                            <Button
-                                Command="{Binding ViewPhotoMetadataCommand}">
-                                Show All Metadata
-                            </Button>
-                            <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
-                            <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
-                        </WrapPanel>
-                    </Grid>
-                </Border>
+                <Image Grid.Row="2" Margin="6,0" Source="{Binding SelectedFileBitmapSource}" />
+                <TextBox
+                    Style="{StaticResource ReadOnlyTextBox}"
+                    Grid.Row="3"
+                    Margin="4,12,4,12"
+                    HorizontalAlignment="Center"
+                    Text="{Binding SelectedFile.FullName, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <WrapPanel Grid.Row="4" Margin="4,0,4,8" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <WrapPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Width" Value="120"></Setter>
+                            <Setter Property="Margin" Value="2"></Setter>
+                        </Style>
+                    </WrapPanel.Resources>
+                    <Button Command="{Binding RotatePhotoLeftCommand}" >Rotate Left</Button>
+                    <Button  Command="{Binding RotatePhotoRightCommand}">Rotate Right</Button>
+                    <Button 
+                            Command="{Binding ViewPhotoMetadataCommand}">
+                        Show Metadata
+                    </Button>
+                    <Button  Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
+                    <Button  Command="{Binding RenameSelectedFileCommand}">Rename</Button>
+                </WrapPanel>
             </Grid>
         </GroupBox>
         <TabControl Grid.Row="0" Grid.Column="1" Margin="4,9,4,5">

@@ -35,18 +35,50 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ChooseFileCommand}">Choose File</Button>
+                            <GroupBox Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
+                                <GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Style="{StaticResource DataEntryLabelStyle}">
+                                            File
+                                        </Label>
+                                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
+                                                               Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}"
+                                                               IconPathGeometry="{StaticResource IconDataInfo}"
+                                                               HoverText="Selected File Path or Name has Changed"
+                                                               IconBrush="Black" />
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ChooseFileCommand}">Choose File</Button>
+                                    <Label Grid.Row="1" Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
+                                    <TextBox TextWrapping="Wrap" Grid.Row="2" Margin="6,2,0,8" Style="{StaticResource ReadOnlyTextBox}"
+                                             Text="{Binding SelectedFile.FullName, Mode=OneWay}" />
+                                    <WrapPanel Grid.Row="3" Margin="4,0,4,12" Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <WrapPanel.Resources>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Width" Value="120"></Setter>
+                                                <Setter Property="Margin" Value="2"></Setter>
+                                            </Style>
+                                        </WrapPanel.Resources>
+                                        <Button Command="{Binding OpenSelectedFileCommand}">Open File</Button>
+                                        <Button Command="{Binding OpenSelectedFileDirectoryCommand}">Open Directory</Button>
+                                        <Button  Command="{Binding RenameSelectedFileCommand}">Rename</Button>
+                                    </WrapPanel>
+                                </Grid>
+                            </GroupBox>
                             <StackPanel Orientation="Vertical" Margin="0,4,0,0">
-                                <Label Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
-                                <TextBox Margin="6,2,0,0" Style="{StaticResource ReadOnlyTextBox}"
-                                         Text="{Binding SelectedFileFullPath}" />
                                 <Grid Margin="6,2,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <Button Command="{Binding OpenSelectedFileCommand}">Open File</Button>
-                                    <Button Grid.Column="1" Command="{Binding OpenSelectedFileDirectoryCommand}">Open Directory</Button>
+
                                 </Grid>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">

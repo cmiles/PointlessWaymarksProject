@@ -451,17 +451,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
-            if (!selectedFileInfos.Any(FileTypeHelpers.ImageFileTypeIsSupported))
+            if (!selectedFileInfos.Any(FileHelpers.ImageFileTypeIsSupported))
             {
                 StatusContext.ToastError("None of the files appear to be supported file types...");
                 return;
             }
 
-            if (selectedFileInfos.Any(x => !FileTypeHelpers.ImageFileTypeIsSupported(x)))
+            if (selectedFileInfos.Any(x => !FileHelpers.ImageFileTypeIsSupported(x)))
                 StatusContext.ToastWarning(
-                    $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileTypeHelpers.ImageFileTypeIsSupported(x)))}");
+                    $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.ImageFileTypeIsSupported(x)))}");
 
-            foreach (var loopFile in selectedFileInfos.Where(FileTypeHelpers.ImageFileTypeIsSupported))
+            foreach (var loopFile in selectedFileInfos.Where(FileHelpers.ImageFileTypeIsSupported))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 

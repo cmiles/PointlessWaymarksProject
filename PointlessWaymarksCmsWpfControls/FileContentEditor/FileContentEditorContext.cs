@@ -36,14 +36,17 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private Command _extractNewLinksCommand;
         private HelpDisplayContext _helpContext;
         private FileInfo _initialFile;
+        private FileInfo _loadedFile;
         private Command _openSelectedFileDirectoryCommand;
         private string _pdfToImagePageToExtract = "1";
         private bool _publicDownloadLink = true;
         private bool _publicDownloadLinkHasChanges;
+        private Command _renameSelectedFileCommand;
         private Command _saveAndExtractImageFromPdfCommand;
         private Command _saveAndGenerateHtmlCommand;
         private FileInfo _selectedFile;
         private string _selectedFileFullPath;
+        private bool _selectedFileHasPathOrNameChanges;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
@@ -201,6 +204,17 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public Command RenameSelectedFileCommand
+        {
+            get => _renameSelectedFileCommand;
+            set
+            {
+                if (Equals(value, _renameSelectedFileCommand)) return;
+                _renameSelectedFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command SaveAndExtractImageFromPdfCommand
         {
             get => _saveAndExtractImageFromPdfCommand;
@@ -232,18 +246,18 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 _selectedFile = value;
                 OnPropertyChanged();
 
-                if (SelectedFile == null) return;
-                SelectedFileFullPath = SelectedFile.FullName;
+                SelectedFileHasPathOrNameChanges = (SelectedFile?.FullName ?? string.Empty) !=
+                                                   (_loadedFile?.FullName ?? string.Empty);
             }
         }
 
-        public string SelectedFileFullPath
+        public bool SelectedFileHasPathOrNameChanges
         {
-            get => _selectedFileFullPath;
+            get => _selectedFileHasPathOrNameChanges;
             set
             {
-                if (value == _selectedFileFullPath) return;
-                _selectedFileFullPath = value;
+                if (value == _selectedFileHasPathOrNameChanges) return;
+                _selectedFileHasPathOrNameChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -474,14 +488,19 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, toLoad.OriginalFileName));
 
                 if (archiveFile.Exists)
+                {
                     SelectedFile = archiveFile;
+                    _loadedFile = archiveFile;
+                }
                 else
-                    await StatusContext.ShowMessage("Missing Fle",
+                {
+                    await StatusContext.ShowMessage("Missing File",
                         $"There is an original file listed for this entry - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected locations of {archiveFile.FullName} or {contentFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the file or " +
                         "maybe your media directory moved unexpectedly and you could close this editor " +
                         "and restore it (or change it in settings) before continuing?", new List<string> {"OK"});
+                }
             }
 
             if (DbEntry.Id < 1 && _initialFile != null && _initialFile.Exists)
@@ -607,6 +626,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             OpenSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
             OpenSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+            RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x));
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));

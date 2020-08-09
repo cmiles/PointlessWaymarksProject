@@ -444,7 +444,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
             OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
             NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
-            
+
             NewContentFromFilesCommand =
                 StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewContentFromFiles(x),
                     "Cancel File Import");

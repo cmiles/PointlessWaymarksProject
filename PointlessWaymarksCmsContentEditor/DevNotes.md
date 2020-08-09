@@ -51,6 +51,14 @@
 
 ## Notes
 
+8/9/2020
+
+Worked on importing 2015 photos into HikeLemmon - as a result worked on File Renaming to be able to fix a problem where the imported photo has illegal (for this program) characters in the name. The fix is simple enough - rename the file on the file system and select it again - but much nicer now to just get help in the program.
+
+One interesting detail was deciding how to handle the rename considering two concerns - exceptions/crashes and having the user not save the change. To handle both I decided to copy rather than move the file - this leaves a file to clean up later but nicely handles many situations.
+
+Added the change info icon to Selected File and did some general clean up on the file presentation of Images, Photos and Files.
+
 8/5/2020
 
 Added cancellation support in images and files.
