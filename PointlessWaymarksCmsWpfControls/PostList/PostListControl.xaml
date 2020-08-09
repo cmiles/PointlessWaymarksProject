@@ -7,9 +7,10 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.PostList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    d:DataContext="{d:DesignInstance local:PostListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    mc:Ignorable="d" d:DataContext="{d:DesignInstance local:PostListContext}">
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -43,18 +44,26 @@
                 Header="Sort"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <WrapPanel HorizontalAlignment="Center">
-                    <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
-                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               IconPathGeometry="{StaticResource IconDataUpArrowThick}" 
-                                               HorizontalContentAlignment="Center"
-                                               IconBrush="Black" />
+                    <Button
+                        Command="{Binding ToggleListSortDirectionCommand}"
+                        Style="{StaticResource ListSortButton}"
+                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataUpArrowThick}"
+                            IconSize="{StaticResource SmallIconSize}" />
                     </Button>
-                    <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
-                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               IconPathGeometry="{StaticResource IconDataDownArrowThick}"
-                                               IconBrush="Black" />
+                    <Button
+                        Command="{Binding ToggleListSortDirectionCommand}"
+                        Style="{StaticResource ListSortButton}"
+                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataDownArrowThick}"
+                            IconSize="{StaticResource SmallIconSize}" />
                     </Button>
                     <Button
                         Width="90"
@@ -97,8 +106,7 @@
                                     <ColumnDefinition Width="100" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Image Margin="2"
-                                       Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" />
+                                <Image Margin="2" Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" />
                                 <StackPanel
                                     Grid.Column="1"
                                     Margin="2"

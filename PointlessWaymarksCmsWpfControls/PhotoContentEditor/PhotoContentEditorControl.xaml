@@ -2,18 +2,18 @@
     x:Class="PointlessWaymarksCmsWpfControls.PhotoContentEditor.PhotoContentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
+    xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
+    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
-    xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
-    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
-    xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
-    xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:photoContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PhotoContentEditor"
     xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
+    xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
+    xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
+    xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
-    xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -42,11 +42,13 @@
                     <Label Style="{StaticResource DataEntryLabelStyle}">
                         Photo
                     </Label>
-                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                           Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}"
-                                           IconPathGeometry="{StaticResource IconDataInfo}"
-                                           HoverText="Selected File Path or Name has Changed"
-                                           IconBrush="Black" />
+                    <utility:IndicatorIcon
+                        VerticalAlignment="Center"
+                        HoverText="Selected File Path or Name has Changed"
+                        IconBrush="Black"
+                        IconPathGeometry="{StaticResource IconDataInfo}"
+                        IconSize="{StaticResource SmallIconSize}"
+                        Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}" />
                 </StackPanel>
             </GroupBox.Header>
             <Grid>
@@ -72,49 +74,51 @@
                     Command="{Binding ChooseFileCommand}">
                     Choose Photo
                 </Button>
-                <Image Grid.Row="2" Margin="6,0" Source="{Binding SelectedFileBitmapSource}" />
+                <Image
+                    Grid.Row="2"
+                    Margin="6,0"
+                    Source="{Binding SelectedFileBitmapSource}" />
                 <TextBox
-                    Style="{StaticResource ReadOnlyTextBox}"
                     Grid.Row="3"
                     Margin="4,12,4,12"
                     HorizontalAlignment="Center"
+                    Style="{StaticResource ReadOnlyTextBox}"
                     Text="{Binding SelectedFile.FullName, Mode=OneWay}"
                     TextWrapping="Wrap" />
-                <WrapPanel Grid.Row="4" Margin="4,0,4,8" Orientation="Horizontal" HorizontalAlignment="Center">
+                <WrapPanel
+                    Grid.Row="4"
+                    Margin="4,0,4,8"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
                     <WrapPanel.Resources>
                         <Style TargetType="Button">
-                            <Setter Property="Width" Value="120"></Setter>
-                            <Setter Property="Margin" Value="2"></Setter>
+                            <Setter Property="Width" Value="120" />
+                            <Setter Property="Margin" Value="2" />
                         </Style>
                     </WrapPanel.Resources>
-                    <Button Command="{Binding RotatePhotoLeftCommand}" >Rotate Left</Button>
-                    <Button  Command="{Binding RotatePhotoRightCommand}">Rotate Right</Button>
-                    <Button 
-                            Command="{Binding ViewPhotoMetadataCommand}">
+                    <Button Command="{Binding RotatePhotoLeftCommand}">Rotate Left</Button>
+                    <Button Command="{Binding RotatePhotoRightCommand}">Rotate Right</Button>
+                    <Button Command="{Binding ViewPhotoMetadataCommand}">
                         Show Metadata
                     </Button>
-                    <Button  Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
-                    <Button  Command="{Binding RenameSelectedFileCommand}">Rename</Button>
+                    <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
+                    <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
                 </WrapPanel>
             </Grid>
         </GroupBox>
-        <TabControl Grid.Row="0" Grid.Column="1" Margin="4,9,4,5">
+        <TabControl
+            Grid.Row="0"
+            Grid.Column="1"
+            Margin="4,9,4,5">
             <TabItem Header="Summary">
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
-                                DataContext="{Binding TitleSummarySlugFolder}" />
-                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
-                                DataContext="{Binding ShowInSiteFeed}"
-                                Style="{StaticResource ShowInSiteFeedPanelStyle}" />
-                            <tagsEditor:TagsEditorControl Style="{StaticResource TagsEditorInPanelStyle}"
-                                                          DataContext="{Binding TagEdit}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}"
-                                DataContext="{Binding CreatedUpdatedDisplay}" />
-                            <contentIdViewer:ContentIdViewerControl Style="{StaticResource ContentIdInPanelStyle}"
-                                                                    DataContext="{Binding ContentId}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
+                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource ShowInSiteFeedPanelStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -125,49 +129,43 @@
                         <StackPanel Margin="4">
                             <StackPanel Orientation="Vertical">
                                 <Label Style="{StaticResource DataEntryLabelStyle}">Alt Text</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxMultiLineStyle}" MinLines="2"
-                                         MaxLines="2"
-                                         Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    MaxLines="2"
+                                    MinLines="2"
+                                    Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+                                    Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
                                 <Label Style="{StaticResource DataEntryLabelStyle}">Photo Created By</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                         Text="{Binding PhotoCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding PhotoCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
                                 <Label Style="{StaticResource DataEntryLabelStyle}">Photo Created On</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                         Text="{Binding PhotoCreatedOn, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding PhotoCreatedOn, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
                                 <Label Style="{StaticResource DataEntryLabelStyle}">Camera Make</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                         Text="{Binding CameraMake, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding CameraMake, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
                                 <Label Style="{StaticResource DataEntryLabelStyle}">Camera Model</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                         Text="{Binding CameraModel, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding CameraModel, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
                                 <Label Style="{StaticResource DataEntryLabelStyle}">Lens</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                         Text="{Binding Lens, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding Lens, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
                                 <Label Style="{StaticResource DataEntryLabelStyle}">Aperture</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                         Text="{Binding Aperture, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding Aperture, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
                                 <Label Style="{StaticResource DataEntryLabelStyle}">Shutter Speed</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                         Text="{Binding ShutterSpeed, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding ShutterSpeed, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
                                 <Label Style="{StaticResource DataEntryLabelStyle}">License</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                         Text="{Binding License, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding License, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -184,20 +182,36 @@
                 </Grid>
             </TabItem>
         </TabControl>
-        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
-            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveAndGenerateHtmlCommand}"
-                        Content="Save, _Generate Html" />
-                <Button Style="{StaticResource ActionPanelButton}"
-                        Command="{Binding SaveAndGenerateHtmlAndCloseCommand}"
-                        Content="Save, _Generate Html, Close" />
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding SaveUpdateDatabaseCommand}"
-                        Content="Quick _Save to DB" />
-                <Button Style="{StaticResource ActionPanelButton}" Command="{Binding ViewOnSiteCommand}"
-                        Content="_View on Site" />
+        <Border
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Style="{StaticResource ActionPanelBorder}">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button
+                    Command="{Binding SaveAndGenerateHtmlCommand}"
+                    Content="Save, _Generate Html"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding SaveAndGenerateHtmlAndCloseCommand}"
+                    Content="Save, _Generate Html, Close"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding SaveUpdateDatabaseCommand}"
+                    Content="Quick _Save to DB"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding ViewOnSiteCommand}"
+                    Content="_View on Site"
+                    Style="{StaticResource ActionPanelButton}" />
             </WrapPanel>
         </Border>
-        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2"
-                                                  VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right" />
+        <windowScreenShot:WindowScreenShotControl
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            HorizontalContentAlignment="Right"
+            VerticalContentAlignment="Bottom" />
     </Grid>
 </UserControl>

@@ -2,9 +2,9 @@
     x:Class="PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay.CreatedAndUpdatedByAndOnDisplayControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     d:DataContext="{d:DesignInstance createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayContext}"
     d:DesignHeight="300"
@@ -21,36 +21,49 @@
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Vertical"
-                        Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
+            <StackPanel Orientation="Vertical" Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
                 <StackPanel Orientation="Horizontal">
-                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CreatedByTextBox}"
-                           Content="Created By" />
-                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                           Visibility="{Binding CreatedByHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                           IconPathGeometry="{StaticResource IconDataInfo}"
-                                           HoverText="{Binding DbEntry.CreatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                           IconBrush="Black" />
+                    <Label
+                        Content="Created By"
+                        Style="{StaticResource DataEntryLabelStyle}"
+                        Target="{Binding ElementName=CreatedByTextBox}" />
+                    <utility:IndicatorIcon
+                        VerticalAlignment="Center"
+                        HoverText="{Binding DbEntry.CreatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                        IconBrush="Black"
+                        IconPathGeometry="{StaticResource IconDataInfo}"
+                        IconSize="{StaticResource SmallIconSize}"
+                        Visibility="{Binding CreatedByHasChanges, Converter={StaticResource BooleanToVisibility}}" />
                 </StackPanel>
-                <TextBox Name="CreatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                         Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox
+                    Name="CreatedByTextBox"
+                    Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
-            <StackPanel Orientation="Vertical"
-                        Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
+            <StackPanel Orientation="Vertical" Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
                 <StackPanel Orientation="Horizontal">
-                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UpdatedByTextBox}"
-                           Content="Updated By" />
-                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                           Visibility="{Binding UpdatedHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                           IconPathGeometry="{StaticResource IconDataInfo}"
-                                           HoverText="{Binding DbEntry.LastUpdatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                           IconBrush="Black" />
+                    <Label
+                        Content="Updated By"
+                        Style="{StaticResource DataEntryLabelStyle}"
+                        Target="{Binding ElementName=UpdatedByTextBox}" />
+                    <utility:IndicatorIcon
+                        VerticalAlignment="Center"
+                        HoverText="{Binding DbEntry.LastUpdatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                        IconBrush="Black"
+                        IconPathGeometry="{StaticResource IconDataInfo}"
+                        IconSize="{StaticResource SmallIconSize}"
+                        Visibility="{Binding UpdatedHasChanges, Converter={StaticResource BooleanToVisibility}}" />
                 </StackPanel>
-                <TextBox Name="UpdatedByTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                         Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox
+                    Name="UpdatedByTextBox"
+                    Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                    Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
-            <TextBox Style="{StaticResource ReadOnlyTextBox}" Margin="12,4,0,0"
-                     Text="{Binding CreatedAndUpdatedByAndOn}" TextWrapping="Wrap" />
+            <TextBox
+                Margin="12,4,0,0"
+                Style="{StaticResource ReadOnlyTextBox}"
+                Text="{Binding CreatedAndUpdatedByAndOn}"
+                TextWrapping="Wrap" />
         </StackPanel>
     </Grid>
 </UserControl>

@@ -1,10 +1,11 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
-                    xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
-                    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
-                    xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
-                    xmlns:showInSearchEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInSearchEditor">
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
+    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
+    xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
+    xmlns:showInSearchEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInSearchEditor"
+    xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor">
     <Style x:Key="ActionPanelButton" TargetType="Button">
         <Setter Property="Margin" Value="4" />
         <Setter Property="Height" Value="24" />
@@ -63,24 +64,19 @@
         <Setter Property="VerticalScrollBarVisibility" Value="Visible" />
         <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
     </Style>
-    <Style x:Key="ShowInSiteFeedPanelStyle"
-           TargetType="showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl">
+    <Style x:Key="ShowInSiteFeedPanelStyle" TargetType="showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl">
         <Setter Property="Margin" Value="4,8,0,0" />
     </Style>
-    <Style x:Key="ShowInSearchPanelStyle"
-           TargetType="showInSearchEditor:ShowInSearchEditorControl">
+    <Style x:Key="ShowInSearchPanelStyle" TargetType="showInSearchEditor:ShowInSearchEditorControl">
         <Setter Property="Margin" Value="4,8,0,0" />
     </Style>
-    <Style x:Key="TagsEditorInPanelStyle"
-           TargetType="tagsEditor:TagsEditorControl">
+    <Style x:Key="TagsEditorInPanelStyle" TargetType="tagsEditor:TagsEditorControl">
         <Setter Property="Margin" Value="0,4,0,0" />
     </Style>
-    <Style x:Key="CreatedUpdatedInPanelStyle"
-           TargetType="createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl">
+    <Style x:Key="CreatedUpdatedInPanelStyle" TargetType="createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl">
         <Setter Property="Margin" Value="0,4,0,0" />
     </Style>
-    <Style x:Key="ContentIdInPanelStyle"
-           TargetType="contentIdViewer:ContentIdViewerControl">
+    <Style x:Key="ContentIdInPanelStyle" TargetType="contentIdViewer:ContentIdViewerControl">
         <Setter Property="Margin" Value="8,8,0,0" />
         <Setter Property="Opacity" Value=".4" />
     </Style>

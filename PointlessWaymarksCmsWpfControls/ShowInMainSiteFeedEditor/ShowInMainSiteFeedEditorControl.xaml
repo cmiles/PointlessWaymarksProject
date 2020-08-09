@@ -1,13 +1,15 @@
-﻿<UserControl x:Class="PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor.ShowInMainSiteFeedEditorControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
-             xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-             mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance showInMainSiteFeedEditor:ShowInMainSiteFeedEditorContext}">
+﻿<UserControl
+    x:Class="PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor.ShowInMainSiteFeedEditorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    d:DataContext="{d:DesignInstance showInMainSiteFeedEditor:ShowInMainSiteFeedEditorContext}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,15 +20,21 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <StackPanel Orientation="Horizontal" Height="20">
-            <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center" IsChecked="{Binding ShowInMainSite}"
-                      FontWeight="DemiBold" Content="Show Post in Site _Feed" />
-            <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" Margin="4,0,0,0"
-                                   VerticalAlignment="Center"
-                                   Visibility="{Binding ShowInMainSiteHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                   IconPathGeometry="{StaticResource IconDataInfo}"
-                                   HoverText="{Binding DbEntry.ShowInMainSiteFeed, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                   IconBrush="Black" />
+        <StackPanel Height="20" Orientation="Horizontal">
+            <CheckBox
+                VerticalAlignment="Center"
+                VerticalContentAlignment="Center"
+                Content="Show Post in Site _Feed"
+                FontWeight="DemiBold"
+                IsChecked="{Binding ShowInMainSite}" />
+            <utility:IndicatorIcon
+                Margin="4,0,0,0"
+                VerticalAlignment="Center"
+                HoverText="{Binding DbEntry.ShowInMainSiteFeed, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                IconBrush="Black"
+                IconPathGeometry="{StaticResource IconDataInfo}"
+                IconSize="{StaticResource SmallIconSize}"
+                Visibility="{Binding ShowInMainSiteHasChanges, Converter={StaticResource BooleanToVisibility}}" />
         </StackPanel>
     </Grid>
 </UserControl>

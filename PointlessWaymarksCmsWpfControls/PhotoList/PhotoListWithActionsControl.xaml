@@ -25,44 +25,63 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Reports">
-                <MenuItem Header="No Tags" Command="{Binding ReportNoTagsCommand}" />
-                <MenuItem Header="Title and Photo Created Don't Match"
-                          Command="{Binding ReportTitleAndTakenDoNotMatchCommand}" />
-                <MenuItem Header="License is Blank" Command="{Binding ReportBlankLicenseCommand}" />
-                <MenuItem Header="License Year and Taken Year Don't Match"
-                          Command="{Binding ReportTakenAndLicenseYearDoNotMatchCommand}" />
-                <MenuItem Header="Titles with Multiple Spaces" Command="{Binding ReportMultiSpacesInTitleCommand}" />
-                <MenuItem Header="All Photos" Command="{Binding ReportAllPhotosCommand}" />
-                <MenuItem Header="Selected - Metadata to Html" Command="{Binding ReportPhotoMetadataCommand}" />
+                <MenuItem Command="{Binding ReportNoTagsCommand}" Header="No Tags" />
+                <MenuItem Command="{Binding ReportTitleAndTakenDoNotMatchCommand}" Header="Title and Photo Created Don't Match" />
+                <MenuItem Command="{Binding ReportBlankLicenseCommand}" Header="License is Blank" />
+                <MenuItem Command="{Binding ReportTakenAndLicenseYearDoNotMatchCommand}" Header="License Year and Taken Year Don't Match" />
+                <MenuItem Command="{Binding ReportMultiSpacesInTitleCommand}" Header="Titles with Multiple Spaces" />
+                <MenuItem Command="{Binding ReportAllPhotosCommand}" Header="All Photos" />
+                <MenuItem Command="{Binding ReportPhotoMetadataCommand}" Header="Selected - Metadata to Html" />
             </MenuItem>
             <MenuItem Header="Excel">
-                <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}" />
-                <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}" />
+                <MenuItem Command="{Binding SelectedToExcelCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ImportFromExcelCommand}" Header="Import From Excel" />
             </MenuItem>
             <MenuItem Header="Email">
-                <MenuItem Header="Selected To Html Email on Clipboard" Command="{Binding EmailHtmlToClipboardCommand}" />
+                <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
             </MenuItem>
         </Menu>
-        <local:PhotoListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />
+        <local:PhotoListControl
+            Grid.Row="1"
+            Margin="4,5,4,6"
+            DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
-            <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Refresh" />
-                <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Edit" />
-                <Button Command="{Binding NewContentFromFilesCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_New from Files" />
-                <Button Command="{Binding NewContentFromFilesWithAutosaveCommand}"
-                        Style="{StaticResource ActionPanelButton}"
-                        Content="_New w/Autosave" />
-                <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="New - Blank" />
-                <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Generate Html" />
-                <Button Command="{Binding PhotoCodesToClipboardForSelectedCommand}"
-                        Style="{StaticResource ActionPanelButton}" Content="_Code to Clipboard" />
-                <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Open Selected In Browser" />
+            <WrapPanel
+                Grid.Row="1"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal">
+                <Button
+                    Command="{Binding RefreshDataCommand}"
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding EditSelectedContentCommand}"
+                    Content="_Edit"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding NewContentFromFilesCommand}"
+                    Content="_New from Files"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding NewContentFromFilesWithAutosaveCommand}"
+                    Content="_New w/Autosave"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding NewContentCommand}"
+                    Content="New - Blank"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding GenerateSelectedHtmlCommand}"
+                    Content="_Generate Html"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding PhotoCodesToClipboardForSelectedCommand}"
+                    Content="_Code to Clipboard"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding OpenUrlForSelectedCommand}"
+                    Content="_Open Selected In Browser"
+                    Style="{StaticResource ActionPanelButton}" />
                 <Button Command="{Binding GeneratePhotoListCommand}" Style="{StaticResource ActionPanelButton}">Generate Photo List</Button>
                 <Button Command="{Binding OpenUrlForPhotoListCommand}" Style="{StaticResource ActionPanelButton}">Open List in Browser</Button>
                 <Button Command="{Binding ForcedResizeCommand}" Style="{StaticResource ActionPanelButton}">Clean and Resize</Button>

@@ -1,16 +1,21 @@
-﻿<Window x:Class="PointlessWaymarksCmsWpfControls.PostContentEditor.PostContentEditorWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:postContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PostContentEditor"
-        xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
-        mc:Ignorable="d"
-        Title="Post Editor" Height="600" Width="800"
-        d:DataContext="{d:DesignInstance postContentEditor:PostContentEditorWindow}">
+﻿<Window
+    x:Class="PointlessWaymarksCmsWpfControls.PostContentEditor.PostContentEditorWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:postContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PostContentEditor"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    Title="Post Editor"
+    Width="800"
+    Height="600"
+    d:DataContext="{d:DesignInstance postContentEditor:PostContentEditorWindow}"
+    mc:Ignorable="d">
     <Grid>
         <postContentEditor:PostContentEditorControl DataContext="{Binding PostContent}" />
-        <status:StatusControl Grid.Column="0" d:IsHidden="true"
-                              DataContext="{Binding StatusContext}" />
+        <status:StatusControl
+            Grid.Column="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

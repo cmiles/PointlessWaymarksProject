@@ -1,16 +1,18 @@
-﻿<Window x:Class="PointlessWaymarksCmsWpfControls.ImageContentEditor.ImageContentEditorWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.ImageContentEditor"
-        xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
-        mc:Ignorable="d"
-        Title="Image Content Editor" Height="650" Width="900"
-        d:DataContext="{d:DesignInstance local:ImageContentEditorWindow}">
+﻿<Window
+    x:Class="PointlessWaymarksCmsWpfControls.ImageContentEditor.ImageContentEditorWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.ImageContentEditor"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    Title="Image Content Editor"
+    Width="900"
+    Height="650"
+    d:DataContext="{d:DesignInstance local:ImageContentEditorWindow}"
+    mc:Ignorable="d">
     <Grid>
         <local:ImageContentEditorControl DataContext="{Binding ImageEditor}" />
-        <status:StatusControl d:IsHidden="true"
-                              DataContext="{Binding StatusContext}" />
+        <status:StatusControl d:IsHidden="true" DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

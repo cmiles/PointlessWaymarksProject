@@ -6,9 +6,10 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.NoteList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    d:DataContext="{d:DesignInstance local:NoteListWithActionsContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    mc:Ignorable="d" d:DataContext="{d:DesignInstance local:NoteListWithActionsContext}">
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -24,28 +25,43 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Excel">
-                <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}" />
-                <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}" />
+                <MenuItem Command="{Binding SelectedToExcelCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ImportFromExcelCommand}" Header="Import From Excel" />
             </MenuItem>
             <MenuItem Header="Email">
-                <MenuItem Header="Selected To Html Email on Clipboard" Command="{Binding EmailHtmlToClipboardCommand}" />
+                <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
             </MenuItem>
         </Menu>
-        <local:NoteListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />
+        <local:NoteListControl
+            Grid.Row="1"
+            Margin="4,5,4,6"
+            DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
-            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Refresh" />
-                <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Edit" />
-                <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_New Content" />
-                <Button Command="{Binding GenerateSelectedHtmlCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Generate Html" />
-                <Button Command="{Binding NoteCodesToClipboardForSelectedCommand}"
-                        Style="{StaticResource ActionPanelButton}" Content="_Code to Clipboard" />
-                <Button Command="{Binding OpenUrlForSelectedCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Open Selected In Browser" />
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button
+                    Command="{Binding RefreshDataCommand}"
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding EditSelectedContentCommand}"
+                    Content="_Edit"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding NewContentCommand}"
+                    Content="_New Content"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding GenerateSelectedHtmlCommand}"
+                    Content="_Generate Html"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding NoteCodesToClipboardForSelectedCommand}"
+                    Content="_Code to Clipboard"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding OpenUrlForSelectedCommand}"
+                    Content="_Open Selected In Browser"
+                    Style="{StaticResource ActionPanelButton}" />
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
                 <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButton}">View History</Button>
                 <Button Command="{Binding ExtractNewLinksInSelectedCommand}" Style="{StaticResource ActionPanelButton}">Extract Links</Button>

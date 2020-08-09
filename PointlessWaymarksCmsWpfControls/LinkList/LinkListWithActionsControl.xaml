@@ -1,13 +1,15 @@
-﻿<UserControl x:Class="PointlessWaymarksCmsWpfControls.LinkList.LinkListWithActionsControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
-             xmlns:linkList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkList"
-             mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance linkList:LinkListWithActionsContext}">
+﻿<UserControl
+    x:Class="PointlessWaymarksCmsWpfControls.LinkList.LinkListWithActionsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:linkList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkList"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    d:DataContext="{d:DesignInstance linkList:LinkListWithActionsContext}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -23,23 +25,33 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Excel">
-                <MenuItem Header="Selected To Excel" Command="{Binding SelectedToExcelCommand}" />
-                <MenuItem Header="Import From Excel" Command="{Binding ImportFromExcelCommand}" />
+                <MenuItem Command="{Binding SelectedToExcelCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ImportFromExcelCommand}" Header="Import From Excel" />
             </MenuItem>
         </Menu>
-        <linkList:LinkListControl Grid.Row="1" Margin="4,5,4,6" DataContext="{Binding ListContext}" />
+        <linkList:LinkListControl
+            Grid.Row="1"
+            Margin="4,5,4,6"
+            DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
-            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Command="{Binding RefreshDataCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Refresh" />
-                <Button Command="{Binding EditSelectedContentCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_Edit" />
-                <Button Command="{Binding NewContentCommand}" Style="{StaticResource ActionPanelButton}"
-                        Content="_New Content" />
-                <Button Command="{Binding MdLinkCodesToClipboardForSelectedCommand}"
-                        Style="{StaticResource ActionPanelButton}" Content="Md Link to _Clipboard" />
-                <Button Command="{Binding ListContext.ListSelectedLinksNotOnPinboardCommand}"
-                        Style="{StaticResource ActionPanelButton}">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button
+                    Command="{Binding RefreshDataCommand}"
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding EditSelectedContentCommand}"
+                    Content="_Edit"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding NewContentCommand}"
+                    Content="_New Content"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding MdLinkCodesToClipboardForSelectedCommand}"
+                    Content="Md Link to _Clipboard"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button Command="{Binding ListContext.ListSelectedLinksNotOnPinboardCommand}" Style="{StaticResource ActionPanelButton}">
                     Selected Pinboard Check
                 </Button>
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>

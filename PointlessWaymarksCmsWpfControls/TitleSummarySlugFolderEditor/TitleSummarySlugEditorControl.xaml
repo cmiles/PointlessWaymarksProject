@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     d:DataContext="{d:DesignInstance titleSummarySlugFolderEditor:TitleSummarySlugEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -22,80 +22,114 @@
     <StackPanel Orientation="Vertical">
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="_Title"
-                       Target="{Binding ElementName=TitleTextBox}" />
-                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                       Visibility="{Binding TitleHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource IconDataInfo}"
-                                       HoverText="{Binding DbEntry.Title, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                       IconBrush="Black" />
-                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                       Visibility="{Binding TitleHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource IconDataError}"
-                                       HoverText="{Binding TitleValidationMessage}"
-                                       IconBrush="Red" />
+                <Label
+                    Content="_Title"
+                    Style="{StaticResource DataEntryLabelStyle}"
+                    Target="{Binding ElementName=TitleTextBox}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding DbEntry.Title, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                    IconBrush="Black"
+                    IconPathGeometry="{StaticResource IconDataInfo}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding TitleHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding TitleValidationMessage}"
+                    IconBrush="Red"
+                    IconPathGeometry="{StaticResource IconDataError}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding TitleHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
             </StackPanel>
-            <TextBox Name="TitleTextBox" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
-            <Button Margin="6,4,0,0" Command="{Binding TitleToSlugCommand}" Content="T_itle to Slug" />
+            <TextBox
+                Name="TitleTextBox"
+                Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+            <Button
+                Margin="6,4,0,0"
+                Command="{Binding TitleToSlugCommand}"
+                Content="T_itle to Slug" />
         </StackPanel>
         <StackPanel Margin="0,4,0,0" Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Slug"
-                       Target="{Binding ElementName=SlugTextBox}" />
-                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                       Visibility="{Binding SlugHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource IconDataInfo}"
-                                       HoverText="{Binding DbEntry.Slug, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                       IconBrush="Black" />
-                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                       Visibility="{Binding SlugHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource IconDataError}"
-                                       HoverText="{Binding SlugValidationMessage}"
-                                       IconBrush="Red" />
+                <Label
+                    Content="Slug"
+                    Style="{StaticResource DataEntryLabelStyle}"
+                    Target="{Binding ElementName=SlugTextBox}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding DbEntry.Slug, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                    IconBrush="Black"
+                    IconPathGeometry="{StaticResource IconDataInfo}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding SlugHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding SlugValidationMessage}"
+                    IconBrush="Red"
+                    IconPathGeometry="{StaticResource IconDataError}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding SlugHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
             </StackPanel>
-            <TextBox Name="SlugTextBox" Margin="6,2,0,0" Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}"
-                     SpellCheck.IsEnabled="True"
-                     Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
+            <TextBox
+                Name="SlugTextBox"
+                Margin="6,2,0,0"
+                SpellCheck.IsEnabled="True"
+                Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                Text="{Binding Slug, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
         <StackPanel Margin="0,4,0,0" Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Folder"
-                       Target="{Binding ElementName=FolderTextBox}" />
-                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                       Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource IconDataInfo}"
-                                       HoverText="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                       IconBrush="Black" />
-                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                       Visibility="{Binding FolderHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource IconDataError}"
-                                       HoverText="{Binding FolderValidationMessage}"
-                                       IconBrush="Red" />
+                <Label
+                    Content="Folder"
+                    Style="{StaticResource DataEntryLabelStyle}"
+                    Target="{Binding ElementName=FolderTextBox}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                    IconBrush="Black"
+                    IconPathGeometry="{StaticResource IconDataInfo}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding FolderValidationMessage}"
+                    IconBrush="Red"
+                    IconPathGeometry="{StaticResource IconDataError}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding FolderHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
             </StackPanel>
-            <TextBox Name="FolderTextBox" Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"
-                     SpellCheck.IsEnabled="True"
-                     Style="{StaticResource DataEntryTextBoxSingleLineStyle}" />
+            <TextBox
+                Name="FolderTextBox"
+                SpellCheck.IsEnabled="True"
+                Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
         <StackPanel Margin="0,4,0,0" Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <Label Style="{StaticResource DataEntryLabelStyle}" Content="Su_mmary"
-                       Target="{Binding ElementName=SummaryTextBox}" />
-                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                       Visibility="{Binding SummaryHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource IconDataInfo}"
-                                       HoverText="{Binding DbEntry.Summary, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                       IconBrush="Black" />
-                <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                       Visibility="{Binding SummaryHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                                       IconPathGeometry="{StaticResource IconDataError}"
-                                       HoverText="{Binding SummaryValidationMessage}"
-                                       IconBrush="Red" />
+                <Label
+                    Content="Su_mmary"
+                    Style="{StaticResource DataEntryLabelStyle}"
+                    Target="{Binding ElementName=SummaryTextBox}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding DbEntry.Summary, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                    IconBrush="Black"
+                    IconPathGeometry="{StaticResource IconDataInfo}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding SummaryHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding SummaryValidationMessage}"
+                    IconBrush="Red"
+                    IconPathGeometry="{StaticResource IconDataError}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding SummaryHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
             </StackPanel>
             <TextBox
                 Name="SummaryTextBox"
-                Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}"
-                Style="{StaticResource DataEntryTextBoxMultiLineStyle}" />
+                Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+                Text="{Binding Summary, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
     </StackPanel>
 </UserControl>

@@ -41,25 +41,24 @@
                 Margin="24"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                ScrollViewer.VerticalScrollBarVisibility="Hidden"
                 utility:ListBoxScrollBehavior.ScrollOnNewItem="True"
                 BorderThickness="0"
                 Cursor="Wait"
                 ItemsSource="{Binding StatusLog}"
                 Opacity=".7"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.VerticalScrollBarVisibility="Hidden"
                 Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="0,0,0,4">
-                            <TextBlock TextWrapping="Wrap" Text="{Binding .}" />
+                            <TextBlock Text="{Binding .}" TextWrapping="Wrap" />
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </Border>
-        <Grid Grid.Column="0"
-              Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+        <Grid Grid.Column="0" Visibility="{Binding StringEntryVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Border Background="White" CornerRadius="8">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
@@ -81,15 +80,15 @@
                         Margin="4,12"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        TextWrapping="Wrap"
-                        Text="{Binding StringEntryMessage}" />
+                        Text="{Binding StringEntryMessage}"
+                        TextWrapping="Wrap" />
                     <TextBox
                         Grid.Row="2"
                         MaxWidth="800"
-                        TextAlignment="Right"
                         Margin="4,12"
                         Padding="4,4"
-                        Text="{Binding StringEntryUserText, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding StringEntryUserText, UpdateSourceTrigger=PropertyChanged}"
+                        TextAlignment="Right" />
                     <Grid Grid.Row="3" Margin="4,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
@@ -97,32 +96,40 @@
                         </Grid.ColumnDefinitions>
                         <Grid.Resources>
                             <Style TargetType="Button">
-                                <Setter Property="Height" Value="40"></Setter>
+                                <Setter Property="Height" Value="40" />
                             </Style>
                         </Grid.Resources>
-                        <Button  Command="{Binding UserStringEntryCancelledResponseCommand}">Cancel</Button>
+                        <Button Command="{Binding UserStringEntryCancelledResponseCommand}">Cancel</Button>
                         <Button Grid.Column="1" Command="{Binding UserStringEntryApprovedResponseCommand}">Submit</Button>
                     </Grid>
                 </Grid>
             </Border>
         </Grid>
-        <ListBox Background="Transparent" BorderThickness="0" VerticalAlignment="Bottom" Opacity=".7" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Visibility="{Binding ShowCancellations, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" ItemsSource="{Binding CancellationList}">
+        <ListBox
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            Background="Transparent"
+            BorderThickness="0"
+            ItemsSource="{Binding CancellationList}"
+            Opacity=".7"
+            Visibility="{Binding ShowCancellations, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="status:UserCancellations">
                     <Button Command="{Binding Cancel}" IsEnabled="{Binding IsEnabled}">
-                        <TextBlock Text="{Binding Description}" Margin="24,0,24,0"></TextBlock>
+                        <TextBlock Margin="24,0,24,0" Text="{Binding Description}" />
                     </Button>
                 </DataTemplate>
             </ListBox.ItemTemplate>
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel IsItemsHost="True" Orientation="Horizontal"  />
+                    <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
         </ListBox>
 
-        <Grid Grid.Column="0"
-              Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+        <Grid Grid.Column="0" Visibility="{Binding MessageBoxVisible, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
             <Border Background="White" CornerRadius="8">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
@@ -139,16 +146,16 @@
                         TextWrapping="Wrap" />
                     <TextBox
                         Grid.Row="1"
-                        BorderThickness="0"
-                        IsReadOnly="True"
                         MaxWidth="1200"
                         Margin="0,12,0,12"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        TextWrapping="Wrap"
-                        VerticalScrollBarVisibility="Auto"
+                        BorderThickness="0"
                         HorizontalScrollBarVisibility="Disabled"
-                        Text="{Binding MessageBoxMessage}" />
+                        IsReadOnly="True"
+                        Text="{Binding MessageBoxMessage}"
+                        TextWrapping="Wrap"
+                        VerticalScrollBarVisibility="Auto" />
                     <ItemsControl Grid.Row="2" ItemsSource="{Binding MessageBoxButtonList}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -167,8 +174,12 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Vertical">
-            <waitingSpinner:WaitingSpinnerControl Margin="0,4,8,0" Diameter="36" Color1="Green" Color2="Transparent"
-                                                  Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
+            <waitingSpinner:WaitingSpinnerControl
+                Margin="0,4,8,0"
+                Color1="Green"
+                Color2="Transparent"
+                Diameter="36"
+                Visibility="{Binding NonBlockingTaskAreRunning, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}" />
             <toastControl:ToastTray DataContext="{Binding Toast}" />
         </StackPanel>
     </Grid>

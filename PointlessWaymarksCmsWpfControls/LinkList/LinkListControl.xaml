@@ -4,12 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:linkList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-    xmlns:linkList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkList"
+    d:DataContext="{d:DesignInstance linkList:LinkListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    mc:Ignorable="d" d:DataContext="{d:DesignInstance linkList:LinkListContext}">
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -43,17 +44,25 @@
                 Header="Sort"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <WrapPanel HorizontalAlignment="Center">
-                    <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
-                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               IconPathGeometry="{StaticResource IconDataUpArrowThick}"
-                                               IconBrush="Black" />
+                    <Button
+                        Command="{Binding ToggleListSortDirectionCommand}"
+                        Style="{StaticResource ListSortButton}"
+                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataUpArrowThick}"
+                            IconSize="{StaticResource SmallIconSize}" />
                     </Button>
-                    <Button Style="{StaticResource ListSortButton}" Command="{Binding ToggleListSortDirectionCommand}"
-                            Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               IconPathGeometry="{StaticResource IconDataDownArrowThick}"
-                                               IconBrush="Black" />
+                    <Button
+                        Command="{Binding ToggleListSortDirectionCommand}"
+                        Style="{StaticResource ListSortButton}"
+                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataDownArrowThick}"
+                            IconSize="{StaticResource SmallIconSize}" />
                     </Button>
                     <Button
                         Width="90"
@@ -89,40 +98,45 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
-                    <utility:AttachCommandBindingsBehavior CommandBindings="{Binding ListBoxAppCommandBindings}"/>
+                    <utility:AttachCommandBindingsBehavior CommandBindings="{Binding ListBoxAppCommandBindings}" />
                 </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="linkList:LinkListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
                                 <StackPanel Margin="2" Orientation="Vertical">
-                                    <TextBox Style="{StaticResource ReadOnlyTextBox}" Text="{Binding DbEntry.Title}"
-                                             TextWrapping="Wrap" FontWeight="Bold">
+                                    <TextBox
+                                        FontWeight="Bold"
+                                        Style="{StaticResource ReadOnlyTextBox}"
+                                        Text="{Binding DbEntry.Title}"
+                                        TextWrapping="Wrap">
                                         <i:Interaction.Behaviors>
                                             <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </i:Interaction.Behaviors>
                                     </TextBox>
-                                    <TextBox Style="{StaticResource ReadOnlyTextBox}"
-                                             Text="{Binding LinkContentString, Mode=OneWay}"
-                                             TextWrapping="Wrap"
-                                             Margin="0,2,0,0">
+                                    <TextBox
+                                        Margin="0,2,0,0"
+                                        Style="{StaticResource ReadOnlyTextBox}"
+                                        Text="{Binding LinkContentString, Mode=OneWay}"
+                                        TextWrapping="Wrap">
                                         <i:Interaction.Behaviors>
                                             <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </i:Interaction.Behaviors>
                                     </TextBox>
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
-                                            <Hyperlink
-                                                Command="{Binding Data.OpenUrlCommand, Source={StaticResource Proxy}}"
-                                                CommandParameter="{Binding DbEntry.Url}">
+                                            <Hyperlink Command="{Binding Data.OpenUrlCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding DbEntry.Url}">
                                                 <Hyperlink.Inlines>
                                                     <Run Text="{Binding DbEntry.Url}" />
                                                 </Hyperlink.Inlines>
                                             </Hyperlink>
                                         </TextBlock>
-                                        <Button VerticalAlignment="Center" Width="80" Height="20"
-                                                Command="{Binding Data.CopyUrlCommand, Source={StaticResource Proxy}}"
-                                                CommandParameter="{Binding DbEntry.Url}">
+                                        <Button
+                                            Width="80"
+                                            Height="20"
+                                            VerticalAlignment="Center"
+                                            Command="{Binding Data.CopyUrlCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding DbEntry.Url}">
                                             Copy Link
                                         </Button>
                                     </WrapPanel>

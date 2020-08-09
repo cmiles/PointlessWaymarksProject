@@ -7,8 +7,8 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.LinkContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
-    xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     d:DataContext="{d:DesignInstance local:LinkContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -32,19 +32,25 @@
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UrlTextBox}">Url</Label>
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               Visibility="{Binding LinkUrlHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                               IconPathGeometry="{StaticResource IconDataInfo}"
-                                               HoverText="{Binding DbEntry.Url, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                               IconBrush="Black" />
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               Visibility="{Binding LinkUrlHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                                               IconPathGeometry="{StaticResource IconDataError}"
-                                               HoverText="{Binding LinkUrlHasValidationMessage}"
-                                               IconBrush="Red" />
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            HoverText="{Binding DbEntry.Url, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataInfo}"
+                            IconSize="{StaticResource SmallIconSize}"
+                            Visibility="{Binding LinkUrlHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            HoverText="{Binding LinkUrlHasValidationMessage}"
+                            IconBrush="Red"
+                            IconPathGeometry="{StaticResource IconDataError}"
+                            IconSize="{StaticResource SmallIconSize}"
+                            Visibility="{Binding LinkUrlHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
                     </StackPanel>
-                    <TextBox Name="UrlTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                             Text="{Binding LinkUrl, UpdateSourceTrigger=PropertyChanged, Delay=100}" />
+                    <TextBox
+                        Name="UrlTextBox"
+                        Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                        Text="{Binding LinkUrl, UpdateSourceTrigger=PropertyChanged, Delay=100}" />
                 </StackPanel>
                 <Grid Margin="6,2,0,0">
                     <Grid.ColumnDefinitions>
@@ -52,113 +58,136 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <Button Command="{Binding ExtractDataCommand}" Content="Try to Extract _Data" />
-                    <Button Grid.Column="1" Command="{Binding OpenUrlInBrowserCommand}" Content="_Open in Browser" />
+                    <Button
+                        Grid.Column="1"
+                        Command="{Binding OpenUrlInBrowserCommand}"
+                        Content="_Open in Browser" />
                 </Grid>
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
-                        <Label Style="{StaticResource DataEntryLabelStyle}"
-                               Target="{Binding ElementName=CommentsTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CommentsTextBox}">
                             Comments
                         </Label>
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               Visibility="{Binding CommentsHaveChanges, Converter={StaticResource BooleanToVisibility}}"
-                                               IconPathGeometry="{StaticResource IconDataInfo}"
-                                               HoverText="{Binding DbEntry.Comments, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                               IconBrush="Black" />
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            HoverText="{Binding DbEntry.Comments, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataInfo}"
+                            IconSize="{StaticResource SmallIconSize}"
+                            Visibility="{Binding CommentsHaveChanges, Converter={StaticResource BooleanToVisibility}}" />
                     </StackPanel>
                     <TextBox
                         Name="CommentsTextBox"
-                        Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
                         Height="60"
+                        Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
                         Text="{Binding Comments, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=TitleTextBox}">Title</Label>
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               Visibility="{Binding TitleHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                               IconPathGeometry="{StaticResource IconDataInfo}"
-                                               HoverText="{Binding DbEntry.Title, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                               IconBrush="Black" />
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            HoverText="{Binding DbEntry.Title, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataInfo}"
+                            IconSize="{StaticResource SmallIconSize}"
+                            Visibility="{Binding TitleHasChanges, Converter={StaticResource BooleanToVisibility}}" />
                     </StackPanel>
-                    <TextBox Name="TitleTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                             Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox
+                        Name="TitleTextBox"
+                        Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                        Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteTextBox}">Site</Label>
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               Visibility="{Binding SiteHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                               IconPathGeometry="{StaticResource IconDataInfo}"
-                                               HoverText="{Binding DbEntry.Site, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                               IconBrush="Black" />
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            HoverText="{Binding DbEntry.Site, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataInfo}"
+                            IconSize="{StaticResource SmallIconSize}"
+                            Visibility="{Binding SiteHasChanges, Converter={StaticResource BooleanToVisibility}}" />
                     </StackPanel>
-                    <TextBox Name="SiteTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                             Text="{Binding Site, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox
+                        Name="SiteTextBox"
+                        Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                        Text="{Binding Site, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
-                        <Label Style="{StaticResource DataEntryLabelStyle}"
-                               Target="{Binding ElementName=AuthorTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=AuthorTextBox}">
                             Author
                         </Label>
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               Visibility="{Binding AuthorHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                               IconPathGeometry="{StaticResource IconDataInfo}"
-                                               HoverText="{Binding DbEntry.Author, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                               IconBrush="Black" />
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            HoverText="{Binding DbEntry.Author, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataInfo}"
+                            IconSize="{StaticResource SmallIconSize}"
+                            Visibility="{Binding AuthorHasChanges, Converter={StaticResource BooleanToVisibility}}" />
                     </StackPanel>
-                    <TextBox Name="AuthorTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                             Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox
+                        Name="AuthorTextBox"
+                        Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                        Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
-                        <Label Style="{StaticResource DataEntryLabelStyle}"
-                               Target="{Binding ElementName=LinkDateTimeTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LinkDateTimeTextBox}">
                             Link Date
                         </Label>
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               Visibility="{Binding LinkDateTimeHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                               IconPathGeometry="{StaticResource IconDataInfo}"
-                                               HoverText="{Binding DbEntry.LinkDate, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                               IconBrush="Black" />
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            HoverText="{Binding DbEntry.LinkDate, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataInfo}"
+                            IconSize="{StaticResource SmallIconSize}"
+                            Visibility="{Binding LinkDateTimeHasChanges, Converter={StaticResource BooleanToVisibility}}" />
                     </StackPanel>
-                    <TextBox Name="LinkDateTimeTextBox" Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                             Text="{Binding LinkDateTime, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox
+                        Name="LinkDateTimeTextBox"
+                        Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                        Text="{Binding LinkDateTime, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
-                        <Label Style="{StaticResource DataEntryLabelStyle}"
-                               Target="{Binding ElementName=DescriptionTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DescriptionTextBox}">
                             Description
                         </Label>
-                        <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                               Visibility="{Binding DescriptionHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                               IconPathGeometry="{StaticResource IconDataInfo}"
-                                               HoverText="{Binding DbEntry.Description, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                               IconBrush="Black" />
+                        <utility:IndicatorIcon
+                            VerticalAlignment="Center"
+                            HoverText="{Binding DbEntry.Description, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                            IconBrush="Black"
+                            IconPathGeometry="{StaticResource IconDataInfo}"
+                            IconSize="{StaticResource SmallIconSize}"
+                            Visibility="{Binding DescriptionHasChanges, Converter={StaticResource BooleanToVisibility}}" />
                     </StackPanel>
                     <TextBox
                         Name="DescriptionTextBox"
-                        Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
                         Height="90"
+                        Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
                         Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <CheckBox Margin="4,8,0,0" FontWeight="DemiBold"
-                              IsChecked="{Binding ShowInLinkRss, UpdateSourceTrigger=PropertyChanged}">
+                    <CheckBox
+                        Margin="4,8,0,0"
+                        FontWeight="DemiBold"
+                        IsChecked="{Binding ShowInLinkRss, UpdateSourceTrigger=PropertyChanged}">
                         Show in Link List _Feed
                     </CheckBox>
-                    <utility:IndicatorIcon IconSize="{StaticResource SmallIconSize}" VerticalAlignment="Center" Margin="4,8,0,0"
-                                           Visibility="{Binding ShowInLinkRssHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                           IconPathGeometry="{StaticResource IconDataInfo}"
-                                           HoverText="{Binding DbEntry.ShowInLinkRss, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                           IconBrush="Black" />
+                    <utility:IndicatorIcon
+                        Margin="4,8,0,0"
+                        VerticalAlignment="Center"
+                        HoverText="{Binding DbEntry.ShowInLinkRss, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                        IconBrush="Black"
+                        IconPathGeometry="{StaticResource IconDataInfo}"
+                        IconSize="{StaticResource SmallIconSize}"
+                        Visibility="{Binding ShowInLinkRssHasChanges, Converter={StaticResource BooleanToVisibility}}" />
                 </StackPanel>
-                <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                    DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
             </StackPanel>
         </ScrollViewer>
         <Grid Grid.Row="1">
@@ -166,12 +195,23 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Button Height="24" Margin="4" Command="{Binding SaveUpdateDatabaseAndCloseCommand}"
-                    Content="_Save and Close" />
-            <Button Height="24" Margin="4" Grid.Column="1" Command="{Binding SaveUpdateDatabaseCommand}"
-                    Content="Save" />
+            <Button
+                Height="24"
+                Margin="4"
+                Command="{Binding SaveUpdateDatabaseAndCloseCommand}"
+                Content="_Save and Close" />
+            <Button
+                Grid.Column="1"
+                Height="24"
+                Margin="4"
+                Command="{Binding SaveUpdateDatabaseCommand}"
+                Content="Save" />
         </Grid>
-        <windowScreenShot:WindowScreenShotControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
-                                                  VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right" />
+        <windowScreenShot:WindowScreenShotControl
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            HorizontalContentAlignment="Right"
+            VerticalContentAlignment="Bottom" />
     </Grid>
 </UserControl>
