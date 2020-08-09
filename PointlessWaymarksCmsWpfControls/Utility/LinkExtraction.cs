@@ -13,12 +13,12 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     public static class LinkExtraction
     {
         public static async Task ExtractNewAndShowLinkContentEditors(string toExtractFrom,
-            IProgress<string> progressTracker, List<string> exludedUrls = null)
+            IProgress<string> progressTracker, List<string> excludedUrls = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            exludedUrls ??= new List<string>();
-            exludedUrls = exludedUrls.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim().ToLower())
+            excludedUrls ??= new List<string>();
+            excludedUrls = excludedUrls.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim().ToLower())
                 .ToList();
 
             if (string.IsNullOrWhiteSpace(toExtractFrom))
@@ -31,7 +31,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             var allMatches = StringHelpers.UrlsFromText(toExtractFrom).Where(x =>
                 !x.ToLower().Contains(UserSettingsSingleton.CurrentSettings().SiteUrl) &&
-                !exludedUrls.Contains(x.ToLower())).ToList();
+                !excludedUrls.Contains(x.ToLower())).ToList();
 
             progressTracker?.Report($"Found {allMatches.Count} Matches");
 

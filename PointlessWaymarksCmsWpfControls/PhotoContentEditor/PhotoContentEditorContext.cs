@@ -12,6 +12,7 @@ using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
@@ -65,6 +66,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private Command _viewSelectedFileCommand;
 
         public EventHandler RequestContentEditorWindowClose;
+        private Command _renameSelectedFileCommand;
 
 
         public PhotoContentEditorContext(StatusControlContext statusContext, bool skipInitialLoad)
@@ -791,6 +793,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             SaveUpdateDatabaseCommand = StatusContext.RunBlockingTaskCommand(SaveToDbWithValidation);
             ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
+            RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(RenameSelectedFile);
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker()));
@@ -798,6 +801,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate90));
             RotatePhotoLeftCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await RotateImage(Orientation.Rotate270));
+        }
+
+        public Command RenameSelectedFileCommand
+        {
+            get => _renameSelectedFileCommand;
+            set
+            {
+                if (Equals(value, _renameSelectedFileCommand)) return;
+                _renameSelectedFileCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         private async Task ViewOnSite()
@@ -833,6 +847,70 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
+        }
+
+        private async Task RenameSelectedFile()
+        {
+            if (SelectedFile == null || !SelectedFile.Exists)
+            {
+                StatusContext.ToastWarning("No file to rename?");
+                return;
+            }
+
+            var newName = await StatusContext.ShowStringEntry("Rename File",
+                $"Rename {Path.GetFileNameWithoutExtension(SelectedFile.Name)} - " +
+                "File Names must be limited to A-Z a-z 0-9 - . _  :",
+                Path.GetFileNameWithoutExtension(SelectedFile.Name));
+
+            if (!newName.Item1) return;
+
+            var cleanedName = newName.Item2.TrimNullToEmpty();
+
+            if (string.IsNullOrWhiteSpace(cleanedName))
+            {
+                StatusContext.ToastError("Can't rename the file to an empty string...");
+                return;
+            }
+
+            var noExtensionCleaned = Path.GetFileNameWithoutExtension(cleanedName);
+
+            if (string.IsNullOrWhiteSpace(noExtensionCleaned))
+            {
+                StatusContext.ToastError("Not a valid filename...");
+                return;
+            }
+
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(noExtensionCleaned))
+            {
+                StatusContext.ToastError("File Names must be limited to A - Z a - z 0 - 9 - . _");
+                return;
+            }
+
+            var moveToName = Path.Combine(SelectedFile.Directory?.FullName ?? string.Empty,
+                $"{noExtensionCleaned}{Path.GetExtension(SelectedFile.Name)}");
+
+            try
+            {
+                File.Copy(SelectedFile.FullName, moveToName);
+            }
+            catch (Exception e)
+            {
+                await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(), "Exception while trying to rename file.");
+                StatusContext.ToastError($"Error Copying File: {e.Message}");
+                return;
+            }
+
+            var finalFile = new FileInfo(moveToName);
+
+            if (!finalFile.Exists)
+            {
+                StatusContext.ToastError("Unknown error renaming file - original file still selected.");
+                return;
+            }
+
+            SelectedFile = finalFile;
+
+            StatusContext.ToastSuccess($"Selected file now {SelectedFile.FullName}");
         }
     }
 }

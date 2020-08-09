@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
@@ -394,7 +395,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 StatusContext.RunBlockingTaskCommand(ImageBracketLinkCodesToClipboardForSelected);
             OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
             NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
-            NewContentFromFilesCommand = StatusContext.RunBlockingTaskCommand(NewContentFromFiles);
+
+            NewContentFromFilesCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewContentFromFiles(x),
+                    "Cancel Image Import");
+
             DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
             ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
@@ -414,7 +419,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             new ImageContentEditorWindow().Show();
         }
 
-        private async Task NewContentFromFiles()
+        private async Task NewContentFromFiles(CancellationToken cancellationToken)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -458,6 +463,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             foreach (var loopFile in selectedFileInfos.Where(FileTypeHelpers.ImageFileTypeIsSupported))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 var editor = new ImageContentEditorWindow(initialImage: loopFile);

@@ -41,7 +41,6 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Button
                     Grid.Row="0"
@@ -74,25 +73,18 @@
                             HorizontalAlignment="Center"
                             Text="{Binding SelectedFile.FullName}"
                             TextWrapping="Wrap" />
-                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <WrapPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button Command="{Binding RotatePhotoLeftCommand}">Rotate Left</Button>
                             <Button Command="{Binding RotatePhotoRightCommand}">Rotate Right</Button>
-                        </StackPanel>
+                            <Button
+                                Command="{Binding ViewPhotoMetadataCommand}">
+                                Show All Metadata
+                            </Button>
+                            <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
+                            <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
+                        </WrapPanel>
                     </Grid>
                 </Border>
-                <Grid Grid.Row="3"
-                      Height="28"
-                      Margin="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Button
-                        Command="{Binding ViewPhotoMetadataCommand}">
-                        Show All Metadata
-                    </Button>
-                    <Button Grid.Column="1" Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
-                </Grid>
             </Grid>
         </GroupBox>
         <TabControl Grid.Row="0" Grid.Column="1" Margin="4,9,4,5">

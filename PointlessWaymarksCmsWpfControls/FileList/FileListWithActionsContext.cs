@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
@@ -443,7 +444,11 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
             OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
             NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
-            NewContentFromFilesCommand = StatusContext.RunBlockingTaskCommand(NewContentFromFiles);
+            
+            NewContentFromFilesCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewContentFromFiles(x),
+                    "Cancel File Import");
+
             DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
             FirstPagePreviewFromPdfToCairoCommand =
                 StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdfToCairo);
@@ -467,7 +472,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             newContentWindow.Show();
         }
 
-        private async Task NewContentFromFiles()
+        private async Task NewContentFromFiles(CancellationToken cancellationToken)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -501,6 +506,8 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             foreach (var loopFile in selectedFileInfos)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 var editor = new FileContentEditorWindow(loopFile);

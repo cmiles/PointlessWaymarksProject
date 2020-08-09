@@ -53,6 +53,8 @@
 
 8/5/2020
 
+Added cancellation support in images and files.
+
 Added basic cancellation support for blocking tasks - only supporting method for the moment is the Photo import (the only spot at the moment where I am doing more than a handful of files at once).
 
 In processing in 100s of 2018 pictures for HikeLemmon I ran into a bug in the data notification processing code where multiple notifications where running at the same time creating unexpected duplicates in the list - at first I tried making the processing code more error tolerant and having it eliminate duplicates, but this quickly led to conflicts with the collection changing... The code already handles notifications coming in unordered - but it can not handle multiple notification updates running at the same time - used the BlockingCollection based queue from https://michaelscodingspot.com/c-job-queues/ to receive the notifications concurrently however needed but process one at a time.
