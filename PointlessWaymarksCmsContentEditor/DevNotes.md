@@ -1,4 +1,8 @@
 ﻿## Todos
+ - Tags and Daily Photo Generation
+  - Make sure all tables are setup in DB Migration including the Generation Log
+  - Test Tags
+  - Daily Photo Detection and writing
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
@@ -13,7 +17,6 @@
  - Content Testing:
   - Ironwood Integration Tests for Context File Add, Context Image Add, Post, Note, Link
   - Add tests for the common content validation
- - Rework the Daily Photos generation so specific days can be built
  - Gui Validation alerts - Title control, Tags Control, Link Url Done - (Add validation for the 'selected file' in Files/Photos/Images)
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - A bad content code should be handled better
@@ -51,6 +54,10 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/13/2020
+
+Spent the past few days working on importing all photos for HikeLemmon - the current total is about 4000 photos dating back to the early 2000s. This resulted in a few small changes but more importantly it seems obvious now that tags and daily photos have to be able to have reasonable change detection for html generation now that the sites are out to 4,000 photos over 2 decades so moving forward with work on that.
 
 8/9/2020
 

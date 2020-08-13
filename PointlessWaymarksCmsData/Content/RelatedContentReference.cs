@@ -20,9 +20,9 @@ namespace PointlessWaymarksCmsData.Content
 
             if (!toAdd.Any()) return;
 
-            var dbEntries = toAdd.Select(x => new RelatedContent {ContentOne = sourceGuid, ContentTwo = x});
+            var dbEntries = toAdd.Select(x => new GenerationRelatedContent {ContentOne = sourceGuid, ContentTwo = x});
 
-            await db.RelatedContents.AddRangeAsync(dbEntries);
+            await db.GenerationRelatedContents.AddRangeAsync(dbEntries);
         }
 
         public static async Task ExtractAndWriteRelatedContentDbReferences(List<IContentCommon> content,
@@ -53,9 +53,9 @@ namespace PointlessWaymarksCmsData.Content
 
             if (!toAdd.Any()) return;
 
-            var dbEntries = toAdd.Select(x => new RelatedContent {ContentOne = content.ContentId, ContentTwo = x});
+            var dbEntries = toAdd.Select(x => new GenerationRelatedContent {ContentOne = content.ContentId, ContentTwo = x});
 
-            await db.RelatedContents.AddRangeAsync(dbEntries);
+            await db.GenerationRelatedContents.AddRangeAsync(dbEntries);
 
             await db.SaveChangesAsync();
         }
@@ -64,8 +64,8 @@ namespace PointlessWaymarksCmsData.Content
         {
             var db = await Db.Context();
 
-            progress?.Report("Clearing RelatedContents Db Table");
-            await db.Database.ExecuteSqlRawAsync("DELETE FROM [" + "RelatedContents" + "];");
+            progress?.Report("Clearing GenerationRelatedContents Db Table");
+            await db.Database.ExecuteSqlRawAsync("DELETE FROM [" + "GenerationRelatedContents" + "];");
 
             var files = (await db.FileContents.Where(x => x.ContentVersion >= contentAfter).ToListAsync())
                 .Cast<IContentCommon>().ToList();

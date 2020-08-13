@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -53,7 +54,9 @@ namespace PointlessWaymarksCmsData.Html
 
         public static async Task GenerateAllHtml(IProgress<string> progress)
         {
-            var frozenNow = DateTime.Now.ToUniversalTime();
+            var generationVersion = DateTime.Now.ToUniversalTime();
+
+            await SetupTagGenerationDbData(generationVersion, progress);
 
             await GenerateAllPhotoHtml(progress);
             await GenerateAllImageHtml(progress);
@@ -68,8 +71,8 @@ namespace PointlessWaymarksCmsData.Html
             GenerateIndex(progress);
 
             progress?.Report(
-                $"Generation Complete - Writing Generation Date Time of UTC {frozenNow} in settings as Last Generation");
-            UserSettingsSingleton.CurrentSettings().LastGenerationUtc = frozenNow;
+                $"Generation Complete - Writing Generation Date Time of UTC {generationVersion} in settings as Last Generation");
+            UserSettingsSingleton.CurrentSettings().LastGenerationUtc = generationVersion;
             await UserSettingsSingleton.CurrentSettings().WriteSettings();
         }
 
@@ -201,8 +204,7 @@ namespace PointlessWaymarksCmsData.Html
             cameraRollPage.WriteLocalHtml();
         }
 
-        public static async Task GenerateChangedContentIdReferencesReferences(DateTime contentAfter,
-            IProgress<string> progress)
+        public static async Task GenerateChangedContentIdReferences(DateTime contentAfter, IProgress<string> progress)
         {
             var db = await Db.Context();
 
@@ -239,14 +241,14 @@ namespace PointlessWaymarksCmsData.Html
 
             var relatedIds = new List<Guid>();
 
-            progress?.Report($"Processing {originalContentSets.Count()} Sets of Changed Content for Related Content");
+            progress?.Report($"Processing {originalContentSets.Count} Sets of Changed Content for Related Content");
 
             var currentCount = 1;
 
             foreach (var loopSets in originalContentSets)
             {
                 progress?.Report($"Processing Related Content Set {currentCount++}");
-                relatedIds.AddRange(await db.RelatedContents.Where(x => loopSets.Contains(x.ContentTwo))
+                relatedIds.AddRange(await db.GenerationRelatedContents.Where(x => loopSets.Contains(x.ContentTwo))
                     .Select(x => x.ContentOne).Distinct().ToListAsync());
             }
 
@@ -309,9 +311,122 @@ namespace PointlessWaymarksCmsData.Html
             Export.WriteLinkListJson();
         }
 
+
+        /// <summary>
+        ///     Generates the Changed Tag Html. !!! The DB must be setup with Tag Generation Information before running this !!!
+        ///     see SetupTagGenerationDbData()
+        /// </summary>
+        /// <param name="currentGenerationVersion"></param>
+        /// <param name="progress"></param>
+        /// <returns></returns>
+        public static async Task GenerateChangedTagHtml(DateTime currentGenerationVersion, IProgress<string> progress)
+        {
+            var db = await Db.Context();
+
+            var lastGeneration = await db.GenerationLogs.Where(x => x.GenerationVersion < currentGenerationVersion)
+                .OrderByDescending(x => x.GenerationVersion).FirstOrDefaultAsync();
+
+            if (lastGeneration == null)
+            {
+                progress?.Report("No Last Generation Found - generating All Tag Html.");
+                GenerateAllTagHtml(progress);
+                return;
+            }
+
+            //Check for need to generate the tag search list - this list is a text only list so it only matters if it is the same list
+            var searchTagsLastGeneration = db.GenerationTagLogs
+                .Where(x => x.GenerationVersion == lastGeneration.GenerationVersion && !x.TagIsExcludedFromSearch)
+                .Select(x => x.TagSlug).Distinct().OrderBy(x => x).ToList();
+
+            progress?.Report(
+                $"Found {searchTagsLastGeneration.Count} search tags from the {lastGeneration.GenerationVersion} generation");
+
+
+            var searchTagsThisGeneration = db.GenerationTagLogs
+                .Where(x => x.GenerationVersion == currentGenerationVersion && !x.TagIsExcludedFromSearch)
+                .Select(x => x.TagSlug).Distinct().OrderBy(x => x).ToList();
+
+            progress?.Report($"Found {searchTagsThisGeneration.Count} search tags from the this generation");
+
+
+            var compareLogic = new CompareLogic();
+            var searchTagComparisonResult = compareLogic.Compare(searchTagsLastGeneration, searchTagsThisGeneration);
+
+            if (!searchTagComparisonResult.AreEqual)
+            {
+                progress?.Report(
+                    "Search Tags are different between this generation and the last generation - creating Tag List.");
+                SearchListPageGenerators.WriteTagList(progress);
+            }
+            else
+            {
+                progress?.Report("Search Tags are the same as the last generation - skipping Tag List creation.");
+            }
+
+            //Evaluate each Tag - the tags list is a standard search list showing summary and main image in addition to changes to the linked content also check for changes
+            //to the linked content contents...
+            var allCurrentTags = db.GenerationTagLogs.Where(x => x.GenerationVersion == currentGenerationVersion)
+                .Select(x => x.TagSlug).Distinct().ToList();
+
+            var tagCompareLogic = new CompareLogic();
+            var spec = new Dictionary<Type, IEnumerable<string>>
+            {
+                {typeof(GenerationTagLog), new[] {"RelatedContentId"}}
+            };
+            tagCompareLogic.Config.CollectionMatchingSpec = spec;
+
+            foreach (var loopTags in allCurrentTags)
+            {
+                var contentLastGeneration = await db.GenerationTagLogs.Where(x =>
+                        x.GenerationVersion == lastGeneration.GenerationVersion && x.TagSlug == loopTags)
+                    .OrderBy(x => x.RelatedContentId).ToListAsync();
+
+                var contentThisGeneration = await db.GenerationTagLogs.Where(x =>
+                        x.GenerationVersion == currentGenerationVersion && x.TagSlug == loopTags)
+                    .OrderBy(x => x.RelatedContentId).ToListAsync();
+
+                var generationComparisonResults = tagCompareLogic.Compare(contentLastGeneration, contentThisGeneration);
+
+                //List of content is not the same - page must be rebuilt
+                if (!generationComparisonResults.AreEqual)
+                {
+                    progress?.Report($"New content found for tag {loopTags} - creating page");
+                    var contentToWrite =
+                        db.ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList());
+                    SearchListPageGenerators.WriteTagPage(loopTags, contentToWrite);
+                    continue;
+                }
+
+                //Direct content Changes
+                var primaryContentChanges = await db.GenerationContentIdReferences.AnyAsync(x =>
+                    contentThisGeneration.Select(y => y.RelatedContentId).Contains(x.ContentId));
+
+                var directTagContent =
+                    db.ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList());
+
+                //Main Image changes
+                var mainImageContentIds = directTagContent.Select(x => Db.MainImageContentIdIfPresent(x))
+                    .Where(x => x != null).ToList();
+
+                var mainImageContentChanges = await db.GenerationContentIdReferences.AnyAsync(x =>
+                    mainImageContentIds.Contains(x.ContentId));
+
+                if (primaryContentChanges || mainImageContentChanges)
+                {
+                    progress?.Report($"Content Changes found for tag {loopTags} - creating page");
+
+                    SearchListPageGenerators.WriteTagPage(loopTags, directTagContent);
+                }
+
+                progress?.Report($"No Changes for tag {loopTags}");
+            }
+        }
+
         public static async Task GenerateChangedToHtml(IProgress<string> progress)
         {
-            var frozenNow = DateTime.Now.ToUniversalTime();
+            var generationVersion = DateTime.Now.ToUniversalTime();
+
+            await SetupTagGenerationDbData(generationVersion, progress);
 
             var lastGenerationSetting = UserSettingsSingleton.CurrentSettings().LastGenerationUtc;
 
@@ -329,7 +444,7 @@ namespace PointlessWaymarksCmsData.Html
                 $"Generation HTML based on changes after UTC - {UserSettingsSingleton.CurrentSettings().LastGenerationUtc}");
 
             await RelatedContentReference.GenerateRelatedContentDbTable(lastGenerationDateTime, progress);
-            await GenerateChangedContentIdReferencesReferences(lastGenerationDateTime, progress);
+            await GenerateChangedContentIdReferences(lastGenerationDateTime, progress);
 
             var db = await Db.Context();
             if (!(await db.GenerationContentIdReferences.AnyAsync()))
@@ -343,8 +458,8 @@ namespace PointlessWaymarksCmsData.Html
 
             var hasDirectPhotoChanges = db.PhotoContents.Join(db.GenerationContentIdReferences, o => o.ContentId,
                 i => i.ContentId, (o, i) => o.PhotoCreatedOn).Any();
-            var hasRelatedPhotoChanges = db.PhotoContents.Join(db.RelatedContents, o => o.ContentId, i => i.ContentTwo,
-                (o, i) => o.PhotoCreatedOn).Any();
+            var hasRelatedPhotoChanges = db.PhotoContents.Join(db.GenerationRelatedContents, o => o.ContentId,
+                i => i.ContentTwo, (o, i) => o.PhotoCreatedOn).Any();
             var hasDeletedPhotoChanges =
                 (await Db.DeletedPhotoContent()).Any(x => x.ContentVersion >= lastGenerationDateTime);
 
@@ -357,13 +472,13 @@ namespace PointlessWaymarksCmsData.Html
             if (hasDirectPhotoChanges || hasDeletedPhotoChanges) await GenerateCameraRollHtml(progress);
             else progress?.Report("No changes to Photo content - skipping Photo Gallery generation.");
 
-            GenerateAllTagHtml(progress);
+            await GenerateChangedTagHtml(generationVersion, progress);
             await GenerateChangedListHtml(progress);
             GenerateAllUtilityJson(progress);
             GenerateIndex(progress);
 
-            progress?.Report($"Generation Complete - writing {frozenNow} as Last Generation UTC into settings");
-            UserSettingsSingleton.CurrentSettings().LastGenerationUtc = frozenNow;
+            progress?.Report($"Generation Complete - writing {generationVersion} as Last Generation UTC into settings");
+            UserSettingsSingleton.CurrentSettings().LastGenerationUtc = generationVersion;
             await UserSettingsSingleton.CurrentSettings().WriteSettings();
         }
 
@@ -491,6 +606,25 @@ namespace PointlessWaymarksCmsData.Html
         {
             var index = new IndexPage();
             index.WriteLocalHtml();
+        }
+
+
+        public static async Task SetupTagGenerationDbData(DateTime currentGenerationVersion, IProgress<string> progress)
+        {
+            var tagData = await Db.TagAndContentList(true, progress);
+
+            var db = await Db.Context();
+
+            foreach (var loopTags in tagData)
+            foreach (var loopContent in loopTags.contentObjects)
+                await db.GenerationTagLogs.AddAsync(new GenerationTagLog
+                {
+                    GenerationVersion = currentGenerationVersion,
+                    RelatedContentId = loopContent.ContentId,
+                    TagSlug = loopTags.tag
+                });
+
+            await db.SaveChangesAsync(true);
         }
     }
 }

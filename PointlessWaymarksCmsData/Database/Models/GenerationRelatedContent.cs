@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarksCmsData.Database.Models
 {
-    public class RelatedContent
+    public class GenerationRelatedContent
     {
         public Guid ContentOne { get; set; }
         public Guid ContentTwo { get; set; }

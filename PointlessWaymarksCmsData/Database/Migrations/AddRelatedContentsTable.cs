@@ -7,13 +7,13 @@ namespace PointlessWaymarksCmsData.Database.Migrations
     {
         public override void Down()
         {
-            Delete.Table("RelatedContents");
+            Delete.Table("GenerationRelatedContents");
         }
 
         public override void Up()
         {
-            if (!Schema.Table("RelatedContents").Exists())
-                Create.Table("RelatedContents").WithColumn("Id").AsInt64().PrimaryKey().Identity()
+            if (!Schema.Table("GenerationRelatedContents").Exists())
+                Create.Table("GenerationRelatedContents").WithColumn("Id").AsInt64().PrimaryKey().Identity()
                     .WithColumn("ContentOne").AsGuid().WithColumn("ContentTwo").AsGuid();
         }
     }

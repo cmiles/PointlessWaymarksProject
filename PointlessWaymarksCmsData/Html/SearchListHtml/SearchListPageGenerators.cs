@@ -136,6 +136,17 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             File.WriteAllText(fileInfo.FullName, htmlString);
         }
 
+        public static void WriteTagList(IProgress<string> progress)
+        {
+            progress?.Report("Tag Pages - Getting Tag Data For Search");
+            var tags = Db.TagAndContentList(false, progress).Result;
+
+            var allTags = new TagListPage {ContentFunction = () => tags};
+
+            progress?.Report("Tag Pages - Writing All Tag Data");
+            allTags.WriteLocalHtml();
+        }
+
         public static void WriteTagListAndTagPages(IProgress<string> progress)
         {
             progress?.Report("Tag Pages - Getting Tag Data For Search");
@@ -165,6 +176,12 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
                     UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(loopTags.tag),
                     $"Tag - {loopTags.tag}", string.Empty);
             }
+        }
+
+        public static void WriteTagPage(string tag, List<dynamic> content)
+        {
+            WriteSearchListHtml(() => content, UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(tag),
+                $"Tag - {tag}", string.Empty);
         }
     }
 }

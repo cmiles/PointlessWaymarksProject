@@ -458,6 +458,16 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
 
+        public static Guid? MainImageContentIdIfPresent(dynamic content)
+        {
+            return content switch
+            {
+                FileContent f => content.MainImage,
+                PostContent p => content.MainImage,
+                _ => null
+            };
+        }
+
         public static List<(string tag, List<object> contentObjects)> ParseToTagAndContentList(
             List<(string tag, List<object> contentObjects)> list, List<ITag> toAdd, IProgress<string> progress)
         {
