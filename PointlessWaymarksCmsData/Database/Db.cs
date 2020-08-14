@@ -97,7 +97,7 @@ namespace PointlessWaymarksCmsData.Database
         public static void DefaultPropertyCleanup<T>(T toProcess)
         {
             StringHelpers.TrimNullToEmptyAllStringProperties(toProcess);
-            DateTimeHelpers.TrimDateTimesToSecond(toProcess);
+            DateTimeHelpers.TrimDateTimesToSeconds(toProcess);
         }
 
         public static async Task<List<HistoricFileContent>> DeletedFileContent()

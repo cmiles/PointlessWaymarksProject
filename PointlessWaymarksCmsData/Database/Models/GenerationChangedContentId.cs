@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PointlessWaymarksCmsData.Database.Models
 {
-    public class GenerationContentIdReference
+    public class GenerationChangedContentId
     {
         [Key] public Guid ContentId { get; set; }
     }

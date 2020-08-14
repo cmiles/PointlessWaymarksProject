@@ -1,6 +1,6 @@
 ﻿## Todos
  - Tags and Daily Photo Generation
-  - Make sure all tables are setup in DB Migration including the Generation Log
+  - Make sure all tables are setup in DB Migration including the Generation Log including new name for GenerationChangedContentIds
   - Test Tags
   - Daily Photo Detection and writing
  - Points:

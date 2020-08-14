@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData
         /// <typeparam name="T"></typeparam>
         /// <param name="toProcess"></param>
         /// <returns></returns>
-        public static T TrimDateTimesToSecond<T>(T toProcess)
+        public static T TrimDateTimesToSeconds<T>(T toProcess)
         {
             var dateTimeProperties = typeof(T).GetProperties()
                 .Where(x => x.PropertyType == typeof(DateTime) && x.GetSetMethod() != null).ToList();
@@ -37,6 +37,12 @@ namespace PointlessWaymarksCmsData
             }
 
             return toProcess;
+        }
+
+        public static DateTime TrimDateTimeToSeconds(this DateTime currentDateTime)
+        {
+            return new DateTime(currentDateTime.Year, currentDateTime.Month, currentDateTime.Day, currentDateTime.Hour,
+                currentDateTime.Minute, currentDateTime.Second, currentDateTime.Kind);
         }
     }
 }

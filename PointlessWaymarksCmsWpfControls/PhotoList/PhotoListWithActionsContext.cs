@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms.VisualStyles;
 using AngleSharp.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -571,7 +570,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             if (!autoSaveAndClose && selectedFiles.Count > 10)
             {
-                StatusContext.ToastError("Opening new content in an editor window is limited to 10 photos at a time...");
+                StatusContext.ToastError(
+                    "Opening new content in an editor window is limited to 10 photos at a time...");
                 return;
             }
 

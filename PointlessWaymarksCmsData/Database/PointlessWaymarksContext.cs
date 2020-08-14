@@ -10,7 +10,7 @@ namespace PointlessWaymarksCmsData.Database
         }
 
         public DbSet<FileContent> FileContents { get; set; }
-        public DbSet<GenerationContentIdReference> GenerationContentIdReferences { get; set; }
+        public DbSet<GenerationChangedContentId> GenerationChangedContentIds { get; set; }
         public DbSet<GenerationDailyPhotoLog> GenerationDailyPhotoLogs { get; set; }
         public DbSet<GenerationRelatedContent> GenerationRelatedContents { get; set; }
         public DbSet<GenerationTagLog> GenerationTagLogs { get; set; }
@@ -55,7 +55,7 @@ namespace PointlessWaymarksCmsData.Database
             modelBuilder.Entity<GenerationTagLog>().HasIndex(p => new { p.GenerationVersion, p.TagSlug });
             modelBuilder.Entity<GenerationTagLog>().HasIndex(p => new { p.RelatedContentId });
 
-            modelBuilder.Entity<GenerationContentIdReference>().Property(e => e.ContentId).ValueGeneratedNever();
+            modelBuilder.Entity<GenerationChangedContentId>().Property(e => e.ContentId).ValueGeneratedNever();
         }
     }
 }
