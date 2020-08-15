@@ -1,8 +1,10 @@
 ﻿## Todos
  - Tags and Daily Photo Generation
-  - Make sure all tables are setup in DB Migration including the Generation Log including new name for GenerationChangedContentIds
-  - Test Tags
-  - Daily Photo Detection and writing
+  - Comp Generation Logs
+  - Review Names
+  - Check Tag Generation
+  - Check Daily Photo generation
+  - Test Generation Log change branching
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?

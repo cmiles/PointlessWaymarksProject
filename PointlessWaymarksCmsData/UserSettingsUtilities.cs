@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
@@ -147,6 +148,11 @@ namespace PointlessWaymarksCmsData
         public static string FileRssUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Files/FileRss.xml";
+        }
+
+        public static UserSettingsGenerationValues GenerationValues(this UserSettings settings)
+        {
+            return (UserSettingsGenerationValues) new UserSettingsGenerationValues().InjectFrom(settings);
         }
 
         public static string ImageListUrl(this UserSettings settings)

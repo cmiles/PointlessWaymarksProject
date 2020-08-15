@@ -22,7 +22,6 @@ namespace PointlessWaymarksCmsData
         private string _siteName;
         private string _siteSummary;
         private string _siteUrl;
-        private DateTime? _lastGenerationUtc;
 
         public string BingApiKey
         {
@@ -31,17 +30,6 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _bingApiKey) return;
                 _bingApiKey = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DateTime? LastGenerationUtc
-        {
-            get => _lastGenerationUtc;
-            set
-            {
-                if (value.Equals(_lastGenerationUtc)) return;
-                _lastGenerationUtc = value;
                 OnPropertyChanged();
             }
         }

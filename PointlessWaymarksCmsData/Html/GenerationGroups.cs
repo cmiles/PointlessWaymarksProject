@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
@@ -72,9 +73,18 @@ namespace PointlessWaymarksCmsData.Html
             GenerateIndex(progress);
 
             progress?.Report(
-                $"Generation Complete - Writing Generation Date Time of UTC {generationVersion} in settings as Last Generation");
-            UserSettingsSingleton.CurrentSettings().LastGenerationUtc = generationVersion;
-            await UserSettingsSingleton.CurrentSettings().WriteSettings();
+                $"Generation Complete - Writing Generation Date Time of UTC {generationVersion} in Db Generation log as Last Generation");
+
+            var db = await Db.Context();
+
+            var serializedSettings =
+                JsonSerializer.Serialize(UserSettingsSingleton.CurrentSettings().GenerationValues());
+            var dbGenerationRecord = new GenerationLog
+            {
+                GenerationSettings = serializedSettings, GenerationVersion = generationVersion
+            };
+            await db.GenerationLogs.AddAsync(dbGenerationRecord);
+            await db.SaveChangesAsync(true);
         }
 
 
@@ -312,16 +322,13 @@ namespace PointlessWaymarksCmsData.Html
                     datesToGenerate.Add(before.DailyPhotoDate);
             }
 
-            //TODO: Generate - how to get previous and next date?
+            var resultantPages = await DailyPhotoPageGenerators.DailyPhotoGalleries(datesToGenerate, progress);
+            resultantPages.ForEach(x => x.WriteLocalHtml());
         }
 
-        public static async Task GenerateChangedListHtml(IProgress<string> progress)
+        public static async Task GenerateChangedListHtml(DateTime lastGenerationDateTime, IProgress<string> progress)
         {
             SearchListPageGenerators.WriteAllContentCommonSearchListHtml();
-
-            var lastGenerationSetting = UserSettingsSingleton.CurrentSettings().LastGenerationUtc;
-
-            var lastGenerationDateTime = lastGenerationSetting ?? DateTime.MinValue;
 
             var db = await Db.Context();
             var filesChanged =
@@ -477,14 +484,17 @@ namespace PointlessWaymarksCmsData.Html
 
         public static async Task GenerateChangedToHtml(IProgress<string> progress)
         {
+            var db = await Db.Context();
+
             var generationVersion = DateTime.Now.ToUniversalTime();
 
             await SetupTagGenerationDbData(generationVersion, progress);
             await SetupDailyPhotoGenerationDbData(generationVersion, progress);
 
-            var lastGenerationSetting = UserSettingsSingleton.CurrentSettings().LastGenerationUtc;
+            var lastGenerationValues = db.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
+                .OrderByDescending(x => x.GenerationVersion).FirstOrDefault();
 
-            if (lastGenerationSetting == null)
+            if (lastGenerationValues == null || string.IsNullOrWhiteSpace(lastGenerationValues.GenerationSettings))
             {
                 progress?.Report("No value for Last Generation in Settings - Generating All HTML");
 
@@ -492,15 +502,15 @@ namespace PointlessWaymarksCmsData.Html
                 return;
             }
 
-            var lastGenerationDateTime = lastGenerationSetting.Value;
+            progress?.Report($"Last Generation - {lastGenerationValues.GenerationVersion}");
 
-            progress?.Report(
-                $"Generation HTML based on changes after UTC - {UserSettingsSingleton.CurrentSettings().LastGenerationUtc}");
+            var lastGenerationDateTime = lastGenerationValues.GenerationVersion;
+
+            progress?.Report($"Generation HTML based on changes after UTC - {lastGenerationValues.GenerationVersion}");
 
             await RelatedContentReference.GenerateRelatedContentDbTable(lastGenerationDateTime, progress);
             await GenerateChangedContentIdReferences(lastGenerationDateTime, progress);
 
-            var db = await Db.Context();
             if (!(await db.GenerationChangedContentIds.AnyAsync()))
                 progress?.Report("No Changes Detected - ending HTML generation.");
 
@@ -518,7 +528,7 @@ namespace PointlessWaymarksCmsData.Html
                 (await Db.DeletedPhotoContent()).Any(x => x.ContentVersion >= lastGenerationDateTime);
 
             if (hasDirectPhotoChanges || hasRelatedPhotoChanges || hasDeletedPhotoChanges)
-                await GenerateAllDailyPhotoGalleriesHtml(progress);
+                await GenerateChangedDailyPhotoGalleries(lastGenerationDateTime, progress);
             else
                 progress?.Report(
                     "No changes to Photos directly or thru related content - skipping Daily Photo Page generation.");
@@ -527,13 +537,21 @@ namespace PointlessWaymarksCmsData.Html
             else progress?.Report("No changes to Photo content - skipping Photo Gallery generation.");
 
             await GenerateChangedTagHtml(generationVersion, progress);
-            await GenerateChangedListHtml(progress);
+            await GenerateChangedListHtml(lastGenerationDateTime, progress);
             GenerateAllUtilityJson(progress);
             GenerateIndex(progress);
 
-            progress?.Report($"Generation Complete - writing {generationVersion} as Last Generation UTC into settings");
-            UserSettingsSingleton.CurrentSettings().LastGenerationUtc = generationVersion;
-            await UserSettingsSingleton.CurrentSettings().WriteSettings();
+            progress?.Report(
+                $"Generation Complete - writing {generationVersion} as Last Generation UTC into db Generation Log");
+
+            var serializedSettings =
+                JsonSerializer.Serialize(UserSettingsSingleton.CurrentSettings().GenerationValues());
+            var dbGenerationRecord = new GenerationLog
+            {
+                GenerationSettings = serializedSettings, GenerationVersion = generationVersion
+            };
+            await db.GenerationLogs.AddAsync(dbGenerationRecord);
+            await db.SaveChangesAsync(true);
         }
 
         public static async Task GenerateChangeFilteredFileHtml(IProgress<string> progress)

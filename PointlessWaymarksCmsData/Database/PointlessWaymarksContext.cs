@@ -12,9 +12,9 @@ namespace PointlessWaymarksCmsData.Database
         public DbSet<FileContent> FileContents { get; set; }
         public DbSet<GenerationChangedContentId> GenerationChangedContentIds { get; set; }
         public DbSet<GenerationDailyPhotoLog> GenerationDailyPhotoLogs { get; set; }
+        public DbSet<GenerationLog> GenerationLogs { get; set; }
         public DbSet<GenerationRelatedContent> GenerationRelatedContents { get; set; }
         public DbSet<GenerationTagLog> GenerationTagLogs { get; set; }
-        public DbSet<GenerationLog> GenerationLogs { get; set; }
         public DbSet<HistoricFileContent> HistoricFileContents { get; set; }
         public DbSet<HistoricImageContent> HistoricImageContents { get; set; }
         public DbSet<HistoricLinkContent> HistoricLinkContents { get; set; }
@@ -50,10 +50,10 @@ namespace PointlessWaymarksCmsData.Database
             modelBuilder.Entity<PointContentPointDetailLink>().HasIndex(p => new {p.PointContentId});
 
             modelBuilder.Entity<GenerationDailyPhotoLog>().HasIndex(p => new {p.GenerationVersion, p.DailyPhotoDate});
-            modelBuilder.Entity<GenerationDailyPhotoLog>().HasIndex(p => new {p.RelatedContentId });
+            modelBuilder.Entity<GenerationDailyPhotoLog>().HasIndex(p => new {p.RelatedContentId});
 
-            modelBuilder.Entity<GenerationTagLog>().HasIndex(p => new { p.GenerationVersion, p.TagSlug });
-            modelBuilder.Entity<GenerationTagLog>().HasIndex(p => new { p.RelatedContentId });
+            modelBuilder.Entity<GenerationTagLog>().HasIndex(p => new {p.GenerationVersion, p.TagSlug});
+            modelBuilder.Entity<GenerationTagLog>().HasIndex(p => new {p.RelatedContentId});
 
             modelBuilder.Entity<GenerationChangedContentId>().Property(e => e.ContentId).ValueGeneratedNever();
         }
