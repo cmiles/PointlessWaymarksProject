@@ -1,17 +1,15 @@
 ﻿## Todos
  - Tags and Daily Photo Generation
-  - Comp Generation Logs
-  - Review Names
-  - Check Tag Generation
-  - Check Daily Photo generation
-  - Test Generation Log change branching
+  - Testing...
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
   - Setup RSS Feed
   - Create Pages
   - Validation when saving - lat/long, Details (make sure content id is linked correctly to detail)
- - Integrate Xaml Styler - git hook maybe? https://github.com/Xavalon/XamlStyler
+ - Are older generated Daily Photo and Tags cleaned up if you purge unused files?
+ - History Cleanup for Content. Maybe on save - limit to ?last 1000?, it would be great to not grow to infinity but want to save very old entries for seldom editted content and many entries for frequently editted content...
+ - Integrate Xaml Styler - is the git hook working?
  - Email Html
   - Check formatting - could spacing be better in multiple clients?
  - Split settings into a public and private so that the public settings can be copied to the site for backup and the private can stay in the archive.
@@ -56,6 +54,17 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/15/2020
+
+The last few commits form an untested rough draft of improvements to the 'Changed' Generation - notes:
+ - Added Tables and refactored existing tables to support Tag and Daily Photo change detection and to get a more coherent set of tables
+ - Added ContentVersion columns to the Menu and Tag Exclusion Tables - this value is a core way of detecting changes and with Changed generation becoming more important it seems likely this becomes a standard field for ?all? tables going forward
+ - Methods to detect and generate only changed daily photo pages
+ - Methods to detect and generate only changed tag pages
+ - Cleanup routine for the generation logs
+
+Feature is largely untested.
 
 8/13/2020
 

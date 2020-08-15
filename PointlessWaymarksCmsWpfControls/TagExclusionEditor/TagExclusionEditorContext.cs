@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -156,11 +157,13 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
 
             var db = await Db.Context();
 
+            var frozenNowVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
+
             tagItem.DbEntry ??= new TagExclusion();
 
             if (tagItem.DbEntry.Id < 1)
             {
-                var toAdd = new TagExclusion {Tag = tagItem.TagValue};
+                var toAdd = new TagExclusion {Tag = tagItem.TagValue, ContentVersion = frozenNowVersion};
                 await db.AddAsync(toAdd);
                 await db.SaveChangesAsync(true);
                 tagItem.DbEntry = toAdd;
@@ -170,6 +173,7 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
             var toModify = await db.TagExclusions.SingleAsync(x => x.Id == tagItem.DbEntry.Id);
 
             toModify.Tag = tagItem.TagValue;
+            toModify.ContentVersion = frozenNowVersion;
 
             await db.SaveChangesAsync(true);
 

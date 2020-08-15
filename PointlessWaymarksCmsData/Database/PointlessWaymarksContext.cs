@@ -49,12 +49,6 @@ namespace PointlessWaymarksCmsData.Database
 
             modelBuilder.Entity<PointContentPointDetailLink>().HasIndex(p => new {p.PointContentId});
 
-            modelBuilder.Entity<GenerationDailyPhotoLog>().HasIndex(p => new {p.GenerationVersion, p.DailyPhotoDate});
-            modelBuilder.Entity<GenerationDailyPhotoLog>().HasIndex(p => new {p.RelatedContentId});
-
-            modelBuilder.Entity<GenerationTagLog>().HasIndex(p => new {p.GenerationVersion, p.TagSlug});
-            modelBuilder.Entity<GenerationTagLog>().HasIndex(p => new {p.RelatedContentId});
-
             modelBuilder.Entity<GenerationChangedContentId>().Property(e => e.ContentId).ValueGeneratedNever();
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using FluentMigrator;
 
 namespace PointlessWaymarksCmsData.Database.Migrations
@@ -13,6 +14,14 @@ namespace PointlessWaymarksCmsData.Database.Migrations
 
         public override void Up()
         {
+            if (!Schema.Table("MenuLinks").Column("ContentVersion").Exists())
+                Alter.Table("MenuLinks").AddColumn("ContentVersion").AsString()
+                    .SetExistingRowsTo(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).NotNullable();
+
+            if (!Schema.Table("TagExclusions").Column("ContentVersion").Exists())
+                Alter.Table("MenuLinks").AddColumn("ContentVersion").AsString()
+                    .SetExistingRowsTo(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).NotNullable();
+
             if (Schema.Table("RelatedContents").Exists())
                 Delete.Table("RelatedContents");
 
@@ -33,8 +42,6 @@ CREATE TABLE ""GenerationTagLogs"" (
     ""RelatedContentId"" TEXT NOT NULL
 );
 
-CREATE INDEX ""IX_GenerationTagLogs_RelatedContentId"" ON ""GenerationTagLogs"" (""RelatedContentId"");
-CREATE INDEX ""IX_GenerationTagLogs_GenerationVersion_TagSlug"" ON ""GenerationTagLogs"" (""GenerationVersion"", ""TagSlug"");
 ");
 
             if (!Schema.Table("GenerationDailyPhotoLogs").Exists())
@@ -46,9 +53,14 @@ CREATE TABLE ""GenerationDailyPhotoLogs"" (
     ""RelatedContentId"" TEXT NOT NULL
 );
 
-CREATE INDEX ""IX_GenerationDailyPhotoLogs_RelatedContentId"" ON ""GenerationDailyPhotoLogs"" (""RelatedContentId"");
-CREATE INDEX ""IX_GenerationDailyPhotoLogs_GenerationVersion_DailyPhotoDate"" ON ""GenerationDailyPhotoLogs"" (""GenerationVersion"", ""DailyPhotoDate"");
 ");
+
+            if (Schema.Table("GenerationContentIdReferences").Exists())
+                Delete.Table("GenerationContentIdReferences");
+
+            if (!Schema.Table("GenerationChangedContentIds").Exists())
+                Execute.Sql(@"
+CREATE TABLE ""GenerationContentIdReferences"" (""ContentId"" UNIQUEIDENTIFIER NOT NULL, CONSTRAINT ""PK_GenerationContentIdReferences"" PRIMARY KEY (""ContentId""))");
         }
     }
 }

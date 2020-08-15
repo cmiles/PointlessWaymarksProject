@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using KellermanSoftware.CompareNetObjects;
+using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -23,6 +24,42 @@ namespace PointlessWaymarksCmsData.Html
 {
     public static class GenerationGroups
     {
+        public static async Task CleanupGenerationInformation(IProgress<string> progress)
+        {
+            progress?.Report("Cleaning up Generation Log Information");
+
+            var db = await Db.Context();
+
+            var olderGenerationLogs =
+                await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).Skip(100).ToListAsync();
+
+            progress?.Report($"Keeping Top 100 Logs, Found {olderGenerationLogs.Count} logs to remove");
+
+            db.GenerationLogs.RemoveRange(olderGenerationLogs);
+
+            await db.SaveChangesAsync(true);
+
+            var currentGenerationVersions = await db.GenerationLogs.Select(x => x.GenerationVersion).ToListAsync();
+
+            var olderPhotoGenerationInformationToRemove = await db.GenerationDailyPhotoLogs
+                .Where(x => !currentGenerationVersions.Contains(x.GenerationVersion)).ToListAsync();
+
+            progress?.Report($"Found {olderPhotoGenerationInformationToRemove.Count} photo generation logs to remove.");
+
+            db.GenerationDailyPhotoLogs.RemoveRange(olderPhotoGenerationInformationToRemove);
+
+            var olderTagGenerationInformationToRemove = await db.GenerationTagLogs
+                .Where(x => !currentGenerationVersions.Contains(x.GenerationVersion)).ToListAsync();
+
+            progress?.Report($"Found {olderTagGenerationInformationToRemove.Count} tag generation logs to remove.");
+
+            db.GenerationTagLogs.RemoveRange(olderTagGenerationInformationToRemove);
+
+            progress?.Report("Saving Photo and Tag log changes");
+
+            await db.SaveChangesAsync(true);
+        }
+
         public static async Task GenerateAllDailyPhotoGalleriesHtml(IProgress<string> progress)
         {
             var allPages = await DailyPhotoPageGenerators.DailyPhotoGalleries(progress);
@@ -55,6 +92,8 @@ namespace PointlessWaymarksCmsData.Html
 
         public static async Task GenerateAllHtml(IProgress<string> progress)
         {
+            await CleanupGenerationInformation(progress);
+
             var generationVersion = DateTime.Now.ToUniversalTime();
 
             await SetupTagGenerationDbData(generationVersion, progress);
@@ -484,13 +523,13 @@ namespace PointlessWaymarksCmsData.Html
 
         public static async Task GenerateChangedToHtml(IProgress<string> progress)
         {
+            await CleanupGenerationInformation(progress);
+
             var db = await Db.Context();
 
+            //Get and check the last generation - if there is no value then generate all which should create a valid value for the next
+            //run
             var generationVersion = DateTime.Now.ToUniversalTime();
-
-            await SetupTagGenerationDbData(generationVersion, progress);
-            await SetupDailyPhotoGenerationDbData(generationVersion, progress);
-
             var lastGenerationValues = db.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
                 .OrderByDescending(x => x.GenerationVersion).FirstOrDefault();
 
@@ -503,13 +542,47 @@ namespace PointlessWaymarksCmsData.Html
             }
 
             progress?.Report($"Last Generation - {lastGenerationValues.GenerationVersion}");
-
             var lastGenerationDateTime = lastGenerationValues.GenerationVersion;
+
+            //The menu is currently written to all pages - if there are changes then generate all
+            var menuUpdates = await db.MenuLinks.AnyAsync(x => x.ContentVersion > lastGenerationDateTime);
+
+            if (menuUpdates)
+            {
+                progress?.Report("Menu Updates detected - menu updates impact all pages, generating All HTML");
+
+                await GenerateAllHtml(progress);
+                return;
+            }
+
+            //If the generation settings have changed trigger a full rebuild
+            var lastGenerationSettings =
+                JsonSerializer.Deserialize<UserSettingsGenerationValues>(lastGenerationValues.GenerationSettings);
+
+            var currentGenerationSettings = UserSettingsSingleton.CurrentSettings().GenerationValues();
+
+            var compareLogic = new CompareLogic(new ComparisonConfig {MaxDifferences = 20});
+            var generationSettingsComparison = compareLogic.Compare(lastGenerationSettings, currentGenerationSettings);
+
+            var compareReport = new UserFriendlyReport();
+            var generationSettingsComparisonDifferences =
+                compareReport.OutputString(generationSettingsComparison.Differences);
+
+            if (!generationSettingsComparison.AreEqual)
+            {
+                progress?.Report(
+                    $"Generation Settings Changes detected - generating All HTML: {Environment.NewLine}{generationSettingsComparisonDifferences}");
+
+                await GenerateAllHtml(progress);
+                return;
+            }
 
             progress?.Report($"Generation HTML based on changes after UTC - {lastGenerationValues.GenerationVersion}");
 
             await RelatedContentReference.GenerateRelatedContentDbTable(lastGenerationDateTime, progress);
             await GenerateChangedContentIdReferences(lastGenerationDateTime, progress);
+            await SetupTagGenerationDbData(generationVersion, progress);
+            await SetupDailyPhotoGenerationDbData(generationVersion, progress);
 
             if (!(await db.GenerationChangedContentIds.AnyAsync()))
                 progress?.Report("No Changes Detected - ending HTML generation.");

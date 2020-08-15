@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
+using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
@@ -29,16 +31,24 @@ namespace PointlessWaymarksCmsWpfControls.MenuLinkEditor
 
             AddItemCommand = StatusContext.RunBlockingTaskCommand(AddItem);
             DeleteItemCommand = StatusContext.RunBlockingTaskCommand(DeleteItems);
-            MoveItemUpCommand =
-                StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(MoveItemUp);
-            MoveItemDownCommand =
-                StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(MoveItemDown);
+            MoveItemUpCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(MoveItemUp);
+            MoveItemDownCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(MoveItemDown);
             SaveCommand = StatusContext.RunBlockingTaskCommand(Save);
-            InsertIndexTagIndexCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{index; text Main;}}"));
-            InsertTagSearchCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{tagspage; text Tags;}}"));
-            InsertPhotoGalleryCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{photogallerypage; text Photos;}}"));
-            InsertSearchPageCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{searchpage; text Search;}}"));
-            InsertLinkListCommand = StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x => InsertIntoLinkTag(x, "{{linklistpage; text Links;}}"));
+            InsertIndexTagIndexCommand =
+                StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
+                    InsertIntoLinkTag(x, "{{index; text Main;}}"));
+            InsertTagSearchCommand =
+                StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
+                    InsertIntoLinkTag(x, "{{tagspage; text Tags;}}"));
+            InsertPhotoGalleryCommand =
+                StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
+                    InsertIntoLinkTag(x, "{{photogallerypage; text Photos;}}"));
+            InsertSearchPageCommand =
+                StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
+                    InsertIntoLinkTag(x, "{{searchpage; text Search;}}"));
+            InsertLinkListCommand =
+                StatusContext.RunNonBlockingTaskCommand<MenuLinkListItem>(x =>
+                    InsertIntoLinkTag(x, "{{linklistpage; text Links;}}"));
 
             HelpMarkdown = MenuLinksHelpMarkdown.HelpBlock;
 
@@ -261,12 +271,16 @@ namespace PointlessWaymarksCmsWpfControls.MenuLinkEditor
 
             var context = await Db.Context();
 
+            var frozenNowVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
+
             foreach (var loopChanges in withChanges)
                 if (loopChanges.DbEntry == null || loopChanges.DbEntry.Id < 1)
                 {
                     loopChanges.DbEntry = new MenuLink
                     {
-                        LinkTag = loopChanges.UserLink, MenuOrder = loopChanges.UserOrder
+                        LinkTag = loopChanges.UserLink,
+                        MenuOrder = loopChanges.UserOrder,
+                        ContentVersion = frozenNowVersion
                     };
 
                     await context.MenuLinks.AddAsync(loopChanges.DbEntry);
@@ -277,6 +291,7 @@ namespace PointlessWaymarksCmsWpfControls.MenuLinkEditor
 
                     toUpdate.LinkTag = loopChanges.UserLink;
                     toUpdate.MenuOrder = loopChanges.UserOrder;
+                    toUpdate.ContentVersion = frozenNowVersion;
 
                     loopChanges.DbEntry = toUpdate;
                 }
