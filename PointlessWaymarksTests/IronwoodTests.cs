@@ -328,6 +328,18 @@ namespace PointlessWaymarksTests
             await IronwoodNoteInfo.NoteTest(IronwoodNoteInfo.LinkNoteContent01);
         }
 
+        [Test]
+        public async Task D10_FirstGeneration()
+        {
+            var db = await Db.Context();
+
+            Assert.True(!db.GenerationLogs.Any(), "Unexpected Content in Generation Logs");
+
+            await PointlessWaymarksCmsData.Html.GenerationGroups.GenerateChangedToHtml(DebugProgressTracker());
+
+            Assert.AreEqual(1, db.GenerationLogs.Count(), $"Expected 1 generation log - found {db.GenerationLogs.Count()}");
+        }
+
         public static IProgress<string> DebugProgressTracker()
         {
             var toReturn = new Progress<string>();

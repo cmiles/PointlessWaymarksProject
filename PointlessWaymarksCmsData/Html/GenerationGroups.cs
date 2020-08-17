@@ -762,9 +762,11 @@ namespace PointlessWaymarksCmsData.Html
 
             progress?.Report("Getting list of all Photo Dates and Content");
 
-            var datesAndContent = await db.PhotoContents.GroupBy(x => x.PhotoCreatedOn.Date)
+            var allPhotoInfo = await db.PhotoContents.AsNoTracking().ToListAsync();
+
+            var datesAndContent = allPhotoInfo.GroupBy(x => x.PhotoCreatedOn.Date)
                 .Select(x => new {date = x.Key, contentIds = x.Select(y => y.ContentId)}).OrderByDescending(x => x.date)
-                .ToListAsync();
+                .ToList();
 
             progress?.Report("Processing Photo Dates and Content");
 

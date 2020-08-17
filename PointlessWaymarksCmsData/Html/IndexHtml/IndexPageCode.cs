@@ -40,7 +40,7 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
 
             if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid);
 
-            if (!IndexContent.Any())
+            if (!IndexContent.Any() || IndexContent.Count <= _numberOfContentItemsToDisplay)
             {
                 PreviousPosts = new List<IContentCommon>();
             }
