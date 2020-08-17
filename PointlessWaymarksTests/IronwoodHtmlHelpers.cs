@@ -19,7 +19,7 @@ namespace PointlessWaymarksTests
             var contentVersionAttributeString =
                 document.Head.Attributes.Single(x => x.Name == "data-contentversion").Value;
 
-            Assert.AreEqual(toCheck.ContentVersion.ToString("O"), contentVersionAttributeString,
+            Assert.AreEqual(toCheck.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff"), contentVersionAttributeString,
                 "Content Version of HTML Does not match Data");
 
             //Todo - check description

@@ -411,6 +411,12 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, "ImageRss")}.xml");
         }
 
+        public static FileInfo LocalSiteIndexFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteRootDirectory;
+            return new FileInfo($"{Path.Combine(directory, "index")}.html");
+        }
+
         public static DirectoryInfo LocalSiteLinkDirectory(this UserSettings settings)
         {
             var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Links"));
@@ -764,7 +770,7 @@ namespace PointlessWaymarksCmsData
 
             if (string.IsNullOrWhiteSpace(readResult.LocalSiteRootDirectory))
             {
-                //This could fail for all kinds of interesting reasons but for the purposes of this program I am not sure that 
+                //This could fail for all kinds of interesting reasons but for the purposes of this program I am not sure that
                 //industrial strength name collision avoidance is needed
                 var newRootDirectory =
                     new DirectoryInfo(Path.Combine(currentFile.Directory.FullName, timeStampForMissingValues));
@@ -778,7 +784,7 @@ namespace PointlessWaymarksCmsData
 
             if (string.IsNullOrWhiteSpace(readResult.DatabaseFile))
             {
-                //This could fail for all kinds of interesting reasons but for the purposes of this program I am not sure that 
+                //This could fail for all kinds of interesting reasons but for the purposes of this program I am not sure that
                 //industrial strength name collision avoidance is needed
                 readResult.DatabaseFile = $"PointlessWaymarksData-{timeStampForMissingValues}.db";
 

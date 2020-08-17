@@ -60,7 +60,8 @@ namespace PointlessWaymarksCmsData.Html
             await db.SaveChangesAsync(true);
         }
 
-        public static async Task GenerateAllDailyPhotoGalleriesHtml(DateTime? generationVersion, IProgress<string> progress)
+        public static async Task GenerateAllDailyPhotoGalleriesHtml(DateTime? generationVersion,
+            IProgress<string> progress)
         {
             var allPages = await DailyPhotoPageGenerators.DailyPhotoGalleries(generationVersion, progress);
 
@@ -94,7 +95,7 @@ namespace PointlessWaymarksCmsData.Html
         {
             await CleanupGenerationInformation(progress);
 
-            var generationVersion = DateTime.Now.ToUniversalTime();
+            var generationVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime();
 
             await SetupTagGenerationDbData(generationVersion, progress);
             await SetupDailyPhotoGenerationDbData(generationVersion, progress);
@@ -361,11 +362,13 @@ namespace PointlessWaymarksCmsData.Html
                     datesToGenerate.Add(before.DailyPhotoDate);
             }
 
-            var resultantPages = await DailyPhotoPageGenerators.DailyPhotoGalleries(datesToGenerate, generationVersion, progress);
+            var resultantPages =
+                await DailyPhotoPageGenerators.DailyPhotoGalleries(datesToGenerate, generationVersion, progress);
             resultantPages.ForEach(x => x.WriteLocalHtml());
         }
 
-        public static async Task GenerateChangedListHtml(DateTime lastGenerationDateTime, DateTime generationVersion, IProgress<string> progress)
+        public static async Task GenerateChangedListHtml(DateTime lastGenerationDateTime, DateTime generationVersion,
+            IProgress<string> progress)
         {
             SearchListPageGenerators.WriteAllContentCommonSearchListHtml(generationVersion);
 
@@ -404,7 +407,7 @@ namespace PointlessWaymarksCmsData.Html
             if (notesChanged || notesDeleted) SearchListPageGenerators.WriteNoteContentListHtml(generationVersion);
             else progress?.Report("Skipping Note List Generation - no image changes found");
 
-            var linkListPage = new LinkListPage {GenerationVersion = generationVersion };
+            var linkListPage = new LinkListPage {GenerationVersion = generationVersion};
             linkListPage.WriteLocalHtmlRssAndJson();
             progress?.Report("Creating Link List Json");
             Export.WriteLinkListJson();
@@ -482,7 +485,8 @@ namespace PointlessWaymarksCmsData.Html
 
                 var contentThisGeneration = await db.GenerationTagLogs.Where(x =>
                         x.GenerationVersion == generationVersion && x.TagSlug == loopTags)
-                    .OrderBy(x => x.RelatedContentId).ToListAsync();
+                    .OrderBy(x => x.RelatedContentId)
+                    .ToListAsync();
 
                 var generationComparisonResults = tagCompareLogic.Compare(contentLastGeneration, contentThisGeneration);
 
@@ -529,7 +533,7 @@ namespace PointlessWaymarksCmsData.Html
 
             //Get and check the last generation - if there is no value then generate all which should create a valid value for the next
             //run
-            var generationVersion = DateTime.Now.ToUniversalTime();
+            var generationVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime();
             var lastGenerationValues = db.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
                 .OrderByDescending(x => x.GenerationVersion).FirstOrDefault();
 
@@ -606,7 +610,8 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report(
                     "No changes to Photos directly or thru related content - skipping Daily Photo Page generation.");
 
-            if (hasDirectPhotoChanges || hasDeletedPhotoChanges) await GenerateCameraRollHtml(generationVersion, progress);
+            if (hasDirectPhotoChanges || hasDeletedPhotoChanges)
+                await GenerateCameraRollHtml(generationVersion, progress);
             else progress?.Report("No changes to Photo content - skipping Photo Gallery generation.");
 
             await GenerateChangedTagHtml(generationVersion, progress);
@@ -749,7 +754,7 @@ namespace PointlessWaymarksCmsData.Html
 
         public static void GenerateIndex(DateTime? generationVersion, IProgress<string> progress)
         {
-            var index = new IndexPage {GenerationVersion = generationVersion };
+            var index = new IndexPage {GenerationVersion = generationVersion};
             index.WriteLocalHtml();
         }
 

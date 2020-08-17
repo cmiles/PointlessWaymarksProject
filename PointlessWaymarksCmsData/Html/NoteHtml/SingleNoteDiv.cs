@@ -29,7 +29,7 @@ namespace PointlessWaymarksCmsData.Html.NoteHtml
             this.Write("\r\n<div class=\"content-container\" data-contentversion=\"");
             
             #line 4 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\NoteHtml\SingleNoteDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("O")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")));
             
             #line default
             #line hidden

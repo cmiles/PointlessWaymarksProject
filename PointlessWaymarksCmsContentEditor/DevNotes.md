@@ -57,6 +57,8 @@
 
 8/17/2020
 
+Ran into an interesting detail - I had been using ToString("O") to format the ContentVersion and GenerationVersion in the html data attributes - in testing the ContentVersion worked fine and the Generation failed... The issue is that the T4 templates for ContentVersion are fed by a DbEntry and EFCore + SQLite DateTime type always returns a kind unspecified, the generation version is fed from a code passed in DateTime so it had a Kind of UTC and the "O" format appended a Z to indicate this. While this didn't take too much thought the interesting detail for me was that this makes sense in terms of a SQL Server DateTime but in SQLite as far as I am aware EF core is storing the DateTime as a string and doing conversion back and forth, so not preserving the Z/Kind makes sense for consistency but doesn't make so much sense given that the backing field already seems to support any full fidelity DateTime data you want because it is just a persisted string? In any case I switched to using the O format but without the K at the end.
+
 Fixed bugs in test and in the T4 templates to get tests passing again after the latest changes. In the T4 templates had an error where the generated T4 code calls ToString in such a way that passing it a null throws and error.
 
 8/15/2020

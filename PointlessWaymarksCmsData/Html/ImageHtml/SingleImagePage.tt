@@ -2,7 +2,7 @@
 <#@ import namespace="CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
-<head data-contentversion="<#=DbEntry.ContentVersion.ToString("O") #>" data-generationversion="<#=GenerationVersion?.ToString("O") ?? string.Empty #>">
+<head data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>" data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
     <meta charset="utf-8">
     <title><#=DbEntry.Title.HtmlEncode() #></title>
     <meta name="description" content="<#=DbEntry.Summary.HtmlEncode() #>">

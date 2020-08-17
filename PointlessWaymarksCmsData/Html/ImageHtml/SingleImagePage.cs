@@ -29,14 +29,14 @@ namespace PointlessWaymarksCmsData.Html.ImageHtml
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-contentversion=\"");
             
             #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\ImageHtml\SingleImagePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("O")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")));
             
             #line default
             #line hidden
             this.Write("\" data-generationversion=\"");
             
             #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\ImageHtml\SingleImagePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O") ?? string.Empty));
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
             #line hidden

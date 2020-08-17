@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using ClosedXML.Excel;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
@@ -338,6 +339,85 @@ namespace PointlessWaymarksTests
             await PointlessWaymarksCmsData.Html.GenerationGroups.GenerateChangedToHtml(DebugProgressTracker());
 
             Assert.AreEqual(1, db.GenerationLogs.Count(), $"Expected 1 generation log - found {db.GenerationLogs.Count()}");
+
+            var currentGeneration = await db.GenerationLogs.FirstAsync();
+
+            //Index File
+
+            var indexFile = UserSettingsSingleton.CurrentSettings().LocalSiteIndexFile();
+
+            Assert.True(indexFile.Exists, "Index file doesn't exist after generation");
+
+            var indexDocument = IronwoodHtmlHelpers.DocumentFromFile(indexFile);
+
+            var generationVersionAttributeString =
+                indexDocument.Head.Attributes.Single(x => x.Name == "data-generationversion").Value;
+
+            Assert.AreEqual(currentGeneration.GenerationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff"), generationVersionAttributeString,
+                "Content Version of HTML Does not match Data");
+
+            Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteName, indexDocument.Title);
+
+            Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteSummary,
+                indexDocument.QuerySelector("meta[name='description']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value);
+
+            Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteAuthors,
+                indexDocument.QuerySelector("meta[name='author']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value);
+
+            Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteKeywords,
+                indexDocument.QuerySelector("meta[name='keywords']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value);
+
+            Assert.AreEqual(UserSettingsSingleton.CurrentSettings().SiteSummary,
+                indexDocument.QuerySelector("meta[name='description']")?.Attributes
+                    .FirstOrDefault(x => x.LocalName == "content")?.Value);
+
+            //Tags
+
+            var tags = await Db.TagAndContentList(true, DebugProgressTracker());
+
+            var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("*.html").ToList();
+
+            Assert.AreEqual(tagFiles.Count - 1, tags.Select(x => x.tag).Count(), "Did not find the expected number of Tag Files after generation.");
+
+            foreach (var loopDbTags in tags.Select(x => x.tag).ToList())
+            {
+                Assert.True(tagFiles.Exists(x => x.Name == $"TagList-{loopDbTags}.html"), $"Didn't find a file for Tag {loopDbTags}");
+            }
+
+
+            //DailyPhotos
+
+            var photoRecords = await db.PhotoContents.ToListAsync();
+
+            var photoDates = photoRecords.GroupBy(x => x.PhotoCreatedOn.Date).Select(x => x.Key).ToList();
+
+            var dailyPhotoFiles = UserSettingsSingleton.CurrentSettings().LocalSiteDailyPhotoGalleryDirectory()
+                .GetFiles("*.html").ToList();
+
+            Assert.AreEqual(photoDates.Count, dailyPhotoFiles.Count, "Didn't find the expected number of Daily Photo Files");
+
+            foreach (var loopPhotoDates in photoDates)
+            {
+                Assert.True(dailyPhotoFiles.Exists(x => x.Name == $"DailyPhotos-{loopPhotoDates:yyyy-MM-dd}.html"), $"Didn't find a file for Daily Photos {loopPhotoDates:yyyy-MM-dd}");
+            }
+
+
+            //Camera Roll
+            var cameraRollFile = UserSettingsSingleton.CurrentSettings().LocalSiteCameraRollPhotoGalleryFileInfo();
+
+            Assert.True(cameraRollFile.Exists, "Camera Roll File not found");
+
+            var cameraRollDocument = IronwoodHtmlHelpers.DocumentFromFile(cameraRollFile);
+
+            var cameraRollGenerationVersionAttributeString =
+                cameraRollDocument.Head.Attributes.Single(x => x.Name == "data-generationversion").Value;
+
+            Assert.AreEqual(currentGeneration.GenerationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff"), cameraRollGenerationVersionAttributeString,
+                "Generation Version of Camera Roll Does not match expected Log");
+
         }
 
         public static IProgress<string> DebugProgressTracker()
