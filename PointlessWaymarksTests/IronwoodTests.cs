@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-using Windows.Media.AppRecording;
 using ClosedXML.Excel;
 using NUnit.Framework;
 using PointlessWaymarksCmsData;
@@ -129,7 +128,7 @@ namespace PointlessWaymarksTests
             var comparison =
                 IronwoodPhotoInfo.CompareContent(IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags,
                     newContext.DbEntry);
-            Assert.False(comparison.hasInvalidComparison, comparison.comparisonNotes);
+            Assert.True(comparison.areEqual, comparison.comparisonNotes);
         }
 
         [Test]
@@ -229,14 +228,14 @@ namespace PointlessWaymarksTests
             podReference.LastUpdatedOn = updatedPodPhoto.LastUpdatedOn;
 
             var updatedPodComparison = IronwoodPhotoInfo.CompareContent(podReference, updatedPodPhoto);
-            Assert.False(updatedPodComparison.hasInvalidComparison,
+            Assert.True(updatedPodComparison.areEqual,
                 $"Excel Pod Picture Update Issues: {updatedPodComparison.comparisonNotes}");
 
             var treeReference = IronwoodPhotoInfo.IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy;
             treeReference.LastUpdatedOn = updatedTreePhoto.LastUpdatedOn;
 
             var updatedTreeComparison = IronwoodPhotoInfo.CompareContent(treeReference, updatedTreePhoto);
-            Assert.False(updatedTreeComparison.hasInvalidComparison,
+            Assert.True(updatedTreeComparison.areEqual,
                 $"Excel Tree Picture Update Issues: {updatedPodComparison.comparisonNotes}");
         }
 
@@ -244,39 +243,43 @@ namespace PointlessWaymarksTests
         public async Task A23_PhotoDeleteAndRestoreTest()
         {
             var db = await Db.Context();
-            var treePhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.Title);
+            var treePhoto = db.PhotoContents.Single(x =>
+                x.Title == IronwoodPhotoInfo.IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.Title);
 
             var preDeleteTreePhotoHistoricEntryCount =
                 db.HistoricPhotoContents.Count(x => x.ContentId == treePhoto.ContentId);
-            
+
             await Db.DeletePhotoContent(treePhoto.ContentId, DebugProgressTracker());
 
             var postDeleteTreePhotoHistoricEntryCount =
                 db.HistoricPhotoContents.Count(x => x.ContentId == treePhoto.ContentId);
 
-            Assert.AreEqual(preDeleteTreePhotoHistoricEntryCount + 1, postDeleteTreePhotoHistoricEntryCount, $"After deleting the historic entry count should have increased by one but " +
+            Assert.AreEqual(preDeleteTreePhotoHistoricEntryCount + 1, postDeleteTreePhotoHistoricEntryCount,
+                "After deleting the historic entry count should have increased by one but " +
                 $"found {preDeleteTreePhotoHistoricEntryCount} entries before and {postDeleteTreePhotoHistoricEntryCount} entries after?");
 
-            Assert.IsEmpty(db.PhotoContents.Where(x => x.ContentId == treePhoto.ContentId).ToList(), $"Photo Content Id {treePhoto.ContentId} still" +
-                "found in DB after delete.");
+            Assert.IsEmpty(db.PhotoContents.Where(x => x.ContentId == treePhoto.ContentId).ToList(),
+                $"Photo Content Id {treePhoto.ContentId} still" + "found in DB after delete.");
 
             var deletedItem = await Db.DeletedPhotoContent();
 
-            Assert.AreEqual(1, deletedItem.Count, $"There should be one deleted content return - found {deletedItem.Count}");
-            Assert.AreEqual(treePhoto.ContentId, deletedItem.First().ContentId, 
+            Assert.AreEqual(1, deletedItem.Count,
+                $"There should be one deleted content return - found {deletedItem.Count}");
+            Assert.AreEqual(treePhoto.ContentId, deletedItem.First().ContentId,
                 "Deleted Item doesn't have the correct Content Id");
 
-            var latestHistoricEntry = db.HistoricPhotoContents
-                .Where(x => x.ContentId == treePhoto.ContentId)
+            var latestHistoricEntry = db.HistoricPhotoContents.Where(x => x.ContentId == treePhoto.ContentId)
                 .OrderByDescending(x => x.ContentVersion).First();
 
-            Assert.AreEqual(latestHistoricEntry.Id, latestHistoricEntry.Id, "Deleted Item doesn't match the Id of the last historic entry?");
+            Assert.AreEqual(latestHistoricEntry.Id, latestHistoricEntry.Id,
+                "Deleted Item doesn't match the Id of the last historic entry?");
 
             var saveAgainResult = await PhotoGenerator.SaveAndGenerateHtml(treePhoto,
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(treePhoto), true,
-                null, DebugProgressTracker());
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(treePhoto), true, null,
+                DebugProgressTracker());
 
-            Assert.IsFalse(saveAgainResult.generationReturn.HasError, $"Error Saving after Deleting? {saveAgainResult.generationReturn.GenerationNote}");
+            Assert.IsFalse(saveAgainResult.generationReturn.HasError,
+                $"Error Saving after Deleting? {saveAgainResult.generationReturn.GenerationNote}");
         }
 
         [Test]
@@ -308,8 +311,8 @@ namespace PointlessWaymarksTests
             mapFile.LastUpdatedOn = DateTime.Now;
 
             var bodyUpdateReturn = await FileGenerator.SaveAndGenerateHtml(mapFile,
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(mapFile), false,
-                null, DebugProgressTracker());
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(mapFile), false, null,
+                DebugProgressTracker());
 
             Assert.False(bodyUpdateReturn.generationReturn.HasError, bodyUpdateReturn.generationReturn.GenerationNote);
 
@@ -317,6 +320,12 @@ namespace PointlessWaymarksTests
 
             Assert.AreEqual(mapImage.ContentId, mapFileRefresh.MainPicture,
                 "Adding an image code to the Map File Content Body didn't result in Main Image being set.");
+        }
+
+        [Test]
+        public async Task C10_NoteLinkLoadTest()
+        {
+            await IronwoodNoteInfo.NoteTest(IronwoodNoteInfo.LinkNoteContent01);
         }
 
         public static IProgress<string> DebugProgressTracker()

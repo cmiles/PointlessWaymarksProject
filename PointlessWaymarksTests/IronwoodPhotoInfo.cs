@@ -31,8 +31,8 @@ namespace PointlessWaymarksTests
                 PhotoCreatedOn = new DateTime(2018, 8, 6, 15, 54, 52),
                 PhotoCreatedBy = "Charles Miles",
                 ShutterSpeed = "1/1,000",
-                Slug = "2018-august-agua-blanca-ranch-sign-at-the-manville-road-entrance-to-the-ironwood",
-                ShowInMainSiteFeed = true,
+                Slug =
+                    "2018-august-agua-blanca-ranch-sign-at-the-manville-road-entrance-to-the-ironwood-forest-national-mon",
                 Summary =
                     "Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument.",
                 Title =
@@ -274,9 +274,19 @@ namespace PointlessWaymarksTests
                 $"Expected to find original file in media archive directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
         }
 
-        public static (bool hasInvalidComparison, string comparisonNotes) CompareContent(PhotoContent reference,
+        public static (bool areEqual, string comparisonNotes) CompareContent(PhotoContent reference,
             PhotoContent toCompare)
         {
+            if (string.IsNullOrWhiteSpace(reference.CreatedBy))
+                reference.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
+            if (reference.CreatedOn == default) reference.CreatedOn = toCompare.CreatedOn;
+            if (string.IsNullOrWhiteSpace(reference.LastUpdatedBy) &&
+                !string.IsNullOrWhiteSpace(toCompare.LastUpdatedBy))
+                reference.LastUpdatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
+            if (reference.LastUpdatedOn == null && toCompare.LastUpdatedOn != null)
+                reference.LastUpdatedOn = toCompare.LastUpdatedOn;
+
+
             Db.DefaultPropertyCleanup(reference);
             reference.Tags = Db.TagListCleanup(reference.Tags);
 
@@ -285,7 +295,17 @@ namespace PointlessWaymarksTests
 
             var compareLogic = new CompareLogic
             {
-                Config = {MembersToIgnore = new List<string> {"ContentId", "ContentVersion", "Id"}}
+                Config =
+                {
+                    MembersToIgnore = new List<string>
+                    {
+                        "ContentId",
+                        "ContentVersion",
+                        "Id",
+                        "OriginalFileName",
+                        "MainPicture"
+                    }
+                }
             };
 
             var compareResult = compareLogic.Compare(reference, toCompare);
@@ -334,13 +354,13 @@ namespace PointlessWaymarksTests
             Assert.False(metadataGenerationReturn.HasError, metadataGenerationReturn.GenerationNote);
 
             var contentComparison = CompareContent(contentReference, newContent);
-            Assert.False(contentComparison.hasInvalidComparison, contentComparison.comparisonNotes);
+            Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
 
             var validationReturn = await PhotoGenerator.Validate(newContent, originalFile);
             Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
-            var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newContent, originalFile, true,
-                null, IronwoodTests.DebugProgressTracker());
+            var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newContent, originalFile, true, null,
+                IronwoodTests.DebugProgressTracker());
             Assert.False(saveReturn.generationReturn.HasError,
                 $"Unexpected Save Error - {saveReturn.generationReturn.GenerationNote}");
 

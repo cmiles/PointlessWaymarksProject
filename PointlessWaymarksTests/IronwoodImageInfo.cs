@@ -93,18 +93,30 @@ namespace PointlessWaymarksTests
                 $"Expected to find original file in media archive directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
         }
 
-        public static (bool hasInvalidComparison, string comparisonNotes) CompareContent(ImageContent reference,
+        public static (bool areEqual, string comparisonNotes) CompareContent(ImageContent reference,
             ImageContent toCompare)
         {
             Db.DefaultPropertyCleanup(reference);
             reference.Tags = Db.TagListCleanup(reference.Tags);
+            if (string.IsNullOrWhiteSpace(reference.CreatedBy))
+                reference.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
 
             Db.DefaultPropertyCleanup(toCompare);
             toCompare.Tags = Db.TagListCleanup(toCompare.Tags);
 
             var compareLogic = new CompareLogic
             {
-                Config = {MembersToIgnore = new List<string> {"ContentId", "ContentVersion", "Id"}}
+                Config =
+                {
+                    MembersToIgnore = new List<string>
+                    {
+                        "ContentId",
+                        "ContentVersion",
+                        "Id",
+                        "OriginalFileName",
+                        "MainPicture"
+                    }
+                }
             };
 
             var compareResult = compareLogic.Compare(reference, toCompare);
@@ -137,13 +149,12 @@ namespace PointlessWaymarksTests
             var validationReturn = await ImageGenerator.Validate(contentToSave, originalFile);
             Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
-            var (generationReturn, newContent) = await ImageGenerator.SaveAndGenerateHtml(contentToSave, originalFile, true,
-                null, IronwoodTests.DebugProgressTracker());
-            Assert.False(generationReturn.HasError,
-                $"Unexpected Save Error - {generationReturn.GenerationNote}");
+            var (generationReturn, newContent) = await ImageGenerator.SaveAndGenerateHtml(contentToSave, originalFile,
+                true, null, IronwoodTests.DebugProgressTracker());
+            Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
             var contentComparison = CompareContent(contentReference, newContent);
-            Assert.False(contentComparison.hasInvalidComparison, contentComparison.comparisonNotes);
+            Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
 
             Assert.IsTrue(newContent.MainPicture == newContent.ContentId,
                 $"Main Picture - {newContent.MainPicture} - Should be set to Content Id {newContent.ContentId}");

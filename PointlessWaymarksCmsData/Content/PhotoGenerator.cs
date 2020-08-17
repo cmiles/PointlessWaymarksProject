@@ -21,7 +21,8 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class PhotoGenerator
     {
-        public static void GenerateHtml(PhotoContent toGenerate, DateTime? generationVersion, IProgress<string> progress)
+        public static void GenerateHtml(PhotoContent toGenerate, DateTime? generationVersion,
+            IProgress<string> progress)
         {
             progress?.Report($"Photo Content - Generate HTML for {toGenerate.Title}");
 
@@ -130,14 +131,14 @@ namespace PointlessWaymarksCmsData.Content
             else
                 toReturn.ShutterSpeed = string.Empty;
 
-            //The XMP data - vs the IPTC - will hold the full Title for a very long title (the IPTC will be truncated) - 
+            //The XMP data - vs the IPTC - will hold the full Title for a very long title (the IPTC will be truncated) -
             //for a 'from Lightroom with no other concerns' export Title makes the most sense, but there are other possible
             //metadata fields to pull from that could be relevant in other contexts.
             toReturn.Title = xmpDirectory?.XmpMeta?.GetArrayItem(XmpConstants.NsDC, "title", 1)?.Value;
 
             if (string.IsNullOrWhiteSpace(toReturn.Title))
                 toReturn.Title = iptcDirectory?.GetDescription(IptcDirectory.TagObjectName) ?? string.Empty;
-            //Use a variety of guess on common file names and make that the title - while this could result in an initial title 
+            //Use a variety of guess on common file names and make that the title - while this could result in an initial title
             //like DSC001 style out of camera names but after having experimented with loading files I think 'default' is better
             //than an invalid blank.
             if (string.IsNullOrWhiteSpace(toReturn.Title))
@@ -148,7 +149,7 @@ namespace PointlessWaymarksCmsData.Content
 
             //2020/3/22 - Process out a convention that I have used for more than a decade of pre-2020s do yyMM at the start of a photo title or in the
             //2020s yyyy MM at the start - hopefully this is matched specifically enough not to accidentally trigger on photos without this info... The
-            //base case of not matching this convention is that the year and month from photo created on are added to the front of the title or if the 
+            //base case of not matching this convention is that the year and month from photo created on are added to the front of the title or if the
             //title is blank the photo created on is put as a timestamp into the title. One of the ideas here is to give photos as much of a chance
             //as possible to have valid data for an automated import even when a detail like timestamp title is probably better replaced with something
             //more descriptive.
@@ -253,7 +254,7 @@ namespace PointlessWaymarksCmsData.Content
                     : $"{toReturn.PhotoCreatedOn:yyyy} {toReturn.PhotoCreatedOn:MMMM} {toReturn.Title}";
             }
 
-            //Order is important here - the title supplies the summary in the code above - but overwrite that if there is a 
+            //Order is important here - the title supplies the summary in the code above - but overwrite that if there is a
             //description.
             var description = exifDirectory?.GetDescription(ExifDirectoryBase.TagImageDescription) ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(description))
@@ -351,7 +352,8 @@ namespace PointlessWaymarksCmsData.Content
 
 
         public static async Task<(GenerationReturn generationReturn, PhotoContent photoContent)> SaveAndGenerateHtml(
-            PhotoContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion, IProgress<string> progress)
+            PhotoContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
+            IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave, selectedFile);
 

@@ -38,15 +38,47 @@ namespace PointlessWaymarksTests
         public static string MapFilename => "AZ_IronwoodForest_NM_map.pdf";
         public static string ProclamationFilename => "ironwood_proc.pdf";
 
-        public static void CheckFileCountsAfterHtmlGeneration(FileContent newContent)
+        public static async Task CheckForExpectedFilesAfterHtmlGeneration(FileContent newContent)
         {
             var contentDirectory = UserSettingsSingleton.CurrentSettings()
                 .LocalSiteFileContentDirectory(newContent, false);
             Assert.True(contentDirectory.Exists, "Content Directory Not Found?");
 
-            var expectedNumberOfFiles = 3;
-            Assert.AreEqual(contentDirectory.GetFiles().Length, expectedNumberOfFiles,
-                "Expected Number of Files Does Not Match");
+            var filesInDirectory = contentDirectory.GetFiles().ToList();
+
+            var fileFile = filesInDirectory.SingleOrDefault(x => x.Name == newContent.OriginalFileName);
+
+            Assert.NotNull(fileFile, "Original File not Found in File Content Directory");
+
+            filesInDirectory.Remove(fileFile);
+
+            var htmlFile = filesInDirectory.SingleOrDefault(x => x.Name == $"{newContent.Slug}.html");
+
+            Assert.NotNull(htmlFile, "File Content HTML File not Found");
+
+            filesInDirectory.Remove(htmlFile);
+
+            var jsonFile =
+                filesInDirectory.SingleOrDefault(x =>
+                    x.Name == $"{Names.FileContentPrefix}{newContent.ContentId}.json");
+
+            Assert.NotNull(jsonFile, "Json File not Found in File Content Directory");
+
+            filesInDirectory.Remove(jsonFile);
+
+            var db = await Db.Context();
+            if (db.HistoricFileContents.Any(x => x.ContentId == newContent.ContentId))
+            {
+                var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
+                    x.Name == $"{Names.HistoricFileContentPrefix}{newContent.ContentId}.json");
+
+                Assert.NotNull(historicJsonFile, "Historic Json File not Found in File Content Directory");
+
+                filesInDirectory.Remove(historicJsonFile);
+            }
+
+            Assert.AreEqual(0, filesInDirectory.Count,
+                $"Unexpected files in File Content Directory: {string.Join(",", filesInDirectory)}");
         }
 
         public static void CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(FileContent newContent)
@@ -69,18 +101,23 @@ namespace PointlessWaymarksTests
                 $"Expected to find original file in media archive file directory but {expectedOriginalFileInMediaArchive.FullName} does not exist");
         }
 
-        public static (bool hasInvalidComparison, string comparisonNotes) CompareContent(FileContent reference,
+        public static (bool areEqual, string comparisonNotes) CompareContent(FileContent reference,
             FileContent toCompare)
         {
             Db.DefaultPropertyCleanup(reference);
             reference.Tags = Db.TagListCleanup(reference.Tags);
+            if (string.IsNullOrWhiteSpace(reference.CreatedBy))
+                reference.CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy;
 
             Db.DefaultPropertyCleanup(toCompare);
             toCompare.Tags = Db.TagListCleanup(toCompare.Tags);
 
             var compareLogic = new CompareLogic
             {
-                Config = {MembersToIgnore = new List<string> {"ContentId", "ContentVersion", "Id"}}
+                Config =
+                {
+                    MembersToIgnore = new List<string> {"ContentId", "ContentVersion", "Id", "OriginalFileName"}
+                }
             };
 
             var compareResult = compareLogic.Compare(reference, toCompare);
@@ -101,15 +138,14 @@ namespace PointlessWaymarksTests
 
             var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(contentToSave, testFile, true,
                 null, IronwoodTests.DebugProgressTracker());
-            Assert.False(generationReturn.HasError,
-                $"Unexpected Save Error - {generationReturn.GenerationNote}");
+            Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
             var contentComparison = CompareContent(contentReference, newContent);
-            Assert.False(contentComparison.hasInvalidComparison, contentComparison.comparisonNotes);
+            Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
 
             CheckOriginalFileInContentAndMediaArchiveAfterHtmlGeneration(newContent);
 
-            CheckFileCountsAfterHtmlGeneration(newContent);
+            await CheckForExpectedFilesAfterHtmlGeneration(newContent);
 
             JsonTest(newContent);
 
