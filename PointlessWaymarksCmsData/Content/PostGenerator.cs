@@ -10,17 +10,17 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class PostGenerator
     {
-        public static void GenerateHtml(PostContent toGenerate, IProgress<string> progress)
+        public static void GenerateHtml(PostContent toGenerate, DateTime? generationVersion, IProgress<string> progress)
         {
             progress?.Report($"Post Content - Generate HTML for {toGenerate.Title}");
 
-            var htmlContext = new SinglePostPage(toGenerate);
+            var htmlContext = new SinglePostPage(toGenerate) {GenerationVersion = generationVersion };
 
             htmlContext.WriteLocalHtml();
         }
 
         public static async Task<(GenerationReturn generationReturn, PostContent postContent)> SaveAndGenerateHtml(
-            PostContent toSave, IProgress<string> progress)
+            PostContent toSave, DateTime? generationVersion, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave);
 
@@ -30,7 +30,7 @@ namespace PointlessWaymarksCmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             await Db.SavePostContent(toSave);
-            GenerateHtml(toSave, progress);
+            GenerateHtml(toSave, generationVersion, progress);
             await Export.WriteLocalDbJson(toSave);
 
             await DataNotifications.PublishDataNotification("Post Generator", DataNotificationContentType.Post,

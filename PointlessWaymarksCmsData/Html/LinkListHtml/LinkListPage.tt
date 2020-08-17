@@ -3,7 +3,7 @@
 <#@ import namespace="PointlessWaymarksCmsData.Html.CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head data-generationversion="<#=GenerationVersion?.ToString("O") #>">
     <meta charset="utf-8">
     <title><#= ListTitle.HtmlEncode() #></title>
 

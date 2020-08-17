@@ -26,7 +26,14 @@ namespace PointlessWaymarksCmsData.Html.PhotoHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\n<div class=\"content-container\">\r\n    ");
+            this.Write("\r\n<div class=\"content-container\" data-contentversion=\"");
+            
+            #line 4 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("O")));
+            
+            #line default
+            #line hidden
+            this.Write("\">\r\n    ");
             
             #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureWithCaptionTag("100vw")));

@@ -62,7 +62,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             ListContext = new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.Recent);
 
-            SetupCommands(statusContext);
+            SetupCommands();
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
         }
@@ -78,7 +78,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     ReportGenerator = reportFilter
                 };
 
-            SetupCommands(statusContext);
+            SetupCommands();
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
         }
@@ -625,7 +625,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     }
 
                     var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile,
-                        true, StatusContext.ProgressTracker());
+                        true, null, StatusContext.ProgressTracker());
 
                     if (saveGenerationReturn.HasError)
                     {
@@ -879,7 +879,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             newWindow.Show();
         }
 
-        private void SetupCommands(StatusControlContext statusContext)
+        private void SetupCommands()
         {
             GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
             EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);

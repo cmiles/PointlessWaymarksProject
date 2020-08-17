@@ -580,7 +580,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            var saveResult = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), SelectedFile, true,
+            var saveResult = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), SelectedFile, true, null,
                 StatusContext.ProgressTracker());
 
             if (saveResult.generationReturn.HasError)
@@ -601,7 +601,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
-                SelectedFile, overwriteExistingFiles, StatusContext.ProgressTracker());
+                SelectedFile, overwriteExistingFiles, null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {

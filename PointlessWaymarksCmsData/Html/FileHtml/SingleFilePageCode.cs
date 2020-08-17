@@ -1,7 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
-using HtmlTags;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
@@ -25,23 +25,18 @@ namespace PointlessWaymarksCmsData.Html.FileHtml
         }
 
         public FileContent DbEntry { get; set; }
-
+        public DateTime? GenerationVersion { get; set; }
         public PictureSiteInformation MainImage { get; }
-
         public string PageUrl { get; set; }
-
         public string SiteName { get; set; }
-
         public string SiteUrl { get; set; }
-
-
 
         public void WriteLocalHtml()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

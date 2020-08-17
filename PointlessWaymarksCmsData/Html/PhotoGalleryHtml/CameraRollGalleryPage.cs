@@ -31,8 +31,14 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title" +
-                    ">");
+            this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
+            
+            #line 11 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\PhotoGalleryHtml\CameraRollGalleryPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O")));
+            
+            #line default
+            #line hidden
+            this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
             #line 13 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\PhotoGalleryHtml\CameraRollGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));

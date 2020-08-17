@@ -290,7 +290,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var (generationReturn, newContent) =
-                await NoteGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), StatusContext.ProgressTracker());
+                await NoteGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {

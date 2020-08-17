@@ -491,7 +491,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var (generationReturn, newContent) =
-                await LinkGenerator.SaveAndGenerateHtml(CurrentStateToLinkContent(), StatusContext.ProgressTracker());
+                await LinkGenerator.SaveAndGenerateHtml(CurrentStateToLinkContent(), null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {

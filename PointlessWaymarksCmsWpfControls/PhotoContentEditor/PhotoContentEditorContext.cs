@@ -720,7 +720,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var (generationReturn, newContent) = await PhotoGenerator.SaveAndGenerateHtml(CurrentStateToPhotoContent(),
-                SelectedFile, overwriteExistingFiles, StatusContext.ProgressTracker());
+                SelectedFile, overwriteExistingFiles, null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {

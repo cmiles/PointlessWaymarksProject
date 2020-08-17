@@ -8,7 +8,7 @@
 <#@ import namespace="PointlessWaymarksCmsData.Database.Models" #>
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head data-generationversion="<#=GenerationVersion?.ToString("O") #>">
     <meta charset="utf-8">
     <title><#=Title.HtmlEncode() #></title>
     <meta name="description" content="<#=Summary.HtmlEncode() #>">

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
@@ -29,17 +30,12 @@ namespace PointlessWaymarksCmsData.Html.PostHtml
         }
 
         public PostContent DbEntry { get; }
-
+        public DateTime? GenerationVersion { get; set; }
         public List<IContentCommon> LaterPosts { get; }
-
         public PictureSiteInformation MainImage { get; }
-
         public string PageUrl { get; }
-
         public List<IContentCommon> PreviousPosts { get; }
-
         public string SiteName { get; }
-
         public string SiteUrl { get; }
 
         public void WriteLocalHtml()

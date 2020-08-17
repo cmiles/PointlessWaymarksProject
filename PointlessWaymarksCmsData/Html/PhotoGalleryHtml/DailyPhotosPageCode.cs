@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
+using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 
 namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
@@ -10,9 +11,10 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
     public partial class DailyPhotosPage
     {
         public string CreatedBy { get; set; }
+        public DateTime? GenerationVersion { get; set; }
         public List<PictureSiteInformation> ImageList { get; set; }
         public PictureSiteInformation MainImage { get; set; }
-        public DailyPhotosPage NextDailyPhotosPage { get; set; }
+        [CanBeNull] public DailyPhotosPage NextDailyPhotosPage { get; set; }
         public string PageUrl { get; set; }
         public DateTime PhotoPageDate { get; set; }
         public List<string> PhotoTags { get; set; }
@@ -24,7 +26,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
         public void WriteLocalHtml()
         {
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

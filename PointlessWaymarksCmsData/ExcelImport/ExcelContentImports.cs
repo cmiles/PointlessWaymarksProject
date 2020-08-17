@@ -305,13 +305,13 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     {
                         generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo,
                             UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(photo), false,
-                            progress)).generationReturn;
+                            null, progress)).generationReturn;
                         break;
                     }
                     case FileContent file:
                     {
                         generationResult = (await FileGenerator.SaveAndGenerateHtml(file,
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(file), false,
+                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(file), false, null,
                             progress)).generationReturn;
                         break;
                     }
@@ -319,22 +319,25 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     {
                         generationResult = (await ImageGenerator.SaveAndGenerateHtml(image,
                             UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(image), false,
-                            progress)).generationReturn;
+                            null, progress)).generationReturn;
                         break;
                     }
                     case PostContent post:
                     {
-                        generationResult = (await PostGenerator.SaveAndGenerateHtml(post, progress)).generationReturn;
+                        generationResult = (await PostGenerator.SaveAndGenerateHtml(post, null, progress))
+                            .generationReturn;
                         break;
                     }
                     case NoteContent note:
                     {
-                        generationResult = (await NoteGenerator.SaveAndGenerateHtml(note, progress)).generationReturn;
+                        generationResult = (await NoteGenerator.SaveAndGenerateHtml(note, null, progress))
+                            .generationReturn;
                         break;
                     }
                     case LinkContent link:
                     {
-                        generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, progress)).generationReturn;
+                        generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, null, progress))
+                            .generationReturn;
                         break;
                     }
                     default:
@@ -344,7 +347,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 }
 
                 if (!generationResult.HasError)
-                    progress.Report(
+                    progress?.Report(
                         $"Updated Content Id {loopUpdates.ToUpdate.ContentId} - Title {loopUpdates.Title} - Saved");
                 else
                     errorList.Add(

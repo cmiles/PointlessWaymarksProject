@@ -268,7 +268,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var (generationReturn, newContent) = await PostGenerator.SaveAndGenerateHtml(CurrentStateToPostContent(),
-                StatusContext.ProgressTracker());
+                null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {

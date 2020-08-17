@@ -30,8 +30,14 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title" +
-                    ">");
+            this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
+            
+            #line 10 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O")));
+            
+            #line default
+            #line hidden
+            this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
             #line 12 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle.HtmlEncode()));

@@ -26,7 +26,14 @@ namespace PointlessWaymarksCmsData.Html.NoteHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\n<div class=\"content-container\">\r\n    ");
+            this.Write("\r\n<div class=\"content-container\" data-contentversion=\"");
+            
+            #line 4 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\NoteHtml\SingleNoteDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("O")));
+            
+            #line default
+            #line hidden
+            this.Write("\">\r\n    ");
             
             #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\NoteHtml\SingleNoteDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(NoteParts.NoteTitleLinkDiv(DbEntry)));

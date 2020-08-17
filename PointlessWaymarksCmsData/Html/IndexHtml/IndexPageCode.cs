@@ -54,21 +54,15 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
             }
         }
 
+        public DateTime? GenerationVersion { get; set; }
         public List<dynamic> IndexContent { get; }
-
-
         public PictureSiteInformation MainImage { get; }
-
         public string PageUrl { get; }
-
         public List<IContentCommon> PreviousPosts { get; }
-
         public string SiteAuthors { get; }
         public string SiteKeywords { get; }
-
         public string SiteName { get; }
         public string SiteSummary { get; }
-
         public string SiteUrl { get; }
 
         public HtmlTag IndexPosts()
@@ -133,7 +127,7 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
             WriteRss();
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

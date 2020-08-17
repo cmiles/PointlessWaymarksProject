@@ -1,7 +1,7 @@
 ﻿<#@ template language="C#" #>
 <#@ import namespace="CommonHtml" #>
 
-<div class="content-container">
+<div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("O") #>">
     <#= NoteParts.NoteTitleLinkDiv(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry) #>
     <#=

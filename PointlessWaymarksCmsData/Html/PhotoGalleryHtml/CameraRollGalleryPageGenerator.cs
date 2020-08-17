@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
 {
     public static class CameraRollGalleryPageGenerator
     {
-        public static async Task<CameraRollGalleryPage> CameraRoll(IProgress<string> progress)
+        public static async Task<CameraRollGalleryPage> CameraRoll(DateTime? generationVersion, IProgress<string> progress)
         {
             var db = await Db.Context();
 
@@ -189,7 +189,8 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
                 CameraRollContentTag = cameraRollContainer,
                 SiteName = UserSettingsSingleton.CurrentSettings().SiteName,
                 LastDateGroupDateTime = allDates.First().Date,
-                MainImage = mainImage
+                MainImage = mainImage,
+                GenerationVersion = generationVersion
             };
 
             return toReturn;

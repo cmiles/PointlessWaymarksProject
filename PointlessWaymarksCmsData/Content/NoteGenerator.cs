@@ -13,17 +13,17 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class NoteGenerator
     {
-        public static void GenerateHtml(NoteContent toGenerate, IProgress<string> progress)
+        public static void GenerateHtml(NoteContent toGenerate, DateTime? generationVersion, IProgress<string> progress)
         {
             progress?.Report($"Note Content - Generate HTML for {toGenerate.Title}");
 
-            var htmlContext = new SingleNotePage(toGenerate);
+            var htmlContext = new SingleNotePage(toGenerate) {GenerationVersion = generationVersion};
 
             htmlContext.WriteLocalHtml();
         }
 
         public static async Task<(GenerationReturn generationReturn, NoteContent noteContent)> SaveAndGenerateHtml(
-            NoteContent toSave, IProgress<string> progress)
+            NoteContent toSave, DateTime? generationVersion, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave);
 
@@ -33,7 +33,7 @@ namespace PointlessWaymarksCmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             await Db.SaveNoteContent(toSave);
-            GenerateHtml(toSave, progress);
+            GenerateHtml(toSave, generationVersion, progress);
             await Export.WriteLocalDbJson(toSave, progress);
 
             await DataNotifications.PublishDataNotification("Note Generator", DataNotificationContentType.Note,

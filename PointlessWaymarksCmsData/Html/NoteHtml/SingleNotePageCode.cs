@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
@@ -25,14 +26,12 @@ namespace PointlessWaymarksCmsData.Html.NoteHtml
         }
 
         public NoteContent DbEntry { get; }
-
+        public DateTime? GenerationVersion { get; set; }
         public List<IContentCommon> LaterPosts { get; set; }
         public string PageUrl { get; }
-
         public List<IContentCommon> PreviousPosts { get; set; }
         public string SiteName { get; }
         public string SiteUrl { get; }
-
         public string Title { get; }
 
         public void WriteLocalHtml()
@@ -40,7 +39,7 @@ namespace PointlessWaymarksCmsData.Html.NoteHtml
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

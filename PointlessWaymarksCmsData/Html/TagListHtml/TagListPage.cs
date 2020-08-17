@@ -26,9 +26,15 @@ namespace PointlessWaymarksCmsData.Html.TagListHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <title" +
-                    ">Tag List</title>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, init" +
-                    "ial-scale=1.0\">\r\n\r\n    ");
+            this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
+            
+            #line 6 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O")));
+            
+            #line default
+            #line hidden
+            this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>Tag List</title>\r\n\r\n    <meta name=\"vi" +
+                    "ewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
             
             #line 12 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));

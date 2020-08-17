@@ -11,6 +11,7 @@ namespace PointlessWaymarksCmsData.Html.TagListHtml
     public partial class TagListPage
     {
         public Func<List<(string tagName, List<object> tagCotentEntries)>> ContentFunction { get; set; }
+        public DateTime? GenerationVersion { get; set; }
 
         public HtmlTag TagList()
         {
@@ -41,7 +42,7 @@ namespace PointlessWaymarksCmsData.Html.TagListHtml
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

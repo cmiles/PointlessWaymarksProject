@@ -12,17 +12,17 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class ImageGenerator
     {
-        public static void GenerateHtml(ImageContent toGenerate, IProgress<string> progress)
+        public static void GenerateHtml(ImageContent toGenerate, DateTime? generationVersion, IProgress<string> progress)
         {
             progress?.Report($"Image Content - Generate HTML for {toGenerate.Title}");
 
-            var htmlContext = new SingleImagePage(toGenerate);
+            var htmlContext = new SingleImagePage(toGenerate) {GenerationVersion = generationVersion};
 
             htmlContext.WriteLocalHtml();
         }
 
         public static async Task<(GenerationReturn generationReturn, ImageContent imageContent)> SaveAndGenerateHtml(
-            ImageContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, IProgress<string> progress)
+            ImageContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave, selectedFile);
 
@@ -35,7 +35,7 @@ namespace PointlessWaymarksCmsData.Content
             FileManagement.WriteSelectedImageContentFileToMediaArchive(selectedFile);
             await Db.SaveImageContent(toSave);
             await WriteImageFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
-            GenerateHtml(toSave, progress);
+            GenerateHtml(toSave, generationVersion, progress);
             await Export.WriteLocalDbJson(toSave);
 
             await DataNotifications.PublishDataNotification("Image Generator", DataNotificationContentType.Image,

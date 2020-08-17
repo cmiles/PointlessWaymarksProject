@@ -33,6 +33,13 @@ namespace PointlessWaymarksCmsData.Html.NoteHtml
             
             #line default
             #line hidden
+            this.Write("\" data-generationversion=\"");
+            
+            #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\NoteHtml\SingleNotePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O")));
+            
+            #line default
+            #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
             #line 7 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\NoteHtml\SingleNotePage.tt"

@@ -21,10 +21,9 @@ namespace PointlessWaymarksCmsData.Html.LinkListHtml
             ListTitle = "Links";
         }
 
+        public DateTime? GenerationVersion { get; set; }
         public string ListTitle { get; set; }
-
         public string RssUrl { get; set; }
-
 
         public HtmlTag LinkTableTag()
         {
@@ -104,7 +103,7 @@ namespace PointlessWaymarksCmsData.Html.LinkListHtml
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

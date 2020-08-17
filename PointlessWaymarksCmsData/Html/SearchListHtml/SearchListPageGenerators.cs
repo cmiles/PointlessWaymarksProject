@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
 {
     public static class SearchListPageGenerators
     {
-        public static void WriteAllContentCommonSearchListHtml()
+        public static void WriteAllContentCommonSearchListHtml(DateTime? generationVersion)
         {
             List<object> ContentList()
             {
@@ -31,12 +31,12 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteAllContentListFile();
 
             WriteSearchListHtml(ContentList, fileInfo, "All Content",
-                UserSettingsSingleton.CurrentSettings().AllContentRssUrl());
+                UserSettingsSingleton.CurrentSettings().AllContentRssUrl(), generationVersion);
             RssBuilder.WriteContentCommonListRss(ContentList().Cast<IContentCommon>().ToList(),
                 UserSettingsSingleton.CurrentSettings().LocalSiteAllContentRssFile(), "All Content");
         }
 
-        public static void WriteFileContentListHtml()
+        public static void WriteFileContentListHtml(DateTime? generationVersion)
         {
             List<object> ContentList()
             {
@@ -46,13 +46,13 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteFileListFile();
 
-            WriteSearchListHtml(ContentList, fileInfo, "Files", UserSettingsSingleton.CurrentSettings().FileRssUrl());
+            WriteSearchListHtml(ContentList, fileInfo, "Files", UserSettingsSingleton.CurrentSettings().FileRssUrl(), generationVersion);
             RssBuilder.WriteContentCommonListRss(ContentList().Cast<IContentCommon>().ToList(),
                 UserSettingsSingleton.CurrentSettings().LocalSiteFileRssFile(), "Files");
         }
 
 
-        public static void WriteImageContentListHtml()
+        public static void WriteImageContentListHtml(DateTime? generationVersion)
         {
             List<object> ContentList()
             {
@@ -62,12 +62,12 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteImageListFile();
 
-            WriteSearchListHtml(ContentList, fileInfo, "Images", UserSettingsSingleton.CurrentSettings().ImageRssUrl());
+            WriteSearchListHtml(ContentList, fileInfo, "Images", UserSettingsSingleton.CurrentSettings().ImageRssUrl(), generationVersion);
             RssBuilder.WriteContentCommonListRss(ContentList().Cast<IContentCommon>().ToList(),
                 UserSettingsSingleton.CurrentSettings().LocalSiteImageRssFile(), "Images");
         }
 
-        public static void WriteNoteContentListHtml()
+        public static void WriteNoteContentListHtml(DateTime? generationVersion)
         {
             List<object> ContentList()
             {
@@ -77,12 +77,12 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteNoteListFile();
 
-            WriteSearchListHtml(ContentList, fileInfo, "Notes", UserSettingsSingleton.CurrentSettings().NoteRssUrl());
+            WriteSearchListHtml(ContentList, fileInfo, "Notes", UserSettingsSingleton.CurrentSettings().NoteRssUrl(), generationVersion);
             RssBuilder.WriteContentCommonListRss(ContentList().Cast<IContentCommon>().ToList(),
                 UserSettingsSingleton.CurrentSettings().LocalSiteNoteRssFile(), "Notes");
         }
 
-        public static void WritePhotoContentListHtml()
+        public static void WritePhotoContentListHtml(DateTime? generationVersion)
         {
             List<object> ContentList()
             {
@@ -92,12 +92,12 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoListFile();
 
-            WriteSearchListHtml(ContentList, fileInfo, "Photos", UserSettingsSingleton.CurrentSettings().PhotoRssUrl());
+            WriteSearchListHtml(ContentList, fileInfo, "Photos", UserSettingsSingleton.CurrentSettings().PhotoRssUrl(), generationVersion);
             RssBuilder.WriteContentCommonListRss(ContentList().Cast<IContentCommon>().ToList(),
                 UserSettingsSingleton.CurrentSettings().LocalSitePhotoRssFile(), "Photos");
         }
 
-        public static void WritePostContentListHtml()
+        public static void WritePostContentListHtml(DateTime? generationVersion)
         {
             List<object> ContentList()
             {
@@ -107,15 +107,15 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
 
             var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePostListFile();
 
-            WriteSearchListHtml(ContentList, fileInfo, "Posts", UserSettingsSingleton.CurrentSettings().PostsRssUrl());
+            WriteSearchListHtml(ContentList, fileInfo, "Posts", UserSettingsSingleton.CurrentSettings().PostsRssUrl(), generationVersion);
             RssBuilder.WriteContentCommonListRss(ContentList().Cast<IContentCommon>().ToList(),
                 UserSettingsSingleton.CurrentSettings().LocalSitePostRssFile(), "Posts");
         }
 
         public static void WriteSearchListHtml(Func<List<object>> dbFunc, FileInfo fileInfo, string titleAdd,
-            string rssUrl)
+            string rssUrl, DateTime? generationVersion)
         {
-            var htmlModel = new SearchListPage(rssUrl) {ContentFunction = dbFunc, ListTitle = titleAdd};
+            var htmlModel = new SearchListPage(rssUrl) {ContentFunction = dbFunc, ListTitle = titleAdd, GenerationVersion = generationVersion};
 
             var htmlTransform = htmlModel.TransformText();
 
@@ -136,23 +136,23 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             File.WriteAllText(fileInfo.FullName, htmlString);
         }
 
-        public static void WriteTagList(IProgress<string> progress)
+        public static void WriteTagList(DateTime generationVersion, IProgress<string> progress)
         {
             progress?.Report("Tag Pages - Getting Tag Data For Search");
             var tags = Db.TagAndContentList(false, progress).Result;
 
-            var allTags = new TagListPage {ContentFunction = () => tags};
+            var allTags = new TagListPage {ContentFunction = () => tags, GenerationVersion = generationVersion};
 
             progress?.Report("Tag Pages - Writing All Tag Data");
             allTags.WriteLocalHtml();
         }
 
-        public static void WriteTagListAndTagPages(IProgress<string> progress)
+        public static void WriteTagListAndTagPages(DateTime? generationVersion, IProgress<string> progress)
         {
             progress?.Report("Tag Pages - Getting Tag Data For Search");
             var tags = Db.TagAndContentList(false, progress).Result;
 
-            var allTags = new TagListPage {ContentFunction = () => tags};
+            var allTags = new TagListPage {ContentFunction = () => tags, GenerationVersion = generationVersion};
 
             progress?.Report("Tag Pages - Writing All Tag Data");
             allTags.WriteLocalHtml();
@@ -174,14 +174,14 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
 
                 WriteSearchListHtml(() => loopTags.contentObjects,
                     UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(loopTags.tag),
-                    $"Tag - {loopTags.tag}", string.Empty);
+                    $"Tag - {loopTags.tag}", string.Empty, generationVersion);
             }
         }
 
-        public static void WriteTagPage(string tag, List<dynamic> content)
+        public static void WriteTagPage(string tag, List<dynamic> content, DateTime? generationVersion)
         {
             WriteSearchListHtml(() => content, UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(tag),
-                $"Tag - {tag}", string.Empty);
+                $"Tag - {tag}", string.Empty, generationVersion);
         }
     }
 }

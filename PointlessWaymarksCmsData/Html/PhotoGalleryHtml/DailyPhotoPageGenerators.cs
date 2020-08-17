@@ -10,7 +10,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
 {
     public static class DailyPhotoPageGenerators
     {
-        public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(List<DateTime> datesToCreate,
+        public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(List<DateTime> datesToCreate, DateTime? generationVersion,
             IProgress<string> progress)
         {
             var db = await Db.Context();
@@ -31,15 +31,15 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
                 var loopDate = datesToCreate[i];
 
                 if (i % 10 == 0) progress?.Report($"Daily Photo Page - {loopDate:D} - {i} of {loopGoal}");
-                var toAdd = await DailyPhotoGallery(loopDate);
+                var toAdd = await DailyPhotoGallery(loopDate, generationVersion);
 
                 var nextDate = allDates.Where(x => x > loopDate).OrderBy(x => x).FirstOrDefault();
                 if (nextDate == default) toAdd.NextDailyPhotosPage = null;
-                else toAdd.NextDailyPhotosPage = await DailyPhotoGallery(nextDate);
+                else toAdd.NextDailyPhotosPage = await DailyPhotoGallery(nextDate, generationVersion);
 
                 var previousDate = allDates.Where(x => x < loopDate).OrderByDescending(x => x).FirstOrDefault();
                 if (previousDate == default) toAdd.PreviousDailyPhotosPage = null;
-                else toAdd.PreviousDailyPhotosPage = await DailyPhotoGallery(previousDate);
+                else toAdd.PreviousDailyPhotosPage = await DailyPhotoGallery(previousDate, generationVersion);
 
                 returnList.Add(toAdd);
             }
@@ -47,7 +47,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
             return returnList;
         }
 
-        public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(IProgress<string> progress)
+        public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(DateTime? generationVersion, IProgress<string> progress)
         {
             var db = await Db.Context();
 
@@ -67,7 +67,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
                 var loopDate = allDates[i];
 
                 if (i % 10 == 0) progress?.Report($"Daily Photo Page - {loopDate:D} - {i} of {loopGoal}");
-                var toAdd = await DailyPhotoGallery(loopDate);
+                var toAdd = await DailyPhotoGallery(loopDate, generationVersion);
 
                 if (i > 0)
                 {
@@ -82,7 +82,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
             return returnList;
         }
 
-        public static async Task<DailyPhotosPage> DailyPhotoGallery(DateTime dateTimeForPictures)
+        public static async Task<DailyPhotosPage> DailyPhotoGallery(DateTime dateTimeForPictures, DateTime? generationVersion)
         {
             var db = await Db.Context();
 
@@ -116,7 +116,8 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
                 PhotoTags =
                     datePhotos.SelectMany(x => Db.TagListParseToSlugs(x, true)).Select(x => x.Trim()).Distinct()
                         .OrderBy(x => x).ToList(),
-                PageUrl = UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(startsAfterOrOn)
+                PageUrl = UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(startsAfterOrOn),
+                GenerationVersion = generationVersion
             };
 
             return photoPage;

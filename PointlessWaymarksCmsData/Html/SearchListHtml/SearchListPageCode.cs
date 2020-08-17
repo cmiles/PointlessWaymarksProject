@@ -20,8 +20,8 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
         }
 
         public Func<List<object>> ContentFunction { get; set; }
+        public DateTime? GenerationVersion { get; set; }
         public string ListTitle { get; set; }
-
         public string RssUrl { get; set; }
 
         public HtmlTag ContentTableTag()
@@ -114,7 +114,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

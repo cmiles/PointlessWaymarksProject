@@ -112,7 +112,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
                 foreach (var loopDates in dates)
                 {
-                    var toAdd = await DailyPhotoPageGenerators.DailyPhotoGallery(loopDates);
+                    var toAdd = await DailyPhotoPageGenerators.DailyPhotoGallery(loopDates, null);
                     if (toAdd != null)
                         transformedList.Add((loopDates, DailyPhotosPageParts.DailyPhotosPageRelatedContentDiv(toAdd)));
                 }

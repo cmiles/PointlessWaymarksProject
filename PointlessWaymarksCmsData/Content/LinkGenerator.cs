@@ -14,11 +14,11 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class LinkGenerator
     {
-        public static void GenerateHtmlAndJson(IProgress<string> progress)
+        public static void GenerateHtmlAndJson(DateTime? generationVersion, IProgress<string> progress)
         {
             progress?.Report("Link Content - Generate HTML");
 
-            var htmlContext = new LinkListPage();
+            var htmlContext = new LinkListPage {GenerationVersion = generationVersion};
 
             htmlContext.WriteLocalHtmlRssAndJson();
         }
@@ -159,7 +159,7 @@ namespace PointlessWaymarksCmsData.Content
         }
 
         public static async Task<(GenerationReturn generationReturn, LinkContent linkContent)> SaveAndGenerateHtml(
-            LinkContent toSave, IProgress<string> progress)
+            LinkContent toSave, DateTime? generationVersion, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave);
 
@@ -170,7 +170,7 @@ namespace PointlessWaymarksCmsData.Content
 
             await Db.SaveLinkContent(toSave);
             await SaveLinkToPinboard(toSave, progress);
-            GenerateHtmlAndJson(progress);
+            GenerateHtmlAndJson(generationVersion, progress);
 
             await DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Link,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
@@ -244,7 +244,8 @@ namespace PointlessWaymarksCmsData.Content
             if (!createdUpdatedValid)
                 return await GenerationReturn.Error(createdUpdatedValidationMessage, linkContent.ContentId);
 
-            var urlValidation = await CommonContentValidation.ValidateLinkContentLinkUrl(linkContent.Url, linkContent.ContentId);
+            var urlValidation =
+                await CommonContentValidation.ValidateLinkContentLinkUrl(linkContent.Url, linkContent.ContentId);
 
             if (!urlValidation.isValid)
                 return await GenerationReturn.Error(urlValidation.explanation, linkContent.ContentId);

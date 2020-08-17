@@ -2,7 +2,7 @@
 <#@ assembly name="System.Core" #>
 <#@ import namespace="CommonHtml" #>
 
-<div class="content-container">
+<div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("O") #>">
     <#=
                 PictureInformation.PictureFigureWithCaptionTag("100vw") #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>

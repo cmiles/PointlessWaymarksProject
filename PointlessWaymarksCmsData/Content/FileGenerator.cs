@@ -12,18 +12,18 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class FileGenerator
     {
-        public static void GenerateHtml(FileContent toGenerate, IProgress<string> progress)
+        public static void GenerateHtml(FileContent toGenerate, DateTime? generationVersion, IProgress<string> progress)
         {
             progress?.Report($"File Content - Generate HTML for {toGenerate.Title}");
 
-            var htmlContext = new SingleFilePage(toGenerate);
+            var htmlContext = new SingleFilePage(toGenerate) {GenerationVersion = generationVersion};
 
             htmlContext.WriteLocalHtml();
         }
 
 
         public static async Task<(GenerationReturn generationReturn, FileContent fileContent)> SaveAndGenerateHtml(
-            FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, IProgress<string> progress)
+            FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave, selectedFile);
 
@@ -36,7 +36,7 @@ namespace PointlessWaymarksCmsData.Content
             FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile);
             await Db.SaveFileContent(toSave);
             WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
-            GenerateHtml(toSave, progress);
+            GenerateHtml(toSave, generationVersion, progress);
             await Export.WriteLocalDbJson(toSave, progress);
 
             await DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,

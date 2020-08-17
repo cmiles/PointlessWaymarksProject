@@ -309,7 +309,7 @@ namespace PointlessWaymarksTests
 
             var bodyUpdateReturn = await FileGenerator.SaveAndGenerateHtml(mapFile,
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(mapFile), false,
-                DebugProgressTracker());
+                null, DebugProgressTracker());
 
             Assert.False(bodyUpdateReturn.generationReturn.HasError, bodyUpdateReturn.generationReturn.GenerationNote);
 

@@ -1,7 +1,7 @@
 ﻿<#@ template language="C#" #>
 <#@ import namespace="PointlessWaymarksCmsData.Html.CommonHtml" #>
 
-<div class="content-container">
+<div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("O") #>">
     <#= Tags.TitleLinkDiv(DbEntry, DbEntry).ToString() #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
