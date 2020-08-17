@@ -32,7 +32,7 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
             #line 9 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O") ?? string.Empty));
             
             #line default
             #line hidden

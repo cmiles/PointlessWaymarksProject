@@ -274,7 +274,7 @@ namespace PointlessWaymarksTests
 
             var saveAgainResult = await PhotoGenerator.SaveAndGenerateHtml(treePhoto,
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(treePhoto), true,
-                DebugProgressTracker());
+                null, DebugProgressTracker());
 
             Assert.IsFalse(saveAgainResult.generationReturn.HasError, $"Error Saving after Deleting? {saveAgainResult.generationReturn.GenerationNote}");
         }

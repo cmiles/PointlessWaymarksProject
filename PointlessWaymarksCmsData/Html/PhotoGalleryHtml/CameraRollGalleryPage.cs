@@ -34,7 +34,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
             #line 11 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\PhotoGalleryHtml\CameraRollGalleryPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O") ?? string.Empty));
             
             #line default
             #line hidden

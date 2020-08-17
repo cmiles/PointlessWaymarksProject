@@ -55,6 +55,10 @@
 
 ## Notes
 
+8/17/2020
+
+Fixed bugs in test and in the T4 templates to get tests passing again after the latest changes. In the T4 templates had an error where the generated T4 code calls ToString in such a way that passing it a null throws and error.
+
 8/15/2020
 
 The last few commits form an untested rough draft of improvements to the 'Changed' Generation - notes:

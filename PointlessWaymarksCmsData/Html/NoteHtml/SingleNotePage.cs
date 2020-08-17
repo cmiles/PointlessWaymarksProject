@@ -36,7 +36,7 @@ namespace PointlessWaymarksCmsData.Html.NoteHtml
             this.Write("\" data-generationversion=\"");
             
             #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O") ?? string.Empty));
             
             #line default
             #line hidden

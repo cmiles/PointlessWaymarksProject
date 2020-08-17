@@ -36,7 +36,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoHtml
             this.Write("\" data-generationversion=\"");
             
             #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("O") ?? string.Empty));
             
             #line default
             #line hidden
