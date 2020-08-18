@@ -476,6 +476,7 @@ namespace PointlessWaymarksCmsData.Html
                 {typeof(GenerationTagLog), new[] {"RelatedContentId"}}
             };
             tagCompareLogic.Config.CollectionMatchingSpec = spec;
+            tagCompareLogic.Config.MembersToInclude.Add("RelatedContentId");
 
             foreach (var loopTags in allCurrentTags)
             {
@@ -509,7 +510,7 @@ namespace PointlessWaymarksCmsData.Html
 
                 //Main Image changes
                 var mainImageContentIds = directTagContent.Select(x => Db.MainImageContentIdIfPresent(x))
-                    .Where(x => x != null).ToList();
+                    .Where(x => x != null).Cast<Guid>().ToList();
 
                 var mainImageContentChanges = await db.GenerationChangedContentIds.AnyAsync(x =>
                     mainImageContentIds.Contains(x.ContentId));

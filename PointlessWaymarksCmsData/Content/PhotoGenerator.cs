@@ -410,20 +410,11 @@ namespace PointlessWaymarksCmsData.Content
 
             selectedFile.Refresh();
 
-            if (!selectedFile.Exists)
-                return await GenerationReturn.Error("Selected File doesn't exist?", photoContent.ContentId);
+            var photoFileValidation =
+                await CommonContentValidation.PhotoFileValidation(selectedFile, photoContent?.ContentId);
 
-            if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
-                return await GenerationReturn.Error("Limit File Names to A-Z a-z 0-9 - . _", photoContent.ContentId);
-
-            if (!FolderFileUtility.PictureFileTypeIsSupported(selectedFile))
-                return await GenerationReturn.Error("The file doesn't appear to be a supported file type.",
-                    photoContent.ContentId);
-
-            if (await (await Db.Context()).PhotoFilenameExistsInDatabase(selectedFile.Name, photoContent.ContentId))
-                return await GenerationReturn.Error(
-                    "This filename already exists in the database - photo file names must be unique.",
-                    photoContent.ContentId);
+            if (!photoFileValidation.isValid)
+                return await GenerationReturn.Error(photoFileValidation.explanation, photoContent.ContentId);
 
             return await GenerationReturn.Success("Photo Content Validation Successful");
         }

@@ -56,6 +56,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private FileInfo _selectedFile;
         private BitmapSource _selectedFileBitmapSource = ImageConstants.BlankImage;
         private bool _selectedFileHasPathOrNameChanges;
+        private bool _selectedFileHasValidationIssues;
+        private string _selectedFileValidationMessage;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private string _shutterSpeed;
         private StatusControlContext _statusContext;
@@ -377,6 +379,28 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             {
                 if (value == _selectedFileHasPathOrNameChanges) return;
                 _selectedFileHasPathOrNameChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SelectedFileHasValidationIssues
+        {
+            get => _selectedFileHasValidationIssues;
+            set
+            {
+                if (value == _selectedFileHasValidationIssues) return;
+                _selectedFileHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SelectedFileValidationMessage
+        {
+            get => _selectedFileValidationMessage;
+            set
+            {
+                if (value == _selectedFileValidationMessage) return;
+                _selectedFileValidationMessage = value;
                 OnPropertyChanged();
             }
         }
@@ -760,6 +784,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             SelectedFileHasPathOrNameChanges =
                 (SelectedFile?.FullName ?? string.Empty) != (_loadedFile?.FullName ?? string.Empty);
+
+            var (isValid, explanation) =
+                await CommonContentValidation.PhotoFileValidation(SelectedFile, DbEntry?.ContentId);
+
+            SelectedFileHasValidationIssues = !isValid;
+
+            SelectedFileValidationMessage = explanation;
 
             if (SelectedFile == null)
             {

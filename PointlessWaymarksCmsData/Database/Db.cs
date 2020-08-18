@@ -462,8 +462,8 @@ namespace PointlessWaymarksCmsData.Database
         {
             return content switch
             {
-                FileContent f => content.MainImage,
-                PostContent p => content.MainImage,
+                FileContent f => f.MainPicture,
+                PostContent p => p.MainPicture,
                 _ => null
             };
         }

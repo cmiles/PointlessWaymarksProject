@@ -1,23 +1,18 @@
 ﻿## Todos
- - Tags and Daily Photo Generation
-  - Testing...
+ - Test DB Migrations to latest
+ - FileManagement needs a method to purge old tag files
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
   - Setup RSS Feed
   - Create Pages
   - Validation when saving - lat/long, Details (make sure content id is linked correctly to detail)
- - Are older generated Daily Photo and Tags cleaned up if you purge unused files?
- - History Cleanup for Content. Maybe on save - limit to ?last 1000?, it would be great to not grow to infinity but want to save very old entries for seldom editted content and many entries for frequently editted content...
+ - Integration Testing - Link Saving
  - Integrate Xaml Styler - is the git hook working?
+ - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
  - Email Html
   - Check formatting - could spacing be better in multiple clients?
- - Split settings into a public and private so that the public settings can be copied to the site for backup and the private can stay in the archive.
-   - Public settings file snapshots into the db on generation so changes can be detected and full generation potentially triggered
- - Content Testing:
-  - Ironwood Integration Tests for Context File Add, Context Image Add, Post, Note, Link
-  - Add tests for the common content validation
- - Gui Validation alerts - Title control, Tags Control, Link Url Done - (Add validation for the 'selected file' in Files/Photos/Images)
+ - Gui Validation alerts - Title control, Tags Control, Link Url Done - (Add validation for the 'selected file' in Files/Images)
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - A bad content code should be handled better
  - Bad Content Code Content Scan
@@ -37,7 +32,8 @@
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
 
 ## Ideas
- - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well.
+ - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well - perhaps via Behavour?
+ - History Cleanup for Content. Maybe on save - limit to ?last 1000?, it would be great to not grow to infinity but want to save very old entries for seldom editted content and many entries for frequently editted content...
  - GUI Automation Testing https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/march/test-run-automating-ui-tests-in-wpf-applications and/or ViewModel testing (the ViewModels should be testable without the views - however an interesting issue is that testing the GUI will test both...)
  - Look at deployment options - self contained? msix? automated?
  - Watch https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/ - the source generators look like they could be quite interesting for INPC and HasChanges
@@ -54,6 +50,14 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/18/2020
+
+Basic Post Content Save Test added and a following test to test the change only generation - after a number of changes and bug fixes this is working. This certainly doesn't create anything resembling majority test coverage and validity of files but still nice to have (and an unexpected benefit is how nice it is to be able to generate a 'throw away' test site).
+
+Added validation to the Photo Content control for file validations.
+
+Pulled the validation and saving of Excluded Tags into a generator class - I anticipate test(s) with Excluded Tags and this allows saving in a way that is accessible in more places and can be tested.
 
 8/17/2020
 

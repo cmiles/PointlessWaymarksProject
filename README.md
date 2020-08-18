@@ -26,19 +26,19 @@ Launch screen with recent files and option to create a new project.
 ![Launch Screen](PointlessWaymarksCmsScreenShots/LaunchScreen.jpg "Launch Screen")
 
 
-Post List - There is a similiar list for each Content Type.
+Post List - There is a similar list for each Content Type.
 
 ![Posts List](PointlessWaymarksCmsScreenShots/PostsList.jpg "Posts List")
 
 
-Post Editor with Preview Showing - The editors, like the entire application, are relatively simple but are desgined to be quick and easy to work with.
+Post Editor with Preview Showing - The editors, like the entire application, are relatively simple but are designed to be quick and easy to work with.
 
 ![Post Editor](PointlessWaymarksCmsScreenShots/PostEditorWithPreview.jpg "Post Editor")
 
 
-The first tab of the Photo Content Editor - most of the data on this screen was imported from the photo metadata.
+The Photo Editor. This tab shows the photo specific metadata that is saved along with the photo - this information has been extracted from the photo's metadata. Above the photo two indicators are visible that show that the file has been updated and that there is a validation issue with the currently selected file - both indicators have hover text with more information.
 
-![Photo Content Editor](PointlessWaymarksCmsScreenShots/PhotoEditor.jpg "Photo Content Editor")
+![Photo Content Editor](PointlessWaymarksCmsScreenShots/PhotoEditor-ShowingFileValidationAndPhotoMetadata.jpg "Photo Content Editor")
 
 
 ### Software Used By and In Building Pointless Waymarks CMS

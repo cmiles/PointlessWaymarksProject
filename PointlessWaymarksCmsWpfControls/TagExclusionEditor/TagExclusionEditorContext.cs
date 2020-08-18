@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
+using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
@@ -149,35 +151,27 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
 
             tagItem.TagValue = tagItem.TagValue.TrimNullToEmpty();
 
-            if (string.IsNullOrWhiteSpace(tagItem.TagValue))
+            var toSave = new TagExclusion();
+            toSave.InjectFrom(tagItem.DbEntry);
+            toSave.Tag = tagItem.TagValue.TrimNullToEmpty();
+
+            var validation = await TagExclusionGenerator.Validate(toSave);
+
+            if (validation.HasError)
             {
-                StatusContext.ToastError("Blank tags can not be excluded.");
+                StatusContext.ToastError($"Tag is not valid - {validation.GenerationNote}");
                 return;
             }
 
-            var db = await Db.Context();
+            var saveReturn = await TagExclusionGenerator.Save(toSave);
 
-            var frozenNowVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
-
-            tagItem.DbEntry ??= new TagExclusion();
-
-            if (tagItem.DbEntry.Id < 1)
+            if (saveReturn.generationReturn.HasError)
             {
-                var toAdd = new TagExclusion {Tag = tagItem.TagValue, ContentVersion = frozenNowVersion};
-                await db.AddAsync(toAdd);
-                await db.SaveChangesAsync(true);
-                tagItem.DbEntry = toAdd;
+                StatusContext.ToastError($"Error Saving - {validation.GenerationNote}");
                 return;
             }
 
-            var toModify = await db.TagExclusions.SingleAsync(x => x.Id == tagItem.DbEntry.Id);
-
-            toModify.Tag = tagItem.TagValue;
-            toModify.ContentVersion = frozenNowVersion;
-
-            await db.SaveChangesAsync(true);
-
-            tagItem.DbEntry = toModify;
+            tagItem.DbEntry = saveReturn.returnContent;
         }
     }
 }

@@ -298,7 +298,7 @@ namespace PointlessWaymarksCmsData.Content
             await RemoveFileDirectoriesNotFoundInCurrentDatabase(progress);
             await RemoveImageDirectoriesNotFoundInCurrentDatabase(progress);
             await RemoveNoteDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress);
+            await RemovePostDirectoriesNotFoundInCurrentDatabase(progress);
             await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress);
         }
 

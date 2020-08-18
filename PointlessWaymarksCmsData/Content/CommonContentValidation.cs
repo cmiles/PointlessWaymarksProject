@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,26 @@ namespace PointlessWaymarksCmsData.Content
                 return (true, string.Empty);
 
             return (false, $"Could not parse {contentFormat} into a known Content Format");
+        }
+
+        public static async Task<(bool isValid, string explanation)> PhotoFileValidation(FileInfo photoFile, Guid? currentContentId)
+        {
+            photoFile.Refresh();
+
+            if (!photoFile.Exists) return (false, "File does not Exist?");
+
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(photoFile.Name)))
+                return (false, "Limit File Names to A-Z a-z 0-9 - . _");
+
+            if (!FolderFileUtility.PictureFileTypeIsSupported(photoFile))
+                return (false, "The file doesn't appear to be a supported file type.");
+
+            var db = await Db.Context();
+
+            if (await (await Db.Context()).PhotoFilenameExistsInDatabase(photoFile.Name, currentContentId))
+                return (false, "This filename already exists in the database - photo file names must be unique.");
+
+            return (true, "File is Valid");
         }
 
         public static async Task<(bool valid, string explanation)> ValidateContentCommon(IContentCommon toValidate)
