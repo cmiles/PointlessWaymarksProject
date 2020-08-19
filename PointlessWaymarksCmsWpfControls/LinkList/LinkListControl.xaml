@@ -126,9 +126,7 @@
                                     </TextBox>
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
-                                            <Hyperlink
-                                                Command="{Binding Data.OpenUrlCommand, Source={StaticResource Proxy}}"
-                                                CommandParameter="{Binding DbEntry.Url}">
+                                            <Hyperlink Command="{Binding Data.OpenUrlCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding DbEntry.Url}">
                                                 <Hyperlink.Inlines>
                                                     <Run Text="{Binding DbEntry.Url}" />
                                                 </Hyperlink.Inlines>
