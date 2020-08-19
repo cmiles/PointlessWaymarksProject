@@ -98,6 +98,9 @@
                 ItemsSource="{Binding Items}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
+                <i:Interaction.Behaviors>
+                    <utility:ListBoxOneLineMouseWheelScroll />
+                </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:FileListListItem">
                         <Border d:DataContext="{d:DesignInstance local:FileListListItem}" Style="{StaticResource ContentListOuterBorderStyle}">

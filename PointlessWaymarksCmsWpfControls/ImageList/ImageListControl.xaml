@@ -86,6 +86,9 @@
             Grid.Row="1"
             Header="Images"
             Style="{StaticResource UiComponentGroupBoxStyle}">
+            <i:Interaction.Behaviors>
+                <utility:ListBoxOneLineMouseWheelScroll />
+            </i:Interaction.Behaviors>
             <ListBox
                 Name="ContentListBox"
                 ItemsSource="{Binding Items}"

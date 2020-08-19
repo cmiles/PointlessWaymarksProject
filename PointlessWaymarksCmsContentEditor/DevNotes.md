@@ -1,5 +1,4 @@
 ﻿## Todos
- - Test DB Migrations to latest
  - FileManagement needs a method to purge old tag files
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
@@ -50,6 +49,12 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/19/2020
+
+Fixes to the Migrations to get the older dbs up to the current version with Generation Tables.
+
+I recently changed the number of lines scrolled via 'scroll wheel' on my laptop trackpoint - overall this was just a small experiment in getting slightly faster scrolling mainly in the web browser, but it had an unfortunate impact on the the scrolling in listboxes of this app causing the scroll to 'jump' much farther than makes sense (ie there were jumps where the new position didn't have a clear visual relation to the old position) - to deal with this I created a new behaviour that ignores the size of the delta in a mousewheel scroll and just calls line up/line down on the scroll viewer - it is uncomfortable to change what is essentially user setting regarding scrollwheel behavior, but with the 'item' scroll of the listboxes I think this is a better experience.
 
 8/18/2020
 

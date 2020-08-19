@@ -106,6 +106,9 @@
                 PreviewKeyDown="PhotoListBox_OnPreviewKeyDown"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
+                <i:Interaction.Behaviors>
+                    <utility:ListBoxOneLineMouseWheelScroll />
+                </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="photoList:PhotoListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">

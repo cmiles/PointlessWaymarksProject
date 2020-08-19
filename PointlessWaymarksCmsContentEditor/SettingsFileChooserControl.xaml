@@ -6,6 +6,7 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     d:DataContext="{d:DesignInstance local:SettingsFileChooserControlContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -32,6 +33,9 @@
                 BorderThickness="0"
                 ItemsSource="{Binding Items}"
                 SelectionMode="Single">
+                <b:Interaction.Behaviors>
+                    <utility:ListBoxOneLineMouseWheelScroll />
+                </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border
@@ -58,7 +62,6 @@
                                         TextWrapping="Wrap" />
                                 </StackPanel>
                             </Grid>
-
                         </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

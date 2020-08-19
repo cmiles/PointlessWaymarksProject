@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsData.Database.Migrations
                     .SetExistingRowsTo(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).NotNullable();
 
             if (!Schema.Table("TagExclusions").Column("ContentVersion").Exists())
-                Alter.Table("MenuLinks").AddColumn("ContentVersion").AsString()
+                Alter.Table("TagExclusions").AddColumn("ContentVersion").AsString()
                     .SetExistingRowsTo(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")).NotNullable();
 
             if (Schema.Table("RelatedContents").Exists())
@@ -38,10 +38,10 @@ CREATE TABLE ""GenerationRelatedContents"" (
 CREATE TABLE ""GenerationTagLogs"" (
     ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_GenerationTagLogs"" PRIMARY KEY AUTOINCREMENT,
     ""TagSlug"" TEXT NULL,
+    ""TagIsExcludedFromSearch"" INTEGER NOT NULL,
     ""GenerationVersion"" TEXT NOT NULL,
     ""RelatedContentId"" TEXT NOT NULL
 );
-
 ");
 
             if (!Schema.Table("GenerationDailyPhotoLogs").Exists())
