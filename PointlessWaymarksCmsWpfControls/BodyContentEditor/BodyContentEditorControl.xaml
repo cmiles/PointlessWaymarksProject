@@ -9,6 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     d:DataContext="{d:DesignInstance bodyContentEditor:BodyContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -84,7 +85,11 @@
                         SpellCheck.IsEnabled="True"
                         Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged}"
                         TextWrapping="Wrap"
-                        VerticalScrollBarVisibility="Visible" />
+                        VerticalScrollBarVisibility="Visible">
+                        <b:Interaction.Behaviors>
+                            <utility:TextBoxDoubleClickLauncher />
+                        </b:Interaction.Behaviors>
+                    </TextBox>
                 </GroupBox>
                 <StackPanel
                     Grid.Row="1"

@@ -31,6 +31,8 @@
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
 
 ## Ideas
+ - Look at https://github.com/icsharpcode/AvalonEdit for Markdown editor
+ - Review https://github.com/Softwire/HighlightingTextBox/blob/master/HighlightingTextBox/HighlightingTextBox.cs - is there something useful here?
  - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well - perhaps via Behavour?
  - History Cleanup for Content. Maybe on save - limit to ?last 1000?, it would be great to not grow to infinity but want to save very old entries for seldom editted content and many entries for frequently editted content...
  - GUI Automation Testing https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/march/test-run-automating-ui-tests-in-wpf-applications and/or ViewModel testing (the ViewModels should be testable without the views - however an interesting issue is that testing the GUI will test both...)
@@ -49,6 +51,12 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/20/2020
+
+Fix a bug in the image list where a behavior was attached to the wrong control.
+
+Created a Behavior to launch folders and links on TextBox double click - this is not perfect because it doesn't include any UI hints, but in other projects I found that for the time it takes to create something like this (very quick!) it is useful for power users since this quickly turns something like a read only textbox with a path into something you can click and see the folder - useful functionality and doesn't get in the way of building better UI later. This will take a little 'living with' to see if any exceptions are needed. I searching for ideas and solutions before doing this I was reminded of  https://github.com/icsharpcode/AvalonEdit and found https://github.com/Softwire/HighlightingTextBox/blob/master/HighlightingTextBox/HighlightingTextBox.cs - both added to the ideas list.
 
 8/19/2020
 

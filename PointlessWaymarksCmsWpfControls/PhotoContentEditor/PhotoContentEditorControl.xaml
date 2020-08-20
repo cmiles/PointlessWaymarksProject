@@ -14,6 +14,7 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -91,7 +92,11 @@
                     HorizontalAlignment="Center"
                     Style="{StaticResource ReadOnlyTextBox}"
                     Text="{Binding SelectedFile.FullName, Mode=OneWay}"
-                    TextWrapping="Wrap" />
+                    TextWrapping="Wrap">
+                    <b:Interaction.Behaviors>
+                        <utility:TextBoxDoubleClickLauncher />
+                    </b:Interaction.Behaviors>
+                </TextBox>
                 <WrapPanel
                     Grid.Row="4"
                     Margin="4,0,4,8"

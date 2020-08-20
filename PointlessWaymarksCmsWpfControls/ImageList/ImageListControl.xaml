@@ -86,14 +86,14 @@
             Grid.Row="1"
             Header="Images"
             Style="{StaticResource UiComponentGroupBoxStyle}">
-            <i:Interaction.Behaviors>
-                <utility:ListBoxOneLineMouseWheelScroll />
-            </i:Interaction.Behaviors>
             <ListBox
                 Name="ContentListBox"
                 ItemsSource="{Binding Items}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
+                <i:Interaction.Behaviors>
+                    <utility:ListBoxOneLineMouseWheelScroll />
+                </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:ImageListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
