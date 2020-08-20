@@ -51,6 +51,13 @@
                         IconPathGeometry="{StaticResource IconDataInfo}"
                         IconSize="{StaticResource SmallIconSize}"
                         Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}" />
+                    <utility:IndicatorIcon
+                        VerticalAlignment="Center"
+                        HoverText="{Binding SelectedFileValidationMessage}"
+                        IconBrush="Red"
+                        IconPathGeometry="{StaticResource IconDataError}"
+                        IconSize="{StaticResource SmallIconSize}"
+                        Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
                 </StackPanel>
             </GroupBox.Header>
             <Grid>
@@ -71,11 +78,16 @@
                 <Image
                     Grid.Row="1"
                     Margin="6,0"
-                    Source="{Binding SelectedFileBitmapSource}" />
+                    Source="{Binding SelectedFileBitmapSource}">
+                    <Image.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ViewSelectedFileCommand}"></MouseBinding>
+                    </Image.InputBindings>
+                </Image>
                 <TextBox
                     Grid.Row="2"
                     Margin="4,12,4,12"
                     HorizontalAlignment="Center"
+                    TextDecorations="Underline"
                     Style="{StaticResource ReadOnlyTextBox}"
                     Text="{Binding SelectedFile.FullName, Mode=OneWay}"
                     TextWrapping="Wrap" >

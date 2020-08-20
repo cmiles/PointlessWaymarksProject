@@ -85,11 +85,16 @@
                 <Image
                     Grid.Row="2"
                     Margin="6,0"
-                    Source="{Binding SelectedFileBitmapSource}" />
+                    Source="{Binding SelectedFileBitmapSource}">
+                    <Image.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ViewSelectedFileCommand}"></MouseBinding>
+                    </Image.InputBindings>
+                </Image>
                 <TextBox
                     Grid.Row="3"
                     Margin="4,12,4,12"
                     HorizontalAlignment="Center"
+                    TextDecorations="Underline"
                     Style="{StaticResource ReadOnlyTextBox}"
                     Text="{Binding SelectedFile.FullName, Mode=OneWay}"
                     TextWrapping="Wrap">

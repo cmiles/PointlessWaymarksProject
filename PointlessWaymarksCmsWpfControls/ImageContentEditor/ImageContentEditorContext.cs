@@ -48,6 +48,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private BitmapSource _selectedFileBitmapSource;
         private string _selectedFileFullPath;
         private bool _selectedFileHasPathOrNameChanges;
+        private bool _selectedFileHasValidationIssues;
+        private string _selectedFileValidationMessage;
         private ShowInSearchEditorContext _showInSearch;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private StatusControlContext _statusContext;
@@ -241,6 +243,28 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 if (value == _selectedFileHasPathOrNameChanges) return;
                 _selectedFileHasPathOrNameChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SelectedFileHasValidationIssues
+        {
+            get => _selectedFileHasValidationIssues;
+            set
+            {
+                if (value == _selectedFileHasValidationIssues) return;
+                _selectedFileHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SelectedFileValidationMessage
+        {
+            get => _selectedFileValidationMessage;
+            set
+            {
+                if (value == _selectedFileValidationMessage) return;
+                _selectedFileValidationMessage = value;
                 OnPropertyChanged();
             }
         }
@@ -549,6 +573,13 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             SelectedFileHasPathOrNameChanges =
                 (SelectedFile?.FullName ?? string.Empty) != (_loadedFile?.FullName ?? string.Empty);
+
+            var (isValid, explanation) =
+                await CommonContentValidation.ImageFileValidation(SelectedFile, DbEntry?.ContentId);
+
+            SelectedFileHasValidationIssues = !isValid;
+
+            SelectedFileValidationMessage = explanation;
 
             if (SelectedFile == null)
             {

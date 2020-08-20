@@ -45,8 +45,9 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private Command _saveAndExtractImageFromPdfCommand;
         private Command _saveAndGenerateHtmlCommand;
         private FileInfo _selectedFile;
-        private string _selectedFileFullPath;
         private bool _selectedFileHasPathOrNameChanges;
+        private bool _selectedFileHasValidationIssues;
+        private string _selectedFileValidationMessage;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
@@ -248,6 +249,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
                 SelectedFileHasPathOrNameChanges = (SelectedFile?.FullName ?? string.Empty) !=
                                                    (_loadedFile?.FullName ?? string.Empty);
+
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
             }
         }
 
@@ -258,6 +261,28 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             {
                 if (value == _selectedFileHasPathOrNameChanges) return;
                 _selectedFileHasPathOrNameChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SelectedFileHasValidationIssues
+        {
+            get => _selectedFileHasValidationIssues;
+            set
+            {
+                if (value == _selectedFileHasValidationIssues) return;
+                _selectedFileHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SelectedFileValidationMessage
+        {
+            get => _selectedFileValidationMessage;
+            set
+            {
+                if (value == _selectedFileValidationMessage) return;
+                _selectedFileValidationMessage = value;
                 OnPropertyChanged();
             }
         }
@@ -580,8 +605,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            var saveResult = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), SelectedFile, true, null,
-                StatusContext.ProgressTracker());
+            var saveResult = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), SelectedFile, true,
+                null, StatusContext.ProgressTracker());
 
             if (saveResult.generationReturn.HasError)
             {
@@ -611,6 +636,21 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
 
             await LoadData(newContent);
+        }
+
+        private async Task SelectedFileChanged()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            SelectedFileHasPathOrNameChanges =
+                (SelectedFile?.FullName ?? string.Empty) != (_loadedFile?.FullName ?? string.Empty);
+
+            var (isValid, explanation) =
+                await CommonContentValidation.FileContentFileValidation(SelectedFile, DbEntry?.ContentId);
+
+            SelectedFileHasValidationIssues = !isValid;
+
+            SelectedFileValidationMessage = explanation;
         }
 
         public void SetupStatusContextAndCommands(StatusControlContext statusContext)
