@@ -351,7 +351,7 @@ namespace PointlessWaymarksTests
 
             //Tags
 
-            var tags = await Db.TagAndContentList(true, DebugProgressTracker());
+            var tags = await Db.TagSlugsAndContentList(true, DebugProgressTracker());
 
             var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("*.html").ToList();
 

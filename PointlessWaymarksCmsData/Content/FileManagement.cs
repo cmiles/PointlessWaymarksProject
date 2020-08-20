@@ -300,6 +300,7 @@ namespace PointlessWaymarksCmsData.Content
             await RemoveNoteDirectoriesNotFoundInCurrentDatabase(progress);
             await RemovePostDirectoriesNotFoundInCurrentDatabase(progress);
             await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress);
+            await RemoveTagContentFilesNotInCurrentDatabase(progress);
         }
 
         public static async Task RemoveFileDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
@@ -666,6 +667,24 @@ namespace PointlessWaymarksCmsData.Content
             }
 
             progress?.Report("Ending Post Directory Cleanup");
+        }
+
+        public static async Task RemoveTagContentFilesNotInCurrentDatabase(IProgress<string> progress)
+        {
+            progress?.Report("Starting Directory Cleanup");
+
+            var tags = (await Db.TagSlugsAndContentList(true, progress)).Select(x => x.tag).Distinct().ToList();
+
+            var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("TagList-*.html")
+                .OrderBy(x => x.Name).ToList();
+
+            foreach (var loopFiles in tagFiles)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(loopFiles.Name);
+                var fileTag = fileName.Substring(8, fileName.Length - 8);
+
+                if (!tags.Contains(fileTag)) loopFiles.Delete();
+            }
         }
 
         /// <summary>

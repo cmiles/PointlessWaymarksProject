@@ -1,5 +1,4 @@
 ﻿## Todos
- - FileManagement needs a method to purge old tag files
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
@@ -57,6 +56,8 @@
 Fix a bug in the image list where a behavior was attached to the wrong control.
 
 Created a Behavior to launch folders and links on TextBox double click - this is not perfect because it doesn't include any UI hints, but in other projects I found that for the time it takes to create something like this (very quick!) it is useful for power users since this quickly turns something like a read only textbox with a path into something you can click and see the folder - useful functionality and doesn't get in the way of building better UI later. This will take a little 'living with' to see if any exceptions are needed. I searching for ideas and solutions before doing this I was reminded of  https://github.com/icsharpcode/AvalonEdit and found https://github.com/Softwire/HighlightingTextBox/blob/master/HighlightingTextBox/HighlightingTextBox.cs - both added to the ideas list.
+
+Added a method to delete unused Tag Html on cleanup.
 
 8/19/2020
 

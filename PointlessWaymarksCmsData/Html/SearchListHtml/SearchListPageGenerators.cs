@@ -139,7 +139,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
         public static void WriteTagList(DateTime generationVersion, IProgress<string> progress)
         {
             progress?.Report("Tag Pages - Getting Tag Data For Search");
-            var tags = Db.TagAndContentList(false, progress).Result;
+            var tags = Db.TagSlugsAndContentList(false, progress).Result;
 
             var allTags = new TagListPage {ContentFunction = () => tags, GenerationVersion = generationVersion};
 
@@ -150,7 +150,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
         public static void WriteTagListAndTagPages(DateTime? generationVersion, IProgress<string> progress)
         {
             progress?.Report("Tag Pages - Getting Tag Data For Search");
-            var tags = Db.TagAndContentList(false, progress).Result;
+            var tags = Db.TagSlugsAndContentList(false, progress).Result;
 
             var allTags = new TagListPage {ContentFunction = () => tags, GenerationVersion = generationVersion};
 
@@ -161,7 +161,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             //Tags is reset - above for tag search we don't include tags from pages that are hidden from search - but to
             //ensure all tags have a page we generate pages from all tags (if an image excluded from search had a unique
             //tag we need a page for the links on that page, excluded from search does not mean 'unreachable'...)
-            var pageTags = Db.TagAndContentList(true, progress).Result;
+            var pageTags = Db.TagSlugsAndContentList(true, progress).Result;
 
             var loopCount = 0;
 
