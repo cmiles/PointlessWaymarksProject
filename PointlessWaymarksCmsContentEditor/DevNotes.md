@@ -1,4 +1,5 @@
 ﻿## Todos
+ - Folder as editable Combobox
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
@@ -30,10 +31,10 @@
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
 
 ## Ideas
- - Look at https://github.com/icsharpcode/AvalonEdit for Markdown editor
+ - Look at https://github.com/icsharpcode/AvalonEdit for Markdown editor - maybe look at https://github.com/martinkirsche/AsYouTypeSpellChecker for spell checking
  - Review https://github.com/Softwire/HighlightingTextBox/blob/master/HighlightingTextBox/HighlightingTextBox.cs - is there something useful here?
- - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well - perhaps via Behavour?
- - History Cleanup for Content. Maybe on save - limit to ?last 1000?, it would be great to not grow to infinity but want to save very old entries for seldom editted content and many entries for frequently editted content...
+ - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well - perhaps via Behavior?
+ - History Cleanup for Content. Maybe on save - limit to ?last 1000?, it would be great to not grow to infinity but want to save very old entries for seldom edited content and many entries for frequently edited content...
  - GUI Automation Testing https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/march/test-run-automating-ui-tests-in-wpf-applications and/or ViewModel testing (the ViewModels should be testable without the views - however an interesting issue is that testing the GUI will test both...)
  - Look at deployment options - self contained? msix? automated?
  - Watch https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/ - the source generators look like they could be quite interesting for INPC and HasChanges
@@ -63,7 +64,7 @@ Added a method to delete unused Tag Html on cleanup.
 
 Fixes to the Migrations to get the older dbs up to the current version with Generation Tables.
 
-I recently changed the number of lines scrolled via 'scroll wheel' on my laptop trackpoint - overall this was just a small experiment in getting slightly faster scrolling mainly in the web browser, but it had an unfortunate impact on the the scrolling in listboxes of this app causing the scroll to 'jump' much farther than makes sense (ie there were jumps where the new position didn't have a clear visual relation to the old position) - to deal with this I created a new behaviour that ignores the size of the delta in a mousewheel scroll and just calls line up/line down on the scroll viewer - it is uncomfortable to change what is essentially user setting regarding scrollwheel behavior, but with the 'item' scroll of the listboxes I think this is a better experience.
+I recently changed the number of lines scrolled via 'scroll wheel' on my laptop trackpoint - overall this was just a small experiment in getting slightly faster scrolling mainly in the web browser, but it had an unfortunate impact on the the scrolling in listboxes of this app causing the scroll to 'jump' much farther than makes sense (ie there were jumps where the new position didn't have a clear visual relation to the old position) - to deal with this I created a new behavior that ignores the size of the delta in a mousewheel scroll and just calls line up/line down on the scroll viewer - it is uncomfortable to change what is essentially user setting regarding scrollwheel behavior, but with the 'item' scroll of the listboxes I think this is a better experience.
 
 Did some work trying to move the project to .NET 5 - basically I was stopped with available time because of changes to acessing the Windows namespace:
  - WebView - the older WebView is not compatible with the latest 5 preview because it includes Microsoft.Windows.SDK.Contracts which, at least at present, will break the build ->

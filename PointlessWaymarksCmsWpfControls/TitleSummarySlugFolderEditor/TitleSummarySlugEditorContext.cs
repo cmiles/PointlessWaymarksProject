@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -33,11 +36,27 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         private bool _titleHasValidationIssues;
         private Command _titleToSlugCommand;
         private string _titleValidationMessage;
+        private DirectoryInfo _parentDirectory;
+        private ObservableCollection<string> _existingFolderChoices;
 
-        public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
+        public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry, DirectoryInfo parentDirectory)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+
+            ParentDirectory = parentDirectory;
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
+        }
+
+        public DirectoryInfo ParentDirectory
+        {
+            get => _parentDirectory;
+            set
+            {
+                if (Equals(value, _parentDirectory)) return;
+                _parentDirectory = value;
+                OnPropertyChanged();
+            }
         }
 
         public ITitleSummarySlugFolder DbEntry
@@ -298,6 +317,30 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             Title = DbEntry.Title ?? string.Empty;
             Slug = DbEntry.Slug ?? string.Empty;
             Folder = DbEntry.Folder ?? string.Empty;
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            if (ParentDirectory != null && ParentDirectory.Exists)
+            {
+                var existingSubDirectories = ParentDirectory.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).OrderBy(x => x.Name).Select(x => x.Name);
+
+                ExistingFolderChoices = new ObservableCollection<string>(existingSubDirectories);
+            }
+            else
+            {
+                ExistingFolderChoices = new ObservableCollection<string>();
+            }
+        }
+
+        public ObservableCollection<string> ExistingFolderChoices
+        {
+            get => _existingFolderChoices;
+            set
+            {
+                if (Equals(value, _existingFolderChoices)) return;
+                _existingFolderChoices = value;
+                OnPropertyChanged();
+            }
         }
 
         [NotifyPropertyChangedInvocator]

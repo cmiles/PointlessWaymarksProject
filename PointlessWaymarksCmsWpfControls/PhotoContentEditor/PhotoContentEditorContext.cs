@@ -633,7 +633,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 ShowInMainSiteFeed = false
             };
 
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry, UserSettingsSingleton.CurrentSettings().LocalSitePhotoDirectory());
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
             ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, false);
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);

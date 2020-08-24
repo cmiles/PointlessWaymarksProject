@@ -99,10 +99,11 @@
                     IconSize="{StaticResource SmallIconSize}"
                     Visibility="{Binding FolderHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
             </StackPanel>
-            <TextBox
+            <ComboBox
+                Style="{StaticResource DataEntryComboBoxStyle}"
                 Name="FolderTextBox"
-                SpellCheck.IsEnabled="True"
-                Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                ItemsSource="{Binding ExistingFolderChoices}"
+                IsEditable="True"
                 Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
         <StackPanel Margin="0,4,0,0" Orientation="Vertical">

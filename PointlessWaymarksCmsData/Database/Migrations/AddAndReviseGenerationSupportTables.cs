@@ -4,7 +4,7 @@ using FluentMigrator;
 
 namespace PointlessWaymarksCmsData.Database.Migrations
 {
-    [Migration(202008130653)]
+    [Migration(202008241244)]
     public class AddAndReviseGenerationSupportTables : Migration
     {
         public override void Down()
@@ -60,7 +60,7 @@ CREATE TABLE ""GenerationDailyPhotoLogs"" (
 
             if (!Schema.Table("GenerationChangedContentIds").Exists())
                 Execute.Sql(@"
-CREATE TABLE ""GenerationContentIdReferences"" (""ContentId"" UNIQUEIDENTIFIER NOT NULL, CONSTRAINT ""PK_GenerationContentIdReferences"" PRIMARY KEY (""ContentId""))");
+CREATE TABLE ""GenerationChangedContentIds"" (""ContentId"" UNIQUEIDENTIFIER NOT NULL, CONSTRAINT ""PK_GenerationContentIdReferences"" PRIMARY KEY (""ContentId""))");
         }
     }
 }
