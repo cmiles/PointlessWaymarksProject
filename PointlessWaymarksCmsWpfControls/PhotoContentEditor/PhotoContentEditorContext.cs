@@ -806,22 +806,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 return;
             }
 
-            await using var fileStream = new FileStream(SelectedFile.FullName, FileMode.Open, FileAccess.Read);
-            await using var outStream = new MemoryStream();
-
-            var settings = new ProcessImageSettings {Width = 450, JpegQuality = 72};
-            MagicImageProcessor.ProcessImage(fileStream, outStream, settings);
-
-            outStream.Position = 0;
-
-            var uiImage = new BitmapImage();
-            uiImage.BeginInit();
-            uiImage.CacheOption = BitmapCacheOption.OnLoad;
-            uiImage.StreamSource = outStream;
-            uiImage.EndInit();
-            uiImage.Freeze();
-
-            SelectedFileBitmapSource = uiImage;
+            SelectedFileBitmapSource = await Thumbnails.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
         }
 
         public void SetupContextAndCommands(StatusControlContext statusContext)
