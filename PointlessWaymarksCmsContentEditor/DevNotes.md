@@ -1,16 +1,14 @@
 ﻿## Todos
- - Folder as editable Combobox
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
   - Setup RSS Feed
   - Create Pages
-  - Validation when saving - lat/long, Details (make sure content id is linked correctly to detail)
+  - Details (make sure content id is linked correctly to detail)
+ - Folder should use DB Folder listing rather than actual directories and should listen for changes
  - Integration Testing - Link Saving
  - Integrate Xaml Styler - is the git hook working?
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
- - Email Html
-  - Check formatting - could spacing be better in multiple clients?
  - Gui Validation alerts - Title control, Tags Control, Link Url Done - (Add validation for the 'selected file' in Files/Images)
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - A bad content code should be handled better
@@ -51,6 +49,18 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/25/2020
+
+Work on the Point Control adding the editor, improving validations, more in the html generation.
+
+In points refactored has changes to use the controls and to the control added HasChanges - the controls are tracking changes anyway so this seems appropriate.
+
+8/24/2020
+
+Made a quick attempt to use the AvalonEdit control - this still might be a great option but had an unexpected problem getting started because the control has no bindable Text property. This is for a good reason which is that the most obvious implementation of that would be a performance problem with large files and that is a reasonable target for the AvalonEdit control (apparently the WPF control uses a deferred rendering of 'Text' so that the property is not rebuilt on every change by default). The first place I wanted to try this was the Tags Editor - but after having some problems I also started to doubt that 'intellisense' style completion is really the best solution for hundreds of tags - I suspect I need to just rethink this UI piece a bit (atm leaning towards open textbox like now plus a filtered list where you can find tags).
+
+Folder is converted to an editable combobox - simple and basically works but added some todos as in retrospect my first quick version doesn't get the correct data (I took the directories for the folders listing but should instead have taken the folders from the db for that content type - also should make it respond to edit changes in the choice list...)
 
 8/20/2020
 

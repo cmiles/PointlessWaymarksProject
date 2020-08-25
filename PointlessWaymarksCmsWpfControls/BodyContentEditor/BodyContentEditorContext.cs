@@ -21,9 +21,11 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
     public class BodyContentEditorContext : INotifyPropertyChanged
     {
         private ContentFormatChooserContext _bodyContentFormat;
+        private bool _bodyContentFormatHasChanges;
         private bool _bodyContentHasChanges;
         private string _bodyContentHtmlOutput;
         private IBodyContent _dbEntry;
+        private bool _hasChanges;
         private Command _refreshPreviewCommand;
         private string _selectedBodyText;
         private StatusControlContext _statusContext;
@@ -60,8 +62,6 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 if (Equals(value, _bodyContentFormat)) return;
                 _bodyContentFormat = value;
                 OnPropertyChanged();
-
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(UpdateContentHtml);
             }
         }
 
@@ -94,6 +94,17 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -135,6 +146,13 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private void CheckForChanges()
+        {
+            BodyContentHasChanges = !StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent);
+
+            HasChanges = BodyContentHasChanges || BodyContentFormat.SelectedContentFormatHasChanges;
+        }
+
         public async Task LoadData(IBodyContent toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -165,6 +183,11 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChanges();
         }
 
         private void RemoveLineBreaksFromSelected()

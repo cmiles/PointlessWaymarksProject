@@ -19,6 +19,7 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
     public class UpdateNotesEditorContext : INotifyPropertyChanged
     {
         private IUpdateNotes _dbEntry;
+        private bool _hasChanges;
         private Command _refreshPreviewCommand;
         private ContentFormatChooserContext _updateNotesFormat;
         private bool _updateNotesHasChanges;
@@ -39,6 +40,17 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -106,6 +118,13 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private void CheckForChanges()
+        {
+            UpdateNotesHasChanges = !StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes);
+
+            HasChanges = UpdateNotesHasChanges || UpdateNotesFormat.SelectedContentFormatHasChanges;
+        }
+
         public async Task LoadData(IUpdateNotes toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -133,6 +152,11 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChanges();
         }
 
         public async Task UpdateUpdateNotesContentHtml()

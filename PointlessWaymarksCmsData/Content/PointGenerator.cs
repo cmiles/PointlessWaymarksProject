@@ -51,6 +51,18 @@ namespace PointlessWaymarksCmsData.Content
             if (!commonContentCheck.valid)
                 return await GenerationReturn.Error(commonContentCheck.explanation, postContent.ContentId);
 
+            var latitudeCheck = CommonContentValidation.LatitudeValidation(postContent.Latitude);
+            if (!latitudeCheck.isValid)
+                return await GenerationReturn.Error(latitudeCheck.explanation, postContent.ContentId);
+
+            var longitudeCheck = CommonContentValidation.LatitudeValidation(postContent.Latitude);
+            if (!longitudeCheck.isValid)
+                return await GenerationReturn.Error(longitudeCheck.explanation, postContent.ContentId);
+
+            var elevationCheck = CommonContentValidation.LatitudeValidation(postContent.Latitude);
+            if (!elevationCheck.isValid)
+                return await GenerationReturn.Error(elevationCheck.explanation, postContent.ContentId);
+
             var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(postContent.UpdateNotesFormat);
             if (!updateFormatCheck.isValid)
                 return await GenerationReturn.Error(updateFormatCheck.explanation, postContent.ContentId);

@@ -18,10 +18,13 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
     public class TitleSummarySlugEditorContext : INotifyPropertyChanged
     {
         private ITitleSummarySlugFolder _dbEntry;
+        private ObservableCollection<string> _existingFolderChoices;
         private string _folder = string.Empty;
         private bool _folderHasChanges;
         private bool _folderHasValidationIssues;
         private string _folderValidationMessage;
+        private bool _hasChanges;
+        private DirectoryInfo _parentDirectory;
         private string _slug = string.Empty;
         private bool _slugHasChanges;
         private bool _slugHasValidationIssues;
@@ -36,27 +39,15 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         private bool _titleHasValidationIssues;
         private Command _titleToSlugCommand;
         private string _titleValidationMessage;
-        private DirectoryInfo _parentDirectory;
-        private ObservableCollection<string> _existingFolderChoices;
 
-        public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry, DirectoryInfo parentDirectory)
+        public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry,
+            DirectoryInfo parentDirectory)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             ParentDirectory = parentDirectory;
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
-        }
-
-        public DirectoryInfo ParentDirectory
-        {
-            get => _parentDirectory;
-            set
-            {
-                if (Equals(value, _parentDirectory)) return;
-                _parentDirectory = value;
-                OnPropertyChanged();
-            }
         }
 
         public ITitleSummarySlugFolder DbEntry
@@ -110,6 +101,17 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             {
                 if (value == _folderValidationMessage) return;
                 _folderValidationMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DirectoryInfo ParentDirectory
+        {
+            get => _parentDirectory;
+            set
+            {
+                if (Equals(value, _parentDirectory)) return;
+                _parentDirectory = value;
                 OnPropertyChanged();
             }
         }
@@ -281,10 +283,23 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             FolderHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Folder) != Folder.TrimNullToEmpty();
             // ReSharper restore InvokeAsExtensionMethod
 
+            HasChanges = SummaryHasChanges || TitleHasChanges || SlugHasChanges || FolderHasChanges;
+
             ValidateTitle();
             ValidateSummary();
             ValidateSlug();
             ValidateFolder();
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
         }
 
         public void ValidateSummary()
@@ -322,7 +337,8 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             if (ParentDirectory != null && ParentDirectory.Exists)
             {
-                var existingSubDirectories = ParentDirectory.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).OrderBy(x => x.Name).Select(x => x.Name);
+                var existingSubDirectories = ParentDirectory.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)
+                    .OrderBy(x => x.Name).Select(x => x.Name);
 
                 ExistingFolderChoices = new ObservableCollection<string>(existingSubDirectories);
             }

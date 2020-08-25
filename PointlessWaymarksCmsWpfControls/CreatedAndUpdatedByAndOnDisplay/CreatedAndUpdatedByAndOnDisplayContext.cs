@@ -18,6 +18,7 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
         private bool _createdByHasChanges;
         private DateTime? _createdOn;
         private ICreatedAndLastUpdateOnAndBy _dbEntry;
+        private bool _hasChanges;
         private bool _isNewEntry;
         private bool _showCreatedByEditor;
         private bool _showUpdatedByEditor;
@@ -83,6 +84,17 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -163,6 +175,8 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             CreatedByHasChanges = CreatedBy.TrimNullToEmpty() != StringHelpers.TrimNullToEmpty(DbEntry?.CreatedBy);
             UpdatedHasChanges = UpdatedBy.TrimNullToEmpty() != StringHelpers.TrimNullToEmpty(DbEntry?.LastUpdatedBy);
             // ReSharper restore InvokeAsExtensionMethod
+
+            HasChanges = CreatedByHasChanges || UpdatedHasChanges;
         }
 
         public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)

@@ -1,5 +1,4 @@
-﻿using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsData.Database.Models;
+﻿using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.Html.PostHtml
 {
@@ -13,8 +12,6 @@ namespace PointlessWaymarksCmsData.Html.PostHtml
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.PostPageUrl(DbEntry);
-
-            var db = Db.Context().Result;
         }
 
         public PostContent DbEntry { get; set; }

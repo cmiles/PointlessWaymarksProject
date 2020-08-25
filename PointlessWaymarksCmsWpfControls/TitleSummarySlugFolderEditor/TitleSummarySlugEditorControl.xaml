@@ -100,10 +100,10 @@
                     Visibility="{Binding FolderHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
             </StackPanel>
             <ComboBox
-                Style="{StaticResource DataEntryComboBoxStyle}"
                 Name="FolderTextBox"
-                ItemsSource="{Binding ExistingFolderChoices}"
                 IsEditable="True"
+                ItemsSource="{Binding ExistingFolderChoices}"
+                Style="{StaticResource DataEntryComboBoxStyle}"
                 Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
         <StackPanel Margin="0,4,0,0" Orientation="Vertical">

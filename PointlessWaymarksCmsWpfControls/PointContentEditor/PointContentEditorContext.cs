@@ -8,6 +8,7 @@ using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Spatial;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -19,16 +20,28 @@ using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 
-namespace PointlessWaymarksCmsWpfControls.PostContentEditor
+namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 {
-    public class PostContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
+    public class PointContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private BodyContentEditorContext _bodyContent;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-        private PostContent _dbEntry;
+        private PointContent _dbEntry;
+        private double _elevation;
+        private bool _elevationHasChanges;
+        private bool _elevationHasValidationIssues;
+        private string _elevationValidationMessage;
         private Command _extractNewLinksCommand;
         private HelpDisplayContext _helpContext;
+        private double _latitude;
+        private bool _latitudeHasChanges;
+        private bool _latitudeHasValidationIssues;
+        private string _latitudeValidationMessage;
+        private double _longitude;
+        private bool _longitudeHasChanges;
+        private bool _longitudeHasValidationIssues;
+        private string _longitudeValidationMessage;
         private Command _saveAndGenerateHtmlCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private TagsEditorContext _tagEdit;
@@ -36,7 +49,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
-        public PostContentEditorContext(StatusControlContext statusContext, PostContent postContent)
+        public PointContentEditorContext(StatusControlContext statusContext, PointContent pointContent)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
@@ -49,7 +62,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(postContent));
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(pointContent));
         }
 
         public BodyContentEditorContext BodyContent
@@ -85,13 +98,57 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public PostContent DbEntry
+        public PointContent DbEntry
         {
             get => _dbEntry;
             set
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double Elevation
+        {
+            get => _elevation;
+            set
+            {
+                if (value.Equals(_elevation)) return;
+                _elevation = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ElevationHasChanges
+        {
+            get => _elevationHasChanges;
+            set
+            {
+                if (value == _elevationHasChanges) return;
+                _elevationHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ElevationHasValidationIssues
+        {
+            get => _elevationHasValidationIssues;
+            set
+            {
+                if (value == _elevationHasValidationIssues) return;
+                _elevationHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string ElevationValidationMessage
+        {
+            get => _elevationValidationMessage;
+            set
+            {
+                if (value == _elevationValidationMessage) return;
+                _elevationValidationMessage = value;
                 OnPropertyChanged();
             }
         }
@@ -114,6 +171,94 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 if (Equals(value, _helpContext)) return;
                 _helpContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double Latitude
+        {
+            get => _latitude;
+            set
+            {
+                if (value.Equals(_latitude)) return;
+                _latitude = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool LatitudeHasChanges
+        {
+            get => _latitudeHasChanges;
+            set
+            {
+                if (value == _latitudeHasChanges) return;
+                _latitudeHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool LatitudeHasValidationIssues
+        {
+            get => _latitudeHasValidationIssues;
+            set
+            {
+                if (value == _latitudeHasValidationIssues) return;
+                _latitudeHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string LatitudeValidationMessage
+        {
+            get => _latitudeValidationMessage;
+            set
+            {
+                if (value == _latitudeValidationMessage) return;
+                _latitudeValidationMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double Longitude
+        {
+            get => _longitude;
+            set
+            {
+                if (value.Equals(_longitude)) return;
+                _longitude = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool LongitudeHasChanges
+        {
+            get => _longitudeHasChanges;
+            set
+            {
+                if (value == _longitudeHasChanges) return;
+                _longitudeHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool LongitudeHasValidationIssues
+        {
+            get => _longitudeHasValidationIssues;
+            set
+            {
+                if (value == _longitudeHasValidationIssues) return;
+                _longitudeHasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string LongitudeValidationMessage
+        {
+            get => _longitudeValidationMessage;
+            set
+            {
+                if (value == _longitudeValidationMessage) return;
+                _longitudeValidationMessage = value;
                 OnPropertyChanged();
             }
         }
@@ -188,25 +333,37 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
         public bool HasChanges()
         {
-            return !(StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-                     StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-                     StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
-                     StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
-                         UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
-                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
+            return TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges ||
+                   ShowInSiteFeed.ShowInMainSiteHasChanges || BodyContent.HasChanges || UpdateNotes.HasChanges ||
+                   TagEdit.TagsHaveChanges || LongitudeHasChanges || LatitudeHasChanges || ElevationHasChanges;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private PostContent CurrentStateToPostContent()
+        private void CheckForChangesAndValidate()
         {
-            var newEntry = new PostContent();
+            LatitudeHasChanges = DbEntry?.Latitude.IsApproximatelyEqualTo(Latitude, .000001) ?? true;
+
+            LongitudeHasChanges = DbEntry?.Longitude.IsApproximatelyEqualTo(Longitude, .000001) ?? true;
+
+            ElevationHasChanges = DbEntry?.Elevation.IsApproximatelyEqualTo(Elevation, .000001) ?? true;
+
+            var latitudeValidationResult = CommonContentValidation.LatitudeValidation(Latitude);
+            LatitudeHasValidationIssues = !latitudeValidationResult.isValid;
+            LatitudeValidationMessage = latitudeValidationResult.explanation;
+
+            var longitudeValidationResult = CommonContentValidation.LongitudeValidation(Longitude);
+            LongitudeHasValidationIssues = !longitudeValidationResult.isValid;
+            LongitudeValidationMessage = longitudeValidationResult.explanation;
+
+            var elevationValidationResult = CommonContentValidation.ElevationValidation(Elevation);
+            ElevationHasValidationIssues = !elevationValidationResult.isValid;
+            ElevationValidationMessage = elevationValidationResult.explanation;
+        }
+
+        private PointContent CurrentStateToPointContent()
+        {
+            var newEntry = new PointContent();
 
             if (DbEntry == null || DbEntry.Id < 1)
             {
@@ -233,14 +390,18 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
+            newEntry.Latitude = Latitude;
+            newEntry.Longitude = Longitude;
+            newEntry.Elevation = Elevation;
+
             return newEntry;
         }
 
-        public async Task LoadData(PostContent toLoad)
+        public async Task LoadData(PointContent toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new PostContent
+            DbEntry = toLoad ?? new PointContent
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
@@ -249,7 +410,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             };
 
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry,
-                UserSettingsSingleton.CurrentSettings().LocalSitePostDirectory());
+                UserSettingsSingleton.CurrentSettings().LocalSitePointDirectory());
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
             ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, true);
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
@@ -262,13 +423,18 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidate();
         }
 
         public async Task SaveAndGenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var (generationReturn, newContent) = await PostGenerator.SaveAndGenerateHtml(CurrentStateToPostContent(),
+            var (generationReturn, newContent) = await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContent(),
                 null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
@@ -294,7 +460,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var url = $@"http://{settings.PostPageUrl(DbEntry)}";
+            var url = $@"http://{settings.PointPageUrl(DbEntry)}";
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);

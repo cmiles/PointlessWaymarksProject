@@ -1,0 +1,21 @@
+﻿<Window
+    x:Class="PointlessWaymarksCmsWpfControls.PointContentEditor.PointContentEditorWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.PointContentEditor"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    Title="Point Editor"
+    Width="800"
+    Height="600"
+    d:DataContext="{d:DesignInstance local:PointContentEditorWindow}"
+    mc:Ignorable="d">
+    <Grid>
+        <local:PointContentEditorControl DataContext="{Binding PointContent}" />
+        <status:StatusControl
+            Grid.Column="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+    </Grid>
+</Window>

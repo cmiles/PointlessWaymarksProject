@@ -12,6 +12,19 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class CommonContentValidation
     {
+        public static (bool isValid, string explanation) ElevationValidation(double elevation)
+        {
+            if (elevation > 29029)
+                return (false,
+                    $"Elevations are limited to the elevation of Mount Everest at 29,092 ft above sea level - {elevation} was input...");
+
+            if (elevation < -50000)
+                return (false,
+                    $"This is very unlikely to be a valid elevation, this exceeds the depth of the Mariana Trench and known Extended-Reach Drilling (as of 2020) - elevations under -50,000 are not considered valid - {elevation} was input...");
+
+            return (true, "Elevation is Valid");
+        }
+
         public static async Task<(bool isValid, string explanation)> FileContentFileValidation(FileInfo fileContentFile,
             Guid? currentContentId)
         {
@@ -49,6 +62,22 @@ namespace PointlessWaymarksCmsData.Content
                 return (false, "This filename already exists in the database - image file names must be unique.");
 
             return (true, "File is Valid");
+        }
+
+        public static (bool isValid, string explanation) LatitudeValidation(double latitude)
+        {
+            if (latitude > 90 || latitude < -90)
+                return (false, $"Latitude on Earth must be between -90 and 90 - {latitude} is not valid.");
+
+            return (true, "Latitude is Valid");
+        }
+
+        public static (bool isValid, string explanation) LongitudeValidation(double longitude)
+        {
+            if (longitude > 180 || longitude < -180)
+                return (false, $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid.");
+
+            return (true, "Longitude is Valid");
         }
 
         public static async Task<(bool isValid, string explanation)> PhotoFileValidation(FileInfo photoFile,

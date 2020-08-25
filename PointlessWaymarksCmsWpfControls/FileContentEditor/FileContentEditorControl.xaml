@@ -2,6 +2,7 @@
     x:Class="PointlessWaymarksCmsWpfControls.FileContentEditor.FileContentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
@@ -15,7 +16,6 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
-    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     d:DataContext="{d:DesignInstance local:FileContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -74,9 +74,9 @@
                                         Grid.Row="2"
                                         Margin="6,2,0,8"
                                         Style="{StaticResource ReadOnlyTextBox}"
-                                        TextDecorations="Underline"
                                         Text="{Binding SelectedFile.FullName, Mode=OneWay}"
-                                        TextWrapping="Wrap" >
+                                        TextDecorations="Underline"
+                                        TextWrapping="Wrap">
                                         <b:Interaction.Behaviors>
                                             <utility:TextBoxDoubleClickLauncher />
                                         </b:Interaction.Behaviors>

@@ -1,4 +1,5 @@
-﻿using NetTopologySuite;
+﻿using System;
+using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 
@@ -6,6 +7,13 @@ namespace PointlessWaymarksCmsData.Spatial
 {
     public static class SpatialHelpers
     {
+        public static bool IsApproximatelyEqualTo(this double initialValue, double value,
+            double maximumDifferenceAllowed)
+        {
+            // Handle comparisons of floating point values that may not be exactly the same
+            return (Math.Abs(initialValue - value) < maximumDifferenceAllowed);
+        }
+
         public static GeometryFactory Wgs84GeometryFactory()
         {
             return NtsGeometryServices.Instance.CreateGeometryFactory(new PrecisionModel(), 4326,
