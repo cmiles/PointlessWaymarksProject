@@ -98,6 +98,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             input = BracketCodePhotos.PhotoCodeProcessForEmail(input, progress);
             input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+            input = BracketCodePoints.PointLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
             return input;
@@ -113,6 +114,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input, progress);
             input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+            input = BracketCodePoints.PointLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
             return input;
@@ -128,6 +130,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input, progress);
             input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
+            input = BracketCodePoints.PointLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
             return input;

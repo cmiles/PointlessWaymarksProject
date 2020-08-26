@@ -342,6 +342,8 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
         private void CheckForChangesAndValidate()
         {
+            SpatialHelpers.RoundLatLongElevationToSixPlaces(this);
+
             LatitudeHasChanges = DbEntry?.Latitude.IsApproximatelyEqualTo(Latitude, .000001) ?? true;
 
             LongitudeHasChanges = DbEntry?.Longitude.IsApproximatelyEqualTo(Longitude, .000001) ?? true;

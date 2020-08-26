@@ -27,6 +27,7 @@ using PointlessWaymarksCmsWpfControls.LinkList;
 using PointlessWaymarksCmsWpfControls.MenuLinkEditor;
 using PointlessWaymarksCmsWpfControls.NoteList;
 using PointlessWaymarksCmsWpfControls.PhotoList;
+using PointlessWaymarksCmsWpfControls.PointList;
 using PointlessWaymarksCmsWpfControls.PostList;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
@@ -56,6 +57,7 @@ namespace PointlessWaymarksCmsContentEditor
         private MenuLinkEditorContext _tabMenuLinkContext;
         private NoteListWithActionsContext _tabNoteListContext;
         private PhotoListWithActionsContext _tabPhotoListContext;
+        private PointListWithActionsContext _tabPointListContext;
         private PostListWithActionsContext _tabPostListContext;
         private TagExclusionEditorContext _tabTagExclusionContext;
         private TagListContext _tabTagListContext;
@@ -87,9 +89,8 @@ namespace PointlessWaymarksCmsContentEditor
             RemoveUnusedFoldersAndFilesFromContentCommand =
                 StatusContext.RunBlockingTaskCommand(RemoveUnusedFoldersAndFilesFromContent);
 
-            GenerateIndexCommand =
-                StatusContext.RunBlockingActionCommand(() =>
-                    GenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker()));
+            GenerateIndexCommand = StatusContext.RunBlockingActionCommand(() =>
+                GenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker()));
 
             //All/Forced Regeneration
             GenerateAllHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
@@ -354,6 +355,17 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _tabPhotoListContext)) return;
                 _tabPhotoListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PointListWithActionsContext TabPointListContext
+        {
+            get => _tabPointListContext;
+            set
+            {
+                if (Equals(value, _tabPointListContext)) return;
+                _tabPointListContext = value;
                 OnPropertyChanged();
             }
         }
@@ -623,6 +635,8 @@ namespace PointlessWaymarksCmsContentEditor
 
             if (SelectedTab.Header.ToString() == "Photos" && TabPhotoListContext == null)
                 TabPhotoListContext = new PhotoListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Points" && TabPointListContext == null)
+                TabPointListContext = new PointListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Images" && TabImageListContext == null)
                 TabImageListContext = new ImageListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Files" && TabFileListContext == null)

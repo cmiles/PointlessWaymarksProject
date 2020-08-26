@@ -9,6 +9,7 @@ using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsData.Spatial;
 
 namespace PointlessWaymarksCmsData.Database
 {
@@ -98,6 +99,7 @@ namespace PointlessWaymarksCmsData.Database
         {
             StringHelpers.TrimNullToEmptyAllStringProperties(toProcess);
             DateTimeHelpers.TrimDateTimesToSeconds(toProcess);
+            SpatialHelpers.RoundLatLongElevationToSixPlaces(toProcess);
         }
 
         public static async Task<List<HistoricFileContent>> DeletedFileContent()
@@ -309,6 +311,34 @@ namespace PointlessWaymarksCmsData.Database
             progress?.Report($"{toHistoric.First().Title} Deleted");
 
             await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
+                DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+        }
+
+        public static async Task DeletePointContent(Guid contentId, IProgress<string> progress)
+        {
+            var context = await Context();
+
+            var toHistoric = await context.PointContents.Where(x => x.ContentId == contentId).ToListAsync();
+
+            if (!toHistoric.Any()) return;
+
+            progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricPointContent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                await context.HistoricPointContents.AddAsync(newHistoric);
+                context.PointContents.Remove(loopToHistoric);
+            }
+
+            await context.SaveChangesAsync(true);
+
+            progress?.Report($"{toHistoric.First().Title} Deleted");
+
+            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 

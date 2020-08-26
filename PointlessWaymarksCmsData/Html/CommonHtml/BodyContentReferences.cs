@@ -85,6 +85,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             contentCommonList.AddRange(BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodePoints.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
 
             var transformedList = new List<(DateTime sortDateTime, HtmlTag tagContent)>();
 

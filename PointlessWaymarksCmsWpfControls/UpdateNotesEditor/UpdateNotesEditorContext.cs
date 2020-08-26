@@ -120,7 +120,7 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 
         private void CheckForChanges()
         {
-            UpdateNotesHasChanges = !StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes);
+            UpdateNotesHasChanges = !StringHelpers.AreEqual(StringHelpers.TrimNullToEmpty(DbEntry?.UpdateNotes), UpdateNotes);
 
             HasChanges = UpdateNotesHasChanges || UpdateNotesFormat.SelectedContentFormatHasChanges;
         }

@@ -148,9 +148,9 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
         private void CheckForChanges()
         {
-            BodyContentHasChanges = !StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent);
+            BodyContentHasChanges = !StringHelpers.AreEqual(StringHelpers.TrimNullToEmpty(DbEntry?.BodyContent), BodyContent);
 
-            HasChanges = BodyContentHasChanges || BodyContentFormat.SelectedContentFormatHasChanges;
+            HasChanges = BodyContentHasChanges || (BodyContentFormat?.SelectedContentFormatHasChanges ?? true);
         }
 
         public async Task LoadData(IBodyContent toLoad)
