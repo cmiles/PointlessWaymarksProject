@@ -62,6 +62,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
 
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(pointContent));
         }
 

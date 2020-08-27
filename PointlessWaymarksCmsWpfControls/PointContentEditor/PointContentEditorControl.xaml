@@ -15,6 +15,8 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
+    xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -26,6 +28,7 @@
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -53,7 +56,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <GroupBox Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <GroupBox Header="Location"  Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
                         <StackPanel>
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
@@ -141,6 +144,11 @@
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>
+                    <controls:WebView
+                        x:Name="PointContentWebView"
+                        IsScriptNotifyAllowed="True"
+                        Grid.Row="1"
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Body">

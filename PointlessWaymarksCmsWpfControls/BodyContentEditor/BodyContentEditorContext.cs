@@ -21,7 +21,6 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
     public class BodyContentEditorContext : INotifyPropertyChanged
     {
         private ContentFormatChooserContext _bodyContentFormat;
-        private bool _bodyContentFormatHasChanges;
         private bool _bodyContentHasChanges;
         private string _bodyContentHtmlOutput;
         private IBodyContent _dbEntry;
