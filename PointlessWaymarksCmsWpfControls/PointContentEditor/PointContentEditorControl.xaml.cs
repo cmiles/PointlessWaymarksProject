@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Windows.UI.Xaml.Controls.Maps;
 using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
@@ -19,7 +8,7 @@ using PointlessWaymarksCmsWpfControls.WpfHtml;
 namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 {
     /// <summary>
-    /// Interaction logic for PointContentEditorControl.xaml
+    ///     Interaction logic for PointContentEditorControl.xaml
     /// </summary>
     public partial class PointContentEditorControl : UserControl
     {
@@ -27,13 +16,32 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         {
             InitializeComponent();
 
-            PointContentWebView.ScriptNotify  += PointContentWebViewOnScriptNotify;
+            PointContentWebView.ScriptNotify += PointContentWebViewOnScriptNotify;
             PointContentWebView.NavigateToString(WpfHtmlDocument.ToHtmlLeafletDocument("Point Map", string.Empty));
+        }
+
+        private void PointContentEditorControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is PointContentEditorContext pointContext)
+                RaisePointLatitudeLongitudeChange += pointContext.OnRaisePointLatitudeLongitudeChange;
         }
 
         private void PointContentWebViewOnScriptNotify(object sender, WebViewControlScriptNotifyEventArgs e)
         {
-            Debug.Write(e.Value);
+            var value = e.Value.TrimNullToEmpty();
+
+            if (string.IsNullOrWhiteSpace(value)) return;
+
+            var splitValue = value.Split(";");
+
+            if (splitValue.Length != 2) return;
+
+            if (!double.TryParse(splitValue[0], out var latitude)) return;
+            if (!double.TryParse(splitValue[1], out var longitude)) return;
+
+            RaisePointLatitudeLongitudeChange?.Invoke(this, new PointLatitudeLongitudeChange(latitude, longitude));
         }
+
+        public event EventHandler<PointLatitudeLongitudeChange> RaisePointLatitudeLongitudeChange;
     }
 }

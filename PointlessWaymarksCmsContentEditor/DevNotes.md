@@ -1,5 +1,8 @@
 ﻿## Todos
  - Points:
+  - Get a default starting point set up for ease of marker management on new point
+  - Changes in the text Lat Long need to flow to the map
+  - Initial Lat Long to map
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
   - Setup RSS Feed
@@ -49,6 +52,10 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/27/2020
+
+Intended to use the Toolkit MapControl to take advantage of  the UWP MapControl which I thought might dovetail nicely into the .NET 5 options and possibilities. But after some quick work starting to get it setup I had a mystery error when the control initialized that I couldn't immediately Google or fix. Since I am currently thinking about Leaflet on the front end I quickly changed plans to try to use Leaflet since I already know the WebView works. I setup a method to generate the html and javascript for the 'control' and push it to the page as a string - this plus some scriptnotify work and I was able to put together what seems like it will be a good solution - already map layers are selectable and dragging or double clicking sets the marker position.
 
 8/25/2020
 

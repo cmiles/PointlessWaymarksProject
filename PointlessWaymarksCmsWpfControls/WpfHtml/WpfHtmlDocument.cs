@@ -31,6 +31,35 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             return htmlDoc;
         }
 
+        public static string ToHtmlDocumentWithPureCss(this string body, string title, string styleBlock)
+        {
+            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+            string pureCss;
+            using (var embeddedAsStream = embeddedProvider.GetFileInfo("leaflet-bing-layer.js").CreateReadStream())
+            {
+                var reader = new StreamReader(embeddedAsStream);
+                pureCss = reader.ReadToEnd();
+            }
+
+            var htmlDoc = $@"
+<!doctype html>
+<html lang=en>
+<head>
+    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <meta charset=""utf-8"">
+    <title>{HtmlEncoder.Default.Encode(title)}</title>
+    <style>{pureCss}{styleBlock}</style>
+</head>
+<body>
+    {body}
+</body>
+</html>";
+
+            return htmlDoc;
+        }
+
         public static string ToHtmlLeafletDocument(string title, string styleBlock)
         {
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
@@ -44,12 +73,12 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 
             var layers = new List<(string layerVariableName, string layerName, string layerDeclaration)>();
 
-            layers.Add(("openTopoMap", "OSM Topo", $@"
-        var openTopoMap = L.tileLayer('https://{{s}}.tile.opentopomap.org/{{z}}/{{x}}/{{y}}.png', {{
+            layers.Add(("openTopoMap", "OSM Topo", @"
+        var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
             maxZoom: 17,
             id: 'osmTopo',
             attribution: 'Map data: &copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> contributors, <a href=""http://viewfinderpanoramas.org"">SRTM</a> | Map style: &copy; <a href=""https://opentopomap.org"">OpenTopoMap</a> (<a href=""https://creativecommons.org/licenses/by-sa/3.0/"">CC-BY-SA</a>)'
-        }});"));
+        });"));
 
             if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().CalTopoApiKey))
             {
@@ -62,7 +91,6 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
         }});"));
 
                 if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().CalTopoApiKey))
-                {
                     layers.Add(("calTopoFsLayer", "CalTopo FS", $@"
                  var calTopoFsLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/f16a/{{z}}/{{x}}/{{y}}.png', {{
             attribution: 'CalTopo',
@@ -70,7 +98,6 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             id: 'caltopoF16a',
             accessToken: '{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}'
         }});"));
-                }
             }
 
             if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().BingApiKey))
@@ -128,39 +155,22 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 
         map.on('dblclick', function (e) {{
             console.log(e);
-            window.external.notify(""DoubleClickEvent: "" + e.latlng.lat + "", "" + e.latlng.lng);
+            pointContentMarker.setLatLng(e.latlng);
+            window.external.notify(e.latlng.lat + "";"" + e.latlng.lng);
+
+        }});
+
+        var pointContentMarker = new L.marker([32.287025,-110.920433],{{
+            draggable: true,
+            autoPan: true
+        }}).addTo(map);
+
+        pointContentMarker.on('dragend', function(e) {{
+            console.log(e);
+            window.external.notify(e.target._latlng.lat + "";"" + e.target._latlng.lng);
         }});
 
     </script>
-</body>
-</html>";
-
-            return htmlDoc;
-        }
-
-        public static string ToHtmlDocumentWithPureCss(this string body, string title, string styleBlock)
-        {
-            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
-
-            string pureCss;
-            using (var embeddedAsStream = embeddedProvider.GetFileInfo("leaflet-bing-layer.js").CreateReadStream())
-            {
-                var reader = new StreamReader(embeddedAsStream);
-                pureCss = reader.ReadToEnd();
-            }
-
-            var htmlDoc = $@"
-<!doctype html>
-<html lang=en>
-<head>
-    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <meta charset=""utf-8"">
-    <title>{HtmlEncoder.Default.Encode(title)}</title>
-    <style>{pureCss}{styleBlock}</style>
-</head>
-<body>
-    {body}
 </body>
 </html>";
 

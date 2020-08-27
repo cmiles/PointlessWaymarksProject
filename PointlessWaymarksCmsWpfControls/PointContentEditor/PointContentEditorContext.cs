@@ -433,6 +433,13 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 CheckForChangesAndValidate();
         }
 
+
+        public void OnRaisePointLatitudeLongitudeChange(object sender, PointLatitudeLongitudeChange e)
+        {
+            Latitude = e.Latitude;
+            Longitude = e.Longitude;
+        }
+
         public async Task SaveAndGenerateHtml()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();

@@ -18,6 +18,7 @@
     xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
+    DataContextChanged="PointContentEditorControl_OnDataContextChanged"
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">
