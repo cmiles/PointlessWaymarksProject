@@ -11,7 +11,6 @@ namespace PointlessWaymarksCmsData
         private string _calTopoApiKey = string.Empty;
         private string _databaseFile;
         private string _defaultCreatedBy;
-        private string _googleMapsApiKey = string.Empty;
         private double _latitudeDefault;
         private string _localMediaArchive;
         private string _localSiteRootDirectory;
@@ -65,17 +64,6 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _defaultCreatedBy) return;
                 _defaultCreatedBy = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string GoogleMapsApiKey
-        {
-            get => _googleMapsApiKey;
-            set
-            {
-                if (value == _googleMapsApiKey) return;
-                _googleMapsApiKey = value;
                 OnPropertyChanged();
             }
         }

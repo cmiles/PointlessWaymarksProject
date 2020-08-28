@@ -116,7 +116,6 @@ namespace PointlessWaymarksCmsData.ExcelImport
             };
         }
 
-
         public static async Task<(bool hasError, string errorNotes, dynamic processContent)> ImportContentFromExcelRow(
             ExcelHeaderRow headerInfo, IXLRangeRow toProcess)
         {

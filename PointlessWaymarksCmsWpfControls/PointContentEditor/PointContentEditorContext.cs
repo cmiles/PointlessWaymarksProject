@@ -1,14 +1,17 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Spatial;
+using PointlessWaymarksCmsData.Spatial.Elevation;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -34,6 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         private bool _elevationHasValidationIssues;
         private string _elevationValidationMessage;
         private Command _extractNewLinksCommand;
+        private Command _getElevationCommand;
         private HelpDisplayContext _helpContext;
         private double _latitude;
         private bool _latitudeHasChanges;
@@ -62,7 +66,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
-
+            GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(pointContent));
         }
@@ -162,6 +166,17 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             {
                 if (Equals(value, _extractNewLinksCommand)) return;
                 _extractNewLinksCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command GetElevationCommand
+        {
+            get => _getElevationCommand;
+            set
+            {
+                if (Equals(value, _getElevationCommand)) return;
+                _getElevationCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -342,10 +357,9 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-
         private void CheckForChangesAndValidate(bool latitudeLongitudeHasChanges)
         {
-            SpatialHelpers.RoundLatLongElevationToSixPlaces(this);
+            SpatialHelpers.RoundLatLongElevation(this);
 
             LatitudeHasChanges = DbEntry?.Latitude.IsApproximatelyEqualTo(Latitude, .000001) ?? true;
 
@@ -404,6 +418,63 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             newEntry.Elevation = Elevation;
 
             return newEntry;
+        }
+
+
+        public async Task GetElevation()
+        {
+            if (LatitudeHasValidationIssues || LongitudeHasValidationIssues)
+            {
+                StatusContext.ToastError("Lat Long is not valid");
+                return;
+            }
+
+            var httpClient = new HttpClient();
+
+            try
+            {
+                var elevationResult = await ElevationService.OpenTopoNedElevation(httpClient, Latitude, Longitude);
+
+                if (elevationResult != null)
+                {
+                    Elevation = elevationResult.MetersToFeet();
+
+                    StatusContext.ToastSuccess(
+                        $"Set elevation of {Elevation} from Open Topo Data - www.opentopodata.org - NED dataset");
+
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(),
+                    $"Open Topo Data NED Request for {Latitude}, {Longitude}");
+            }
+
+            try
+            {
+                var elevationResult = await ElevationService.OpenTopoMapZenElevation(httpClient, Latitude, Longitude);
+
+                if (elevationResult == null)
+                {
+                    await EventLogContext.TryWriteDiagnosticMessageToLog(
+                        "Unexpected Null return from an Open Topo Data Mapzen Request to " + $"{Latitude}, {Longitude}",
+                        StatusContext.StatusControlContextId.ToString());
+                    StatusContext.ToastError("Elevation Exception - unexpected Null return...");
+                    return;
+                }
+
+                Elevation = elevationResult.MetersToFeet();
+
+                StatusContext.ToastSuccess(
+                    $"Set elevation of {Elevation} from Open Topo Data - www.opentopodata.org - Mapzen dataset");
+            }
+            catch (Exception e)
+            {
+                await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(),
+                    $"Open Topo Data Mapzen Request for {Latitude}, {Longitude}");
+                StatusContext.ToastError($"Elevation Exception - {e.Message}");
+            }
         }
 
         public async Task LoadData(PointContent toLoad)

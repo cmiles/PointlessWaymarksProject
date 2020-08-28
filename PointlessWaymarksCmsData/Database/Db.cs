@@ -99,7 +99,7 @@ namespace PointlessWaymarksCmsData.Database
         {
             StringHelpers.TrimNullToEmptyAllStringProperties(toProcess);
             DateTimeHelpers.TrimDateTimesToSeconds(toProcess);
-            SpatialHelpers.RoundLatLongElevationToSixPlaces(toProcess);
+            SpatialHelpers.RoundLatLongElevation(toProcess);
         }
 
         public static async Task<List<HistoricFileContent>> DeletedFileContent()

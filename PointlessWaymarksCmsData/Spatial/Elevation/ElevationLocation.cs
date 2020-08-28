@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarksCmsData.Spatial.Elevation
 {
-    public class GoogleLocation
+    public class ElevationLocation
     {
         [JsonPropertyName("lat")] public double Latitude { get; set; }
 

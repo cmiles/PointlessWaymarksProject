@@ -22,7 +22,7 @@ namespace PointlessWaymarksCmsData.Spatial
         /// <typeparam name="T"></typeparam>
         /// <param name="toProcess"></param>
         /// <returns></returns>
-        public static T RoundLatLongElevationToSixPlaces<T>(T toProcess)
+        public static T RoundLatLongElevation<T>(T toProcess)
         {
             var positionPropertyNames = new List<string> {"Latitude", "Longitude", "Elevation"};
 
@@ -35,6 +35,19 @@ namespace PointlessWaymarksCmsData.Spatial
             {
                 var current = (double) loopProperty.GetValue(toProcess);
                 loopProperty.SetValue(toProcess, Math.Round(current, 6));
+            }
+
+            var elevationPropertyNames = new List<string> {"Elevation"};
+
+            var elevationProperties = typeof(T).GetProperties().Where(x =>
+                    x.PropertyType == typeof(double) && x.GetSetMethod() != null &&
+                    elevationPropertyNames.Contains(x.Name))
+                .ToList();
+
+            foreach (var loopProperty in elevationProperties)
+            {
+                var current = (double) loopProperty.GetValue(toProcess);
+                loopProperty.SetValue(toProcess, Math.Round(current, 0));
             }
 
             return toProcess;

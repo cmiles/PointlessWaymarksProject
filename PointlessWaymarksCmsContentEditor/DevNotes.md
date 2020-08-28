@@ -53,9 +53,15 @@
 
 ## Notes
 
+8/28/2020
+
+Elevation work today for Points. In early versions of this program I used the Google Maps Elevation API for elevations - in the past I had found it gave very good results and it is fairly easy to use, but recently when reviewing some information about Google Maps and Leaflet I was clued in to rather restrictive API usage restrictions and, combined with the potential cost of using the API for the key holder, it no longer seemed worth including - both the elevation service calls and setting have been removed. I first tried https://open-elevation.com/ but got timeouts from the service and then found the rather awesome https://github.com/Jorl17/open-elevation and https://www.opentopodata.org/ - this not only offers a (limited) public API but also enough information to host your own version of the service (and, importantly, includes information on how to get the elevation data to power the service!). Because my usage is CONUS focused I currently try the NED data first and then fall back to the Mapzen data.
+
+Elevation is now rounded to no decimal places. 
+
 8/27/2020
 
-Intended to use the Toolkit MapControl to take advantage of  the UWP MapControl which I thought might dovetail nicely into the .NET 5 options and possibilities. But after some quick work starting to get it setup I had a mystery error when the control initialized that I couldn't immediately Google or fix. Since I am currently thinking about Leaflet on the front end I quickly changed plans to try to use Leaflet since I already know the WebView works. I setup a method to generate the html and javascript for the 'control' and push it to the page as a string - this plus some scriptnotify work and I was able to put together what seems like it will be a good solution - already map layers are selectable and dragging or double clicking sets the marker position.
+Intended to use the Toolkit MapControl to take advantage of the UWP MapControl which I thought might dovetail nicely into the .NET 5 options and possibilities. But after some quick work starting to get it setup I had a mystery error when the control initialized that I couldn't immediately Google or fix. Since I am currently thinking about Leaflet on the front end I quickly changed plans to try to use Leaflet since I already know the WebView works. I setup a method to generate the html and javascript for the 'control' and push it to the page as a string - this plus some scriptnotify work and I was able to put together what seems like it will be a good solution - already map layers are selectable and dragging or double clicking sets the marker position.
 
 8/25/2020
 
