@@ -17,13 +17,17 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             InitializeComponent();
 
             PointContentWebView.ScriptNotify += PointContentWebViewOnScriptNotify;
-            PointContentWebView.NavigateToString(WpfHtmlDocument.ToHtmlLeafletDocument("Point Map", string.Empty));
         }
 
         private void PointContentEditorControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue is PointContentEditorContext pointContext)
+            {
+                PointContentWebView.NavigateToString(WpfHtmlDocument.ToHtmlLeafletDocument("Point Map",
+                    pointContext.Latitude, pointContext.Longitude, string.Empty));
                 RaisePointLatitudeLongitudeChange += pointContext.OnRaisePointLatitudeLongitudeChange;
+                pointContext.RaisePointLatitudeLongitudeChange += PointContextOnRaisePointLatitudeLongitudeChange;
+            }
         }
 
         private void PointContentWebViewOnScriptNotify(object sender, WebViewControlScriptNotifyEventArgs e)
@@ -40,6 +44,12 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             if (!double.TryParse(splitValue[1], out var longitude)) return;
 
             RaisePointLatitudeLongitudeChange?.Invoke(this, new PointLatitudeLongitudeChange(latitude, longitude));
+        }
+
+        private void PointContextOnRaisePointLatitudeLongitudeChange(object sender, PointLatitudeLongitudeChange e)
+        {
+            PointContentWebView.InvokeScript("eval",
+                $@"pointContentMarker.setLatLng([{e.Latitude},{e.Longitude}]); map.setView([{e.Latitude},{e.Longitude}], map.getZoom());");
         }
 
         public event EventHandler<PointLatitudeLongitudeChange> RaisePointLatitudeLongitudeChange;

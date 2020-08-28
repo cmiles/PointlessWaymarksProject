@@ -85,7 +85,7 @@
                                     Margin="6,2,0,0"
                                     SpellCheck.IsEnabled="True"
                                     Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                    Text="{Binding Latitude, UpdateSourceTrigger=PropertyChanged}" />
+                                    Text="{Binding Latitude, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
                             </StackPanel>
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
@@ -113,7 +113,7 @@
                                     Margin="6,2,0,0"
                                     SpellCheck.IsEnabled="True"
                                     Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                    Text="{Binding Longitude, UpdateSourceTrigger=PropertyChanged}" />
+                                    Text="{Binding Longitude, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
                             </StackPanel>
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">

@@ -60,7 +60,8 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             return htmlDoc;
         }
 
-        public static string ToHtmlLeafletDocument(string title, string styleBlock)
+        public static string ToHtmlLeafletDocument(string title, double initialLatitude, double initialLongitude,
+            string styleBlock)
         {
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
@@ -141,7 +142,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
         {string.Join($"{Environment.NewLine}", layers.Select(x => x.layerDeclaration))}
 
         var map = L.map('mainMap', {{
-            center: {{ lat: 32.287025, lng: -110.920433 }},
+            center: {{ lat: {initialLatitude}, lng: {initialLongitude} }},
             zoom: 13,
             layers: [{string.Join(", ", layers.Select(x => x.layerVariableName))}],
             doubleClickZoom: false
@@ -160,7 +161,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 
         }});
 
-        var pointContentMarker = new L.marker([32.287025,-110.920433],{{
+        var pointContentMarker = new L.marker([{initialLatitude},{initialLongitude}],{{
             draggable: true,
             autoPan: true
         }}).addTo(map);

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using PointlessWaymarksCmsData.Spatial;
 
 namespace PointlessWaymarksCmsData
 {
@@ -11,8 +12,10 @@ namespace PointlessWaymarksCmsData
         private string _databaseFile;
         private string _defaultCreatedBy;
         private string _googleMapsApiKey = string.Empty;
+        private double _latitudeDefault;
         private string _localMediaArchive;
         private string _localSiteRootDirectory;
+        private double _longitudeDefault;
         private string _pdfToCairoExeDirectory;
         private string _pinboardApiToken;
         private string _siteAuthors;
@@ -77,6 +80,17 @@ namespace PointlessWaymarksCmsData
             }
         }
 
+        public double LatitudeDefault
+        {
+            get => _latitudeDefault;
+            set
+            {
+                if (value.Equals(_latitudeDefault)) return;
+                _latitudeDefault = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string LocalMediaArchive
         {
             get => _localMediaArchive;
@@ -95,6 +109,17 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _localSiteRootDirectory) return;
                 _localSiteRootDirectory = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double LongitudeDefault
+        {
+            get => _longitudeDefault;
+            set
+            {
+                if (value.Equals(_longitudeDefault)) return;
+                _longitudeDefault = value;
                 OnPropertyChanged();
             }
         }

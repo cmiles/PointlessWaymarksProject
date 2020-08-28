@@ -25,6 +25,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
     public class PointContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
     {
         private BodyContentEditorContext _bodyContent;
+        private bool _broadcastLatLongChange = true;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PointContent _dbEntry;
@@ -341,7 +342,8 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void CheckForChangesAndValidate()
+
+        private void CheckForChangesAndValidate(bool latitudeLongitudeHasChanges)
         {
             SpatialHelpers.RoundLatLongElevationToSixPlaces(this);
 
@@ -358,6 +360,10 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             var longitudeValidationResult = CommonContentValidation.LongitudeValidation(Longitude);
             LongitudeHasValidationIssues = !longitudeValidationResult.isValid;
             LongitudeValidationMessage = longitudeValidationResult.explanation;
+
+            if (_broadcastLatLongChange && latitudeLongitudeHasChanges && !LatitudeHasValidationIssues &&
+                !LongitudeHasValidationIssues)
+                RaisePointLatitudeLongitudeChange?.Invoke(this, new PointLatitudeLongitudeChange(Latitude, Longitude));
 
             var elevationValidationResult = CommonContentValidation.ElevationValidation(Elevation);
             ElevationHasValidationIssues = !elevationValidationResult.isValid;
@@ -409,7 +415,9 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-                ShowInMainSiteFeed = true
+                ShowInMainSiteFeed = true,
+                Latitude = UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+                Longitude = UserSettingsSingleton.CurrentSettings().LongitudeDefault
             };
 
             TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry,
@@ -420,6 +428,8 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
             TagEdit = new TagsEditorContext(StatusContext, DbEntry);
             BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
+            Latitude = DbEntry.Latitude;
+            Longitude = DbEntry.Longitude;
         }
 
         [NotifyPropertyChangedInvocator]
@@ -430,15 +440,20 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChangesAndValidate();
+                CheckForChangesAndValidate(propertyName == "Latitude" || propertyName == "Longitude");
         }
-
 
         public void OnRaisePointLatitudeLongitudeChange(object sender, PointLatitudeLongitudeChange e)
         {
+            _broadcastLatLongChange = false;
+
             Latitude = e.Latitude;
             Longitude = e.Longitude;
+
+            _broadcastLatLongChange = true;
         }
+
+        public event EventHandler<PointLatitudeLongitudeChange> RaisePointLatitudeLongitudeChange;
 
         public async Task SaveAndGenerateHtml()
         {
