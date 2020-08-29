@@ -10,7 +10,7 @@ namespace PointlessWaymarksCmsData.Database.Models
         public DateTime ContentVersion { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
-        public double Elevation { get; set; }
+        public double? Elevation { get; set; }
         public string Folder { get; set; }
         public int Id { get; set; }
         public string LastUpdatedBy { get; set; }

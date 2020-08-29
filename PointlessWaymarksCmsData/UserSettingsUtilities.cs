@@ -920,6 +920,8 @@ namespace PointlessWaymarksCmsData
             newSettings.SiteSummary = "A new site.";
             newSettings.SiteAuthors = "Pointless Waymarks CMS";
             newSettings.SiteEmailTo = "nothing@nowhere.com";
+            newSettings.LatitudeDefault = 32.443131;
+            newSettings.LongitudeDefault = -110.788429;
 
             SettingsFileName =
                 Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsSettings-{userFilename}.json");

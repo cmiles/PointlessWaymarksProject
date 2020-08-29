@@ -1,13 +1,12 @@
 ﻿## Todos
  - Points:
-  - Get a default starting point set up for ease of marker management on new point
-  - Changes in the text Lat Long need to flow to the map
-  - Initial Lat Long to map
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
   - Setup RSS Feed
   - Create Pages
   - Details (make sure content id is linked correctly to detail)
+  - Related Content
+  - Map in Front End
  - Folder should use DB Folder listing rather than actual directories and should listen for changes
  - Integration Testing - Link Saving
  - Integrate Xaml Styler - is the git hook working?
@@ -52,6 +51,10 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/29/2020
+
+Changed the Elevation field to double? - really do need 'unknown' for this value. Added quick progress messages to the elevation service, corrected change detection in the Point Editor.
 
 8/28/2020
 

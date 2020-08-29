@@ -12,8 +12,10 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class CommonContentValidation
     {
-        public static (bool isValid, string explanation) ElevationValidation(double elevation)
+        public static (bool isValid, string explanation) ElevationValidation(double? elevation)
         {
+            if (elevation == null) return (true, "Null Elevation is Valid");
+
             if (elevation > 29029)
                 return (false,
                     $"Elevations are limited to the elevation of Mount Everest at 29,092 ft above sea level - {elevation} was input...");

@@ -32,7 +32,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PointContent _dbEntry;
-        private double _elevation;
+        private double? _elevation;
         private bool _elevationHasChanges;
         private bool _elevationHasValidationIssues;
         private string _elevationValidationMessage;
@@ -115,7 +115,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        public double Elevation
+        public double? Elevation
         {
             get => _elevation;
             set
@@ -361,11 +361,17 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         {
             SpatialHelpers.RoundLatLongElevation(this);
 
-            LatitudeHasChanges = DbEntry?.Latitude.IsApproximatelyEqualTo(Latitude, .000001) ?? true;
+            LatitudeHasChanges = !DbEntry?.Latitude.IsApproximatelyEqualTo(Latitude, .000001) ?? true;
 
-            LongitudeHasChanges = DbEntry?.Longitude.IsApproximatelyEqualTo(Longitude, .000001) ?? true;
+            LongitudeHasChanges = !DbEntry?.Longitude.IsApproximatelyEqualTo(Longitude, .000001) ?? true;
 
-            ElevationHasChanges = DbEntry?.Elevation.IsApproximatelyEqualTo(Elevation, .000001) ?? true;
+            if (DbEntry?.Elevation == null && Elevation == null) ElevationHasChanges = false;
+            else if (DbEntry?.Elevation != null && Elevation == null) ElevationHasChanges = true;
+            else if (DbEntry?.Elevation == null && Elevation != null) ElevationHasChanges = true;
+            // ReSharper disable once PossibleInvalidOperationException - I believe this is covered in the cases above
+            else
+                ElevationHasChanges =
+                    !DbEntry?.Elevation.Value.IsApproximatelyEqualTo(Elevation.Value, .000001) ?? true;
 
             var latitudeValidationResult = CommonContentValidation.LatitudeValidation(Latitude);
             LatitudeHasValidationIssues = !latitudeValidationResult.isValid;
@@ -433,14 +439,15 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
             try
             {
-                var elevationResult = await ElevationService.OpenTopoNedElevation(httpClient, Latitude, Longitude);
+                var elevationResult = await ElevationService.OpenTopoNedElevation(httpClient, Latitude, Longitude,
+                    StatusContext.ProgressTracker());
 
                 if (elevationResult != null)
                 {
                     Elevation = elevationResult.MetersToFeet();
 
                     StatusContext.ToastSuccess(
-                        $"Set elevation of {Elevation} from Open Topo Data - www.opentopodata.org - NED dataset");
+                        $"Set elevation of {Elevation} from Open Topo Data - www.opentopodata.org - NED data set");
 
                     return;
                 }
@@ -453,7 +460,8 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
             try
             {
-                var elevationResult = await ElevationService.OpenTopoMapZenElevation(httpClient, Latitude, Longitude);
+                var elevationResult = await ElevationService.OpenTopoMapZenElevation(httpClient, Latitude, Longitude,
+                    StatusContext.ProgressTracker());
 
                 if (elevationResult == null)
                 {
@@ -467,7 +475,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 Elevation = elevationResult.MetersToFeet();
 
                 StatusContext.ToastSuccess(
-                    $"Set elevation of {Elevation} from Open Topo Data - www.opentopodata.org - Mapzen dataset");
+                    $"Set elevation of {Elevation} from Open Topo Data - www.opentopodata.org - Mapzen data set");
             }
             catch (Exception e)
             {
@@ -501,6 +509,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
             Latitude = DbEntry.Latitude;
             Longitude = DbEntry.Longitude;
+            Elevation = DbEntry.Elevation;
         }
 
         [NotifyPropertyChangedInvocator]

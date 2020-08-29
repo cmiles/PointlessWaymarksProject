@@ -40,14 +40,14 @@ namespace PointlessWaymarksCmsData.Spatial
             var elevationPropertyNames = new List<string> {"Elevation"};
 
             var elevationProperties = typeof(T).GetProperties().Where(x =>
-                    x.PropertyType == typeof(double) && x.GetSetMethod() != null &&
-                    elevationPropertyNames.Contains(x.Name))
-                .ToList();
+                x.PropertyType == typeof(double?) && x.GetSetMethod() != null &&
+                elevationPropertyNames.Contains(x.Name)).ToList();
 
             foreach (var loopProperty in elevationProperties)
             {
-                var current = (double) loopProperty.GetValue(toProcess);
-                loopProperty.SetValue(toProcess, Math.Round(current, 0));
+                var current = (double?) loopProperty.GetValue(toProcess);
+                if (current == null) continue;
+                loopProperty.SetValue(toProcess, Math.Round(current.Value, 0));
             }
 
             return toProcess;
