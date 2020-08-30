@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using pinboard.net.Models;
+using PointlessWaymarksCmsData.Database.Models;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsData
@@ -12,6 +14,23 @@ namespace PointlessWaymarksCmsData
         public static TinyMessageBus DataNotificationChannel()
         {
             return new TinyMessageBus("PointlessWaymarksDataNotificationChannel");
+        }
+
+        public static DataNotificationContentType NotificationContentTypeFromContent(dynamic content)
+        {
+            switch (content)
+            {
+                case FileContent _: return DataNotificationContentType.File;
+                case ImageContent _: return DataNotificationContentType.Image;
+                case LinkContent _: return DataNotificationContentType.Link;
+                case Note _: return DataNotificationContentType.Note;
+                case PhotoContent _: return DataNotificationContentType.Photo;
+                case PointContent _: return DataNotificationContentType.Point;
+                case PointDetail _: return DataNotificationContentType.PointDetail;
+                case PostContent _: return DataNotificationContentType.Post;
+                default:
+                    return DataNotificationContentType.Unknown;
+            }
         }
 
         public static async Task PublishDataNotification(string sender, DataNotificationContentType contentType,
@@ -66,12 +85,10 @@ namespace PointlessWaymarksCmsData
     public class InterProcessDataNotification
     {
         public List<Guid> ContentIds { get; set; }
-
         public DataNotificationContentType ContentType { get; set; }
         public string ErrorNote { get; set; }
         public bool HasError { get; set; }
         public string Sender { get; set; }
-
         public DataNotificationUpdateType UpdateType { get; set; }
     }
 
@@ -85,13 +102,14 @@ namespace PointlessWaymarksCmsData
 
     public enum DataNotificationContentType
     {
-        Photo,
         File,
-        Post,
         Image,
-        Note,
         Link,
+        Note,
+        Photo,
         Point,
-        PointDetail
+        PointDetail,
+        Post,
+        Unknown
     }
 }

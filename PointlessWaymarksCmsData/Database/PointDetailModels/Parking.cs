@@ -2,12 +2,9 @@
 {
     public class Parking
     {
-        public const string DataTypeIdentifier = "Parking";
-
-        public class Parking01
-        {
-            public string Notes { get; set; }
-            public string Version { get; } = "1";
-        }
+        public const string DataTypeIdentifier = "Trail Junction";
+        public string NotesContentFormat { get; set; }
+        public string Notes { get; set; }
+        public bool Fee { get; set; }
     }
 }

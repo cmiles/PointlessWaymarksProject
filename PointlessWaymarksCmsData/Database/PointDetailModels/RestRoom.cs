@@ -4,10 +4,9 @@ using System.Text;
 
 namespace PointlessWaymarksCmsData.Database.PointDetailModels
 {
-    public class TrailJunction
+    public class RestRoom
     {
-        public const string DataTypeIdentifier = "TrailJunction";
-        public bool Sign { get; set; }
+        public const string DataTypeIdentifier = "Rest Room";
         public string NotesContentFormat { get; set; }
         public string Notes { get; set; }
     }

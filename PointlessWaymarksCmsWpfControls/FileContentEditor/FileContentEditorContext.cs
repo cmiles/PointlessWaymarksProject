@@ -490,7 +490,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 PublicDownloadLink = true
             };
 
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry, UserSettingsSingleton.CurrentSettings().LocalSiteFileDirectory());
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
             ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, false);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);

@@ -102,6 +102,29 @@ namespace PointlessWaymarksCmsData.Database
             SpatialHelpers.RoundLatLongElevation(toProcess);
         }
 
+        public static async Task<List<string>> FolderNamesFromContent(dynamic content)
+        {
+            var db = await Db.Context();
+
+            switch (content)
+            {
+                case FileContent _:
+                    return db.FileContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case ImageContent _:
+                    return db.ImageContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case NoteContent _:
+                    return db.NoteContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case PhotoContent _:
+                    return db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case PointContent _:
+                    return db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case PostContent _:
+                    return db.PostContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                default:
+                    return new List<string>();
+            }
+        }
+
         public static async Task<List<HistoricFileContent>> DeletedFileContent()
         {
             var db = await Context();

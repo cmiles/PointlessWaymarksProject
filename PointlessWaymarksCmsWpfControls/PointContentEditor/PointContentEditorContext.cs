@@ -351,7 +351,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         public bool HasChanges()
         {
             return TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges ||
-                   ShowInSiteFeed.ShowInMainSiteHasChanges || BodyContent.HasChanges || UpdateNotes.HasChanges ||
+                   ShowInSiteFeed.HasChanges || BodyContent.HasChanges || UpdateNotes.HasChanges ||
                    TagEdit.TagsHaveChanges || LongitudeHasChanges || LatitudeHasChanges || ElevationHasChanges;
         }
 
@@ -499,8 +499,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 Longitude = UserSettingsSingleton.CurrentSettings().LongitudeDefault
             };
 
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry,
-                UserSettingsSingleton.CurrentSettings().LocalSitePointDirectory());
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
             ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, true);
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);

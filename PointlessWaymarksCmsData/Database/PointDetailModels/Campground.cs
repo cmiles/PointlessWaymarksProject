@@ -3,11 +3,8 @@
     public class Campground
     {
         public const string DataTypeIdentifier = "Campground";
-
-        public class Campground01
-        {
-            public string Notes { get; set; }
-            public string Version { get; } = "1";
-        }
+        public string NotesContentFormat { get; set; }
+        public string Notes { get; set; }
+        public bool Fee { get; set; }
     }
 }

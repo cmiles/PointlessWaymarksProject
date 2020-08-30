@@ -34,7 +34,7 @@
                 IconBrush="Black"
                 IconPathGeometry="{StaticResource IconDataInfo}"
                 IconSize="{StaticResource SmallIconSize}"
-                Visibility="{Binding ShowInMainSiteHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}" />
         </StackPanel>
     </Grid>
 </UserControl>

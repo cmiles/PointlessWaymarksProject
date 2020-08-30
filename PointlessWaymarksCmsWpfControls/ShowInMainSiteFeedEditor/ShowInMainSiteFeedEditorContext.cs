@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
         private IShowInSiteFeed _dbEntry;
         private readonly bool _defaultSetting;
         private bool _showInMainSite;
-        private bool _showInMainSiteHasChanges;
+        private bool _hasChanges;
         private StatusControlContext _statusContext;
 
         public ShowInMainSiteFeedEditorContext(StatusControlContext statusContext, IShowInSiteFeed dbEntry,
@@ -47,13 +47,13 @@ namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
             }
         }
 
-        public bool ShowInMainSiteHasChanges
+        public bool HasChanges
         {
-            get => _showInMainSiteHasChanges;
+            get => _hasChanges;
             set
             {
-                if (value == _showInMainSiteHasChanges) return;
-                _showInMainSiteHasChanges = value;
+                if (value == _hasChanges) return;
+                _hasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -73,7 +73,7 @@ namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
 
         private void CheckForChanges()
         {
-            ShowInMainSiteHasChanges = ShowInMainSite != (DbEntry?.ShowInMainSiteFeed ?? false);
+            HasChanges = ShowInMainSite != (DbEntry?.ShowInMainSiteFeed ?? false);
         }
 
         private async Task LoadData(IShowInSiteFeed toLoad)

@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -8,15 +7,19 @@ using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 {
     public class TitleSummarySlugEditorContext : INotifyPropertyChanged
     {
+        private DataNotificationsWorkQueue _dataNotificationsProcessor;
+        private DataNotificationContentType _dataNotificationType;
         private ITitleSummarySlugFolder _dbEntry;
         private ObservableCollection<string> _existingFolderChoices;
         private string _folder = string.Empty;
@@ -24,7 +27,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         private bool _folderHasValidationIssues;
         private string _folderValidationMessage;
         private bool _hasChanges;
-        private DirectoryInfo _parentDirectory;
         private string _slug = string.Empty;
         private bool _slugHasChanges;
         private bool _slugHasValidationIssues;
@@ -40,14 +42,24 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         private Command _titleToSlugCommand;
         private string _titleValidationMessage;
 
-        public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry,
-            DirectoryInfo parentDirectory)
+        public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            ParentDirectory = parentDirectory;
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
+        }
+
+        public DataNotificationsWorkQueue DataNotificationsProcessor
+        {
+            get => _dataNotificationsProcessor;
+            set
+            {
+                if (Equals(value, _dataNotificationsProcessor)) return;
+                _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
         }
 
         public ITitleSummarySlugFolder DbEntry
@@ -101,17 +113,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             {
                 if (value == _folderValidationMessage) return;
                 _folderValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DirectoryInfo ParentDirectory
-        {
-            get => _parentDirectory;
-            set
-            {
-                if (Equals(value, _parentDirectory)) return;
-                _parentDirectory = value;
                 OnPropertyChanged();
             }
         }
@@ -291,6 +292,40 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             ValidateFolder();
         }
 
+        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
+        {
+            var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+
+            if (translatedMessage.HasError)
+            {
+                await EventLogContext.TryWriteDiagnosticMessageToLog(
+                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
+                    StatusContext.StatusControlContextId.ToString());
+                return;
+            }
+
+            if (translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent ||
+                translatedMessage.ContentType != _dataNotificationType) return;
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var currentDbFolders = await Db.FolderNamesFromContent(DbEntry);
+
+            var newFolderNames = ExistingFolderChoices.Except(currentDbFolders).ToList();
+
+            if (newFolderNames.Any())
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                ExistingFolderChoices.Clear();
+                currentDbFolders.ForEach(x => ExistingFolderChoices.Add(x));
+            }
+        }
+
+        private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+        {
+            DataNotificationsProcessor.Enqueue(e);
+        }
+
         public bool HasChanges
         {
             get => _hasChanges;
@@ -314,6 +349,8 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
             TitleToSlugCommand = StatusContext.RunBlockingActionCommand(TitleToSlug);
 
             DbEntry = dbEntry;
@@ -335,17 +372,10 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            if (ParentDirectory != null && ParentDirectory.Exists)
-            {
-                var existingSubDirectories = ParentDirectory.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)
-                    .OrderBy(x => x.Name).Select(x => x.Name);
+            ExistingFolderChoices = new ObservableCollection<string>(await Db.FolderNamesFromContent(DbEntry));
+            _dataNotificationType = DataNotifications.NotificationContentTypeFromContent(DbEntry);
 
-                ExistingFolderChoices = new ObservableCollection<string>(existingSubDirectories);
-            }
-            else
-            {
-                ExistingFolderChoices = new ObservableCollection<string>();
-            }
+            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         public ObservableCollection<string> ExistingFolderChoices

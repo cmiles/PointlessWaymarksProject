@@ -7,7 +7,6 @@
   - Details (make sure content id is linked correctly to detail)
   - Related Content
   - Map in Front End
- - Folder should use DB Folder listing rather than actual directories and should listen for changes
  - Integration Testing - Link Saving
  - Integrate Xaml Styler - is the git hook working?
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
@@ -51,6 +50,12 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/30/2020
+
+The first implementation of the Folders ComboBox looked at the file system for existing folder but should have looked in the db... Changed over to querying the db and integrated DataNotifications so if you save a new folder in an open editor it becomes a choice in other open editors.
+
+Start work on the Point Details.
 
 8/29/2020
 

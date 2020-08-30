@@ -188,18 +188,8 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
         public bool HasChanges()
         {
-            return !(StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-                     StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-                     StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
-                     StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
-                         UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
-                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
+            return TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges || UpdateNotes.HasChanges ||
+                   BodyContent.HasChanges || TagEdit.TagsHaveChanges || ShowInSiteFeed.HasChanges;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -248,8 +238,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 ShowInMainSiteFeed = true
             };
 
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry,
-                UserSettingsSingleton.CurrentSettings().LocalSitePostDirectory());
+            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
             ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, true);
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
