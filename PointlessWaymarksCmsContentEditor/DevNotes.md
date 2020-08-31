@@ -1,5 +1,9 @@
 ﻿## Todos
  - Updated by is triggering un-needed changes when closing without saving warnings
+ - Use the new String Entry control in Image
+ - Look at Bindings for Height, Lines and Wordwrap so the String Entry could be used in a few more places
+ - Int Entry Control
+ - DateTime Entry Control
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
@@ -49,7 +53,7 @@
 
 ## Projects to Review
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
-
+ 
 ## Notes
 
 8/31/2020

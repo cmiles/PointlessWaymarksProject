@@ -1,0 +1,49 @@
+﻿<UserControl
+    x:Class="PointlessWaymarksCmsWpfControls.StringDataEntry.StringDataEntryControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.StringDataEntry"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    d:DataContext="{d:DesignInstance local:StringDataEntryContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Horizontal">
+            <Label
+                Content="{Binding Title}"
+                Style="{StaticResource DataEntryLabelStyle}"
+                Target="{Binding ElementName=ValueTextBox}"
+                ToolTip="{Binding HelpText}" />
+            <utility:IndicatorIcon
+                VerticalAlignment="Center"
+                HoverText="{Binding ReferenceValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
+                IconBrush="Black"
+                IconPathGeometry="{StaticResource IconDataInfo}"
+                IconSize="{StaticResource SmallIconSize}"
+                Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}" />
+            <utility:IndicatorIcon
+                VerticalAlignment="Center"
+                HoverText="{Binding ValidationMessage}"
+                IconBrush="Red"
+                IconPathGeometry="{StaticResource IconDataError}"
+                IconSize="{StaticResource SmallIconSize}"
+                Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
+        </StackPanel>
+        <TextBox
+            Name="ValueTextBox"
+            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+            Text="{Binding UserValue, UpdateSourceTrigger=PropertyChanged}" />
+    </StackPanel>
+</UserControl>

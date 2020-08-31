@@ -19,6 +19,7 @@ using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
@@ -28,24 +29,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
     public class PhotoContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
-        private string _altText;
-        private string _aperture;
+        private StringDataEntryContext _altTextEntry;
+        private StringDataEntryContext _apertureEntry;
         private BodyContentEditorContext _bodyContent;
-        private string _cameraMake;
-        private string _cameraModel;
+        private StringDataEntryContext _cameraMakeEntry;
+        private StringDataEntryContext _cameraModelEntry;
         private Command _chooseFileAndFillMetadataCommand;
         private Command _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PhotoContent _dbEntry;
         private Command _extractNewLinksCommand;
-        private string _focalLength;
+        private StringDataEntryContext _focalLengthEntry;
         private FileInfo _initialPhoto;
         private int? _iso;
-        private string _lens;
-        private string _license;
+        private StringDataEntryContext _lensEntry;
+        private StringDataEntryContext _licenseEntry;
         private FileInfo _loadedFile;
-        private string _photoCreatedBy;
+        private StringDataEntryContext _photoCreatedByEntry;
         private DateTime _photoCreatedOn;
         private Command _renameSelectedFileCommand;
         private Command _rotatePhotoLeftCommand;
@@ -59,7 +60,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private bool _selectedFileHasValidationIssues;
         private string _selectedFileValidationMessage;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
-        private string _shutterSpeed;
+        private StringDataEntryContext _shutterSpeedEntry;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -95,24 +96,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
         }
 
-        public string AltText
+        public StringDataEntryContext AltTextEntry
         {
-            get => _altText;
+            get => _altTextEntry;
             set
             {
-                if (value == _altText) return;
-                _altText = value;
+                if (Equals(value, _altTextEntry)) return;
+                _altTextEntry = value;
                 OnPropertyChanged();
             }
         }
 
-        public string Aperture
+        public StringDataEntryContext ApertureEntry
         {
-            get => _aperture;
+            get => _apertureEntry;
             set
             {
-                if (value == _aperture) return;
-                _aperture = value;
+                if (Equals(value, _apertureEntry)) return;
+                _apertureEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -128,24 +129,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public string CameraMake
+        public StringDataEntryContext CameraMakeEntry
         {
-            get => _cameraMake;
+            get => _cameraMakeEntry;
             set
             {
-                if (value == _cameraMake) return;
-                _cameraMake = value;
+                if (Equals(value, _cameraMakeEntry)) return;
+                _cameraMakeEntry = value;
                 OnPropertyChanged();
             }
         }
 
-        public string CameraModel
+        public StringDataEntryContext CameraModelEntry
         {
-            get => _cameraModel;
+            get => _cameraModelEntry;
             set
             {
-                if (value == _cameraModel) return;
-                _cameraModel = value;
+                if (Equals(value, _cameraModelEntry)) return;
+                _cameraModelEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -216,40 +217,20 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public string FocalLength
+        public StringDataEntryContext FocalLengthEntry
         {
-            get => _focalLength;
+            get => _focalLengthEntry;
             set
             {
-                if (value == _focalLength) return;
-                _focalLength = value;
+                if (Equals(value, _focalLengthEntry)) return;
+                _focalLengthEntry = value;
                 OnPropertyChanged();
             }
         }
 
         public bool HasChanges =>
-            !(StringHelpers.AreEqual(DbEntry.Aperture, Aperture) &&
-              StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-              StringHelpers.AreEqual(DbEntry.Lens, Lens) && StringHelpers.AreEqual(DbEntry.License, License) &&
-              StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-              StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
-              StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-              StringHelpers.AreEqual(DbEntry.AltText, AltText) &&
-              StringHelpers.AreEqual(DbEntry.CameraMake, CameraMake) &&
-              StringHelpers.AreEqual(DbEntry.CameraModel, CameraModel) &&
-              StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-              StringHelpers.AreEqual(DbEntry.FocalLength, FocalLength) &&
-              StringHelpers.AreEqual(DbEntry.ShutterSpeed, ShutterSpeed) &&
-              StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-              StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
-                  UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-              StringHelpers.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
-              StringHelpers.AreEqual(DbEntry.PhotoCreatedBy, PhotoCreatedBy) && DbEntry.Iso == Iso &&
-              DbEntry.PhotoCreatedOn == PhotoCreatedOn &&
-              StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-              StringHelpers.AreEqual(DbEntry.BodyContentFormat,
-                  BodyContent.BodyContentFormat.SelectedContentFormatAsString) &&
-              DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSiteFeed && !TagEdit.TagsHaveChanges);
+            HasChangesScan.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
+            DbEntry.PhotoCreatedOn != PhotoCreatedOn || DbEntry.Iso != Iso;
 
         public int? Iso
         {
@@ -262,35 +243,35 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public string Lens
+        public StringDataEntryContext LensEntry
         {
-            get => _lens;
+            get => _lensEntry;
             set
             {
-                if (value == _lens) return;
-                _lens = value;
+                if (Equals(value, _lensEntry)) return;
+                _lensEntry = value;
                 OnPropertyChanged();
             }
         }
 
-        public string License
+        public StringDataEntryContext LicenseEntry
         {
-            get => _license;
+            get => _licenseEntry;
             set
             {
-                if (value == _license) return;
-                _license = value;
+                if (Equals(value, _licenseEntry)) return;
+                _licenseEntry = value;
                 OnPropertyChanged();
             }
         }
 
-        public string PhotoCreatedBy
+        public StringDataEntryContext PhotoCreatedByEntry
         {
-            get => _photoCreatedBy;
+            get => _photoCreatedByEntry;
             set
             {
-                if (value == _photoCreatedBy) return;
-                _photoCreatedBy = value;
+                if (Equals(value, _photoCreatedByEntry)) return;
+                _photoCreatedByEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -440,13 +421,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public string ShutterSpeed
+        public StringDataEntryContext ShutterSpeedEntry
         {
-            get => _shutterSpeed;
+            get => _shutterSpeedEntry;
             set
             {
-                if (value == _shutterSpeed) return;
-                _shutterSpeed = value;
+                if (Equals(value, _shutterSpeedEntry)) return;
+                _shutterSpeedEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -593,26 +574,26 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
 
             newEntry.MainPicture = newEntry.ContentId;
-            newEntry.Aperture = Aperture.TrimNullToEmpty();
+            newEntry.Aperture = ApertureEntry.UserValue.TrimNullToEmpty();
             newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
             newEntry.Iso = Iso;
-            newEntry.Lens = Lens.TrimNullToEmpty();
-            newEntry.License = License.TrimNullToEmpty();
+            newEntry.Lens = LensEntry.UserValue.TrimNullToEmpty();
+            newEntry.License = LicenseEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.Slug.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.Summary.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title.TrimNullToEmpty();
-            newEntry.AltText = AltText.TrimNullToEmpty();
-            newEntry.CameraMake = CameraMake.TrimNullToEmpty();
-            newEntry.CameraModel = CameraModel.TrimNullToEmpty();
+            newEntry.AltText = AltTextEntry.UserValue.TrimNullToEmpty();
+            newEntry.CameraMake = CameraMakeEntry.UserValue.TrimNullToEmpty();
+            newEntry.CameraModel = CameraModelEntry.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
-            newEntry.FocalLength = FocalLength.TrimNullToEmpty();
-            newEntry.ShutterSpeed = ShutterSpeed.TrimNullToEmpty();
+            newEntry.FocalLength = FocalLengthEntry.UserValue.TrimNullToEmpty();
+            newEntry.ShutterSpeed = ShutterSpeedEntry.UserValue.TrimNullToEmpty();
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
-            newEntry.PhotoCreatedBy = PhotoCreatedBy.TrimNullToEmpty();
+            newEntry.PhotoCreatedBy = PhotoCreatedByEntry.UserValue.TrimNullToEmpty();
             newEntry.PhotoCreatedOn = PhotoCreatedOn;
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
@@ -664,16 +645,81 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 }
             }
 
-            Aperture = DbEntry.Aperture ?? string.Empty;
+            ApertureEntry = new StringDataEntryContext
+            {
+                Title = "Aperture",
+                HelpText =
+                    "Ratio of the lens focal length to the diameter of the entrance pupil - usually entered in a format like f/8.0",
+                ReferenceValue = DbEntry.Aperture ?? string.Empty,
+                UserValue = DbEntry.Aperture ?? string.Empty
+            };
+
+            LensEntry = new StringDataEntryContext
+            {
+                Title = "Lens",
+                HelpText = "Description and/or identifier for the lens the photograph was taken with.",
+                ReferenceValue = DbEntry.Lens ?? string.Empty,
+                UserValue = DbEntry.Lens ?? string.Empty
+            };
+
+            LicenseEntry = new StringDataEntryContext
+            {
+                Title = "License",
+                HelpText = "The Photo's License",
+                ReferenceValue = DbEntry.License ?? string.Empty,
+                UserValue = DbEntry.License ?? string.Empty
+            };
+
+            AltTextEntry = new StringDataEntryContext
+            {
+                Title = "Alt Text",
+                HelpText = "A description for the photo, sometimes just the summary will be sufficient...",
+                ReferenceValue = DbEntry.AltText ?? string.Empty,
+                UserValue = DbEntry.AltText ?? string.Empty
+            };
+
+            CameraMakeEntry = new StringDataEntryContext
+            {
+                Title = "Camera Make",
+                HelpText = "The Make, or Brand, of the Camera",
+                ReferenceValue = DbEntry.CameraMake ?? string.Empty,
+                UserValue = DbEntry.CameraMake ?? string.Empty
+            };
+
+            CameraModelEntry = new StringDataEntryContext
+            {
+                Title = "Camera Model",
+                HelpText = "The Camera Model",
+                ReferenceValue = DbEntry.CameraModel ?? string.Empty,
+                UserValue = DbEntry.CameraModel ?? string.Empty
+            };
+
+            FocalLengthEntry = new StringDataEntryContext
+            {
+                Title = "Focal Length",
+                HelpText = "Usually entered as 50 mm or 110 mm",
+                ReferenceValue = DbEntry.FocalLength ?? string.Empty,
+                UserValue = DbEntry.FocalLength ?? string.Empty
+            };
+
+            ShutterSpeedEntry = new StringDataEntryContext
+            {
+                Title = "Shutter Speed",
+                HelpText = "Usually entered as 1/250 or 3\"",
+                ReferenceValue = DbEntry.ShutterSpeed ?? string.Empty,
+                UserValue = DbEntry.ShutterSpeed ?? string.Empty
+            };
+
+            PhotoCreatedByEntry = new StringDataEntryContext
+            {
+                Title = "Photo Created By",
+                HelpText = "Who created the photo",
+                ReferenceValue = DbEntry.PhotoCreatedBy ?? string.Empty,
+                UserValue = DbEntry.PhotoCreatedBy ?? string.Empty
+            };
+
             Iso = DbEntry.Iso;
-            Lens = DbEntry.Lens ?? string.Empty;
-            License = DbEntry.License ?? string.Empty;
-            AltText = DbEntry.AltText ?? string.Empty;
-            CameraMake = DbEntry.CameraMake ?? string.Empty;
-            CameraModel = DbEntry.CameraModel ?? string.Empty;
-            FocalLength = DbEntry.FocalLength ?? string.Empty;
-            ShutterSpeed = DbEntry.ShutterSpeed ?? string.Empty;
-            PhotoCreatedBy = DbEntry.PhotoCreatedBy ?? string.Empty;
+            //ShutterSpeed = DbEntry.ShutterSpeed ?? string.Empty;
             PhotoCreatedOn = DbEntry.PhotoCreatedOn;
 
             if (DbEntry.Id < 1 && _initialPhoto != null && _initialPhoto.Exists &&
@@ -695,16 +741,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
         public void PhotoMetadataToCurrentContent(PhotoMetadata metadata)
         {
-            Aperture = metadata.Aperture;
-            CameraMake = metadata.CameraMake;
-            CameraModel = metadata.CameraModel;
-            FocalLength = metadata.FocalLength;
+            ApertureEntry.UserValue = metadata.Aperture;
+            CameraMakeEntry.UserValue = metadata.CameraMake;
+            CameraModelEntry.UserValue = metadata.CameraModel;
+            FocalLengthEntry.UserValue = metadata.FocalLength;
             Iso = metadata.Iso;
-            Lens = metadata.Lens;
-            License = metadata.License;
-            PhotoCreatedBy = metadata.PhotoCreatedBy;
+            LensEntry.UserValue = metadata.Lens;
+            LicenseEntry.UserValue = metadata.License;
+            PhotoCreatedByEntry.UserValue = metadata.PhotoCreatedBy;
             PhotoCreatedOn = metadata.PhotoCreatedOn;
-            ShutterSpeed = metadata.ShutterSpeed;
+            ShutterSpeedEntry.UserValue = metadata.ShutterSpeed;
             TitleSummarySlugFolder.Summary = metadata.Summary;
             TagEdit.Tags = metadata.Tags;
             TitleSummarySlugFolder.Title = metadata.Title;
