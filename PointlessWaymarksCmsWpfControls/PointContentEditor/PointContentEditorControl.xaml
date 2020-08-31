@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
+    xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay"
@@ -15,12 +16,11 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
-    xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
-    DataContextChanged="PointContentEditorControl_OnDataContextChanged"
     d:DesignHeight="300"
     d:DesignWidth="300"
+    DataContextChanged="PointContentEditorControl_OnDataContextChanged"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -57,8 +57,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <GroupBox Header="Location"  Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
-                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <GroupBox
+                        Margin="4,0,0,4"
+                        Header="Location"
+                        Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <StackPanel Width="120">
                                 <StackPanel Orientation="Horizontal">
                                     <Label
@@ -143,13 +146,20 @@
                                     Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                                     Text="{Binding Elevation, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
-                            <Button  Width="90" Height="40" VerticalAlignment="Bottom" Margin="2,2,0,0" Command="{Binding GetElevationCommand}">Get Elevation</Button>
+                            <Button
+                                Width="90"
+                                Height="40"
+                                Margin="2,2,0,0"
+                                VerticalAlignment="Bottom"
+                                Command="{Binding GetElevationCommand}">
+                                Get Elevation
+                            </Button>
                         </WrapPanel>
                     </GroupBox>
                     <controls:WebView
                         x:Name="PointContentWebView"
-                        IsScriptNotifyAllowed="True"
                         Grid.Row="1"
+                        IsScriptNotifyAllowed="True"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
                 </Grid>
             </TabItem>

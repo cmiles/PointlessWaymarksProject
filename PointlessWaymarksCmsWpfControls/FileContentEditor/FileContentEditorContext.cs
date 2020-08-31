@@ -26,7 +26,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 {
-    public class FileContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
+    public class FileContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private BodyContentEditorContext _bodyContent;
         private Command _chooseFileCommand;
@@ -145,6 +145,11 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public bool HasChanges =>
+            HasChangesScan.ChildPropertiesHaveChanges(this) || PublicDownloadLinkHasChanges ||
+            SelectedFileHasPathOrNameChanges || DbEntry.MainPicture !=
+            BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent);
 
         public HelpDisplayContext HelpContext
         {
@@ -353,25 +358,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public bool HasChanges()
-        {
-            return !(StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-                     StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-                     StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges &&
-                     StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
-                         UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
-                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) &&
-                     StringHelpers.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
-                     DbEntry.PublicDownloadLink == PublicDownloadLink && DbEntry.MainPicture ==
-                     BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent));
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void CheckForChanges()
@@ -424,7 +410,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.Slug.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.Summary.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();

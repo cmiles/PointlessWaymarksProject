@@ -18,7 +18,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 {
-    public class NoteContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
+    public class NoteContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private BodyContentEditorContext _bodyContent;
         private ContentIdViewerControlContext _contentId;
@@ -213,16 +213,13 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public bool HasChanges()
-        {
-            return !(StringHelpers.AreEqual(DbEntry.Folder, Folder.TrimNullToEmpty()) &&
+        public bool HasChanges => !(StringHelpers.AreEqual(DbEntry.Folder, Folder.TrimNullToEmpty()) &&
                      StringHelpers.AreEqual(DbEntry.Summary, Summary.TrimNullToEmpty()) &&
                      StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
                      StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
                      StringHelpers.AreEqual(DbEntry.BodyContentFormat,
                          BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite);
-        }
+                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSiteFeed);
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -276,7 +273,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
             newEntry.Folder = Folder.TrimNullToEmpty();
             newEntry.Summary = Summary.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();

@@ -11,7 +11,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
 {
-    public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged
+    public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged, IHasChanges
     {
         private string _createdAndUpdatedByAndOn;
         private string _createdBy = string.Empty;

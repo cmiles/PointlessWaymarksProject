@@ -21,7 +21,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 {
-    public class PostContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
+    public class PostContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private BodyContentEditorContext _bodyContent;
         private ContentIdViewerControlContext _contentId;
@@ -186,12 +186,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public bool HasChanges()
-        {
-            return TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges || UpdateNotes.HasChanges ||
-                   BodyContent.HasChanges || TagEdit.TagsHaveChanges || ShowInSiteFeed.HasChanges;
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private PostContent CurrentStateToPostContent()
@@ -214,7 +208,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.Slug.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.Summary.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
@@ -225,6 +219,9 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
             return newEntry;
         }
+
+        public bool HasChanges => TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges || UpdateNotes.HasChanges ||
+                   BodyContent.HasChanges || TagEdit.TagsHaveChanges || ShowInSiteFeed.ShowInMainSiteFeedHasChanges;
 
         public async Task LoadData(PostContent toLoad)
         {

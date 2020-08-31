@@ -12,9 +12,10 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.ContentFormat
 {
-    public class ContentFormatChooserContext : INotifyPropertyChanged
+    public class ContentFormatChooserContext : INotifyPropertyChanged, IHasChanges
     {
         private List<ContentFormatEnum> _contentFormatChoices;
+        private bool _hasChanges;
         private string _initialValue;
 
         private ContentFormatEnum _selectedContentFormat;
@@ -40,6 +41,17 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             }
         }
 
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool SelectedContentFormatHasChanges
         {
             get => _selectedContentFormatHasChanges;
@@ -58,6 +70,8 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             SelectedContentFormatHasChanges = StringHelpers.TrimNullToEmpty(InitialValue) !=
                                               SelectedContentFormatAsString.TrimNullToEmpty();
             // ReSharper restore InvokeAsExtensionMethod
+
+            HasChanges = SelectedContentFormatHasChanges;
         }
 
         public ContentFormatEnum SelectedContentFormat

@@ -18,7 +18,7 @@ using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 {
-    public class BodyContentEditorContext : INotifyPropertyChanged
+    public class BodyContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private ContentFormatChooserContext _bodyContentFormat;
         private bool _bodyContentHasChanges;

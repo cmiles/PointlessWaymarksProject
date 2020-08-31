@@ -28,9 +28,9 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 {
-    public class ImageContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
+    public class ImageContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
-        private string _altText;
+        private StringChangeTrackingProperty _altText = new StringChangeTrackingProperty();
         private BodyContentEditorContext _bodyContent;
         private Command _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
@@ -69,12 +69,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(contentToLoad));
         }
 
-        public string AltText
+        public StringChangeTrackingProperty AltText
         {
             get => _altText;
             set
             {
-                if (value == _altText) return;
+                if (Equals(value, _altText)) return;
                 _altText = value;
                 OnPropertyChanged();
             }
@@ -145,6 +145,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public bool HasChanges => HasChangesScan.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
 
         public Command LinkToClipboardCommand
         {
@@ -357,25 +359,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public bool HasChanges()
-        {
-            return !(StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-                     StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-                     StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
-                     StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-                     StringHelpers.AreEqual(DbEntry.AltText, AltText) &&
-                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
-                         UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-                     StringHelpers.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
-                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) &&
-                     DbEntry.ShowInSearch == ShowInSearch.ShowInSearch &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges);
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task ChooseFile()
@@ -430,11 +413,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.Slug.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.Summary.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.ShowInSearch = ShowInSearch.ShowInSearch;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title.TrimNullToEmpty();
-            newEntry.AltText = AltText.TrimNullToEmpty();
+            newEntry.AltText = AltText.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
@@ -510,7 +493,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 }
             }
 
-            AltText = DbEntry.AltText ?? string.Empty;
+            AltText.ReferenceValue = DbEntry.AltText;
+            AltText.UserValue = DbEntry.AltText.TrimNullToEmpty();
 
             if (DbEntry.Id < 1 && _initialImage != null && _initialImage.Exists &&
                 FileHelpers.ImageFileTypeIsSupported(_initialImage))

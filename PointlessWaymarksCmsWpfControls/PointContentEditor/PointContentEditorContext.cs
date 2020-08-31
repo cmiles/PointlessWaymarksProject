@@ -25,7 +25,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 {
-    public class PointContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
+    public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private BodyContentEditorContext _bodyContent;
         private bool _broadcastLatLongChange = true;
@@ -348,13 +348,6 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        public bool HasChanges()
-        {
-            return TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges ||
-                   ShowInSiteFeed.HasChanges || BodyContent.HasChanges || UpdateNotes.HasChanges ||
-                   TagEdit.TagsHaveChanges || LongitudeHasChanges || LatitudeHasChanges || ElevationHasChanges;
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void CheckForChangesAndValidate(bool latitudeLongitudeHasChanges)
@@ -368,10 +361,11 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             if (DbEntry?.Elevation == null && Elevation == null) ElevationHasChanges = false;
             else if (DbEntry?.Elevation != null && Elevation == null) ElevationHasChanges = true;
             else if (DbEntry?.Elevation == null && Elevation != null) ElevationHasChanges = true;
-            // ReSharper disable once PossibleInvalidOperationException - I believe this is covered in the cases above
+            // ReSharper disable PossibleInvalidOperationException Checked above
             else
                 ElevationHasChanges =
                     !DbEntry?.Elevation.Value.IsApproximatelyEqualTo(Elevation.Value, .000001) ?? true;
+            // ReSharper restore PossibleInvalidOperationException
 
             var latitudeValidationResult = CommonContentValidation.LatitudeValidation(Latitude);
             LatitudeHasValidationIssues = !latitudeValidationResult.isValid;
@@ -410,7 +404,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.Slug.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.Summary.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
@@ -484,6 +478,11 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 StatusContext.ToastError($"Elevation Exception - {e.Message}");
             }
         }
+
+        public bool HasChanges =>
+            TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges ||
+            ShowInSiteFeed.ShowInMainSiteFeedHasChanges || BodyContent.HasChanges || UpdateNotes.HasChanges ||
+            TagEdit.TagsHaveChanges || LongitudeHasChanges || LatitudeHasChanges || ElevationHasChanges;
 
         public async Task LoadData(PointContent toLoad)
         {

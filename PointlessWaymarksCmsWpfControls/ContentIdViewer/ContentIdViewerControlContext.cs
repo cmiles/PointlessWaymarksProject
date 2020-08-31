@@ -54,6 +54,8 @@ namespace PointlessWaymarksCmsWpfControls.ContentIdViewer
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public async Task LoadData(IContentId dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -74,7 +76,5 @@ namespace PointlessWaymarksCmsWpfControls.ContentIdViewer
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

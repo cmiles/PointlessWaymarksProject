@@ -8,11 +8,12 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.ShowInSearchEditor
 {
-    public class ShowInSearchEditorContext : INotifyPropertyChanged
+    public class ShowInSearchEditorContext : INotifyPropertyChanged, IHasChanges
 
     {
         private IShowInSearch _dbEntry;
         private readonly bool _defaultSetting;
+        private bool _hasChanges;
         private bool _showInSearch;
         private bool _showInSearchHasChanges;
         private StatusControlContext _statusContext;
@@ -31,6 +32,17 @@ namespace PointlessWaymarksCmsWpfControls.ShowInSearchEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -73,6 +85,7 @@ namespace PointlessWaymarksCmsWpfControls.ShowInSearchEditor
         private void CheckForChanges()
         {
             ShowInSearchHasChanges = ShowInSearch != (DbEntry?.ShowInSearch ?? false);
+            HasChanges = ShowInSearchHasChanges;
         }
 
         private async Task LoadData(IShowInSearch toLoad)

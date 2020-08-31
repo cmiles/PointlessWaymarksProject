@@ -26,7 +26,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
-    public class PhotoContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
+    public class PhotoContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private string _altText;
         private string _aperture;
@@ -226,6 +226,30 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public bool HasChanges =>
+            !(StringHelpers.AreEqual(DbEntry.Aperture, Aperture) &&
+              StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
+              StringHelpers.AreEqual(DbEntry.Lens, Lens) && StringHelpers.AreEqual(DbEntry.License, License) &&
+              StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
+              StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
+              StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
+              StringHelpers.AreEqual(DbEntry.AltText, AltText) &&
+              StringHelpers.AreEqual(DbEntry.CameraMake, CameraMake) &&
+              StringHelpers.AreEqual(DbEntry.CameraModel, CameraModel) &&
+              StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
+              StringHelpers.AreEqual(DbEntry.FocalLength, FocalLength) &&
+              StringHelpers.AreEqual(DbEntry.ShutterSpeed, ShutterSpeed) &&
+              StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
+              StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
+                  UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
+              StringHelpers.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
+              StringHelpers.AreEqual(DbEntry.PhotoCreatedBy, PhotoCreatedBy) && DbEntry.Iso == Iso &&
+              DbEntry.PhotoCreatedOn == PhotoCreatedOn &&
+              StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+              StringHelpers.AreEqual(DbEntry.BodyContentFormat,
+                  BodyContent.BodyContentFormat.SelectedContentFormatAsString) &&
+              DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSiteFeed && !TagEdit.TagsHaveChanges);
 
         public int? Iso
         {
@@ -504,32 +528,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public bool HasChanges()
-        {
-            return !(StringHelpers.AreEqual(DbEntry.Aperture, Aperture) &&
-                     StringHelpers.AreEqual(DbEntry.Folder, TitleSummarySlugFolder.Folder) &&
-                     StringHelpers.AreEqual(DbEntry.Lens, Lens) && StringHelpers.AreEqual(DbEntry.License, License) &&
-                     StringHelpers.AreEqual(DbEntry.Slug, TitleSummarySlugFolder.Slug) &&
-                     StringHelpers.AreEqual(DbEntry.Summary, TitleSummarySlugFolder.Summary) &&
-                     StringHelpers.AreEqual(DbEntry.Title, TitleSummarySlugFolder.Title) &&
-                     StringHelpers.AreEqual(DbEntry.AltText, AltText) &&
-                     StringHelpers.AreEqual(DbEntry.CameraMake, CameraMake) &&
-                     StringHelpers.AreEqual(DbEntry.CameraModel, CameraModel) &&
-                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelpers.AreEqual(DbEntry.FocalLength, FocalLength) &&
-                     StringHelpers.AreEqual(DbEntry.ShutterSpeed, ShutterSpeed) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotes, UpdateNotes.UpdateNotes) &&
-                     StringHelpers.AreEqual(DbEntry.UpdateNotesFormat,
-                         UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString) &&
-                     StringHelpers.AreEqual(DbEntry.OriginalFileName, SelectedFile?.Name ?? string.Empty) &&
-                     StringHelpers.AreEqual(DbEntry.PhotoCreatedBy, PhotoCreatedBy) && DbEntry.Iso == Iso &&
-                     DbEntry.PhotoCreatedOn == PhotoCreatedOn &&
-                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
-                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSite && !TagEdit.TagsHaveChanges);
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task ChooseFile(bool loadMetadata)
@@ -602,7 +600,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.License = License.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.Slug.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.Summary.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSite;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.Title.TrimNullToEmpty();
             newEntry.AltText = AltText.TrimNullToEmpty();

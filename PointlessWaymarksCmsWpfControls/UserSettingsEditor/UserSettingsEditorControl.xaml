@@ -29,8 +29,7 @@
             <StackPanel Orientation="Vertical">
                 <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource ActionPanelButton}">Save</Button>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=LocalSiteRootDirectoryTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LocalSiteRootDirectoryTextBox}">
                         Local Site Root Directory
                     </Label>
                     <TextBox
@@ -39,8 +38,7 @@
                         Text="{Binding EditorSettings.LocalSiteRootDirectory, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=LocalMediaArchiveTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LocalMediaArchiveTextBox}">
                         Local Media Archive
                     </Label>
                     <TextBox
@@ -63,8 +61,7 @@
                         Text="{Binding EditorSettings.SiteName, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=SiteAuthorsTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteAuthorsTextBox}">
                         Site Authors
                     </Label>
                     <TextBox
@@ -73,8 +70,7 @@
                         Text="{Binding EditorSettings.SiteAuthors, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=SiteKeywordsTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteKeywordsTextBox}">
                         Site Keywords
                     </Label>
                     <TextBox
@@ -83,8 +79,7 @@
                         Text="{Binding EditorSettings.SiteKeywords, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=SiteSummaryTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteSummaryTextBox}">
                         Site Summary
                     </Label>
                     <TextBox
@@ -93,8 +88,7 @@
                         Text="{Binding EditorSettings.SiteSummary, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=SiteEmailToTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteEmailToTextBox}">
                         Site Email To
                     </Label>
                     <TextBox
@@ -103,8 +97,7 @@
                         Text="{Binding EditorSettings.SiteEmailTo, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=DefaultCreatedByTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultCreatedByTextBox}">
                         Default Created By Name
                     </Label>
                     <TextBox
@@ -131,8 +124,7 @@
                         Text="{Binding EditorSettings.LongitudeDefault, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=BingApiKeyTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=BingApiKeyTextBox}">
                         Bing Maps Api Key
                     </Label>
                     <TextBox
@@ -141,8 +133,7 @@
                         Text="{Binding EditorSettings.BingApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=CalTopoApiKeyTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CalTopoApiKeyTextBox}">
                         CalTopo Maps Api Key
                     </Label>
                     <TextBox
@@ -151,8 +142,7 @@
                         Text="{Binding EditorSettings.CalTopoApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=GoogleMapsApiKeyTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=GoogleMapsApiKeyTextBox}">
                         Google Maps Api Key
                     </Label>
                     <TextBox
@@ -161,8 +151,7 @@
                         Text="{Binding EditorSettings.GoogleMapsApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=PinboardApiTokenTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=PinboardApiTokenTextBox}">
                         Pinboard Api Key
                     </Label>
                     <TextBox
@@ -171,8 +160,7 @@
                         Text="{Binding EditorSettings.PinboardApiToken, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=PdfToCairoDirectoryTextBox}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=PdfToCairoDirectoryTextBox}">
                         pdftocairo.exe Directory (Can be found in the MiKTeX)
                     </Label>
                     <TextBox

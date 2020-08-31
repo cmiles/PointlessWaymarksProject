@@ -1,4 +1,5 @@
 ﻿## Todos
+ - Updated by is triggering un-needed changes when closing without saving warnings
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
@@ -50,6 +51,14 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
 
 ## Notes
+
+8/31/2020
+
+Created a very simple IHasChanges interface, added it to a number of controls and created a reflection based method to use in the Editor contexts to calculate Has Changes - the motivation is less reducing code and typing and more making it slightly harder to make a mistake by not including an added control in the check (ie while you still have to implement the interface and know about the magic reflection at least you don't have to manually add it to a list of controls to check!).
+
+As part of the check IHasChanges effort added a utility property to handle simple string field change tracking.
+
+Added change tracking to the Image Alt Field.
 
 8/30/2020
 

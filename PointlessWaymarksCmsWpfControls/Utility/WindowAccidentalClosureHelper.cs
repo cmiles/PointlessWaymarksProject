@@ -9,13 +9,13 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     public class WindowAccidentalClosureHelper
     {
         private bool _closeConfirmed;
-        private readonly IHasUnsavedChanges _hasUnsavedChangesToCheck;
+        private readonly IHasChanges _hasChangesToCheck;
         private readonly Window _toClose;
 
-        public WindowAccidentalClosureHelper(Window toClose, StatusControlContext context, IHasUnsavedChanges toCheck)
+        public WindowAccidentalClosureHelper(Window toClose, StatusControlContext context, IHasChanges toCheck)
         {
             StatusContext = context;
-            _hasUnsavedChangesToCheck = toCheck;
+            _hasChangesToCheck = toCheck;
             _toClose = toClose;
 
             _toClose.Closing += FileContentEditorWindow_OnClosing;
@@ -36,7 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (!_hasUnsavedChangesToCheck.HasChanges())
+            if (!_hasChangesToCheck.HasChanges)
             {
                 _closeConfirmed = true;
                 await ThreadSwitcher.ResumeForegroundAsync();

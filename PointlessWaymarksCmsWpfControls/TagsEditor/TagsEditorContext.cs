@@ -7,12 +7,14 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.TagsEditor
 {
-    public class TagsEditorContext : INotifyPropertyChanged
+    public class TagsEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private ITag _dbEntry;
+        private bool _hasChanges;
         private StatusControlContext _statusContext;
 
         private string _tags = string.Empty;
@@ -37,6 +39,17 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -139,6 +152,8 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
             TagsHaveValidationIssues = !tagValidation.isValid;
             TagsValidationMessage = tagValidation.explanation;
+
+            HasChanges = TagsHaveChanges;
         }
 
         private List<string> DbTagList()

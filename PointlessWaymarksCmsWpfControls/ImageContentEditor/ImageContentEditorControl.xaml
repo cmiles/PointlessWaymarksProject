@@ -126,12 +126,24 @@
                             <showInSearchEditor:ShowInSearchEditorControl DataContext="{Binding ShowInSearch}" Style="{StaticResource ShowInSearchPanelStyle}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-                                <Label Style="{StaticResource DataEntryLabelStyle}">Alt Text</Label>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label
+                                        Content="Alt Text"
+                                        Style="{StaticResource DataEntryLabelStyle}"
+                                        Target="{Binding ElementName=AltTextTextBox}" />
+                                    <utility:IndicatorIcon
+                                        VerticalAlignment="Center"
+                                        HoverText="{Binding AltText.ReferenceValue, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                                        IconBrush="Black"
+                                        IconPathGeometry="{StaticResource IconDataInfo}"
+                                        IconSize="{StaticResource SmallIconSize}"
+                                        Visibility="{Binding AltText.HasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                                </StackPanel>
                                 <TextBox
                                     MaxLines="2"
                                     MinLines="2"
                                     Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
-                                    Text="{Binding AltText, UpdateSourceTrigger=PropertyChanged}" />
+                                    Text="{Binding AltText.UserValue, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />

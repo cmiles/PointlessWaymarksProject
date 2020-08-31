@@ -16,7 +16,7 @@ using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 {
-    public class UpdateNotesEditorContext : INotifyPropertyChanged
+    public class UpdateNotesEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private IUpdateNotes _dbEntry;
         private bool _hasChanges;
@@ -120,7 +120,7 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 
         private void CheckForChanges()
         {
-            UpdateNotesHasChanges = !StringHelpers.AreEqual(StringHelpers.TrimNullToEmpty(DbEntry?.UpdateNotes), UpdateNotes);
+            UpdateNotesHasChanges = !StringHelpers.AreEqual((DbEntry?.UpdateNotes).TrimNullToEmpty(), UpdateNotes);
 
             HasChanges = UpdateNotesHasChanges || UpdateNotesFormat.SelectedContentFormatHasChanges;
         }

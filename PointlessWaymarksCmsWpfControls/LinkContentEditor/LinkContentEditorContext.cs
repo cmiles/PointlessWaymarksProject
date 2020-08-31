@@ -15,7 +15,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 {
-    public class LinkContentEditorContext : INotifyPropertyChanged, IHasUnsavedChanges
+    public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private string _author;
         private bool _authorHasChanges;
@@ -359,19 +359,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
-        public bool HasChanges()
-        {
-            return !(!TagEdit.TagsHaveChanges && DbEntry.ShowInLinkRss == ShowInLinkRss &&
-                     DbEntry.LinkDate == LinkDateTime &&
-                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty()) &&
-                     StringHelpers.AreEqual(DbEntry.Comments, Comments.TrimNullToEmpty()) &&
-                     StringHelpers.AreEqual(DbEntry.Url, LinkUrl.TrimNullToEmpty()) &&
-                     StringHelpers.AreEqual(DbEntry.Title, Title.TrimNullToEmpty()) &&
-                     StringHelpers.AreEqual(DbEntry.Site, Site.TrimNullToEmpty()) &&
-                     StringHelpers.AreEqual(DbEntry.Author, Author.TrimNullToEmpty()) &&
-                     StringHelpers.AreEqual(DbEntry.Description, Description.TrimNullToEmpty()));
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task CheckForChangesAndValidate()
@@ -391,6 +378,16 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 
             await ValidateUrl();
         }
+
+        public bool HasChanges =>
+            !(!TagEdit.TagsHaveChanges && DbEntry.ShowInLinkRss == ShowInLinkRss && DbEntry.LinkDate == LinkDateTime &&
+              StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty()) &&
+              StringHelpers.AreEqual(DbEntry.Comments, Comments.TrimNullToEmpty()) &&
+              StringHelpers.AreEqual(DbEntry.Url, LinkUrl.TrimNullToEmpty()) &&
+              StringHelpers.AreEqual(DbEntry.Title, Title.TrimNullToEmpty()) &&
+              StringHelpers.AreEqual(DbEntry.Site, Site.TrimNullToEmpty()) &&
+              StringHelpers.AreEqual(DbEntry.Author, Author.TrimNullToEmpty()) &&
+              StringHelpers.AreEqual(DbEntry.Description, Description.TrimNullToEmpty()));
 
         public async Task ValidateUrl()
         {
@@ -490,8 +487,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var (generationReturn, newContent) =
-                await LinkGenerator.SaveAndGenerateHtml(CurrentStateToLinkContent(), null, StatusContext.ProgressTracker());
+            var (generationReturn, newContent) = await LinkGenerator.SaveAndGenerateHtml(CurrentStateToLinkContent(),
+                null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {

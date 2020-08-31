@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -25,8 +23,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
         }
 
-        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
-
         public FileContentEditorWindow(FileInfo initialFile)
         {
             InitializeComponent();
@@ -46,6 +42,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             DataContext = this;
             AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
         }
+
+        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
         public FileContentEditorContext FileContent
         {

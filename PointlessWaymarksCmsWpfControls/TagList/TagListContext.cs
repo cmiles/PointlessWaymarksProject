@@ -27,6 +27,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 {
     public class TagListContext : INotifyPropertyChanged
     {
+        private DataNotificationsWorkQueue _dataNotificationsProcessor;
         private List<TagItemContentInformation> _detailsList;
         private List<TagItemContentInformation> _detailsSelectedItems;
         private Command<Guid> _editContentCommand;
@@ -39,13 +40,12 @@ namespace PointlessWaymarksCmsWpfControls.TagList
         private StatusControlContext _statusContext;
         private string _userFilterText;
         private Command _visibleTagsToExcelCommand;
-        private DataNotificationsWorkQueue _dataNotificationsProcessor;
 
         public TagListContext(StatusControlContext context)
         {
             StatusContext = context ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(LoadData);
 
@@ -63,6 +63,8 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
+        public Command AllDetailItemsToExcelCommand { get; set; }
+
         public DataNotificationsWorkQueue DataNotificationsProcessor
         {
             get => _dataNotificationsProcessor;
@@ -73,8 +75,6 @@ namespace PointlessWaymarksCmsWpfControls.TagList
                 OnPropertyChanged();
             }
         }
-
-        public Command AllDetailItemsToExcelCommand { get; set; }
 
         public List<TagItemContentInformation> DetailsList
         {

@@ -26,7 +26,7 @@
                 VerticalContentAlignment="Center"
                 Content="Show Post in Site _Feed"
                 FontWeight="DemiBold"
-                IsChecked="{Binding ShowInMainSite}" />
+                IsChecked="{Binding ShowInMainSiteFeed}" />
             <utility:IndicatorIcon
                 Margin="4,0,0,0"
                 VerticalAlignment="Center"
@@ -34,7 +34,7 @@
                 IconBrush="Black"
                 IconPathGeometry="{StaticResource IconDataInfo}"
                 IconSize="{StaticResource SmallIconSize}"
-                Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                Visibility="{Binding ShowInMainSiteFeedHasChanges, Converter={StaticResource BooleanToVisibility}}" />
         </StackPanel>
     </Grid>
 </UserControl>

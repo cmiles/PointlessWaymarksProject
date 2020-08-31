@@ -16,7 +16,7 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 {
-    public class TitleSummarySlugEditorContext : INotifyPropertyChanged
+    public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges
     {
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
         private DataNotificationContentType _dataNotificationType;
