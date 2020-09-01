@@ -1,9 +1,8 @@
 ﻿## Todos
- - Updated by is triggering un-needed changes when closing without saving warnings
- - Use the new String Entry control in Image
- - Look at Bindings for Height, Lines and Wordwrap so the String Entry could be used in a few more places
- - Int Entry Control
- - DateTime Entry Control
+ - DataEntry Control Changes
+  - Updated by is triggering un-needed changes when closing without saving warnings
+  - Use the new String Entry control in Image
+  - Changes and Validation background color?
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
@@ -55,6 +54,17 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
  
 ## Notes
+
+9/1/2020
+
+Continued work - this AM focused around the Title Summary Slug Folder control - on moving towards more use of the 'Data Entry' controls:
+ - Added a Bool Control
+ - Added a conversion based control
+ - Added Validation to the Control
+ - Added a multi line version of the string control
+ - Worked on subbing in the controls esp. for Photos and Title Summary Slug
+
+There is of course the additional over head - both in code and in understanding - of the new controls and esp. there setup, but it is quite pleasant subbing these controls in for the more verbose constructions esp. since with the Title Hover Help Text the new controls already offer more consistency. With the 'conversion' based controls what I like is that these are quite flexible in what the user can enter, but of course they don't provide the same level of help and protection in only entering valid values - with so few of these controls so far I like this approach for now and can always create more specialized options later.
 
 8/31/2020
 

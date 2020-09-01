@@ -261,7 +261,7 @@ namespace PointlessWaymarksCmsData.Content
         {
             if (string.IsNullOrWhiteSpace(slug)) return (false, "Slug can't be blank or only whitespace.");
 
-            if (!FolderFileUtility.IsNoUrlEncodingNeeded(slug)) return (false, "Slug should only contain 0-9 a-z _ -");
+            if (!FolderFileUtility.IsNoUrlEncodingNeeded(slug)) return (false, "Slug should only contain a-z 0-9 _ -");
 
             if (slug.Length > 100) return (false, "Limit slugs to 100 characters.");
 

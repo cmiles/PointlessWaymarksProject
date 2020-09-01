@@ -9,7 +9,6 @@ using PointlessWaymarksCmsWpfControls.Utility;
 namespace PointlessWaymarksCmsWpfControls.ShowInSearchEditor
 {
     public class ShowInSearchEditorContext : INotifyPropertyChanged, IHasChanges
-
     {
         private IShowInSearch _dbEntry;
         private readonly bool _defaultSetting;

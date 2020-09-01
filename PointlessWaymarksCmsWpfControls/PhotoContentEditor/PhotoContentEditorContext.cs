@@ -15,6 +15,7 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
+using PointlessWaymarksCmsWpfControls.ConversionDataEntry;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.PhotoList;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
@@ -43,11 +44,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private StringDataEntryContext _focalLengthEntry;
         private FileInfo _initialPhoto;
         private int? _iso;
+        private ConversionDataEntryContext<int?> _isoEntry;
         private StringDataEntryContext _lensEntry;
         private StringDataEntryContext _licenseEntry;
         private FileInfo _loadedFile;
         private StringDataEntryContext _photoCreatedByEntry;
         private DateTime _photoCreatedOn;
+        private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
         private Command _renameSelectedFileCommand;
         private Command _rotatePhotoLeftCommand;
         private Command _rotatePhotoRightCommand;
@@ -228,17 +231,15 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public bool HasChanges =>
-            HasChangesScan.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
-            DbEntry.PhotoCreatedOn != PhotoCreatedOn || DbEntry.Iso != Iso;
+        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
 
-        public int? Iso
+        public ConversionDataEntryContext<int?> IsoEntry
         {
-            get => _iso;
+            get => _isoEntry;
             set
             {
-                if (value == _iso) return;
-                _iso = value;
+                if (Equals(value, _isoEntry)) return;
+                _isoEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -276,13 +277,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public DateTime PhotoCreatedOn
+        public ConversionDataEntryContext<DateTime> PhotoCreatedOnEntry
         {
-            get => _photoCreatedOn;
+            get => _photoCreatedOnEntry;
             set
             {
-                if (value.Equals(_photoCreatedOn)) return;
-                _photoCreatedOn = value;
+                if (Equals(value, _photoCreatedOnEntry)) return;
+                _photoCreatedOnEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -576,14 +577,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.MainPicture = newEntry.ContentId;
             newEntry.Aperture = ApertureEntry.UserValue.TrimNullToEmpty();
             newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
-            newEntry.Iso = Iso;
+            newEntry.Iso = IsoEntry.UserValue;
             newEntry.Lens = LensEntry.UserValue.TrimNullToEmpty();
             newEntry.License = LicenseEntry.UserValue.TrimNullToEmpty();
-            newEntry.Slug = TitleSummarySlugFolder.Slug.TrimNullToEmpty();
-            newEntry.Summary = TitleSummarySlugFolder.Summary.TrimNullToEmpty();
+            newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
+            newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.Tags = TagEdit.TagListString();
-            newEntry.Title = TitleSummarySlugFolder.Title.TrimNullToEmpty();
+            newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.AltText = AltTextEntry.UserValue.TrimNullToEmpty();
             newEntry.CameraMake = CameraMakeEntry.UserValue.TrimNullToEmpty();
             newEntry.CameraModel = CameraModelEntry.UserValue.TrimNullToEmpty();
@@ -594,7 +595,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
             newEntry.PhotoCreatedBy = PhotoCreatedByEntry.UserValue.TrimNullToEmpty();
-            newEntry.PhotoCreatedOn = PhotoCreatedOn;
+            newEntry.PhotoCreatedOn = PhotoCreatedOnEntry.UserValue;
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
@@ -718,9 +719,25 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 UserValue = DbEntry.PhotoCreatedBy ?? string.Empty
             };
 
-            Iso = DbEntry.Iso;
-            //ShutterSpeed = DbEntry.ShutterSpeed ?? string.Empty;
-            PhotoCreatedOn = DbEntry.PhotoCreatedOn;
+            IsoEntry = new ConversionDataEntryContext<int?>
+            {
+                Title = "ISO",
+                HelpText = "A measure of a sensor films sensitivity to light, 100 is a typical value",
+                ReferenceValue = DbEntry.Iso,
+                UserValue = DbEntry.Iso,
+                UserText = DbEntry.Iso?.ToString("F0") ?? string.Empty,
+                Converter = ConversionDataEntryHelpers.NullableIntConversion,
+            };
+
+            PhotoCreatedOnEntry = new ConversionDataEntryContext<DateTime>
+            {
+                Title = "Photo Created On",
+                HelpText = "Date and, optionally, Time the Photo was Created",
+                ReferenceValue = DbEntry.PhotoCreatedOn,
+                UserValue = DbEntry.PhotoCreatedOn,
+                UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt"),
+                Converter = ConversionDataEntryHelpers.DateTimeConversion
+            };
 
             if (DbEntry.Id < 1 && _initialPhoto != null && _initialPhoto.Exists &&
                 FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
@@ -745,17 +762,19 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             CameraMakeEntry.UserValue = metadata.CameraMake;
             CameraModelEntry.UserValue = metadata.CameraModel;
             FocalLengthEntry.UserValue = metadata.FocalLength;
-            Iso = metadata.Iso;
+            IsoEntry.UserValue = metadata.Iso;
+            IsoEntry.UserText = metadata.Iso?.ToString("F0") ?? string.Empty;
             LensEntry.UserValue = metadata.Lens;
             LicenseEntry.UserValue = metadata.License;
             PhotoCreatedByEntry.UserValue = metadata.PhotoCreatedBy;
-            PhotoCreatedOn = metadata.PhotoCreatedOn;
+            PhotoCreatedOnEntry.UserValue = metadata.PhotoCreatedOn;
+            PhotoCreatedOnEntry.UserText = metadata.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
             ShutterSpeedEntry.UserValue = metadata.ShutterSpeed;
-            TitleSummarySlugFolder.Summary = metadata.Summary;
+            TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary;
             TagEdit.Tags = metadata.Tags;
-            TitleSummarySlugFolder.Title = metadata.Title;
+            TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title;
             TitleSummarySlugFolder.TitleToSlug();
-            TitleSummarySlugFolder.Folder = PhotoCreatedOn.Year.ToString("F0");
+            TitleSummarySlugFolder.Folder = metadata.PhotoCreatedOn.Year.ToString("F0");
         }
 
         private async Task RotateImage(Orientation rotationType)

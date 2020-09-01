@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,6 +13,7 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.Utility;
 using TinyIpc.Messaging;
 
@@ -27,20 +30,11 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         private bool _folderHasValidationIssues;
         private string _folderValidationMessage;
         private bool _hasChanges;
-        private string _slug = string.Empty;
-        private bool _slugHasChanges;
-        private bool _slugHasValidationIssues;
-        private string _slugValidationMessage;
+        private StringDataEntryContext _slugEntry;
         private StatusControlContext _statusContext;
-        private string _summary = string.Empty;
-        private bool _summaryHasChanges;
-        private bool _summaryHasValidationIssues;
-        private string _summaryValidationMessage;
-        private string _title = string.Empty;
-        private bool _titleHasChanges;
-        private bool _titleHasValidationIssues;
+        private StringDataEntryContext _summaryEntry;
+        private StringDataEntryContext _titleEntry;
         private Command _titleToSlugCommand;
-        private string _titleValidationMessage;
 
         public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
         {
@@ -117,50 +111,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
-        public string Slug
-        {
-            get => _slug;
-            set
-            {
-                if (value == _slug) return;
-                _slug = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool SlugHasChanges
-        {
-            get => _slugHasChanges;
-            set
-            {
-                if (value == _slugHasChanges) return;
-                _slugHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool SlugHasValidationIssues
-        {
-            get => _slugHasValidationIssues;
-            set
-            {
-                if (value == _slugHasValidationIssues) return;
-                _slugHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string SlugValidationMessage
-        {
-            get => _slugValidationMessage;
-            set
-            {
-                if (value == _slugValidationMessage) return;
-                _slugValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -168,84 +118,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-
-        public string Summary
-        {
-            get => _summary;
-            set
-            {
-                if (value == _summary) return;
-                _summary = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool SummaryHasChanges
-        {
-            get => _summaryHasChanges;
-            set
-            {
-                if (value == _summaryHasChanges) return;
-                _summaryHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool SummaryHasValidationIssues
-        {
-            get => _summaryHasValidationIssues;
-            set
-            {
-                if (value == _summaryHasValidationIssues) return;
-                _summaryHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string SummaryValidationMessage
-        {
-            get => _summaryValidationMessage;
-            set
-            {
-                if (value == _summaryValidationMessage) return;
-                _summaryValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string Title
-        {
-            get => _title;
-            set
-            {
-                if (value == _title) return;
-                _title = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool TitleHasChanges
-        {
-            get => _titleHasChanges;
-            set
-            {
-                if (value == _titleHasChanges) return;
-                _titleHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool TitleHasValidationIssues
-        {
-            get => _titleHasValidationIssues;
-            set
-            {
-                if (value == _titleHasValidationIssues) return;
-                _titleHasValidationIssues = value;
                 OnPropertyChanged();
             }
         }
@@ -261,34 +133,17 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
-        public string TitleValidationMessage
-        {
-            get => _titleValidationMessage;
-            set
-            {
-                if (value == _titleValidationMessage) return;
-                _titleValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void CheckForChangesAndValidate()
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullToEmpty - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
-            SummaryHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Summary) != Summary.TrimNullToEmpty();
-            TitleHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Title) != Title.TrimNullToEmpty();
-            SlugHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Slug) != Slug.TrimNullToEmpty();
             FolderHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Folder) != Folder.TrimNullToEmpty();
             // ReSharper restore InvokeAsExtensionMethod
 
-            HasChanges = SummaryHasChanges || TitleHasChanges || SlugHasChanges || FolderHasChanges;
+            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || FolderHasChanges;
 
-            ValidateTitle();
-            ValidateSummary();
-            ValidateSlug();
             ValidateFolder();
         }
 
@@ -337,13 +192,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
-        public void ValidateSummary()
-        {
-            var validationResult = CommonContentValidation.ValidateSummary(Summary);
-
-            SummaryHasValidationIssues = !validationResult.isValid;
-            SummaryValidationMessage = validationResult.explanation;
-        }
 
         public async Task LoadData(ITitleSummarySlugFolder dbEntry)
         {
@@ -355,20 +203,43 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             DbEntry = dbEntry;
 
-            if (DbEntry == null)
+            TitleEntry = new StringDataEntryContext
             {
-                Summary = string.Empty;
-                Title = string.Empty;
-                Slug = string.Empty;
-                Folder = string.Empty;
+                Title = "Title",
+                HelpText = "Title Text",
+                ReferenceValue = DbEntry?.Title ?? string.Empty,
+                UserValue = DbEntry?.Title ?? string.Empty,
+                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                {
+                    CommonContentValidation.ValidateTitle
+                }
+            };
 
-                return;
-            }
+            SlugEntry = new StringDataEntryContext
+            {
+                Title = "Slug",
+                HelpText = "This will be the Folder and File Name used in URLs - limited to a-z 0-9 _ -",
+                ReferenceValue = DbEntry?.Slug ?? string.Empty,
+                UserValue = DbEntry?.Slug ?? string.Empty,
+                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                {
+                    CommonContentValidation.ValidateSlugLocal
+                }
+            };
 
-            Summary = DbEntry.Summary ?? string.Empty;
-            Title = DbEntry.Title ?? string.Empty;
-            Slug = DbEntry.Slug ?? string.Empty;
-            Folder = DbEntry.Folder ?? string.Empty;
+            SummaryEntry = new StringDataEntryContext
+            {
+                Title = "Summary",
+                HelpText = "A short text entry that will show in Search and short references to the content",
+                ReferenceValue = DbEntry?.Summary ?? string.Empty,
+                UserValue = DbEntry?.Summary ?? string.Empty,
+                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                {
+                    CommonContentValidation.ValidateSummary
+                }
+            };
+
+            Folder = DbEntry?.Folder ?? string.Empty;
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -376,6 +247,39 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             _dataNotificationType = DataNotifications.NotificationContentTypeFromContent(DbEntry);
 
             DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+        }
+
+        public StringDataEntryContext SummaryEntry
+        {
+            get => _summaryEntry;
+            set
+            {
+                if (Equals(value, _summaryEntry)) return;
+                _summaryEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StringDataEntryContext SlugEntry
+        {
+            get => _slugEntry;
+            set
+            {
+                if (Equals(value, _slugEntry)) return;
+                _slugEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StringDataEntryContext TitleEntry
+        {
+            get => _titleEntry;
+            set
+            {
+                if (Equals(value, _titleEntry)) return;
+                _titleEntry = value;
+                OnPropertyChanged();
+            }
         }
 
         public ObservableCollection<string> ExistingFolderChoices
@@ -402,23 +306,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
         public void TitleToSlug()
         {
-            Slug = SlugUtility.Create(true, Title);
-        }
-
-        public void ValidateTitle()
-        {
-            var validationResult = CommonContentValidation.ValidateTitle(Title);
-
-            TitleHasValidationIssues = !validationResult.isValid;
-            TitleValidationMessage = validationResult.explanation;
-        }
-
-        public void ValidateSlug()
-        {
-            var validationResult = CommonContentValidation.ValidateSlugLocal(Slug);
-
-            SlugHasValidationIssues = !validationResult.isValid;
-            SlugValidationMessage = validationResult.explanation;
+            SlugEntry.UserValue = SlugUtility.Create(true, TitleEntry.UserValue);
         }
 
         public void ValidateFolder()

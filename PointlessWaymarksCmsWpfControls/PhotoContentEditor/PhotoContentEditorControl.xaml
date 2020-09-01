@@ -5,6 +5,7 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.ConversionDataEntry"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -147,10 +148,7 @@
                         <StackPanel Margin="4">
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding AltTextEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding PhotoCreatedByEntry}" />
-                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-                                <Label Style="{StaticResource DataEntryLabelStyle}">Photo Created On</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding PhotoCreatedOn, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding PhotoCreatedOnEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding LicenseEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding CameraMakeEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding CameraModelEntry}" />
@@ -158,11 +156,7 @@
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding FocalLengthEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding ApertureEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding ShutterSpeedEntry}" />
-                            <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-                                <Label Style="{StaticResource DataEntryLabelStyle}">ISO</Label>
-                                <TextBox Style="{StaticResource DataEntryTextBoxSingleLineStyle}" Text="{Binding Iso, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding IsoEntry}" />
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>

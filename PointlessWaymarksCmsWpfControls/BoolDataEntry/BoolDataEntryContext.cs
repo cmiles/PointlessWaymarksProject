@@ -4,22 +4,21 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.Utility;
 
-namespace PointlessWaymarksCmsWpfControls.StringDataEntry
+namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
 {
-    public class StringDataEntryContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
+    public class BoolDataEntryContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
     {
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private string _helpText;
-        private string _referenceValue;
+        private bool _referenceValue;
         private string _title;
-        private string _userValue;
+        private bool _userValue;
 
-        private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions =
-            new List<Func<string, (bool passed, string validationMessage)>>();
+        private List<Func<bool, (bool passed, string validationMessage)>> _validationFunctions =
+            new List<Func<bool, (bool passed, string validationMessage)>>();
 
         private string _validationMessage;
 
@@ -56,7 +55,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
             }
         }
 
-        public string ReferenceValue
+        public bool ReferenceValue
         {
             get => _referenceValue;
             set
@@ -78,7 +77,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
             }
         }
 
-        public string UserValue
+        public bool UserValue
         {
             get => _userValue;
             set
@@ -89,7 +88,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
             }
         }
 
-        public List<Func<string, (bool passed, string validationMessage)>> ValidationFunctions
+        public List<Func<bool, (bool passed, string validationMessage)>> ValidationFunctions
         {
             get => _validationFunctions;
             set
@@ -115,7 +114,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
 
         private void CheckForChanges()
         {
-            HasChanges = UserValue.TrimNullToEmpty() != ReferenceValue.TrimNullToEmpty();
+            HasChanges = UserValue != ReferenceValue;
 
             if (ValidationFunctions != null && !ValidationFunctions.Any())
                 foreach (var loopValidations in ValidationFunctions)

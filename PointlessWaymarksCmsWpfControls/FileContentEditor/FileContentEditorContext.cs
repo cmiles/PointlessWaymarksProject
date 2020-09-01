@@ -147,7 +147,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         }
 
         public bool HasChanges =>
-            HasChangesScan.ChildPropertiesHaveChanges(this) || PublicDownloadLinkHasChanges ||
+            PropertyScanners.ChildPropertiesHaveChanges(this) || PublicDownloadLinkHasChanges ||
             SelectedFileHasPathOrNameChanges || DbEntry.MainPicture !=
             BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent);
 
@@ -408,11 +408,11 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
 
             newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
-            newEntry.Slug = TitleSummarySlugFolder.Slug.TrimNullToEmpty();
-            newEntry.Summary = TitleSummarySlugFolder.Summary.TrimNullToEmpty();
+            newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
+            newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.Tags = TagEdit.TagListString();
-            newEntry.Title = TitleSummarySlugFolder.Title.TrimNullToEmpty();
+            newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;

@@ -7,21 +7,34 @@ using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.Utility;
 
-namespace PointlessWaymarksCmsWpfControls.StringDataEntry
+namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 {
-    public class StringDataEntryContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
+    public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
     {
+        private Func<string, (bool passed, string conversionMessage, T result)> _converter;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private string _helpText;
-        private string _referenceValue;
+        private T _referenceValue;
         private string _title;
-        private string _userValue;
+        private string _userText;
+        private T _userValue;
 
-        private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions =
-            new List<Func<string, (bool passed, string validationMessage)>>();
+        private List<Func<T, (bool passed, string validationMessage)>> _validationFunctions =
+            new List<Func<T, (bool passed, string validationMessage)>>();
 
         private string _validationMessage;
+
+        public Func<string, (bool passed, string conversionMessage, T result)> Converter
+        {
+            get => _converter;
+            set
+            {
+                if (Equals(value, _converter)) return;
+                _converter = value;
+                OnPropertyChanged();
+            }
+        }
 
         public bool HasChanges
         {
@@ -56,12 +69,12 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
             }
         }
 
-        public string ReferenceValue
+        public T ReferenceValue
         {
             get => _referenceValue;
             set
             {
-                if (value == _referenceValue) return;
+                if (value.Equals(_referenceValue)) return;
                 _referenceValue = value;
                 OnPropertyChanged();
             }
@@ -78,18 +91,29 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
             }
         }
 
-        public string UserValue
+        public string UserText
+        {
+            get => _userText;
+            set
+            {
+                if (value == _userText) return;
+                _userText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public T UserValue
         {
             get => _userValue;
             set
             {
-                if (value == _userValue) return;
+                if (value.Equals(_userValue)) return;
                 _userValue = value;
                 OnPropertyChanged();
             }
         }
 
-        public List<Func<string, (bool passed, string validationMessage)>> ValidationFunctions
+        public List<Func<T, (bool passed, string validationMessage)>> ValidationFunctions
         {
             get => _validationFunctions;
             set
@@ -115,7 +139,25 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
 
         private void CheckForChanges()
         {
-            HasChanges = UserValue.TrimNullToEmpty() != ReferenceValue.TrimNullToEmpty();
+            if (Converter == null)
+            {
+                HasValidationIssues = true;
+                ValidationMessage = "No conversion available";
+                return;
+            }
+
+            var converted = Converter(UserText.TrimNullToEmpty());
+
+            if (!converted.passed)
+            {
+                HasValidationIssues = true;
+                ValidationMessage = converted.conversionMessage;
+                return;
+            }
+
+            UserValue = converted.result;
+
+            HasChanges = !ReferenceValue.Equals(UserValue);
 
             if (ValidationFunctions != null && !ValidationFunctions.Any())
                 foreach (var loopValidations in ValidationFunctions)

@@ -146,7 +146,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public bool HasChanges => HasChangesScan.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
+        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
 
         public Command LinkToClipboardCommand
         {
@@ -411,12 +411,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             newEntry.MainPicture = newEntry.ContentId;
             newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
-            newEntry.Slug = TitleSummarySlugFolder.Slug.TrimNullToEmpty();
-            newEntry.Summary = TitleSummarySlugFolder.Summary.TrimNullToEmpty();
+            newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
+            newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.ShowInSearch = ShowInSearch.ShowInSearch;
             newEntry.Tags = TagEdit.TagListString();
-            newEntry.Title = TitleSummarySlugFolder.Title.TrimNullToEmpty();
+            newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.AltText = AltText.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
