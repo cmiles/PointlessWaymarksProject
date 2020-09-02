@@ -104,7 +104,7 @@ namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges")) CheckForChanges();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChanges();
         }
     }
 }

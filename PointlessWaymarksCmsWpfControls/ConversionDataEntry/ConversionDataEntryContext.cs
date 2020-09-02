@@ -137,7 +137,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void CheckForChanges()
+        private void CheckForChangesAndValidate()
         {
             if (Converter == null)
             {
@@ -159,7 +159,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
             HasChanges = !ReferenceValue.Equals(UserValue);
 
-            if (ValidationFunctions != null && !ValidationFunctions.Any())
+            if (ValidationFunctions != null && ValidationFunctions.Any())
                 foreach (var loopValidations in ValidationFunctions)
                 {
                     var validationResult = loopValidations(UserValue);
@@ -182,7 +182,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges")) CheckForChanges();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChangesAndValidate();
         }
     }
 }

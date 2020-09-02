@@ -133,7 +133,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges")) CheckForChanges();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChanges();
         }
 
         public async Task<bool> TrySelectContentChoice(string contentChoice)

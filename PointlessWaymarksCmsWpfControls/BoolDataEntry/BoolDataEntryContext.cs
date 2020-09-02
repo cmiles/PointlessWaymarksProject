@@ -112,11 +112,11 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void CheckForChanges()
+        private void CheckForChangesAndValidate()
         {
             HasChanges = UserValue != ReferenceValue;
 
-            if (ValidationFunctions != null && !ValidationFunctions.Any())
+            if (ValidationFunctions != null && ValidationFunctions.Any())
                 foreach (var loopValidations in ValidationFunctions)
                 {
                     var validationResult = loopValidations(UserValue);
@@ -139,7 +139,7 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges")) CheckForChanges();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChangesAndValidate();
         }
     }
 }

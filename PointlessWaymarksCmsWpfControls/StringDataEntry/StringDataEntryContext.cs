@@ -113,7 +113,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void CheckForChanges()
+        private void CheckForChangesAndValidate()
         {
             HasChanges = UserValue.TrimNullToEmpty() != ReferenceValue.TrimNullToEmpty();
 
@@ -140,7 +140,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges")) CheckForChanges();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChangesAndValidate();
         }
     }
 }
