@@ -63,6 +63,16 @@ namespace PointlessWaymarksCmsData
         }
 
         /// <summary>
+        ///     If the string is null an empty string is returned - if the string has value it is trimmed
+        /// </summary>
+        /// <param name="toTrim"></param>
+        /// <returns></returns>
+        public static string NullToEmptyTrim(string toTrim)
+        {
+            return string.IsNullOrWhiteSpace(toTrim) ? string.Empty : toTrim.Trim();
+        }
+
+        /// <summary>
         ///     Simple expansion of Camel Case into a 'normal' string
         /// </summary>
         /// <param name="str"></param>

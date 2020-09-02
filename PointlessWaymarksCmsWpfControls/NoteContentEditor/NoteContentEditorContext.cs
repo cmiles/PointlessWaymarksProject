@@ -213,13 +213,14 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public bool HasChanges => !(StringHelpers.AreEqual(DbEntry.Folder, Folder.TrimNullToEmpty()) &&
-                     StringHelpers.AreEqual(DbEntry.Summary, Summary.TrimNullToEmpty()) &&
-                     StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-                     StringHelpers.AreEqual(DbEntry.BodyContentFormat,
-                         BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
-                     DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSiteFeed);
+        public bool HasChanges =>
+            !(StringHelpers.AreEqual(DbEntry.Folder, Folder.TrimNullToEmpty()) &&
+              StringHelpers.AreEqual(DbEntry.Summary, Summary.TrimNullToEmpty()) &&
+              StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedByEntry.UserValue) &&
+              StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
+              StringHelpers.AreEqual(DbEntry.BodyContentFormat,
+                  BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
+              DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSiteFeed);
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -268,14 +269,14 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullToEmpty();
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
             newEntry.Folder = Folder.TrimNullToEmpty();
             newEntry.Summary = Summary.TrimNullToEmpty();
             newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
             newEntry.Tags = TagEdit.TagListString();
-            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 

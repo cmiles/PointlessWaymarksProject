@@ -208,7 +208,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
                 Title = "Title",
                 HelpText = "Title Text",
                 ReferenceValue = DbEntry?.Title ?? string.Empty,
-                UserValue = DbEntry?.Title ?? string.Empty,
+                UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.Title),
                 ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
                 {
                     CommonContentValidation.ValidateTitle
@@ -220,7 +220,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
                 Title = "Slug",
                 HelpText = "This will be the Folder and File Name used in URLs - limited to a-z 0-9 _ -",
                 ReferenceValue = DbEntry?.Slug ?? string.Empty,
-                UserValue = DbEntry?.Slug ?? string.Empty,
+                UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.Slug),
                 ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
                 {
                     CommonContentValidation.ValidateSlugLocal
@@ -232,7 +232,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
                 Title = "Summary",
                 HelpText = "A short text entry that will show in Search and short references to the content",
                 ReferenceValue = DbEntry?.Summary ?? string.Empty,
-                UserValue = DbEntry?.Summary ?? string.Empty,
+                UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.Summary),
                 ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
                 {
                     CommonContentValidation.ValidateSummary

@@ -5,8 +5,10 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
@@ -14,16 +16,14 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
     public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged, IHasChanges
     {
         private string _createdAndUpdatedByAndOn;
-        private string _createdBy = string.Empty;
-        private bool _createdByHasChanges;
+        private StringDataEntryContext _createdByEntry;
         private DateTime? _createdOn;
         private ICreatedAndLastUpdateOnAndBy _dbEntry;
         private bool _hasChanges;
         private bool _isNewEntry;
         private bool _showCreatedByEditor;
         private bool _showUpdatedByEditor;
-        private string _updatedBy = string.Empty;
-        private bool _updatedHasChanges;
+        private StringDataEntryContext _updatedByEntry;
         private DateTime? _updatedOn;
 
         public CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
@@ -44,24 +44,13 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
-        public string CreatedBy
+        public StringDataEntryContext CreatedByEntry
         {
-            get => _createdBy;
+            get => _createdByEntry;
             set
             {
-                if (value == _createdBy) return;
-                _createdBy = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool CreatedByHasChanges
-        {
-            get => _createdByHasChanges;
-            set
-            {
-                if (value == _createdByHasChanges) return;
-                _createdByHasChanges = value;
+                if (Equals(value, _createdByEntry)) return;
+                _createdByEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -76,6 +65,7 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
                 OnPropertyChanged();
             }
         }
+
 
         public ICreatedAndLastUpdateOnAndBy DbEntry
         {
@@ -134,24 +124,13 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
 
         public StatusControlContext StatusContext { get; set; }
 
-        public string UpdatedBy
+        public StringDataEntryContext UpdatedByEntry
         {
-            get => _updatedBy;
+            get => _updatedByEntry;
             set
             {
-                if (value == _updatedBy) return;
-                _updatedBy = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool UpdatedHasChanges
-        {
-            get => _updatedHasChanges;
-            set
-            {
-                if (value == _updatedHasChanges) return;
-                _updatedHasChanges = value;
+                if (Equals(value, _updatedByEntry)) return;
+                _updatedByEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -167,16 +146,12 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void CheckForChanges()
         {
-            // ReSharper disable InvokeAsExtensionMethod
-            CreatedByHasChanges = CreatedBy.TrimNullToEmpty() != StringHelpers.TrimNullToEmpty(DbEntry?.CreatedBy);
-            UpdatedHasChanges = UpdatedBy.TrimNullToEmpty() != StringHelpers.TrimNullToEmpty(DbEntry?.LastUpdatedBy);
-            // ReSharper restore InvokeAsExtensionMethod
-
-            HasChanges = CreatedByHasChanges || UpdatedHasChanges;
+            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         }
 
         public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)
@@ -191,15 +166,42 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
                 IsNewEntry = true;
             else if (((IContentId) DbEntry).Id < 1) IsNewEntry = true;
 
-            CreatedBy = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
-                ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
-                : DbEntry.CreatedBy;
-            UpdatedBy = toLoad?.LastUpdatedBy ?? string.Empty;
+            CreatedByEntry = new StringDataEntryContext
+            {
+                Title = "Created By",
+                HelpText = "Created By Name",
+                ReferenceValue =
+                    string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
+                        ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+                        : DbEntry.CreatedBy,
+                UserValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
+                    ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+                    : DbEntry.CreatedBy,
+                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                {
+                    CommonContentValidation.ValidateCreatedBy
+                }
+            };
+
+            UpdatedByEntry = new StringDataEntryContext
+            {
+                Title = "Updated By",
+                HelpText = "Last Updated By Name",
+                ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty,
+                UserValue = toLoad?.LastUpdatedBy ?? string.Empty,
+                ValidationFunctions =
+                    new List<Func<string, (bool passed, string validationMessage)>> {ValidateUpdatedBy}
+            };
+
 
             //If this is a 'first update' go ahead and fill in the Created by as the updated by, this
             //is realistically just a trade off, better for most common workflow - potential mistake
             //if trading off created/updated authors since you are not 'forcing' an entry
-            if (!IsNewEntry && string.IsNullOrWhiteSpace(UpdatedBy)) UpdatedBy = CreatedBy;
+            if (!IsNewEntry && string.IsNullOrWhiteSpace(UpdatedByEntry.UserValue))
+            {
+                UpdatedByEntry.ReferenceValue = CreatedByEntry.UserValue;
+                UpdatedByEntry.UserValue = CreatedByEntry.UserValue;
+            }
 
             CreatedOn = toLoad?.CreatedOn;
             UpdatedOn = toLoad?.LastUpdatedOn;
@@ -244,14 +246,10 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             if (!propertyName.Contains("HasChanges")) CheckForChanges();
         }
 
-        public async Task<(bool, string)> Validate()
+
+        public (bool passed, string validationMessage) ValidateUpdatedBy(string updatedBy)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (IsNewEntry && string.IsNullOrWhiteSpace(CreatedBy))
-                return (false, "Created by can not be blank for a new entry.");
-
-            if (!IsNewEntry && string.IsNullOrWhiteSpace(UpdatedBy))
+            if (!IsNewEntry && string.IsNullOrWhiteSpace(updatedBy))
                 return (false, "Updated by can not be blank when updating an entry");
 
             return (true, string.Empty);

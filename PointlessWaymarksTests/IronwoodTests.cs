@@ -98,21 +98,21 @@ namespace PointlessWaymarksTests
 
             await newContext.LoadData(quarryPhoto);
 
-            newContext.TitleSummarySlugFolder.Title = string.Empty;
-            Assert.True(newContext.TitleSummarySlugFolder.TitleHasChanges);
-            Assert.True(newContext.TitleSummarySlugFolder.TitleHasValidationIssues);
-            newContext.TitleSummarySlugFolder.Title = IronwoodPhotoInfo.QuarryContent01.Title;
-            Assert.False(newContext.TitleSummarySlugFolder.TitleHasChanges);
+            newContext.TitleSummarySlugFolder.TitleEntry.UserValue = string.Empty;
+            Assert.True(newContext.TitleSummarySlugFolder.TitleEntry.HasChanges);
+            Assert.True(newContext.TitleSummarySlugFolder.TitleEntry.HasValidationIssues);
+            newContext.TitleSummarySlugFolder.TitleEntry.UserValue = IronwoodPhotoInfo.QuarryContent01.Title;
+            Assert.False(newContext.TitleSummarySlugFolder.TitleEntry.HasChanges);
 
-            newContext.TitleSummarySlugFolder.Slug += "\\\\";
-            Assert.True(newContext.TitleSummarySlugFolder.SlugHasValidationIssues);
-            Assert.True(newContext.TitleSummarySlugFolder.SlugHasChanges);
-            newContext.TitleSummarySlugFolder.Slug = IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.Slug;
-            Assert.False(newContext.TitleSummarySlugFolder.SlugHasValidationIssues);
+            newContext.TitleSummarySlugFolder.SlugEntry.UserValue += "\\\\";
+            Assert.True(newContext.TitleSummarySlugFolder.SlugEntry.HasValidationIssues);
+            Assert.True(newContext.TitleSummarySlugFolder.SlugEntry.HasChanges);
+            newContext.TitleSummarySlugFolder.SlugEntry.UserValue = IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.Slug;
+            Assert.False(newContext.TitleSummarySlugFolder.SlugEntry.HasValidationIssues);
 
             newContext.TitleSummarySlugFolder.Folder =
                 IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.Folder;
-            Assert.False(newContext.TitleSummarySlugFolder.SlugHasValidationIssues);
+            Assert.False(newContext.TitleSummarySlugFolder.FolderHasValidationIssues);
 
             newContext.TagEdit.Tags = IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.Tags;
             Assert.False(newContext.TagEdit.TagsHaveValidationIssues);

@@ -117,7 +117,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
         {
             HasChanges = UserValue.TrimNullToEmpty() != ReferenceValue.TrimNullToEmpty();
 
-            if (ValidationFunctions != null && !ValidationFunctions.Any())
+            if (ValidationFunctions != null && ValidationFunctions.Any())
                 foreach (var loopValidations in ValidationFunctions)
                 {
                     var validationResult = loopValidations(UserValue);

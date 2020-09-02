@@ -1,8 +1,4 @@
 ﻿## Todos
- - DataEntry Control Changes
-  - Updated by is triggering un-needed changes when closing without saving warnings
-  - Use the new String Entry control in Image
-  - Changes and Validation background color?
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?
@@ -54,6 +50,10 @@
  - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
  
 ## Notes
+
+9/2/2020
+
+Continued work on the control refactorings.
 
 9/1/2020
 

@@ -381,7 +381,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 
         public bool HasChanges =>
             !(!TagEdit.TagsHaveChanges && DbEntry.ShowInLinkRss == ShowInLinkRss && DbEntry.LinkDate == LinkDateTime &&
-              StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty()) &&
+              StringHelpers.AreEqual(DbEntry.CreatedBy,
+                  CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty()) &&
               StringHelpers.AreEqual(DbEntry.Comments, Comments.TrimNullToEmpty()) &&
               StringHelpers.AreEqual(DbEntry.Url, LinkUrl.TrimNullToEmpty()) &&
               StringHelpers.AreEqual(DbEntry.Title, Title.TrimNullToEmpty()) &&
@@ -466,11 +467,11 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullToEmpty();
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
             newEntry.Tags = TagEdit.TagListString();
-            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
             newEntry.Comments = Comments.TrimNullToEmpty();
             newEntry.Url = LinkUrl.TrimNullToEmpty();
             newEntry.Title = Title.TrimNullToEmpty();

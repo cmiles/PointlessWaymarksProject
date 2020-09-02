@@ -5,7 +5,7 @@
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:stringDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.StringDataEntry"
     d:DataContext="{d:DesignInstance createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -21,43 +21,11 @@
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Vertical" Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
-                <StackPanel Orientation="Horizontal">
-                    <Label
-                        Content="Created By"
-                        Style="{StaticResource DataEntryLabelStyle}"
-                        Target="{Binding ElementName=CreatedByTextBox}" />
-                    <utility:IndicatorIcon
-                        VerticalAlignment="Center"
-                        HoverText="{Binding DbEntry.CreatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                        IconBrush="Black"
-                        IconPathGeometry="{StaticResource IconDataInfo}"
-                        IconSize="{StaticResource SmallIconSize}"
-                        Visibility="{Binding CreatedByHasChanges, Converter={StaticResource BooleanToVisibility}}" />
-                </StackPanel>
-                <TextBox
-                    Name="CreatedByTextBox"
-                    Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                    Text="{Binding CreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel Visibility="{Binding ShowCreatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
+                <stringDataEntry:StringDataEntryControl DataContext="{Binding CreatedByEntry}" />
             </StackPanel>
-            <StackPanel Orientation="Vertical" Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
-                <StackPanel Orientation="Horizontal">
-                    <Label
-                        Content="Updated By"
-                        Style="{StaticResource DataEntryLabelStyle}"
-                        Target="{Binding ElementName=UpdatedByTextBox}" />
-                    <utility:IndicatorIcon
-                        VerticalAlignment="Center"
-                        HoverText="{Binding DbEntry.LastUpdatedBy, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                        IconBrush="Black"
-                        IconPathGeometry="{StaticResource IconDataInfo}"
-                        IconSize="{StaticResource SmallIconSize}"
-                        Visibility="{Binding UpdatedHasChanges, Converter={StaticResource BooleanToVisibility}}" />
-                </StackPanel>
-                <TextBox
-                    Name="UpdatedByTextBox"
-                    Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                    Text="{Binding UpdatedBy, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel Visibility="{Binding ShowUpdatedByEditor, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
+                <stringDataEntry:StringDataEntryControl DataContext="{Binding CreatedByEntry}" />
             </StackPanel>
             <TextBox
                 Margin="12,4,0,0"

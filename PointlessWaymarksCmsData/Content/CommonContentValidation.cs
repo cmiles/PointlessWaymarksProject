@@ -200,10 +200,12 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add($"Created on of {toValidate.CreatedOn} is not valid.");
             }
 
-            if (string.IsNullOrWhiteSpace(toValidate.CreatedBy))
+            var createdByValidation = ValidateCreatedBy(toValidate.CreatedBy);
+
+            if (!createdByValidation.valid)
             {
                 isValid = false;
-                errorMessage.Add("Created by can not be blank.");
+                errorMessage.Add(createdByValidation.explanation);
             }
 
             if (!isNewEntry && string.IsNullOrWhiteSpace(toValidate.LastUpdatedBy))
@@ -219,6 +221,13 @@ namespace PointlessWaymarksCmsData.Content
             }
 
             return (isValid, string.Join(Environment.NewLine, errorMessage));
+        }
+
+        public static (bool valid, string explanation) ValidateCreatedBy(string createdBy)
+        {
+            if (string.IsNullOrWhiteSpace(createdBy.TrimNullToEmpty())) return (false, "Created by can not be blank.");
+
+            return (true, "Created By is Ok");
         }
 
         public static (bool isValid, string explanation) ValidateFolder(string folder)

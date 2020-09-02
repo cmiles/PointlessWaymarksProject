@@ -571,7 +571,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullToEmpty();
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
             newEntry.MainPicture = newEntry.ContentId;
@@ -588,7 +588,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             newEntry.AltText = AltTextEntry.UserValue.TrimNullToEmpty();
             newEntry.CameraMake = CameraMakeEntry.UserValue.TrimNullToEmpty();
             newEntry.CameraModel = CameraModelEntry.UserValue.TrimNullToEmpty();
-            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
             newEntry.FocalLength = FocalLengthEntry.UserValue.TrimNullToEmpty();
             newEntry.ShutterSpeed = ShutterSpeedEntry.UserValue.TrimNullToEmpty();
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
@@ -652,7 +652,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 HelpText =
                     "Ratio of the lens focal length to the diameter of the entrance pupil - usually entered in a format like f/8.0",
                 ReferenceValue = DbEntry.Aperture ?? string.Empty,
-                UserValue = DbEntry.Aperture ?? string.Empty
+                UserValue = DbEntry.Aperture.TrimNullToEmpty()
             };
 
             LensEntry = new StringDataEntryContext
@@ -660,7 +660,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 Title = "Lens",
                 HelpText = "Description and/or identifier for the lens the photograph was taken with.",
                 ReferenceValue = DbEntry.Lens ?? string.Empty,
-                UserValue = DbEntry.Lens ?? string.Empty
+                UserValue = DbEntry.Lens.TrimNullToEmpty()
             };
 
             LicenseEntry = new StringDataEntryContext
@@ -668,7 +668,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 Title = "License",
                 HelpText = "The Photo's License",
                 ReferenceValue = DbEntry.License ?? string.Empty,
-                UserValue = DbEntry.License ?? string.Empty
+                UserValue = DbEntry.License.TrimNullToEmpty()
             };
 
             AltTextEntry = new StringDataEntryContext
@@ -676,7 +676,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 Title = "Alt Text",
                 HelpText = "A description for the photo, sometimes just the summary will be sufficient...",
                 ReferenceValue = DbEntry.AltText ?? string.Empty,
-                UserValue = DbEntry.AltText ?? string.Empty
+                UserValue = DbEntry.AltText.TrimNullToEmpty()
             };
 
             CameraMakeEntry = new StringDataEntryContext
@@ -684,7 +684,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 Title = "Camera Make",
                 HelpText = "The Make, or Brand, of the Camera",
                 ReferenceValue = DbEntry.CameraMake ?? string.Empty,
-                UserValue = DbEntry.CameraMake ?? string.Empty
+                UserValue = DbEntry.CameraMake.TrimNullToEmpty()
             };
 
             CameraModelEntry = new StringDataEntryContext
@@ -692,7 +692,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 Title = "Camera Model",
                 HelpText = "The Camera Model",
                 ReferenceValue = DbEntry.CameraModel ?? string.Empty,
-                UserValue = DbEntry.CameraModel ?? string.Empty
+                UserValue = DbEntry.CameraModel.TrimNullToEmpty()
             };
 
             FocalLengthEntry = new StringDataEntryContext
@@ -700,7 +700,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 Title = "Focal Length",
                 HelpText = "Usually entered as 50 mm or 110 mm",
                 ReferenceValue = DbEntry.FocalLength ?? string.Empty,
-                UserValue = DbEntry.FocalLength ?? string.Empty
+                UserValue = DbEntry.FocalLength.TrimNullToEmpty()
             };
 
             ShutterSpeedEntry = new StringDataEntryContext
@@ -708,7 +708,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 Title = "Shutter Speed",
                 HelpText = "Usually entered as 1/250 or 3\"",
                 ReferenceValue = DbEntry.ShutterSpeed ?? string.Empty,
-                UserValue = DbEntry.ShutterSpeed ?? string.Empty
+                UserValue = DbEntry.ShutterSpeed.TrimNullToEmpty()
             };
 
             PhotoCreatedByEntry = new StringDataEntryContext
@@ -716,7 +716,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 Title = "Photo Created By",
                 HelpText = "Who created the photo",
                 ReferenceValue = DbEntry.PhotoCreatedBy ?? string.Empty,
-                UserValue = DbEntry.PhotoCreatedBy ?? string.Empty
+                UserValue = DbEntry.PhotoCreatedBy.TrimNullToEmpty()
             };
 
             IsoEntry = new ConversionDataEntryContext<int?>

@@ -21,6 +21,7 @@ using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.ShowInSearchEditor;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
@@ -30,7 +31,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 {
     public class ImageContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
-        private StringChangeTrackingProperty _altText = new StringChangeTrackingProperty();
+        private StringDataEntryContext _altText;
         private BodyContentEditorContext _bodyContent;
         private Command _chooseFileCommand;
         private ContentIdViewerControlContext _contentId;
@@ -69,7 +70,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(contentToLoad));
         }
 
-        public StringChangeTrackingProperty AltText
+        public StringDataEntryContext AltTextEntry
         {
             get => _altText;
             set
@@ -406,7 +407,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedBy.TrimNullToEmpty();
+                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
             newEntry.MainPicture = newEntry.ContentId;
@@ -417,8 +418,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             newEntry.ShowInSearch = ShowInSearch.ShowInSearch;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
-            newEntry.AltText = AltText.UserValue.TrimNullToEmpty();
-            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedBy.TrimNullToEmpty();
+            newEntry.AltText = AltTextEntry.UserValue.TrimNullToEmpty();
+            newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
             newEntry.UpdateNotes = UpdateNotes.UpdateNotes.TrimNullToEmpty();
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
@@ -493,8 +494,14 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 }
             }
 
-            AltText.ReferenceValue = DbEntry.AltText;
-            AltText.UserValue = DbEntry.AltText.TrimNullToEmpty();
+            AltTextEntry = new StringDataEntryContext
+            {
+                Title = "Alt Text",
+                HelpText =
+                    "A short text description of the image - in some cases the Summary may be all that is needed.",
+                ReferenceValue = DbEntry.AltText ?? string.Empty,
+                UserValue = DbEntry.AltText.TrimNullToEmpty(),
+            };
 
             if (DbEntry.Id < 1 && _initialImage != null && _initialImage.Exists &&
                 FileHelpers.ImageFileTypeIsSupported(_initialImage))
