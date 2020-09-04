@@ -7,12 +7,11 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     {
         public static bool ChildPropertiesHaveChanges(object toScan)
         {
-            var hasChangesProperties = toScan.GetProps().ToList();
+            var allProperties = toScan.GetProps().ToList();
 
             var hasChanges = false;
 
-
-            foreach (var loopProperties in hasChangesProperties)
+            foreach (var loopProperties in allProperties)
             {
                 if (!typeof(IHasChanges).IsAssignableFrom(loopProperties.PropertyType)) continue;
 
@@ -28,11 +27,11 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         public static bool ChildPropertiesHaveValidationIssues(object toScan)
         {
-            var hasChangesProperties = toScan.GetProps().ToList();
+            var allProperties = toScan.GetProps().ToList();
 
-            var hasChanges = false;
+            var hasValidationIssues = false;
 
-            foreach (var loopProperties in hasChangesProperties)
+            foreach (var loopProperties in allProperties)
             {
                 if (!typeof(IHasValidationIssues).IsAssignableFrom(loopProperties.PropertyType)) continue;
 
@@ -40,10 +39,10 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
                 if (value == null) continue;
 
-                hasChanges = hasChanges || ((IHasValidationIssues) value).HasValidationIssues;
+                hasValidationIssues = hasValidationIssues || ((IHasValidationIssues) value).HasValidationIssues;
             }
 
-            return hasChanges;
+            return hasValidationIssues;
         }
     }
 }

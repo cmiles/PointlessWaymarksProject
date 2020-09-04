@@ -11,6 +11,8 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 {
     public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
     {
+        private Func<T, T, bool> _comparisonFunction;
+
         private Func<string, (bool passed, string conversionMessage, T result)> _converter;
         private bool _hasChanges;
         private bool _hasValidationIssues;
@@ -24,6 +26,22 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
             new List<Func<T, (bool passed, string validationMessage)>>();
 
         private string _validationMessage;
+
+        public ConversionDataEntryContext()
+        {
+            ComparisonFunction = (referenceValue, userValue) => referenceValue.Equals(userValue);
+        }
+
+        public Func<T, T, bool> ComparisonFunction
+        {
+            get => _comparisonFunction;
+            set
+            {
+                if (Equals(value, _comparisonFunction)) return;
+                _comparisonFunction = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Func<string, (bool passed, string conversionMessage, T result)> Converter
         {
@@ -157,7 +175,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
             UserValue = converted.result;
 
-            HasChanges = !ReferenceValue.Equals(UserValue);
+            HasChanges = !ComparisonFunction(ReferenceValue, UserValue);
 
             if (ValidationFunctions != null && ValidationFunctions.Any())
                 foreach (var loopValidations in ValidationFunctions)
@@ -182,7 +200,8 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChangesAndValidate();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidate();
         }
     }
 }

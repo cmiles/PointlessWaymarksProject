@@ -726,7 +726,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 ReferenceValue = DbEntry.Iso,
                 UserValue = DbEntry.Iso,
                 UserText = DbEntry.Iso?.ToString("F0") ?? string.Empty,
-                Converter = ConversionDataEntryHelpers.NullableIntConversion,
+                Converter = ConversionDataEntryHelpers.IntNullableConversion,
             };
 
             PhotoCreatedOnEntry = new ConversionDataEntryContext<DateTime>

@@ -17,6 +17,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.ConversionDataEntry"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -42,11 +43,18 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
-                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource ShowInSiteFeedPanelStyle}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
+                                DataContext="{Binding ShowInSiteFeed}"
+                                Style="{StaticResource ShowInSiteFeedPanelStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -62,90 +70,9 @@
                         Header="Location"
                         Style="{StaticResource UiComponentGroupBoxStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                            <StackPanel Width="120">
-                                <StackPanel Orientation="Horizontal">
-                                    <Label
-                                        Content="Latitude"
-                                        Style="{StaticResource DataEntryLabelStyle}"
-                                        Target="{Binding ElementName=LatitudeTextBox}" />
-                                    <utility:IndicatorIcon
-                                        VerticalAlignment="Center"
-                                        HoverText="{Binding DbEntry.Latitude, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                        IconBrush="Black"
-                                        IconPathGeometry="{StaticResource IconDataInfo}"
-                                        IconSize="{StaticResource SmallIconSize}"
-                                        Visibility="{Binding LatitudeHasChanges, Converter={StaticResource BooleanToVisibility}}" />
-                                    <utility:IndicatorIcon
-                                        VerticalAlignment="Center"
-                                        HoverText="{Binding LatitudeValidationMessage}"
-                                        IconBrush="Red"
-                                        IconPathGeometry="{StaticResource IconDataError}"
-                                        IconSize="{StaticResource SmallIconSize}"
-                                        Visibility="{Binding LatitudeHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
-                                </StackPanel>
-                                <TextBox
-                                    Name="LatitudeTextBox"
-                                    Margin="6,2,0,0"
-                                    SpellCheck.IsEnabled="True"
-                                    Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                    Text="{Binding Latitude, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
-                            </StackPanel>
-                            <StackPanel Width="120">
-                                <StackPanel Orientation="Horizontal">
-                                    <Label
-                                        Content="Longitude"
-                                        Style="{StaticResource DataEntryLabelStyle}"
-                                        Target="{Binding ElementName=LongitudeTextBox}" />
-                                    <utility:IndicatorIcon
-                                        VerticalAlignment="Center"
-                                        HoverText="{Binding DbEntry.Longitude, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                        IconBrush="Black"
-                                        IconPathGeometry="{StaticResource IconDataInfo}"
-                                        IconSize="{StaticResource SmallIconSize}"
-                                        Visibility="{Binding LongitudeHasChanges, Converter={StaticResource BooleanToVisibility}}" />
-                                    <utility:IndicatorIcon
-                                        VerticalAlignment="Center"
-                                        HoverText="{Binding LongitudeValidationMessage}"
-                                        IconBrush="Red"
-                                        IconPathGeometry="{StaticResource IconDataError}"
-                                        IconSize="{StaticResource SmallIconSize}"
-                                        Visibility="{Binding LongitudeHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
-                                </StackPanel>
-                                <TextBox
-                                    Name="LongitudeTextBox"
-                                    Margin="6,2,0,0"
-                                    SpellCheck.IsEnabled="True"
-                                    Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                    Text="{Binding Longitude, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
-                            </StackPanel>
-                            <StackPanel Width="120">
-                                <StackPanel Orientation="Horizontal">
-                                    <Label
-                                        Content="Elevation"
-                                        Style="{StaticResource DataEntryLabelStyle}"
-                                        Target="{Binding ElementName=ElevationTextBox}" />
-                                    <utility:IndicatorIcon
-                                        VerticalAlignment="Center"
-                                        HoverText="{Binding DbEntry.Elevation, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                        IconBrush="Black"
-                                        IconPathGeometry="{StaticResource IconDataInfo}"
-                                        IconSize="{StaticResource SmallIconSize}"
-                                        Visibility="{Binding ElevationHasChanges, Converter={StaticResource BooleanToVisibility}}" />
-                                    <utility:IndicatorIcon
-                                        VerticalAlignment="Center"
-                                        HoverText="{Binding ElevationValidationMessage}"
-                                        IconBrush="Red"
-                                        IconPathGeometry="{StaticResource IconDataError}"
-                                        IconSize="{StaticResource SmallIconSize}"
-                                        Visibility="{Binding ElevationHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
-                                </StackPanel>
-                                <TextBox
-                                    Name="ElevationTextBox"
-                                    Margin="6,2,0,0"
-                                    SpellCheck.IsEnabled="True"
-                                    Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                                    Text="{Binding Elevation, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
+                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}"></conversionDataEntry:ConversionDataEntryControl>
+                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}"></conversionDataEntry:ConversionDataEntryControl>
+                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding ElevationEntry}"></conversionDataEntry:ConversionDataEntryControl>
                             <Button
                                 Width="90"
                                 Height="40"
@@ -166,6 +93,14 @@
             <TabItem Header="Body">
                 <Grid>
                     <bodyContentEditor:BodyContentEditorControl DataContext="{Binding BodyContent}" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Details">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">

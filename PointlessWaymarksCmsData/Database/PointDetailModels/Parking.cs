@@ -1,10 +1,10 @@
 ﻿namespace PointlessWaymarksCmsData.Database.PointDetailModels
 {
-    public class Parking
+    public class Parking : IPointDetail
     {
-        public const string DataTypeIdentifier = "Trail Junction";
-        public string NotesContentFormat { get; set; }
-        public string Notes { get; set; }
+        public string DataTypeIdentifier => "Trail Junction";
         public bool Fee { get; set; }
+        public string Notes { get; set; }
+        public string NotesContentFormat { get; set; }
     }
 }

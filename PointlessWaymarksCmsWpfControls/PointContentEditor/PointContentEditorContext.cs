@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Http;
@@ -14,8 +15,10 @@ using PointlessWaymarksCmsData.Spatial;
 using PointlessWaymarksCmsData.Spatial.Elevation;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
+using PointlessWaymarksCmsWpfControls.ConversionDataEntry;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
+using PointlessWaymarksCmsWpfControls.PointDetailEditor;
 using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
@@ -32,21 +35,13 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PointContent _dbEntry;
-        private double? _elevation;
-        private bool _elevationHasChanges;
-        private bool _elevationHasValidationIssues;
-        private string _elevationValidationMessage;
+        private ConversionDataEntryContext<double?> _elevationEntry;
         private Command _extractNewLinksCommand;
         private Command _getElevationCommand;
         private HelpDisplayContext _helpContext;
-        private double _latitude;
-        private bool _latitudeHasChanges;
-        private bool _latitudeHasValidationIssues;
-        private string _latitudeValidationMessage;
-        private double _longitude;
-        private bool _longitudeHasChanges;
-        private bool _longitudeHasValidationIssues;
-        private string _longitudeValidationMessage;
+        private ConversionDataEntryContext<double> _latitudeEntry;
+        private ConversionDataEntryContext<double> _longitudeEntry;
+        private PointDetailListContext _pointDetails;
         private Command _saveAndGenerateHtmlCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private TagsEditorContext _tagEdit;
@@ -115,46 +110,13 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        public double? Elevation
+        public ConversionDataEntryContext<double?> ElevationEntry
         {
-            get => _elevation;
+            get => _elevationEntry;
             set
             {
-                if (value.Equals(_elevation)) return;
-                _elevation = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool ElevationHasChanges
-        {
-            get => _elevationHasChanges;
-            set
-            {
-                if (value == _elevationHasChanges) return;
-                _elevationHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool ElevationHasValidationIssues
-        {
-            get => _elevationHasValidationIssues;
-            set
-            {
-                if (value == _elevationHasValidationIssues) return;
-                _elevationHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string ElevationValidationMessage
-        {
-            get => _elevationValidationMessage;
-            set
-            {
-                if (value == _elevationValidationMessage) return;
-                _elevationValidationMessage = value;
+                if (Equals(value, _elevationEntry)) return;
+                _elevationEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -181,6 +143,12 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
+        public bool HasChanges =>
+            TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges ||
+            ShowInSiteFeed.ShowInMainSiteFeedHasChanges || BodyContent.HasChanges || UpdateNotes.HasChanges ||
+            TagEdit.TagsHaveChanges || LatitudeEntry.HasChanges || LongitudeEntry.HasChanges ||
+            ElevationEntry.HasChanges;
+
         public HelpDisplayContext HelpContext
         {
             get => _helpContext;
@@ -192,90 +160,35 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        public double Latitude
+        public ConversionDataEntryContext<double> LatitudeEntry
         {
-            get => _latitude;
+            get => _latitudeEntry;
             set
             {
-                if (value.Equals(_latitude)) return;
-                _latitude = value;
+                if (Equals(value, _latitudeEntry)) return;
+                _latitudeEntry = value;
                 OnPropertyChanged();
             }
         }
 
-        public bool LatitudeHasChanges
+        public ConversionDataEntryContext<double> LongitudeEntry
         {
-            get => _latitudeHasChanges;
+            get => _longitudeEntry;
             set
             {
-                if (value == _latitudeHasChanges) return;
-                _latitudeHasChanges = value;
+                if (Equals(value, _longitudeEntry)) return;
+                _longitudeEntry = value;
                 OnPropertyChanged();
             }
         }
 
-        public bool LatitudeHasValidationIssues
+        public PointDetailListContext PointDetails
         {
-            get => _latitudeHasValidationIssues;
+            get => _pointDetails;
             set
             {
-                if (value == _latitudeHasValidationIssues) return;
-                _latitudeHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string LatitudeValidationMessage
-        {
-            get => _latitudeValidationMessage;
-            set
-            {
-                if (value == _latitudeValidationMessage) return;
-                _latitudeValidationMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public double Longitude
-        {
-            get => _longitude;
-            set
-            {
-                if (value.Equals(_longitude)) return;
-                _longitude = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool LongitudeHasChanges
-        {
-            get => _longitudeHasChanges;
-            set
-            {
-                if (value == _longitudeHasChanges) return;
-                _longitudeHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool LongitudeHasValidationIssues
-        {
-            get => _longitudeHasValidationIssues;
-            set
-            {
-                if (value == _longitudeHasValidationIssues) return;
-                _longitudeHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string LongitudeValidationMessage
-        {
-            get => _longitudeValidationMessage;
-            set
-            {
-                if (value == _longitudeValidationMessage) return;
-                _longitudeValidationMessage = value;
+                if (Equals(value, _pointDetails)) return;
+                _pointDetails = value;
                 OnPropertyChanged();
             }
         }
@@ -350,38 +263,14 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void CheckForChangesAndValidate(bool latitudeLongitudeHasChanges)
+        private void CheckForChangesAndValidate(bool checkFromLatitudeLongitudePropertyChanges)
         {
             SpatialHelpers.RoundLatLongElevation(this);
 
-            LatitudeHasChanges = !DbEntry?.Latitude.IsApproximatelyEqualTo(Latitude, .000001) ?? true;
-
-            LongitudeHasChanges = !DbEntry?.Longitude.IsApproximatelyEqualTo(Longitude, .000001) ?? true;
-
-            if (DbEntry?.Elevation == null && Elevation == null) ElevationHasChanges = false;
-            else if (DbEntry?.Elevation != null && Elevation == null) ElevationHasChanges = true;
-            else if (DbEntry?.Elevation == null && Elevation != null) ElevationHasChanges = true;
-            // ReSharper disable PossibleInvalidOperationException Checked above
-            else
-                ElevationHasChanges =
-                    !DbEntry?.Elevation.Value.IsApproximatelyEqualTo(Elevation.Value, .000001) ?? true;
-            // ReSharper restore PossibleInvalidOperationException
-
-            var latitudeValidationResult = CommonContentValidation.LatitudeValidation(Latitude);
-            LatitudeHasValidationIssues = !latitudeValidationResult.isValid;
-            LatitudeValidationMessage = latitudeValidationResult.explanation;
-
-            var longitudeValidationResult = CommonContentValidation.LongitudeValidation(Longitude);
-            LongitudeHasValidationIssues = !longitudeValidationResult.isValid;
-            LongitudeValidationMessage = longitudeValidationResult.explanation;
-
-            if (_broadcastLatLongChange && latitudeLongitudeHasChanges && !LatitudeHasValidationIssues &&
-                !LongitudeHasValidationIssues)
-                RaisePointLatitudeLongitudeChange?.Invoke(this, new PointLatitudeLongitudeChange(Latitude, Longitude));
-
-            var elevationValidationResult = CommonContentValidation.ElevationValidation(Elevation);
-            ElevationHasValidationIssues = !elevationValidationResult.isValid;
-            ElevationValidationMessage = elevationValidationResult.explanation;
+            if (_broadcastLatLongChange && checkFromLatitudeLongitudePropertyChanges &&
+                !LatitudeEntry.HasValidationIssues && !LongitudeEntry.HasValidationIssues)
+                RaisePointLatitudeLongitudeChange?.Invoke(this,
+                    new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
         }
 
         private PointContent CurrentStateToPointContent()
@@ -413,9 +302,9 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
-            newEntry.Latitude = Latitude;
-            newEntry.Longitude = Longitude;
-            newEntry.Elevation = Elevation;
+            newEntry.Latitude = LatitudeEntry.UserValue;
+            newEntry.Longitude = LongitudeEntry.UserValue;
+            newEntry.Elevation = ElevationEntry.UserValue;
 
             return newEntry;
         }
@@ -423,7 +312,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
         public async Task GetElevation()
         {
-            if (LatitudeHasValidationIssues || LongitudeHasValidationIssues)
+            if (LatitudeEntry.HasValidationIssues || LongitudeEntry.HasValidationIssues)
             {
                 StatusContext.ToastError("Lat Long is not valid");
                 return;
@@ -433,15 +322,15 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
             try
             {
-                var elevationResult = await ElevationService.OpenTopoNedElevation(httpClient, Latitude, Longitude,
-                    StatusContext.ProgressTracker());
+                var elevationResult = await ElevationService.OpenTopoNedElevation(httpClient, LatitudeEntry.UserValue,
+                    LongitudeEntry.UserValue, StatusContext.ProgressTracker());
 
                 if (elevationResult != null)
                 {
-                    Elevation = elevationResult.MetersToFeet();
+                    ElevationEntry.UserValue = elevationResult.MetersToFeet();
 
                     StatusContext.ToastSuccess(
-                        $"Set elevation of {Elevation} from Open Topo Data - www.opentopodata.org - NED data set");
+                        $"Set elevation of {ElevationEntry.UserValue} from Open Topo Data - www.opentopodata.org - NED data set");
 
                     return;
                 }
@@ -449,40 +338,35 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             catch (Exception e)
             {
                 await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(),
-                    $"Open Topo Data NED Request for {Latitude}, {Longitude}");
+                    $"Open Topo Data NED Request for {LatitudeEntry.UserValue}, {LongitudeEntry.UserValue}");
             }
 
             try
             {
-                var elevationResult = await ElevationService.OpenTopoMapZenElevation(httpClient, Latitude, Longitude,
-                    StatusContext.ProgressTracker());
+                var elevationResult = await ElevationService.OpenTopoMapZenElevation(httpClient,
+                    LatitudeEntry.UserValue, LongitudeEntry.UserValue, StatusContext.ProgressTracker());
 
                 if (elevationResult == null)
                 {
                     await EventLogContext.TryWriteDiagnosticMessageToLog(
-                        "Unexpected Null return from an Open Topo Data Mapzen Request to " + $"{Latitude}, {Longitude}",
+                        "Unexpected Null return from an Open Topo Data Mapzen Request to {LatitudeEntry.UserValue}, {LongitudeEntry.UserValue}",
                         StatusContext.StatusControlContextId.ToString());
                     StatusContext.ToastError("Elevation Exception - unexpected Null return...");
                     return;
                 }
 
-                Elevation = elevationResult.MetersToFeet();
+                ElevationEntry.UserValue = elevationResult.MetersToFeet();
 
                 StatusContext.ToastSuccess(
-                    $"Set elevation of {Elevation} from Open Topo Data - www.opentopodata.org - Mapzen data set");
+                    $"Set elevation of {ElevationEntry.UserValue} from Open Topo Data - www.opentopodata.org - Mapzen data set");
             }
             catch (Exception e)
             {
                 await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(),
-                    $"Open Topo Data Mapzen Request for {Latitude}, {Longitude}");
+                    $"Open Topo Data Mapzen Request for {LatitudeEntry.UserValue}, {LongitudeEntry.UserValue}");
                 StatusContext.ToastError($"Elevation Exception - {e.Message}");
             }
         }
-
-        public bool HasChanges =>
-            TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges ||
-            ShowInSiteFeed.ShowInMainSiteFeedHasChanges || BodyContent.HasChanges || UpdateNotes.HasChanges ||
-            TagEdit.TagsHaveChanges || LongitudeHasChanges || LatitudeHasChanges || ElevationHasChanges;
 
         public async Task LoadData(PointContent toLoad)
         {
@@ -505,9 +389,51 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
             TagEdit = new TagsEditorContext(StatusContext, DbEntry);
             BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
-            Latitude = DbEntry.Latitude;
-            Longitude = DbEntry.Longitude;
-            Elevation = DbEntry.Elevation;
+
+            ElevationEntry = new ConversionDataEntryContext<double?>
+            {
+                Title = "Elevation",
+                HelpText = "Elevation in Feet",
+                ReferenceValue = DbEntry.Elevation,
+                UserValue = DbEntry.Elevation,
+                Converter = ConversionDataEntryHelpers.DoubleNullableConversion,
+                ValidationFunctions = new List<Func<double?, (bool passed, string validationMessage)>>
+                {
+                    CommonContentValidation.ElevationValidation
+                }
+            };
+
+            LatitudeEntry = new ConversionDataEntryContext<double>
+            {
+                Title = "Latitude",
+                HelpText = "In DDD.DDDDDD°",
+                ReferenceValue = DbEntry.Latitude,
+                UserValue = DbEntry.Latitude,
+                Converter = ConversionDataEntryHelpers.DoubleConversion,
+                ValidationFunctions =
+                    new List<Func<double, (bool passed, string validationMessage)>>
+                    {
+                        CommonContentValidation.LatitudeValidation
+                    },
+                ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001)
+            };
+
+            LongitudeEntry = new ConversionDataEntryContext<double>
+            {
+                Title = "Longitude",
+                HelpText = "In DDD.DDDDDD°",
+                ReferenceValue = DbEntry.Longitude,
+                UserValue = DbEntry.Longitude,
+                Converter = ConversionDataEntryHelpers.DoubleConversion,
+                ValidationFunctions =
+                    new List<Func<double, (bool passed, string validationMessage)>>
+                    {
+                        CommonContentValidation.LongitudeValidation
+                    },
+                ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001)
+            };
+
+            PointDetails = new PointDetailListContext(StatusContext, DbEntry);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -525,8 +451,8 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         {
             _broadcastLatLongChange = false;
 
-            Latitude = e.Latitude;
-            Longitude = e.Longitude;
+            LatitudeEntry.UserValue = e.Latitude;
+            LongitudeEntry.UserValue = e.Longitude;
 
             _broadcastLatLongChange = true;
         }

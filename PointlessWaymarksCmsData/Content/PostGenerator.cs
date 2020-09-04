@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsData.Content
         {
             progress?.Report($"Post Content - Generate HTML for {toGenerate.Title}");
 
-            var htmlContext = new SinglePostPage(toGenerate) {GenerationVersion = generationVersion };
+            var htmlContext = new SinglePostPage(toGenerate) {GenerationVersion = generationVersion};
 
             htmlContext.WriteLocalHtml();
         }

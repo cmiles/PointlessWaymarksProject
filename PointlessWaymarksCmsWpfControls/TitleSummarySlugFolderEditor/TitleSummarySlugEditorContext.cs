@@ -19,7 +19,7 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 {
-    public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges
+    public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
     {
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
         private DataNotificationContentType _dataNotificationType;
@@ -30,6 +30,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         private bool _folderHasValidationIssues;
         private string _folderValidationMessage;
         private bool _hasChanges;
+        private bool _hasValidationIssues;
         private StringDataEntryContext _slugEntry;
         private StatusControlContext _statusContext;
         private StringDataEntryContext _summaryEntry;
@@ -145,6 +146,9 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || FolderHasChanges;
 
             ValidateFolder();
+
+            HasValidationIssues =
+                PropertyScanners.ChildPropertiesHaveValidationIssues(this) || FolderHasValidationIssues;
         }
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -315,6 +319,17 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             FolderHasValidationIssues = !validationResult.isValid;
             FolderValidationMessage = validationResult.explanation;
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
         }
     }
 }

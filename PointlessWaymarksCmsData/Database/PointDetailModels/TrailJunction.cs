@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PointlessWaymarksCmsData.Database.PointDetailModels
+﻿namespace PointlessWaymarksCmsData.Database.PointDetailModels
 {
-    public class TrailJunction
+    public class TrailJunction : IPointDetail
     {
-        public const string DataTypeIdentifier = "TrailJunction";
-        public bool Sign { get; set; }
-        public string NotesContentFormat { get; set; }
+        public string DataTypeIdentifier => "TrailJunction";
         public string Notes { get; set; }
+        public string NotesContentFormat { get; set; }
+        public bool Sign { get; set; }
     }
 }
