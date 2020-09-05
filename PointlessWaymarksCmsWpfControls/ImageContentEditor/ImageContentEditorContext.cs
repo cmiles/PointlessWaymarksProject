@@ -459,7 +459,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             };
 
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
+            TitleSummarySlugFolder = TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, false);
             ShowInSearch = new ShowInSearchEditorContext(StatusContext, DbEntry, true);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);

@@ -51,6 +51,12 @@
  
 ## Notes
 
+9/5/2020
+
+Work on Point Details - still not completely convinced of the design but it is certainly a lot closer.
+
+Had an interesting error today when loading Photo Editors - had an editor throw an error loading MetaData because the TitleSummarySlugFolder control had not finished it's background initialization. I think there are two competing problems - the constructor isn't async and whenever possible I do want to make sure work is offloaded to the background. Put a factory method into the TitleSummarySlugFolder to think about as a next step - removing async from the load is not a good solution I think...
+
 9/2/2020
 
 Continued work on the control refactorings.

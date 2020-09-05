@@ -37,7 +37,14 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         private StringDataEntryContext _titleEntry;
         private Command _titleToSlugCommand;
 
-        public TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
+        private TitleSummarySlugEditorContext(StatusControlContext statusContext)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+        }
+
+        private TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
@@ -149,6 +156,14 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             HasValidationIssues =
                 PropertyScanners.ChildPropertiesHaveValidationIssues(this) || FolderHasValidationIssues;
+        }
+
+        public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext statusContext,
+            ITitleSummarySlugFolder dbEntry)
+        {
+            var newItem = new TitleSummarySlugEditorContext(statusContext);
+            await newItem.LoadData(dbEntry);
+            return newItem;
         }
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)

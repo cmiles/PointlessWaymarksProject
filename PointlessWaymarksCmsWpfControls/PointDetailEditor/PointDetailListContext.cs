@@ -20,7 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         private ObservableCollection<string> _additionalPointDetailTypes;
         private bool _hasChanges;
         private bool _hasValidationIssues;
-        private ObservableCollection<PointDetail> _items;
+        private ObservableCollection<object> _items;
         private Command<string> _loadNewDetailCommand;
         private List<(string typeIdentifierAttribute, Type reflectedType)> _pointDetailTypeList;
         private StatusControlContext _statusContext;
@@ -67,7 +67,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
-        public ObservableCollection<PointDetail> Items
+        public ObservableCollection<object> Items
         {
             get => _items;
             set
@@ -103,6 +103,16 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public object ListItemEditorFromTypeIdentifier(PointDetail detail)
+        {
+            switch (detail.DataType)
+            {
+                case "Peak": return new PeakPointDetailContext(detail, StatusContext);
+                case "Rest Room": return new RestRoomPointDetailContext(detail, StatusContext);
+                default: return null;
+            }
+        }
+
         public async Task LoadData(PointContent dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -137,7 +147,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Items = new ObservableCollection<PointDetail>();
+            Items = new ObservableCollection<object>();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -149,7 +159,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.Add(loopLoad);
+                Items.Add(ListItemEditorFromTypeIdentifier(loopLoad));
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
@@ -184,12 +194,14 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 return;
             }
 
-            var newDetail = Activator.CreateInstance(newDetailEntry.First().reflectedType);
             var newPointDetail = new PointDetail {DataType = newDetailEntry.First().typeIdentifierAttribute};
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Items.Add(newPointDetail);
+            AdditionalPointDetailTypes.Where(x => x == newPointDetail.DataType).ToList()
+                .ForEach(x => AdditionalPointDetailTypes.Remove(x));
+
+            Items.Add(ListItemEditorFromTypeIdentifier(newPointDetail));
         }
 
         [NotifyPropertyChangedInvocator]

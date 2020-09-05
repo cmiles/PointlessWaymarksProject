@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Database.PointDetailModels;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -15,18 +16,22 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
-    public class CreatePointDetailNoteOnlyEditorContext<T> : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
-        ICreatePointDetail where T : new()
+    public class PeakPointDetailContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged, IPointDetailEditor
     {
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PointDetail _dbEntry;
-        private T _detailData;
+        private Peak _detailData;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private StringDataEntryContext _noteEditor;
         private ContentFormatChooserContext _noteFormatEditor;
         private StatusControlContext _statusContext;
-        private string _typeIdentifier;
+
+        public PeakPointDetailContext(PointDetail detail, StatusControlContext statusContext)
+        {
+            StatusContext = statusContext ?? new StatusControlContext();
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(detail));
+        }
 
         public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
         {
@@ -50,7 +55,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
-        public T DetailData
+        public Peak DetailData
         {
             get => _detailData;
             set
@@ -116,16 +121,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
-        public string TypeIdentifier
-        {
-            get => _typeIdentifier;
-            set
-            {
-                if (value == _typeIdentifier) return;
-                _typeIdentifier = value;
-                OnPropertyChanged();
-            }
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public PointDetail CurrentPointDetail()
         {
@@ -144,11 +140,11 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
-            newEntry.DataType = TypeIdentifier;
-
-            var detailData = new T();
-            ((dynamic) DetailData).Notes = NoteEditor.UserValue.TrimNullToEmpty();
-            ((dynamic) DetailData).NotesContentFormat = NoteFormatEditor.SelectedContentFormatAsString;
+            var detailData = new Peak
+            {
+                Notes = NoteEditor.UserValue.TrimNullToEmpty(),
+                NotesContentFormat = NoteFormatEditor.SelectedContentFormatAsString
+            };
 
             Db.DefaultPropertyCleanup(detailData);
 
@@ -156,8 +152,6 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             return newEntry;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private void CheckForChangesAndValidate()
         {
@@ -175,28 +169,23 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 DataType = ((dynamic) DetailData).DataTypeIdentifier,
             };
 
-
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
 
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
-                DetailData = JsonSerializer.Deserialize<T>(DbEntry.StructuredDataAsJson);
+                DetailData = JsonSerializer.Deserialize<Peak>(DbEntry.StructuredDataAsJson);
 
-            DetailData ??= new T();
-            ((dynamic) DetailData).NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice();
+            DetailData = new Peak {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
 
             NoteEditor = new StringDataEntryContext
             {
                 Title = "Notes",
                 HelpText = "Notes",
-                ReferenceValue = ((dynamic) DetailData).Notes ?? string.Empty,
-                UserValue = ((dynamic) DetailData).Notes.TrimNullToEmpty()
+                ReferenceValue = DetailData.Notes ?? string.Empty,
+                UserValue = DetailData.Notes.TrimNullToEmpty()
             };
 
             NoteFormatEditor =
-                new ContentFormatChooserContext(StatusContext)
-                {
-                    InitialValue = ((dynamic) DetailData).NotesContentFormat
-                };
+                new ContentFormatChooserContext(StatusContext) {InitialValue = DetailData.NotesContentFormat};
         }
 
         [NotifyPropertyChangedInvocator]
@@ -208,11 +197,6 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
                 CheckForChangesAndValidate();
-        }
-
-        public string SaveDataToJson()
-        {
-            throw new NotImplementedException();
         }
     }
 }

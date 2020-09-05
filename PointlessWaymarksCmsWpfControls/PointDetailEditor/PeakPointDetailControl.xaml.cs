@@ -3,11 +3,11 @@
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
     /// <summary>
-    ///     Interaction logic for PointDetailNoteOnlyEditorControl.xaml
+    ///     Interaction logic for PeakPointDetailControl.xaml
     /// </summary>
-    public partial class PointDetailNoteOnlyEditorControl : UserControl
+    public partial class PeakPointDetailControl : UserControl
     {
-        public PointDetailNoteOnlyEditorControl()
+        public PeakPointDetailControl()
         {
             InitializeComponent();
         }

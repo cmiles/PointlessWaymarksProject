@@ -236,7 +236,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 ShowInMainSiteFeed = true
             };
 
-            TitleSummarySlugFolder = new TitleSummarySlugEditorContext(StatusContext, DbEntry);
+            TitleSummarySlugFolder = TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
             ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, true);
             ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);

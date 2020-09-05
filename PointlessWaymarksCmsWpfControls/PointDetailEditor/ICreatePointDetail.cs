@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
-    public interface ICreatePointDetail
+    public interface IPointDetailEditor
     {
         PointDetail CurrentPointDetail();
     }

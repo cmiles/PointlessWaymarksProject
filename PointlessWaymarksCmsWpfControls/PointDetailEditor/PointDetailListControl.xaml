@@ -17,8 +17,11 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <DataTemplate x:Key="NoteOnlyDetailTemplate">
-                <local:PointDetailNoteOnlyEditorControl DataContext="{Binding .}" />
+            <DataTemplate x:Key="PeakDetailTemplate">
+                <local:PeakPointDetailControl DataContext="{Binding .}" />
+            </DataTemplate>
+            <DataTemplate x:Key="RestRoomDetailTemplate">
+                <local:RestRoomPointDetailControl DataContext="{Binding .}" />
             </DataTemplate>
             <local:PointDetailListControlDataTemplateSelector x:Key="DetailEditorSelector" />
         </ResourceDictionary>
