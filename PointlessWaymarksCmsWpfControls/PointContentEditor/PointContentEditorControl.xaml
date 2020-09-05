@@ -5,11 +5,13 @@
     xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
     xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.ConversionDataEntry"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pointContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PointContentEditor"
+    xmlns:pointDetailEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PointDetailEditor"
     xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
@@ -17,7 +19,6 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
-    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.ConversionDataEntry"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -43,18 +44,11 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
-                                DataContext="{Binding TitleSummarySlugFolder}" />
-                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl
-                                DataContext="{Binding ShowInSiteFeed}"
-                                Style="{StaticResource ShowInSiteFeedPanelStyle}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
-                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
+                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource ShowInSiteFeedPanelStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -70,9 +64,9 @@
                         Header="Location"
                         Style="{StaticResource UiComponentGroupBoxStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}"></conversionDataEntry:ConversionDataEntryControl>
-                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}"></conversionDataEntry:ConversionDataEntryControl>
-                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding ElevationEntry}"></conversionDataEntry:ConversionDataEntryControl>
+                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding ElevationEntry}" />
                             <Button
                                 Width="90"
                                 Height="40"
@@ -97,10 +91,7 @@
             </TabItem>
             <TabItem Header="Details">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
+                    <pointDetailEditor:PointDetailListControl DataContext="{Binding PointDetails}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">

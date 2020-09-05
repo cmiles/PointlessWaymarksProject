@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailModels;
@@ -20,12 +21,16 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private ObservableCollection<PointDetail> _items;
+        private Command<string> _loadNewDetailCommand;
         private List<(string typeIdentifierAttribute, Type reflectedType)> _pointDetailTypeList;
         private StatusControlContext _statusContext;
 
         public PointDetailListContext(StatusControlContext statusContext, PointContent dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
+
+            LoadNewDetailCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x => await LoadNewDetail(x));
+
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(dbEntry));
         }
 
@@ -73,6 +78,18 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
+
+        public Command<string> LoadNewDetailCommand
+        {
+            get => _loadNewDetailCommand;
+            set
+            {
+                if (Equals(value, _loadNewDetailCommand)) return;
+                _loadNewDetailCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -102,7 +119,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
 
             var pointDetailTypes = from type in typeof(Db).Assembly.GetTypes()
-                where typeof(IPointDetail).IsAssignableFrom(type)
+                where typeof(IPointDetail).IsAssignableFrom(type) && !type.IsInterface
                 select type;
 
             _pointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
@@ -141,6 +158,38 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             AdditionalPointDetailTypes =
                 new ObservableCollection<string>(_pointDetailTypeList.Select(x => x.typeIdentifierAttribute));
+        }
+
+        private async Task LoadNewDetail(string typeIdentifier)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(typeIdentifier))
+            {
+                StatusContext.ToastError("Detail Type is blank???");
+                return;
+            }
+
+            var newDetailEntry = _pointDetailTypeList.Where(x => x.typeIdentifierAttribute == typeIdentifier).ToList();
+
+            if (!newDetailEntry.Any())
+            {
+                StatusContext.ToastError($"No Detail Type Found Matching {typeIdentifier}?");
+                return;
+            }
+
+            if (newDetailEntry.Count > 1)
+            {
+                StatusContext.ToastError($"More than one Detail Type Found Matching {typeIdentifier}?");
+                return;
+            }
+
+            var newDetail = Activator.CreateInstance(newDetailEntry.First().reflectedType);
+            var newPointDetail = new PointDetail {DataType = newDetailEntry.First().typeIdentifierAttribute};
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Items.Add(newPointDetail);
         }
 
         [NotifyPropertyChangedInvocator]

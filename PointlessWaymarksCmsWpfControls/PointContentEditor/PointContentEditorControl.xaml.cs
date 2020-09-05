@@ -24,7 +24,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             if (e.NewValue is PointContentEditorContext pointContext)
             {
                 PointContentWebView.NavigateToString(WpfHtmlDocument.ToHtmlLeafletDocument("Point Map",
-                    pointContext.Latitude, pointContext.Longitude, string.Empty));
+                    pointContext.LatitudeEntry.UserValue, pointContext.LongitudeEntry.UserValue, string.Empty));
                 RaisePointLatitudeLongitudeChange += pointContext.OnRaisePointLatitudeLongitudeChange;
                 pointContext.RaisePointLatitudeLongitudeChange += PointContextOnRaisePointLatitudeLongitudeChange;
             }
