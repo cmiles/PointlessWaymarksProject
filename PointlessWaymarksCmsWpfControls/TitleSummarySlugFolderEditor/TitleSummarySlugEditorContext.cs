@@ -40,17 +40,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         private TitleSummarySlugEditorContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-
-            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
-        }
-
-        private TitleSummarySlugEditorContext(StatusControlContext statusContext, ITitleSummarySlugFolder dbEntry)
-        {
-            StatusContext = statusContext ?? new StatusControlContext();
-
-            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
+            DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         public DataNotificationsWorkQueue DataNotificationsProcessor
@@ -161,8 +151,14 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
         public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext statusContext,
             ITitleSummarySlugFolder dbEntry)
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             var newItem = new TitleSummarySlugEditorContext(statusContext);
             await newItem.LoadData(dbEntry);
+
+            newItem.DataNotificationsProcessor =
+                new DataNotificationsWorkQueue {Processor = newItem.DataNotificationReceived};
+
             return newItem;
         }
 
@@ -211,12 +207,11 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
-
         public async Task LoadData(ITitleSummarySlugFolder dbEntry)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+            DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
             TitleToSlugCommand = StatusContext.RunBlockingActionCommand(TitleToSlug);
 
@@ -260,12 +255,13 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             Folder = DbEntry?.Folder ?? string.Empty;
 
+            var folderChoices = await Db.FolderNamesFromContent(DbEntry);
+
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            ExistingFolderChoices = new ObservableCollection<string>(await Db.FolderNamesFromContent(DbEntry));
+            ExistingFolderChoices = new ObservableCollection<string>(folderChoices);
             _dataNotificationType = DataNotifications.NotificationContentTypeFromContent(DbEntry);
 
-            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         public StringDataEntryContext SummaryEntry

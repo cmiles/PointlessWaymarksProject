@@ -43,13 +43,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private Command _extractNewLinksCommand;
         private StringDataEntryContext _focalLengthEntry;
         private FileInfo _initialPhoto;
-        private int? _iso;
         private ConversionDataEntryContext<int?> _isoEntry;
         private StringDataEntryContext _lensEntry;
         private StringDataEntryContext _licenseEntry;
         private FileInfo _loadedFile;
         private StringDataEntryContext _photoCreatedByEntry;
-        private DateTime _photoCreatedOn;
         private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
         private Command _renameSelectedFileCommand;
         private Command _rotatePhotoLeftCommand;
@@ -75,29 +73,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         public EventHandler RequestContentEditorWindowClose;
 
 
-        public PhotoContentEditorContext(StatusControlContext statusContext, bool skipInitialLoad)
+        private PhotoContentEditorContext(StatusControlContext statusContext)
         {
             SetupContextAndCommands(statusContext);
-
-            if (!skipInitialLoad)
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
         }
 
-        public PhotoContentEditorContext(StatusControlContext statusContext, FileInfo initialPhoto)
-        {
-            if (initialPhoto != null && initialPhoto.Exists) _initialPhoto = initialPhoto;
-
-            SetupContextAndCommands(statusContext);
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
-        }
-
-        public PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent toLoad)
-        {
-            SetupContextAndCommands(statusContext);
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
-        }
 
         public StringDataEntryContext AltTextEntry
         {
@@ -557,6 +537,49 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             PhotoMetadataToCurrentContent(metadata);
         }
 
+        public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newContext = new PhotoContentEditorContext(statusContext) { StatusContext = { BlockUi = true } };
+
+            await newContext.LoadData(null);
+
+            newContext.StatusContext.BlockUi = false;
+
+            return newContext;
+        }
+
+        public static async Task<PhotoContentEditorContext> CreateInstance1(StatusControlContext statusContext,
+            FileInfo initialPhoto)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newContext = new PhotoContentEditorContext(statusContext) {StatusContext = {BlockUi = true}};
+
+            if (initialPhoto != null && initialPhoto.Exists) newContext._initialPhoto = initialPhoto;
+
+            await newContext.LoadData(null);
+
+            newContext.StatusContext.BlockUi = false;
+
+            return newContext;
+        }
+
+        public static async Task<PhotoContentEditorContext> CreateInstance2(StatusControlContext statusContext,
+            PhotoContent toLoad)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newContext = new PhotoContentEditorContext(statusContext) {StatusContext = {BlockUi = true}};
+
+            await newContext.LoadData(toLoad);
+
+            newContext.StatusContext.BlockUi = false;
+
+            return newContext;
+        }
+
         private PhotoContent CurrentStateToPhotoContent()
         {
             var newEntry = new PhotoContent();
@@ -614,12 +637,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
-            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, false);
-            ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
-            UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
-            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
-            BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
+            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+            ShowInSiteFeed = await ShowInMainSiteFeedEditorContext.CreateInstance(StatusContext, DbEntry, false);
+            ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
+            UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
+            TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+            BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {

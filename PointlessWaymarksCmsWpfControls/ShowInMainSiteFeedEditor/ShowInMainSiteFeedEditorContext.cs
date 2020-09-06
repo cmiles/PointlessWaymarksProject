@@ -18,12 +18,10 @@ namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
         private bool _showInMainSiteFeedHasChanges;
         private StatusControlContext _statusContext;
 
-        public ShowInMainSiteFeedEditorContext(StatusControlContext statusContext, IShowInSiteFeed dbEntry,
-            bool defaultSetting)
+        private ShowInMainSiteFeedEditorContext(StatusControlContext statusContext, bool defaultSetting)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             _defaultSetting = defaultSetting;
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
         public IShowInSiteFeed DbEntry
@@ -87,6 +85,16 @@ namespace PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor
         {
             ShowInMainSiteFeedHasChanges = ShowInMainSiteFeed != (DbEntry?.ShowInMainSiteFeed ?? false);
             HasChanges = ShowInMainSiteFeedHasChanges;
+        }
+
+        public static async Task<ShowInMainSiteFeedEditorContext> CreateInstance(StatusControlContext statusContext,
+            IShowInSiteFeed dbEntry, bool defaultSetting)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newContext = new ShowInMainSiteFeedEditorContext(statusContext, defaultSetting);
+            await newContext.LoadData(dbEntry);
+            return newContext;
         }
 
         private async Task LoadData(IShowInSiteFeed toLoad)

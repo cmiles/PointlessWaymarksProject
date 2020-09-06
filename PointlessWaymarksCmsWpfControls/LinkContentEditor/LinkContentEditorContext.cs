@@ -435,9 +435,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             Description = DbEntry?.Description ?? string.Empty;
             ShowInLinkRss = DbEntry?.ShowInLinkRss ?? true;
 
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
-            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
+            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+            TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
 
             if (extractDataOnLoad) await ExtractDataFromLink();
         }

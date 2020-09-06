@@ -11,7 +11,11 @@ namespace PointlessWaymarksCmsData
 {
     public static class DataNotifications
     {
-        public static TinyMessageBus DataNotificationChannel()
+        public static bool SuspendNotifications { get; set; }
+
+        private static readonly TinyMessageBus DataNotificationTransmissionChannel = new TinyMessageBus("PointlessWaymarksDataNotificationChannel");
+
+        public static TinyMessageBus NewDataNotificationChannel()
         {
             return new TinyMessageBus("PointlessWaymarksDataNotificationChannel");
         }
@@ -36,13 +40,13 @@ namespace PointlessWaymarksCmsData
         public static async Task PublishDataNotification(string sender, DataNotificationContentType contentType,
             DataNotificationUpdateType updateType, List<Guid> contentGuidList)
         {
+            if (SuspendNotifications) return;
+
             if (contentGuidList == null || !contentGuidList.Any()) return;
 
             var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
-            using var transmitBus = DataNotificationChannel();
-
-            await transmitBus.PublishAsync(Encoding.UTF8.GetBytes(
+            await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(
                 $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList)}"));
         }
 

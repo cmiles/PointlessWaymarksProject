@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -16,6 +18,7 @@ using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarksTests
 {
@@ -90,11 +93,13 @@ namespace PointlessWaymarksTests
         public async Task A21_PhotoEditorContextEditOfQuarryPhoto()
         {
             ThreadSwitcher.PinnedDispatcher = Dispatcher.CurrentDispatcher;
+            DataNotifications.SuspendNotifications = false;
+            DataNotifications.NewDataNotificationChannel().MessageReceived += DataNotificationDiagnostic;
 
             var db = await Db.Context();
             var quarryPhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.QuarryContent01.Title);
 
-            var newContext = new PhotoContentEditorContext(null, true);
+            var newContext = await PhotoContentEditorContext.CreateInstance(null);
 
             await newContext.LoadData(quarryPhoto);
 
@@ -132,6 +137,11 @@ namespace PointlessWaymarksTests
                 IronwoodPhotoInfo.CompareContent(IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags,
                     newContext.DbEntry);
             Assert.True(comparison.areEqual, comparison.comparisonNotes);
+        }
+
+        private void DataNotificationDiagnostic(object sender, TinyMessageReceivedEventArgs e)
+        {
+            Debug.Print(e.Message.ToString());
         }
 
         [Test]

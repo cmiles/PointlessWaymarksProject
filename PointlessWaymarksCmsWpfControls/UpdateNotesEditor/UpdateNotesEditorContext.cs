@@ -26,11 +26,9 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
         private string _updateNotesHtmlOutput;
         private string _userUpdateNotes = string.Empty;
 
-        public UpdateNotesEditorContext(StatusControlContext statusContext, IUpdateNotes dbEntry)
+        private UpdateNotesEditorContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-            UpdateNotesFormat = new ContentFormatChooserContext(statusContext);
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
         public IUpdateNotes DbEntry
@@ -123,6 +121,19 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             UpdateNotesHasChanges = !StringHelpers.AreEqual((DbEntry?.UpdateNotes).TrimNullToEmpty(), UpdateNotes);
 
             HasChanges = UpdateNotesHasChanges || UpdateNotesFormat.SelectedContentFormatHasChanges;
+        }
+
+        public static async Task<UpdateNotesEditorContext> CreateInstance(StatusControlContext statusContext,
+            IUpdateNotes dbEntry)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newContext = new UpdateNotesEditorContext(statusContext);
+            newContext.UpdateNotesFormat = ContentFormatChooserContext.CreateInstance(newContext.StatusContext);
+
+            await newContext.LoadData(dbEntry);
+
+            return newContext;
         }
 
         public async Task LoadData(IUpdateNotes toLoad)

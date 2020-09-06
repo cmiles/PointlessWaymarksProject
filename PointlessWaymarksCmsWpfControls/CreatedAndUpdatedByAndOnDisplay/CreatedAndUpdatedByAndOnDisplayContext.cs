@@ -26,11 +26,9 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
         private StringDataEntryContext _updatedByEntry;
         private DateTime? _updatedOn;
 
-        public CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext,
-            ICreatedAndLastUpdateOnAndBy dbEntry)
+        private CreatedAndUpdatedByAndOnDisplayContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
         public string CreatedAndUpdatedByAndOn
@@ -152,6 +150,17 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
         private void CheckForChanges()
         {
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+        }
+
+        public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(
+            StatusControlContext statusContext, ICreatedAndLastUpdateOnAndBy dbEntry)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newInstance = new CreatedAndUpdatedByAndOnDisplayContext(statusContext);
+            await newInstance.LoadData(dbEntry);
+
+            return newInstance;
         }
 
         public async Task LoadData(ICreatedAndLastUpdateOnAndBy toLoad)

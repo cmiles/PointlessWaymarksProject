@@ -170,7 +170,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 DataType = DetailData.DataTypeIdentifier
             };
 
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
+            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
 
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
                 DetailData = JsonSerializer.Deserialize<RestRoom>(DbEntry.StructuredDataAsJson);
@@ -186,7 +186,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             };
 
             NoteFormatEditor =
-                new ContentFormatChooserContext(StatusContext) {InitialValue = DetailData.NotesContentFormat};
+                ContentFormatChooserContext.CreateInstance(StatusContext);
+            NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
         }
 
         [NotifyPropertyChangedInvocator]

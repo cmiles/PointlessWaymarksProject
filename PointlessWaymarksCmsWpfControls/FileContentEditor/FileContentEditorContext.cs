@@ -476,13 +476,13 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 PublicDownloadLink = true
             };
 
-            TitleSummarySlugFolder = TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, false);
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
-            ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
-            UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
-            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
-            BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
+            TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
+            ShowInSiteFeed = await ShowInMainSiteFeedEditorContext.CreateInstance(StatusContext, DbEntry, false);
+            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+            ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
+            UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
+            TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+            BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {

@@ -142,15 +142,6 @@
                         Text="{Binding EditorSettings.CalTopoApiKey, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=GoogleMapsApiKeyTextBox}">
-                        Google Maps Api Key
-                    </Label>
-                    <TextBox
-                        Name="GoogleMapsApiKeyTextBox"
-                        Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                        Text="{Binding EditorSettings.GoogleMapsApiKey, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
-                <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=PinboardApiTokenTextBox}">
                         Pinboard Api Key
                     </Label>

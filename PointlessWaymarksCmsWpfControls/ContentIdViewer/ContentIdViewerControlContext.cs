@@ -14,11 +14,9 @@ namespace PointlessWaymarksCmsWpfControls.ContentIdViewer
         private IContentId _dbEntry;
         private StatusControlContext _statusContext;
 
-        public ContentIdViewerControlContext(StatusControlContext statusContext, IContentId dbEntry)
+        private ContentIdViewerControlContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
         public string ContentIdInformation
@@ -55,6 +53,16 @@ namespace PointlessWaymarksCmsWpfControls.ContentIdViewer
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public static async Task<ContentIdViewerControlContext> CreateInstance(StatusControlContext statusContext,
+            IContentId dbEntry)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newContext = new ContentIdViewerControlContext(statusContext);
+            await newContext.LoadData(dbEntry);
+            return newContext;
+        }
 
         public async Task LoadData(IContentId dbEntry)
         {

@@ -236,13 +236,13 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
                 ShowInMainSiteFeed = true
             };
 
-            TitleSummarySlugFolder = TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            CreatedUpdatedDisplay = new CreatedAndUpdatedByAndOnDisplayContext(StatusContext, DbEntry);
-            ShowInSiteFeed = new ShowInMainSiteFeedEditorContext(StatusContext, DbEntry, true);
-            ContentId = new ContentIdViewerControlContext(StatusContext, DbEntry);
-            UpdateNotes = new UpdateNotesEditorContext(StatusContext, DbEntry);
-            TagEdit = new TagsEditorContext(StatusContext, DbEntry);
-            BodyContent = new BodyContentEditorContext(StatusContext, DbEntry);
+            TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
+            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+            ShowInSiteFeed = await ShowInMainSiteFeedEditorContext.CreateInstance(StatusContext, DbEntry, true);
+            ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
+            UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
+            TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+            BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         }
 
         [NotifyPropertyChangedInvocator]

@@ -18,25 +18,19 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             InitializeComponent();
 
             StatusContext = new StatusControlContext();
-            PhotoEditor = new PhotoContentEditorContext(StatusContext, false);
 
-            PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+            {
+                PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
-        }
+                PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
 
-        public PhotoContentEditorWindow(bool forAutomation)
-        {
-            InitializeComponent();
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
-            StatusContext = new StatusControlContext();
-            PhotoEditor = new PhotoContentEditorContext(StatusContext, forAutomation);
+                await ThreadSwitcher.ResumeForegroundAsync();
 
-            PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
-
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+                DataContext = this;
+            });
         }
 
         public PhotoContentEditorWindow(FileInfo initialPhoto)
@@ -44,12 +38,19 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             InitializeComponent();
 
             StatusContext = new StatusControlContext();
-            PhotoEditor = new PhotoContentEditorContext(StatusContext, initialPhoto);
 
-            PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+            {
+                PhotoEditor = await PhotoContentEditorContext.CreateInstance1(StatusContext, initialPhoto);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+                PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                DataContext = this;
+            });
         }
 
         public PhotoContentEditorWindow(PhotoContent toLoad)
@@ -57,12 +58,19 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             InitializeComponent();
 
             StatusContext = new StatusControlContext();
-            PhotoEditor = new PhotoContentEditorContext(StatusContext, toLoad);
 
-            PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+            {
+                PhotoEditor = await PhotoContentEditorContext.CreateInstance2(StatusContext, toLoad);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+                PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                DataContext = this;
+            });
         }
 
         public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }

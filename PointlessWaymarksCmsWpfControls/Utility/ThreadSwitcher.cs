@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Threading;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
@@ -12,6 +14,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         public static ThreadPoolThreadSwitcher ResumeBackgroundAsync()
         {
+            Debug.Print($"ThreadSwitcher ResumeBackgroundAsync from {Thread.CurrentThread.ManagedThreadId}");
+
             return new ThreadPoolThreadSwitcher();
         }
 
@@ -21,6 +25,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         /// <returns></returns>
         public static DispatcherThreadSwitcher ResumeForegroundAsync()
         {
+            Debug.Print($"ThreadSwitcher ResumeForegroundAsync from {Thread.CurrentThread.ManagedThreadId}");
             return PinnedDispatcher == null
                 ? new DispatcherThreadSwitcher(Application.Current.Dispatcher)
                 : new DispatcherThreadSwitcher(PinnedDispatcher);

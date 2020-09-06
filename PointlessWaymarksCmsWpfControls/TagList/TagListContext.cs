@@ -416,7 +416,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+            DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
             var allTags = await Db.TagSlugsAndContentList(true, StatusContext.ProgressTracker());
 
@@ -457,7 +457,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
             await SortList("TagName");
 
-            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+            DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)

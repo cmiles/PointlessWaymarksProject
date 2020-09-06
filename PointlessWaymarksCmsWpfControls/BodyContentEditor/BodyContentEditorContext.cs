@@ -30,14 +30,9 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         private StatusControlContext _statusContext;
         private string _userBodyContent = string.Empty;
 
-        public BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry)
+        private BodyContentEditorContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-            BodyContentFormat = new ContentFormatChooserContext(StatusContext);
-
-            RemoveLineBreaksFromSelectedCommand = StatusContext.RunBlockingActionCommand(RemoveLineBreaksFromSelected);
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
         public string BodyContent
@@ -152,12 +147,27 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             HasChanges = BodyContentHasChanges || (BodyContentFormat?.SelectedContentFormatHasChanges ?? true);
         }
 
+        public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            IBodyContent dbEntry)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newContext = new BodyContentEditorContext(statusContext);
+
+            newContext.BodyContentFormat = ContentFormatChooserContext.CreateInstance(newContext.StatusContext);
+
+            await newContext.LoadData(dbEntry);
+
+            return newContext;
+        }
+
         public async Task LoadData(IBodyContent toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DbEntry = toLoad;
 
+            RemoveLineBreaksFromSelectedCommand = StatusContext.RunBlockingActionCommand(RemoveLineBreaksFromSelected);
             RefreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateContentHtml);
 
             BodyContentFormat.InitialValue = toLoad?.BodyContentFormat;

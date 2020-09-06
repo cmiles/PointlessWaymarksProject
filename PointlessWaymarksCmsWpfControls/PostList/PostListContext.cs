@@ -44,7 +44,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
-            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+            DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
@@ -203,7 +203,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+            DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
             StatusContext.Progress("Connecting to DB");
 

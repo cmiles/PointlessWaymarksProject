@@ -17,11 +17,10 @@ namespace PointlessWaymarksCmsWpfControls.ShowInSearchEditor
         private bool _showInSearchHasChanges;
         private StatusControlContext _statusContext;
 
-        public ShowInSearchEditorContext(StatusControlContext statusContext, IShowInSearch dbEntry, bool defaultSetting)
+        private ShowInSearchEditorContext(StatusControlContext statusContext, bool defaultSetting)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             _defaultSetting = defaultSetting;
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(() => LoadData(dbEntry));
         }
 
         public IShowInSearch DbEntry
@@ -85,6 +84,15 @@ namespace PointlessWaymarksCmsWpfControls.ShowInSearchEditor
         {
             ShowInSearchHasChanges = ShowInSearch != (DbEntry?.ShowInSearch ?? false);
             HasChanges = ShowInSearchHasChanges;
+        }
+
+        public static async Task<ShowInSearchEditorContext> CreateInstance(StatusControlContext statusContext,
+            IShowInSearch dbEntry, bool defaultSetting)
+        {
+            var newContext = new ShowInSearchEditorContext(statusContext, defaultSetting);
+            await newContext.LoadData(dbEntry);
+
+            return newContext;
         }
 
         private async Task LoadData(IShowInSearch toLoad)

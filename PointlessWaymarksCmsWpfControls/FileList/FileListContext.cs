@@ -273,7 +273,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DataNotifications.DataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+            DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
             StatusContext.Progress("Connecting to DB");
 
@@ -305,7 +305,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             SortDescending = true;
             await SortList("CreatedOn");
 
-            DataNotifications.DataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+            DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)

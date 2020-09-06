@@ -13,6 +13,11 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 {
     public class TagsEditorContext : INotifyPropertyChanged, IHasChanges
     {
+        public static TagsEditorContext CreateInstance(StatusControlContext statusContext, ITag dbEntry)
+        {
+            return new TagsEditorContext(statusContext, dbEntry);
+        }
+
         private ITag _dbEntry;
         private bool _hasChanges;
         private StatusControlContext _statusContext;
@@ -24,7 +29,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         private string _tagsValidationMessage;
         private string _tagsWarningMessage;
 
-        public TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
+        private TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             DbEntry = dbEntry;

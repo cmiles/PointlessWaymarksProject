@@ -23,7 +23,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
         private bool _selectedContentFormatHasChanges;
         private StatusControlContext _statusContext;
 
-        public ContentFormatChooserContext(StatusControlContext statusContext)
+        private ContentFormatChooserContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             ContentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum)).Cast<ContentFormatEnum>().ToList();
@@ -72,6 +72,11 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             // ReSharper restore InvokeAsExtensionMethod
 
             HasChanges = SelectedContentFormatHasChanges;
+        }
+
+        public static ContentFormatChooserContext CreateInstance(StatusControlContext statusContext)
+        {
+            return new ContentFormatChooserContext(statusContext);
         }
 
         public ContentFormatEnum SelectedContentFormat
