@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsWpfControls.Status;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsData
 {
     /// <summary>
     ///     This Queue takes in DataNotifications and processes them one at a time.
@@ -25,8 +25,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         public Func<TinyMessageReceivedEventArgs, Task> Processor { get; set; }
 
-        public StatusControlContext StatusContent { get; set; }
-
         public void Enqueue(TinyMessageReceivedEventArgs job)
         {
             _jobs.Add(job);
@@ -41,10 +39,10 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 }
                 catch (Exception e)
                 {
+                    Debug.Print(e.Message);
                     EventLogContext.TryWriteExceptionToLogBlocking(e,
-                        $"DataNotificationWorkQueue - Status Context Id: {StatusContent?.StatusControlContextId}",
+                        $"DataNotificationsWorkQueue",
                         string.Empty);
-                    StatusContent?.ToastWarning("Trouble merging updates - item(s) may be out of date?");
                 }
         }
     }

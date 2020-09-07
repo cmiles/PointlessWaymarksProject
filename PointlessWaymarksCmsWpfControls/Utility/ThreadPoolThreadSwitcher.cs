@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -11,8 +10,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         public ThreadPoolThreadSwitcher GetAwaiter()
         {
-            Debug.Print($"ThreadPoolThreadSwitcher GetAwaiter from {Thread.CurrentThread.ManagedThreadId}");
-
+            //Debug.Print($"ThreadPoolThreadSwitcher GetAwaiter from {Thread.CurrentThread.ManagedThreadId}");
             return this;
         }
 
@@ -22,8 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         public void OnCompleted(Action continuation)
         {
-            Debug.Print($"ThreadPoolThreadSwitcher OnCompleted from {Thread.CurrentThread.ManagedThreadId}");
-
+            //Debug.Print($"ThreadPoolThreadSwitcher OnCompleted from {Thread.CurrentThread.ManagedThreadId}");
             ThreadPool.QueueUserWorkItem(_ => continuation());
         }
     }

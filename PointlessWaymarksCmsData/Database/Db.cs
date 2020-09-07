@@ -102,29 +102,6 @@ namespace PointlessWaymarksCmsData.Database
             SpatialHelpers.RoundLatLongElevation(toProcess);
         }
 
-        public static async Task<List<string>> FolderNamesFromContent(dynamic content)
-        {
-            var db = await Db.Context();
-
-            switch (content)
-            {
-                case FileContent _:
-                    return db.FileContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case ImageContent _:
-                    return db.ImageContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case NoteContent _:
-                    return db.NoteContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case PhotoContent _:
-                    return db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case PointContent _:
-                    return db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case PostContent _:
-                    return db.PostContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                default:
-                    return new List<string>();
-            }
-        }
-
         public static async Task<List<HistoricFileContent>> DeletedFileContent()
         {
             var db = await Context();
@@ -221,7 +198,7 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report($"{toHistoric.First().Title} Deleted");
 
-            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
@@ -249,7 +226,7 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report($"{toHistoric.First().Title} Deleted");
 
-            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Image,
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Image,
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
@@ -277,7 +254,7 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report($"{toHistoric.First().Title} Deleted");
 
-            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
@@ -305,7 +282,7 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report($"{toHistoric.First().Title} Deleted");
 
-            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Note,
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Note,
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
@@ -333,7 +310,7 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report($"{toHistoric.First().Title} Deleted");
 
-            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
@@ -361,7 +338,7 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report($"{toHistoric.First().Title} Deleted");
 
-            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
@@ -389,8 +366,31 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report($"{toHistoric.First().Title} Deleted");
 
-            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+        }
+
+        public static async Task<List<string>> FolderNamesFromContent(dynamic content)
+        {
+            var db = await Context();
+
+            switch (content)
+            {
+                case FileContent _:
+                    return db.FileContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case ImageContent _:
+                    return db.ImageContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case NoteContent _:
+                    return db.NoteContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case PhotoContent _:
+                    return db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case PointContent _:
+                    return db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                case PostContent _:
+                    return db.PostContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+                default:
+                    return new List<string>();
+            }
         }
 
 #pragma warning disable 1998
@@ -588,12 +588,9 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            if (isUpdate)
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
-                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
-            else
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
-                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
+                isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+                new List<Guid> {toSave.ContentId});
         }
 
         public static async Task SaveImageContent(ImageContent toSave)
@@ -626,12 +623,9 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            if (isUpdate)
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Image,
-                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
-            else
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Image,
-                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Image,
+                isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+                new List<Guid> {toSave.ContentId});
         }
 
         public static async Task SaveLinkContent(LinkContent toSave)
@@ -660,12 +654,9 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            if (isUpdate)
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
-                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
-            else
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
-                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
+                isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+                new List<Guid> {toSave.ContentId});
         }
 
         public static async Task SaveNoteContent(NoteContent toSave)
@@ -694,12 +685,9 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            if (isUpdate)
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Note,
-                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
-            else
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Note,
-                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Note,
+                isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+                new List<Guid> {toSave.ContentId});
         }
 
         public static async Task SavePhotoContent(PhotoContent toSave)
@@ -732,12 +720,9 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            if (isUpdate)
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
-                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
-            else
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
-                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
+                isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+                new List<Guid> {toSave.ContentId});
         }
 
         public static async Task SavePointContent(PointContent toSave, List<PointDetail> relatedDetails)
@@ -788,12 +773,9 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            if (isUpdate)
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
-                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
-            else
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
-                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
+                isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+                new List<Guid> {toSave.ContentId});
         }
 
         public static async Task SavePointDetailContent(PointContentPointDetailLink toSave)
@@ -814,9 +796,9 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
                 DataNotificationUpdateType.Update, new List<Guid> {toSave.PointContentId});
-            await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
                 DataNotificationUpdateType.Update, new List<Guid> {toSave.PointDetailContentId});
         }
 
@@ -846,12 +828,9 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            if (isUpdate)
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
-                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
-            else
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
-                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
+                isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+                new List<Guid> {toSave.ContentId});
         }
 
         public static async Task SavePostContent(PostContent toSave)
@@ -882,19 +861,14 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            if (isUpdate)
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
-                    DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
-            else
-                await DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
-                    DataNotificationUpdateType.New, new List<Guid> {toSave.ContentId});
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
+                isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+                new List<Guid> {toSave.ContentId});
         }
 
         public static string TagListCleanup(string tags)
         {
-            if (string.IsNullOrWhiteSpace(tags)) return string.Empty;
-
-            return TagListJoin(TagListParse(tags));
+            return string.IsNullOrWhiteSpace(tags) ? string.Empty : TagListJoin(TagListParse(tags));
         }
 
         public static List<string> TagListCleanup(List<string> listToClean)

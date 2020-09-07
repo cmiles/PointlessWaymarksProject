@@ -51,6 +51,10 @@
  
 ## Notes
 
+9/7/2020
+
+Refactor into creation via async Factory methods for all not top level controls - for top level controls only the Photo Editor is currently refactored in part because at this point I ran into problems with the automated tests where TinyMessageBus was having problems getting a lock on the file it uses. I didn't debug into the TinyMessageBus code but after a little reading decided to change approaches slightly and push published changes onto a one channel work queue to reduce the number of possible places where TinyMessageBus needs to completely lock the file for writing (I believe that the combination I had in the code of new channel per publish and many publishes at once combined with all the reads was not working out at least across all the different threads...) - tests ran without problems several times after this change. 
+
 9/5/2020
 
 Work on Point Details - still not completely convinced of the design but it is certainly a lot closer.

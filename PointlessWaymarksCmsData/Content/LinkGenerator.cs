@@ -172,7 +172,7 @@ namespace PointlessWaymarksCmsData.Content
             await SaveLinkToPinboard(toSave, progress);
             GenerateHtmlAndJson(generationVersion, progress);
 
-            await DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Link,
+            DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Link,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
             return (

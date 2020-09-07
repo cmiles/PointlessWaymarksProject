@@ -15,6 +15,11 @@ namespace PointlessWaymarksCmsData
 
         private static readonly TinyMessageBus DataNotificationTransmissionChannel = new TinyMessageBus("PointlessWaymarksDataNotificationChannel");
 
+        private static readonly WorkQueue<string> SendMessageQueue = new WorkQueue<string>
+        {
+            Processor = async x => await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(x))
+        };
+
         public static TinyMessageBus NewDataNotificationChannel()
         {
             return new TinyMessageBus("PointlessWaymarksDataNotificationChannel");
@@ -37,7 +42,7 @@ namespace PointlessWaymarksCmsData
             }
         }
 
-        public static async Task PublishDataNotification(string sender, DataNotificationContentType contentType,
+        public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
             DataNotificationUpdateType updateType, List<Guid> contentGuidList)
         {
             if (SuspendNotifications) return;
@@ -46,8 +51,8 @@ namespace PointlessWaymarksCmsData
 
             var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
-            await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(
-                $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList)}"));
+            SendMessageQueue.Enqueue(
+                $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList)}");
         }
 
         public static InterProcessDataNotification TranslateDataNotification(byte[] received)
