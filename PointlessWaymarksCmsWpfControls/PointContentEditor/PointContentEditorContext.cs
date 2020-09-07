@@ -42,28 +42,30 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         private ConversionDataEntryContext<double> _latitudeEntry;
         private ConversionDataEntryContext<double> _longitudeEntry;
         private PointDetailListContext _pointDetails;
-        private Command _saveAndGenerateHtmlCommand;
+        private Command _saveAndCloseCommand;
+        private Command _saveCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
-        public PointContentEditorContext(StatusControlContext statusContext, PointContent pointContent)
+        public EventHandler RequestLinkContentEditorWindowClose;
+
+        private PointContentEditorContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             HelpContext =
                 new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
 
-            SaveAndGenerateHtmlCommand = StatusContext.RunBlockingTaskCommand(SaveAndGenerateHtml);
+            SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+            SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
             GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(pointContent));
         }
 
         public BodyContentEditorContext BodyContent
@@ -193,13 +195,24 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        public Command SaveAndGenerateHtmlCommand
+        public Command SaveAndCloseCommand
         {
-            get => _saveAndGenerateHtmlCommand;
+            get => _saveAndCloseCommand;
             set
             {
-                if (Equals(value, _saveAndGenerateHtmlCommand)) return;
-                _saveAndGenerateHtmlCommand = value;
+                if (Equals(value, _saveAndCloseCommand)) return;
+                _saveAndCloseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SaveCommand
+        {
+            get => _saveCommand;
+            set
+            {
+                if (Equals(value, _saveCommand)) return;
+                _saveCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -271,6 +284,14 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 !LatitudeEntry.HasValidationIssues && !LongitudeEntry.HasValidationIssues)
                 RaisePointLatitudeLongitudeChange?.Invoke(this,
                     new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
+        }
+
+        public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            PointContent pointContent)
+        {
+            var newControl = new PointContentEditorContext(statusContext);
+            await newControl.LoadData(pointContent);
+            return newControl;
         }
 
         private PointContent CurrentStateToPointContent()
@@ -390,48 +411,40 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-            ElevationEntry = new ConversionDataEntryContext<double?>
+            ElevationEntry = ConversionDataEntryContext<double?>.CreateInstance();
+            ElevationEntry.Title = "Elevation";
+            ElevationEntry.HelpText = "Elevation in Feet";
+            ElevationEntry.ReferenceValue = DbEntry.Elevation;
+            ElevationEntry.UserValue = DbEntry.Elevation;
+            ElevationEntry.Converter = ConversionDataEntryHelpers.DoubleNullableConversion;
+            ElevationEntry.ValidationFunctions = new List<Func<double?, (bool passed, string validationMessage)>>
             {
-                Title = "Elevation",
-                HelpText = "Elevation in Feet",
-                ReferenceValue = DbEntry.Elevation,
-                UserValue = DbEntry.Elevation,
-                Converter = ConversionDataEntryHelpers.DoubleNullableConversion,
-                ValidationFunctions = new List<Func<double?, (bool passed, string validationMessage)>>
-                {
-                    CommonContentValidation.ElevationValidation
-                }
+                CommonContentValidation.ElevationValidation
             };
 
-            LatitudeEntry = new ConversionDataEntryContext<double>
+            LatitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
+            LatitudeEntry.Title = "Latitude";
+            LatitudeEntry.HelpText = "In DDD.DDDDDD°";
+            LatitudeEntry.ReferenceValue = DbEntry.Latitude;
+            LatitudeEntry.UserValue = DbEntry.Latitude;
+            LatitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
+            LatitudeEntry.ValidationFunctions = new List<Func<double, (bool passed, string validationMessage)>>
             {
-                Title = "Latitude",
-                HelpText = "In DDD.DDDDDD°",
-                ReferenceValue = DbEntry.Latitude,
-                UserValue = DbEntry.Latitude,
-                Converter = ConversionDataEntryHelpers.DoubleConversion,
-                ValidationFunctions =
-                    new List<Func<double, (bool passed, string validationMessage)>>
-                    {
-                        CommonContentValidation.LatitudeValidation
-                    },
-                ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001)
+                CommonContentValidation.LatitudeValidation
             };
+            LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
 
-            LongitudeEntry = new ConversionDataEntryContext<double>
+            LongitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
+            LongitudeEntry.Title = "Longitude";
+            LongitudeEntry.HelpText = "In DDD.DDDDDD°";
+            LongitudeEntry.ReferenceValue = DbEntry.Longitude;
+            LongitudeEntry.UserValue = DbEntry.Longitude;
+            LongitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
+            LongitudeEntry.ValidationFunctions = new List<Func<double, (bool passed, string validationMessage)>>
             {
-                Title = "Longitude",
-                HelpText = "In DDD.DDDDDD°",
-                ReferenceValue = DbEntry.Longitude,
-                UserValue = DbEntry.Longitude,
-                Converter = ConversionDataEntryHelpers.DoubleConversion,
-                ValidationFunctions =
-                    new List<Func<double, (bool passed, string validationMessage)>>
-                    {
-                        CommonContentValidation.LongitudeValidation
-                    },
-                ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001)
+                CommonContentValidation.LongitudeValidation
             };
+            LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
 
             PointDetails = new PointDetailListContext(StatusContext, DbEntry);
         }
@@ -459,7 +472,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
         public event EventHandler<PointLatitudeLongitudeChange> RaisePointLatitudeLongitudeChange;
 
-        public async Task SaveAndGenerateHtml()
+        public async Task SaveAndGenerateHtml(bool closeAfterSave)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -474,6 +487,12 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
 
             await LoadData(newContent);
+
+            if (closeAfterSave)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+            }
         }
 
 

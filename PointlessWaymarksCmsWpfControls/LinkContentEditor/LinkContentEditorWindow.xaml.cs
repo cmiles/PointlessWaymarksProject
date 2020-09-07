@@ -16,12 +16,18 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
-            EditorContent = new LinkContentEditorContext(StatusContext, toLoad, extractDataFromLink);
 
-            EditorContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            {
+                EditorContent =
+                    await LinkContentEditorContext.CreateInstance(StatusContext, toLoad, extractDataFromLink);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, EditorContent);
+                EditorContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, EditorContent);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                DataContext = this;
+            });
         }
 
         public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }

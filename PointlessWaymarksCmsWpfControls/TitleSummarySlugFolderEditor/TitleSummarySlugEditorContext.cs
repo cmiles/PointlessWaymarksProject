@@ -217,40 +217,34 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             DbEntry = dbEntry;
 
-            TitleEntry = new StringDataEntryContext
+            TitleEntry = StringDataEntryContext.CreateInstance();
+            TitleEntry.Title = "Title";
+            TitleEntry.HelpText = "Title Text";
+            TitleEntry.ReferenceValue = DbEntry?.Title ?? string.Empty;
+            TitleEntry.UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.Title);
+            TitleEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
             {
-                Title = "Title",
-                HelpText = "Title Text",
-                ReferenceValue = DbEntry?.Title ?? string.Empty,
-                UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.Title),
-                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
-                {
-                    CommonContentValidation.ValidateTitle
-                }
+                CommonContentValidation.ValidateTitle
             };
 
-            SlugEntry = new StringDataEntryContext
+            SlugEntry = StringDataEntryContext.CreateInstance();
+            SlugEntry.Title = "Slug";
+            SlugEntry.HelpText = "This will be the Folder and File Name used in URLs - limited to a-z 0-9 _ -";
+            SlugEntry.ReferenceValue = DbEntry?.Slug ?? string.Empty;
+            SlugEntry.UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.Slug);
+            SlugEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
             {
-                Title = "Slug",
-                HelpText = "This will be the Folder and File Name used in URLs - limited to a-z 0-9 _ -",
-                ReferenceValue = DbEntry?.Slug ?? string.Empty,
-                UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.Slug),
-                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
-                {
-                    CommonContentValidation.ValidateSlugLocal
-                }
+                CommonContentValidation.ValidateSlugLocal
             };
 
-            SummaryEntry = new StringDataEntryContext
+            SummaryEntry = StringDataEntryContext.CreateInstance();
+            SummaryEntry.Title = "Summary";
+            SummaryEntry.HelpText = "A short text entry that will show in Search and short references to the content";
+            SummaryEntry.ReferenceValue = DbEntry?.Summary ?? string.Empty;
+            SummaryEntry.UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.Summary);
+            SummaryEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
             {
-                Title = "Summary",
-                HelpText = "A short text entry that will show in Search and short references to the content",
-                ReferenceValue = DbEntry?.Summary ?? string.Empty,
-                UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.Summary),
-                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
-                {
-                    CommonContentValidation.ValidateSummary
-                }
+                CommonContentValidation.ValidateSummary
             };
 
             Folder = DbEntry?.Folder ?? string.Empty;
@@ -261,7 +255,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 
             ExistingFolderChoices = new ObservableCollection<string>(folderChoices);
             _dataNotificationType = DataNotifications.NotificationContentTypeFromContent(DbEntry);
-
         }
 
         public StringDataEntryContext SummaryEntry

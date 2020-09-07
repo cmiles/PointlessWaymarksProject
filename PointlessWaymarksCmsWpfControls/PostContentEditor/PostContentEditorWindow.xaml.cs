@@ -16,10 +16,17 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
-            PostContent = new PostContentEditorContext(StatusContext, toLoad);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PostContent);
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            {
+                PostContent = await PostContentEditorContext.CreateInstance(StatusContext, toLoad);
+
+                PostContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PostContent);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                DataContext = this;
+            });
         }
 
         public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
@@ -46,12 +53,12 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

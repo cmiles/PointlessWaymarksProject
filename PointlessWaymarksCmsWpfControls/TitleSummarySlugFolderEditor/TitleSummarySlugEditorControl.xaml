@@ -26,7 +26,7 @@
             <Button
                 Margin="6,4,0,0"
                 Command="{Binding TitleToSlugCommand}"
-                Content="T_itle to Slug" />
+                Content="Title to Slug" />
         </StackPanel>
         <stringDataEntry:StringDataEntryControl DataContext="{Binding SlugEntry}" />
         <StackPanel Margin="0,4,0,0" Orientation="Vertical">

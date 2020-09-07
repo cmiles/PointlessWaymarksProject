@@ -18,10 +18,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             InitializeComponent();
 
             StatusContext = new StatusControlContext();
-            ImageEditor = new ImageContentEditorContext(StatusContext);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            {
+                ImageEditor = await ImageContentEditorContext.CreateInstance(StatusContext);
+
+                ImageEditor.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                DataContext = this;
+            });
         }
 
         public ImageContentEditorWindow(ImageContent contentToLoad = null, FileInfo initialImage = null)
@@ -29,10 +36,18 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             InitializeComponent();
 
             StatusContext = new StatusControlContext();
-            ImageEditor = new ImageContentEditorContext(StatusContext, contentToLoad, initialImage);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            {
+                ImageEditor =
+                    await ImageContentEditorContext.CreateInstance(StatusContext, contentToLoad, initialImage);
+
+                ImageEditor.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                DataContext = this;
+            });
         }
 
         public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }

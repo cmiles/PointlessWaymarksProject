@@ -106,8 +106,12 @@
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
-                    Command="{Binding SaveAndGenerateHtmlCommand}"
-                    Content="Save, _Generate Html"
+                    Command="{Binding SaveCommand}"
+                    Content="_Save"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding SaveAndCloseCommand}"
+                    Content="Save and Close"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
                     Command="{Binding ExtractNewLinksCommand}"

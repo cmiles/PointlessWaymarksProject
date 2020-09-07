@@ -27,7 +27,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
         private string _validationMessage;
 
-        public ConversionDataEntryContext()
+        private ConversionDataEntryContext()
         {
             ComparisonFunction = (referenceValue, userValue) => referenceValue.Equals(userValue);
         }
@@ -191,6 +191,11 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
             HasValidationIssues = false;
             ValidationMessage = string.Empty;
+        }
+
+        public static ConversionDataEntryContext<T> CreateInstance()
+        {
+            return new ConversionDataEntryContext<T>();
         }
 
         [NotifyPropertyChangedInvocator]

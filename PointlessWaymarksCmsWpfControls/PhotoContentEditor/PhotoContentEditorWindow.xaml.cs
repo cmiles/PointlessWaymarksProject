@@ -19,16 +19,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
             {
                 PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext);
 
                 PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
-
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
-
                 DataContext = this;
             });
         }
@@ -39,16 +37,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
             {
                 PhotoEditor = await PhotoContentEditorContext.CreateInstance1(StatusContext, initialPhoto);
 
                 PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
-
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
-
                 DataContext = this;
             });
         }
@@ -59,16 +55,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext = new StatusControlContext();
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
             {
                 PhotoEditor = await PhotoContentEditorContext.CreateInstance2(StatusContext, toLoad);
 
                 PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
-
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
-
                 DataContext = this;
             });
         }

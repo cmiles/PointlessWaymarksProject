@@ -33,8 +33,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
         private bool _linkUrlHasValidationIssues;
         private string _linkUrlHasValidationMessage;
         private Command _openUrlInBrowserCommand;
-        private Command _saveUpdateDatabaseAndCloseCommand;
-        private Command _saveUpdateDatabaseCommand;
+        private Command _saveAndCloseCommand;
+        private Command _saveCommand;
         private bool _showInLinkRss;
         private bool _showInLinkRssHasChanges;
         private string _site;
@@ -46,15 +46,12 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 
         public EventHandler RequestLinkContentEditorWindowClose;
 
-        public LinkContentEditorContext(StatusControlContext statusContext, LinkContent linkContent,
-            bool extractDataOnLoad = false)
+        private LinkContentEditorContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            SaveUpdateDatabaseCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
-            SaveUpdateDatabaseAndCloseCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+            SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ExtractDataCommand = StatusContext.RunBlockingTaskCommand(ExtractDataFromLink);
             OpenUrlInBrowserCommand = StatusContext.RunNonBlockingActionCommand(() =>
             {
@@ -68,9 +65,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
                     StatusContext.ToastWarning($"Trouble opening link - {e.Message}");
                 }
             });
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
-                await LoadData(linkContent, extractDataOnLoad));
         }
 
         public string Author
@@ -249,24 +243,24 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
-        public Command SaveUpdateDatabaseAndCloseCommand
+        public Command SaveAndCloseCommand
         {
-            get => _saveUpdateDatabaseAndCloseCommand;
+            get => _saveAndCloseCommand;
             set
             {
-                if (Equals(value, _saveUpdateDatabaseAndCloseCommand)) return;
-                _saveUpdateDatabaseAndCloseCommand = value;
+                if (Equals(value, _saveAndCloseCommand)) return;
+                _saveAndCloseCommand = value;
                 OnPropertyChanged();
             }
         }
 
-        public Command SaveUpdateDatabaseCommand
+        public Command SaveCommand
         {
-            get => _saveUpdateDatabaseCommand;
+            get => _saveCommand;
             set
             {
-                if (Equals(value, _saveUpdateDatabaseCommand)) return;
-                _saveUpdateDatabaseCommand = value;
+                if (Equals(value, _saveCommand)) return;
+                _saveCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -377,6 +371,14 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             // ReSharper restore InvokeAsExtensionMethod
 
             await ValidateUrl();
+        }
+
+        public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            LinkContent linkContent, bool extractDataOnLoad = false)
+        {
+            var newControl = new LinkContentEditorContext(statusContext);
+            await newControl.LoadData(linkContent, extractDataOnLoad);
+            return newControl;
         }
 
         public bool HasChanges =>

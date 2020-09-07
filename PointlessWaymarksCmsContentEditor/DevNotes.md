@@ -16,6 +16,7 @@
  - Bad Content Code Content Scan
  - To Excel for logs
  - Investigate improved text to speech via https://github.com/jamesmontemagno/TextToSpeechPlugin/blob/master/src/TextToSpeech.Plugin/TextToSpeech.uwp.cs - at least look at cancellation...
+ - Could the body and update content control vertical and horizontal variations be combined into one control each?
  - Deleted Content Report so it is possible to restore completely deleted
  - In Search it might be nice to have the content type on the line with date?
  - Clean up the main window - split out context - consider creating a control?
@@ -23,7 +24,6 @@
  - Sorting needs better visual indicators
  - Should temp files be auto-deleted or live forever?
  - Folder Name in Lists needs to open in Explorer when clicked
- - Folder in editor should help you with existing choices
  - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
  - Is everything getting HMTL Encoded - are there spots with leaks? (tests?)
  - RSS - Does title need CDATA to be completely safe? Or?
@@ -45,15 +45,16 @@
 ## Issues to Track
  - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
-
-## Projects to Review
- - https://github.com/statiqdev/Statiq.Framework - found Wyam (the older version of this) accidentally thru an older Scott Hanselman post https://www.hanselman.com/blog/ExploringWyamANETStaticSiteContentGenerator.aspx and thought it might be worth review - I haven't looked at too much static site generation code so this could be useful.
  
 ## Notes
 
 9/7/2020
 
-Refactor into creation via async Factory methods for all not top level controls - for top level controls only the Photo Editor is currently refactored in part because at this point I ran into problems with the automated tests where TinyMessageBus was having problems getting a lock on the file it uses. I didn't debug into the TinyMessageBus code but after a little reading decided to change approaches slightly and push published changes onto a one channel work queue to reduce the number of possible places where TinyMessageBus needs to completely lock the file for writing (I believe that the combination I had in the code of new channel per publish and many publishes at once combined with all the reads was not working out at least across all the different threads...) - tests ran without problems several times after this change. 
+Finished out async Factory Method creation for editor windows.
+
+Added a horizontal layout version of the Body Content Editor for the Photo and Image controls - didn't rename the original at this point because I thought it would be nice to find a way to do one control with alternate layout esp. with the speech and link code in the code behind.
+
+Refactor into creation via async Factory methods for all not top level controls - for top level controls only the Photo Editor is currently refactored in part because at this point I ran into problems with the automated tests where TinyMessageBus was having problems getting a lock on the file it uses. I didn't debug into the TinyMessageBus code but after a little reading decided to change approaches slightly and push published changes onto a one channel work queue to reduce the number of possible places where TinyMessageBus needs to completely lock the file for writing (I believe that the combination I had in the code of new channel per publish and many publishes at once combined with all the reads was not working out at least across all the different threads...) - tests ran without problems several times after this change.
 
 9/5/2020
 

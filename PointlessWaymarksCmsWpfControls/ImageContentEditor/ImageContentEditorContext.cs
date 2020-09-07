@@ -44,7 +44,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private Command _renameSelectedFileCommand;
         private Command _rotateImageLeftCommand;
         private Command _rotateImageRightCommand;
-        private Command _saveAndGenerateHtmlCommand;
+        private Command _saveAndCloseCommand;
+        private Command _saveCommand;
         private FileInfo _selectedFile;
         private BitmapSource _selectedFileBitmapSource;
         private string _selectedFileFullPath;
@@ -60,7 +61,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private Command _viewOnSiteCommand;
         private Command _viewSelectedFileCommand;
 
-        public ImageContentEditorContext(StatusControlContext statusContext, ImageContent contentToLoad = null,
+        public EventHandler RequestLinkContentEditorWindowClose;
+
+        private ImageContentEditorContext(StatusControlContext statusContext, ImageContent contentToLoad = null,
             FileInfo initialImage = null)
         {
             SetupContextAndCommands(statusContext);
@@ -193,13 +196,24 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public Command SaveAndGenerateHtmlCommand
+        public Command SaveAndCloseCommand
         {
-            get => _saveAndGenerateHtmlCommand;
+            get => _saveAndCloseCommand;
             set
             {
-                if (Equals(value, _saveAndGenerateHtmlCommand)) return;
-                _saveAndGenerateHtmlCommand = value;
+                if (Equals(value, _saveAndCloseCommand)) return;
+                _saveAndCloseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SaveCommand
+        {
+            get => _saveCommand;
+            set
+            {
+                if (Equals(value, _saveCommand)) return;
+                _saveCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -393,6 +407,14 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             StatusContext.Progress($"Image set - {SelectedFile.FullName}");
         }
 
+        public static async Task<ImageContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            ImageContent contentToLoad = null, FileInfo initialImage = null)
+        {
+            var newControl = new ImageContentEditorContext(statusContext, contentToLoad, initialImage);
+            await newControl.LoadData(contentToLoad);
+            return newControl;
+        }
+
         private ImageContent CurrentStateToPhotoContent()
         {
             var newEntry = new ImageContent();
@@ -494,14 +516,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 }
             }
 
-            AltTextEntry = new StringDataEntryContext
-            {
-                Title = "Alt Text",
-                HelpText =
-                    "A short text description of the image - in some cases the Summary may be all that is needed.",
-                ReferenceValue = DbEntry.AltText ?? string.Empty,
-                UserValue = DbEntry.AltText.TrimNullToEmpty(),
-            };
+            AltTextEntry = StringDataEntryContext.CreateInstance();
+            AltTextEntry.Title = "Alt Text";
+            AltTextEntry.HelpText =
+                "A short text description of the image - in some cases the Summary may be all that is needed.";
+            AltTextEntry.ReferenceValue = DbEntry.AltText ?? string.Empty;
+            AltTextEntry.UserValue = DbEntry.AltText.TrimNullToEmpty();
 
             if (DbEntry.Id < 1 && _initialImage != null && _initialImage.Exists &&
                 FileHelpers.ImageFileTypeIsSupported(_initialImage))
@@ -542,7 +562,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
         }
 
-        private async Task SaveAndGenerateHtml(bool overwriteExistingFiles)
+        private async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -556,6 +576,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
 
             await LoadData(newContent);
+
+            if (closeAfterSave)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+            }
         }
 
         private async Task SelectedFileChanged()
@@ -598,8 +624,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             StatusContext = statusContext ?? new StatusControlContext();
 
             ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
-            SaveAndGenerateHtmlCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
+            SaveAndCloseCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
             RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>

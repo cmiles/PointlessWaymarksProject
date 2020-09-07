@@ -27,7 +27,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private Command _extractNewLinksCommand;
         private string _folder;
         private bool _folderHasChanges;
-        private Command _saveAndCreateLocalCommand;
+        private Command _saveAndCloseCommand;
+        private Command _saveCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private string _slug;
         private string _summary;
@@ -35,17 +36,29 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private TagsEditorContext _tagEdit;
         private Command _viewOnSiteCommand;
 
-        public NoteContentEditorContext(StatusControlContext statusContext, NoteContent noteContent)
+        public EventHandler RequestLinkContentEditorWindowClose;
+
+        private NoteContentEditorContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            SaveAndCreateLocalCommand = StatusContext.RunBlockingTaskCommand(SaveAndGenerateHtml);
+            SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+            SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker()));
+        }
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(noteContent));
+        public Command SaveAndCloseCommand
+        {
+            get => _saveAndCloseCommand;
+            set
+            {
+                if (Equals(value, _saveAndCloseCommand)) return;
+                _saveAndCloseCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         private void CheckForChanges()
@@ -55,6 +68,14 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             SummaryHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Summary) != Summary.TrimNullToEmpty();
             FolderHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Folder) != Folder.TrimNullToEmpty();
             // ReSharper restore InvokeAsExtensionMethod
+        }
+
+        public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            NoteContent noteContent)
+        {
+            var newControl = new NoteContentEditorContext(statusContext);
+            await newControl.LoadData(noteContent);
+            return newControl;
         }
 
         public bool FolderHasChanges
@@ -145,13 +166,13 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public Command SaveAndCreateLocalCommand
+        public Command SaveCommand
         {
-            get => _saveAndCreateLocalCommand;
+            get => _saveCommand;
             set
             {
-                if (Equals(value, _saveAndCreateLocalCommand)) return;
-                _saveAndCreateLocalCommand = value;
+                if (Equals(value, _saveCommand)) return;
+                _saveCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -283,7 +304,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             return newEntry;
         }
 
-        public async Task SaveAndGenerateHtml()
+        public async Task SaveAndGenerateHtml(bool closeAfterSave)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -298,6 +319,12 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
 
             await LoadData(newContent);
+
+            if (closeAfterSave)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+            }
         }
 
         private async Task ViewOnSite()

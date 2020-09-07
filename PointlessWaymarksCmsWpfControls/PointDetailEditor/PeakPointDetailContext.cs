@@ -176,16 +176,13 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             DetailData = new Peak {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
 
-            NoteEditor = new StringDataEntryContext
-            {
-                Title = "Notes",
-                HelpText = "Notes",
-                ReferenceValue = DetailData.Notes ?? string.Empty,
-                UserValue = DetailData.Notes.TrimNullToEmpty()
-            };
+            NoteEditor = StringDataEntryContext.CreateInstance();
+            NoteEditor.Title = "Notes";
+            NoteEditor.HelpText = "Notes";
+            NoteEditor.ReferenceValue = DetailData.Notes ?? string.Empty;
+            NoteEditor.UserValue = DetailData.Notes.TrimNullToEmpty();
 
-            NoteFormatEditor =
-                ContentFormatChooserContext.CreateInstance(StatusContext);
+            NoteFormatEditor = ContentFormatChooserContext.CreateInstance(StatusContext);
             NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
         }
 

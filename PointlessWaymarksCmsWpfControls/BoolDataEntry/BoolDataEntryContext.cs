@@ -132,6 +132,11 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
             ValidationMessage = string.Empty;
         }
 
+        public static BoolDataEntryContext CreateInstance()
+        {
+            return new BoolDataEntryContext();
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -139,7 +144,8 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChangesAndValidate();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidate();
         }
     }
 }

@@ -17,30 +17,51 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
-            FileContent = new FileContentEditorContext(StatusContext);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            {
+                FileContent = await FileContentEditorContext.CreateInstance(StatusContext);
+
+                FileContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                DataContext = this;
+            });
         }
 
         public FileContentEditorWindow(FileInfo initialFile)
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
-            FileContent = new FileContentEditorContext(StatusContext, initialFile);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            {
+                FileContent = await FileContentEditorContext.CreateInstance(StatusContext, initialFile);
+
+                FileContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                DataContext = this;
+            });
         }
 
         public FileContentEditorWindow(FileContent toLoad)
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
-            FileContent = new FileContentEditorContext(StatusContext, toLoad);
 
-            DataContext = this;
-            AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            {
+                FileContent = await FileContentEditorContext.CreateInstance(StatusContext, toLoad);
+
+                FileContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                DataContext = this;
+            });
         }
 
         public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }

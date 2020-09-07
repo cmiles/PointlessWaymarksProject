@@ -198,14 +198,14 @@
             <Button
                 Height="24"
                 Margin="4"
-                Command="{Binding SaveUpdateDatabaseAndCloseCommand}"
-                Content="_Save and Close" />
+                Command="{Binding SaveCommand}"
+                Content="_Save" />
             <Button
                 Grid.Column="1"
                 Height="24"
                 Margin="4"
-                Command="{Binding SaveUpdateDatabaseCommand}"
-                Content="Save" />
+                Command="{Binding SaveAndCloseCommand}"
+                Content="Save and Close" />
         </Grid>
         <windowScreenShot:WindowScreenShotControl
             Grid.Row="0"

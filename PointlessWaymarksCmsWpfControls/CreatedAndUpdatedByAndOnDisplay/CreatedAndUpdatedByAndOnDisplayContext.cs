@@ -175,32 +175,27 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
                 IsNewEntry = true;
             else if (((IContentId) DbEntry).Id < 1) IsNewEntry = true;
 
-            CreatedByEntry = new StringDataEntryContext
+            CreatedByEntry = StringDataEntryContext.CreateInstance();
+            CreatedByEntry.Title = "Created By";
+            CreatedByEntry.HelpText = "Created By Name";
+            CreatedByEntry.ReferenceValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
+                ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+                : DbEntry.CreatedBy;
+            CreatedByEntry.UserValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
+                ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+                : DbEntry.CreatedBy;
+            CreatedByEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
             {
-                Title = "Created By",
-                HelpText = "Created By Name",
-                ReferenceValue =
-                    string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
-                        ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
-                        : DbEntry.CreatedBy,
-                UserValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
-                    ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
-                    : DbEntry.CreatedBy,
-                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
-                {
-                    CommonContentValidation.ValidateCreatedBy
-                }
+                CommonContentValidation.ValidateCreatedBy
             };
 
-            UpdatedByEntry = new StringDataEntryContext
-            {
-                Title = "Updated By",
-                HelpText = "Last Updated By Name",
-                ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty,
-                UserValue = toLoad?.LastUpdatedBy ?? string.Empty,
-                ValidationFunctions =
-                    new List<Func<string, (bool passed, string validationMessage)>> {ValidateUpdatedBy}
-            };
+            UpdatedByEntry = StringDataEntryContext.CreateInstance();
+            UpdatedByEntry.Title = "Updated By";
+            UpdatedByEntry.HelpText = "Last Updated By Name";
+            UpdatedByEntry.ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty;
+            UpdatedByEntry.UserValue = toLoad?.LastUpdatedBy ?? string.Empty;
+            UpdatedByEntry.ValidationFunctions =
+                new List<Func<string, (bool passed, string validationMessage)>> {ValidateUpdatedBy};
 
 
             //If this is a 'first update' go ahead and fill in the Created by as the updated by, this

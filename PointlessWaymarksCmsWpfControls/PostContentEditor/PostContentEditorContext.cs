@@ -29,27 +29,29 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         private PostContent _dbEntry;
         private Command _extractNewLinksCommand;
         private HelpDisplayContext _helpContext;
-        private Command _saveAndGenerateHtmlCommand;
+        private Command _saveAndCloseCommand;
+        private Command _saveCommand;
         private ShowInMainSiteFeedEditorContext _showInSiteFeed;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
-        public PostContentEditorContext(StatusControlContext statusContext, PostContent postContent)
+        public EventHandler RequestLinkContentEditorWindowClose;
+
+        private PostContentEditorContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             HelpContext =
                 new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
 
-            SaveAndGenerateHtmlCommand = StatusContext.RunBlockingTaskCommand(SaveAndGenerateHtml);
+            SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+            SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(postContent));
         }
 
         public BodyContentEditorContext BodyContent
@@ -122,13 +124,24 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public Command SaveAndGenerateHtmlCommand
+        public Command SaveAndCloseCommand
         {
-            get => _saveAndGenerateHtmlCommand;
+            get => _saveAndCloseCommand;
             set
             {
-                if (Equals(value, _saveAndGenerateHtmlCommand)) return;
-                _saveAndGenerateHtmlCommand = value;
+                if (Equals(value, _saveAndCloseCommand)) return;
+                _saveAndCloseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SaveCommand
+        {
+            get => _saveCommand;
+            set
+            {
+                if (Equals(value, _saveCommand)) return;
+                _saveCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -192,6 +205,14 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            PostContent postContent)
+        {
+            var newControl = new PostContentEditorContext(statusContext);
+            await newControl.LoadData(postContent);
+            return newControl;
+        }
+
         private PostContent CurrentStateToPostContent()
         {
             var newEntry = new PostContent();
@@ -251,7 +272,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public async Task SaveAndGenerateHtml()
+        public async Task SaveAndGenerateHtml(bool closeAfterSave)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -266,6 +287,12 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
 
             await LoadData(newContent);
+
+            if (closeAfterSave)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+            }
         }
 
 

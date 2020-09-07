@@ -133,6 +133,11 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
             ValidationMessage = string.Empty;
         }
 
+        public static StringDataEntryContext CreateInstance()
+        {
+            return new StringDataEntryContext();
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -140,7 +145,8 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChangesAndValidate();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidate();
         }
     }
 }

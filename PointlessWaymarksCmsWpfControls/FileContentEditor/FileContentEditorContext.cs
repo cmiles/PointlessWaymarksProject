@@ -42,8 +42,9 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private bool _publicDownloadLink = true;
         private bool _publicDownloadLinkHasChanges;
         private Command _renameSelectedFileCommand;
+        private Command _saveAndCloseCommand;
         private Command _saveAndExtractImageFromPdfCommand;
-        private Command _saveAndGenerateHtmlCommand;
+        private Command _saveCommand;
         private FileInfo _selectedFile;
         private bool _selectedFileHasPathOrNameChanges;
         private bool _selectedFileHasValidationIssues;
@@ -55,27 +56,18 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
-        public FileContentEditorContext(StatusControlContext statusContext)
-        {
-            SetupStatusContextAndCommands(statusContext);
+        public EventHandler RequestLinkContentEditorWindowClose;
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
-        }
-
-        public FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile)
+        private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
         {
             if (initialFile != null && initialFile.Exists) _initialFile = initialFile;
 
             SetupStatusContextAndCommands(statusContext);
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(null));
         }
 
-        public FileContentEditorContext(StatusControlContext statusContext, FileContent toLoad)
+        private FileContentEditorContext(StatusControlContext statusContext)
         {
             SetupStatusContextAndCommands(statusContext);
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
         }
 
         public BodyContentEditorContext BodyContent
@@ -221,6 +213,17 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public Command SaveAndCloseCommand
+        {
+            get => _saveAndCloseCommand;
+            set
+            {
+                if (Equals(value, _saveAndCloseCommand)) return;
+                _saveAndCloseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command SaveAndExtractImageFromPdfCommand
         {
             get => _saveAndExtractImageFromPdfCommand;
@@ -232,13 +235,13 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public Command SaveAndGenerateHtmlCommand
+        public Command SaveCommand
         {
-            get => _saveAndGenerateHtmlCommand;
+            get => _saveCommand;
             set
             {
-                if (Equals(value, _saveAndGenerateHtmlCommand)) return;
-                _saveAndGenerateHtmlCommand = value;
+                if (Equals(value, _saveCommand)) return;
+                _saveCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -388,6 +391,22 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             SelectedFile = newFile;
 
             StatusContext.Progress($"File load - {SelectedFile.FullName} ");
+        }
+
+        public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            FileInfo initialFile = null)
+        {
+            var newControl = new FileContentEditorContext(statusContext, initialFile);
+            await newControl.LoadData(null);
+            return newControl;
+        }
+
+        public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            FileContent initialContent)
+        {
+            var newControl = new FileContentEditorContext(statusContext);
+            await newControl.LoadData(initialContent);
+            return newControl;
         }
 
         private FileContent CurrentStateToFileContent()
@@ -607,7 +626,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 pageNumber);
         }
 
-        public async Task SaveAndGenerateHtml(bool overwriteExistingFiles)
+        public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -622,6 +641,12 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
 
             await LoadData(newContent);
+
+            if (closeAfterSave)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+            }
         }
 
         private async Task SelectedFileChanged()
@@ -647,8 +672,9 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                                                  BracketCodeHelpMarkdown.HelpBlock);
 
             ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
-            SaveAndGenerateHtmlCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
+            SaveAndCloseCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
             OpenSelectedFileDirectoryCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFileDirectory);
             OpenSelectedFileCommand = StatusContext.RunBlockingTaskCommand(OpenSelectedFile);
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);

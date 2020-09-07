@@ -52,8 +52,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private Command _renameSelectedFileCommand;
         private Command _rotatePhotoLeftCommand;
         private Command _rotatePhotoRightCommand;
-        private Command _saveAndGenerateHtmlAndCloseCommand;
-        private Command _saveAndGenerateHtmlCommand;
+        private Command _saveAndCloseCommand;
+        private Command _saveCommand;
         private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private BitmapSource _selectedFileBitmapSource = ImageConstants.BlankImage;
@@ -72,12 +72,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
         public EventHandler RequestContentEditorWindowClose;
 
-
         private PhotoContentEditorContext(StatusControlContext statusContext)
         {
             SetupContextAndCommands(statusContext);
         }
-
 
         public StringDataEntryContext AltTextEntry
         {
@@ -301,24 +299,24 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public Command SaveAndGenerateHtmlAndCloseCommand
+        public Command SaveAndCloseCommand
         {
-            get => _saveAndGenerateHtmlAndCloseCommand;
+            get => _saveAndCloseCommand;
             set
             {
-                if (Equals(value, _saveAndGenerateHtmlAndCloseCommand)) return;
-                _saveAndGenerateHtmlAndCloseCommand = value;
+                if (Equals(value, _saveAndCloseCommand)) return;
+                _saveAndCloseCommand = value;
                 OnPropertyChanged();
             }
         }
 
-        public Command SaveAndGenerateHtmlCommand
+        public Command SaveCommand
         {
-            get => _saveAndGenerateHtmlCommand;
+            get => _saveCommand;
             set
             {
-                if (Equals(value, _saveAndGenerateHtmlCommand)) return;
-                _saveAndGenerateHtmlCommand = value;
+                if (Equals(value, _saveCommand)) return;
+                _saveCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -541,7 +539,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var newContext = new PhotoContentEditorContext(statusContext) { StatusContext = { BlockUi = true } };
+            var newContext = new PhotoContentEditorContext(statusContext) {StatusContext = {BlockUi = true}};
 
             await newContext.LoadData(null);
 
@@ -669,98 +667,76 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 }
             }
 
-            ApertureEntry = new StringDataEntryContext
-            {
-                Title = "Aperture",
-                HelpText =
-                    "Ratio of the lens focal length to the diameter of the entrance pupil - usually entered in a format like f/8.0",
-                ReferenceValue = DbEntry.Aperture ?? string.Empty,
-                UserValue = DbEntry.Aperture.TrimNullToEmpty()
-            };
+            ApertureEntry = StringDataEntryContext.CreateInstance();
+            ApertureEntry.Title = "Aperture";
+            ApertureEntry.HelpText =
+                "Ratio of the lens focal length to the diameter of the entrance pupil - usually entered in a format like f/8.0";
+            ApertureEntry.ReferenceValue = DbEntry.Aperture ?? string.Empty;
+            ApertureEntry.UserValue = DbEntry.Aperture.TrimNullToEmpty();
 
-            LensEntry = new StringDataEntryContext
-            {
-                Title = "Lens",
-                HelpText = "Description and/or identifier for the lens the photograph was taken with.",
-                ReferenceValue = DbEntry.Lens ?? string.Empty,
-                UserValue = DbEntry.Lens.TrimNullToEmpty()
-            };
+            LensEntry = StringDataEntryContext.CreateInstance();
+            LensEntry.Title = "Lens";
+            LensEntry.HelpText = "Description and/or identifier for the lens the photograph was taken with.";
+            LensEntry.ReferenceValue = DbEntry.Lens ?? string.Empty;
+            LensEntry.UserValue = DbEntry.Lens.TrimNullToEmpty();
 
-            LicenseEntry = new StringDataEntryContext
-            {
-                Title = "License",
-                HelpText = "The Photo's License",
-                ReferenceValue = DbEntry.License ?? string.Empty,
-                UserValue = DbEntry.License.TrimNullToEmpty()
-            };
+            LicenseEntry = StringDataEntryContext.CreateInstance();
+            LicenseEntry.Title = "License";
+            LicenseEntry.HelpText = "The Photo's License";
+            LicenseEntry.ReferenceValue = DbEntry.License ?? string.Empty;
+            LicenseEntry.UserValue = DbEntry.License.TrimNullToEmpty();
 
-            AltTextEntry = new StringDataEntryContext
-            {
-                Title = "Alt Text",
-                HelpText = "A description for the photo, sometimes just the summary will be sufficient...",
-                ReferenceValue = DbEntry.AltText ?? string.Empty,
-                UserValue = DbEntry.AltText.TrimNullToEmpty()
-            };
+            AltTextEntry = StringDataEntryContext.CreateInstance();
+            AltTextEntry.Title = "Alt Text";
+            AltTextEntry.HelpText = "A description for the photo, sometimes just the summary will be sufficient...";
+            AltTextEntry.ReferenceValue = DbEntry.AltText ?? string.Empty;
+            AltTextEntry.UserValue = DbEntry.AltText.TrimNullToEmpty();
 
-            CameraMakeEntry = new StringDataEntryContext
-            {
-                Title = "Camera Make",
-                HelpText = "The Make, or Brand, of the Camera",
-                ReferenceValue = DbEntry.CameraMake ?? string.Empty,
-                UserValue = DbEntry.CameraMake.TrimNullToEmpty()
-            };
+            CameraMakeEntry = StringDataEntryContext.CreateInstance();
+            CameraMakeEntry.Title = "Camera Make";
+            CameraMakeEntry.HelpText = "The Make, or Brand, of the Camera";
+            CameraMakeEntry.ReferenceValue = DbEntry.CameraMake ?? string.Empty;
+            CameraMakeEntry.UserValue = DbEntry.CameraMake.TrimNullToEmpty();
 
-            CameraModelEntry = new StringDataEntryContext
-            {
-                Title = "Camera Model",
-                HelpText = "The Camera Model",
-                ReferenceValue = DbEntry.CameraModel ?? string.Empty,
-                UserValue = DbEntry.CameraModel.TrimNullToEmpty()
-            };
+            CameraModelEntry = StringDataEntryContext.CreateInstance();
+            CameraModelEntry.Title = "Camera Model";
+            CameraModelEntry.HelpText = "The Camera Model";
+            CameraModelEntry.ReferenceValue = DbEntry.CameraModel ?? string.Empty;
+            CameraModelEntry.UserValue = DbEntry.CameraModel.TrimNullToEmpty();
 
-            FocalLengthEntry = new StringDataEntryContext
-            {
-                Title = "Focal Length",
-                HelpText = "Usually entered as 50 mm or 110 mm",
-                ReferenceValue = DbEntry.FocalLength ?? string.Empty,
-                UserValue = DbEntry.FocalLength.TrimNullToEmpty()
-            };
+            FocalLengthEntry = StringDataEntryContext.CreateInstance();
+            FocalLengthEntry.Title = "Focal Length";
+            FocalLengthEntry.HelpText = "Usually entered as 50 mm or 110 mm";
+            FocalLengthEntry.ReferenceValue = DbEntry.FocalLength ?? string.Empty;
+            FocalLengthEntry.UserValue = DbEntry.FocalLength.TrimNullToEmpty();
 
-            ShutterSpeedEntry = new StringDataEntryContext
-            {
-                Title = "Shutter Speed",
-                HelpText = "Usually entered as 1/250 or 3\"",
-                ReferenceValue = DbEntry.ShutterSpeed ?? string.Empty,
-                UserValue = DbEntry.ShutterSpeed.TrimNullToEmpty()
-            };
+            ShutterSpeedEntry = StringDataEntryContext.CreateInstance();
+            ShutterSpeedEntry.Title = "Shutter Speed";
+            ShutterSpeedEntry.HelpText = "Usually entered as 1/250 or 3\"";
+            ShutterSpeedEntry.ReferenceValue = DbEntry.ShutterSpeed ?? string.Empty;
+            ShutterSpeedEntry.UserValue = DbEntry.ShutterSpeed.TrimNullToEmpty();
 
-            PhotoCreatedByEntry = new StringDataEntryContext
-            {
-                Title = "Photo Created By",
-                HelpText = "Who created the photo",
-                ReferenceValue = DbEntry.PhotoCreatedBy ?? string.Empty,
-                UserValue = DbEntry.PhotoCreatedBy.TrimNullToEmpty()
-            };
+            PhotoCreatedByEntry = StringDataEntryContext.CreateInstance();
+            PhotoCreatedByEntry.Title = "Photo Created By";
+            PhotoCreatedByEntry.HelpText = "Who created the photo";
+            PhotoCreatedByEntry.ReferenceValue = DbEntry.PhotoCreatedBy ?? string.Empty;
+            PhotoCreatedByEntry.UserValue = DbEntry.PhotoCreatedBy.TrimNullToEmpty();
 
-            IsoEntry = new ConversionDataEntryContext<int?>
-            {
-                Title = "ISO",
-                HelpText = "A measure of a sensor films sensitivity to light, 100 is a typical value",
-                ReferenceValue = DbEntry.Iso,
-                UserValue = DbEntry.Iso,
-                UserText = DbEntry.Iso?.ToString("F0") ?? string.Empty,
-                Converter = ConversionDataEntryHelpers.IntNullableConversion,
-            };
+            IsoEntry = ConversionDataEntryContext<int?>.CreateInstance();
+            IsoEntry.Title = "ISO";
+            IsoEntry.HelpText = "A measure of a sensor films sensitivity to light, 100 is a typical value";
+            IsoEntry.ReferenceValue = DbEntry.Iso;
+            IsoEntry.UserValue = DbEntry.Iso;
+            IsoEntry.UserText = DbEntry.Iso?.ToString("F0") ?? string.Empty;
+            IsoEntry.Converter = ConversionDataEntryHelpers.IntNullableConversion;
 
-            PhotoCreatedOnEntry = new ConversionDataEntryContext<DateTime>
-            {
-                Title = "Photo Created On",
-                HelpText = "Date and, optionally, Time the Photo was Created",
-                ReferenceValue = DbEntry.PhotoCreatedOn,
-                UserValue = DbEntry.PhotoCreatedOn,
-                UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt"),
-                Converter = ConversionDataEntryHelpers.DateTimeConversion
-            };
+            PhotoCreatedOnEntry = ConversionDataEntryContext<DateTime>.CreateInstance();
+            PhotoCreatedOnEntry.Title = "Photo Created On";
+            PhotoCreatedOnEntry.HelpText = "Date and, optionally, Time the Photo was Created";
+            PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;
+            PhotoCreatedOnEntry.UserValue = DbEntry.PhotoCreatedOn;
+            PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
+            PhotoCreatedOnEntry.Converter = ConversionDataEntryHelpers.DateTimeConversion;
 
             if (DbEntry.Id < 1 && _initialPhoto != null && _initialPhoto.Exists &&
                 FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
@@ -901,9 +877,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             ChooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
             ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
-            SaveAndGenerateHtmlCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-            SaveAndGenerateHtmlAndCloseCommand =
+            SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            SaveAndCloseCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
             ViewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext));
