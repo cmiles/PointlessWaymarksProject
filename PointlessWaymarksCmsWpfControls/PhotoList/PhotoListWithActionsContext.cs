@@ -60,11 +60,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            ListContext = new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.Recent);
-
-            SetupCommands();
-
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
         public PhotoListWithActionsContext(StatusControlContext statusContext,
@@ -542,6 +538,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
                 loopCount++;
             }
+        }
+
+        public async Task LoadData()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            ListContext = new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.Recent);
+
+            await ListContext.LoadData();
+
+            SetupCommands();
         }
 
 

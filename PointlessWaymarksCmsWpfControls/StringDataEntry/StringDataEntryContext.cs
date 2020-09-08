@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.StringDataEntry
@@ -22,6 +24,10 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
             new List<Func<string, (bool passed, string validationMessage)>>();
 
         private string _validationMessage;
+
+        private StringDataEntryContext()
+        {
+        }
 
         public bool HasChanges
         {
@@ -136,6 +142,57 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
         public static StringDataEntryContext CreateInstance()
         {
             return new StringDataEntryContext();
+        }
+
+        public static StringDataEntryContext CreateSlugInstance(ITitleSummarySlugFolder dbEntry)
+        {
+            var slugEntry = new StringDataEntryContext
+            {
+                Title = "Slug",
+                HelpText = "This will be the Folder and File Name used in URLs - limited to a-z 0-9 _ -",
+                ReferenceValue = dbEntry?.Slug ?? string.Empty,
+                UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Slug),
+                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                {
+                    CommonContentValidation.ValidateSlugLocal
+                }
+            };
+
+            return slugEntry;
+        }
+
+        public static StringDataEntryContext CreateSummaryInstance(ITitleSummarySlugFolder dbEntry)
+        {
+            var summaryEntry = new StringDataEntryContext
+            {
+                Title = "Summary",
+                HelpText = "A short text entry that will show in Search and short references to the content",
+                ReferenceValue = dbEntry?.Summary ?? string.Empty,
+                UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Summary),
+                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                {
+                    CommonContentValidation.ValidateSummary
+                }
+            };
+
+            return summaryEntry;
+        }
+
+        public static StringDataEntryContext CreateTitleInstance(ITitleSummarySlugFolder dbEntry)
+        {
+            var titleEntry = new StringDataEntryContext
+            {
+                Title = "Title",
+                HelpText = "Title Text",
+                ReferenceValue = dbEntry?.Title ?? string.Empty,
+                UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Title),
+                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                {
+                    CommonContentValidation.ValidateTitle
+                }
+            };
+
+            return titleEntry;
         }
 
         [NotifyPropertyChangedInvocator]

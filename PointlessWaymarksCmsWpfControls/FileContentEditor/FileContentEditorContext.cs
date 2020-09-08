@@ -14,10 +14,10 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
+using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
-using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -39,8 +39,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private FileInfo _loadedFile;
         private Command _openSelectedFileDirectoryCommand;
         private string _pdfToImagePageToExtract = "1";
-        private bool _publicDownloadLink = true;
-        private bool _publicDownloadLinkHasChanges;
+        private BoolDataEntryContext _publicDownloadLink;
         private Command _renameSelectedFileCommand;
         private Command _saveAndCloseCommand;
         private Command _saveAndExtractImageFromPdfCommand;
@@ -49,7 +48,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private bool _selectedFileHasPathOrNameChanges;
         private bool _selectedFileHasValidationIssues;
         private string _selectedFileValidationMessage;
-        private ShowInMainSiteFeedEditorContext _showInSiteFeed;
+        private BoolDataEntryContext _showInSiteFeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -139,9 +138,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         }
 
         public bool HasChanges =>
-            PropertyScanners.ChildPropertiesHaveChanges(this) || PublicDownloadLinkHasChanges ||
-            SelectedFileHasPathOrNameChanges || DbEntry.MainPicture !=
-            BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent);
+            PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
+            DbEntry.MainPicture != BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent);
 
         public HelpDisplayContext HelpContext
         {
@@ -180,24 +178,13 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public bool PublicDownloadLink
+        public BoolDataEntryContext PublicDownloadLink
         {
             get => _publicDownloadLink;
             set
             {
                 if (value == _publicDownloadLink) return;
                 _publicDownloadLink = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool PublicDownloadLinkHasChanges
-        {
-            get => _publicDownloadLinkHasChanges;
-            set
-            {
-                if (value == _publicDownloadLinkHasChanges) return;
-                _publicDownloadLinkHasChanges = value;
                 OnPropertyChanged();
             }
         }
@@ -295,7 +282,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public ShowInMainSiteFeedEditorContext ShowInSiteFeed
+        public BoolDataEntryContext ShowInSiteFeed
         {
             get => _showInSiteFeed;
             set
@@ -363,11 +350,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void CheckForChanges()
-        {
-            PublicDownloadLinkHasChanges = PublicDownloadLink != (DbEntry?.PublicDownloadLink ?? true);
-        }
-
         public async Task ChooseFile()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -426,10 +408,10 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
-            newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
+            newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -438,7 +420,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
             newEntry.OriginalFileName = SelectedFile.Name;
-            newEntry.PublicDownloadLink = PublicDownloadLink;
+            newEntry.PublicDownloadLink = PublicDownloadLink.UserValue;
 
             return newEntry;
         }
@@ -495,8 +477,17 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 PublicDownloadLink = true
             };
 
+            PublicDownloadLink = BoolDataEntryContext.CreateInstance();
+            PublicDownloadLink.Title = "Show Public Download Link";
+            PublicDownloadLink.ReferenceValue = DbEntry.PublicDownloadLink;
+            PublicDownloadLink.UserValue = DbEntry.PublicDownloadLink;
+            PublicDownloadLink.HelpText =
+                "If checked there will be a hyperlink will on the File Content Page to download the content. NOTE! The File" +
+                "will be copied into the generated HTML for the site regardless of this setting - this setting is only about " +
+                "whether a download link is shown.";
+
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = await ShowInMainSiteFeedEditorContext.CreateInstance(StatusContext, DbEntry, false);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -544,10 +535,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChanges();
         }
 
         private async Task OpenSelectedFile()

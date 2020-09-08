@@ -39,7 +39,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
             {
-                PhotoEditor = await PhotoContentEditorContext.CreateInstance1(StatusContext, initialPhoto);
+                PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, initialPhoto);
 
                 PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
@@ -57,7 +57,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
             {
-                PhotoEditor = await PhotoContentEditorContext.CreateInstance2(StatusContext, toLoad);
+                PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, toLoad);
 
                 PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);

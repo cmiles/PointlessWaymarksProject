@@ -14,12 +14,13 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Spatial;
 using PointlessWaymarksCmsData.Spatial.Elevation;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
+using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.ConversionDataEntry;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.PointDetailEditor;
-using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
+
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -44,7 +45,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         private PointDetailListContext _pointDetails;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
-        private ShowInMainSiteFeedEditorContext _showInSiteFeed;
+        private BoolDataEntryContext _showInSiteFeed;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
@@ -146,10 +147,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         }
 
         public bool HasChanges =>
-            TitleSummarySlugFolder.HasChanges || CreatedUpdatedDisplay.HasChanges ||
-            ShowInSiteFeed.ShowInMainSiteFeedHasChanges || BodyContent.HasChanges || UpdateNotes.HasChanges ||
-            TagEdit.TagsHaveChanges || LatitudeEntry.HasChanges || LongitudeEntry.HasChanges ||
-            ElevationEntry.HasChanges;
+            PropertyScanners.ChildPropertiesHaveChanges(this);
 
         public HelpDisplayContext HelpContext
         {
@@ -217,7 +215,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        public ShowInMainSiteFeedEditorContext ShowInSiteFeed
+        public BoolDataEntryContext ShowInSiteFeed
         {
             get => _showInSiteFeed;
             set
@@ -311,10 +309,10 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
-            newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
+            newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -405,7 +403,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = await ShowInMainSiteFeedEditorContext.CreateInstance(StatusContext, DbEntry, true);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);

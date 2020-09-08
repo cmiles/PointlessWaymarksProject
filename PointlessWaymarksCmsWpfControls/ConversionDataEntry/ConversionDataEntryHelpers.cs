@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
                 return (false, "Please enter a valid number", DateTime.MinValue);
 
             return DateTime.TryParse(userText, out var parsedValue)
-                ? (true, $"Converted {userText} to {parsedValue}", parsedValue)
+                ? (true, $"Converted {userText} to {parsedValue}", parsedValue.TrimDateTimeToSeconds())
                 : (false, $"Could not convert {userText} into an Date/Time?", DateTime.MinValue);
         }
 
@@ -25,7 +25,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
             if (string.IsNullOrWhiteSpace(cleanedUserText)) return (true, "Found an Empty Value", null);
 
             return DateTime.TryParse(userText, out var parsedValue)
-                ? (true, $"Converted {userText} to {parsedValue}", parsedValue)
+                ? (true, $"Converted {userText} to {parsedValue}", parsedValue.TrimDateTimeToSeconds())
                 : (false, $"Could not convert {userText} into an Date/Time?", DateTime.MinValue);
         }
 

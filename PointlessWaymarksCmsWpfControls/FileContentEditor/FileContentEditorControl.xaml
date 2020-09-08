@@ -4,13 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
+    xmlns:boolDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.BoolDataEntry"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay"
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.FileContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
@@ -104,27 +104,11 @@
                                         <ColumnDefinition />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-
                                 </Grid>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox
-                                    Margin="4,8,0,0"
-                                    FontWeight="DemiBold"
-                                    IsChecked="{Binding PublicDownloadLink}">
-                                    Show Public Download Link
-                                </CheckBox>
-                                <utility:IndicatorIcon
-                                    Margin="4,8,0,0"
-                                    VerticalAlignment="Center"
-                                    HoverText="{Binding DbEntry.PublicDownloadLink, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                                    IconBrush="Black"
-                                    IconPathGeometry="{StaticResource IconDataInfo}"
-                                    IconSize="{StaticResource SmallIconSize}"
-                                    Visibility="{Binding PublicDownloadLinkHasChanges, Converter={StaticResource BooleanToVisibility}}" />
-                            </StackPanel>
+                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding PublicDownloadLink}" />
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0" DataContext="{Binding TitleSummarySlugFolder}" />
-                            <showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource ShowInSiteFeedPanelStyle}" />
+                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />

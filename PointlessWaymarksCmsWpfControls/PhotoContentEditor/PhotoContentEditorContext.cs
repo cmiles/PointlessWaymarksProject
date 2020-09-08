@@ -14,11 +14,11 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
+using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.ConversionDataEntry;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.PhotoList;
-using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
@@ -60,7 +60,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private bool _selectedFileHasPathOrNameChanges;
         private bool _selectedFileHasValidationIssues;
         private string _selectedFileValidationMessage;
-        private ShowInMainSiteFeedEditorContext _showInSiteFeed;
+        private BoolDataEntryContext _showInSiteFeed;
         private StringDataEntryContext _shutterSpeedEntry;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
@@ -389,7 +389,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public ShowInMainSiteFeedEditorContext ShowInSiteFeed
+        public BoolDataEntryContext ShowInSiteFeed
         {
             get => _showInSiteFeed;
             set
@@ -537,26 +537,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
         public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var newContext = new PhotoContentEditorContext(statusContext) {StatusContext = {BlockUi = true}};
-
+            var newContext = new PhotoContentEditorContext(statusContext);
             await newContext.LoadData(null);
-
-            newContext.StatusContext.BlockUi = false;
-
             return newContext;
         }
 
-        public static async Task<PhotoContentEditorContext> CreateInstance1(StatusControlContext statusContext,
+        public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext,
             FileInfo initialPhoto)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
             var newContext = new PhotoContentEditorContext(statusContext) {StatusContext = {BlockUi = true}};
 
             if (initialPhoto != null && initialPhoto.Exists) newContext._initialPhoto = initialPhoto;
-
             await newContext.LoadData(null);
 
             newContext.StatusContext.BlockUi = false;
@@ -564,17 +555,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             return newContext;
         }
 
-        public static async Task<PhotoContentEditorContext> CreateInstance2(StatusControlContext statusContext,
+        public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext statusContext,
             PhotoContent toLoad)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var newContext = new PhotoContentEditorContext(statusContext) {StatusContext = {BlockUi = true}};
-
+            var newContext = new PhotoContentEditorContext(statusContext);
             await newContext.LoadData(toLoad);
-
-            newContext.StatusContext.BlockUi = false;
-
             return newContext;
         }
 
@@ -597,13 +582,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             newEntry.MainPicture = newEntry.ContentId;
             newEntry.Aperture = ApertureEntry.UserValue.TrimNullToEmpty();
-            newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
+            newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Iso = IsoEntry.UserValue;
             newEntry.Lens = LensEntry.UserValue.TrimNullToEmpty();
             newEntry.License = LicenseEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.AltText = AltTextEntry.UserValue.TrimNullToEmpty();
@@ -631,12 +616,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             {
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-                ShowInMainSiteFeed = false
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = await ShowInMainSiteFeedEditorContext.CreateInstance(StatusContext, DbEntry, false);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -773,7 +757,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             TagEdit.Tags = metadata.Tags;
             TitleSummarySlugFolder.TitleEntry.UserValue = metadata.Title;
             TitleSummarySlugFolder.TitleToSlug();
-            TitleSummarySlugFolder.Folder = metadata.PhotoCreatedOn.Year.ToString("F0");
+            TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
         }
 
         private async Task RotateImage(Orientation rotationType)

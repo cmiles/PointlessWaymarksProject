@@ -16,10 +16,9 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
+using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
-using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
-using PointlessWaymarksCmsWpfControls.ShowInSearchEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
@@ -52,8 +51,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private bool _selectedFileHasPathOrNameChanges;
         private bool _selectedFileHasValidationIssues;
         private string _selectedFileValidationMessage;
-        private ShowInSearchEditorContext _showInSearch;
-        private ShowInMainSiteFeedEditorContext _showInSiteFeed;
+        private BoolDataEntryContext _showInSearch;
+        private BoolDataEntryContext _showInSiteFeed;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
@@ -63,14 +62,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
         public EventHandler RequestLinkContentEditorWindowClose;
 
-        private ImageContentEditorContext(StatusControlContext statusContext, ImageContent contentToLoad = null,
-            FileInfo initialImage = null)
+        private ImageContentEditorContext(StatusControlContext statusContext)
         {
             SetupContextAndCommands(statusContext);
-
-            if (initialImage != null && initialImage.Exists) _initialImage = initialImage;
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(contentToLoad));
         }
 
         public StringDataEntryContext AltTextEntry
@@ -242,17 +236,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public string SelectedFileFullPath
-        {
-            get => _selectedFileFullPath;
-            set
-            {
-                if (value == _selectedFileFullPath) return;
-                _selectedFileFullPath = value;
-                OnPropertyChanged();
-            }
-        }
-
         public bool SelectedFileHasPathOrNameChanges
         {
             get => _selectedFileHasPathOrNameChanges;
@@ -286,7 +269,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public ShowInSearchEditorContext ShowInSearch
+        public BoolDataEntryContext ShowInSearch
         {
             get => _showInSearch;
             set
@@ -297,7 +280,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public ShowInMainSiteFeedEditorContext ShowInSiteFeed
+        public BoolDataEntryContext ShowInSiteFeed
         {
             get => _showInSiteFeed;
             set
@@ -410,9 +393,10 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         public static async Task<ImageContentEditorContext> CreateInstance(StatusControlContext statusContext,
             ImageContent contentToLoad = null, FileInfo initialImage = null)
         {
-            var newControl = new ImageContentEditorContext(statusContext, contentToLoad, initialImage);
-            await newControl.LoadData(contentToLoad);
-            return newControl;
+            var newContext = new ImageContentEditorContext(statusContext);
+            if (initialImage != null && initialImage.Exists) newContext._initialImage = initialImage;
+            await newContext.LoadData(contentToLoad);
+            return newContext;
         }
 
         private ImageContent CurrentStateToPhotoContent()
@@ -433,11 +417,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
 
             newEntry.MainPicture = newEntry.ContentId;
-            newEntry.Folder = TitleSummarySlugFolder.Folder.TrimNullToEmpty();
+            newEntry.Folder = TitleSummarySlugFolder.FolderEntry.UserValue.TrimNullToEmpty();
             newEntry.Slug = TitleSummarySlugFolder.SlugEntry.UserValue.TrimNullToEmpty();
             newEntry.Summary = TitleSummarySlugFolder.SummaryEntry.UserValue.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
-            newEntry.ShowInSearch = ShowInSearch.ShowInSearch;
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
+            newEntry.ShowInSearch = ShowInSearch.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
             newEntry.AltText = AltTextEntry.UserValue.TrimNullToEmpty();
@@ -482,8 +466,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = await ShowInMainSiteFeedEditorContext.CreateInstance(StatusContext, DbEntry, false);
-            ShowInSearch = await ShowInSearchEditorContext.CreateInstance(StatusContext, DbEntry, true);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, false);
+            ShowInSearch = BoolDataEntryContext.CreateInstanceForShowInSearch(DbEntry, true);
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -600,7 +584,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             if (SelectedFile == null)
             {
-                SelectedFileFullPath = string.Empty;
                 SelectedFileBitmapSource = ImageConstants.BlankImage;
                 return;
             }
@@ -609,14 +592,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
             if (!SelectedFile.Exists)
             {
-                SelectedFileFullPath = SelectedFile.FullName;
                 SelectedFileBitmapSource = ImageConstants.BlankImage;
                 return;
             }
 
             SelectedFileBitmapSource = await Thumbnails.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
-
-            SelectedFileFullPath = SelectedFile.FullName;
         }
 
         public void SetupContextAndCommands(StatusControlContext statusContext)

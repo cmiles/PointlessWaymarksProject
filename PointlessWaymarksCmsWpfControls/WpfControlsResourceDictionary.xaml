@@ -3,9 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
-    xmlns:showInMainSiteFeedEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor"
-    xmlns:showInSearchEditor="clr-namespace:PointlessWaymarksCmsWpfControls.ShowInSearchEditor"
-    xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor">
+    xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
+    xmlns:boolDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.BoolDataEntry">
     <Style x:Key="ActionPanelButton" TargetType="Button">
         <Setter Property="Margin" Value="4" />
         <Setter Property="Height" Value="24" />
@@ -62,6 +61,9 @@
         <Setter Property="Width" Value="240" />
         <Setter Property="HorizontalAlignment" Value="Left" />
     </Style>
+    <Style x:Key="DataEntryBoolStyle" TargetType="boolDataEntry:BoolDataEntryControl">
+        <Setter Property="Margin" Value="4,8,0,0" />
+    </Style>
     <Style x:Key="DataEntryTextBoxMultiLineStyle" TargetType="TextBox">
         <Setter Property="Margin" Value="6,0,0,0" />
         <Setter Property="SpellCheck.IsEnabled" Value="True" />
@@ -69,12 +71,6 @@
         <Setter Property="AcceptsReturn" Value="True" />
         <Setter Property="VerticalScrollBarVisibility" Value="Visible" />
         <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
-    </Style>
-    <Style x:Key="ShowInSiteFeedPanelStyle" TargetType="showInMainSiteFeedEditor:ShowInMainSiteFeedEditorControl">
-        <Setter Property="Margin" Value="4,8,0,0" />
-    </Style>
-    <Style x:Key="ShowInSearchPanelStyle" TargetType="showInSearchEditor:ShowInSearchEditorControl">
-        <Setter Property="Margin" Value="4,8,0,0" />
     </Style>
     <Style x:Key="TagsEditorInPanelStyle" TargetType="tagsEditor:TagsEditorControl">
         <Setter Property="Margin" Value="0,4,0,0" />

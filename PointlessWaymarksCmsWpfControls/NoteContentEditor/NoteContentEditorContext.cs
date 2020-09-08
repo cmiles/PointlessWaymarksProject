@@ -9,10 +9,12 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
+using PointlessWaymarksCmsWpfControls.BoolDataEntry;
+using PointlessWaymarksCmsWpfControls.ContentFolder;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
-using PointlessWaymarksCmsWpfControls.ShowInMainSiteFeedEditor;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -25,14 +27,12 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private NoteContent _dbEntry;
         private Command _extractNewLinksCommand;
-        private string _folder;
-        private bool _folderHasChanges;
+        private ContentFolderContext _folderEntry;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
-        private ShowInMainSiteFeedEditorContext _showInSiteFeed;
+        private BoolDataEntryContext _showInSiteFeed;
         private string _slug;
-        private string _summary;
-        private bool _summaryHasChanges;
+        private StringDataEntryContext _summary;
         private TagsEditorContext _tagEdit;
         private Command _viewOnSiteCommand;
 
@@ -48,56 +48,6 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent.BodyContent,
                     StatusContext.ProgressTracker()));
-        }
-
-        public Command SaveAndCloseCommand
-        {
-            get => _saveAndCloseCommand;
-            set
-            {
-                if (Equals(value, _saveAndCloseCommand)) return;
-                _saveAndCloseCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private void CheckForChanges()
-        {
-            // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
-            //Empty string from null will not be invoked as an extension if DbEntry is null...
-            SummaryHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Summary) != Summary.TrimNullToEmpty();
-            FolderHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Folder) != Folder.TrimNullToEmpty();
-            // ReSharper restore InvokeAsExtensionMethod
-        }
-
-        public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext statusContext,
-            NoteContent noteContent)
-        {
-            var newControl = new NoteContentEditorContext(statusContext);
-            await newControl.LoadData(noteContent);
-            return newControl;
-        }
-
-        public bool FolderHasChanges
-        {
-            get => _folderHasChanges;
-            set
-            {
-                if (value == _folderHasChanges) return;
-                _folderHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool SummaryHasChanges
-        {
-            get => _summaryHasChanges;
-            set
-            {
-                if (value == _summaryHasChanges) return;
-                _summaryHasChanges = value;
-                OnPropertyChanged();
-            }
         }
 
         public BodyContentEditorContext BodyContent
@@ -155,16 +105,30 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public string Folder
+        public ContentFolderContext FolderEntry
         {
-            get => _folder;
+            get => _folderEntry;
             set
             {
-                if (value == _folder) return;
-                _folder = value;
+                if (Equals(value, _folderEntry)) return;
+                _folderEntry = value;
                 OnPropertyChanged();
             }
         }
+
+        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this);
+
+        public Command SaveAndCloseCommand
+        {
+            get => _saveAndCloseCommand;
+            set
+            {
+                if (Equals(value, _saveAndCloseCommand)) return;
+                _saveAndCloseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public Command SaveCommand
         {
@@ -177,7 +141,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public ShowInMainSiteFeedEditorContext ShowInSiteFeed
+        public BoolDataEntryContext ShowInSiteFeed
         {
             get => _showInSiteFeed;
             set
@@ -201,7 +165,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
         public StatusControlContext StatusContext { get; set; }
 
-        public string Summary
+        public StringDataEntryContext Summary
         {
             get => _summary;
             set
@@ -234,44 +198,14 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             }
         }
 
-        public bool HasChanges =>
-            !(StringHelpers.AreEqual(DbEntry.Folder, Folder.TrimNullToEmpty()) &&
-              StringHelpers.AreEqual(DbEntry.Summary, Summary.TrimNullToEmpty()) &&
-              StringHelpers.AreEqual(DbEntry.CreatedBy, CreatedUpdatedDisplay.CreatedByEntry.UserValue) &&
-              StringHelpers.AreEqual(DbEntry.BodyContent, BodyContent.BodyContent) &&
-              StringHelpers.AreEqual(DbEntry.BodyContentFormat,
-                  BodyContent.BodyContentFormat.SelectedContentFormatAsString) && !TagEdit.TagsHaveChanges &&
-              DbEntry.ShowInMainSiteFeed == ShowInSiteFeed.ShowInMainSiteFeed);
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public async Task LoadData(NoteContent toLoad)
+        public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            NoteContent noteContent)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            DbEntry = toLoad ?? new NoteContent
-            {
-                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-            };
-
-            Folder = DbEntry?.Folder ?? string.Empty;
-            Summary = DbEntry?.Summary ?? string.Empty;
-            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            ShowInSiteFeed = await ShowInMainSiteFeedEditorContext.CreateInstance(StatusContext, DbEntry, true);
-            ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
-            TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
-            BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChanges();
+            var newControl = new NoteContentEditorContext(statusContext);
+            await newControl.LoadData(noteContent);
+            return newControl;
         }
 
         private NoteContent CurrentStateToFileContent()
@@ -293,15 +227,40 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
-            newEntry.Folder = Folder.TrimNullToEmpty();
-            newEntry.Summary = Summary.TrimNullToEmpty();
-            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.ShowInMainSiteFeed;
+            newEntry.Folder = FolderEntry.UserValue.TrimNullToEmpty();
+            newEntry.Summary = Summary.UserValue.TrimNullToEmpty();
+            newEntry.ShowInMainSiteFeed = ShowInSiteFeed.UserValue;
             newEntry.Tags = TagEdit.TagListString();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
             return newEntry;
+        }
+
+        public async Task LoadData(NoteContent toLoad)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            DbEntry = toLoad ?? new NoteContent
+            {
+                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            };
+
+            FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);
+            Summary = StringDataEntryContext.CreateSummaryInstance(DbEntry);
+            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+            ShowInSiteFeed = BoolDataEntryContext.CreateInstanceForShowInSiteFeed(DbEntry, true);
+            ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
+            TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+            BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public async Task SaveAndGenerateHtml(bool closeAfterSave)

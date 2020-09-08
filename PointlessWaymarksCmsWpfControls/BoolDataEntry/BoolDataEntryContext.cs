@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
@@ -21,6 +22,10 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
             new List<Func<bool, (bool passed, string validationMessage)>>();
 
         private string _validationMessage;
+
+        private BoolDataEntryContext()
+        {
+        }
 
         public bool HasChanges
         {
@@ -135,6 +140,35 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
         public static BoolDataEntryContext CreateInstance()
         {
             return new BoolDataEntryContext();
+        }
+
+        public static BoolDataEntryContext CreateInstanceForShowInSearch(IShowInSearch dbEntry, bool defaultSetting)
+        {
+            var newContext = new BoolDataEntryContext
+            {
+                ReferenceValue = dbEntry?.ShowInSearch ?? defaultSetting,
+                UserValue = dbEntry?.ShowInSearch ?? defaultSetting,
+                Title = "Show in Search",
+                HelpText =
+                    "If checked the content will appear in Site, Tag and other search screens - otherwise the content will still be " +
+                    "on the site and publicly available but it will not show in search"
+            };
+
+            return newContext;
+        }
+
+        public static BoolDataEntryContext CreateInstanceForShowInSiteFeed(IShowInSiteFeed dbEntry, bool defaultSetting)
+        {
+            var newContext = new BoolDataEntryContext
+            {
+                ReferenceValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
+                UserValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
+                Title = "Show in Main Site Feed",
+                HelpText =
+                    "Checking this box will make the content appear in the Main Site RSS Feed and - if the content is recent - on the site's homepage"
+            };
+
+            return newContext;
         }
 
         [NotifyPropertyChangedInvocator]

@@ -11,14 +11,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PointlessWaymarksCmsWpfControls.ShowInSearchEditor
+namespace PointlessWaymarksCmsWpfControls.ContentFolder
 {
     /// <summary>
-    /// Interaction logic for ShowInSearchEditorControl.xaml
+    /// Interaction logic for ContentFolderControl.xaml
     /// </summary>
-    public partial class ShowInSearchEditorControl : UserControl
+    public partial class ContentFolderControl : UserControl
     {
-        public ShowInSearchEditorControl()
+        public ContentFolderControl()
         {
             InitializeComponent();
         }

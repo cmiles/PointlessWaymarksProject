@@ -229,7 +229,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 return;
             }
 
-
             var context = await Db.Context();
             var frozenList = ListContext.SelectedItems;
 

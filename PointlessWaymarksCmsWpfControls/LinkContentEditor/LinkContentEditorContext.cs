@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -8,8 +9,11 @@ using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsWpfControls.BoolDataEntry;
+using PointlessWaymarksCmsWpfControls.ConversionDataEntry;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -17,32 +21,22 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 {
     public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges
     {
-        private string _author;
-        private bool _authorHasChanges;
-        private string _comments;
-        private bool _commentsHaveChanges;
+        private StringDataEntryContext _authorEntry;
+        private StringDataEntryContext _commentsEntry;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private LinkContent _dbEntry;
-        private string _description;
-        private bool _descriptionHasChanges;
+        private StringDataEntryContext _descriptionEntry;
         private Command _extractDataCommand;
-        private DateTime? _linkDateTime;
-        private bool _linkDateTimeHasChanges;
-        private string _linkUrl;
-        private bool _linkUrlHasChanges;
-        private bool _linkUrlHasValidationIssues;
-        private string _linkUrlHasValidationMessage;
+        private ConversionDataEntryContext<DateTime?> _linkDateTimeEntry;
+        private StringDataEntryContext _linkUrlEntry;
         private Command _openUrlInBrowserCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
-        private bool _showInLinkRss;
-        private bool _showInLinkRssHasChanges;
-        private string _site;
-        private bool _siteHasChanges;
+        private BoolDataEntryContext _showInLinkRssEntry;
+        private StringDataEntryContext _siteEntry;
         private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
-        private string _title;
-        private bool _titleHasChanges;
+        private StringDataEntryContext _titleEntry;
 
         public EventHandler RequestLinkContentEditorWindowClose;
 
@@ -57,7 +51,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             {
                 try
                 {
-                    var ps = new ProcessStartInfo(LinkUrl) {UseShellExecute = true, Verb = "open"};
+                    if (string.IsNullOrWhiteSpace(LinkUrlEntry.UserValue)) StatusContext.ToastWarning("Link is Blank?");
+                    var ps = new ProcessStartInfo(LinkUrlEntry.UserValue) {UseShellExecute = true, Verb = "open"};
                     Process.Start(ps);
                 }
                 catch (Exception e)
@@ -67,46 +62,24 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             });
         }
 
-        public string Author
+        public StringDataEntryContext AuthorEntry
         {
-            get => _author;
+            get => _authorEntry;
             set
             {
-                if (value == _author) return;
-                _author = value;
+                if (Equals(value, _authorEntry)) return;
+                _authorEntry = value;
                 OnPropertyChanged();
             }
         }
 
-        public bool AuthorHasChanges
+        public StringDataEntryContext CommentsEntry
         {
-            get => _authorHasChanges;
+            get => _commentsEntry;
             set
             {
-                if (value == _authorHasChanges) return;
-                _authorHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string Comments
-        {
-            get => _comments;
-            set
-            {
-                if (value == _comments) return;
-                _comments = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool CommentsHaveChanges
-        {
-            get => _commentsHaveChanges;
-            set
-            {
-                if (value == _commentsHaveChanges) return;
-                _commentsHaveChanges = value;
+                if (Equals(value, _commentsEntry)) return;
+                _commentsEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -133,24 +106,13 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
-        public string Description
+        public StringDataEntryContext DescriptionEntry
         {
-            get => _description;
+            get => _descriptionEntry;
             set
             {
-                if (value == _description) return;
-                _description = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool DescriptionHasChanges
-        {
-            get => _descriptionHasChanges;
-            set
-            {
-                if (value == _descriptionHasChanges) return;
-                _descriptionHasChanges = value;
+                if (Equals(value, _descriptionEntry)) return;
+                _descriptionEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -166,68 +128,26 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
-        public DateTime? LinkDateTime
+        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this);
+
+        public ConversionDataEntryContext<DateTime?> LinkDateTimeEntry
         {
-            get => _linkDateTime;
+            get => _linkDateTimeEntry;
             set
             {
-                if (value.Equals(_linkDateTime)) return;
-                _linkDateTime = value;
+                if (Equals(value, _linkDateTimeEntry)) return;
+                _linkDateTimeEntry = value;
                 OnPropertyChanged();
             }
         }
 
-        public bool LinkDateTimeHasChanges
+        public StringDataEntryContext LinkUrlEntry
         {
-            get => _linkDateTimeHasChanges;
+            get => _linkUrlEntry;
             set
             {
-                if (value == _linkDateTimeHasChanges) return;
-                _linkDateTimeHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string LinkUrl
-        {
-            get => _linkUrl;
-            set
-            {
-                if (value == _linkUrl) return;
-                _linkUrl = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool LinkUrlHasChanges
-        {
-            get => _linkUrlHasChanges;
-            set
-            {
-                if (value == _linkUrlHasChanges) return;
-                _linkUrlHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool LinkUrlHasValidationIssues
-        {
-            get => _linkUrlHasValidationIssues;
-            set
-            {
-                if (value == _linkUrlHasValidationIssues) return;
-                _linkUrlHasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string LinkUrlHasValidationMessage
-        {
-            get => _linkUrlHasValidationMessage;
-            set
-            {
-                if (value == _linkUrlHasValidationMessage) return;
-                _linkUrlHasValidationMessage = value;
+                if (Equals(value, _linkUrlEntry)) return;
+                _linkUrlEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -265,46 +185,24 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
-        public bool ShowInLinkRss
+        public BoolDataEntryContext ShowInLinkRssEntry
         {
-            get => _showInLinkRss;
+            get => _showInLinkRssEntry;
             set
             {
-                if (value == _showInLinkRss) return;
-                _showInLinkRss = value;
+                if (Equals(value, _showInLinkRssEntry)) return;
+                _showInLinkRssEntry = value;
                 OnPropertyChanged();
             }
         }
 
-        public bool ShowInLinkRssHasChanges
+        public StringDataEntryContext SiteEntry
         {
-            get => _showInLinkRssHasChanges;
+            get => _siteEntry;
             set
             {
-                if (value == _showInLinkRssHasChanges) return;
-                _showInLinkRssHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string Site
-        {
-            get => _site;
-            set
-            {
-                if (value == _site) return;
-                _site = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool SiteHasChanges
-        {
-            get => _siteHasChanges;
-            set
-            {
-                if (value == _siteHasChanges) return;
-                _siteHasChanges = value;
+                if (Equals(value, _siteEntry)) return;
+                _siteEntry = value;
                 OnPropertyChanged();
             }
         }
@@ -331,47 +229,18 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
-        public string Title
+        public StringDataEntryContext TitleEntry
         {
-            get => _title;
+            get => _titleEntry;
             set
             {
-                if (value == _title) return;
-                _title = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool TitleHasChanges
-        {
-            get => _titleHasChanges;
-            set
-            {
-                if (value == _titleHasChanges) return;
-                _titleHasChanges = value;
+                if (Equals(value, _titleEntry)) return;
+                _titleEntry = value;
                 OnPropertyChanged();
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private async Task CheckForChangesAndValidate()
-        {
-            // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
-            //Empty string from null will not be invoked as an extension if DbEntry is null...
-            AuthorHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Author) != Author.TrimNullToEmpty();
-            CommentsHaveChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Comments) != Comments.TrimNullToEmpty();
-            DescriptionHasChanges =
-                StringHelpers.TrimNullToEmpty(DbEntry?.Description) != Description.TrimNullToEmpty();
-            LinkDateTimeHasChanges = DbEntry?.LinkDate != LinkDateTime;
-            LinkUrlHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Url) != LinkUrl.TrimNullToEmpty();
-            ShowInLinkRssHasChanges = DbEntry?.ShowInLinkRss != ShowInLinkRss;
-            SiteHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Site) != Site.TrimNullToEmpty();
-            TitleHasChanges = StringHelpers.TrimNullToEmpty(DbEntry?.Title) != Title.TrimNullToEmpty();
-            // ReSharper restore InvokeAsExtensionMethod
-
-            await ValidateUrl();
-        }
 
         public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext statusContext,
             LinkContent linkContent, bool extractDataOnLoad = false)
@@ -379,79 +248,6 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             var newControl = new LinkContentEditorContext(statusContext);
             await newControl.LoadData(linkContent, extractDataOnLoad);
             return newControl;
-        }
-
-        public bool HasChanges =>
-            !(!TagEdit.TagsHaveChanges && DbEntry.ShowInLinkRss == ShowInLinkRss && DbEntry.LinkDate == LinkDateTime &&
-              StringHelpers.AreEqual(DbEntry.CreatedBy,
-                  CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty()) &&
-              StringHelpers.AreEqual(DbEntry.Comments, Comments.TrimNullToEmpty()) &&
-              StringHelpers.AreEqual(DbEntry.Url, LinkUrl.TrimNullToEmpty()) &&
-              StringHelpers.AreEqual(DbEntry.Title, Title.TrimNullToEmpty()) &&
-              StringHelpers.AreEqual(DbEntry.Site, Site.TrimNullToEmpty()) &&
-              StringHelpers.AreEqual(DbEntry.Author, Author.TrimNullToEmpty()) &&
-              StringHelpers.AreEqual(DbEntry.Description, Description.TrimNullToEmpty()));
-
-        public async Task ValidateUrl()
-        {
-            var validationResult =
-                await CommonContentValidation.ValidateLinkContentLinkUrl(LinkUrl, DbEntry?.ContentId);
-
-            LinkUrlHasValidationIssues = !validationResult.isValid;
-            LinkUrlHasValidationMessage = validationResult.explanation;
-        }
-
-        private async Task ExtractDataFromLink()
-        {
-            var (generationReturn, linkMetadata) =
-                await LinkGenerator.LinkMetadataFromUrl(LinkUrl, StatusContext.ProgressTracker());
-
-            if (generationReturn.HasError)
-            {
-                StatusContext.ToastError(generationReturn.GenerationNote);
-                return;
-            }
-
-            if (!string.IsNullOrWhiteSpace(linkMetadata.Title)) Title = linkMetadata.Title.TrimNullToEmpty();
-            if (!string.IsNullOrWhiteSpace(linkMetadata.Author)) Author = linkMetadata.Author.TrimNullToEmpty();
-            if (!string.IsNullOrWhiteSpace(linkMetadata.Description))
-                Description = linkMetadata.Description.TrimNullToEmpty();
-            if (!string.IsNullOrWhiteSpace(linkMetadata.Site)) Site = linkMetadata.Site.TrimNullToEmpty();
-            if (linkMetadata.LinkDate != null) LinkDateTime = linkMetadata.LinkDate;
-        }
-
-        private async Task LoadData(LinkContent toLoad, bool extractDataOnLoad = false)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            DbEntry = toLoad ?? new LinkContent
-            {
-                ShowInLinkRss = true, CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
-            };
-
-            LinkUrl = DbEntry?.Url ?? string.Empty;
-            Comments = DbEntry?.Comments ?? string.Empty;
-            Title = DbEntry?.Title ?? string.Empty;
-            Site = DbEntry?.Site ?? string.Empty;
-            Author = DbEntry?.Author ?? string.Empty;
-            Description = DbEntry?.Description ?? string.Empty;
-            ShowInLinkRss = DbEntry?.ShowInLinkRss ?? true;
-
-            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
-            TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
-
-            if (extractDataOnLoad) await ExtractDataFromLink();
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-            if (!(propertyName.Contains("HasChanges") || propertyName.Contains("HaveChanges")))
-                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CheckForChangesAndValidate);
         }
 
         private LinkContent CurrentStateToLinkContent()
@@ -473,16 +269,114 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 
             newEntry.Tags = TagEdit.TagListString();
             newEntry.CreatedBy = CreatedUpdatedDisplay.CreatedByEntry.UserValue.TrimNullToEmpty();
-            newEntry.Comments = Comments.TrimNullToEmpty();
-            newEntry.Url = LinkUrl.TrimNullToEmpty();
-            newEntry.Title = Title.TrimNullToEmpty();
-            newEntry.Site = Site.TrimNullToEmpty();
-            newEntry.Author = Author.TrimNullToEmpty();
-            newEntry.Description = Description.TrimNullToEmpty();
-            newEntry.LinkDate = LinkDateTime;
-            newEntry.ShowInLinkRss = ShowInLinkRss;
+            newEntry.Comments = CommentsEntry.UserValue.TrimNullToEmpty();
+            newEntry.Url = LinkUrlEntry.UserValue.TrimNullToEmpty();
+            newEntry.Title = TitleEntry.UserValue.TrimNullToEmpty();
+            newEntry.Site = SiteEntry.UserValue.TrimNullToEmpty();
+            newEntry.Author = AuthorEntry.UserValue.TrimNullToEmpty();
+            newEntry.Description = DescriptionEntry.UserValue.TrimNullToEmpty();
+            newEntry.LinkDate = LinkDateTimeEntry.UserValue;
+            newEntry.ShowInLinkRss = ShowInLinkRssEntry.UserValue;
 
             return newEntry;
+        }
+
+        private async Task ExtractDataFromLink()
+        {
+            var (generationReturn, linkMetadata) =
+                await LinkGenerator.LinkMetadataFromUrl(LinkUrlEntry.UserValue, StatusContext.ProgressTracker());
+
+            if (generationReturn.HasError)
+            {
+                StatusContext.ToastError(generationReturn.GenerationNote);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(linkMetadata.Title))
+                TitleEntry.UserValue = linkMetadata.Title.TrimNullToEmpty();
+            if (!string.IsNullOrWhiteSpace(linkMetadata.Author))
+                AuthorEntry.UserValue = linkMetadata.Author.TrimNullToEmpty();
+            if (!string.IsNullOrWhiteSpace(linkMetadata.Description))
+                DescriptionEntry.UserValue = linkMetadata.Description.TrimNullToEmpty();
+            if (!string.IsNullOrWhiteSpace(linkMetadata.Site))
+                SiteEntry.UserValue = linkMetadata.Site.TrimNullToEmpty();
+            if (linkMetadata.LinkDate != null) LinkDateTimeEntry.UserValue = linkMetadata.LinkDate;
+        }
+
+        private async Task LoadData(LinkContent toLoad, bool extractDataOnLoad = false)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            DbEntry = toLoad ?? new LinkContent
+            {
+                ShowInLinkRss = true, CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+            };
+
+            LinkUrlEntry = StringDataEntryContext.CreateInstance();
+            LinkUrlEntry.Title = "URL";
+            LinkUrlEntry.HelpText = "Link address";
+            LinkUrlEntry.ValidationFunctions =
+                new List<Func<string, (bool passed, string validationMessage)>> {ValidateUrl};
+            LinkUrlEntry.ReferenceValue = DbEntry.Url.TrimNullToEmpty();
+            LinkUrlEntry.UserValue = DbEntry.Url.TrimNullToEmpty();
+
+            CommentsEntry = StringDataEntryContext.CreateInstance();
+            CommentsEntry.Title = "Comments";
+            CommentsEntry.HelpText = "Comments on the Linked Contents";
+            CommentsEntry.ReferenceValue = DbEntry.Comments.TrimNullToEmpty();
+            CommentsEntry.UserValue = DbEntry.Comments.TrimNullToEmpty();
+
+            TitleEntry = StringDataEntryContext.CreateInstance();
+            TitleEntry.Title = "Title";
+            TitleEntry.HelpText = "Title Text";
+            TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
+            TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
+            TitleEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            {
+                CommonContentValidation.ValidateTitle
+            };
+
+            SiteEntry = StringDataEntryContext.CreateInstance();
+            SiteEntry.Title = "Site";
+            SiteEntry.HelpText = "Name of the Site";
+            SiteEntry.ReferenceValue = DbEntry.Site.TrimNullToEmpty();
+            SiteEntry.UserValue = DbEntry.Site.TrimNullToEmpty();
+
+            AuthorEntry = StringDataEntryContext.CreateInstance();
+            AuthorEntry.Title = "Author";
+            AuthorEntry.HelpText = "Author of the linked content";
+            AuthorEntry.ReferenceValue = DbEntry.Author.TrimNullToEmpty();
+            AuthorEntry.UserValue = DbEntry.Author.TrimNullToEmpty();
+
+            DescriptionEntry = StringDataEntryContext.CreateInstance();
+            DescriptionEntry.Title = "Description";
+            DescriptionEntry.HelpText = "Description of the linked content";
+            DescriptionEntry.ReferenceValue = DbEntry.Description.TrimNullToEmpty();
+            DescriptionEntry.UserValue = DbEntry.Description.TrimNullToEmpty();
+
+            ShowInLinkRssEntry = BoolDataEntryContext.CreateInstance();
+            ShowInLinkRssEntry.Title = "Show in Link RSS Feed";
+            ShowInLinkRssEntry.HelpText = "If checked the link will appear in the site's Link RSS Feed";
+            ShowInLinkRssEntry.ReferenceValue = DbEntry.ShowInLinkRss;
+            ShowInLinkRssEntry.UserValue = DbEntry.ShowInLinkRss;
+
+            LinkDateTimeEntry = ConversionDataEntryContext<DateTime?>.CreateInstance();
+            LinkDateTimeEntry.Converter = ConversionDataEntryHelpers.DateTimeNullableConversion;
+            LinkDateTimeEntry.Title = "Link Date";
+            LinkDateTimeEntry.HelpText = "Date the Link Content was Created or Updated";
+            LinkDateTimeEntry.ReferenceValue = DbEntry.LinkDate;
+            LinkDateTimeEntry.UserValue = DbEntry.LinkDate;
+
+            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+            TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
+
+            if (extractDataOnLoad) await ExtractDataFromLink();
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public async Task SaveAndGenerateHtml(bool closeAfterSave)
@@ -506,6 +400,11 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
                 await ThreadSwitcher.ResumeForegroundAsync();
                 RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
+        }
+
+        public (bool passed, string validationMessage) ValidateUrl(string linkUrl)
+        {
+            return CommonContentValidation.ValidateLinkContentLinkUrl(linkUrl, DbEntry?.ContentId).Result;
         }
     }
 }

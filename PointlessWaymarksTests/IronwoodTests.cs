@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -112,12 +110,13 @@ namespace PointlessWaymarksTests
             newContext.TitleSummarySlugFolder.SlugEntry.UserValue += "\\\\";
             Assert.True(newContext.TitleSummarySlugFolder.SlugEntry.HasValidationIssues);
             Assert.True(newContext.TitleSummarySlugFolder.SlugEntry.HasChanges);
-            newContext.TitleSummarySlugFolder.SlugEntry.UserValue = IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.Slug;
+            newContext.TitleSummarySlugFolder.SlugEntry.UserValue =
+                IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.Slug;
             Assert.False(newContext.TitleSummarySlugFolder.SlugEntry.HasValidationIssues);
 
-            newContext.TitleSummarySlugFolder.Folder =
+            newContext.TitleSummarySlugFolder.FolderEntry.UserValue =
                 IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.Folder;
-            Assert.False(newContext.TitleSummarySlugFolder.FolderHasValidationIssues);
+            Assert.False(newContext.TitleSummarySlugFolder.FolderEntry.HasValidationIssues);
 
             newContext.TagEdit.Tags = IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.Tags;
             Assert.False(newContext.TagEdit.TagsHaveValidationIssues);
@@ -137,11 +136,6 @@ namespace PointlessWaymarksTests
                 IronwoodPhotoInfo.CompareContent(IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags,
                     newContext.DbEntry);
             Assert.True(comparison.areEqual, comparison.comparisonNotes);
-        }
-
-        private void DataNotificationDiagnostic(object sender, TinyMessageReceivedEventArgs e)
-        {
-            Debug.Print(e.Message.ToString());
         }
 
         [Test]
@@ -403,6 +397,11 @@ namespace PointlessWaymarksTests
             Assert.AreEqual(currentGeneration.GenerationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff"),
                 cameraRollGenerationVersionAttributeString,
                 "Generation Version of Camera Roll Does not match expected Log");
+        }
+
+        private void DataNotificationDiagnostic(object sender, TinyMessageReceivedEventArgs e)
+        {
+            Debug.Print(e.Message.ToString());
         }
 
 

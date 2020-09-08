@@ -2,6 +2,7 @@
     x:Class="PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor.TitleSummarySlugEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contentFolder="clr-namespace:PointlessWaymarksCmsWpfControls.ContentFolder"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.StringDataEntry"
@@ -29,34 +30,7 @@
                 Content="Title to Slug" />
         </StackPanel>
         <stringDataEntry:StringDataEntryControl DataContext="{Binding SlugEntry}" />
-        <StackPanel Margin="0,4,0,0" Orientation="Vertical">
-            <StackPanel Orientation="Horizontal">
-                <Label
-                    Content="Folder"
-                    Style="{StaticResource DataEntryLabelStyle}"
-                    Target="{Binding ElementName=FolderTextBox}" />
-                <utility:IndicatorIcon
-                    VerticalAlignment="Center"
-                    HoverText="{Binding DbEntry.Folder, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
-                    IconBrush="Black"
-                    IconPathGeometry="{StaticResource IconDataInfo}"
-                    IconSize="{StaticResource SmallIconSize}"
-                    Visibility="{Binding FolderHasChanges, Converter={StaticResource BooleanToVisibility}}" />
-                <utility:IndicatorIcon
-                    VerticalAlignment="Center"
-                    HoverText="{Binding FolderValidationMessage}"
-                    IconBrush="Red"
-                    IconPathGeometry="{StaticResource IconDataError}"
-                    IconSize="{StaticResource SmallIconSize}"
-                    Visibility="{Binding FolderHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
-            </StackPanel>
-            <ComboBox
-                Name="FolderTextBox"
-                IsEditable="True"
-                ItemsSource="{Binding ExistingFolderChoices}"
-                Style="{StaticResource DataEntryComboBoxStyle}"
-                Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" />
-        </StackPanel>
+        <contentFolder:ContentFolderControl DataContext="{Binding FolderEntry}" />
         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SummaryEntry}" TextBoxHeight="90" />
     </StackPanel>
 </UserControl>
