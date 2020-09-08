@@ -56,7 +56,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private Command _saveCommand;
         private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
-        private BitmapSource _selectedFileBitmapSource = ImageConstants.BlankImage;
+        private BitmapSource _selectedFileBitmapSource;
         private bool _selectedFileHasPathOrNameChanges;
         private bool _selectedFileHasValidationIssues;
         private string _selectedFileValidationMessage;

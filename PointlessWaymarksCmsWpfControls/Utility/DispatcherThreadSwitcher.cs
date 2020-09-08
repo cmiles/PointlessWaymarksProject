@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         public DispatcherThreadSwitcher GetAwaiter()
         {
-            Debug.Print($"DispatcherThreadSwitcher GetAwaiter from {Thread.CurrentThread.ManagedThreadId}");
+            //Debug.Print($"DispatcherThreadSwitcher GetAwaiter from {Thread.CurrentThread.ManagedThreadId}");
 
             return this;
         }
@@ -30,7 +30,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         public void OnCompleted(Action continuation)
         {
-            Debug.Print($"DispatcherThreadSwitcher OnCompleted from {Thread.CurrentThread.ManagedThreadId}");
+            //Debug.Print($"DispatcherThreadSwitcher OnCompleted from {Thread.CurrentThread.ManagedThreadId}");
 
             _dispatcher.BeginInvoke(continuation);
         }
