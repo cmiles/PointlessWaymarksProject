@@ -21,6 +21,7 @@
     </UserControl.Resources>
     <StackPanel Orientation="Horizontal">
         <CheckBox
+            IsThreeState="{Binding UserValueIsNullable}"
             VerticalAlignment="Center"
             VerticalContentAlignment="Center"
             Content="{Binding Title}"

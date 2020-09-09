@@ -8,6 +8,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailModels;
+using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -16,19 +17,20 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
-    public class RestRoomPointDetailContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
+    public class TrailJunctionPointDetailContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
         IPointDetailEditor
     {
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PointDetail _dbEntry;
-        private RestRoom _detailData;
+        private TrailJunction _detailData;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private StringDataEntryContext _noteEditor;
         private ContentFormatChooserContext _noteFormatEditor;
+        private BoolNullableDataEntryContext _signEditor;
         private StatusControlContext _statusContext;
 
-        private RestRoomPointDetailContext(StatusControlContext statusContext)
+        private TrailJunctionPointDetailContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
         }
@@ -55,7 +57,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
-        public RestRoom DetailData
+        public TrailJunction DetailData
         {
             get => _detailData;
             set
@@ -110,6 +112,17 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
+        public BoolNullableDataEntryContext SignEditor
+        {
+            get => _signEditor;
+            set
+            {
+                if (Equals(value, _signEditor)) return;
+                _signEditor = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -140,7 +153,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
-            var detailData = new RestRoom
+            var detailData = new TrailJunction
             {
                 Notes = NoteEditor.UserValue.TrimNullToEmpty(),
                 NotesContentFormat = NoteFormatEditor.SelectedContentFormatAsString
@@ -159,12 +172,12 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
 
-        public static async Task<RestRoomPointDetailContext> CreateInstance(PointDetail detail,
+        public static async Task<TrailJunctionPointDetailContext> CreateInstance(PointDetail detail,
             StatusControlContext statusContext)
         {
-            var newControl = new RestRoomPointDetailContext(statusContext);
-            await newControl.LoadData(detail);
-            return newControl;
+            var newContext = new TrailJunctionPointDetailContext(statusContext);
+            await newContext.LoadData(detail);
+            return newContext;
         }
 
         public async Task LoadData(PointDetail toLoad)
@@ -180,9 +193,9 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
 
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
-                DetailData = JsonSerializer.Deserialize<RestRoom>(DbEntry.StructuredDataAsJson);
+                DetailData = JsonSerializer.Deserialize<TrailJunction>(DbEntry.StructuredDataAsJson);
 
-            DetailData ??= new RestRoom {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
+            DetailData ??= new TrailJunction {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
 
             NoteEditor = StringDataEntryContext.CreateInstance();
             NoteEditor.Title = "Notes";
@@ -192,6 +205,12 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             NoteFormatEditor = ContentFormatChooserContext.CreateInstance(StatusContext);
             NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
+
+            SignEditor = BoolNullableDataEntryContext.CreateInstance();
+            SignEditor.Title = "Junction is Signed";
+            SignEditor.HelpText = "There is some kind of sign at the junction";
+            SignEditor.ReferenceValue = DetailData.Sign;
+            SignEditor.UserValue = DetailData.Sign;
         }
 
         [NotifyPropertyChangedInvocator]

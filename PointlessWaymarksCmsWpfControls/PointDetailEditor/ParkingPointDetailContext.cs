@@ -8,6 +8,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailModels;
+using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -16,19 +17,20 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
-    public class RestRoomPointDetailContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
+    public class ParkingPointDetailContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
         IPointDetailEditor
     {
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PointDetail _dbEntry;
-        private RestRoom _detailData;
+        private Parking _detailData;
+        private BoolNullableDataEntryContext _feeEditor;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private StringDataEntryContext _noteEditor;
         private ContentFormatChooserContext _noteFormatEditor;
         private StatusControlContext _statusContext;
 
-        private RestRoomPointDetailContext(StatusControlContext statusContext)
+        private ParkingPointDetailContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
         }
@@ -55,13 +57,24 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
-        public RestRoom DetailData
+        public Parking DetailData
         {
             get => _detailData;
             set
             {
                 if (Equals(value, _detailData)) return;
                 _detailData = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public BoolNullableDataEntryContext FeeEditor
+        {
+            get => _feeEditor;
+            set
+            {
+                if (Equals(value, _feeEditor)) return;
+                _feeEditor = value;
                 OnPropertyChanged();
             }
         }
@@ -140,7 +153,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
-            var detailData = new RestRoom
+            var detailData = new Parking
             {
                 Notes = NoteEditor.UserValue.TrimNullToEmpty(),
                 NotesContentFormat = NoteFormatEditor.SelectedContentFormatAsString
@@ -159,12 +172,12 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
 
-        public static async Task<RestRoomPointDetailContext> CreateInstance(PointDetail detail,
+        public static async Task<ParkingPointDetailContext> CreateInstance(PointDetail detail,
             StatusControlContext statusContext)
         {
-            var newControl = new RestRoomPointDetailContext(statusContext);
-            await newControl.LoadData(detail);
-            return newControl;
+            var newContext = new ParkingPointDetailContext(statusContext);
+            await newContext.LoadData(detail);
+            return newContext;
         }
 
         public async Task LoadData(PointDetail toLoad)
@@ -180,9 +193,9 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
 
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
-                DetailData = JsonSerializer.Deserialize<RestRoom>(DbEntry.StructuredDataAsJson);
+                DetailData = JsonSerializer.Deserialize<Parking>(DbEntry.StructuredDataAsJson);
 
-            DetailData ??= new RestRoom {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
+            DetailData ??= new Parking {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
 
             NoteEditor = StringDataEntryContext.CreateInstance();
             NoteEditor.Title = "Notes";
@@ -192,6 +205,12 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             NoteFormatEditor = ContentFormatChooserContext.CreateInstance(StatusContext);
             NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
+
+            FeeEditor = BoolNullableDataEntryContext.CreateInstance();
+            FeeEditor.Title = "Fee Area";
+            FeeEditor.HelpText = "Is there a fee for using this parking area";
+            FeeEditor.ReferenceValue = DetailData.Fee;
+            FeeEditor.UserValue = DetailData.Fee;
         }
 
         [NotifyPropertyChangedInvocator]

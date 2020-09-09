@@ -107,8 +107,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         {
             switch (detail.DataType)
             {
-                case "Peak": return new PeakPointDetailContext(detail, StatusContext);
-                case "Rest Room": return new RestRoomPointDetailContext(detail, StatusContext);
+                case "Peak": return PeakPointDetailContext.CreateInstance(detail, StatusContext);
+                case "Rest Room": return RestRoomPointDetailContext.CreateInstance(detail, StatusContext);
                 default: return null;
             }
         }

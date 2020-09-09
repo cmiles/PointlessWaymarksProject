@@ -27,10 +27,9 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         private ContentFormatChooserContext _noteFormatEditor;
         private StatusControlContext _statusContext;
 
-        public PeakPointDetailContext(PointDetail detail, StatusControlContext statusContext)
+        private PeakPointDetailContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(detail));
         }
 
         public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
@@ -159,6 +158,14 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
 
+        public static async Task<PeakPointDetailContext> CreateInstance(PointDetail detail,
+            StatusControlContext statusContext)
+        {
+            var newControl = new PeakPointDetailContext(statusContext);
+            await newControl.LoadData(detail);
+            return newControl;
+        }
+
         public async Task LoadData(PointDetail toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -174,7 +181,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
                 DetailData = JsonSerializer.Deserialize<Peak>(DbEntry.StructuredDataAsJson);
 
-            DetailData = new Peak {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
+            DetailData ??= new Peak {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
 
             NoteEditor = StringDataEntryContext.CreateInstance();
             NoteEditor.Title = "Notes";

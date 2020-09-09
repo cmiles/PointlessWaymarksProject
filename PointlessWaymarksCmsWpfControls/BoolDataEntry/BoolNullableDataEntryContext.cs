@@ -4,26 +4,27 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
 {
-    public class BoolDataEntryContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
+    public class BoolNullableDataEntryContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
     {
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private string _helpText;
-        private bool _referenceValue;
+        private bool? _referenceValue;
         private string _title;
-        private bool _userValue;
+        private bool? _userValue;
 
-        private List<Func<bool, (bool passed, string validationMessage)>> _validationFunctions =
-            new List<Func<bool, (bool passed, string validationMessage)>>();
+        private List<Func<bool?, (bool passed, string validationMessage)>> _validationFunctions =
+            new List<Func<bool?, (bool passed, string validationMessage)>>();
 
         private string _validationMessage;
 
-        private BoolDataEntryContext()
+        public bool UserValueIsNullable => true;
+
+        private BoolNullableDataEntryContext()
         {
         }
 
@@ -60,7 +61,7 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
             }
         }
 
-        public bool ReferenceValue
+        public bool? ReferenceValue
         {
             get => _referenceValue;
             set
@@ -82,7 +83,7 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
             }
         }
 
-        public bool UserValue
+        public bool? UserValue
         {
             get => _userValue;
             set
@@ -93,7 +94,7 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
             }
         }
 
-        public List<Func<bool, (bool passed, string validationMessage)>> ValidationFunctions
+        public List<Func<bool?, (bool passed, string validationMessage)>> ValidationFunctions
         {
             get => _validationFunctions;
             set
@@ -137,41 +138,10 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
             ValidationMessage = string.Empty;
         }
 
-        public static BoolDataEntryContext CreateInstance()
+        public static BoolNullableDataEntryContext CreateInstance()
         {
-            return new BoolDataEntryContext();
+            return new BoolNullableDataEntryContext();
         }
-
-        public static BoolDataEntryContext CreateInstanceForShowInSearch(IShowInSearch dbEntry, bool defaultSetting)
-        {
-            var newContext = new BoolDataEntryContext
-            {
-                ReferenceValue = dbEntry?.ShowInSearch ?? defaultSetting,
-                UserValue = dbEntry?.ShowInSearch ?? defaultSetting,
-                Title = "Show in Search",
-                HelpText =
-                    "If checked the content will appear in Site, Tag and other search screens - otherwise the content will still be " +
-                    "on the site and publicly available but it will not show in search"
-            };
-
-            return newContext;
-        }
-
-        public static BoolDataEntryContext CreateInstanceForShowInSiteFeed(IShowInSiteFeed dbEntry, bool defaultSetting)
-        {
-            var newContext = new BoolDataEntryContext
-            {
-                ReferenceValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
-                UserValue = dbEntry?.ShowInMainSiteFeed ?? defaultSetting,
-                Title = "Show in Main Site Feed",
-                HelpText =
-                    "Checking this box will make the content appear in the Main Site RSS Feed and - if the content is recent - on the site's homepage"
-            };
-
-            return newContext;
-        }
-
-        public bool UserValueIsNullable => false;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
