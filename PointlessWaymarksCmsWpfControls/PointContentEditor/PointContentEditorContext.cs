@@ -444,7 +444,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             };
             LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
 
-            PointDetails = new PointDetailListContext(StatusContext, DbEntry);
+            PointDetails = await PointDetailListContext.CreateInstance(StatusContext, DbEntry);
         }
 
         [NotifyPropertyChangedInvocator]

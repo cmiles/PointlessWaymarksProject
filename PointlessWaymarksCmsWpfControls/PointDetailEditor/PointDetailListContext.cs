@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
+using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailModels;
@@ -17,21 +18,58 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
     public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged
     {
+        public static async Task<PointDetailListContext> CreateInstance(StatusControlContext statusContext,
+            PointContent dbEntry)
+        {
+            var newControl = new PointDetailListContext(statusContext);
+            await newControl.LoadData(dbEntry, true);
+            return newControl;
+        }
+
         private ObservableCollection<string> _additionalPointDetailTypes;
         private bool _hasChanges;
         private bool _hasValidationIssues;
-        private ObservableCollection<object> _items;
+        private ObservableCollection<IPointDetailEditor> _items;
         private Command<string> _loadNewDetailCommand;
         private List<(string typeIdentifierAttribute, Type reflectedType)> _pointDetailTypeList;
         private StatusControlContext _statusContext;
+        private List<PointDetail> _dbEntries;
+        private List<IPointDetailEditor> _deletedPointDetails;
+        private Command<IPointDetailEditor> _deleteDetailCommand;
 
-        public PointDetailListContext(StatusControlContext statusContext, PointContent dbEntry)
+        private PointDetailListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            LoadNewDetailCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x => await LoadNewDetail(x));
+            DeletedPointDetails = new List<IPointDetailEditor>();
 
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(dbEntry));
+            LoadNewDetailCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x => await LoadNewDetail(x));
+            DeleteDetailCommand =
+                StatusContext.RunNonBlockingTaskCommand<IPointDetailEditor>(async x => await DeleteDetail(x));
+        }
+
+        private async Task DeleteDetail(IPointDetailEditor pointDetail)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Items.Remove(pointDetail);
+
+            AdditionalPointDetailTypes.Add(pointDetail.DbEntry.DataType);
+
+            AdditionalPointDetailTypes = new ObservableCollection<string>(AdditionalPointDetailTypes.OrderBy(x => x).ToList());
+
+            DeletedPointDetails.Add(pointDetail);
+        }
+
+        public Command<IPointDetailEditor> DeleteDetailCommand
+        {
+            get => _deleteDetailCommand;
+            set
+            {
+                if (Equals(value, _deleteDetailCommand)) return;
+                _deleteDetailCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public ObservableCollection<string> AdditionalPointDetailTypes
@@ -67,7 +105,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
-        public ObservableCollection<object> Items
+        public ObservableCollection<IPointDetailEditor> Items
         {
             get => _items;
             set
@@ -103,17 +141,44 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public object ListItemEditorFromTypeIdentifier(PointDetail detail)
-        {
-            switch (detail.DataType)
+        public async Task<IPointDetailEditor> ListItemEditorFromTypeIdentifier(PointDetail detail) =>
+            detail.DataType switch
             {
-                case "Peak": return PeakPointDetailContext.CreateInstance(detail, StatusContext);
-                case "Rest Room": return RestRoomPointDetailContext.CreateInstance(detail, StatusContext);
-                default: return null;
+                "Campground" => await CampgroundPointDetailContext.CreateInstance(detail, StatusContext),
+                "Parking" => await ParkingPointDetailContext.CreateInstance(detail, StatusContext),
+                "Peak" => await PeakPointDetailContext.CreateInstance(detail, StatusContext),
+                "Rest Room" => await RestRoomPointDetailContext.CreateInstance(detail, StatusContext),
+                "Trail Junction" => await TrailJunctionPointDetailContext.CreateInstance(detail, StatusContext),
+                _ => null
+            };
+
+        public List<PointDetail> DbEntries
+        {
+            get => _dbEntries;
+            set
+            {
+                if (Equals(value, _dbEntries)) return;
+                _dbEntries = value;
+                OnPropertyChanged();
             }
         }
 
-        public async Task LoadData(PointContent dbEntry)
+        public List<IPointDetailEditor> DeletedPointDetails
+        {
+            get => _deletedPointDetails;
+            set
+            {
+                if (Equals(value, _deletedPointDetails)) return;
+                _deletedPointDetails = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public void CheckForChangesAndValidate()
+        {
+        }
+
+        public async Task LoadData(PointContent dbEntry, bool clearState)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -128,30 +193,37 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 toLoad = db.PointDetails.Where(x => pointDetailsIds.Contains(x.ContentId)).ToList();
             }
 
-            var pointDetailTypes = from type in typeof(Db).Assembly.GetTypes()
-                where typeof(IPointDetail).IsAssignableFrom(type) && !type.IsInterface
-                select type;
+            DbEntries = toLoad.OrderBy(x => x.DataType).ToList();
 
-            _pointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
-
-            foreach (var loopTypes in pointDetailTypes)
+            if (clearState)
             {
-                var typeExample = (IPointDetail) Activator.CreateInstance(loopTypes);
+                DeletedPointDetails = new List<IPointDetailEditor>();
 
-                if (typeExample == null) continue;
+                var pointDetailTypes = from type in typeof(Db).Assembly.GetTypes()
+                    where typeof(IPointDetail).IsAssignableFrom(type) && !type.IsInterface
+                    select type;
 
-                _pointDetailTypeList.Add((typeExample.DataTypeIdentifier, loopTypes));
+                _pointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
+
+                foreach (var loopTypes in pointDetailTypes)
+                {
+                    var typeExample = (IPointDetail) Activator.CreateInstance(loopTypes);
+
+                    if (typeExample == null) continue;
+
+                    _pointDetailTypeList.Add((typeExample.DataTypeIdentifier, loopTypes));
+                }
+
+                _pointDetailTypeList = _pointDetailTypeList.OrderBy(x => x.typeIdentifierAttribute).ToList();
             }
-
-            _pointDetailTypeList = _pointDetailTypeList.OrderBy(x => x.typeIdentifierAttribute).ToList();
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Items = new ObservableCollection<object>();
+            Items = new ObservableCollection<IPointDetailEditor>();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            foreach (var loopLoad in toLoad.OrderBy(x => x.DataType).ToList())
+            foreach (var loopLoad in DbEntries)
             {
                 var toRemoveFromTypeList = _pointDetailTypeList
                     .Where(x => x.typeIdentifierAttribute == loopLoad.DataType).ToList();
@@ -159,7 +231,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                Items.Add(ListItemEditorFromTypeIdentifier(loopLoad));
+                Items.Add(await ListItemEditorFromTypeIdentifier(loopLoad));
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
@@ -177,6 +249,24 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             if (string.IsNullOrWhiteSpace(typeIdentifier))
             {
                 StatusContext.ToastError("Detail Type is blank???");
+                return;
+            }
+
+            var removedItems = DeletedPointDetails.Where(x => x.DbEntry.DataType == typeIdentifier).ToList();
+
+            if (removedItems.Any())
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var toAdd = removedItems.First();
+
+                AdditionalPointDetailTypes.Where(x => x == toAdd.DbEntry.DataType).ToList()
+                    .ForEach(x => AdditionalPointDetailTypes.Remove(x));
+
+                DeletedPointDetails.Remove(toAdd);
+
+                Items.Add(toAdd);
+
                 return;
             }
 
@@ -201,7 +291,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             AdditionalPointDetailTypes.Where(x => x == newPointDetail.DataType).ToList()
                 .ForEach(x => AdditionalPointDetailTypes.Remove(x));
 
-            Items.Add(ListItemEditorFromTypeIdentifier(newPointDetail));
+            Items.Add(await ListItemEditorFromTypeIdentifier(newPointDetail));
         }
 
         [NotifyPropertyChangedInvocator]

@@ -23,6 +23,15 @@
             <DataTemplate x:Key="RestRoomDetailTemplate">
                 <local:RestRoomPointDetailControl DataContext="{Binding .}" />
             </DataTemplate>
+            <DataTemplate x:Key="ParkingDetailTemplate">
+                <local:ParkingPointDetailControl DataContext="{Binding .}" />
+            </DataTemplate>
+            <DataTemplate x:Key="CampgroundDetailTemplate">
+                <local:CampgroundPointDetailControl DataContext="{Binding .}" />
+            </DataTemplate>
+            <DataTemplate x:Key="TrailJunctionDetailTemplate">
+                <local:TrailJunctionPointDetailControl DataContext="{Binding .}" />
+            </DataTemplate>
             <local:PointDetailListControlDataTemplateSelector x:Key="DetailEditorSelector" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -56,7 +65,8 @@
             <ListBox
                 HorizontalContentAlignment="Stretch"
                 ItemTemplateSelector="{StaticResource DetailEditorSelector}"
-                ItemsSource="{Binding Items}" />
+                ItemsSource="{Binding Items}"
+                ScrollViewer.CanContentScroll="False" />
         </GroupBox>
     </Grid>
 </UserControl>
