@@ -298,7 +298,7 @@ namespace PointlessWaymarksCmsData.Content
 
         public static (bool isValid, string explanation) ValidateTags(string tags)
         {
-            if (string.IsNullOrWhiteSpace(tags)) return (true, string.Empty);
+            if (string.IsNullOrWhiteSpace(tags)) return (false, "At least one tag must be included.");
 
             var tagList = Db.TagListParse(tags);
 

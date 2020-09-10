@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -211,6 +212,10 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 "The title for this feature - this could be something unique or something recorded for many points";
             TitleEditor.ReferenceValue = DetailData.Notes ?? string.Empty;
             TitleEditor.UserValue = DetailData.Notes.TrimNullToEmpty();
+            TitleEditor.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            {
+                x => string.IsNullOrWhiteSpace(x) ? (false, "Title must have a value.") : (true, "Title has value")
+            };
         }
 
         [NotifyPropertyChangedInvocator]

@@ -35,13 +35,6 @@
                     Visibility="{Binding TagsHaveChanges, Converter={StaticResource BooleanToVisibility}}" />
                 <utility:IndicatorIcon
                     VerticalAlignment="Center"
-                    HoverText="{Binding TagsWarningMessage}"
-                    IconBrush="Orange"
-                    IconPathGeometry="{StaticResource IconDataWarning}"
-                    IconSize="{StaticResource SmallIconSize}"
-                    Visibility="{Binding TagsHaveWarnings, Converter={StaticResource BooleanToVisibility}}" />
-                <utility:IndicatorIcon
-                    VerticalAlignment="Center"
                     HoverText="{Binding TagsValidationMessage}"
                     IconBrush="Red"
                     IconPathGeometry="{StaticResource IconDataError}"

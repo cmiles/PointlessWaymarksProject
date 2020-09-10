@@ -158,6 +158,8 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
                 }
             };
 
+            slugEntry.CheckForChangesAndValidate();
+
             return slugEntry;
         }
 
@@ -175,6 +177,8 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
                 }
             };
 
+            summaryEntry.CheckForChangesAndValidate();
+
             return summaryEntry;
         }
 
@@ -191,6 +195,8 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
                     CommonContentValidation.ValidateTitle
                 }
             };
+
+            titleEntry.CheckForChangesAndValidate();
 
             return titleEntry;
         }

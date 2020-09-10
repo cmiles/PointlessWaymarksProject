@@ -20,9 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         private string _tags = string.Empty;
         private bool _tagsHaveChanges;
         private bool _tagsHaveValidationIssues;
-        private bool _tagsHaveWarnings;
         private string _tagsValidationMessage;
-        private string _tagsWarningMessage;
 
         private TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
         {
@@ -98,17 +96,6 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
-        public bool TagsHaveWarnings
-        {
-            get => _tagsHaveWarnings;
-            set
-            {
-                if (value == _tagsHaveWarnings) return;
-                _tagsHaveWarnings = value;
-                OnPropertyChanged();
-            }
-        }
-
         public string TagsValidationMessage
         {
             get => _tagsValidationMessage;
@@ -120,33 +107,11 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
-        public string TagsWarningMessage
-        {
-            get => _tagsWarningMessage;
-            set
-            {
-                if (value == _tagsWarningMessage) return;
-                _tagsWarningMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void CheckForChanges()
+        public void CheckForChangesAndValidate()
         {
             TagsHaveChanges = !TagSlugList().SequenceEqual(DbTagList());
-
-            if (string.IsNullOrWhiteSpace(Tags))
-            {
-                TagsHaveWarnings = true;
-                TagsWarningMessage = "Tags are not required but are very helpful!";
-            }
-            else
-            {
-                TagsHaveWarnings = false;
-                TagsWarningMessage = string.Empty;
-            }
 
             var tagValidation = CommonContentValidation.ValidateTags(Tags);
 
@@ -175,7 +140,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HaveChanges") && !propertyName.Contains("Validation")) CheckForChanges();
+            if (!propertyName.Contains("HaveChanges") && !propertyName.Contains("Validation")) CheckForChangesAndValidate();
         }
 
         public List<string> TagList()
