@@ -123,7 +123,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
         public T UserValue
         {
             get => _userValue;
-            set
+            private set
             {
                 if (value.Equals(_userValue)) return;
                 _userValue = value;
@@ -157,24 +157,6 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
         private void CheckForChangesAndValidate()
         {
-            if (Converter == null)
-            {
-                HasValidationIssues = true;
-                ValidationMessage = "No conversion available";
-                return;
-            }
-
-            var converted = Converter(UserText.TrimNullToEmpty());
-
-            if (!converted.passed)
-            {
-                HasValidationIssues = true;
-                ValidationMessage = converted.conversionMessage;
-                return;
-            }
-
-            UserValue = converted.result;
-
             HasChanges = !ComparisonFunction(ReferenceValue, UserValue);
 
             if (ValidationFunctions != null && ValidationFunctions.Any())
@@ -205,8 +187,32 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+            if (propertyName.Contains(nameof(UserText))) TryConvertUserText();
+
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation") &&
+                !propertyName.Contains(nameof(UserText)))
                 CheckForChangesAndValidate();
+        }
+
+        private void TryConvertUserText()
+        {
+            if (Converter == null)
+            {
+                HasValidationIssues = true;
+                ValidationMessage = "No conversion available";
+                return;
+            }
+
+            var converted = Converter(UserText.TrimNullToEmpty());
+
+            if (!converted.passed)
+            {
+                HasValidationIssues = true;
+                ValidationMessage = converted.conversionMessage;
+                return;
+            }
+
+            UserValue = converted.result;
         }
     }
 }

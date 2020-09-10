@@ -62,7 +62,7 @@
                         Header="Location"
                         Style="{StaticResource UiComponentGroupBoxStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LatitudeEntry}" />
                             <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding LongitudeEntry}" />
                             <conversionDataEntry:ConversionDataEntryControl Width="120" DataContext="{Binding ElevationEntry}" />
                             <Button

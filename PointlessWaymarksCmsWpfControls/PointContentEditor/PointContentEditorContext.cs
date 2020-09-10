@@ -20,7 +20,6 @@ using PointlessWaymarksCmsWpfControls.ConversionDataEntry;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.PointDetailEditor;
-
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -146,8 +145,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        public bool HasChanges =>
-            PropertyScanners.ChildPropertiesHaveChanges(this);
+        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this);
 
         public HelpDisplayContext HelpContext
         {
@@ -274,12 +272,9 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void CheckForChangesAndValidate(bool checkFromLatitudeLongitudePropertyChanges)
+        private void LatitudeLongitudeChangeBroadcast()
         {
-            SpatialHelpers.RoundLatLongElevation(this);
-
-            if (_broadcastLatLongChange && checkFromLatitudeLongitudePropertyChanges &&
-                !LatitudeEntry.HasValidationIssues && !LongitudeEntry.HasValidationIssues)
+            if (_broadcastLatLongChange && !LatitudeEntry.HasValidationIssues && !LongitudeEntry.HasValidationIssues)
                 RaisePointLatitudeLongitudeChange?.Invoke(this,
                     new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
         }
@@ -346,7 +341,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
                 if (elevationResult != null)
                 {
-                    ElevationEntry.UserValue = elevationResult.MetersToFeet();
+                    ElevationEntry.UserText = elevationResult.MetersToFeet().ToString("F0");
 
                     StatusContext.ToastSuccess(
                         $"Set elevation of {ElevationEntry.UserValue} from Open Topo Data - www.opentopodata.org - NED data set");
@@ -374,7 +369,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                     return;
                 }
 
-                ElevationEntry.UserValue = elevationResult.MetersToFeet();
+                ElevationEntry.UserText = elevationResult.MetersToFeet().ToString("F0");
 
                 StatusContext.ToastSuccess(
                     $"Set elevation of {ElevationEntry.UserValue} from Open Topo Data - www.opentopodata.org - Mapzen data set");
@@ -413,7 +408,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             ElevationEntry.Title = "Elevation";
             ElevationEntry.HelpText = "Elevation in Feet";
             ElevationEntry.ReferenceValue = DbEntry.Elevation;
-            ElevationEntry.UserValue = DbEntry.Elevation;
+            ElevationEntry.UserText = DbEntry.Elevation?.ToString("F0") ?? string.Empty;
             ElevationEntry.Converter = ConversionDataEntryHelpers.DoubleNullableConversion;
             ElevationEntry.ValidationFunctions = new List<Func<double?, (bool passed, string validationMessage)>>
             {
@@ -424,25 +419,35 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             LatitudeEntry.Title = "Latitude";
             LatitudeEntry.HelpText = "In DDD.DDDDDD°";
             LatitudeEntry.ReferenceValue = DbEntry.Latitude;
-            LatitudeEntry.UserValue = DbEntry.Latitude;
+            LatitudeEntry.UserText = DbEntry.Latitude.ToString("F6");
             LatitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
             LatitudeEntry.ValidationFunctions = new List<Func<double, (bool passed, string validationMessage)>>
             {
                 CommonContentValidation.LatitudeValidation
             };
             LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
+            LatitudeEntry.PropertyChanged += (sender, args) =>
+            {
+                if (args == null || string.IsNullOrWhiteSpace(args.PropertyName)) return;
+                if (args.PropertyName == nameof(LatitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
+            };
 
             LongitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
             LongitudeEntry.Title = "Longitude";
             LongitudeEntry.HelpText = "In DDD.DDDDDD°";
             LongitudeEntry.ReferenceValue = DbEntry.Longitude;
-            LongitudeEntry.UserValue = DbEntry.Longitude;
+            LongitudeEntry.UserText = DbEntry.Longitude.ToString("F6");
             LongitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
             LongitudeEntry.ValidationFunctions = new List<Func<double, (bool passed, string validationMessage)>>
             {
                 CommonContentValidation.LongitudeValidation
             };
             LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
+            LongitudeEntry.PropertyChanged += (sender, args) =>
+            {
+                if (args == null || string.IsNullOrWhiteSpace(args.PropertyName)) return;
+                if (args.PropertyName == nameof(LongitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
+            };
 
             PointDetails = await PointDetailListContext.CreateInstance(StatusContext, DbEntry);
         }
@@ -451,19 +456,14 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            if (string.IsNullOrWhiteSpace(propertyName)) return;
-
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChangesAndValidate(propertyName == "Latitude" || propertyName == "Longitude");
         }
 
         public void OnRaisePointLatitudeLongitudeChange(object sender, PointLatitudeLongitudeChange e)
         {
             _broadcastLatLongChange = false;
 
-            LatitudeEntry.UserValue = e.Latitude;
-            LongitudeEntry.UserValue = e.Longitude;
+            LatitudeEntry.UserText = e.Latitude.ToString("F6");
+            LongitudeEntry.UserText = e.Longitude.ToString("F6");
 
             _broadcastLatLongChange = true;
         }
@@ -475,7 +475,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var (generationReturn, newContent) = await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContent(),
-                null, StatusContext.ProgressTracker());
+                PointDetails.CurrentStateToPointDetailsList(), StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {

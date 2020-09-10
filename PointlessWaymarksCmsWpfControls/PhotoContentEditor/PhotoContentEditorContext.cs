@@ -710,7 +710,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             IsoEntry.Title = "ISO";
             IsoEntry.HelpText = "A measure of a sensor films sensitivity to light, 100 is a typical value";
             IsoEntry.ReferenceValue = DbEntry.Iso;
-            IsoEntry.UserValue = DbEntry.Iso;
             IsoEntry.UserText = DbEntry.Iso?.ToString("F0") ?? string.Empty;
             IsoEntry.Converter = ConversionDataEntryHelpers.IntNullableConversion;
 
@@ -718,7 +717,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             PhotoCreatedOnEntry.Title = "Photo Created On";
             PhotoCreatedOnEntry.HelpText = "Date and, optionally, Time the Photo was Created";
             PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;
-            PhotoCreatedOnEntry.UserValue = DbEntry.PhotoCreatedOn;
             PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
             PhotoCreatedOnEntry.Converter = ConversionDataEntryHelpers.DateTimeConversion;
 
@@ -745,12 +743,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             CameraMakeEntry.UserValue = metadata.CameraMake;
             CameraModelEntry.UserValue = metadata.CameraModel;
             FocalLengthEntry.UserValue = metadata.FocalLength;
-            IsoEntry.UserValue = metadata.Iso;
             IsoEntry.UserText = metadata.Iso?.ToString("F0") ?? string.Empty;
             LensEntry.UserValue = metadata.Lens;
             LicenseEntry.UserValue = metadata.License;
             PhotoCreatedByEntry.UserValue = metadata.PhotoCreatedBy;
-            PhotoCreatedOnEntry.UserValue = metadata.PhotoCreatedOn;
             PhotoCreatedOnEntry.UserText = metadata.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
             ShutterSpeedEntry.UserValue = metadata.ShutterSpeed;
             TitleSummarySlugFolder.SummaryEntry.UserValue = metadata.Summary;

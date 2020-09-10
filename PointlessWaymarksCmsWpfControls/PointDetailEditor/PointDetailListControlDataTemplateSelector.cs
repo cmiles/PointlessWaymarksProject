@@ -12,6 +12,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 {
                     case CampgroundPointDetailContext _:
                         return element.FindResource("CampgroundDetailTemplate") as DataTemplate;
+                    case FeaturePointDetailContext _:
+                        return element.FindResource("FeatureDetailTemplate") as DataTemplate;
                     case ParkingPointDetailContext _:
                         return element.FindResource("ParkingDetailTemplate") as DataTemplate;
                     case PeakPointDetailContext _: return element.FindResource("PeakDetailTemplate") as DataTemplate;

@@ -16,19 +16,20 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
-    public class RestRoomPointDetailContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
+    internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
         IPointDetailEditor
     {
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PointDetail _dbEntry;
-        private Restroom _detailData;
+        private Feature _detailData;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private StringDataEntryContext _noteEditor;
         private ContentFormatChooserContext _noteFormatEditor;
         private StatusControlContext _statusContext;
+        private StringDataEntryContext _titleEditor;
 
-        private RestRoomPointDetailContext(StatusControlContext statusContext)
+        private FeaturePointDetailContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
         }
@@ -55,7 +56,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
-        public Restroom DetailData
+        public Feature DetailData
         {
             get => _detailData;
             set
@@ -121,6 +122,17 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
+        public StringDataEntryContext TitleEditor
+        {
+            get => _titleEditor;
+            set
+            {
+                if (Equals(value, _titleEditor)) return;
+                _titleEditor = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public PointDetail CurrentPointDetail()
@@ -140,7 +152,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
 
-            var detailData = new Restroom
+            var detailData = new Feature
             {
                 Notes = NoteEditor.UserValue.TrimNullToEmpty(),
                 NotesContentFormat = NoteFormatEditor.SelectedContentFormatAsString
@@ -159,10 +171,10 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
 
-        public static async Task<RestRoomPointDetailContext> CreateInstance(PointDetail detail,
+        public static async Task<FeaturePointDetailContext> CreateInstance(PointDetail detail,
             StatusControlContext statusContext)
         {
-            var newControl = new RestRoomPointDetailContext(statusContext);
+            var newControl = new FeaturePointDetailContext(statusContext);
             await newControl.LoadData(detail);
             return newControl;
         }
@@ -174,15 +186,15 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             DbEntry = toLoad ?? new PointDetail
             {
                 CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-                DataType = DetailData.DataTypeIdentifier
+                DataType = ((dynamic) DetailData).DataTypeIdentifier,
             };
 
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
 
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
-                DetailData = JsonSerializer.Deserialize<Restroom>(DbEntry.StructuredDataAsJson);
+                DetailData = JsonSerializer.Deserialize<Feature>(DbEntry.StructuredDataAsJson);
 
-            DetailData ??= new Restroom {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
+            DetailData ??= new Feature {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
 
             NoteEditor = StringDataEntryContext.CreateInstance();
             NoteEditor.Title = "Notes";
@@ -192,6 +204,13 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             NoteFormatEditor = ContentFormatChooserContext.CreateInstance(StatusContext);
             NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
+
+            TitleEditor = StringDataEntryContext.CreateInstance();
+            TitleEditor.Title = "Title";
+            TitleEditor.HelpText =
+                "The title for this feature - this could be something unique or something recorded for many points";
+            TitleEditor.ReferenceValue = DetailData.Notes ?? string.Empty;
+            TitleEditor.UserValue = DetailData.Notes.TrimNullToEmpty();
         }
 
         [NotifyPropertyChangedInvocator]

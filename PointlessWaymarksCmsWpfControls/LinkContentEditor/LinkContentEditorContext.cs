@@ -300,7 +300,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
                 DescriptionEntry.UserValue = linkMetadata.Description.TrimNullToEmpty();
             if (!string.IsNullOrWhiteSpace(linkMetadata.Site))
                 SiteEntry.UserValue = linkMetadata.Site.TrimNullToEmpty();
-            if (linkMetadata.LinkDate != null) LinkDateTimeEntry.UserValue = linkMetadata.LinkDate;
+            if (linkMetadata.LinkDate != null) LinkDateTimeEntry.UserText = linkMetadata.LinkDate == null ? string.Empty : linkMetadata.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
         }
 
         private async Task LoadData(LinkContent toLoad, bool extractDataOnLoad = false)
@@ -365,7 +365,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             LinkDateTimeEntry.Title = "Link Date";
             LinkDateTimeEntry.HelpText = "Date the Link Content was Created or Updated";
             LinkDateTimeEntry.ReferenceValue = DbEntry.LinkDate;
-            LinkDateTimeEntry.UserValue = DbEntry.LinkDate;
+            LinkDateTimeEntry.UserText = DbEntry.LinkDate == null ? string.Empty : DbEntry.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
 
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);

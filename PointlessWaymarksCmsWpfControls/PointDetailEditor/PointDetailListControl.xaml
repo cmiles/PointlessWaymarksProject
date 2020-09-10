@@ -17,17 +17,20 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <DataTemplate x:Key="CampgroundDetailTemplate">
+                <local:CampgroundPointDetailControl DataContext="{Binding .}" />
+            </DataTemplate>
+            <DataTemplate x:Key="FeatureDetailTemplate">
+                <local:FeaturePointDetailControl DataContext="{Binding .}" />
+            </DataTemplate>
+            <DataTemplate x:Key="ParkingDetailTemplate">
+                <local:ParkingPointDetailControl DataContext="{Binding .}" />
+            </DataTemplate>
             <DataTemplate x:Key="PeakDetailTemplate">
                 <local:PeakPointDetailControl DataContext="{Binding .}" />
             </DataTemplate>
             <DataTemplate x:Key="RestRoomDetailTemplate">
                 <local:RestRoomPointDetailControl DataContext="{Binding .}" />
-            </DataTemplate>
-            <DataTemplate x:Key="ParkingDetailTemplate">
-                <local:ParkingPointDetailControl DataContext="{Binding .}" />
-            </DataTemplate>
-            <DataTemplate x:Key="CampgroundDetailTemplate">
-                <local:CampgroundPointDetailControl DataContext="{Binding .}" />
             </DataTemplate>
             <DataTemplate x:Key="TrailJunctionDetailTemplate">
                 <local:TrailJunctionPointDetailControl DataContext="{Binding .}" />
