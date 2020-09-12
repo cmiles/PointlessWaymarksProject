@@ -44,7 +44,12 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <GroupBox Header="Add Detail">
-            <ListBox ItemsSource="{Binding AdditionalPointDetailTypes}">
+            <ListBox
+                HorizontalAlignment="Center"
+                HorizontalContentAlignment="Center"
+                BorderThickness="0"
+                ItemsSource="{Binding AdditionalPointDetailTypes}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.Resources>
                     <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
                 </ListBox.Resources>

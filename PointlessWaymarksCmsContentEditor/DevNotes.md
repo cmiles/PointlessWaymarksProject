@@ -1,4 +1,6 @@
 ﻿## Todos
+ - HasChanges has to be evented/broadcasted between the encapsulated data entry controls
+ - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
   - JsonImport - maybe a partial class for the details?

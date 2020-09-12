@@ -9,17 +9,14 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailModels;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
-using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
-    public class RestRoomPointDetailContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
-        IPointDetailEditor
+    public class RestRoomPointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor
     {
-        private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PointDetail _dbEntry;
         private Restroom _detailData;
         private bool _hasChanges;
@@ -31,17 +28,6 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         private RestRoomPointDetailContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-        }
-
-        public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
-        {
-            get => _createdUpdatedDisplay;
-            set
-            {
-                if (Equals(value, _createdUpdatedDisplay)) return;
-                _createdUpdatedDisplay = value;
-                OnPropertyChanged();
-            }
         }
 
         public PointDetail DbEntry
@@ -137,8 +123,9 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
+
+            newEntry.DataType = DetailData.DataTypeIdentifier;
 
             var detailData = new Restroom
             {
@@ -171,13 +158,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new PointDetail
-            {
-                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-                DataType = DetailData.DataTypeIdentifier
-            };
-
-            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+            DbEntry = toLoad ?? new PointDetail {DataType = DetailData.DataTypeIdentifier};
 
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
                 DetailData = JsonSerializer.Deserialize<Restroom>(DbEntry.StructuredDataAsJson);
@@ -192,6 +173,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             NoteFormatEditor = ContentFormatChooserContext.CreateInstance(StatusContext);
             NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
+            await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
         }
 
         [NotifyPropertyChangedInvocator]

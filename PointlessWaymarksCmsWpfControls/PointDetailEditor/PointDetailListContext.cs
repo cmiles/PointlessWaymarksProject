@@ -281,9 +281,6 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
                 var toAdd = removedItems.First();
 
-                AdditionalPointDetailTypes.Where(x => x == toAdd.DbEntry.DataType).ToList()
-                    .ForEach(x => AdditionalPointDetailTypes.Remove(x));
-
                 DeletedPointDetails.Remove(toAdd);
 
                 Items.Add(toAdd);
@@ -308,9 +305,6 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             var newPointDetail = new PointDetail {DataType = newDetailEntry.First().typeIdentifierAttribute};
 
             await ThreadSwitcher.ResumeForegroundAsync();
-
-            AdditionalPointDetailTypes.Where(x => x == newPointDetail.DataType).ToList()
-                .ForEach(x => AdditionalPointDetailTypes.Remove(x));
 
             Items.Add(await ListItemEditorFromTypeIdentifier(newPointDetail));
         }

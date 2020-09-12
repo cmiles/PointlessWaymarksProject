@@ -773,6 +773,26 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
+            foreach (var loopDetails in relatedDetails)
+            {
+                var possibleLink = context.PointContentPointDetailLinks.SingleOrDefault(x =>
+                    x.PointContentId == toSave.ContentId && x.PointDetailContentId == toSave.ContentId);
+
+                if (possibleLink == null)
+                {
+                    possibleLink = new PointContentPointDetailLink
+                    {
+                        PointContentId = toSave.ContentId, PointDetailContentId = loopDetails.ContentId
+                    };
+
+                    await context.PointContentPointDetailLinks.AddAsync(possibleLink);
+                }
+
+                possibleLink.ContentVersion = ContentVersionDateTime();
+
+                await context.SaveChangesAsync();
+            }
+
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
                 new List<Guid> {toSave.ContentId});
@@ -822,6 +842,7 @@ namespace PointlessWaymarksCmsData.Database
             }
 
             if (toSave.Id > 0) toSave.Id = 0;
+
             toSave.ContentVersion = ContentVersionDateTime();
 
             await context.PointDetails.AddAsync(toSave);

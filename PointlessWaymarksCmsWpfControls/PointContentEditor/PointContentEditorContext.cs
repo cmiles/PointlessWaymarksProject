@@ -405,27 +405,27 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
             ElevationEntry = ConversionDataEntryContext<double?>.CreateInstance();
-            ElevationEntry.Title = "Elevation";
-            ElevationEntry.HelpText = "Elevation in Feet";
-            ElevationEntry.ReferenceValue = DbEntry.Elevation;
-            ElevationEntry.UserText = DbEntry.Elevation?.ToString("F0") ?? string.Empty;
             ElevationEntry.Converter = ConversionDataEntryHelpers.DoubleNullableConversion;
             ElevationEntry.ValidationFunctions = new List<Func<double?, (bool passed, string validationMessage)>>
             {
                 CommonContentValidation.ElevationValidation
             };
+            ElevationEntry.Title = "Elevation";
+            ElevationEntry.HelpText = "Elevation in Feet";
+            ElevationEntry.ReferenceValue = DbEntry.Elevation;
+            ElevationEntry.UserText = DbEntry.Elevation?.ToString("F0") ?? string.Empty;
 
             LatitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
-            LatitudeEntry.Title = "Latitude";
-            LatitudeEntry.HelpText = "In DDD.DDDDDD°";
-            LatitudeEntry.ReferenceValue = DbEntry.Latitude;
-            LatitudeEntry.UserText = DbEntry.Latitude.ToString("F6");
             LatitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
             LatitudeEntry.ValidationFunctions = new List<Func<double, (bool passed, string validationMessage)>>
             {
                 CommonContentValidation.LatitudeValidation
             };
             LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
+            LatitudeEntry.Title = "Latitude";
+            LatitudeEntry.HelpText = "In DDD.DDDDDD°";
+            LatitudeEntry.ReferenceValue = DbEntry.Latitude;
+            LatitudeEntry.UserText = DbEntry.Latitude.ToString("F6");
             LatitudeEntry.PropertyChanged += (sender, args) =>
             {
                 if (args == null || string.IsNullOrWhiteSpace(args.PropertyName)) return;
@@ -433,16 +433,16 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             };
 
             LongitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
-            LongitudeEntry.Title = "Longitude";
-            LongitudeEntry.HelpText = "In DDD.DDDDDD°";
-            LongitudeEntry.ReferenceValue = DbEntry.Longitude;
-            LongitudeEntry.UserText = DbEntry.Longitude.ToString("F6");
             LongitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
             LongitudeEntry.ValidationFunctions = new List<Func<double, (bool passed, string validationMessage)>>
             {
                 CommonContentValidation.LongitudeValidation
             };
             LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
+            LongitudeEntry.Title = "Longitude";
+            LongitudeEntry.HelpText = "In DDD.DDDDDD°";
+            LongitudeEntry.ReferenceValue = DbEntry.Longitude;
+            LongitudeEntry.UserText = DbEntry.Longitude.ToString("F6");
             LongitudeEntry.PropertyChanged += (sender, args) =>
             {
                 if (args == null || string.IsNullOrWhiteSpace(args.PropertyName)) return;

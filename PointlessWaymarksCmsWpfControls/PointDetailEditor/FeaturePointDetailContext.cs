@@ -10,17 +10,14 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailModels;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
-using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
-    internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
-        IPointDetailEditor
+    internal class FeaturePointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor
     {
-        private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PointDetail _dbEntry;
         private Feature _detailData;
         private bool _hasChanges;
@@ -33,17 +30,6 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         private FeaturePointDetailContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-        }
-
-        public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
-        {
-            get => _createdUpdatedDisplay;
-            set
-            {
-                if (Equals(value, _createdUpdatedDisplay)) return;
-                _createdUpdatedDisplay = value;
-                OnPropertyChanged();
-            }
         }
 
         public PointDetail DbEntry
@@ -150,8 +136,9 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 newEntry.ContentId = DbEntry.ContentId;
                 newEntry.CreatedOn = DbEntry.CreatedOn;
                 newEntry.LastUpdatedOn = DateTime.Now;
-                newEntry.LastUpdatedBy = CreatedUpdatedDisplay.UpdatedByEntry.UserValue.TrimNullToEmpty();
             }
+
+            newEntry.DataType = DetailData.DataTypeIdentifier;
 
             var detailData = new Feature
             {
@@ -184,13 +171,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new PointDetail
-            {
-                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
-                DataType = ((dynamic) DetailData).DataTypeIdentifier,
-            };
-
-            CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+            DbEntry = toLoad ?? new PointDetail {DataType = ((dynamic) DetailData).DataTypeIdentifier,};
 
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
                 DetailData = JsonSerializer.Deserialize<Feature>(DbEntry.StructuredDataAsJson);
@@ -205,6 +186,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             NoteFormatEditor = ContentFormatChooserContext.CreateInstance(StatusContext);
             NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
+            await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
 
             TitleEditor = StringDataEntryContext.CreateInstance();
             TitleEditor.Title = "Title";

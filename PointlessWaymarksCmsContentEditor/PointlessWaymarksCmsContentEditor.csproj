@@ -27,11 +27,11 @@
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-827" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="CompareNETObjects" Version="4.66.0" />
-    <PackageReference Include="FluentMigrator" Version="3.2.8" />
-    <PackageReference Include="FluentMigrator.Runner" Version="3.2.8" />
-    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.2.8" />
+    <PackageReference Include="FluentMigrator" Version="3.2.9" />
+    <PackageReference Include="FluentMigrator.Runner" Version="3.2.9" />
+    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.2.9" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
-    <PackageReference Include="GitInfo" Version="2.0.31">
+    <PackageReference Include="GitInfo" Version="2.0.34">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -48,7 +48,7 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="NetTopologySuite" Version="2.1.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />
-    <PackageReference Include="ObjectDumper.NET" Version="2.5.20158.1-pre" />
+    <PackageReference Include="ObjectDumper.NET" Version="3.0.20251.2-pre" />
     <PackageReference Include="Ookii.Dialogs.Wpf.NETCore" Version="2.1.0" />
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.11.1" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
@@ -60,7 +60,6 @@
     <PackageReference Include="TinyIpc" Version="2.1.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
     <PackageReference Include="WpfScreenHelper" Version="1.0.0" />
-    <PackageReference Include="XAML.MapControl" Version="5.3.0" />
   </ItemGroup>
 
   <ItemGroup>

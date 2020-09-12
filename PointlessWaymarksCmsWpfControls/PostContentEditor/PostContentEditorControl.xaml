@@ -65,7 +65,7 @@
                     Content="_Save"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
-                    Command="{Binding SaveCommand}"
+                    Command="{Binding SaveAndCloseCommand}"
                     Content="Save and Close"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button

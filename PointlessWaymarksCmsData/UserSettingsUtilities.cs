@@ -101,19 +101,19 @@ namespace PointlessWaymarksCmsData
         {
             var possibleDbFile = new FileInfo(settings.DatabaseFile);
 
-            if (possibleDbFile.Exists)
-            {
-                var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
-                        rb.AddSQLite().WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
-                            .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
-                    .AddLogging(lb => lb.AddFluentMigratorConsole()).BuildServiceProvider(false);
+            //if (possibleDbFile.Exists)
+            //{
+            //    var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
+            //            rb.AddSQLite().WithGlobalConnectionString($"Data Source={settings.DatabaseFile}")
+            //                .ScanIn(typeof(PointlessWaymarksContext).Assembly).For.Migrations())
+            //        .AddLogging(lb => lb.AddFluentMigratorConsole()).BuildServiceProvider(false);
 
-                // Instantiate the runner
-                var runner = sc.GetRequiredService<IMigrationRunner>();
+            //    // Instantiate the runner
+            //    var runner = sc.GetRequiredService<IMigrationRunner>();
 
-                // Execute the migrations
-                runner.MigrateUp();
-            }
+            //    // Execute the migrations
+            //    runner.MigrateUp();
+            //}
 
             progress?.Report("Checking for database files...");
             var log = Db.Log().Result;

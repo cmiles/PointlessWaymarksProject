@@ -2,19 +2,11 @@
 
 namespace PointlessWaymarksCmsData.Database.Models
 {
-    public class HistoricPointContentPointDetailLink : ICreatedAndLastUpdateOnAndBy
+    public class HistoricPointContentPointDetailLink
     {
         public DateTime ContentVersion { get; set; }
-
-        public string CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; }
         public int Id { get; set; }
-
-        public string LastUpdatedBy { get; set; }
-        public DateTime? LastUpdatedOn { get; set; }
-
         public Guid PointContentId { get; set; }
-
         public Guid PointDetail { get; set; }
     }
 }
