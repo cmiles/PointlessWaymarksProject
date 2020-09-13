@@ -153,7 +153,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             return newEntry;
         }
 
-        private void CheckForChangesAndValidate()
+        public void CheckForChangesAndValidationIssues()
         {
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
@@ -193,6 +193,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             FeeEditor.HelpText = "Is there a fee for using this parking area";
             FeeEditor.ReferenceValue = DetailData.Fee;
             FeeEditor.UserValue = DetailData.Fee;
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -203,7 +205,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChangesAndValidate();
+                CheckForChangesAndValidationIssues();
         }
     }
 }

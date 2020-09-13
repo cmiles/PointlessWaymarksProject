@@ -28,7 +28,8 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
-    public class PhotoContentEditorContext : INotifyPropertyChanged, IHasChanges
+    public class PhotoContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
         private StringDataEntryContext _altTextEntry;
         private StringDataEntryContext _apertureEntry;
@@ -42,6 +43,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private PhotoContent _dbEntry;
         private Command _extractNewLinksCommand;
         private StringDataEntryContext _focalLengthEntry;
+        private bool _hasChanges;
+        private bool _hasValidationIssues;
         private FileInfo _initialPhoto;
         private ConversionDataEntryContext<int?> _isoEntry;
         private StringDataEntryContext _lensEntry;
@@ -209,7 +212,27 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ConversionDataEntryContext<int?> IsoEntry
         {
@@ -488,6 +511,13 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public void CheckForChangesAndValidationIssues()
+        {
+            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
+                                  SelectedFileHasValidationIssues;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task ChooseFile(bool loadMetadata)
@@ -729,12 +759,19 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                     await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
                 if (!generationReturn.HasError) PhotoMetadataToCurrentContent(metadataReturn);
             }
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidationIssues();
         }
 
         public void PhotoMetadataToCurrentContent(PhotoMetadata metadata)

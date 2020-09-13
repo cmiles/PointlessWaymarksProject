@@ -19,7 +19,8 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
 {
-    public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges
+    public class LinkContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
         private StringDataEntryContext _authorEntry;
         private StringDataEntryContext _commentsEntry;
@@ -27,6 +28,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
         private LinkContent _dbEntry;
         private StringDataEntryContext _descriptionEntry;
         private Command _extractDataCommand;
+        private bool _hasChanges;
+        private bool _hasValidationIssues;
         private ConversionDataEntryContext<DateTime?> _linkDateTimeEntry;
         private StringDataEntryContext _linkUrlEntry;
         private Command _openUrlInBrowserCommand;
@@ -128,7 +131,27 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
-        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this);
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ConversionDataEntryContext<DateTime?> LinkDateTimeEntry
         {
@@ -240,6 +263,12 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             }
         }
 
+        public void CheckForChangesAndValidationIssues()
+        {
+            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -300,7 +329,10 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
                 DescriptionEntry.UserValue = linkMetadata.Description.TrimNullToEmpty();
             if (!string.IsNullOrWhiteSpace(linkMetadata.Site))
                 SiteEntry.UserValue = linkMetadata.Site.TrimNullToEmpty();
-            if (linkMetadata.LinkDate != null) LinkDateTimeEntry.UserText = linkMetadata.LinkDate == null ? string.Empty : linkMetadata.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
+            if (linkMetadata.LinkDate != null)
+                LinkDateTimeEntry.UserText = linkMetadata.LinkDate == null
+                    ? string.Empty
+                    : linkMetadata.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
         }
 
         private async Task LoadData(LinkContent toLoad, bool extractDataOnLoad = false)
@@ -365,18 +397,27 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             LinkDateTimeEntry.Title = "Link Date";
             LinkDateTimeEntry.HelpText = "Date the Link Content was Created or Updated";
             LinkDateTimeEntry.ReferenceValue = DbEntry.LinkDate;
-            LinkDateTimeEntry.UserText = DbEntry.LinkDate == null ? string.Empty : DbEntry.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
+            LinkDateTimeEntry.UserText = DbEntry.LinkDate == null
+                ? string.Empty
+                : DbEntry.LinkDate.Value.ToString("M/d/yyyy h:mm:ss tt");
 
             CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
 
             if (extractDataOnLoad) await ExtractDataFromLink();
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidationIssues();
         }
 
         public async Task SaveAndGenerateHtml(bool closeAfterSave)

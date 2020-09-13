@@ -16,7 +16,8 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
-    public class TrailJunctionPointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor
+    public class TrailJunctionPointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
+        ICheckForChangesAndValidation
     {
         private PointDetail _dbEntry;
         private TrailJunction _detailData;
@@ -120,6 +121,12 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
+        public void CheckForChangesAndValidationIssues()
+        {
+            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public PointDetail CurrentPointDetail()
@@ -151,12 +158,6 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             newEntry.StructuredDataAsJson = JsonSerializer.Serialize(detailData);
 
             return newEntry;
-        }
-
-        private void CheckForChangesAndValidate()
-        {
-            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
-            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
 
         public static async Task<TrailJunctionPointDetailContext> CreateInstance(PointDetail detail,
@@ -193,6 +194,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             SignEditor.HelpText = "There is some kind of sign at the junction";
             SignEditor.ReferenceValue = DetailData.Sign;
             SignEditor.UserValue = DetailData.Sign;
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -203,7 +206,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChangesAndValidate();
+                CheckForChangesAndValidationIssues();
         }
     }
 }

@@ -28,7 +28,8 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 {
-    public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges
+    public class PointContentEditorContext : INotifyPropertyChanged, IHasChanges, ICheckForChangesAndValidation,
+        IHasValidationIssues
     {
         private BodyContentEditorContext _bodyContent;
         private bool _broadcastLatLongChange = true;
@@ -38,6 +39,8 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         private ConversionDataEntryContext<double?> _elevationEntry;
         private Command _extractNewLinksCommand;
         private Command _getElevationCommand;
+        private bool _hasChanges;
+        private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private ConversionDataEntryContext<double> _latitudeEntry;
         private ConversionDataEntryContext<double> _longitudeEntry;
@@ -145,7 +148,27 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this);
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
 
         public HelpDisplayContext HelpContext
         {
@@ -270,14 +293,13 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void LatitudeLongitudeChangeBroadcast()
+        public void CheckForChangesAndValidationIssues()
         {
-            if (_broadcastLatLongChange && !LatitudeEntry.HasValidationIssues && !LongitudeEntry.HasValidationIssues)
-                RaisePointLatitudeLongitudeChange?.Invoke(this,
-                    new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
+            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,
             PointContent pointContent)
@@ -382,6 +404,13 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
+        private void LatitudeLongitudeChangeBroadcast()
+        {
+            if (_broadcastLatLongChange && !LatitudeEntry.HasValidationIssues && !LongitudeEntry.HasValidationIssues)
+                RaisePointLatitudeLongitudeChange?.Invoke(this,
+                    new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
+        }
+
         public async Task LoadData(PointContent toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -450,12 +479,19 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             };
 
             PointDetails = await PointDetailListContext.CreateInstance(StatusContext, DbEntry);
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidationIssues();
         }
 
         public void OnRaisePointLatitudeLongitudeChange(object sender, PointLatitudeLongitudeChange e)

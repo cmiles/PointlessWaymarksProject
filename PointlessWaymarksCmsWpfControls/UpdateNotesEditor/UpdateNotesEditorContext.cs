@@ -16,10 +16,12 @@ using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 {
-    public class UpdateNotesEditorContext : INotifyPropertyChanged, IHasChanges
+    public class UpdateNotesEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
         private IUpdateNotes _dbEntry;
         private bool _hasChanges;
+        private bool _hasValidationIssues;
         private Command _refreshPreviewCommand;
         private ContentFormatChooserContext _updateNotesFormat;
         private bool _updateNotesHasChanges;
@@ -49,6 +51,17 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             {
                 if (value == _hasChanges) return;
                 _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
                 OnPropertyChanged();
             }
         }
@@ -116,11 +129,12 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void CheckForChanges()
+        public void CheckForChangesAndValidationIssues()
         {
             UpdateNotesHasChanges = !StringHelpers.AreEqual((DbEntry?.UpdateNotes).TrimNullToEmpty(), UpdateNotes);
 
-            HasChanges = UpdateNotesHasChanges || UpdateNotesFormat.SelectedContentFormatHasChanges;
+            HasChanges = UpdateNotesHasChanges || PropertyScanners.ChildPropertiesHaveChanges(this);
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
 
         public static async Task<UpdateNotesEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -157,6 +171,8 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             var setUpdateFormatOk = await UpdateNotesFormat.TrySelectContentChoice(toLoad.UpdateNotesFormat);
 
             if (!setUpdateFormatOk) StatusContext.ToastWarning("Trouble loading Format from Db...");
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -167,7 +183,7 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChanges();
+                CheckForChangesAndValidationIssues();
         }
 
         public async Task UpdateUpdateNotesContentHtml()

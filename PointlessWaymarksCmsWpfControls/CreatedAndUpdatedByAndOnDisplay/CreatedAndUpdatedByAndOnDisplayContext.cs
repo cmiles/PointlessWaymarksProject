@@ -13,13 +13,15 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
 {
-    public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged, IHasChanges
+    public class CreatedAndUpdatedByAndOnDisplayContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
         private string _createdAndUpdatedByAndOn;
         private StringDataEntryContext _createdByEntry;
         private DateTime? _createdOn;
         private ICreatedAndLastUpdateOnAndBy _dbEntry;
         private bool _hasChanges;
+        private bool _hasValidationIssues;
         private bool _isNewEntry;
         private bool _showCreatedByEditor;
         private bool _showUpdatedByEditor;
@@ -87,6 +89,17 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsNewEntry
         {
             get => _isNewEntry;
@@ -144,13 +157,14 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             }
         }
 
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void CheckForChanges()
+        public void CheckForChangesAndValidationIssues()
         {
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(
             StatusControlContext statusContext, ICreatedAndLastUpdateOnAndBy dbEntry)
@@ -176,6 +190,10 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             else if (((IContentId) DbEntry).Id < 1) IsNewEntry = true;
 
             CreatedByEntry = StringDataEntryContext.CreateInstance();
+            CreatedByEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            {
+                CommonContentValidation.ValidateCreatedBy
+            };
             CreatedByEntry.Title = "Created By";
             CreatedByEntry.HelpText = "Created By Name";
             CreatedByEntry.ReferenceValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
@@ -184,18 +202,15 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             CreatedByEntry.UserValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
                 ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
                 : DbEntry.CreatedBy;
-            CreatedByEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
-            {
-                CommonContentValidation.ValidateCreatedBy
-            };
+
 
             UpdatedByEntry = StringDataEntryContext.CreateInstance();
+            UpdatedByEntry.ValidationFunctions =
+                new List<Func<string, (bool passed, string validationMessage)>> {ValidateUpdatedBy};
             UpdatedByEntry.Title = "Updated By";
             UpdatedByEntry.HelpText = "Last Updated By Name";
             UpdatedByEntry.ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty;
             UpdatedByEntry.UserValue = toLoad?.LastUpdatedBy ?? string.Empty;
-            UpdatedByEntry.ValidationFunctions =
-                new List<Func<string, (bool passed, string validationMessage)>> {ValidateUpdatedBy};
 
 
             //If this is a 'first update' go ahead and fill in the Created by as the updated by, this
@@ -238,6 +253,8 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             if (DbEntry.LastUpdatedOn != null) newStringParts.Add($"On {DbEntry.LastUpdatedOn:g}");
 
             CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -247,7 +264,8 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChanges();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidationIssues();
         }
 
 

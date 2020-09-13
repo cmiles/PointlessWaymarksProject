@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.ComponentModel;
+using System.Linq;
 using Omu.ValueInjecter.Utils;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
@@ -43,6 +45,26 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             }
 
             return hasValidationIssues;
+        }
+
+        public static void SubscribeToChildHasChangesAndHasValidationIssues(object toScan, Action actionOnStatusChange)
+        {
+            var allProperties = toScan.GetProps().ToList();
+
+            foreach (var loopProperties in allProperties)
+                if (typeof(IHasChanges).IsAssignableFrom(loopProperties.PropertyType) &&
+                    typeof(INotifyPropertyChanged).IsAssignableFrom(loopProperties.PropertyType))
+                {
+                    var value = loopProperties.GetValue(toScan);
+                    if (value == null) continue;
+
+                    ((INotifyPropertyChanged) value).PropertyChanged += (sender, args) =>
+                    {
+                        if (string.IsNullOrWhiteSpace(args?.PropertyName) || actionOnStatusChange == null) return;
+                        if (args.PropertyName == "HasChanges" || args.PropertyName == "HasValidationIssues")
+                            actionOnStatusChange();
+                    };
+                }
         }
     }
 }

@@ -6,22 +6,25 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.ContentFormat
 {
-    public class ContentFormatChooserContext : INotifyPropertyChanged, IHasChanges
+    public class ContentFormatChooserContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
     {
         private List<ContentFormatEnum> _contentFormatChoices;
         private bool _hasChanges;
+        private bool _hasValidationIssues;
         private string _initialValue;
 
         private ContentFormatEnum _selectedContentFormat;
         private string _selectedContentFormatAsString;
         private bool _selectedContentFormatHasChanges;
         private StatusControlContext _statusContext;
+        private string _validationMessage;
 
         private ContentFormatChooserContext(StatusControlContext statusContext)
         {
@@ -63,7 +66,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             }
         }
 
-        private void CheckForChanges()
+        public void CheckForChangesAndValidationIssues()
         {
             // ReSharper disable InvokeAsExtensionMethod - in this case TrimNullSage - which returns an
             //Empty string from null will not be invoked as an extension if DbEntry is null...
@@ -72,6 +75,21 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             // ReSharper restore InvokeAsExtensionMethod
 
             HasChanges = SelectedContentFormatHasChanges;
+            var validation =
+                CommonContentValidation.ValidateBodyContentFormat(SelectedContentFormatAsString.TrimNullToEmpty());
+            HasValidationIssues = validation.isValid;
+            ValidationMessage = validation.explanation;
+        }
+
+        public string ValidationMessage
+        {
+            get => _validationMessage;
+            set
+            {
+                if (value == _validationMessage) return;
+                _validationMessage = value;
+                OnPropertyChanged();
+            }
         }
 
         public static ContentFormatChooserContext CreateInstance(StatusControlContext statusContext)
@@ -138,7 +156,8 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation")) CheckForChanges();
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidationIssues();
         }
 
         public async Task<bool> TrySelectContentChoice(string contentChoice)
@@ -159,5 +178,16 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
         public event PropertyChangedEventHandler PropertyChanged;
 
         public event EventHandler<string> OnSelectedValueChanged;
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
     }
 }

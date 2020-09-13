@@ -153,7 +153,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             return newEntry;
         }
 
-        private void CheckForChangesAndValidate()
+        public void CheckForChangesAndValidationIssues()
         {
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
@@ -189,15 +189,18 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
 
             TitleEditor = StringDataEntryContext.CreateInstance();
+            TitleEditor.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            {
+                x => string.IsNullOrWhiteSpace(x) ? (false, "Title must have a value.") : (true, "Title has value")
+            };
             TitleEditor.Title = "Title";
             TitleEditor.HelpText =
                 "The title for this feature - this could be something unique or something recorded for many points";
             TitleEditor.ReferenceValue = DetailData.Notes ?? string.Empty;
             TitleEditor.UserValue = DetailData.Notes.TrimNullToEmpty();
-            TitleEditor.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
-            {
-                x => string.IsNullOrWhiteSpace(x) ? (false, "Title must have a value.") : (true, "Title has value")
-            };
+
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -208,7 +211,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChangesAndValidate();
+                CheckForChangesAndValidationIssues();
         }
     }
 }

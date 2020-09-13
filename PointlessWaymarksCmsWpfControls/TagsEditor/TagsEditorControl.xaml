@@ -39,7 +39,7 @@
                     IconBrush="Red"
                     IconPathGeometry="{StaticResource IconDataError}"
                     IconSize="{StaticResource SmallIconSize}"
-                    Visibility="{Binding TagsHaveValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
+                    Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
             </StackPanel>
             <TextBox
                 Name="TagsTextBox"

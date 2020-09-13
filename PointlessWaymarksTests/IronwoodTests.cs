@@ -119,8 +119,8 @@ namespace PointlessWaymarksTests
             Assert.False(newContext.TitleSummarySlugFolder.FolderEntry.HasValidationIssues);
 
             newContext.TagEdit.Tags = IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.Tags;
-            Assert.False(newContext.TagEdit.TagsHaveValidationIssues);
-            Assert.True(newContext.TagEdit.TagsHaveChanges);
+            Assert.False(newContext.TagEdit.HasValidationIssues);
+            Assert.True(newContext.TagEdit.HasChanges);
 
             newContext.BodyContent.BodyContent =
                 IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags.BodyContent;

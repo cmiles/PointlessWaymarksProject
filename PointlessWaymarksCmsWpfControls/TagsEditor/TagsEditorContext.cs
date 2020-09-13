@@ -11,15 +11,14 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.TagsEditor
 {
-    public class TagsEditorContext : INotifyPropertyChanged, IHasChanges
+    public class TagsEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
         private ITag _dbEntry;
         private bool _hasChanges;
+        private bool _hasValidationIssues;
         private StatusControlContext _statusContext;
-
         private string _tags = string.Empty;
-        private bool _tagsHaveChanges;
-        private bool _tagsHaveValidationIssues;
         private string _tagsValidationMessage;
 
         private TagsEditorContext(StatusControlContext statusContext, ITag dbEntry)
@@ -52,6 +51,17 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -74,28 +84,6 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
-        public bool TagsHaveChanges
-        {
-            get => _tagsHaveChanges;
-            set
-            {
-                if (value == _tagsHaveChanges) return;
-                _tagsHaveChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool TagsHaveValidationIssues
-        {
-            get => _tagsHaveValidationIssues;
-            set
-            {
-                if (value == _tagsHaveValidationIssues) return;
-                _tagsHaveValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
         public string TagsValidationMessage
         {
             get => _tagsValidationMessage;
@@ -107,19 +95,17 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void CheckForChangesAndValidate()
+        public void CheckForChangesAndValidationIssues()
         {
-            TagsHaveChanges = !TagSlugList().SequenceEqual(DbTagList());
+            HasChanges = !TagSlugList().SequenceEqual(DbTagList());
 
             var tagValidation = CommonContentValidation.ValidateTags(Tags);
 
-            TagsHaveValidationIssues = !tagValidation.isValid;
+            HasValidationIssues = !tagValidation.isValid;
             TagsValidationMessage = tagValidation.explanation;
-
-            HasChanges = TagsHaveChanges;
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public static TagsEditorContext CreateInstance(StatusControlContext statusContext, ITag dbEntry)
         {
@@ -140,7 +126,8 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HaveChanges") && !propertyName.Contains("Validation")) CheckForChangesAndValidate();
+            if (!propertyName.Contains("HaveChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidationIssues();
         }
 
         public List<string> TagList()

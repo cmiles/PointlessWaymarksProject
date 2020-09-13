@@ -18,13 +18,15 @@ using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 {
-    public class BodyContentEditorContext : INotifyPropertyChanged, IHasChanges
+    public class BodyContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
         private ContentFormatChooserContext _bodyContentFormat;
         private bool _bodyContentHasChanges;
         private string _bodyContentHtmlOutput;
         private IBodyContent _dbEntry;
         private bool _hasChanges;
+        private bool _hasValidationIssues;
         private Command _refreshPreviewCommand;
         private string _selectedBodyText;
         private StatusControlContext _statusContext;
@@ -103,6 +105,17 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
         }
 
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command RefreshPreviewCommand
         {
             get => _refreshPreviewCommand;
@@ -138,14 +151,15 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void CheckForChanges()
+        public void CheckForChangesAndValidationIssues()
         {
             BodyContentHasChanges = !StringHelpers.AreEqual((DbEntry?.BodyContent).TrimNullToEmpty(), BodyContent);
 
-            HasChanges = BodyContentHasChanges || (BodyContentFormat?.SelectedContentFormatHasChanges ?? true);
+            HasChanges = BodyContentHasChanges || PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext statusContext,
             IBodyContent dbEntry)
@@ -186,6 +200,8 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             if (!setUpdateFormatOk) StatusContext.ToastWarning("Trouble loading Format from Db...");
 
             SelectedBodyText = string.Empty;
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -196,7 +212,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChanges();
+                CheckForChangesAndValidationIssues();
         }
 
         private void RemoveLineBreaksFromSelected()

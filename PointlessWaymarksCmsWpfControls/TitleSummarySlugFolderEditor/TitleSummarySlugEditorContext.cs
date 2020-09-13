@@ -12,7 +12,8 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
 {
-    public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues
+    public class TitleSummarySlugEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
         private ITitleSummarySlugFolder _dbEntry;
         private ContentFolderContext _folderEntry;
@@ -130,14 +131,14 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void CheckForChangesAndValidate()
+        public void CheckForChangesAndValidationIssues()
         {
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
 
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<TitleSummarySlugEditorContext> CreateInstance(StatusControlContext statusContext,
             ITitleSummarySlugFolder dbEntry)
@@ -162,6 +163,8 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             SlugEntry = StringDataEntryContext.CreateSlugInstance(DbEntry);
             SummaryEntry = StringDataEntryContext.CreateSummaryInstance(DbEntry);
             FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -172,7 +175,7 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChangesAndValidate();
+                CheckForChangesAndValidationIssues();
         }
 
         public void TitleToSlug()

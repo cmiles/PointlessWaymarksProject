@@ -22,6 +22,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="270" />
             <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=FormatTypeComboBox}">Format Type</Label>
         <ComboBox
@@ -38,5 +39,13 @@
             IconPathGeometry="{StaticResource IconDataInfo}"
             IconSize="{StaticResource SmallIconSize}"
             Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+        <utility:IndicatorIcon
+            Grid.Column="3"
+            VerticalAlignment="Center"
+            HoverText="{Binding ValidationMessage}"
+            IconBrush="Red"
+            IconPathGeometry="{StaticResource IconDataError}"
+            IconSize="{StaticResource SmallIconSize}"
+            Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
     </Grid>
 </UserControl>

@@ -26,7 +26,8 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 {
-    public class FileContentEditorContext : INotifyPropertyChanged, IHasChanges
+    public class FileContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
         private BodyContentEditorContext _bodyContent;
         private Command _chooseFileCommand;
@@ -34,6 +35,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private FileContent _dbEntry;
         private Command _extractNewLinksCommand;
+        private bool _hasChanges;
+        private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private FileInfo _initialFile;
         private FileInfo _loadedFile;
@@ -137,9 +140,27 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
-        public bool HasChanges =>
-            PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
-            DbEntry.MainPicture != BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent);
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
 
         public HelpDisplayContext HelpContext
         {
@@ -348,6 +369,15 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public void CheckForChangesAndValidationIssues()
+        {
+            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
+                         DbEntry.MainPicture !=
+                         BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent);
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
+                                  SelectedFileHasValidationIssues;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public async Task ChooseFile()
@@ -535,6 +565,11 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidationIssues();
         }
 
         private async Task OpenSelectedFile()

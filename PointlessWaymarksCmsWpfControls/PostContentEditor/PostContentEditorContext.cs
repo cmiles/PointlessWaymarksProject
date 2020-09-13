@@ -13,7 +13,6 @@ using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
-
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
@@ -22,13 +21,16 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 {
-    public class PostContentEditorContext : INotifyPropertyChanged, IHasChanges
+    public class PostContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
         private BodyContentEditorContext _bodyContent;
         private ContentIdViewerControlContext _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private PostContent _dbEntry;
         private Command _extractNewLinksCommand;
+        private bool _hasChanges;
+        private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
@@ -110,7 +112,28 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this);
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public HelpDisplayContext HelpContext
         {
@@ -202,6 +225,12 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
+        public void CheckForChangesAndValidationIssues()
+        {
+            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -263,12 +292,19 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (string.IsNullOrWhiteSpace(propertyName)) return;
+
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+                CheckForChangesAndValidationIssues();
         }
 
         public async Task SaveAndGenerateHtml(bool closeAfterSave)

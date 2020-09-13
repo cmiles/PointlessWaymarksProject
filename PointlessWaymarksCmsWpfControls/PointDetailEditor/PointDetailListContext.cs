@@ -16,7 +16,8 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 {
-    public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged
+    public class PointDetailListContext : IHasChanges, IHasValidationIssues, INotifyPropertyChanged,
+        ICheckForChangesAndValidation
     {
         private ObservableCollection<string> _additionalPointDetailTypes;
         private List<PointDetail> _dbEntries;
@@ -140,11 +141,10 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void CheckForChangesAndValidate()
+        public void CheckForChangesAndValidationIssues()
         {
-            var hasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || (Items?.Any(x => x.HasChanges) ?? false);
+            var hasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) ||
+                             (Items?.Any(x => x.HasChanges) ?? false);
 
             if (!hasChanges && Items != null && DbEntries != null)
             {
@@ -160,6 +160,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                                   (Items?.Any(x => x.HasValidationIssues) ?? false);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<PointDetailListContext> CreateInstance(StatusControlContext statusContext,
             PointContent dbEntry)
@@ -261,6 +263,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             AdditionalPointDetailTypes =
                 new ObservableCollection<string>(_pointDetailTypeList.Select(x => x.typeIdentifierAttribute));
+
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         private async Task LoadNewDetail(string typeIdentifier)
@@ -312,7 +316,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         private void MonitorChildChangesAndValidations(object sender, PropertyChangedEventArgs e)
         {
             if (e?.PropertyName == null) return;
-            if (e.PropertyName.Contains("Changes")) CheckForChangesAndValidate();
+            if (e.PropertyName.Contains("Changes")) CheckForChangesAndValidationIssues();
         }
 
         [NotifyPropertyChangedInvocator]
@@ -323,7 +327,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
-                CheckForChangesAndValidate();
+                CheckForChangesAndValidationIssues();
         }
     }
 }
