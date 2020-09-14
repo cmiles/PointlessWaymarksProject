@@ -34,6 +34,7 @@ using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
 using PointlessWaymarksCmsWpfControls.TagList;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.WebViewTwoScratch;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsContentEditor
@@ -116,6 +117,14 @@ namespace PointlessWaymarksCmsContentEditor
             AllEventsHtmlReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsHtmlReport);
             AllEventsExcelReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsExcelReport);
 
+            //Experimental
+            WvTwoExperimentCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                var nw = new WebViewTwoScratchWindow();
+                nw.Show();
+            });
+
             //Main Parts
             GenerateHtmlForAllFileContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await GenerationGroups.GenerateAllFileHtml(null, StatusContext.ProgressTracker()));
@@ -155,6 +164,8 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanupTemporaryFiles);
         }
+
+        public Command WvTwoExperimentCommand { get; set; }
 
         public Command AllEventsExcelReportCommand { get; set; }
 

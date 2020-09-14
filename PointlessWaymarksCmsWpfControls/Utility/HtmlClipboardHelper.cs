@@ -65,7 +65,7 @@ EndSelection:<<<<<<<<4";
         /// <summary>
         ///     Create <see cref="DataObject" /> with given html and plain-text ready to be  used for clipboard or drag and drop.
         ///     <br />
-        ///     Handle missing  <![CDATA[<html>]]> tags, specified startend segments and Unicode  characters.
+        ///     Handle missing  <![CDATA[<html>]]> tags, specified start end segments and Unicode characters.
         /// </summary>
         /// <remarks>
         ///     <para>
@@ -82,18 +82,18 @@ EndSelection:<<<<<<<<4";
         ///         If given html doesn't contain html/body  tags then it will inject the tags and start/end fragments properly:
         ///         <code><![CDATA[hello  <b>world</b>]]></code>
         ///         In all cases creating a proper CF_HTML  header:<br />
-        ///         <code>      
-        /// <![CDATA[      
-        /// Version:1.0      
-        /// StartHTML:000000177      
-        /// EndHTML:000000329      
-        /// StartFragment:000000277      
-        /// EndFragment:000000295      
-        /// StartSelection:000000277      
-        /// EndSelection:000000277      
-        /// <!DOCTYPE HTML PUBLIC  "-//W3C//DTD HTML 4.0 Transitional//EN">      
-        ///  <html><body><!--StartFragment-->hello  <b>world</b><!--EndFragment--></body></html>      
-        /// ]]>      
+        ///         <code>
+        /// <![CDATA[
+        /// Version:1.0
+        /// StartHTML:000000177
+        /// EndHTML:000000329
+        /// StartFragment:000000277
+        /// EndFragment:000000295
+        /// StartSelection:000000277
+        /// EndSelection:000000277
+        /// <!DOCTYPE HTML PUBLIC  "-//W3C//DTD HTML 4.0 Transitional//EN">
+        ///  <html><body><!--StartFragment-->hello  <b>world</b><!--EndFragment--></body></html>
+        /// ]]>
         /// </code>
         ///         See format specification here:
         ///         [http://msdn.microsoft.com/library/default.asp?url=/workshop/networking/clipboard/htmlclipboard.asp][9]
@@ -106,7 +106,7 @@ EndSelection:<<<<<<<<4";
             html ??= string.Empty;
             var htmlFragment = GetHtmlDataString(html);
 
-            // re-encode the string so it will work  correctly (fixed in CLR 4.0)      
+            // re-encode the string so it will work  correctly (fixed in CLR 4.0)
             if (Environment.Version.Major < 4 && html.Length != Encoding.UTF8.GetByteCount(html))
                 htmlFragment = Encoding.Default.GetString(Encoding.UTF8.GetBytes(htmlFragment));
 
@@ -149,12 +149,12 @@ EndSelection:<<<<<<<<4";
             sb.AppendLine(Header);
             sb.AppendLine(@"<!DOCTYPE HTML  PUBLIC ""-//W3C//DTD HTML 4.0  Transitional//EN"">");
 
-            // if given html already provided the  fragments we won't add them      
+            // if given html already provided the  fragments we won't add them
             int fragmentStart, fragmentEnd;
             var fragmentStartIdx = html.IndexOf(StartFragment, StringComparison.OrdinalIgnoreCase);
             var fragmentEndIdx = html.LastIndexOf(EndFragment, StringComparison.OrdinalIgnoreCase);
 
-            // if html tag is missing add it  surrounding the given html (critical)      
+            // if html tag is missing add it  surrounding the given html (critical)
             var htmlOpenIdx = html.IndexOf("<html", StringComparison.OrdinalIgnoreCase);
             var htmlOpenEndIdx = htmlOpenIdx > -1 ? html.IndexOf('>', htmlOpenIdx) + 1 : -1;
             var htmlCloseIdx = html.LastIndexOf("</html", StringComparison.OrdinalIgnoreCase);
@@ -166,7 +166,7 @@ EndSelection:<<<<<<<<4";
 
                 if (htmlOpenEndIdx < 0 && bodyOpenEndIdx < 0)
                 {
-                    // the given html doesn't  contain html or body tags so we need to add them and place start/end fragments  around the given html only      
+                    // the given html doesn't  contain html or body tags so we need to add them and place start/end fragments  around the given html only
                     sb.Append("<html><body>");
                     sb.Append(StartFragment);
                     fragmentStart = GetByteCount(sb);
@@ -177,7 +177,7 @@ EndSelection:<<<<<<<<4";
                 }
                 else
                 {
-                    // insert start/end fragments  in the proper place (related to html/body tags if exists) so the paste will  work correctly      
+                    // insert start/end fragments  in the proper place (related to html/body tags if exists) so the paste will  work correctly
                     var bodyCloseIdx = html.LastIndexOf("</body", StringComparison.OrdinalIgnoreCase);
 
                     if (htmlOpenEndIdx < 0)
@@ -211,7 +211,7 @@ EndSelection:<<<<<<<<4";
             }
             else
             {
-                // handle html with existing start end fragments just need to calculate the correct bytes offset (surround  with html tag if missing)      
+                // handle html with existing start end fragments just need to calculate the correct bytes offset (surround  with html tag if missing)
                 if (htmlOpenEndIdx < 0)
                     sb.Append("<html>");
                 var start = GetByteCount(sb);
@@ -222,7 +222,7 @@ EndSelection:<<<<<<<<4";
                     sb.Append("</html>");
             }
 
-            // Back-patch offsets (scan only the  header part for performance)      
+            // Back-patch offsets (scan only the  header part for performance)
             sb.Replace("<<<<<<<<1", Header.Length.ToString("D9"), 0, Header.Length);
             sb.Replace("<<<<<<<<2", GetByteCount(sb).ToString("D9"), 0, Header.Length);
             sb.Replace("<<<<<<<<3", fragmentStart.ToString("D9"), 0, Header.Length);

@@ -1,4 +1,5 @@
 ﻿## Todos
+ - Simplify packages via API Access provided by specifying new TargetFrameworkMoniker? https://blogs.windows.com/windowsdeveloper/2020/09/03/calling-windows-apis-in-net5/
  - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
@@ -11,7 +12,6 @@
  - Integration Testing - Link Saving
  - Integrate Xaml Styler - is the git hook working?
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
- - Gui Validation alerts - Title control, Tags Control, Link Url Done - (Add validation for the 'selected file' in Files/Images)
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - A bad content code should be handled better
  - Bad Content Code Content Scan
@@ -48,6 +48,16 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+9/14/2020
+
+Committed on a branch for another attempt at moving to .NET Core 5 - smoother this time both because 5 is farther along and based on previous experience:
+ - With WebView you seem to be forced to upgrade to WebView2 because of the breaking change accessing Windows APIs where winmd references are no longer allowed
+ - For this commit referenced Microsoft.Windows.SDK.NET based on some GitHub discussion but ended up with a missing method exception and found another GitHub issue suggesting also referencing Microsoft.Windows.CsWinRT (to get the latest CsWinRT). Added a commit about possibly getting the same impact via a new TFM in the latest preview. I think the hardest detail for the moment might be getting up to date information, I didn't even come across the TFM information until searching for a later issue...
+ - The WebView2 seems quite nice but it took some work to adjust to the new API - the current commit has some scratch test to make sure I had various details working - it will be interesting reworking the leaflet code.
+ - Had a puzzler around SpeechSynthesis and playing the sound - after some false starts fixing this I found BackgroundMediaPlayer.Current to get a MediaPlayer fixed the issue without hassle
+
+Before the 5 switch changed controls to monitor child controls for change and validation changes thru events.
 
 9/7/2020
 

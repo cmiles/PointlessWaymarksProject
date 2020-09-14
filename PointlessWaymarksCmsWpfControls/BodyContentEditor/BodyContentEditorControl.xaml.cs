@@ -1,10 +1,8 @@
 ﻿using System;
-using System.IO;
-using System.Media;
 using System.Windows;
 using System.Windows.Controls;
+using Windows.Media.Playback;
 using Windows.Media.SpeechSynthesis;
-using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
 using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
@@ -18,14 +16,20 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
         private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            var text = SelectedText();
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var text = await BodyContentWebView.ExecuteScriptAsync("document.getSelection().toString();");
 
             if (string.IsNullOrWhiteSpace(text)) return;
 
+            //See https://github.com/jamesmontemagno/TextToSpeechPlugin/blob/master/src/TextToSpeech.Plugin/TextToSpeech.uwp.cs for
+            //some details on a more robust setup
+
             using var synthesizer = new SpeechSynthesizer();
             using var synthesizerStream = await synthesizer.SynthesizeTextToStreamAsync(text);
-            await using var stream = synthesizerStream.AsStreamForRead();
-            using var player = new SoundPlayer {Stream = stream};
+            var player = BackgroundMediaPlayer.Current;
+            player.AutoPlay = false;
+            player.SetStreamSource(synthesizerStream);
             player.Play();
         }
 
@@ -33,26 +37,13 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         {
             try
             {
-                return BodyContentWebView.InvokeScript("eval", "document.getSelection().toString();");
+                //TODO: Revisit this async method
+                return BodyContentWebView.ExecuteScriptAsync("document.getSelection().toString();").Result;
             }
             catch
             {
                 return string.Empty;
             }
-        }
-
-        private void WebView_OnNavigationStarting(object sender, WebViewControlNavigationStartingEventArgs e)
-        {
-            if (e.Uri != null && e.Uri.AbsoluteUri == "about:blank")
-            {
-                e.Cancel = true;
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(e.Uri?.OriginalString)) return;
-
-            e.Cancel = true;
-            ProcessHelpers.OpenUrlInExternalBrowser(e.Uri?.OriginalString);
         }
     }
 }

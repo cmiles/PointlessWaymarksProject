@@ -4,8 +4,6 @@ using System.Media;
 using System.Windows;
 using System.Windows.Controls;
 using Windows.Media.SpeechSynthesis;
-using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
-using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 {
@@ -36,26 +34,12 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         {
             try
             {
-                return BodyContentWebView.InvokeScript("eval", "document.getSelection().toString();");
+                return BodyContentWebView.ExecuteScriptAsync("document.getSelection().toString();").Result;
             }
             catch
             {
                 return string.Empty;
             }
-        }
-
-        private void WebView_OnNavigationStarting(object sender, WebViewControlNavigationStartingEventArgs e)
-        {
-            if (e.Uri != null && e.Uri.AbsoluteUri == "about:blank")
-            {
-                e.Cancel = true;
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(e.Uri?.OriginalString)) return;
-
-            e.Cancel = true;
-            ProcessHelpers.OpenUrlInExternalBrowser(e.Uri?.OriginalString);
         }
     }
 }

@@ -4,11 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:contentFormat="clr-namespace:PointlessWaymarksCmsWpfControls.ContentFormat"
-    xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     d:DataContext="{d:DesignInstance updateNotesEditor:UpdateNotesEditorContext}"
     d:DesignHeight="300"
@@ -95,12 +95,15 @@
                             Command="{Binding RefreshPreviewCommand}">
                             Refresh Preview
                         </Button>
-                        <controls:WebView
+                        <wpf:WebView2
                             Name="UpdateNotesPreviewWebView"
                             Grid.Row="1"
-                            wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding UpdateNotesHtmlOutput}"
-                            NavigationStarting="WebView_OnNavigationStarting"
-                            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+                            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                            <b:Interaction.Behaviors>
+                                <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding UpdateNotesHtmlOutput}" />
+                                <wpfHtml:WebViewRedirectLinksToBrowser />
+                            </b:Interaction.Behaviors>
+                        </wpf:WebView2>
                     </Grid>
                 </GroupBox>
             </Grid>

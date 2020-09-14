@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
+using Microsoft.Web.WebView2.Core;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 
@@ -15,9 +15,16 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         public PointContentEditorControl()
         {
             InitializeComponent();
-
-            PointContentWebView.ScriptNotify += PointContentWebViewOnScriptNotify;
+            InitializeAsync();
         }
+
+        async void InitializeAsync()
+        {
+            await PointContentWebView.EnsureCoreWebView2Async(null);
+            PointContentWebView.CoreWebView2.WebMessageReceived += PointContentWebViewOnScriptNotify;
+        }
+
+
 
         private void PointContentEditorControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -30,9 +37,9 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             }
         }
 
-        private void PointContentWebViewOnScriptNotify(object sender, WebViewControlScriptNotifyEventArgs e)
+        private void PointContentWebViewOnScriptNotify(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
-            var value = e.Value.TrimNullToEmpty();
+            var value = e.TryGetWebMessageAsString().TrimNullToEmpty();
 
             if (string.IsNullOrWhiteSpace(value)) return;
 
@@ -48,8 +55,8 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
         private void PointContextOnRaisePointLatitudeLongitudeChange(object sender, PointLatitudeLongitudeChange e)
         {
-            PointContentWebView.InvokeScript("eval",
-                $@"pointContentMarker.setLatLng([{e.Latitude},{e.Longitude}]); map.setView([{e.Latitude},{e.Longitude}], map.getZoom());");
+            PointContentWebView.ExecuteScriptAsync(
+                $@"pointContentMarker.setLatLng([{e.Latitude},{e.Longitude}]); map.setView([{e.Latitude},{e.Longitude}], map.getZoom());").Wait();
         }
 
         public event EventHandler<PointLatitudeLongitudeChange> RaisePointLatitudeLongitudeChange;

@@ -9,7 +9,7 @@
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-827" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="ClosedXML" Version="0.95.3" />
-    <PackageReference Include="CompareNETObjects" Version="4.66.0" />
+    <PackageReference Include="CompareNETObjects" Version="4.67.0" />
     <PackageReference Include="FluentMigrator" Version="3.2.9" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.2.9" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.2.9" />
