@@ -29,8 +29,10 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
         private bool _hasValidationIssues;
         private Command _refreshPreviewCommand;
         private string _selectedBodyText;
+        private Command _speakSelectedTextCommand;
         private StatusControlContext _statusContext;
         private string _userBodyContent = string.Empty;
+        private string _userHtmlSelectedText;
 
         private BodyContentEditorContext(StatusControlContext statusContext)
         {
@@ -140,6 +142,17 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             }
         }
 
+        public Command SpeakSelectedTextCommand
+        {
+            get => _speakSelectedTextCommand;
+            set
+            {
+                if (Equals(value, _speakSelectedTextCommand)) return;
+                _speakSelectedTextCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -147,6 +160,17 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string UserHtmlSelectedText
+        {
+            get => _userHtmlSelectedText;
+            set
+            {
+                if (value == _userHtmlSelectedText) return;
+                _userHtmlSelectedText = value;
                 OnPropertyChanged();
             }
         }
@@ -183,6 +207,12 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
             RemoveLineBreaksFromSelectedCommand = StatusContext.RunBlockingActionCommand(RemoveLineBreaksFromSelected);
             RefreshPreviewCommand = StatusContext.RunBlockingTaskCommand(UpdateContentHtml);
+            SpeakSelectedTextCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                var speaker = new TextToSpeech();
+                await speaker.Speak(UserHtmlSelectedText);
+            });
 
             BodyContentFormat.InitialValue = toLoad?.BodyContentFormat;
 
@@ -203,6 +233,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
+
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

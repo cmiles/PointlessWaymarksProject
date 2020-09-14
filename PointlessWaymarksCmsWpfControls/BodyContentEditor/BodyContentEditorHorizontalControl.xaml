@@ -133,12 +133,13 @@
                         <b:Interaction.Behaviors>
                             <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding BodyContentHtmlOutput}" />
                             <wpfHtml:WebViewRedirectLinksToBrowser />
+                            <wpfHtml:WebViewSelectedTextBehavior WebViewSelectedText="{Binding UserHtmlSelectedText}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                     <Button
                         Grid.Row="2"
                         HorizontalAlignment="Right"
-                        Click="ButtonBase_OnClick">
+                        Command="{Binding SpeakSelectedTextCommand}">
                         Read Selected
                     </Button>
                 </Grid>

@@ -1,5 +1,8 @@
 ﻿## Todos
- - Simplify packages via API Access provided by specifying new TargetFrameworkMoniker? https://blogs.windows.com/windowsdeveloper/2020/09/03/calling-windows-apis-in-net5/
+ - The content format control has a bad validation flag
+ - Text to Speech:
+   - Cancellation
+   - in Update Notes
  - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
  - Points:
   - Details Json - save into folder with content? or whole list to parent folder? both?
@@ -16,7 +19,6 @@
  - A bad content code should be handled better
  - Bad Content Code Content Scan
  - To Excel for logs
- - Investigate improved text to speech via https://github.com/jamesmontemagno/TextToSpeechPlugin/blob/master/src/TextToSpeech.Plugin/TextToSpeech.uwp.cs - at least look at cancellation...
  - Could the body and update content control vertical and horizontal variations be combined into one control each?
  - Deleted Content Report so it is possible to restore completely deleted
  - In Search it might be nice to have the content type on the line with date?
@@ -51,9 +53,15 @@
 
 9/14/2020
 
+Removed the Microsoft.Windows.SDK.NET and CsWinRT packages and updated the TargetFramework to net5.0-windows10.0.17763.0 and indeed did have access to the Windows APIs! I am a bit sad that this ties the program to Win10 for now (if I understand this correctly - I thought some of the Project Reunion/WinUI changes were supposed to reach back farther? Maybe in a different way...), one rational for WPF over some other technologies was the breadth of support across Windows versions - but at this point willing to sacrifice that to move forward with 'latest'.
+
+The Text to Speech in the previous version was only working with debugging - went ahead and brought over more code from the Montemagno TextToSpeech UWP implementation - working now.
+
+For the Text to Speech wrote a new behavior that get the selected text from the Web View so it can be pushed into a bound property in the UI. Good experience for doing more with sending data/messages to/from the WebView2. While I am not fully sure this should be in the ViewModel at all (is this just a UI concern?) this plus the TextToSpeech class made setting up a command in the VM easy - probably a good for now compromise esp. with the clean up this created for the BodyContentEditor.
+
 Committed on a branch for another attempt at moving to .NET Core 5 - smoother this time both because 5 is farther along and based on previous experience:
  - With WebView you seem to be forced to upgrade to WebView2 because of the breaking change accessing Windows APIs where winmd references are no longer allowed
- - For this commit referenced Microsoft.Windows.SDK.NET based on some GitHub discussion but ended up with a missing method exception and found another GitHub issue suggesting also referencing Microsoft.Windows.CsWinRT (to get the latest CsWinRT). Added a commit about possibly getting the same impact via a new TFM in the latest preview. I think the hardest detail for the moment might be getting up to date information, I didn't even come across the TFM information until searching for a later issue...
+ - For this commit referenced  based on some GitHub discussion but ended up with a missing method exception and found another GitHub issue suggesting also referencing Microsoft.Windows.CsWinRT (to get the latest CsWinRT). Added a commit about possibly getting the same impact via a new TFM in the latest preview. I think the hardest detail for the moment might be getting up to date information, I didn't even come across the TFM information until searching for a later issue...
  - The WebView2 seems quite nice but it took some work to adjust to the new API - the current commit has some scratch test to make sure I had various details working - it will be interesting reworking the leaflet code.
  - Had a puzzler around SpeechSynthesis and playing the sound - after some false starts fixing this I found BackgroundMediaPlayer.Current to get a MediaPlayer fixed the issue without hassle
 
