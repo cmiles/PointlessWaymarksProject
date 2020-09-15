@@ -32,7 +32,7 @@
                     IconBrush="Black"
                     IconPathGeometry="{StaticResource IconDataInfo}"
                     IconSize="{StaticResource SmallIconSize}"
-                    Visibility="{Binding TagsHaveChanges, Converter={StaticResource BooleanToVisibility}}" />
+                    Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}" />
                 <utility:IndicatorIcon
                     VerticalAlignment="Center"
                     HoverText="{Binding TagsValidationMessage}"

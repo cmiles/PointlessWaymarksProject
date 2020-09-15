@@ -77,7 +77,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             HasChanges = SelectedContentFormatHasChanges;
             var validation =
                 CommonContentValidation.ValidateBodyContentFormat(SelectedContentFormatAsString.TrimNullToEmpty());
-            HasValidationIssues = validation.isValid;
+            HasValidationIssues = !validation.isValid;
             ValidationMessage = validation.explanation;
         }
 
