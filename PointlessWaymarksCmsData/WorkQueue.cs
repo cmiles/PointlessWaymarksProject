@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using PointlessWaymarksCmsData.Database;
@@ -10,12 +12,16 @@ namespace PointlessWaymarksCmsData
     public class WorkQueue<T>
     {
         //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
-        private readonly BlockingCollection<T> _jobs =
-            new BlockingCollection<T>();
+        private readonly BlockingCollection<T> _jobs = new BlockingCollection<T>();
 
-        public WorkQueue()
+        private readonly List<T> _pausedQueue = new List<T>();
+
+        private bool _suspended;
+
+        public WorkQueue(bool suspended = false)
         {
-            var thread = new Thread(OnStart) { IsBackground = true };
+            _suspended = suspended;
+            var thread = new Thread(OnStart) {IsBackground = true};
             thread.Start();
         }
 
@@ -23,7 +29,8 @@ namespace PointlessWaymarksCmsData
 
         public void Enqueue(T job)
         {
-            _jobs.Add(job);
+            if (_suspended) _pausedQueue.Add(job);
+            else _jobs.Add(job);
         }
 
         private void OnStart()
@@ -36,10 +43,57 @@ namespace PointlessWaymarksCmsData
                 catch (Exception e)
                 {
                     Debug.Print(e.Message);
-                    EventLogContext.TryWriteExceptionToLogBlocking(e,
-                        $"WorkQueue",
-                        string.Empty);
+                    EventLogContext.TryWriteExceptionToLogBlocking(e, "WorkQueue", string.Empty);
                 }
+        }
+
+        public void Suspend(bool suspend)
+        {
+            _suspended = suspend;
+            if (!_suspended && _pausedQueue.Any()) _pausedQueue.ForEach(x => _jobs.Add(x));
+        }
+    }
+
+    public class TaskQueue
+    {
+        //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
+        private readonly BlockingCollection<Func<Task>> _jobs = new BlockingCollection<Func<Task>>();
+
+        private readonly List<Func<Task>> _pausedQueue = new List<Func<Task>>();
+
+        private bool _suspended;
+
+        public TaskQueue(bool suspended = false)
+        {
+            _suspended = suspended;
+            var thread = new Thread(OnStart) {IsBackground = true};
+            thread.Start();
+        }
+
+        public void Enqueue(Func<Task> job)
+        {
+            if (_suspended) _pausedQueue.Add(job);
+            else _jobs.Add(job);
+        }
+
+        private void OnStart()
+        {
+            foreach (var job in _jobs.GetConsumingEnumerable(CancellationToken.None))
+                try
+                {
+                    job.Invoke().Wait();
+                }
+                catch (Exception e)
+                {
+                    Debug.Print(e.Message);
+                    EventLogContext.TryWriteExceptionToLogBlocking(e, "WorkQueue", string.Empty);
+                }
+        }
+
+        public void Suspend(bool suspend)
+        {
+            _suspended = suspend;
+            if (!_suspended && _pausedQueue.Any()) _pausedQueue.ForEach(x => _jobs.Add(x));
         }
     }
 }

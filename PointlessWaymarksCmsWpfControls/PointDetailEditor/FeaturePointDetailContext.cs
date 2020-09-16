@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailModels;
@@ -191,7 +192,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             TitleEditor = StringDataEntryContext.CreateInstance();
             TitleEditor.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
             {
-                x => string.IsNullOrWhiteSpace(x) ? (false, "Title must have a value.") : (true, "Title has value")
+                CommonContentValidation.ValidateTitle
             };
             TitleEditor.Title = "Title";
             TitleEditor.HelpText =

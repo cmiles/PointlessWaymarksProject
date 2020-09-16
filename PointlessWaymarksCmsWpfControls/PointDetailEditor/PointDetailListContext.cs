@@ -187,6 +187,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             Items.Remove(pointDetail);
 
             DeletedPointDetails.Add(pointDetail);
+
+            CheckForChangesAndValidationIssues();
         }
 
         public async Task<IPointDetailEditor> ListItemEditorFromTypeIdentifier(PointDetail detail)
@@ -287,7 +289,11 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
                 DeletedPointDetails.Remove(toAdd);
 
+                toAdd.PropertyChanged += MonitorChildChangesAndValidations;
+
                 Items.Add(toAdd);
+
+                CheckForChangesAndValidationIssues();
 
                 return;
             }
@@ -310,7 +316,12 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Items.Add(await ListItemEditorFromTypeIdentifier(newPointDetail));
+            var newDetail = await ListItemEditorFromTypeIdentifier(newPointDetail);
+            newDetail.PropertyChanged += MonitorChildChangesAndValidations;
+
+            Items.Add(newDetail);
+
+            CheckForChangesAndValidationIssues();
         }
 
         private void MonitorChildChangesAndValidations(object sender, PropertyChangedEventArgs e)

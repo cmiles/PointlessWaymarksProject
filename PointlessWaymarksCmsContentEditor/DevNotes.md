@@ -1,5 +1,4 @@
 ﻿## Todos
- - The content format control has a bad validation flag
  - Text to Speech:
    - Cancellation
    - in Update Notes

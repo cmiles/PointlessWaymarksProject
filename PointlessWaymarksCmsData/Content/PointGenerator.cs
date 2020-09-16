@@ -22,7 +22,7 @@ namespace PointlessWaymarksCmsData.Content
         public static async Task<(GenerationReturn generationReturn, PointContent postContent)> SaveAndGenerateHtml(
             PointContent toSave, List<PointDetail> relatedDetails, IProgress<string> progress)
         {
-            var validationReturn = await Validate(toSave);
+            var validationReturn = await Validate(toSave, relatedDetails);
 
             if (validationReturn.HasError) return (validationReturn, null);
 
@@ -39,7 +39,7 @@ namespace PointlessWaymarksCmsData.Content
             return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
-        public static async Task<GenerationReturn> Validate(PointContent postContent)
+        public static async Task<GenerationReturn> Validate(PointContent postContent, List<PointDetail> relatedDetails)
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
@@ -66,6 +66,28 @@ namespace PointlessWaymarksCmsData.Content
             var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(postContent.UpdateNotesFormat);
             if (!updateFormatCheck.isValid)
                 return await GenerationReturn.Error(updateFormatCheck.explanation, postContent.ContentId);
+
+            foreach (var loopDetails in relatedDetails)
+            {
+                if (string.IsNullOrWhiteSpace(loopDetails.DataType))
+                    return await GenerationReturn.Error("Point Detail Data Type doesn't have a value", loopDetails.ContentId);
+                if (string.IsNullOrWhiteSpace(loopDetails.StructuredDataAsJson))
+                    return await GenerationReturn.Error($"{loopDetails.DataType} Point Detail doesn't have any data?", loopDetails.ContentId);
+                try
+                {
+                    var content =
+                        Db.PointDetailFromIdentifierAndJson(loopDetails.DataType, loopDetails.StructuredDataAsJson);
+                    var contentValidation = content.Validate();
+
+                    if(!contentValidation.isValid)
+                        return await GenerationReturn.Error($"{loopDetails.DataType} Point Detail: {contentValidation.validationMessage}", postContent.ContentId);
+
+                }
+                catch (Exception e)
+                {
+                    return await GenerationReturn.Error($"Exception loading the Structured Data for {loopDetails.DataType} Point Detail {e.Message}", postContent.ContentId);
+                }
+            }
 
             return await GenerationReturn.Success("Point Content Validation Successful");
         }

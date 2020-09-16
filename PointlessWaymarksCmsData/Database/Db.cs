@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Database.PointDetailModels;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Spatial;
@@ -657,6 +659,20 @@ namespace PointlessWaymarksCmsData.Database
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
                 new List<Guid> {toSave.ContentId});
+        }
+
+        public static IPointDetail PointDetailFromIdentifierAndJson(string dataIdentifier, string json)
+        {
+            return dataIdentifier switch
+            {
+                "Campground" => (IPointDetail) JsonSerializer.Deserialize<Campground>(json),
+                "Feature" => JsonSerializer.Deserialize<Feature>(json),
+                "Parking" => JsonSerializer.Deserialize<Parking>(json),
+                "Peak" => JsonSerializer.Deserialize<Peak>(json),
+                "Restroom" => JsonSerializer.Deserialize<Restroom>(json),
+                "Trail Junction" => JsonSerializer.Deserialize<TrailJunction>(json),
+                _ => null
+            };
         }
 
         public static async Task SaveNoteContent(NoteContent toSave)

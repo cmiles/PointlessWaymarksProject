@@ -65,6 +65,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                             actionOnStatusChange();
                     };
                 }
+
+            actionOnStatusChange.Invoke();
         }
     }
 }
