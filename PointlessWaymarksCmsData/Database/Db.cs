@@ -562,6 +562,71 @@ namespace PointlessWaymarksCmsData.Database
             return list;
         }
 
+        public static async Task<(PointContent, List<PointDetail>)> PointAndPointDetails(Guid pointContentId)
+        {
+            var db = await Context();
+
+            return await PointAndPointDetails(pointContentId, db);
+        }
+
+        public static async Task<(PointContent, List<PointDetail>)> PointAndPointDetails(Guid pointContentId,
+            PointlessWaymarksContext db)
+        {
+            var point = await db.PointContents.SingleAsync(x => x.ContentId == pointContentId);
+            var detailLinks = await db.PointContentPointDetailLinks.Where(x => x.PointContentId == pointContentId)
+                .Select(x => x.PointDetailContentId).ToListAsync();
+            var details = await db.PointDetails.Where(x => detailLinks.Contains(x.ContentId)).ToListAsync();
+
+            return (point, details);
+        }
+
+        public static IPointDetail PointDetailFromIdentifierAndJson(string dataIdentifier, string json)
+        {
+            return dataIdentifier switch
+            {
+                "Campground" => JsonSerializer.Deserialize<Campground>(json),
+                "Feature" => JsonSerializer.Deserialize<Feature>(json),
+                "Parking" => JsonSerializer.Deserialize<Parking>(json),
+                "Peak" => JsonSerializer.Deserialize<Peak>(json),
+                "Restroom" => JsonSerializer.Deserialize<Restroom>(json),
+                "Trail Junction" => JsonSerializer.Deserialize<TrailJunction>(json),
+                _ => null
+            };
+        }
+
+        public static async Task<List<PointDetail>> PointDetailsForPoint(Guid pointContentId,
+            PointlessWaymarksContext db)
+        {
+            var detailLinks = await db.PointContentPointDetailLinks.Where(x => x.PointContentId == pointContentId)
+                .Select(x => x.PointDetailContentId).ToListAsync();
+            var details = await db.PointDetails.Where(x => detailLinks.Contains(x.ContentId)).ToListAsync();
+
+            return details;
+        }
+
+        public static async Task<List<(PointContent, List<PointDetail>)>> PointsAndPointDetails(
+            List<Guid> pointContentId)
+        {
+            var db = await Context();
+
+            var idChunks = pointContentId.Partition(250);
+
+            var returnList = new List<(PointContent, List<PointDetail>)>();
+
+            foreach (var loopChunk in idChunks)
+            {
+                var contents = await db.PointContents.Where(x => loopChunk.Contains(x.ContentId)).ToListAsync();
+
+                foreach (var loopContent in contents)
+                {
+                    var details = await PointDetailsForPoint(loopContent.ContentId, db);
+                    returnList.Add((loopContent, details));
+                }
+            }
+
+            return returnList;
+        }
+
         public static async Task SaveFileContent(FileContent toSave)
         {
             if (toSave == null) return;
@@ -659,20 +724,6 @@ namespace PointlessWaymarksCmsData.Database
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
                 new List<Guid> {toSave.ContentId});
-        }
-
-        public static IPointDetail PointDetailFromIdentifierAndJson(string dataIdentifier, string json)
-        {
-            return dataIdentifier switch
-            {
-                "Campground" => (IPointDetail) JsonSerializer.Deserialize<Campground>(json),
-                "Feature" => JsonSerializer.Deserialize<Feature>(json),
-                "Parking" => JsonSerializer.Deserialize<Parking>(json),
-                "Peak" => JsonSerializer.Deserialize<Peak>(json),
-                "Restroom" => JsonSerializer.Deserialize<Restroom>(json),
-                "Trail Junction" => JsonSerializer.Deserialize<TrailJunction>(json),
-                _ => null
-            };
         }
 
         public static async Task SaveNoteContent(NoteContent toSave)
