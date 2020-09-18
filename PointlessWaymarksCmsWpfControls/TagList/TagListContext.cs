@@ -518,7 +518,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             var allContentIds = items.OrderByDescending(x => x.Title).Select(x => x.ContentId).ToList();
 
             var db = await Db.Context();
-            var content = db.ContentFromContentIds(allContentIds);
+            var content = await db.ContentFromContentIds(allContentIds);
 
             var toTransfer = content.Select(x => StaticValueInjecter.InjectFrom(new ContentCommonShell(), x)).ToList();
 

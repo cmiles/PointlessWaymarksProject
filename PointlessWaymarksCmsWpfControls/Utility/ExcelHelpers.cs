@@ -16,32 +16,6 @@ using PointlessWaymarksCmsWpfControls.Status;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
 {
-    public class PointContentExcelDto
-    {
-        public string BodyContent { get; set; }
-        public string BodyContentFormat { get; set; }
-        public Guid ContentId { get; set; }
-        public DateTime ContentVersion { get; set; }
-        public string CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public double? Elevation { get; set; }
-        public string Folder { get; set; }
-        public int Id { get; set; }
-        public string LastUpdatedBy { get; set; }
-        public DateTime? LastUpdatedOn { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
-        public Guid? MainPicture { get; set; }
-        public List<string> PointDetails { get; set; }
-        public bool ShowInMainSiteFeed { get; set; }
-        public string Slug { get; set; }
-        public string Summary { get; set; }
-        public string Tags { get; set; }
-        public string Title { get; set; }
-        public string UpdateNotes { get; set; }
-        public string UpdateNotesFormat { get; set; }
-    }
-
     public static class ExcelHelpers
     {
         public static FileInfo ContentToExcelFileAsTable(List<object> toDisplay, string fileName,
@@ -147,25 +121,19 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             return PointContentToExcel(pointsAndDetails, fileName, openAfterSaving);
         }
 
-        public static FileInfo PointContentToExcel(
-            List<(PointContent pointContent, List<PointDetail> pointDetails)> toDisplay, string fileName,
+        public static FileInfo PointContentToExcel(List<PointContentDto> toDisplay, string fileName,
             bool openAfterSaving = true)
         {
             if (toDisplay == null || !toDisplay.Any()) return null;
 
-            var transformedList = new List<PointContentExcelDto>();
+            var transformedList = toDisplay.Select(x => new PointContent().InjectFrom(x)).Cast<PointContent>().ToList();
+
+            var detailList = new List<(Guid, string)>();
 
             foreach (var loopContent in toDisplay)
-            {
-                var toAdd = new PointContentExcelDto {PointDetails = new List<string>()};
-                toAdd.InjectFrom(loopContent.pointContent);
-
-                foreach (var loopDetail in loopContent.pointDetails)
-                    toAdd.PointDetails.Add(
-                        $"ContentId:{loopDetail.ContentId}||{Environment.NewLine}Type:{loopDetail.DataType}||{Environment.NewLine}Data:{loopDetail.StructuredDataAsJson}");
-
-                transformedList.Add(toAdd);
-            }
+            foreach (var loopDetail in loopContent.PointDetails)
+                detailList.Add((loopContent.ContentId,
+                    $"ContentId:{loopDetail.ContentId}||{Environment.NewLine}Type:{loopDetail.DataType}||{Environment.NewLine}Data:{loopDetail.StructuredDataAsJson}"));
 
             var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FolderFileUtility.TryMakeFilenameValid(fileName)}.xlsx"));
@@ -173,12 +141,12 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("Exported Data");
 
-            var insertedTable = ws.Cell(1, 1).InsertTable(toDisplay.Select(x => x.pointContent));
+            var insertedTable = ws.Cell(1, 1).InsertTable(transformedList);
 
             var contentIdColumn = insertedTable.Row(1).Cells().Single(x => x.GetString() == "ContentId")
                 .WorksheetColumn().ColumnNumber();
 
-            var neededDetailColumns = transformedList.Max(x => x.PointDetails.Count);
+            var neededDetailColumns = detailList.GroupBy(x => x.Item1).Max(x => x.Count());
 
             var firstDetailColumn = insertedTable.Columns().Last().WorksheetColumn().ColumnNumber() + 1;
 
@@ -188,11 +156,11 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             foreach (var loopRow in insertedTable.Rows().Skip(1))
             {
                 var rowContentId = Guid.Parse(loopRow.Cell(contentIdColumn).GetString());
-                var matchedDataRow = transformedList.Single(x => x.ContentId == rowContentId);
+                var matchedData = detailList.Where(x => x.Item1 == rowContentId);
 
                 var currentColumn = firstDetailColumn;
 
-                foreach (var loopDetail in matchedDataRow.PointDetails)
+                foreach (var loopDetail in matchedData)
                 {
                     loopRow.Cell(currentColumn).Value = loopDetail;
                     currentColumn++;

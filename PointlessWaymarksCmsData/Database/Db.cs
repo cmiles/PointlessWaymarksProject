@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Database.Models;
@@ -35,6 +36,9 @@ namespace PointlessWaymarksCmsData.Database
             var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePost != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePost);
 
+            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePoint != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePoint);
+
             var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleNote);
         }
@@ -56,11 +60,14 @@ namespace PointlessWaymarksCmsData.Database
             var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePost != null) return possiblePost;
 
+            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePoint != null) return await PointAndPointDetails(contentId, db);
+
             var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             return possibleNote;
         }
 
-        public static List<dynamic> ContentFromContentIds(this PointlessWaymarksContext db, List<Guid> contentIds)
+        public static async Task<List<dynamic>> ContentFromContentIds(this PointlessWaymarksContext db, List<Guid> contentIds)
         {
             if (contentIds == null || !contentIds.Any()) return new List<dynamic>();
 
@@ -72,6 +79,7 @@ namespace PointlessWaymarksCmsData.Database
             returnList.AddRange(db.PostContents.Where(x => contentIds.Contains(x.ContentId)));
             returnList.AddRange(db.ImageContents.Where(x => contentIds.Contains(x.ContentId)));
             returnList.AddRange(db.NoteContents.Where(x => contentIds.Contains(x.ContentId)));
+            returnList.AddRange(await PointsAndPointDetails(contentIds));
 
             return returnList;
         }
@@ -416,10 +424,12 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent).Concat(noteContent)
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
         }
 
@@ -434,10 +444,12 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
         }
 
@@ -452,10 +464,12 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < after)
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent).Concat(noteContent)
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
         }
 
@@ -470,10 +484,12 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
         }
 
@@ -488,10 +504,12 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
+                .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
 
@@ -506,10 +524,12 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
+                .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent).Concat(noteContent)
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
 
@@ -562,14 +582,14 @@ namespace PointlessWaymarksCmsData.Database
             return list;
         }
 
-        public static async Task<(PointContent, List<PointDetail>)> PointAndPointDetails(Guid pointContentId)
+        public static async Task<PointContentDto> PointAndPointDetails(Guid pointContentId)
         {
             var db = await Context();
 
             return await PointAndPointDetails(pointContentId, db);
         }
 
-        public static async Task<(PointContent, List<PointDetail>)> PointAndPointDetails(Guid pointContentId,
+        public static async Task<PointContentDto> PointAndPointDetails(Guid pointContentId,
             PointlessWaymarksContext db)
         {
             var point = await db.PointContents.SingleAsync(x => x.ContentId == pointContentId);
@@ -577,7 +597,11 @@ namespace PointlessWaymarksCmsData.Database
                 .Select(x => x.PointDetailContentId).ToListAsync();
             var details = await db.PointDetails.Where(x => detailLinks.Contains(x.ContentId)).ToListAsync();
 
-            return (point, details);
+            var toReturn = new PointContentDto();
+            toReturn.InjectFrom(point);
+            toReturn.PointDetails = details;
+
+            return toReturn;
         }
 
         public static IPointDetail PointDetailFromIdentifierAndJson(string dataIdentifier, string json)
@@ -604,14 +628,14 @@ namespace PointlessWaymarksCmsData.Database
             return details;
         }
 
-        public static async Task<List<(PointContent, List<PointDetail>)>> PointsAndPointDetails(
+        public static async Task<List<PointContentDto>> PointsAndPointDetails(
             List<Guid> pointContentId)
         {
             var db = await Context();
 
             var idChunks = pointContentId.Partition(250);
 
-            var returnList = new List<(PointContent, List<PointDetail>)>();
+            var returnList = new List<PointContentDto>();
 
             foreach (var loopChunk in idChunks)
             {
@@ -620,7 +644,11 @@ namespace PointlessWaymarksCmsData.Database
                 foreach (var loopContent in contents)
                 {
                     var details = await PointDetailsForPoint(loopContent.ContentId, db);
-                    returnList.Add((loopContent, details));
+                    var toAdd = new PointContentDto();
+                    toAdd.InjectFrom(loopContent);
+                    toAdd.PointDetails = details;
+
+                    returnList.Add(toAdd);
                 }
             }
 
@@ -1067,6 +1095,10 @@ namespace PointlessWaymarksCmsData.Database
                 includePagesExcludedFromSearch
                     ? (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList()
                     : (await db.ImageContents.Where(x => x.ShowInSearch).ToListAsync()).Cast<ITag>().ToList(),
+                progress);
+
+            progress?.Report("Process Point Content Tags");
+            ParseToTagSlugsAndContentList(returnList, (await db.PointContents.ToListAsync()).Cast<ITag>().ToList(),
                 progress);
 
             progress?.Report("Process Post Content Tags");

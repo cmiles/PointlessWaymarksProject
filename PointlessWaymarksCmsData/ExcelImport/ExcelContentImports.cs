@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
@@ -57,6 +58,27 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 };
 
             return new ExcelValueParse<DateTime?> {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
+        }
+
+        public static ExcelValueParse<double?> GetDoubleFromExcelRow(ExcelHeaderRow headerInfo, IXLRangeRow toProcess,
+            string columnName)
+        {
+            var contentIdColumn = headerInfo.Columns.Single(x => string.Equals(x.ColumnHeader,
+                columnName.TrimNullToEmpty(), StringComparison.CurrentCultureIgnoreCase));
+
+            var stringValue = toProcess.Worksheet.Cell(toProcess.RowNumber(), contentIdColumn.ExcelSheetColumn).Value
+                .ToString();
+
+            if (string.IsNullOrWhiteSpace(stringValue))
+                return new ExcelValueParse<double?> {ParsedValue = null, StringValue = stringValue, ValueParsed = true};
+
+            if (double.TryParse(stringValue, out var parsedValue))
+                return new ExcelValueParse<double?>
+                {
+                    ParsedValue = parsedValue, StringValue = stringValue, ValueParsed = true
+                };
+
+            return new ExcelValueParse<double?> {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
         }
 
         public static ExcelValueParse<Guid?> GetGuidFromExcelRow(ExcelHeaderRow headerInfo, IXLRangeRow toProcess,
@@ -424,6 +446,25 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 else if (loopProperties.PropertyType == typeof(DateTime))
                 {
                     var excelResult = GetDateTimeFromExcelRow(headerInfo, toProcess, loopProperties.Name);
+
+                    if (excelResult.ValueParsed == null || !excelResult.ValueParsed.Value ||
+                        excelResult.ParsedValue == null)
+                        returnString.Add($"Row {toProcess.RowNumber()} - could not process {loopProperties.Name}");
+
+                    loopProperties.SetValue(toUpdate, excelResult.ParsedValue);
+                }
+                else if (loopProperties.PropertyType == typeof(double?))
+                {
+                    var excelResult = GetDoubleFromExcelRow(headerInfo, toProcess, loopProperties.Name);
+
+                    if (excelResult.ValueParsed == null || !excelResult.ValueParsed.Value)
+                        returnString.Add($"Row {toProcess.RowNumber()} - could not process {loopProperties.Name}");
+
+                    loopProperties.SetValue(toUpdate, excelResult.ParsedValue);
+                }
+                else if (loopProperties.PropertyType == typeof(double))
+                {
+                    var excelResult = GetDoubleFromExcelRow(headerInfo, toProcess, loopProperties.Name);
 
                     if (excelResult.ValueParsed == null || !excelResult.ValueParsed.Value ||
                         excelResult.ParsedValue == null)
