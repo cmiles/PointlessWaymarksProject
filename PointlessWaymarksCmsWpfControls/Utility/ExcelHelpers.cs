@@ -151,7 +151,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             var firstDetailColumn = insertedTable.Columns().Last().WorksheetColumn().ColumnNumber() + 1;
 
             for (var i = firstDetailColumn; i < firstDetailColumn + neededDetailColumns; i++)
-                ws.Cell(1, i).Value = $"Detail {i - firstDetailColumn + 1}";
+                ws.Cell(1, i).Value = $"PointDetail {i - firstDetailColumn + 1}";
 
             foreach (var loopRow in insertedTable.Rows().Skip(1))
             {
@@ -162,7 +162,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
                 foreach (var loopDetail in matchedData)
                 {
-                    loopRow.Cell(currentColumn).Value = loopDetail;
+                    loopRow.Cell(currentColumn).Value = loopDetail.Item2;
                     currentColumn++;
                 }
             }

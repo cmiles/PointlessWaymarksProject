@@ -1,6 +1,6 @@
-﻿namespace PointlessWaymarksCmsData.Database.PointDetailModels
+﻿namespace PointlessWaymarksCmsData.Database.PointDetailDataModels
 {
-    public class TrailJunction : IPointDetail
+    public class TrailJunction : IPointDetailData
     {
         public string DataTypeIdentifier => "Trail Junction";
         public string Notes { get; set; }

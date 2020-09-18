@@ -1,8 +1,8 @@
 ﻿using PointlessWaymarksCmsData.Content;
 
-namespace PointlessWaymarksCmsData.Database.PointDetailModels
+namespace PointlessWaymarksCmsData.Database.PointDetailDataModels
 {
-    public class Feature : IPointDetail
+    public class Feature : IPointDetailData
     {
         public string DataTypeIdentifier => "Feature";
         public string Notes { get; set; }

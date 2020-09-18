@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsData.Database.PointDetailModels;
+using PointlessWaymarksCmsData.Database.PointDetailDataModels;
 using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
 using PointlessWaymarksCmsWpfControls.Status;

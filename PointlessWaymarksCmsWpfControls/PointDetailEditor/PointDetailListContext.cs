@@ -10,7 +10,7 @@ using KellermanSoftware.CompareNetObjects;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsData.Database.PointDetailModels;
+using PointlessWaymarksCmsData.Database.PointDetailDataModels;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -227,14 +227,14 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 DeletedPointDetails = new List<IPointDetailEditor>();
 
                 var pointDetailTypes = from type in typeof(Db).Assembly.GetTypes()
-                    where typeof(IPointDetail).IsAssignableFrom(type) && !type.IsInterface
+                    where typeof(IPointDetailData).IsAssignableFrom(type) && !type.IsInterface
                     select type;
 
                 _pointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
 
                 foreach (var loopTypes in pointDetailTypes)
                 {
-                    var typeExample = (IPointDetail) Activator.CreateInstance(loopTypes);
+                    var typeExample = (IPointDetailData) Activator.CreateInstance(loopTypes);
 
                     if (typeExample == null) continue;
 

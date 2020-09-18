@@ -76,7 +76,7 @@ namespace PointlessWaymarksCmsData.Content
                 try
                 {
                     var content =
-                        Db.PointDetailFromIdentifierAndJson(loopDetails.DataType, loopDetails.StructuredDataAsJson);
+                        Db.PointDetailDataFromIdentifierAndJson(loopDetails.DataType, loopDetails.StructuredDataAsJson);
                     var contentValidation = content.Validate();
 
                     if(!contentValidation.isValid)

@@ -1,8 +1,9 @@
-﻿namespace PointlessWaymarksCmsData.Database.PointDetailModels
+﻿namespace PointlessWaymarksCmsData.Database.PointDetailDataModels
 {
-    public class Restroom : IPointDetail
+    public class Parking : IPointDetailData
     {
-        public string DataTypeIdentifier => "Restroom";
+        public string DataTypeIdentifier => "Parking";
+        public bool? Fee { get; set; }
         public string Notes { get; set; }
         public string NotesContentFormat { get; set; }
 

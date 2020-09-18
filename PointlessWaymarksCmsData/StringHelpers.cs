@@ -21,6 +21,11 @@ namespace PointlessWaymarksCmsData
             return string.Equals(a, b);
         }
 
+        public static string RemoveNewLines(this string toProcess)
+        {
+            return toProcess.Replace("\n", "").Replace("\r", "");
+        }
+
         /// <summary>
         ///     Returns the result of a case sensitive compare where null and empty are equivalent and
         ///     strings are trimmed before comparison

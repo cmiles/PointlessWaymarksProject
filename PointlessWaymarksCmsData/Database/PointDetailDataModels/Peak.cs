@@ -1,6 +1,6 @@
-﻿namespace PointlessWaymarksCmsData.Database.PointDetailModels
+﻿namespace PointlessWaymarksCmsData.Database.PointDetailDataModels
 {
-    public class Peak : IPointDetail
+    public class Peak : IPointDetailData
     {
         public string DataTypeIdentifier => "Peak";
         public string Notes { get; set; }

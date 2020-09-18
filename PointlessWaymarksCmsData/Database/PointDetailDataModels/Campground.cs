@@ -1,6 +1,6 @@
-﻿namespace PointlessWaymarksCmsData.Database.PointDetailModels
+﻿namespace PointlessWaymarksCmsData.Database.PointDetailDataModels
 {
-    public class Campground : IPointDetail
+    public class Campground : IPointDetailData
     {
         public string DataTypeIdentifier => "Campground";
 
