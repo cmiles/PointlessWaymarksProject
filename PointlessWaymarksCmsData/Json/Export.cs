@@ -125,17 +125,46 @@ namespace PointlessWaymarksCmsData.Json
             var latestHistoricEntries = db.HistoricPointContents.Where(x => x.ContentId == dbEntry.ContentId)
                 .OrderByDescending(x => x.LastUpdatedOn).Take(10);
 
-            if (!latestHistoricEntries.Any()) return;
-
-            var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
-
             var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dbEntry).FullName,
                 $"{Names.HistoricPointContentPrefix}{dbEntry.ContentId}.json"));
 
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            if (latestHistoricEntries.Any())
+            {
+                var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
+                await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            }
+
+            var pointDetailsFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dbEntry).FullName,
+                $"{Names.PointDetailsContentPrefix}{dbEntry.ContentId}.json"));
+
+            if (pointDetailsFile.Exists) pointDetailsFile.Delete();
+            pointDetailsFile.Refresh();
+
+            var pointDetails = await Db.PointDetailsForPoint(dbEntry.ContentId, db);
+
+            if (pointDetails.Any())
+            {
+                var jsonPointDetails = JsonSerializer.Serialize(pointDetails);
+                await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonPointDetails);
+            }
+
+            var historicPointDetailsFile = new FileInfo(Path.Combine(
+                settings.LocalSitePointContentDirectory(dbEntry).FullName,
+                $"{Names.HistoricPointDetailsContentPrefix}{dbEntry.ContentId}.json"));
+
+            if (historicPointDetailsFile.Exists) historicPointDetailsFile.Delete();
+            historicPointDetailsFile.Refresh();
+
+            var historicPointDetails = await Db.HistoricPointDetailsForPoint(dbEntry.ContentId, db);
+
+            if (historicPointDetails.Any())
+            {
+                var jsonPointDetails = JsonSerializer.Serialize(historicPointDetails);
+                await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonPointDetails);
+            }
         }
 
         public static async Task WriteLocalDbJson(NoteContent dbEntry, IProgress<string> progress)

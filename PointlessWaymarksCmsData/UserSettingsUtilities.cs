@@ -5,9 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -545,6 +543,20 @@ namespace PointlessWaymarksCmsData
         }
 
         public static DirectoryInfo LocalSitePointContentDirectory(this UserSettings settings, PointContent content,
+            bool createDirectoryIfNotFound = true)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePointDirectory().FullName,
+                content.Folder, content.Slug));
+
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+        public static DirectoryInfo LocalSitePointContentDirectory(this UserSettings settings, PointContentDto content,
             bool createDirectoryIfNotFound = true)
         {
             var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePointDirectory().FullName,

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +15,6 @@ using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
-using TinyIpc.Messaging;
 
 namespace PointlessWaymarksTests
 {
@@ -47,9 +45,8 @@ namespace PointlessWaymarksTests
         [OneTimeSetUp]
         public async Task A00_CreateTestSite()
         {
-            var outSettings =
-                await UserSettingsUtilities.SetupNewSite($"IronwoodForestTestSite-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}",
-                    DebugProgressTracker());
+            var outSettings = await UserSettingsUtilities.SetupNewSite(
+                $"IronwoodForestTestSite-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}", DebugTrackers.DebugProgressTracker());
             TestSiteSettings = outSettings;
             TestSiteSettings.SiteName = TestSiteName;
             TestSiteSettings.DefaultCreatedBy = TestDefaultCreatedBy;
@@ -58,7 +55,7 @@ namespace PointlessWaymarksTests
             TestSiteSettings.SiteKeywords = TestSiteKeywords;
             TestSiteSettings.SiteSummary = TestSummary;
             TestSiteSettings.SiteUrl = "IronwoodTest.com";
-            await TestSiteSettings.EnsureDbIsPresent(DebugProgressTracker());
+            await TestSiteSettings.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
             await TestSiteSettings.WriteSettings();
         }
 
@@ -92,7 +89,7 @@ namespace PointlessWaymarksTests
         {
             ThreadSwitcher.PinnedDispatcher = Dispatcher.CurrentDispatcher;
             DataNotifications.SuspendNotifications = false;
-            DataNotifications.NewDataNotificationChannel().MessageReceived += DataNotificationDiagnostic;
+            DataNotifications.NewDataNotificationChannel().MessageReceived += DebugTrackers.DataNotificationDiagnostic;
 
             var db = await Db.Context();
             var quarryPhoto = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.QuarryContent01.Title);
@@ -217,12 +214,14 @@ namespace PointlessWaymarksTests
             workbook.Save();
 
             var importResult =
-                await ExcelContentImports.ImportFromFile(excelFileExport.FullName, DebugProgressTracker());
+                await ExcelContentImports.ImportFromFile(excelFileExport.FullName,
+                    DebugTrackers.DebugProgressTracker());
             Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
             Assert.AreEqual(2, importResult.ToUpdate.Count, "Unexpected number of rows to update");
 
             var updateSaveResult =
-                await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult, DebugProgressTracker());
+                await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult,
+                    DebugTrackers.DebugProgressTracker());
 
             Assert.False(updateSaveResult.hasError);
 
@@ -256,7 +255,7 @@ namespace PointlessWaymarksTests
             var preDeleteTreePhotoHistoricEntryCount =
                 db.HistoricPhotoContents.Count(x => x.ContentId == treePhoto.ContentId);
 
-            await Db.DeletePhotoContent(treePhoto.ContentId, DebugProgressTracker());
+            await Db.DeletePhotoContent(treePhoto.ContentId, DebugTrackers.DebugProgressTracker());
 
             var postDeleteTreePhotoHistoricEntryCount =
                 db.HistoricPhotoContents.Count(x => x.ContentId == treePhoto.ContentId);
@@ -283,7 +282,7 @@ namespace PointlessWaymarksTests
 
             var saveAgainResult = await PhotoGenerator.SaveAndGenerateHtml(treePhoto,
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(treePhoto), true, null,
-                DebugProgressTracker());
+                DebugTrackers.DebugProgressTracker());
 
             Assert.IsFalse(saveAgainResult.generationReturn.HasError,
                 $"Error Saving after Deleting? {saveAgainResult.generationReturn.GenerationNote}");
@@ -319,7 +318,7 @@ namespace PointlessWaymarksTests
 
             var bodyUpdateReturn = await FileGenerator.SaveAndGenerateHtml(mapFile,
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(mapFile), false, null,
-                DebugProgressTracker());
+                DebugTrackers.DebugProgressTracker());
 
             Assert.False(bodyUpdateReturn.generationReturn.HasError, bodyUpdateReturn.generationReturn.GenerationNote);
 
@@ -342,7 +341,7 @@ namespace PointlessWaymarksTests
 
             Assert.True(!db.GenerationLogs.Any(), "Unexpected Content in Generation Logs");
 
-            await GenerationGroups.GenerateChangedToHtml(DebugProgressTracker());
+            await GenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
             Assert.AreEqual(1, db.GenerationLogs.Count(),
                 $"Expected 1 generation log - found {db.GenerationLogs.Count()}");
@@ -355,7 +354,7 @@ namespace PointlessWaymarksTests
 
             //Tags
 
-            var tags = await Db.TagSlugsAndContentList(true, DebugProgressTracker());
+            var tags = await Db.TagSlugsAndContentList(true, DebugTrackers.DebugProgressTracker());
 
             var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("*.html").ToList();
 
@@ -399,23 +398,6 @@ namespace PointlessWaymarksTests
                 "Generation Version of Camera Roll Does not match expected Log");
         }
 
-        private void DataNotificationDiagnostic(object sender, TinyMessageReceivedEventArgs e)
-        {
-            Debug.Print(e.Message.ToString());
-        }
-
-
-        public static IProgress<string> DebugProgressTracker()
-        {
-            var toReturn = new Progress<string>();
-            toReturn.ProgressChanged += DebugProgressTrackerChange;
-            return toReturn;
-        }
-
-        private static void DebugProgressTrackerChange(object sender, string e)
-        {
-            Debug.WriteLine(e);
-        }
 
         [Test]
         public async Task E10_PostTest()
@@ -430,14 +412,15 @@ namespace PointlessWaymarksTests
 
             var currentGenerationCount = db.GenerationLogs.Count();
 
-            await GenerationGroups.GenerateChangedToHtml(DebugProgressTracker());
+            await GenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
             Assert.AreEqual(currentGenerationCount + 1, db.GenerationLogs.Count(),
                 $"Expected {currentGenerationCount + 1} generation logs - found {db.GenerationLogs.Count()}");
 
             var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
-            await FileManagement.RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(DebugProgressTracker());
+            await FileManagement.RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(
+                DebugTrackers.DebugProgressTracker());
 
             IronwoodHtmlHelpers.CheckIndexHtmlAndGenerationVersion(currentGeneration.GenerationVersion);
 

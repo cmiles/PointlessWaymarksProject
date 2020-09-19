@@ -200,6 +200,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricFileContents.AddAsync(newHistoric);
                 context.FileContents.Remove(loopToHistoric);
             }
@@ -228,6 +230,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricImageContents.AddAsync(newHistoric);
                 context.ImageContents.Remove(loopToHistoric);
             }
@@ -256,6 +260,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricLinkContents.AddAsync(newHistoric);
                 context.LinkContents.Remove(loopToHistoric);
             }
@@ -284,6 +290,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricNoteContents.AddAsync(newHistoric);
                 context.NoteContents.Remove(loopToHistoric);
             }
@@ -312,6 +320,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPhotoContents.AddAsync(newHistoric);
                 context.PhotoContents.Remove(loopToHistoric);
             }
@@ -340,6 +350,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPointContents.AddAsync(newHistoric);
                 context.PointContents.Remove(loopToHistoric);
             }
@@ -368,6 +380,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPostContents.AddAsync(newHistoric);
                 context.PostContents.Remove(loopToHistoric);
             }
@@ -401,6 +415,21 @@ namespace PointlessWaymarksCmsData.Database
                 default:
                     return new List<string>();
             }
+        }
+
+        public static async Task<List<HistoricPointDetail>> HistoricPointDetailsForPoint(Guid pointContentId,
+            PointlessWaymarksContext db)
+        {
+            var detailLinks = await db.HistoricPointContentPointDetailLinks
+                .Where(x => x.PointContentId == pointContentId).Select(x => x.PointContentId).Distinct().ToListAsync();
+
+            var returnList = new List<HistoricPointDetail>();
+
+            foreach (var loopDetailContentId in detailLinks)
+                returnList.AddRange(db.HistoricPointDetails.Where(x => x.ContentId == loopDetailContentId)
+                    .OrderByDescending(x => x.LastUpdatedOn).Take(10));
+
+            return returnList;
         }
 
 #pragma warning disable 1998
@@ -603,6 +632,15 @@ namespace PointlessWaymarksCmsData.Database
             return toReturn;
         }
 
+        public static (PointContent content, List<PointDetail> details) PointContentDtoToPointContentAndDetails(
+            PointContentDto dto)
+        {
+            var toSave = (PointContent) new PointContent().InjectFrom(dto);
+            var relatedDetails = dto.PointDetails ?? new List<PointDetail>();
+
+            return (toSave, relatedDetails);
+        }
+
         public static IPointDetailData PointDetailDataFromIdentifierAndJson(string dataIdentifier, string json)
         {
             return dataIdentifier switch
@@ -686,6 +724,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricFileContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricFileContents.AddAsync(newHistoric);
                 context.FileContents.Remove(loopToHistoric);
             }
@@ -719,6 +760,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricImageContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricImageContents.AddAsync(newHistoric);
                 context.ImageContents.Remove(loopToHistoric);
             }
@@ -754,6 +798,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricLinkContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricLinkContents.AddAsync(newHistoric);
                 context.LinkContents.Remove(loopToHistoric);
             }
@@ -785,6 +832,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricNoteContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricNoteContents.AddAsync(newHistoric);
                 context.NoteContents.Remove(loopToHistoric);
             }
@@ -816,6 +866,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricPhotoContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPhotoContents.AddAsync(newHistoric);
                 context.PhotoContents.Remove(loopToHistoric);
             }
@@ -836,10 +889,11 @@ namespace PointlessWaymarksCmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task SavePointContent(PointContent toSave, List<PointDetail> relatedDetails)
+        public static async Task<PointContentDto> SavePointContent(PointContentDto toSaveDto)
         {
-            if (toSave == null) return;
-            relatedDetails ??= new List<PointDetail>();
+            if (toSaveDto == null) return null;
+
+            var (toSave, relatedDetails) = PointContentDtoToPointContentAndDetails(toSaveDto);
 
             var context = await Context();
 
@@ -852,6 +906,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricPointContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPointContents.AddAsync(newHistoric);
                 context.PointContents.Remove(loopToHistoric);
             }
@@ -875,10 +932,22 @@ namespace PointlessWaymarksCmsData.Database
 
             foreach (var loopInvalids in invalidLinks)
             {
-                var newHistoric = new HistoricPointContentPointDetailLink();
-                newHistoric.InjectFrom(loopInvalids);
-                newHistoric.Id = 0;
-                await context.HistoricPointContentPointDetailLinks.AddAsync(newHistoric);
+                var relatedDetailEntries =
+                    context.PointDetails.Where(x => x.ContentId == loopInvalids.PointDetailContentId);
+
+                foreach (var loopRelatedDetails in relatedDetailEntries)
+                {
+                    var newHistoricDetail = new HistoricPointDetail();
+                    newHistoricDetail.InjectFrom(loopRelatedDetails);
+                    newHistoricDetail.Id = 0;
+                    await context.HistoricPointDetails.AddAsync(newHistoricDetail);
+                    context.PointDetails.Remove(loopRelatedDetails);
+                }
+
+                var newHistoricLink = new HistoricPointContentPointDetailLink();
+                newHistoricLink.InjectFrom(loopInvalids);
+                newHistoricLink.Id = 0;
+                await context.HistoricPointContentPointDetailLinks.AddAsync(newHistoricLink);
                 context.PointContentPointDetailLinks.Remove(loopInvalids);
             }
 
@@ -906,7 +975,9 @@ namespace PointlessWaymarksCmsData.Database
 
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-                new List<Guid> {toSave.ContentId});
+                toSave.ContentId.AsList());
+
+            return await PointAndPointDetails(toSaveDto.ContentId);
         }
 
         public static async Task SavePointDetailContent(PointContentPointDetailLink toSave)
@@ -948,6 +1019,7 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricPointDetail();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
                 await context.HistoricPointDetails.AddAsync(newHistoric);
                 context.PointDetails.Remove(loopToHistoric);
             }
@@ -980,6 +1052,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricPostContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPostContents.AddAsync(newHistoric);
                 context.PostContents.Remove(loopToHistoric);
             }
