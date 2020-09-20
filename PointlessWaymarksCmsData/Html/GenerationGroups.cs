@@ -496,7 +496,7 @@ namespace PointlessWaymarksCmsData.Html
                 {
                     progress?.Report($"New content found for tag {loopTags} - creating page");
                     var contentToWrite =
-                        db.ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList());
+                        await db.ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList());
                     SearchListPageGenerators.WriteTagPage(loopTags, contentToWrite, generationVersion);
                     continue;
                 }
@@ -506,7 +506,7 @@ namespace PointlessWaymarksCmsData.Html
                     contentThisGeneration.Select(y => y.RelatedContentId).Contains(x.ContentId));
 
                 var directTagContent =
-                    db.ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList());
+                    await db.ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList());
 
                 //Main Image changes
                 var mainImageContentIds = directTagContent.Select(x => Db.MainImageContentIdIfPresent(x))

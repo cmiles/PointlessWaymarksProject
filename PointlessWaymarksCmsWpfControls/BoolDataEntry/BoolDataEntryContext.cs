@@ -93,6 +93,8 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
             }
         }
 
+        public bool UserValueIsNullable => false;
+
         public List<Func<bool, (bool passed, string validationMessage)>> ValidationFunctions
         {
             get => _validationFunctions;
@@ -170,8 +172,6 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
 
             return newContext;
         }
-
-        public bool UserValueIsNullable => false;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

@@ -7,6 +7,6 @@ namespace PointlessWaymarksCmsData.Database.Models
         public DateTime ContentVersion { get; set; }
         public int Id { get; set; }
         public Guid PointContentId { get; set; }
-        public Guid PointDetail { get; set; }
+        public Guid PointDetailContentId { get; set; }
     }
 }

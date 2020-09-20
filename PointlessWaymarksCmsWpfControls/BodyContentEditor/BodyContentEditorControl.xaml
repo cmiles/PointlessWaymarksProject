@@ -5,10 +5,10 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
     xmlns:contentFormat="clr-namespace:PointlessWaymarksCmsWpfControls.ContentFormat"
-    xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     d:DataContext="{d:DesignInstance bodyContentEditor:BodyContentEditorContext}"
     d:DesignHeight="300"
@@ -126,16 +126,20 @@
                         Command="{Binding RefreshPreviewCommand}">
                         Refresh Preview
                     </Button>
-                    <controls:WebView
+                    <wpf:WebView2
                         x:Name="BodyContentWebView"
                         Grid.Row="1"
-                        wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding BodyContentHtmlOutput}"
-                        NavigationStarting="WebView_OnNavigationStarting"
-                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        <b:Interaction.Behaviors>
+                            <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding BodyContentHtmlOutput}" />
+                            <wpfHtml:WebViewRedirectLinksToBrowser />
+                            <wpfHtml:WebViewSelectedTextBehavior WebViewSelectedText="{Binding UserHtmlSelectedText}" />
+                        </b:Interaction.Behaviors>
+                    </wpf:WebView2>
                     <Button
-                        Grid.Row="3"
+                        Grid.Row="2"
                         HorizontalAlignment="Right"
-                        Click="ButtonBase_OnClick">
+                        Command="{Binding SpeakSelectedTextCommand}">
                         Read Selected
                     </Button>
                 </Grid>

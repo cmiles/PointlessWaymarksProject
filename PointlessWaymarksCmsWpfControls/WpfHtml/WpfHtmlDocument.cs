@@ -168,7 +168,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 
         pointContentMarker.on('dragend', function(e) {{
             console.log(e);
-            window.external.notify(e.target._latlng.lat + "";"" + e.target._latlng.lng);
+            window.chrome.webview.postMessage(e.target._latlng.lat + "";"" + e.target._latlng.lng);
         }});
 
     </script>

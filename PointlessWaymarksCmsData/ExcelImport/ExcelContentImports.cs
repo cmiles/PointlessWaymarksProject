@@ -59,6 +59,27 @@ namespace PointlessWaymarksCmsData.ExcelImport
             return new ExcelValueParse<DateTime?> {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
         }
 
+        public static ExcelValueParse<double?> GetDoubleFromExcelRow(ExcelHeaderRow headerInfo, IXLRangeRow toProcess,
+            string columnName)
+        {
+            var contentIdColumn = headerInfo.Columns.Single(x => string.Equals(x.ColumnHeader,
+                columnName.TrimNullToEmpty(), StringComparison.CurrentCultureIgnoreCase));
+
+            var stringValue = toProcess.Worksheet.Cell(toProcess.RowNumber(), contentIdColumn.ExcelSheetColumn).Value
+                .ToString();
+
+            if (string.IsNullOrWhiteSpace(stringValue))
+                return new ExcelValueParse<double?> {ParsedValue = null, StringValue = stringValue, ValueParsed = true};
+
+            if (double.TryParse(stringValue, out var parsedValue))
+                return new ExcelValueParse<double?>
+                {
+                    ParsedValue = parsedValue, StringValue = stringValue, ValueParsed = true
+                };
+
+            return new ExcelValueParse<double?> {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
+        }
+
         public static ExcelValueParse<Guid?> GetGuidFromExcelRow(ExcelHeaderRow headerInfo, IXLRangeRow toProcess,
             string columnName)
         {
@@ -99,6 +120,117 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 };
 
             return new ExcelValueParse<int?> {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
+        }
+
+        public static List<ExcelValueParse<PointDetail>> GetPointDetails(ExcelHeaderRow headerInfo,
+            IXLRangeRow toProcess)
+        {
+            var contentColumns = headerInfo.Columns.Where(x => x.ColumnHeader.StartsWith("PointDetail "));
+
+            var returnList = new List<ExcelValueParse<PointDetail>>();
+
+            foreach (var loopColumns in contentColumns)
+            {
+                var stringValue = toProcess.Worksheet.Cell(toProcess.RowNumber(), loopColumns.ExcelSheetColumn)
+                    .GetString();
+
+                if (string.IsNullOrWhiteSpace(stringValue)) continue;
+
+                var toAdd = new ExcelValueParse<PointDetail> {StringValue = stringValue};
+                returnList.Add(toAdd);
+
+
+                var splitList = stringValue.RemoveNewLines().TrimNullToEmpty().Split("||")
+                    .Select(x => x.TrimNullToEmpty()).ToList();
+
+                if (splitList.Count != 3)
+                {
+                    toAdd.ParsedValue = null;
+                    toAdd.ValueParsed = false;
+                    continue;
+                }
+
+                PointDetail pointDetail;
+
+                if (splitList[0].Length == 9 || !splitList[1].StartsWith("ContentId:"))
+                {
+                    pointDetail = new PointDetail();
+                }
+                else
+                {
+                    var contentIdString = splitList[0].Substring(9, splitList[0].Length - 9).TrimNullToEmpty();
+                    if (!Guid.TryParse(contentIdString, out var contentId))
+                    {
+                        toAdd.ParsedValue = null;
+                        toAdd.ValueParsed = false;
+                        continue;
+                    }
+
+                    var db = Db.Context().Result;
+                    var possiblePoint = db.PointDetails.Single(x => x.ContentId == contentId);
+
+                    if (possiblePoint == null)
+                    {
+                        toAdd.ParsedValue = null;
+                        toAdd.ValueParsed = false;
+                        continue;
+                    }
+
+                    pointDetail = possiblePoint;
+                }
+
+                if (splitList[1].Length <= 5 || !splitList[1].StartsWith("Type:"))
+                {
+                    toAdd.ParsedValue = null;
+                    toAdd.ValueParsed = false;
+                    continue;
+                }
+
+                var dataTypeString = splitList[1].Substring(5, splitList[1].Length - 5).TrimNullToEmpty();
+
+                if (!Db.PointDetailDataTypeIsValid(dataTypeString))
+                {
+                    toAdd.ParsedValue = null;
+                    toAdd.ValueParsed = false;
+                    continue;
+                }
+
+                pointDetail.DataType = dataTypeString;
+
+                if (splitList[2].Length <= 5 || !splitList[1].StartsWith("Data:"))
+                {
+                    toAdd.ParsedValue = null;
+                    toAdd.ValueParsed = false;
+                    continue;
+                }
+
+                try
+                {
+                    var detailData = Db.PointDetailDataFromIdentifierAndJson(dataTypeString,
+                        splitList[2].Substring(5, splitList[2].Length - 5));
+                    var validationResult = detailData.Validate();
+
+                    if (!validationResult.isValid)
+                    {
+                        toAdd.ParsedValue = null;
+                        toAdd.ValueParsed = false;
+                        continue;
+                    }
+
+                    pointDetail.StructuredDataAsJson = dataTypeString;
+                }
+                catch (Exception e)
+                {
+                    toAdd.ParsedValue = null;
+                    toAdd.ValueParsed = false;
+                    continue;
+                }
+
+                toAdd.ParsedValue = pointDetail;
+                toAdd.ValueParsed = true;
+            }
+
+            return returnList;
         }
 
         public static ExcelValueParse<string> GetStringFromExcelRow(ExcelHeaderRow headerInfo, IXLRangeRow toProcess,
@@ -431,6 +563,25 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
                     loopProperties.SetValue(toUpdate, excelResult.ParsedValue);
                 }
+                else if (loopProperties.PropertyType == typeof(double?))
+                {
+                    var excelResult = GetDoubleFromExcelRow(headerInfo, toProcess, loopProperties.Name);
+
+                    if (excelResult.ValueParsed == null || !excelResult.ValueParsed.Value)
+                        returnString.Add($"Row {toProcess.RowNumber()} - could not process {loopProperties.Name}");
+
+                    loopProperties.SetValue(toUpdate, excelResult.ParsedValue);
+                }
+                else if (loopProperties.PropertyType == typeof(double))
+                {
+                    var excelResult = GetDoubleFromExcelRow(headerInfo, toProcess, loopProperties.Name);
+
+                    if (excelResult.ValueParsed == null || !excelResult.ValueParsed.Value ||
+                        excelResult.ParsedValue == null)
+                        returnString.Add($"Row {toProcess.RowNumber()} - could not process {loopProperties.Name}");
+
+                    loopProperties.SetValue(toUpdate, excelResult.ParsedValue);
+                }
                 else if (loopProperties.PropertyType == typeof(int?))
                 {
                     var excelResult = GetIntFromExcelRow(headerInfo, toProcess, loopProperties.Name);
@@ -474,6 +625,18 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     returnString.Add(
                         $"Row {toProcess.RowNumber()} - could not process {loopProperties.Name}, not a recognized type");
                 }
+
+            if (toUpdate is PointContentDto pointDto)
+            {
+                var excelResult = GetPointDetails(headerInfo, toProcess);
+
+                if (excelResult.Any(x =>
+                    x.ValueParsed == null || excelResult.Any(x => !x.ValueParsed.Value) ||
+                    excelResult.Any(x => x.ParsedValue == null)))
+                    returnString.Add($"Row {toProcess.RowNumber()} - could not process Point Details");
+                else
+                    pointDto.PointDetails = excelResult.Select(x => x.ParsedValue).ToList();
+            }
 
             return returnString;
         }

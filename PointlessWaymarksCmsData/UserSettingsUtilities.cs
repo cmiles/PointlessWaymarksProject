@@ -5,9 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -558,6 +556,20 @@ namespace PointlessWaymarksCmsData
             return contentDirectory;
         }
 
+        public static DirectoryInfo LocalSitePointContentDirectory(this UserSettings settings, PointContentDto content,
+            bool createDirectoryIfNotFound = true)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSitePointDirectory().FullName,
+                content.Folder, content.Slug));
+
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
         public static DirectoryInfo LocalSitePointDirectory(this UserSettings settings)
         {
             var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Points"));
@@ -571,6 +583,14 @@ namespace PointlessWaymarksCmsData
         public static FileInfo LocalSitePointHtmlFile(this UserSettings settings, PointContent content)
         {
             var directory = settings.LocalSitePointContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
+        public static FileInfo LocalSitePointHtmlFile(this UserSettings settings, PointContentDto content)
+        {
+            var directory =
+                settings.LocalSitePointContentDirectory(Db.PointContentDtoToPointContentAndDetails(content).content,
+                    false);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
@@ -681,6 +701,8 @@ namespace PointlessWaymarksCmsData
                 NoteContent c => settings.NotePageUrl(c),
                 PhotoContent c => settings.PhotoPageUrl(c),
                 PostContent c => settings.PostPageUrl(c),
+                PointContent c => settings.PointPageUrl(c),
+                PointContentDto c => settings.PointPageUrl(Db.PointContentDtoToPointContentAndDetails(c).content),
                 _ => throw new DataException("Content not Found")
             };
         }

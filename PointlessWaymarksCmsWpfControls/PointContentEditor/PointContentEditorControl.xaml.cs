@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
+using Microsoft.Web.WebView2.Core;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsWpfControls.PointContentEditor
@@ -12,27 +13,47 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
     /// </summary>
     public partial class PointContentEditorControl : UserControl
     {
+        private readonly TaskQueue _webViewWorkQueue;
+
         public PointContentEditorControl()
         {
             InitializeComponent();
 
-            PointContentWebView.ScriptNotify += PointContentWebViewOnScriptNotify;
+            _webViewWorkQueue = new TaskQueue(true);
         }
 
         private void PointContentEditorControl_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue is PointContentEditorContext pointContext)
             {
-                PointContentWebView.NavigateToString(WpfHtmlDocument.ToHtmlLeafletDocument("Point Map",
-                    pointContext.LatitudeEntry.UserValue, pointContext.LongitudeEntry.UserValue, string.Empty));
+                _webViewWorkQueue.Enqueue(async () =>
+                {
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
+                    PointContentWebView.NavigateToString(WpfHtmlDocument.ToHtmlLeafletDocument("Point Map",
+                        pointContext.LatitudeEntry.UserValue, pointContext.LongitudeEntry.UserValue, string.Empty));
+                });
+
                 RaisePointLatitudeLongitudeChange += pointContext.OnRaisePointLatitudeLongitudeChange;
                 pointContext.RaisePointLatitudeLongitudeChange += PointContextOnRaisePointLatitudeLongitudeChange;
             }
         }
 
-        private void PointContentWebViewOnScriptNotify(object sender, WebViewControlScriptNotifyEventArgs e)
+        private async void PointContentEditorControl_OnLoaded(object sender, RoutedEventArgs e)
         {
-            var value = e.Value.TrimNullToEmpty();
+            await PointContentWebView.EnsureCoreWebView2Async();
+        }
+
+        private void PointContentWebView_OnCoreWebView2Ready(object? sender, EventArgs e)
+        {
+            _webViewWorkQueue.Suspend(false);
+
+            PointContentWebView.CoreWebView2.WebMessageReceived += PointContentWebViewOnScriptNotify;
+        }
+
+        private void PointContentWebViewOnScriptNotify(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+            var value = e.TryGetWebMessageAsString().TrimNullToEmpty();
 
             if (string.IsNullOrWhiteSpace(value)) return;
 
@@ -48,8 +69,13 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
         private void PointContextOnRaisePointLatitudeLongitudeChange(object sender, PointLatitudeLongitudeChange e)
         {
-            PointContentWebView.InvokeScript("eval",
-                $@"pointContentMarker.setLatLng([{e.Latitude},{e.Longitude}]); map.setView([{e.Latitude},{e.Longitude}], map.getZoom());");
+            _webViewWorkQueue.Enqueue(async () =>
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                await PointContentWebView.ExecuteScriptAsync(
+                    $@"pointContentMarker.setLatLng([{e.Latitude},{e.Longitude}]); map.setView([{e.Latitude},{e.Longitude}], map.getZoom());");
+            });
         }
 
         public event EventHandler<PointLatitudeLongitudeChange> RaisePointLatitudeLongitudeChange;

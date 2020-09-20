@@ -5,9 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.ExcelImport;
 using PointlessWaymarksCmsWpfControls.Status;
 
@@ -108,6 +111,83 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             statusContext.ToastSuccess(
                 $"Imported {contentTableImportResult.ToUpdate.Count} items with changes from {newFile.FullName}");
+        }
+
+        public static async Task<FileInfo> PointContentToExcel(List<Guid> toDisplay, string fileName,
+            bool openAfterSaving = true)
+        {
+            var pointsAndDetails = await Db.PointsAndPointDetails(toDisplay);
+
+            return PointContentToExcel(pointsAndDetails, fileName, openAfterSaving);
+        }
+
+        public static FileInfo PointContentToExcel(List<PointContentDto> toDisplay, string fileName,
+            bool openAfterSaving = true)
+        {
+            if (toDisplay == null || !toDisplay.Any()) return null;
+
+            var transformedList = toDisplay.Select(x => new PointContent().InjectFrom(x)).Cast<PointContent>().ToList();
+
+            var detailList = new List<(Guid, string)>();
+
+            foreach (var loopContent in toDisplay)
+            foreach (var loopDetail in loopContent.PointDetails)
+                detailList.Add((loopContent.ContentId,
+                    $"ContentId:{loopDetail.ContentId}||{Environment.NewLine}Type:{loopDetail.DataType}||{Environment.NewLine}Data:{loopDetail.StructuredDataAsJson}"));
+
+            var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FolderFileUtility.TryMakeFilenameValid(fileName)}.xlsx"));
+
+            var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("Exported Data");
+
+            var insertedTable = ws.Cell(1, 1).InsertTable(transformedList);
+
+            var contentIdColumn = insertedTable.Row(1).Cells().Single(x => x.GetString() == "ContentId")
+                .WorksheetColumn().ColumnNumber();
+
+            var neededDetailColumns = detailList.GroupBy(x => x.Item1).Max(x => x.Count());
+
+            var firstDetailColumn = insertedTable.Columns().Last().WorksheetColumn().ColumnNumber() + 1;
+
+            for (var i = firstDetailColumn; i < firstDetailColumn + neededDetailColumns; i++)
+                ws.Cell(1, i).Value = $"PointDetail {i - firstDetailColumn + 1}";
+
+            foreach (var loopRow in insertedTable.Rows().Skip(1))
+            {
+                var rowContentId = Guid.Parse(loopRow.Cell(contentIdColumn).GetString());
+                var matchedData = detailList.Where(x => x.Item1 == rowContentId);
+
+                var currentColumn = firstDetailColumn;
+
+                foreach (var loopDetail in matchedData)
+                {
+                    loopRow.Cell(currentColumn).Value = loopDetail.Item2;
+                    currentColumn++;
+                }
+            }
+
+            ws.Columns().AdjustToContents();
+
+            foreach (var loopColumn in ws.ColumnsUsed().Where(x => x.Width > 70))
+            {
+                loopColumn.Width = 70;
+                loopColumn.Style.Alignment.WrapText = true;
+            }
+
+            ws.Rows().AdjustToContents();
+
+            foreach (var loopRow in ws.RowsUsed().Where(x => x.Height > 100)) loopRow.Height = 100;
+
+            wb.SaveAs(file.FullName);
+
+            if (openAfterSaving)
+            {
+                var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
+                Process.Start(ps);
+            }
+
+            return file;
         }
 
         public static async Task SelectedToExcel(List<dynamic> selected, StatusControlContext statusContext)

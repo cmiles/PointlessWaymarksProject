@@ -10,7 +10,7 @@ using KellermanSoftware.CompareNetObjects;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsData.Database.PointDetailModels;
+using PointlessWaymarksCmsData.Database.PointDetailDataModels;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -187,6 +187,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             Items.Remove(pointDetail);
 
             DeletedPointDetails.Add(pointDetail);
+
+            CheckForChangesAndValidationIssues();
         }
 
         public async Task<IPointDetailEditor> ListItemEditorFromTypeIdentifier(PointDetail detail)
@@ -225,14 +227,14 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
                 DeletedPointDetails = new List<IPointDetailEditor>();
 
                 var pointDetailTypes = from type in typeof(Db).Assembly.GetTypes()
-                    where typeof(IPointDetail).IsAssignableFrom(type) && !type.IsInterface
+                    where typeof(IPointDetailData).IsAssignableFrom(type) && !type.IsInterface
                     select type;
 
                 _pointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
 
                 foreach (var loopTypes in pointDetailTypes)
                 {
-                    var typeExample = (IPointDetail) Activator.CreateInstance(loopTypes);
+                    var typeExample = (IPointDetailData) Activator.CreateInstance(loopTypes);
 
                     if (typeExample == null) continue;
 
@@ -287,7 +289,11 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
                 DeletedPointDetails.Remove(toAdd);
 
+                toAdd.PropertyChanged += MonitorChildChangesAndValidations;
+
                 Items.Add(toAdd);
+
+                CheckForChangesAndValidationIssues();
 
                 return;
             }
@@ -310,7 +316,12 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            Items.Add(await ListItemEditorFromTypeIdentifier(newPointDetail));
+            var newDetail = await ListItemEditorFromTypeIdentifier(newPointDetail);
+            newDetail.PropertyChanged += MonitorChildChangesAndValidations;
+
+            Items.Add(newDetail);
+
+            CheckForChangesAndValidationIssues();
         }
 
         private void MonitorChildChangesAndValidations(object sender, PropertyChangedEventArgs e)

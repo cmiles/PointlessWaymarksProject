@@ -330,7 +330,20 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             ImportFromExcelCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
+                await SelectedToExcel(ListContext.SelectedItems.Select(x => x.DbEntry.ContentId).ToList(), StatusContext));
+        }
+
+        public static async Task SelectedToExcel(List<Guid> selected, StatusControlContext statusContext)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (selected == null || !selected.Any())
+            {
+                statusContext.ToastError("Nothing to send to Excel?");
+                return;
+            }
+
+            await ExcelHelpers.PointContentToExcel(selected, "SelectedPoints");
         }
 
         private async Task NewContent()

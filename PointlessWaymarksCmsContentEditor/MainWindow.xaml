@@ -112,8 +112,6 @@
                             <Button Margin="12" Command="{Binding DeleteAndResizePicturesCommand}">Delete And Resize All Photos and Images</Button>
                         </StackPanel>
                     </GroupBox>
-
-
                 </Grid>
             </TabItem>
             <TabItem Header="Diagnostics">
@@ -123,6 +121,7 @@
                             <CheckBox Margin="24,6,0,0" Command="{Binding ToggleDiagnosticLoggingCommand}">Log Diagnostic Events</CheckBox>
                             <Grid Margin="12">
                                 <Grid.RowDefinitions>
+                                    <RowDefinition />
                                     <RowDefinition />
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
@@ -167,6 +166,12 @@
                                     Grid.Column="2"
                                     Command="{Binding AllEventsExcelReportCommand}">
                                     All Events Excel Report
+                                </Button>
+                                <Button
+                                    Grid.Row="2"
+                                    Grid.Column="0"
+                                    Command="{Binding WvTwoExperimentCommand}">
+                                    WV2
                                 </Button>
                             </Grid>
                         </StackPanel>

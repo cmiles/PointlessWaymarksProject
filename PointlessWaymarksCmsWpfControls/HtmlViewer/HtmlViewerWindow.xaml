@@ -2,12 +2,13 @@
     x:Class="PointlessWaymarksCmsWpfControls.HtmlViewer.HtmlViewerWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="clr-namespace:Microsoft.Toolkit.Wpf.UI.Controls;assembly=Microsoft.Toolkit.Wpf.UI.Controls.WebView"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:htmlViewer="clr-namespace:PointlessWaymarksCmsWpfControls.HtmlViewer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     Title="HtmlViewerWindow"
     Width="800"
@@ -23,7 +24,12 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <controls:WebView wpfHtml:BrowserHtmlBindingBehavior.Html="{Binding HtmlString}" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+        <wpf:WebView2 Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+            <b:Interaction.Behaviors>
+                <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding HtmlString}" />
+                <wpfHtml:WebViewRedirectLinksToBrowser />
+            </b:Interaction.Behaviors>
+        </wpf:WebView2>
         <status:StatusControl
             Grid.Column="0"
             d:IsHidden="true"

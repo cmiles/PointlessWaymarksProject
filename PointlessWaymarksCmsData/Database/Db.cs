@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Database.PointDetailDataModels;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Spatial;
@@ -33,6 +35,9 @@ namespace PointlessWaymarksCmsData.Database
             var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePost != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePost);
 
+            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePoint != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePoint);
+
             var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleNote);
         }
@@ -54,11 +59,15 @@ namespace PointlessWaymarksCmsData.Database
             var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePost != null) return possiblePost;
 
+            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePoint != null) return await PointAndPointDetails(contentId, db);
+
             var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             return possibleNote;
         }
 
-        public static List<dynamic> ContentFromContentIds(this PointlessWaymarksContext db, List<Guid> contentIds)
+        public static async Task<List<dynamic>> ContentFromContentIds(this PointlessWaymarksContext db,
+            List<Guid> contentIds)
         {
             if (contentIds == null || !contentIds.Any()) return new List<dynamic>();
 
@@ -70,6 +79,7 @@ namespace PointlessWaymarksCmsData.Database
             returnList.AddRange(db.PostContents.Where(x => contentIds.Contains(x.ContentId)));
             returnList.AddRange(db.ImageContents.Where(x => contentIds.Contains(x.ContentId)));
             returnList.AddRange(db.NoteContents.Where(x => contentIds.Contains(x.ContentId)));
+            returnList.AddRange(await PointsAndPointDetails(contentIds));
 
             return returnList;
         }
@@ -190,6 +200,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricFileContents.AddAsync(newHistoric);
                 context.FileContents.Remove(loopToHistoric);
             }
@@ -218,6 +230,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricImageContents.AddAsync(newHistoric);
                 context.ImageContents.Remove(loopToHistoric);
             }
@@ -246,6 +260,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricLinkContents.AddAsync(newHistoric);
                 context.LinkContents.Remove(loopToHistoric);
             }
@@ -274,6 +290,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricNoteContents.AddAsync(newHistoric);
                 context.NoteContents.Remove(loopToHistoric);
             }
@@ -302,6 +320,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPhotoContents.AddAsync(newHistoric);
                 context.PhotoContents.Remove(loopToHistoric);
             }
@@ -330,6 +350,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPointContents.AddAsync(newHistoric);
                 context.PointContents.Remove(loopToHistoric);
             }
@@ -358,6 +380,8 @@ namespace PointlessWaymarksCmsData.Database
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
                 newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPostContents.AddAsync(newHistoric);
                 context.PostContents.Remove(loopToHistoric);
             }
@@ -393,6 +417,21 @@ namespace PointlessWaymarksCmsData.Database
             }
         }
 
+        public static async Task<List<HistoricPointDetail>> HistoricPointDetailsForPoint(Guid pointContentId,
+            PointlessWaymarksContext db)
+        {
+            var detailLinks = await db.HistoricPointContentPointDetailLinks
+                .Where(x => x.PointContentId == pointContentId).Select(x => x.PointContentId).Distinct().ToListAsync();
+
+            var returnList = new List<HistoricPointDetail>();
+
+            foreach (var loopDetailContentId in detailLinks)
+                returnList.AddRange(db.HistoricPointDetails.Where(x => x.ContentId == loopDetailContentId)
+                    .OrderByDescending(x => x.LastUpdatedOn).Take(10));
+
+            return returnList;
+        }
+
 #pragma warning disable 1998
         public static async Task<EventLogContext> Log()
 #pragma warning restore 1998
@@ -414,11 +453,13 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
-                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent)
+                .Concat(noteContent).OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
         }
 
         public static async Task<List<IContentCommon>> MainFeedCommonContentBefore(DateTime before, int numberOfEntries)
@@ -432,11 +473,13 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<IContentCommon>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent)
+                .Concat(noteContent).OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
         }
 
         public static async Task<List<dynamic>> MainFeedDynamicContentAfter(DateTime after, int numberOfEntries)
@@ -450,11 +493,13 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn > after)
+                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < after)
                 .OrderBy(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
-                .OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent)
+                .Concat(noteContent).OrderBy(x => x.CreatedOn).Take(numberOfEntries).ToList();
         }
 
         public static async Task<List<dynamic>> MainFeedDynamicContentBefore(DateTime before, int numberOfEntries)
@@ -468,11 +513,13 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
+                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed && x.CreatedOn < before)
                 .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).Cast<dynamic>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
-                .OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent)
+                .Concat(noteContent).OrderByDescending(x => x.CreatedOn).Take(numberOfEntries).ToList();
         }
 
         public static async Task<List<IContentCommon>> MainFeedRecentCommonContent(int topNumberOfEntries)
@@ -486,11 +533,13 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed)
+                .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<IContentCommon>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
-                .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent)
+                .Concat(noteContent).OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
 
         public static async Task<List<dynamic>> MainFeedRecentDynamicContent(int topNumberOfEntries)
@@ -504,11 +553,13 @@ namespace PointlessWaymarksCmsData.Database
                 .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed)
+                .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
 
-            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(noteContent)
-                .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
+            return fileContent.Concat(photoContent).Concat(imageContent).Concat(postContent).Concat(pointContent)
+                .Concat(noteContent).OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).ToList();
         }
 
         public static Guid? MainImageContentIdIfPresent(dynamic content)
@@ -560,6 +611,104 @@ namespace PointlessWaymarksCmsData.Database
             return list;
         }
 
+        public static async Task<PointContentDto> PointAndPointDetails(Guid pointContentId)
+        {
+            var db = await Context();
+
+            return await PointAndPointDetails(pointContentId, db);
+        }
+
+        public static async Task<PointContentDto> PointAndPointDetails(Guid pointContentId, PointlessWaymarksContext db)
+        {
+            var point = await db.PointContents.SingleAsync(x => x.ContentId == pointContentId);
+            var detailLinks = await db.PointContentPointDetailLinks.Where(x => x.PointContentId == pointContentId)
+                .Select(x => x.PointDetailContentId).ToListAsync();
+            var details = await db.PointDetails.Where(x => detailLinks.Contains(x.ContentId)).ToListAsync();
+
+            var toReturn = new PointContentDto();
+            toReturn.InjectFrom(point);
+            toReturn.PointDetails = details;
+
+            return toReturn;
+        }
+
+        public static (PointContent content, List<PointDetail> details) PointContentDtoToPointContentAndDetails(
+            PointContentDto dto)
+        {
+            var toSave = (PointContent) new PointContent().InjectFrom(dto);
+            var relatedDetails = dto.PointDetails ?? new List<PointDetail>();
+
+            return (toSave, relatedDetails);
+        }
+
+        public static IPointDetailData PointDetailDataFromIdentifierAndJson(string dataIdentifier, string json)
+        {
+            return dataIdentifier switch
+            {
+                "Campground" => JsonSerializer.Deserialize<Campground>(json),
+                "Feature" => JsonSerializer.Deserialize<Feature>(json),
+                "Parking" => JsonSerializer.Deserialize<Parking>(json),
+                "Peak" => JsonSerializer.Deserialize<Peak>(json),
+                "Restroom" => JsonSerializer.Deserialize<Restroom>(json),
+                "Trail Junction" => JsonSerializer.Deserialize<TrailJunction>(json),
+                _ => null
+            };
+        }
+
+        public static bool PointDetailDataTypeIsValid(string dataType)
+        {
+            var pointDetailTypes = from type in typeof(Db).Assembly.GetTypes()
+                where typeof(IPointDetailData).IsAssignableFrom(type) && !type.IsInterface
+                select type;
+
+            foreach (var loopTypes in pointDetailTypes)
+            {
+                var typeExample = (IPointDetailData) Activator.CreateInstance(loopTypes);
+
+                if (typeExample == null) continue;
+
+                if (typeExample.DataTypeIdentifier == dataType) return true;
+            }
+
+            return false;
+        }
+
+        public static async Task<List<PointDetail>> PointDetailsForPoint(Guid pointContentId,
+            PointlessWaymarksContext db)
+        {
+            var detailLinks = await db.PointContentPointDetailLinks.Where(x => x.PointContentId == pointContentId)
+                .Select(x => x.PointDetailContentId).ToListAsync();
+            var details = await db.PointDetails.Where(x => detailLinks.Contains(x.ContentId)).ToListAsync();
+
+            return details;
+        }
+
+        public static async Task<List<PointContentDto>> PointsAndPointDetails(List<Guid> pointContentId)
+        {
+            var db = await Context();
+
+            var idChunks = pointContentId.Partition(250);
+
+            var returnList = new List<PointContentDto>();
+
+            foreach (var loopChunk in idChunks)
+            {
+                var contents = await db.PointContents.Where(x => loopChunk.Contains(x.ContentId)).ToListAsync();
+
+                foreach (var loopContent in contents)
+                {
+                    var details = await PointDetailsForPoint(loopContent.ContentId, db);
+                    var toAdd = new PointContentDto();
+                    toAdd.InjectFrom(loopContent);
+                    toAdd.PointDetails = details;
+
+                    returnList.Add(toAdd);
+                }
+            }
+
+            return returnList;
+        }
+
         public static async Task SaveFileContent(FileContent toSave)
         {
             if (toSave == null) return;
@@ -575,6 +724,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricFileContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricFileContents.AddAsync(newHistoric);
                 context.FileContents.Remove(loopToHistoric);
             }
@@ -608,6 +760,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricImageContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricImageContents.AddAsync(newHistoric);
                 context.ImageContents.Remove(loopToHistoric);
             }
@@ -643,6 +798,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricLinkContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricLinkContents.AddAsync(newHistoric);
                 context.LinkContents.Remove(loopToHistoric);
             }
@@ -674,6 +832,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricNoteContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricNoteContents.AddAsync(newHistoric);
                 context.NoteContents.Remove(loopToHistoric);
             }
@@ -705,6 +866,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricPhotoContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPhotoContents.AddAsync(newHistoric);
                 context.PhotoContents.Remove(loopToHistoric);
             }
@@ -725,10 +889,11 @@ namespace PointlessWaymarksCmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task SavePointContent(PointContent toSave, List<PointDetail> relatedDetails)
+        public static async Task<PointContentDto> SavePointContent(PointContentDto toSaveDto)
         {
-            if (toSave == null) return;
-            relatedDetails ??= new List<PointDetail>();
+            if (toSaveDto == null) return null;
+
+            var (toSave, relatedDetails) = PointContentDtoToPointContentAndDetails(toSaveDto);
 
             var context = await Context();
 
@@ -741,6 +906,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricPointContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPointContents.AddAsync(newHistoric);
                 context.PointContents.Remove(loopToHistoric);
             }
@@ -764,10 +932,22 @@ namespace PointlessWaymarksCmsData.Database
 
             foreach (var loopInvalids in invalidLinks)
             {
-                var newHistoric = new HistoricPointContentPointDetailLink();
-                newHistoric.InjectFrom(loopInvalids);
-                newHistoric.Id = 0;
-                await context.HistoricPointContentPointDetailLinks.AddAsync(newHistoric);
+                var relatedDetailEntries =
+                    context.PointDetails.Where(x => x.ContentId == loopInvalids.PointDetailContentId);
+
+                foreach (var loopRelatedDetails in relatedDetailEntries)
+                {
+                    var newHistoricDetail = new HistoricPointDetail();
+                    newHistoricDetail.InjectFrom(loopRelatedDetails);
+                    newHistoricDetail.Id = 0;
+                    await context.HistoricPointDetails.AddAsync(newHistoricDetail);
+                    context.PointDetails.Remove(loopRelatedDetails);
+                }
+
+                var newHistoricLink = new HistoricPointContentPointDetailLink();
+                newHistoricLink.InjectFrom(loopInvalids);
+                newHistoricLink.Id = 0;
+                await context.HistoricPointContentPointDetailLinks.AddAsync(newHistoricLink);
                 context.PointContentPointDetailLinks.Remove(loopInvalids);
             }
 
@@ -795,7 +975,9 @@ namespace PointlessWaymarksCmsData.Database
 
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-                new List<Guid> {toSave.ContentId});
+                toSave.ContentId.AsList());
+
+            return await PointAndPointDetails(toSaveDto.ContentId);
         }
 
         public static async Task SavePointDetailContent(PointContentPointDetailLink toSave)
@@ -837,6 +1019,7 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricPointDetail();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
                 await context.HistoricPointDetails.AddAsync(newHistoric);
                 context.PointDetails.Remove(loopToHistoric);
             }
@@ -869,6 +1052,9 @@ namespace PointlessWaymarksCmsData.Database
                 var newHistoric = new HistoricPostContent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = DateTime.Now;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricPostContents.AddAsync(newHistoric);
                 context.PostContents.Remove(loopToHistoric);
             }
@@ -1000,6 +1186,10 @@ namespace PointlessWaymarksCmsData.Database
                 includePagesExcludedFromSearch
                     ? (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList()
                     : (await db.ImageContents.Where(x => x.ShowInSearch).ToListAsync()).Cast<ITag>().ToList(),
+                progress);
+
+            progress?.Report("Process Point Content Tags");
+            ParseToTagSlugsAndContentList(returnList, (await db.PointContents.ToListAsync()).Cast<ITag>().ToList(),
                 progress);
 
             progress?.Report("Process Post Content Tags");

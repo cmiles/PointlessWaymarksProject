@@ -120,7 +120,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
             Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
             var (generationReturn, newContent) =
-                await PostGenerator.SaveAndGenerateHtml(contentToSave, null, IronwoodTests.DebugProgressTracker());
+                await PostGenerator.SaveAndGenerateHtml(contentToSave, null, DebugTrackers.DebugProgressTracker());
             Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
             var contentComparison = CompareContent(contentReference, newContent);
