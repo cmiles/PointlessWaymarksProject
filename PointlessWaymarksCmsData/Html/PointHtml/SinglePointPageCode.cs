@@ -2,7 +2,6 @@
 using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
-using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 
@@ -10,7 +9,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
 {
     public partial class SinglePointPage
     {
-        public SinglePointPage(PointContent dbEntry)
+        public SinglePointPage(PointContentDto dbEntry)
         {
             DbEntry = dbEntry;
 
@@ -19,12 +18,10 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             SiteName = settings.SiteName;
             PageUrl = settings.PointPageUrl(DbEntry);
 
-            var db = Db.Context().Result;
-
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
         }
 
-        public PointContent DbEntry { get; }
+        public PointContentDto DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }
         public PictureSiteInformation MainImage { get; }
         public string PageUrl { get; }

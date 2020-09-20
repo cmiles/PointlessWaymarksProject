@@ -22,8 +22,8 @@
     d:DesignHeight="300"
     d:DesignWidth="300"
     DataContextChanged="PointContentEditorControl_OnDataContextChanged"
-    mc:Ignorable="d"
-    Loaded="PointContentEditorControl_OnLoaded">
+    Loaded="PointContentEditorControl_OnLoaded"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -78,8 +78,8 @@
                     </GroupBox>
                     <wpf:WebView2
                         x:Name="PointContentWebView"
-                        CoreWebView2Ready="PointContentWebView_OnCoreWebView2Ready"
                         Grid.Row="1"
+                        CoreWebView2Ready="PointContentWebView_OnCoreWebView2Ready"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
                 </Grid>
             </TabItem>

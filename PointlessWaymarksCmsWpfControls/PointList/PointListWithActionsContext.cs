@@ -300,7 +300,9 @@ namespace PointlessWaymarksCmsWpfControls.PointList
                 StatusContext.Progress(
                     $"Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
 
-                var htmlContext = new SinglePointPage(loopSelected.DbEntry);
+                var fullItem = await Db.PointAndPointDetails(loopSelected.DbEntry.ContentId);
+
+                var htmlContext = new SinglePointPage(fullItem);
 
                 htmlContext.WriteLocalHtml();
 
@@ -330,20 +332,8 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             ImportFromExcelCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await SelectedToExcel(ListContext.SelectedItems.Select(x => x.DbEntry.ContentId).ToList(), StatusContext));
-        }
-
-        public static async Task SelectedToExcel(List<Guid> selected, StatusControlContext statusContext)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (selected == null || !selected.Any())
-            {
-                statusContext.ToastError("Nothing to send to Excel?");
-                return;
-            }
-
-            await ExcelHelpers.PointContentToExcel(selected, "SelectedPoints");
+                await SelectedToExcel(ListContext.SelectedItems.Select(x => x.DbEntry.ContentId).ToList(),
+                    StatusContext));
         }
 
         private async Task NewContent()
@@ -401,6 +391,19 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             Clipboard.SetText(finalString);
 
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        public static async Task SelectedToExcel(List<Guid> selected, StatusControlContext statusContext)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (selected == null || !selected.Any())
+            {
+                statusContext.ToastError("Nothing to send to Excel?");
+                return;
+            }
+
+            await ExcelHelpers.PointContentToExcel(selected, "SelectedPoints");
         }
 
         private async Task ViewHistory()

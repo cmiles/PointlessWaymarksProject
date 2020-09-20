@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsData.Content
         {
             progress?.Report($"Point Content - Generate HTML for {toGenerate.Title}");
 
-            var htmlContext = new SinglePointPage(Db.PointContentDtoToPointContentAndDetails(toGenerate).content);
+            var htmlContext = new SinglePointPage(toGenerate);
 
             htmlContext.WriteLocalHtml();
         }

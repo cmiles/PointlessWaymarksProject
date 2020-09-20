@@ -740,6 +740,11 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/Points/{content.Folder}/{content.Slug}/{content.Slug}.html";
         }
 
+        public static string PointPageUrl(this UserSettings settings, PointContentDto content)
+        {
+            return $"//{settings.SiteUrl}/Points/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
         public static string PointsListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Points/PointList.html";
