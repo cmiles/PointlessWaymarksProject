@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
+using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -309,6 +310,15 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             return newControl;
         }
 
+        private PointContentDto CurrentStateToPointContentDto()
+        {
+            var toReturn = new PointContentDto();
+            var currentPoint = CurrentStateToPointContent();
+            toReturn.InjectFrom(currentPoint);
+            toReturn.PointDetails = PointDetails.CurrentStateToPointDetailsList() ?? new List<PointDetail>();
+            return toReturn;
+        }
+
         private PointContent CurrentStateToPointContent()
         {
             var newEntry = new PointContent();
@@ -510,8 +520,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var (generationReturn, newContent) = await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContent(),
-                PointDetails.CurrentStateToPointDetailsList(), StatusContext.ProgressTracker());
+            var (generationReturn, newContent) = await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContentDto(), StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {
@@ -520,7 +529,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 return;
             }
 
-            await LoadData(newContent);
+            await LoadData(Db.PointContentDtoToPointContentAndDetails(newContent).content);
 
             if (closeAfterSave)
             {

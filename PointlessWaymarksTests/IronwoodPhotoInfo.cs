@@ -350,7 +350,7 @@ namespace PointlessWaymarksTests
             Assert.True(originalFile.Exists, "Test File Found");
 
             var (metadataGenerationReturn, newContent) =
-                await PhotoGenerator.PhotoMetadataToNewPhotoContent(originalFile, IronwoodTests.DebugProgressTracker());
+                await PhotoGenerator.PhotoMetadataToNewPhotoContent(originalFile, DebugTrackers.DebugProgressTracker());
             Assert.False(metadataGenerationReturn.HasError, metadataGenerationReturn.GenerationNote);
 
             var contentComparison = CompareContent(contentReference, newContent);
@@ -360,7 +360,7 @@ namespace PointlessWaymarksTests
             Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
             var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newContent, originalFile, true, null,
-                IronwoodTests.DebugProgressTracker());
+                DebugTrackers.DebugProgressTracker());
             Assert.False(saveReturn.generationReturn.HasError,
                 $"Unexpected Save Error - {saveReturn.generationReturn.GenerationNote}");
 

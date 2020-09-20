@@ -150,7 +150,7 @@ namespace PointlessWaymarksTests
             Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
             var (generationReturn, newContent) = await ImageGenerator.SaveAndGenerateHtml(contentToSave, originalFile,
-                true, null, IronwoodTests.DebugProgressTracker());
+                true, null, DebugTrackers.DebugProgressTracker());
             Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
             var contentComparison = CompareContent(contentReference, newContent);

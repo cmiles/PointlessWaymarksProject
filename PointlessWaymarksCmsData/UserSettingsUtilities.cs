@@ -586,6 +586,14 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
+        public static FileInfo LocalSitePointHtmlFile(this UserSettings settings, PointContentDto content)
+        {
+            var directory =
+                settings.LocalSitePointContentDirectory(Db.PointContentDtoToPointContentAndDetails(content).content,
+                    false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
         public static FileInfo LocalSitePointListFile(this UserSettings settings)
         {
             var directory = settings.LocalSitePointDirectory();
@@ -693,6 +701,8 @@ namespace PointlessWaymarksCmsData
                 NoteContent c => settings.NotePageUrl(c),
                 PhotoContent c => settings.PhotoPageUrl(c),
                 PostContent c => settings.PostPageUrl(c),
+                PointContent c => settings.PointPageUrl(c),
+                PointContentDto c => settings.PointPageUrl(Db.PointContentDtoToPointContentAndDetails(c).content),
                 _ => throw new DataException("Content not Found")
             };
         }

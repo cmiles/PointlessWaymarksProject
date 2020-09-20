@@ -18,7 +18,7 @@ using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksTests
 {
-    public class IronwoodTests
+    public class TestSeries01Ironwood
     {
         public const string UrlProclamationPdf = "https://www.blm.gov/sites/blm.gov/files/documents/ironwood_proc.pdf";
         public const string UrlBlmSite = "https://www.blm.gov/visit/ironwood";

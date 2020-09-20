@@ -13,10 +13,10 @@ using PointlessWaymarksCmsData.Json;
 
 namespace PointlessWaymarksTests
 {
-    public static class IronwoodPointInfo
+    public static class GrandCanyonPointInfo
     {
-        public static PointContent WikiQuotePointContent01 =>
-            new PointContent
+        public static PointContentDto YumaPointContent01 =>
+            new PointContentDto
             {
                 Title = "Yuma Point",
                 Slug = "yuma-point",
@@ -31,7 +31,48 @@ namespace PointlessWaymarksTests
                 Tags = "grand canyon,yuma point",
                 UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
                 Latitude = 36.079982,
-                Longitude = -112.229061
+                Longitude = -112.229061,
+                PointDetails = new List<PointDetail>
+                {
+                    new PointDetail
+                    {
+                        CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
+                        DataType = "Peak",
+                        StructuredDataAsJson =
+                            "{\"DataTypeIdentifier\":\"Peak\",\"Notes\":\"GNIS Data...\",\"NotesContentFormat\":\"MarkdigMarkdown01\"}"
+                    }
+                }
+            };
+
+        public static PointContentDto YumaPointContent02 =>
+            new PointContentDto
+            {
+                Title = "Yuma Point",
+                Slug = "yuma-point",
+                BodyContent = @"West of Hermit's Rest in Grand Canyon National Park.",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                ContentId = Guid.NewGuid(),
+                CreatedBy = "Point Test",
+                CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
+                Folder = "GrandCanyon",
+                ShowInMainSiteFeed = false,
+                Summary = "A named point on the South Rim of the Grand Canyon - under the open skies and free flying helicopters.",
+                Tags = "grand canyon,yuma point",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+                Latitude = 36.079982,
+                Longitude = -112.229061,
+                Elevation = 6630,
+                LastUpdatedBy = "Elevation Updater",
+                    PointDetails = new List<PointDetail>
+                {
+                    new PointDetail
+                    {
+                        CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
+                        DataType = "Peak",
+                        StructuredDataAsJson =
+                            "{\"DataTypeIdentifier\":\"Peak\",\"Notes\":\"Yuma Point|Cliff|AZ|04|Coconino|005|360448N|1121345W|36.0799823|-112.229061\",\"NotesContentFormat\":\"MarkdigMarkdown01\"}"
+                    }
+                }
             };
 
         public static async Task CheckForExpectedFilesAfterHtmlGeneration(PointContentDto newContent)
@@ -68,7 +109,15 @@ namespace PointlessWaymarksTests
                 Assert.NotNull(historicJsonFile, "Historic Point Json File not Found in Content Directory");
             }
 
-            //TODO:Check point details
+            var historicPointDetails = await Db.HistoricPointDetailsForPoint(newContent.ContentId, db);
+            if (historicPointDetails.Any())
+            {
+                var historicDetailsJsonFile = filesInDirectory.SingleOrDefault(x =>
+                    x.Name == $"{Names.HistoricPointDetailsContentPrefix}{newContent.ContentId}.json");
+
+                Assert.NotNull(historicDetailsJsonFile,
+                    "Historic Point Details Json File not Found in Content Directory");
+            }
         }
 
         public static (bool areEqual, string comparisonNotes) CompareContent(PointContentDto reference,
@@ -110,7 +159,7 @@ namespace PointlessWaymarksTests
             return (true, "Apparent Match");
         }
 
-        public static async Task HtmlChecks(PointContent newContent)
+        public static async Task HtmlChecks(PointContentDto newContent)
         {
             var htmlFile = UserSettingsSingleton.CurrentSettings().LocalSitePointHtmlFile(newContent);
 
@@ -123,7 +172,6 @@ namespace PointlessWaymarksTests
 
         public static void JsonTest(PointContent newContent)
         {
-            //Check JSON File
             var jsonFile =
                 new FileInfo(Path.Combine(
                     UserSettingsSingleton.CurrentSettings().LocalSitePointContentDirectory(newContent).FullName,
@@ -137,7 +185,8 @@ namespace PointlessWaymarksTests
             Assert.True(comparisonResult.AreEqual,
                 $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
         }
-        public static async Task<PointContent> PointTest(PointContentDto contentReference)
+
+        public static async Task<PointContentDto> PointTest(PointContentDto contentReference)
         {
             var validationReturn = await PointGenerator.Validate(contentReference);
             Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
@@ -151,7 +200,7 @@ namespace PointlessWaymarksTests
 
             await CheckForExpectedFilesAfterHtmlGeneration(newContent);
 
-            JsonTest(newContent);
+            JsonTest(Db.PointContentDtoToPointContentAndDetails(newContent).content);
 
             await HtmlChecks(newContent);
 

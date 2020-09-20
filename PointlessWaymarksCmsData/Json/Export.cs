@@ -148,7 +148,7 @@ namespace PointlessWaymarksCmsData.Json
             if (pointDetails.Any())
             {
                 var jsonPointDetails = JsonSerializer.Serialize(pointDetails);
-                await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonPointDetails);
+                await File.WriteAllTextAsync(pointDetailsFile.FullName, jsonPointDetails);
             }
 
             var historicPointDetailsFile = new FileInfo(Path.Combine(
@@ -163,7 +163,7 @@ namespace PointlessWaymarksCmsData.Json
             if (historicPointDetails.Any())
             {
                 var jsonPointDetails = JsonSerializer.Serialize(historicPointDetails);
-                await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonPointDetails);
+                await File.WriteAllTextAsync(historicPointDetailsFile.FullName, jsonPointDetails);
             }
         }
 
