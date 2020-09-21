@@ -27,7 +27,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("Exported Data");
 
-            var insertedTable = ws.Cell(1, 1).InsertTable(toDisplay);
+            ws.Cell(1, 1).InsertTable(toDisplay);
 
             ws.Columns().AdjustToContents();
 
@@ -131,6 +131,10 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             var detailList = new List<(Guid, string)>();
 
             foreach (var loopContent in toDisplay)
+                // !! This content format is used by ExcelContentImports !!
+                // Push the content into a compromise format that is ok for human generation (the target here is not creating 'by
+                //  hand in Excel' rather taking something like GNIS data and concatenating/text manipulating the data into 
+                //  shape) and still ok for parsing in code
             foreach (var loopDetail in loopContent.PointDetails)
                 detailList.Add((loopContent.ContentId,
                     $"ContentId:{loopDetail.ContentId}||{Environment.NewLine}Type:{loopDetail.DataType}||{Environment.NewLine}Data:{loopDetail.StructuredDataAsJson}"));
@@ -146,6 +150,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             var contentIdColumn = insertedTable.Row(1).Cells().Single(x => x.GetString() == "ContentId")
                 .WorksheetColumn().ColumnNumber();
 
+            //Create columns to the right of the existing table to hold the Point Details and expand the table
             var neededDetailColumns = detailList.GroupBy(x => x.Item1).Max(x => x.Count());
 
             var firstDetailColumn = insertedTable.Columns().Last().WorksheetColumn().ColumnNumber() + 1;
@@ -153,6 +158,9 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             for (var i = firstDetailColumn; i < firstDetailColumn + neededDetailColumns; i++)
                 ws.Cell(1, i).Value = $"PointDetail {i - firstDetailColumn + 1}";
 
+            if (neededDetailColumns > 0) insertedTable.Resize(ws.RangeUsed());
+
+            //Match in the point details (match rather than assume list/excel ordering)
             foreach (var loopRow in insertedTable.Rows().Skip(1))
             {
                 var rowContentId = Guid.Parse(loopRow.Cell(contentIdColumn).GetString());
@@ -167,6 +175,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 }
             }
 
+            //Format
             ws.Columns().AdjustToContents();
 
             foreach (var loopColumn in ws.ColumnsUsed().Where(x => x.Width > 70))

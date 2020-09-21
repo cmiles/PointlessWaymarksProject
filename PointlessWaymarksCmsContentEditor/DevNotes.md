@@ -1,14 +1,12 @@
 ﻿## Todos
+ - Importing a new Point From Excel gives an unhelpful change message
  - Text to Speech:
    - Cancellation
    - in Update Notes
  - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
  - Points:
-  - Details Json - save into folder with content? or whole list to parent folder? both?
-  - JsonImport - maybe a partial class for the details?
   - Setup RSS Feed
-  - Create Pages
-  - Details (make sure content id is linked correctly to detail)
+  - Generated Html...
   - Related Content
   - Map in Front End
  - Integration Testing - Link Saving
@@ -49,6 +47,14 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+9/21/2020
+
+Worked has centered around Points - current status:
+ - Gui Editor is working, of course could use more testing and use but is much more convincing now
+ - Excel Export for Points is improved, after some false starts came up with a scheme for the points that seems to work
+ - First rough test of importing a new point from Excel is done - this required a number of changes because the initial idea for the import from Excel was only use for updating.
+ - Some initial Point Tests are in place - to make them faster to Work on started a new test series
 
 9/14/2020
 

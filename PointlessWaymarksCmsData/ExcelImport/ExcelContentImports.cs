@@ -83,14 +83,17 @@ namespace PointlessWaymarksCmsData.ExcelImport
         public static ExcelValueParse<Guid?> GetGuidFromExcelRow(ExcelHeaderRow headerInfo, IXLRangeRow toProcess,
             string columnName)
         {
-            var contentIdColumn = headerInfo.Columns.Single(x => string.Equals(x.ColumnHeader,
+            var contentIdColumn = headerInfo.Columns.SingleOrDefault(x => string.Equals(x.ColumnHeader,
                 columnName.TrimNullToEmpty(), StringComparison.CurrentCultureIgnoreCase));
+
+            if (contentIdColumn == null)
+                return new ExcelValueParse<Guid?> {ParsedValue = null, StringValue = null, ValueParsed = false};
 
             var stringValue = toProcess.Worksheet.Cell(toProcess.RowNumber(), contentIdColumn.ExcelSheetColumn).Value
                 .ToString();
 
             if (string.IsNullOrWhiteSpace(stringValue))
-                return new ExcelValueParse<Guid?> {ParsedValue = null, StringValue = stringValue, ValueParsed = true};
+                return new ExcelValueParse<Guid?> {ParsedValue = null, StringValue = string.Empty, ValueParsed = true};
 
             if (Guid.TryParse(stringValue, out var parsedValue))
                 return new ExcelValueParse<Guid?>
@@ -125,7 +128,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
         public static List<ExcelValueParse<PointDetail>> GetPointDetails(ExcelHeaderRow headerInfo,
             IXLRangeRow toProcess)
         {
-            var contentColumns = headerInfo.Columns.Where(x => x.ColumnHeader.StartsWith("PointDetail "));
+            var contentColumns = headerInfo.Columns.Where(x => x.ColumnHeader.StartsWith("PointDetail"));
 
             var returnList = new List<ExcelValueParse<PointDetail>>();
 
@@ -152,13 +155,17 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
                 PointDetail pointDetail;
 
-                if (splitList[0].Length == 9 || !splitList[1].StartsWith("ContentId:"))
+                //
+                // Content Id - new or db retrieved PointDetail()
+                //
+                if (splitList[0].Length <= 10 || !splitList[0].StartsWith("ContentId:"))
                 {
-                    pointDetail = new PointDetail();
+                    pointDetail = new PointDetail {ContentId = Guid.NewGuid(), CreatedOn = DateTime.Now};
                 }
                 else
                 {
-                    var contentIdString = splitList[0].Substring(9, splitList[0].Length - 9).TrimNullToEmpty();
+                    var contentIdString = splitList[0].Substring(10, splitList[0].Length - 10).TrimNullToEmpty();
+
                     if (!Guid.TryParse(contentIdString, out var contentId))
                     {
                         toAdd.ParsedValue = null;
@@ -169,6 +176,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     var db = Db.Context().Result;
                     var possiblePoint = db.PointDetails.Single(x => x.ContentId == contentId);
 
+                    //Content Id specified but no db entry - error, exit
                     if (possiblePoint == null)
                     {
                         toAdd.ParsedValue = null;
@@ -177,8 +185,12 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     }
 
                     pointDetail = possiblePoint;
+                    pointDetail.LastUpdatedOn = DateTime.Now;
                 }
 
+                //
+                //Get the data type first so it can be used to create a new point if needed
+                //
                 if (splitList[1].Length <= 5 || !splitList[1].StartsWith("Type:"))
                 {
                     toAdd.ParsedValue = null;
@@ -197,8 +209,13 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
                 pointDetail.DataType = dataTypeString;
 
-                if (splitList[2].Length <= 5 || !splitList[1].StartsWith("Data:"))
+
+                //
+                // Point Detail Data
+                //
+                if (splitList[2].Length <= 5 || !splitList[2].StartsWith("Data:"))
                 {
+                    //Empty Data - error
                     toAdd.ParsedValue = null;
                     toAdd.ValueParsed = false;
                     continue;
@@ -206,8 +223,8 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
                 try
                 {
-                    var detailData = Db.PointDetailDataFromIdentifierAndJson(dataTypeString,
-                        splitList[2].Substring(5, splitList[2].Length - 5));
+                    var jsonString = splitList[2].Substring(5, splitList[2].Length - 5);
+                    var detailData = Db.PointDetailDataFromIdentifierAndJson(dataTypeString, jsonString);
                     var validationResult = detailData.Validate();
 
                     if (!validationResult.isValid)
@@ -217,7 +234,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                         continue;
                     }
 
-                    pointDetail.StructuredDataAsJson = dataTypeString;
+                    pointDetail.StructuredDataAsJson = jsonString;
                 }
                 catch (Exception e)
                 {
@@ -254,11 +271,24 @@ namespace PointlessWaymarksCmsData.ExcelImport
             // ReSharper disable once StringLiteralTypo
             var contentId = GetGuidFromExcelRow(headerInfo, toProcess, "contentid");
 
-            if (contentId?.ParsedValue == null) return (true, "No ContentId Found", null);
+            dynamic dbEntry;
 
-            var db = await Db.Context();
+            if (contentId?.ParsedValue == null)
+            {
+                var newContentType = GetStringFromExcelRow(headerInfo, toProcess, "newcontenttype");
 
-            var dbEntry = await db.ContentFromContentId(contentId.ParsedValue.Value);
+                if (string.IsNullOrWhiteSpace(newContentType.ParsedValue))
+                    return (true, "No ContentId or NewContentId Found", null);
+
+                dbEntry = NewContentTypeToImportDbType(newContentType.ParsedValue);
+                dbEntry.ContentId = Guid.NewGuid();
+            }
+            else
+            {
+                var db = await Db.Context();
+
+                dbEntry = await db.ContentFromContentId(contentId.ParsedValue.Value);
+            }
 
             if (dbEntry == null) return (true, $"No Db Entry for {contentId.ParsedValue} found", null);
 
@@ -299,17 +329,6 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     continue;
                 }
 
-                Guid contentId = importResult.processContent.ContentId;
-
-                var currentDbEntry = await db.ContentFromContentId(contentId);
-
-                if (currentDbEntry == null)
-                {
-                    progress?.Report(
-                        $"Excel Row {loopRow.RowNumber()} of {lastRow} - Skipping, No Longer in Db - Title {importResult.processContent.Title}");
-                    continue;
-                }
-
                 try
                 {
                     Db.DefaultPropertyCleanup(importResult.processContent);
@@ -318,25 +337,49 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 catch
                 {
                     await EventLogContext.TryWriteDiagnosticMessageToLog(
-                        $"Excel Import via dynamics - Tags threw an error on ContentId {contentId} - property probably not present",
+                        $"Excel Import via dynamics - Tags threw an error on ContentId {importResult.processContent.ContentId ?? "New Entry"} - property probably not present",
                         "Excel Import");
                     continue;
                 }
 
-                var compareLogic = new CompareLogic
-                {
-                    Config = {MembersToIgnore = new List<string> {"LastUpdatedBy"}, MaxDifferences = 100}
-                };
-                ComparisonResult comparisonResult = compareLogic.Compare(currentDbEntry, importResult.processContent);
+                Guid contentId = importResult.processContent.ContentId;
 
-                if (comparisonResult.AreEqual)
+                string differenceString;
+
+                if (contentId != null)
                 {
-                    progress?.Report(
-                        $"Excel Row {loopRow.RowNumber()} of {lastRow} - No Changes - Content Id {currentDbEntry.Title}");
-                    continue;
+                    var currentDbEntry = await db.ContentFromContentId(contentId);
+
+                    //if (currentDbEntry == null)
+                    //{
+                    //    progress?.Report(
+                    //        $"Excel Row {loopRow.RowNumber()} of {lastRow} - Skipping, No Longer in Db - Title {importResult.processContent.Title}");
+                    //    continue;
+                    //}
+
+                    var compareLogic = new CompareLogic
+                    {
+                        Config = {MembersToIgnore = new List<string> {"LastUpdatedBy"}, MaxDifferences = 100}
+                    };
+                    ComparisonResult comparisonResult =
+                        compareLogic.Compare(currentDbEntry, importResult.processContent);
+
+                    if (comparisonResult.AreEqual)
+                    {
+                        progress?.Report(
+                            $"Excel Row {loopRow.RowNumber()} of {lastRow} - No Changes - Content Id {currentDbEntry.Title}");
+                        continue;
+                    }
+
+                    var friendlyReport = new UserFriendlyReport();
+                    differenceString = friendlyReport.OutputString(comparisonResult.Differences);
+
+                    importResult.processContent.LastUpdatedOn = DateTime.Now;
                 }
-
-                importResult.processContent.LastUpdatedOn = DateTime.Now;
+                else
+                {
+                    differenceString = "New Entry";
+                }
 
                 GenerationReturn validationResult;
 
@@ -353,6 +396,9 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     case ImageContent i:
                         validationResult = await ImageGenerator.Validate(i,
                             UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i));
+                        break;
+                    case PointContentDto pc:
+                        validationResult = await PointGenerator.Validate(pc);
                         break;
                     case PostContent pc:
                         validationResult = await PostGenerator.Validate(pc);
@@ -376,17 +422,16 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     continue;
                 }
 
-                var friendlyReport = new UserFriendlyReport();
 
                 updateList.Add(new ExcelImportContentUpdateSuggestion
                 {
-                    DifferenceNotes = friendlyReport.OutputString(comparisonResult.Differences),
+                    DifferenceNotes = differenceString,
                     Title = importResult.processContent.Title,
                     ToUpdate = importResult.processContent
                 });
 
                 progress?.Report(
-                    $"Excel Row {loopRow.RowNumber()} of {lastRow} - Adding To Changed List ({updateList.Count}) - Content Id {currentDbEntry.Title}");
+                    $"Excel Row {loopRow.RowNumber()} of {lastRow} - Adding To Changed List ({updateList.Count}) - Content Id {importResult.processContent.Title}");
             }
 
             return new ExcelContentTableImportResults
@@ -413,6 +458,29 @@ namespace PointlessWaymarksCmsData.ExcelImport
             progress?.Report($"Excel Import - {fileName} - Range {tableRange.RangeAddress.ToStringRelative(true)}");
 
             return await ImportExcelContentTable(tableRange, progress);
+        }
+
+        private static dynamic NewContentTypeToImportDbType(string newContentTypeString)
+        {
+            switch (newContentTypeString.ToLower())
+            {
+                case "file":
+                    return new FileContent();
+                case "image":
+                    return new ImageContent();
+                case "link":
+                    return new LinkContent();
+                case "note":
+                    return new NoteContent();
+                case "photo":
+                    return new PhotoContent();
+                case "point":
+                    return new PointContentDto();
+                case "post":
+                    return new PostContent();
+                default:
+                    return null;
+            }
         }
 
         public static async Task<(bool hasError, string errorMessage)> SaveAndGenerateHtmlFromExcelImport(
@@ -451,6 +519,11 @@ namespace PointlessWaymarksCmsData.ExcelImport
                         generationResult = (await ImageGenerator.SaveAndGenerateHtml(image,
                             UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(image), false,
                             null, progress)).generationReturn;
+                        break;
+                    }
+                    case PointContentDto point:
+                    {
+                        generationResult = (await PointGenerator.SaveAndGenerateHtml(point, progress)).generationReturn;
                         break;
                     }
                     case PostContent post:
@@ -500,7 +573,8 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 "id",
                 "contentversion",
                 "lastupdatedon",
-                "originalfilename"
+                "originalfilename",
+                "pointdetail"
             };
             // ReSharper restore StringLiteralTypo
 
@@ -509,7 +583,8 @@ namespace PointlessWaymarksCmsData.ExcelImport
             var propertyNames = properties.Select(x => x.Name.ToLower()).ToList();
             var columnNames = headerInfo.Columns.Where(x => !string.IsNullOrWhiteSpace(x.ColumnHeader))
                 .Select(x => x.ColumnHeader.TrimNullToEmpty().ToLower()).ToList();
-            var namesToProcess = propertyNames.Intersect(columnNames).Where(x => !skipColumns.Contains(x)).ToList();
+            var namesToProcess = propertyNames.Intersect(columnNames).Where(x => !skipColumns.Any(y => x.StartsWith(y)))
+                .ToList();
 
             var propertiesToUpdate = properties.Where(x => namesToProcess.Contains(x.Name.ToLower())).ToList();
 

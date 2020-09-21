@@ -122,7 +122,7 @@ namespace PointlessWaymarksCmsData.Content
             var isValid = true;
             var errorMessage = new List<string>();
 
-            if (isNewEntry && toValidate.ContentId == Guid.Empty)
+            if (toValidate.ContentId == Guid.Empty)
             {
                 isValid = false;
                 errorMessage.Add("Content ID is Empty");

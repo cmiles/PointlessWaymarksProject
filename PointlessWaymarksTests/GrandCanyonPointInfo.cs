@@ -36,6 +36,7 @@ namespace PointlessWaymarksTests
                 {
                     new PointDetail
                     {
+                        ContentId = Guid.NewGuid(),
                         CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                         DataType = "Peak",
                         StructuredDataAsJson =
@@ -51,7 +52,6 @@ namespace PointlessWaymarksTests
                 Slug = "yuma-point",
                 BodyContent = @"West of Hermit's Rest in Grand Canyon National Park.",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-                ContentId = Guid.NewGuid(),
                 CreatedBy = "Point Test",
                 CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                 Folder = "GrandCanyon",
@@ -63,14 +63,16 @@ namespace PointlessWaymarksTests
                 Longitude = -112.229061,
                 Elevation = 6630,
                 LastUpdatedBy = "Elevation Updater",
-                    PointDetails = new List<PointDetail>
+                LastUpdatedOn = new DateTime(2020, 9, 21, 8, 20, 16),
+                PointDetails = new List<PointDetail>
                 {
                     new PointDetail
                     {
                         CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                         DataType = "Peak",
                         StructuredDataAsJson =
-                            "{\"DataTypeIdentifier\":\"Peak\",\"Notes\":\"Yuma Point|Cliff|AZ|04|Coconino|005|360448N|1121345W|36.0799823|-112.229061\",\"NotesContentFormat\":\"MarkdigMarkdown01\"}"
+                            "{\"DataTypeIdentifier\":\"Peak\",\"Notes\":\"Yuma Point|Cliff|AZ|04|Coconino|005|360448N|1121345W|36.0799823|-112.229061\",\"NotesContentFormat\":\"MarkdigMarkdown01\"}",
+                        LastUpdatedOn = new DateTime(2020, 9, 21, 8, 20, 16)
                     }
                 }
             };

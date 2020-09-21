@@ -632,6 +632,20 @@ namespace PointlessWaymarksCmsData.Database
             return toReturn;
         }
 
+        public static PointContentDto PointContentDtoFromPointContentAndDetails(PointContent content,
+            List<PointDetail> details)
+        {
+            var toReturn = new PointContentDto();
+
+            if (content != null) toReturn.InjectFrom(content);
+
+            details ??= new List<PointDetail>();
+
+            toReturn.PointDetails = details;
+
+            return toReturn;
+        }
+
         public static (PointContent content, List<PointDetail> details) PointContentDtoToPointContentAndDetails(
             PointContentDto dto)
         {

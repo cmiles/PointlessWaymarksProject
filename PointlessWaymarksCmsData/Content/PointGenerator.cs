@@ -70,6 +70,9 @@ namespace PointlessWaymarksCmsData.Content
 
             foreach (var loopDetails in pointContent.PointDetails)
             {
+                if (loopDetails.ContentId == Guid.Empty)
+                    return await GenerationReturn.Error("Point Detail Data must have a valid Content Id",
+                        loopDetails.ContentId);
                 if (string.IsNullOrWhiteSpace(loopDetails.DataType))
                     return await GenerationReturn.Error("Point Detail Data Type doesn't have a value",
                         loopDetails.ContentId);

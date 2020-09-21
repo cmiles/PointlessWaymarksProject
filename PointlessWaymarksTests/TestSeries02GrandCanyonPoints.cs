@@ -3,14 +3,16 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Spatial;
 using PointlessWaymarksCmsData.Spatial.Elevation;
 
 namespace PointlessWaymarksTests
 {
-    public class TestSeries02Points
+    public class TestSeries02GrandCanyonPoints
     {
         public const string TestSiteName = "Grand Canyon Rim Notes";
         public const string TestDefaultCreatedBy = "GC Ghost Writer";
@@ -79,11 +81,14 @@ namespace PointlessWaymarksTests
         {
             var db = await Db.Context();
             var currentYumaPoint = db.PointContents.Single(x => x.Slug == "yuma-point");
+            var currentDetails = await Db.PointDetailsForPoint(currentYumaPoint.ContentId, db);
 
-            var yumaPointUpdate = GrandCanyonPointInfo.YumaPointContent02;
-            yumaPointUpdate.ContentId = currentYumaPoint.ContentId;
+            currentYumaPoint.InjectFromSkippingIds(GrandCanyonPointInfo.YumaPointContent02);
+            currentDetails[0].InjectFromSkippingIds(GrandCanyonPointInfo.YumaPointContent02.PointDetails[0]);
 
-            await GrandCanyonPointInfo.PointTest(yumaPointUpdate);
+            var updatedPoint = Db.PointContentDtoFromPointContentAndDetails(currentYumaPoint, currentDetails);
+
+            await GrandCanyonPointInfo.PointTest(updatedPoint);
         }
     }
 }
