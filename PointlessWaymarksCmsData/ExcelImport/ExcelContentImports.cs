@@ -325,7 +325,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
                 if (importResult.hasError)
                 {
-                    errorNotes.Add(importResult.errorNotes);
+                    errorNotes.Add($"Excel Row {loopRow.RowNumber()} - {importResult.errorNotes}");
                     continue;
                 }
 
@@ -337,25 +337,19 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 catch
                 {
                     await EventLogContext.TryWriteDiagnosticMessageToLog(
-                        $"Excel Import via dynamics - Tags threw an error on ContentId {importResult.processContent.ContentId ?? "New Entry"} - property probably not present",
+                        $"Excel Row {loopRow.RowNumber()} - Excel Import via dynamics - Tags threw an error on ContentId {importResult.processContent.ContentId ?? "New Entry"} - property probably not present",
                         "Excel Import");
                     continue;
                 }
 
                 Guid contentId = importResult.processContent.ContentId;
+                int contentDbId = importResult.processContent.Id;
 
                 string differenceString;
 
-                if (contentId != null)
+                if (contentDbId > 0)
                 {
                     var currentDbEntry = await db.ContentFromContentId(contentId);
-
-                    //if (currentDbEntry == null)
-                    //{
-                    //    progress?.Report(
-                    //        $"Excel Row {loopRow.RowNumber()} of {lastRow} - Skipping, No Longer in Db - Title {importResult.processContent.Title}");
-                    //    continue;
-                    //}
 
                     var compareLogic = new CompareLogic
                     {
@@ -367,7 +361,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     if (comparisonResult.AreEqual)
                     {
                         progress?.Report(
-                            $"Excel Row {loopRow.RowNumber()} of {lastRow} - No Changes - Content Id {currentDbEntry.Title}");
+                            $"Excel Row {loopRow.RowNumber()} of {lastRow} - No Changes - Title: {currentDbEntry.Title}");
                         continue;
                     }
 
@@ -417,11 +411,10 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
                 if (validationResult.HasError)
                 {
-                    errorNotes.Add(validationResult.GenerationNote);
+                    errorNotes.Add($"Excel Row {loopRow.RowNumber()} - {validationResult.GenerationNote}");
                     progress?.Report($"Excel Row {loopRow.RowNumber()} of {lastRow} - Validation Error.");
                     continue;
                 }
-
 
                 updateList.Add(new ExcelImportContentUpdateSuggestion
                 {
@@ -431,7 +424,35 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 });
 
                 progress?.Report(
-                    $"Excel Row {loopRow.RowNumber()} of {lastRow} - Adding To Changed List ({updateList.Count}) - Content Id {importResult.processContent.Title}");
+                    $"Excel Row {loopRow.RowNumber()} of {lastRow} - Adding To Changed List ({updateList.Count}) - Title: {importResult.processContent.Title}");
+            }
+
+            if (!errorNotes.Any())
+            {
+                var internalContentIdDuplicates = updateList.Select(x => x.ToUpdate).GroupBy(x => x.ContentId)
+                    .Where(x => x.Count() > 1).Select(x => x.Key).Cast<Guid>().ToList();
+
+                if (internalContentIdDuplicates.Any())
+                {
+                    return new ExcelContentTableImportResults
+                    {
+                        HasError = true,
+                        ErrorNotes = $"Content Ids can only appear once in an update list - {string.Join(", ", internalContentIdDuplicates)}",
+                        ToUpdate = updateList
+                    };
+                }
+
+                var internalSlugDuplicates = updateList.Select(x => x.ToUpdate).GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key).Cast<string>().ToList();
+
+                if (internalSlugDuplicates.Any())
+                {
+                    return new ExcelContentTableImportResults
+                    {
+                        HasError = true,
+                        ErrorNotes = $"This import appears to create duplicate slugs - {string.Join(", ", internalSlugDuplicates)}",
+                        ToUpdate = updateList
+                    };
+                }
             }
 
             return new ExcelContentTableImportResults
@@ -706,8 +727,8 @@ namespace PointlessWaymarksCmsData.ExcelImport
                 var excelResult = GetPointDetails(headerInfo, toProcess);
 
                 if (excelResult.Any(x =>
-                    x.ValueParsed == null || excelResult.Any(x => !x.ValueParsed.Value) ||
-                    excelResult.Any(x => x.ParsedValue == null)))
+                    x.ValueParsed == null) || excelResult.Any(x => !x.ValueParsed.Value) ||
+                    excelResult.Any(x => x.ParsedValue == null))
                     returnString.Add($"Row {toProcess.RowNumber()} - could not process Point Details");
                 else
                     pointDto.PointDetails = excelResult.Select(x => x.ParsedValue).ToList();

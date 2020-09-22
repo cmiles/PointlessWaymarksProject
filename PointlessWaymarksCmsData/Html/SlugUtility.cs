@@ -10,37 +10,17 @@ namespace PointlessWaymarksCmsData.Html
     {
         private static string ConvertEdgeCases(char c, bool toLower)
         {
-            string swap = null;
-            switch (c)
+            var swap = c switch
             {
-                case 'ı':
-                    swap = "i";
-                    break;
-
-                case 'ł':
-                    swap = "l";
-                    break;
-
-                case 'Ł':
-                    swap = toLower ? "l" : "L";
-                    break;
-
-                case 'đ':
-                    swap = "d";
-                    break;
-
-                case 'ß':
-                    swap = "ss";
-                    break;
-
-                case 'ø':
-                    swap = "o";
-                    break;
-
-                case 'Þ':
-                    swap = "th";
-                    break;
-            }
+                'ı' => "i",
+                'ł' => "l",
+                'Ł' => toLower ? "l" : "L",
+                'đ' => "d",
+                'ß' => "ss",
+                'ø' => "o",
+                'Þ' => "th",
+                _ => null
+            };
 
             return swap;
         }
@@ -262,29 +242,35 @@ namespace PointlessWaymarksCmsData.Html
         {
             if (string.IsNullOrWhiteSpace(slug)) return false;
 
+            //!Content Type List!
             if (excludedContentId == null)
             {
-                var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug);
+                var fileCheck = await context.FileContents.AnyAsync(x => x.Slug == slug);
                 var imageCheck = await context.ImageContents.AnyAsync(x => x.Slug == slug);
                 var noteCheck = await context.NoteContents.AnyAsync(x => x.Slug == slug);
-                var fileCheck = await context.FileContents.AnyAsync(x => x.Slug == slug);
+                var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug);
+                var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug);
                 var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug);
 
-                return photoCheck || postCheck || imageCheck || noteCheck || fileCheck;
+                return photoCheck || postCheck || imageCheck || noteCheck || fileCheck || pointCheck;
             }
 
-            var photoExcludeCheck =
-                await context.PhotoContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+            var fileExcludeCheck =
+                await context.FileContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
             var imageExcludeCheck =
                 await context.ImageContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
             var noteExcludeCheck =
                 await context.NoteContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
-            var fileExcludeCheck =
-                await context.FileContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+            var photoExcludeCheck =
+                await context.PhotoContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
+            var pointExcludeCheck =
+                await context.PointContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
             var postExcludeCheck =
                 await context.PostContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId);
 
-            return photoExcludeCheck || postExcludeCheck || imageExcludeCheck || noteExcludeCheck || fileExcludeCheck;
+
+            return photoExcludeCheck || postExcludeCheck || imageExcludeCheck || noteExcludeCheck || fileExcludeCheck ||
+                   pointExcludeCheck;
         }
     }
 }

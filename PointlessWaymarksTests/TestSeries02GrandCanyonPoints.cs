@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.ExcelImport;
 using PointlessWaymarksCmsData.Spatial;
 using PointlessWaymarksCmsData.Spatial.Elevation;
 
@@ -89,6 +91,64 @@ namespace PointlessWaymarksTests
             var updatedPoint = Db.PointContentDtoFromPointContentAndDetails(currentYumaPoint, currentDetails);
 
             await GrandCanyonPointInfo.PointTest(updatedPoint);
+        }
+
+        [Test]
+        public async Task C10_ExcelNewPointImport()
+        {
+            var db = await Db.Context();
+            var pointCountBeforeImport = db.PointContents.Count();
+
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", "GrandCanyonPointsImport.xlsx"));
+            Assert.True(testFile.Exists, "Test File Found");
+
+            var importResult =
+                await ExcelContentImports.ImportFromFile(testFile.FullName,
+                    DebugTrackers.DebugProgressTracker());
+            Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
+
+            var updateSaveResult =
+                await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult,
+                    DebugTrackers.DebugProgressTracker());
+
+            Assert.False(updateSaveResult.hasError);
+
+            var pointCountAfterImport = db.PointContents.Count();
+
+            var excelFile = new ClosedXML.Excel.XLWorkbook(testFile.FullName);
+            var excelDataRowCount = excelFile.Worksheets.First().RangeUsed().RowCount() - 1;
+
+            Assert.AreEqual(pointCountAfterImport, pointCountBeforeImport + excelDataRowCount);
+        }
+
+        [Test]
+        public async Task C11_ExcelNewPointImportValidationFailureOnDuplicatingExistingSlug()
+        {
+            var db = await Db.Context();
+            var pointCountBeforeImport = db.PointContents.Count();
+
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", "GrandCanyonPointsImport.xlsx"));
+            Assert.True(testFile.Exists, "Test File Found");
+
+            var importResult =
+                await ExcelContentImports.ImportFromFile(testFile.FullName,
+                    DebugTrackers.DebugProgressTracker());
+            Assert.True(importResult.HasError, "Expected a validation failure due to duplicate slug but not detected...");
+        }
+
+        [Test]
+        public async Task C12_ExcelNewPointImportValidationFailureTryingToImportSameSlugMultipleTimes()
+        {
+            var db = await Db.Context();
+            var pointCountBeforeImport = db.PointContents.Count();
+
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", "HermitsRestDuplicateSlugImport.xlsx"));
+            Assert.True(testFile.Exists, "Test File Found");
+
+            var importResult =
+                await ExcelContentImports.ImportFromFile(testFile.FullName,
+                    DebugTrackers.DebugProgressTracker());
+            Assert.True(importResult.HasError, "Expected a validation failure due to duplicate slug but not detected...");
         }
     }
 }

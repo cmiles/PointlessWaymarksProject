@@ -34,7 +34,7 @@
                         <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                     </b:Interaction.Behaviors>
                 </TextBox>
-                <stringDataEntry:StringDataEntryControl DataContext="{Binding TitleEditor}" />
+                <stringDataEntry:StringDataEntryControl DataContext="{Binding TypeEditor}" />
                 <contentFormat:ContentFormatChooserControl Margin="4,8,0,4" DataContext="{Binding NoteFormatEditor}" />
                 <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding NoteEditor}" TextBoxHeight="90" />
                 <Button

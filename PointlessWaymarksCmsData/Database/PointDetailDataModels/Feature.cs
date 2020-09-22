@@ -7,11 +7,11 @@ namespace PointlessWaymarksCmsData.Database.PointDetailDataModels
         public string DataTypeIdentifier => "Feature";
         public string Notes { get; set; }
         public string NotesContentFormat { get; set; }
-        public string Title { get; set; }
+        public string Type { get; set; }
 
         public (bool isValid, string validationMessage) Validate()
         {
-            return CommonContentValidation.ValidateTitle(Title);
+            return CommonContentValidation.ValidateTitle(Type);
         }
     }
 }

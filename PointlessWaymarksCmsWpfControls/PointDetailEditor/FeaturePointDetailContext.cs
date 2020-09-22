@@ -26,7 +26,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         private StringDataEntryContext _noteEditor;
         private ContentFormatChooserContext _noteFormatEditor;
         private StatusControlContext _statusContext;
-        private StringDataEntryContext _titleEditor;
+        private StringDataEntryContext _typeEditor;
 
         private FeaturePointDetailContext(StatusControlContext statusContext)
         {
@@ -110,13 +110,13 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             }
         }
 
-        public StringDataEntryContext TitleEditor
+        public StringDataEntryContext TypeEditor
         {
-            get => _titleEditor;
+            get => _typeEditor;
             set
             {
-                if (Equals(value, _titleEditor)) return;
-                _titleEditor = value;
+                if (Equals(value, _typeEditor)) return;
+                _typeEditor = value;
                 OnPropertyChanged();
             }
         }
@@ -189,16 +189,16 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
             await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
 
-            TitleEditor = StringDataEntryContext.CreateInstance();
-            TitleEditor.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            TypeEditor = StringDataEntryContext.CreateInstance();
+            TypeEditor.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
             {
                 CommonContentValidation.ValidateTitle
             };
-            TitleEditor.Title = "Title";
-            TitleEditor.HelpText =
-                "The title for this feature - this could be something unique or something recorded for many points";
-            TitleEditor.ReferenceValue = DetailData.Notes ?? string.Empty;
-            TitleEditor.UserValue = DetailData.Notes.TrimNullToEmpty();
+            TypeEditor.Title = "Type";
+            TypeEditor.HelpText =
+                "The type for this feature - this could be something unique or something recorded for many points";
+            TypeEditor.ReferenceValue = DetailData.Notes ?? string.Empty;
+            TypeEditor.UserValue = DetailData.Notes.TrimNullToEmpty();
 
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);

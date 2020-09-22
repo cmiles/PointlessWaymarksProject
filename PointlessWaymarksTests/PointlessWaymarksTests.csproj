@@ -63,7 +63,16 @@
     <None Update="IronwoodTestContent\AZ_IronwoodForest_NM_map.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="IronwoodTestContent\GrandCanyonPointsImport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="IronwoodTestContent\HermitsRestDuplicateSlugImport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="IronwoodTestContent\ironwood_proc.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="IronwoodTestContent\YumaPointImport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
