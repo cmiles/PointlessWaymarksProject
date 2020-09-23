@@ -16,6 +16,7 @@ using PointlessWaymarksCmsData.Html.LinkListHtml;
 using PointlessWaymarksCmsData.Html.NoteHtml;
 using PointlessWaymarksCmsData.Html.PhotoGalleryHtml;
 using PointlessWaymarksCmsData.Html.PhotoHtml;
+using PointlessWaymarksCmsData.Html.PointHtml;
 using PointlessWaymarksCmsData.Html.PostHtml;
 using PointlessWaymarksCmsData.Html.SearchListHtml;
 using PointlessWaymarksCmsData.Json;
@@ -105,6 +106,7 @@ namespace PointlessWaymarksCmsData.Html
             await GenerateAllFileHtml(generationVersion, progress);
             await GenerateAllNoteHtml(generationVersion, progress);
             await GenerateAllPostHtml(generationVersion, progress);
+            await GenerateAllPointHtml(generationVersion, progress);
             await GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress);
             await GenerateCameraRollHtml(generationVersion, progress);
             GenerateAllTagHtml(generationVersion, progress);
@@ -205,6 +207,31 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 var htmlModel = new SinglePhotoPage(loopItem) {GenerationVersion = generationVersion};
+                htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
+
+                loopCount++;
+            }
+        }
+
+        public static async Task GenerateAllPointHtml(DateTime? generationVersion, IProgress<string> progress)
+        {
+            var db = await Db.Context();
+
+            var allItems = await db.PointContents.ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            progress?.Report($"Found {totalCount} Points to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var dto = await Db.PointAndPointDetails(loopItem.ContentId, db);
+
+                var htmlModel = new SinglePointPage(dto) {GenerationVersion = generationVersion};
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -597,6 +624,9 @@ namespace PointlessWaymarksCmsData.Html
             await GenerateChangeFilteredFileHtml(generationVersion, progress);
             await GenerateChangeFilteredNoteHtml(generationVersion, progress);
             await GenerateChangeFilteredPostHtml(generationVersion, progress);
+
+            //TODO: Switch out for Changed
+            await GenerateAllPointHtml(generationVersion, progress);
 
             var hasDirectPhotoChanges = db.PhotoContents.Join(db.GenerationChangedContentIds, o => o.ContentId,
                 i => i.ContentId, (o, i) => o.PhotoCreatedOn).Any();

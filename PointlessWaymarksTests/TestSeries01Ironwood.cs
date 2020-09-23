@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
+using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -54,9 +55,10 @@ namespace PointlessWaymarksTests
             TestSiteSettings.SiteEmailTo = TestSiteEmailTo;
             TestSiteSettings.SiteKeywords = TestSiteKeywords;
             TestSiteSettings.SiteSummary = TestSummary;
-            TestSiteSettings.SiteUrl = "IronwoodTest.com";
+            TestSiteSettings.SiteUrl = "localhost";
             await TestSiteSettings.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
             await TestSiteSettings.WriteSettings();
+            UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
         }
 
         [Test]

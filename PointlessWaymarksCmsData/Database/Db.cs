@@ -632,6 +632,21 @@ namespace PointlessWaymarksCmsData.Database
             return toReturn;
         }
 
+        public static async Task<List<PointContentDto>> PointAndPointDetails(List<Guid> pointContentIdList, PointlessWaymarksContext db)
+        {
+            if (pointContentIdList == null) return new List<PointContentDto>();
+
+            var returnList = new List<PointContentDto>();
+
+            foreach (var loopId in pointContentIdList)
+            {
+                var toAdd = await PointAndPointDetails(loopId, db);
+                if (toAdd != null) returnList.Add(toAdd);
+            }
+
+            return returnList;
+        }
+
         public static PointContentDto PointContentDtoFromPointContentAndDetails(PointContent content,
             List<PointDetail> details)
         {

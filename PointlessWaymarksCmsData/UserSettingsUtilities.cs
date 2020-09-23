@@ -3,9 +3,11 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -82,7 +84,7 @@ namespace PointlessWaymarksCmsData
 
         public static string CssMainStyleFileUrl(this UserSettings settings)
         {
-            return $"//{settings.SiteUrl}/styles.css";
+            return $"//{settings.SiteUrl}/style.css";
         }
 
         public static string DailyPhotoGalleryUrl(this UserSettings settings, DateTime galleryDate)
@@ -851,7 +853,7 @@ namespace PointlessWaymarksCmsData
 
             if (string.IsNullOrWhiteSpace(readResult.SiteUrl))
             {
-                readResult.SiteName = "localhost.com";
+                readResult.SiteUrl = "localhost.com";
                 hasUpdates = true;
             }
 
@@ -961,6 +963,19 @@ namespace PointlessWaymarksCmsData
 
             newSettings.VerifyOrCreateAllTopLevelFolders(progress);
 
+            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+            string styleCss;
+            await using (var embeddedAsStream = embeddedProvider.GetFileInfo("style.css").CreateReadStream())
+            {
+                var reader = new StreamReader(embeddedAsStream);
+                styleCss = await reader.ReadToEndAsync();
+            }
+
+            var styleCssFile = Path.Combine(siteRoot.FullName, "style.css");
+            progress?.Report($"Writing default style.css to {styleCssFile}");
+            await File.WriteAllTextAsync(styleCssFile, styleCss);
+
             return newSettings;
         }
 
@@ -981,7 +996,7 @@ namespace PointlessWaymarksCmsData
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var possibleFile = new FileInfo(Path.Combine(settings.LocalSiteRootDirectory, "styles.css"));
+            var possibleFile = new FileInfo(Path.Combine(settings.LocalSiteRootDirectory, "style.css"));
 
             if (!possibleFile.Exists) return string.Empty;
 

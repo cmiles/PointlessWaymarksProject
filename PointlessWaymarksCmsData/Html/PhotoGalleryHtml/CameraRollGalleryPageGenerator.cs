@@ -22,6 +22,20 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
 
             progress?.Report($"Found {allDates.Count} Dates with Photos for Camera Roll");
 
+            if (allDates.Count == 0)
+            {
+                return new CameraRollGalleryPage
+                {
+                    CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+                    PageUrl = UserSettingsSingleton.CurrentSettings().CameraRollPhotoGalleryUrl(),
+                    CameraRollContentTag = new NoTag(),
+                    SiteName = UserSettingsSingleton.CurrentSettings().SiteName,
+                    LastDateGroupDateTime = DateTime.MinValue,
+                    MainImage = null,
+                    GenerationVersion = generationVersion
+                };
+            }
+
             var loopGoal = allDates.Count;
 
             var cameraRollContainer = new DivTag().AddClass("camera-roll-list");

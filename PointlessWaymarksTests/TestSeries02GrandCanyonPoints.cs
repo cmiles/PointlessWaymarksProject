@@ -40,9 +40,10 @@ namespace PointlessWaymarksTests
             TestSiteSettings.SiteEmailTo = TestSiteEmailTo;
             TestSiteSettings.SiteKeywords = TestSiteKeywords;
             TestSiteSettings.SiteSummary = TestSummary;
-            TestSiteSettings.SiteUrl = "GrandCanyonRimNotes.com";
+            TestSiteSettings.SiteUrl = "localhost";
             await TestSiteSettings.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
             await TestSiteSettings.WriteSettings();
+            UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
         }
 
         [Test]
@@ -99,12 +100,12 @@ namespace PointlessWaymarksTests
             var db = await Db.Context();
             var pointCountBeforeImport = db.PointContents.Count();
 
-            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", "GrandCanyonPointsImport.xlsx"));
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent",
+                "GrandCanyonPointsImport.xlsx"));
             Assert.True(testFile.Exists, "Test File Found");
 
             var importResult =
-                await ExcelContentImports.ImportFromFile(testFile.FullName,
-                    DebugTrackers.DebugProgressTracker());
+                await ExcelContentImports.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
             Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
 
             var updateSaveResult =
@@ -124,31 +125,35 @@ namespace PointlessWaymarksTests
         [Test]
         public async Task C11_ExcelNewPointImportValidationFailureOnDuplicatingExistingSlug()
         {
-            var db = await Db.Context();
-            var pointCountBeforeImport = db.PointContents.Count();
-
-            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", "GrandCanyonPointsImport.xlsx"));
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent",
+                "GrandCanyonPointsImport.xlsx"));
             Assert.True(testFile.Exists, "Test File Found");
 
             var importResult =
-                await ExcelContentImports.ImportFromFile(testFile.FullName,
-                    DebugTrackers.DebugProgressTracker());
-            Assert.True(importResult.HasError, "Expected a validation failure due to duplicate slug but not detected...");
+                await ExcelContentImports.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
+            Assert.True(importResult.HasError,
+                "Expected a validation failure due to duplicate slug but not detected...");
         }
 
         [Test]
         public async Task C12_ExcelNewPointImportValidationFailureTryingToImportSameSlugMultipleTimes()
         {
-            var db = await Db.Context();
-            var pointCountBeforeImport = db.PointContents.Count();
-
-            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", "HermitsRestDuplicateSlugImport.xlsx"));
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent",
+                "HermitsRestDuplicateSlugImport.xlsx"));
             Assert.True(testFile.Exists, "Test File Found");
 
             var importResult =
-                await ExcelContentImports.ImportFromFile(testFile.FullName,
-                    DebugTrackers.DebugProgressTracker());
-            Assert.True(importResult.HasError, "Expected a validation failure due to duplicate slug but not detected...");
+                await ExcelContentImports.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
+            Assert.True(importResult.HasError,
+                "Expected a validation failure due to duplicate slug but not detected...");
+        }
+
+        [Test]
+        public void Z10_ExcelNewPointImportValidationFailureTryingToImportSameSlugMultipleTimes()
+        {
+            var generateAll =
+                PointlessWaymarksCmsData.Html.GenerationGroups.GenerateAllHtml(DebugTrackers.DebugProgressTracker());
+            Assert.True(generateAll.IsCompletedSuccessfully);
         }
     }
 }

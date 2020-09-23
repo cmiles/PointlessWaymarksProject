@@ -56,6 +56,13 @@ Worked has centered around Points - current status:
  - First rough test of importing a new point from Excel is done - this required a number of changes because the initial idea for the import from Excel was only use for updating.
  - Some initial Point Tests are in place - to make them faster to Work on started a new test series
 
+9/15/2020
+
+Icon set links - not currently using any of these (current source http://materialdesignicons.com/) but it seemed useful to note these here - past experience is that good open useful icon sets are not always so easy to quickly find via a google search...
+https://icons.mono.company/
+https://remixicon.com/
+https://feathericons.com/
+
 9/14/2020
 
 Removed the Microsoft.Windows.SDK.NET and CsWinRT packages and updated the TargetFramework to net5.0-windows10.0.17763.0 and indeed did have access to the Windows APIs! I am a bit sad that this ties the program to Win10 for now (if I understand this correctly - I thought some of the Project Reunion/WinUI changes were supposed to reach back farther? Maybe in a different way...), one rational for WPF over some other technologies was the breadth of support across Windows versions - but at this point willing to sacrifice that to move forward with 'latest'.
