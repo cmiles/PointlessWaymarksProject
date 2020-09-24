@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
-using Microsoft.EntityFrameworkCore;
-using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 
@@ -24,13 +19,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             PageUrl = settings.PointPageUrl(DbEntry);
 
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
-
-            var db = Db.Context().Result;
-            var otherPointIds = db.PointContents.Where(x => x.ContentId != dbEntry.ContentId).Select(x => x.ContentId).ToList();
-            OtherPoints = Db.PointAndPointDetails(otherPointIds, db).Result;
         }
-
-        public List<PointContentDto> OtherPoints { get; set; }
 
         public PointContentDto DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }

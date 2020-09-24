@@ -1,0 +1,50 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+var pointData = <#= PointJson #>;
+
+const pointsLazyInit = (mapElement, currentSlug) => {
+    const observer = new IntersectionObserver((entries) => {
+        if (entries.some(({isIntersecting}) => isIntersecting)) {
+        observer.disconnect();
+        pointsInit(mapElement, currentSlug);
+        }
+    });
+    observer.observe(mapElement);
+};
+
+function pointsInit(mapElement, currentSlug) {
+    var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        id: 'osmTopo',
+        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+
+    var map = L.map('mainMap', {
+        center: { lat: 36.094258, lng: -112.373958 },
+        zoom: 13,
+        layers: [openTopoMap],
+        doubleClickZoom: false,
+        gestureHandling: true
+        });
+    
+    let pagePoint = pointData.filter(x => x.Slug == currentSlug);
+        
+    for (let markerLoop of pagePoint) {
+        let pointContentMarker = new L.marker([markerLoop.Latitude,markerLoop.Longitude],{
+            draggable: false,
+            autoPan: true
+            }).addTo(map);
+        pointContentMarker.bindPopup(markerLoop.Title);
+    }
+
+    for (let circlePoint of pointData) {
+        if(circlePoint.Slug == currentSlug) continue;
+        let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude], 60, { color: 'gray', fillColor: 'gray', fillOpacity: .5});
+        toAdd.bindTooltip(circlePoint.Title);
+        toAdd.addTo(map);
+    };
+}

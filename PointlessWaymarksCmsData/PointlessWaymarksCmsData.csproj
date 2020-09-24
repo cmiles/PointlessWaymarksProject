@@ -71,6 +71,11 @@
       <LastGenOutput>IndexPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.Html.IndexHtml</CustomToolNamespace>
     </None>
+    <None Update="Html\PointHtml\PointMap.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>pointmap.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.Html.PointHtml</CustomToolNamespace>
+    </None>
     <None Update="Html\PointHtml\SinglePointDiv.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SinglePointDiv.cs</LastGenOutput>
@@ -171,6 +176,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>IndexPage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Html\PointHtml\pointmap.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PointMap.tt</DependentUpon>
     </Compile>
     <Compile Update="Html\PointHtml\SinglePointDiv.cs">
       <DesignTime>True</DesignTime>

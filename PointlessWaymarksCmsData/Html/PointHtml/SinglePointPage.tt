@@ -42,6 +42,9 @@
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
         integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
         crossorigin=""></script>
+    <link rel="stylesheet" href="//unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">
+    <script src="//unpkg.com/leaflet-gesture-handling"></script>
+    <script src="<#= UserSettingsSingleton.CurrentSettings().PointMapJavascriptUrl() #>"></script>
 </head>
 
 <body>
@@ -61,47 +64,8 @@
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>
     <script>
-    	const lazyInit = (element, fn) => {
-			const observer = new IntersectionObserver((entries) => {
-				if (entries.some(({isIntersecting}) => isIntersecting)) {
-				observer.disconnect();
-				fn();
-				}
-			});
-			observer.observe(element);
-		};
-
 		const mapElement = document.querySelector("#mainMap");
-
-		lazyInit(mapElement, () => {
-            var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                maxZoom: 17,
-                id: 'osmTopo',
-                attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-                });
-
-            var map = L.map('mainMap', {
-                center: { lat: <#= DbEntry.Latitude #>, lng: <#= DbEntry.Longitude #> },
-                zoom: 13,
-                layers: [openTopoMap],
-                doubleClickZoom: false
-                });
-
-            var pointContentMarker = new L.marker([<#= DbEntry.Latitude #>,<#= DbEntry.Longitude #>],{
-                draggable: false,
-                autoPan: true
-                }).addTo(map);
-
-            pointContentMarker.bindPopup('<#= DbEntry.Title #>')
-
-            var otherPointData = <#= JsonSerializer.Serialize(OtherPoints.Select(x => new {x.Latitude, x.Longitude, x.Title, x.Slug}).ToList()) #>
-
-            for (var pointData of otherPointData) {
-			    let toAdd = L.circle([pointData.Latitude, pointData.Longitude], 40, { color: 'gray', fillColor: 'gray', fillOpacity: .5});
-			    toAdd.bindTooltip(pointData.Title);
-			    toAdd.addTo(map);
-		    }
-        });
+		pointsLazyInit(mapElement, "bass-tank");
     </script>
 </body>
 

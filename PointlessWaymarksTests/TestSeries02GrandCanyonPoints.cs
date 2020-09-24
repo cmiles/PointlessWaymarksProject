@@ -3,12 +3,15 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.ExcelImport;
+using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Spatial;
 using PointlessWaymarksCmsData.Spatial.Elevation;
 
@@ -149,11 +152,23 @@ namespace PointlessWaymarksTests
         }
 
         [Test]
-        public void Z10_ExcelNewPointImportValidationFailureTryingToImportSameSlugMultipleTimes()
+        public async Task Z10_GenerateAllHtml()
         {
-            var generateAll =
-                PointlessWaymarksCmsData.Html.GenerationGroups.GenerateAllHtml(DebugTrackers.DebugProgressTracker());
-            Assert.True(generateAll.IsCompletedSuccessfully);
+            var db = await Db.Context();
+
+            var currentGenerationCount = db.GenerationLogs.Count();
+
+            await GenerationGroups.GenerateAllHtml(DebugTrackers.DebugProgressTracker());
+
+            Assert.AreEqual(currentGenerationCount + 1, db.GenerationLogs.Count(),
+                $"Expected {currentGenerationCount + 1} generation logs - found {db.GenerationLogs.Count()}");
+
+            var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
+
+            await FileManagement.RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(
+                DebugTrackers.DebugProgressTracker());
+
+            IronwoodHtmlHelpers.CheckIndexHtmlAndGenerationVersion(currentGeneration.GenerationVersion);
         }
     }
 }

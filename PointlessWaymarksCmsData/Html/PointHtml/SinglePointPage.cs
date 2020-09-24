@@ -173,33 +173,39 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
     <script src=""https://unpkg.com/leaflet@1.6.0/dist/leaflet.js""
         integrity=""sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==""
         crossorigin=""""></script>
-</head>
-
-<body>
-    ");
+    <link rel=""stylesheet"" href=""//unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css"" type=""text/css"">
+    <script src=""//unpkg.com/leaflet-gesture-handling""></script>
+    <script src=""");
             
-            #line 48 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 47 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().PointMapJavascriptUrl()));
+            
+            #line default
+            #line hidden
+            this.Write("\"></script>\r\n</head>\r\n\r\n<body>\r\n    ");
+            
+            #line 51 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 49 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 52 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 50 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 53 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 51 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 54 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
@@ -207,133 +213,55 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             this.Write("\r\n    <div id=\"mainMap\" class=\"leaflet-container leaflet-retina leaflet-fade-anim" +
                     " leaflet-grab leaflet-touch-drag point-content-map\"></div>\r\n    ");
             
-            #line 53 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 56 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 54 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 57 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 56 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 59 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 57 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 60 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 59 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 62 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 61 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 64 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 62 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            #line 65 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
             #line hidden
-            this.Write(@"
-    <script>
-    	const lazyInit = (element, fn) => {
-			const observer = new IntersectionObserver((entries) => {
-				if (entries.some(({isIntersecting}) => isIntersecting)) {
-				observer.disconnect();
-				fn();
-				}
-			});
-			observer.observe(element);
-		};
-
-		const mapElement = document.querySelector(""#mainMap"");
-
-		lazyInit(mapElement, () => {
-            var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                maxZoom: 17,
-                id: 'osmTopo',
-                attribution: 'Map data: &copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> contributors, <a href=""http://viewfinderpanoramas.org"">SRTM</a> | Map style: &copy; <a href=""https://opentopomap.org"">OpenTopoMap</a> (<a href=""https://creativecommons.org/licenses/by-sa/3.0/"">CC-BY-SA</a>)'
-                });
-
-            var map = L.map('mainMap', {
-                center: { lat: ");
-            
-            #line 84 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Latitude));
-            
-            #line default
-            #line hidden
-            this.Write(", lng: ");
-            
-            #line 84 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Longitude));
-            
-            #line default
-            #line hidden
-            this.Write(" },\r\n                zoom: 13,\r\n                layers: [openTopoMap],\r\n         " +
-                    "       doubleClickZoom: false\r\n                });\r\n\r\n            var pointConte" +
-                    "ntMarker = new L.marker([");
-            
-            #line 90 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Latitude));
-            
-            #line default
-            #line hidden
-            this.Write(",");
-            
-            #line 90 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Longitude));
-            
-            #line default
-            #line hidden
-            this.Write("],{\r\n                draggable: false,\r\n                autoPan: true\r\n          " +
-                    "      }).addTo(map);\r\n\r\n            pointContentMarker.bindPopup(\'");
-            
-            #line 95 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Title));
-            
-            #line default
-            #line hidden
-            this.Write("\')\r\n\r\n            var otherPointData = ");
-            
-            #line 97 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(JsonSerializer.Serialize(OtherPoints.Select(x => new {x.Latitude, x.Longitude, x.Title, x.Slug}).ToList())));
-            
-            #line default
-            #line hidden
-            this.Write(@"
-
-            for (var pointData of otherPointData) {
-			    let toAdd = L.circle([pointData.Latitude, pointData.Longitude], 40, { color: 'gray', fillColor: 'gray', fillOpacity: .5});
-			    toAdd.bindTooltip(pointData.Title);
-			    toAdd.addTo(map);
-		    }
-        });
-    </script>
-</body>
-
-</html>
-");
+            this.Write("\r\n    <script>\r\n\t\tconst mapElement = document.querySelector(\"#mainMap\");\r\n\t\tpoint" +
+                    "sLazyInit(mapElement, \"bass-tank\");\r\n    </script>\r\n</body>\r\n\r\n</html>\r\n");
             return this.GenerationEnvironment.ToString();
         }
     }

@@ -602,6 +602,12 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, "PointList")}.html");
         }
 
+        public static FileInfo LocalSitePointMapJavascriptFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSitePointDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "pointmap")}.js");
+        }
+
         public static FileInfo LocalSitePointRssFile(this UserSettings settings)
         {
             var directory = settings.LocalSitePointDirectory();
@@ -735,6 +741,11 @@ namespace PointlessWaymarksCmsData
             if (possibleImageContent != null) return settings.ImagePageUrl(possibleImageContent);
 
             return string.Empty;
+        }
+
+        public static string PointMapJavascriptUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Points/pointmap.js";
         }
 
         public static string PointPageUrl(this UserSettings settings, PointContent content)
