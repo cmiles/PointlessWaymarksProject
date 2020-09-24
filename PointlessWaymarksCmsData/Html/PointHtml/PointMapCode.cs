@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using AngleSharp.Html;
-using AngleSharp.Html.Parser;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Database;
 
@@ -14,6 +10,10 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
 {
     public partial class PointMap
     {
+        public DateTime? GenerationVersion { get; set; }
+
+        public string PointJson { get; set; }
+
         public async Task WriteLocalJavascript()
         {
             var db = await Db.Context();
@@ -30,9 +30,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
                     PointPageUrl = settings.PointPageUrl(x)
                 }).ToList());
 
-            var htmlFileInfo =
-                new FileInfo(
-                    $"{settings.LocalSitePointMapJavascriptFile()}");
+            var htmlFileInfo = new FileInfo($"{settings.LocalSitePointMapJavascriptFile()}");
 
             if (htmlFileInfo.Exists)
             {
@@ -42,7 +40,5 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
 
             await File.WriteAllTextAsync(htmlFileInfo.FullName, TransformText());
         }
-
-        public string PointJson { get; set; }
     }
 }

@@ -28,35 +28,43 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\nvar pointData = ");
+            this.Write("\r\n//Generation Version ");
             
             #line 7 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\PointMap.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
+            
+            #line default
+            #line hidden
+            this.Write("\r\nvar pointData = ");
+            
+            #line 8 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\PointMap.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PointJson));
             
             #line default
             #line hidden
-            this.Write(";\r\n\r\nconst pointsLazyInit = (mapElement, currentSlug) => {\r\n    const observer = " +
-                    "new IntersectionObserver((entries) => {\r\n        if (entries.some(({isIntersecti" +
-                    "ng}) => isIntersecting)) {\r\n        observer.disconnect();\r\n        pointsInit(m" +
-                    "apElement, currentSlug);\r\n        }\r\n    });\r\n    observer.observe(mapElement);\r" +
-                    "\n};\r\n\r\nfunction pointsInit(mapElement, currentSlug) {\r\n    var openTopoMap = L.t" +
-                    "ileLayer(\'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png\', {\r\n        maxZoom:" +
-                    " 17,\r\n        id: \'osmTopo\',\r\n        attribution: \'Map data: &copy; <a href=\"ht" +
-                    "tps://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors, <a href=\"" +
-                    "http://viewfinderpanoramas.org\">SRTM</a> | Map style: &copy; <a href=\"https://op" +
-                    "entopomap.org\">OpenTopoMap</a> (<a href=\"https://creativecommons.org/licenses/by" +
-                    "-sa/3.0/\">CC-BY-SA</a>)\'\r\n        });\r\n\r\n    var map = L.map(\'mainMap\', {\r\n     " +
-                    "   center: { lat: 36.094258, lng: -112.373958 },\r\n        zoom: 13,\r\n        lay" +
-                    "ers: [openTopoMap],\r\n        doubleClickZoom: false,\r\n        gestureHandling: t" +
-                    "rue\r\n        });\r\n    \r\n    let pagePoint = pointData.filter(x => x.Slug == curr" +
-                    "entSlug);\r\n        \r\n    for (let markerLoop of pagePoint) {\r\n        let pointC" +
-                    "ontentMarker = new L.marker([markerLoop.Latitude,markerLoop.Longitude],{\r\n      " +
-                    "      draggable: false,\r\n            autoPan: true\r\n            }).addTo(map);\r\n" +
-                    "        pointContentMarker.bindPopup(markerLoop.Title);\r\n    }\r\n\r\n    for (let c" +
-                    "irclePoint of pointData) {\r\n        if(circlePoint.Slug == currentSlug) continue" +
-                    ";\r\n        let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude], 6" +
-                    "0, { color: \'gray\', fillColor: \'gray\', fillOpacity: .5});\r\n        toAdd.bindToo" +
-                    "ltip(circlePoint.Title);\r\n        toAdd.addTo(map);\r\n    };\r\n}");
+            this.Write(";\r\n\r\nconst lazyInit = (elementToObserve, fn) => {\r\n    const observer = new Inter" +
+                    "sectionObserver((entries) => {\r\n        if (entries.some(({isIntersecting}) => i" +
+                    "sIntersecting)) {\r\n        observer.disconnect();\r\n        fn();\r\n        }\r\n   " +
+                    " });\r\n    observer.observe(elementToObserve);\r\n};\r\n\r\nfunction singlePointMapInit" +
+                    "(mapElement, displayedPointSlug) {\r\n    var openTopoMap = L.tileLayer(\'https://{" +
+                    "s}.tile.opentopomap.org/{z}/{x}/{y}.png\', {\r\n        maxZoom: 17,\r\n        id: \'" +
+                    "osmTopo\',\r\n        attribution: \'Map data: &copy; <a href=\"https://www.openstree" +
+                    "tmap.org/copyright\">OpenStreetMap</a> contributors, <a href=\"http://viewfinderpa" +
+                    "noramas.org\">SRTM</a> | Map style: &copy; <a href=\"https://opentopomap.org\">Open" +
+                    "TopoMap</a> (<a href=\"https://creativecommons.org/licenses/by-sa/3.0/\">CC-BY-SA<" +
+                    "/a>)\'\r\n        });\r\n\r\n    var map = L.map(mapElement, {\r\n        center: { lat: " +
+                    "36.094258, lng: -112.373958 },\r\n        zoom: 13,\r\n        layers: [openTopoMap]" +
+                    ",\r\n        doubleClickZoom: false,\r\n        gestureHandling: true\r\n        });\r\n" +
+                    "    \r\n    let pagePoint = pointData.filter(x => x.Slug == displayedPointSlug);\r\n" +
+                    "        \r\n    for (let markerLoop of pagePoint) {\r\n        let pointContentMarke" +
+                    "r = new L.marker([markerLoop.Latitude,markerLoop.Longitude],{\r\n            dragg" +
+                    "able: false,\r\n            autoPan: true\r\n            }).addTo(map);\r\n        poi" +
+                    "ntContentMarker.bindPopup(markerLoop.Title);\r\n    }\r\n\r\n    for (let circlePoint " +
+                    "of pointData) {\r\n        if(circlePoint.Slug == displayedPointSlug) continue;\r\n " +
+                    "       let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude], 60, {" +
+                    " color: \'gray\', fillColor: \'gray\', fillOpacity: .5});\r\n        toAdd.bindTooltip" +
+                    "(\'Bass Trail\');\r\n        toAdd.addTo(map).on(\"click\", (e) => window.location.hre" +
+                    "f = circlePoint.PointPageUrl);\r\n    };\r\n}");
             return this.GenerationEnvironment.ToString();
         }
     }

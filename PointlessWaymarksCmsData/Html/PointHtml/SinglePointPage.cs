@@ -260,8 +260,15 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             
             #line default
             #line hidden
-            this.Write("\r\n    <script>\r\n\t\tconst mapElement = document.querySelector(\"#mainMap\");\r\n\t\tpoint" +
-                    "sLazyInit(mapElement, \"bass-tank\");\r\n    </script>\r\n</body>\r\n\r\n</html>\r\n");
+            this.Write("\r\n    <script>\r\n\t\tconst mapElement = document.querySelector(\"#mainMap\");\r\n\t\tlazyI" +
+                    "nit(mapElement, () => singlePointMapInit(mapElement, \"");
+            
+            #line 68 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Slug));
+            
+            #line default
+            #line hidden
+            this.Write("\"));\r\n    </script>\r\n</body>\r\n\r\n</html>\r\n");
             return this.GenerationEnvironment.ToString();
         }
     }

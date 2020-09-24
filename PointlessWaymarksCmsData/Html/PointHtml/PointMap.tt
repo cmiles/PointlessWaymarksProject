@@ -4,26 +4,27 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 
+//Generation Version <#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>
 var pointData = <#= PointJson #>;
 
-const pointsLazyInit = (mapElement, currentSlug) => {
+const lazyInit = (elementToObserve, fn) => {
     const observer = new IntersectionObserver((entries) => {
         if (entries.some(({isIntersecting}) => isIntersecting)) {
         observer.disconnect();
-        pointsInit(mapElement, currentSlug);
+        fn();
         }
     });
-    observer.observe(mapElement);
+    observer.observe(elementToObserve);
 };
 
-function pointsInit(mapElement, currentSlug) {
+function singlePointMapInit(mapElement, displayedPointSlug) {
     var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
         maxZoom: 17,
         id: 'osmTopo',
         attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
         });
 
-    var map = L.map('mainMap', {
+    var map = L.map(mapElement, {
         center: { lat: 36.094258, lng: -112.373958 },
         zoom: 13,
         layers: [openTopoMap],
@@ -31,7 +32,7 @@ function pointsInit(mapElement, currentSlug) {
         gestureHandling: true
         });
     
-    let pagePoint = pointData.filter(x => x.Slug == currentSlug);
+    let pagePoint = pointData.filter(x => x.Slug == displayedPointSlug);
         
     for (let markerLoop of pagePoint) {
         let pointContentMarker = new L.marker([markerLoop.Latitude,markerLoop.Longitude],{
@@ -42,9 +43,9 @@ function pointsInit(mapElement, currentSlug) {
     }
 
     for (let circlePoint of pointData) {
-        if(circlePoint.Slug == currentSlug) continue;
+        if(circlePoint.Slug == displayedPointSlug) continue;
         let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude], 60, { color: 'gray', fillColor: 'gray', fillOpacity: .5});
-        toAdd.bindTooltip(circlePoint.Title);
-        toAdd.addTo(map);
+        toAdd.bindTooltip('Bass Trail');
+        toAdd.addTo(map).on("click", (e) => window.location.href = circlePoint.PointPageUrl);
     };
 }

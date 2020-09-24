@@ -65,7 +65,7 @@
     <#= Footer.StandardFooterDiv() #>
     <script>
 		const mapElement = document.querySelector("#mainMap");
-		pointsLazyInit(mapElement, "bass-tank");
+		lazyInit(mapElement, () => singlePointMapInit(mapElement, "<#= DbEntry.Slug #>"));
     </script>
 </body>
 
