@@ -52,19 +52,22 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
                     "tmap.org/copyright\">OpenStreetMap</a> contributors, <a href=\"http://viewfinderpa" +
                     "noramas.org\">SRTM</a> | Map style: &copy; <a href=\"https://opentopomap.org\">Open" +
                     "TopoMap</a> (<a href=\"https://creativecommons.org/licenses/by-sa/3.0/\">CC-BY-SA<" +
-                    "/a>)\'\r\n        });\r\n\r\n    var map = L.map(mapElement, {\r\n        center: { lat: " +
-                    "36.094258, lng: -112.373958 },\r\n        zoom: 13,\r\n        layers: [openTopoMap]" +
-                    ",\r\n        doubleClickZoom: false,\r\n        gestureHandling: true\r\n        });\r\n" +
-                    "    \r\n    let pagePoint = pointData.filter(x => x.Slug == displayedPointSlug);\r\n" +
-                    "        \r\n    for (let markerLoop of pagePoint) {\r\n        let pointContentMarke" +
-                    "r = new L.marker([markerLoop.Latitude,markerLoop.Longitude],{\r\n            dragg" +
-                    "able: false,\r\n            autoPan: true\r\n            }).addTo(map);\r\n        poi" +
-                    "ntContentMarker.bindPopup(markerLoop.Title);\r\n    }\r\n\r\n    for (let circlePoint " +
-                    "of pointData) {\r\n        if(circlePoint.Slug == displayedPointSlug) continue;\r\n " +
-                    "       let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude], 60, {" +
-                    " color: \'gray\', fillColor: \'gray\', fillOpacity: .5});\r\n        toAdd.bindTooltip" +
-                    "(\'Bass Trail\');\r\n        toAdd.addTo(map).on(\"click\", (e) => window.location.hre" +
-                    "f = circlePoint.PointPageUrl);\r\n    };\r\n}");
+                    "/a>)\'\r\n        });\r\n\r\n    let pagePoint = pointData.filter(x => x.Slug == displa" +
+                    "yedPointSlug)[0];\r\n   \r\n    var map = L.map(mapElement, {\r\n        center: { lat" +
+                    ": pagePoint.Latitude, lng: pagePoint.Longitude },\r\n        zoom: 13,\r\n        la" +
+                    "yers: [openTopoMap],\r\n        doubleClickZoom: false,\r\n        gestureHandling: " +
+                    "true\r\n        });\r\n     \r\n    let pointContentMarker = new L.marker([pagePoint.L" +
+                    "atitude,pagePoint.Longitude],{\r\n        draggable: false,\r\n        autoPan: true" +
+                    "\r\n        }).addTo(map);\r\n    pointContentMarker.bindPopup(`<p style=\"margin-top" +
+                    ": .5rem; margin-bottom: 0;\">${pagePoint.Title}</p><p style=\"margin-left: .5rem; " +
+                    "margin-top: .1rem;\">${pagePoint.DetailTypeString}</p>`).openPopup();\r\n\r\n    for " +
+                    "(let circlePoint of pointData) {\r\n        if(circlePoint.Slug == displayedPointS" +
+                    "lug) continue;\r\n        let toAdd = L.circle([circlePoint.Latitude, circlePoint." +
+                    "Longitude], 60, { color: \'gray\', fillColor: \'gray\', fillOpacity: .5});\r\n        " +
+                    "toAdd.bindTooltip(`<p style=\"margin-top: .5rem; margin-bottom: 0;\">${circlePoint" +
+                    ".Title}</p><p style=\"margin-left: .5rem; margin-top: .1rem;\">${circlePoint.Detai" +
+                    "lTypeString}</p>`);\r\n        toAdd.addTo(map).on(\"click\", (e) => window.location" +
+                    ".href = circlePoint.PointPageUrl);\r\n    };\r\n}");
             return this.GenerationEnvironment.ToString();
         }
     }
