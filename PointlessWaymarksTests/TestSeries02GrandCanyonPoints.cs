@@ -155,6 +155,9 @@ namespace PointlessWaymarksTests
         public async Task Z10_GenerateAllHtml()
         {
             var db = await Db.Context();
+            var forIndex = await db.PointContents.OrderByDescending(x => x.ContentId).Take(4).ToListAsync();
+            forIndex.ForEach(x => x.ShowInMainSiteFeed = true);
+            await db.SaveChangesAsync(true);
 
             var currentGenerationCount = db.GenerationLogs.Count();
 

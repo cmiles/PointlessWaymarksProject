@@ -987,6 +987,17 @@ namespace PointlessWaymarksCmsData
             progress?.Report($"Writing default style.css to {styleCssFile}");
             await File.WriteAllTextAsync(styleCssFile, styleCss);
 
+            string defaultFavicon;
+            await using (var embeddedAsStream = embeddedProvider.GetFileInfo("favicon.ico").CreateReadStream())
+            {
+                var reader = new StreamReader(embeddedAsStream);
+                defaultFavicon = await reader.ReadToEndAsync();
+            }
+
+            var defaultFaviconFile = Path.Combine(siteRoot.FullName, "favicon.ico");
+            progress?.Report($"Writing default style.css to {defaultFaviconFile}");
+            await File.WriteAllTextAsync(defaultFaviconFile, defaultFavicon);
+
             return newSettings;
         }
 

@@ -14,6 +14,7 @@ using PointlessWaymarksCmsData.Html.FileHtml;
 using PointlessWaymarksCmsData.Html.ImageHtml;
 using PointlessWaymarksCmsData.Html.NoteHtml;
 using PointlessWaymarksCmsData.Html.PhotoHtml;
+using PointlessWaymarksCmsData.Html.PointHtml;
 using PointlessWaymarksCmsData.Html.PostHtml;
 using PointlessWaymarksCmsData.Rss;
 
@@ -71,6 +72,7 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
 
             var indexBodyContainer = new DivTag().AddClass("index-posts-container");
 
+            //!!Content Type List!!
             foreach (var loopPosts in IndexContent.Take(_numberOfContentItemsToDisplay))
             {
                 if (loopPosts.GetType() == typeof(PostContent))
@@ -117,6 +119,15 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
                     indexBodyContainer.Children.Add(indexPostContentDiv);
                     indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
                 }
+
+                if (loopPosts.GetType() == typeof(PointContentDto))
+                {
+                    var post = new SinglePointDiv(loopPosts);
+                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                    indexBodyContainer.Children.Add(indexPostContentDiv);
+                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+                }
             }
 
             return indexBodyContainer;
@@ -125,6 +136,11 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
         public void WriteLocalHtml()
         {
             WriteRss();
+
+            if (IndexContent.Any(x => x is PointContent || x is PointContentDto))
+            {
+                IncludePointContentHeaders = true;
+            }
 
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());
@@ -146,11 +162,14 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
             File.WriteAllText(htmlFileInfo.FullName, htmlString);
         }
 
+        public bool IncludePointContentHeaders { get; set; }
+
 
         public void WriteRss()
         {
             var items = new List<string>();
 
+            //!!Content Type List!!
             foreach (var loopPosts in IndexContent)
             {
                 if (loopPosts.GetType() == typeof(PostContent))
@@ -190,7 +209,7 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
 
                 if (loopPosts.GetType() == typeof(PhotoContent))
                 {
-                    var post = new SinglePostDiv(loopPosts);
+                    var post = new SinglePhotoDiv(loopPosts);
 
                     string content = null;
 
@@ -239,6 +258,30 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
                 if (loopPosts.GetType() == typeof(FileContent))
                 {
                     var post = new SingleFileDiv(loopPosts);
+
+                    string content = null;
+
+                    if (post.DbEntry.MainPicture != null)
+                    {
+                        var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(post.DbEntry.MainPicture.Value);
+
+                        if (imageInfo != null)
+                            content =
+                                $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                                $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                    }
+
+                    if (string.IsNullOrWhiteSpace(content))
+                        content = $"<p>{HttpUtility.HtmlEncode(post.DbEntry.Summary)}</p>" +
+                                  $"<p>Read more at <a href=\"https:{post.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                    items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"https:{post.PageUrl}", content,
+                        post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+                }
+
+                if (loopPosts.GetType() == typeof(PointContentDto))
+                {
+                    var post = new SinglePointDiv(loopPosts);
 
                     string content = null;
 

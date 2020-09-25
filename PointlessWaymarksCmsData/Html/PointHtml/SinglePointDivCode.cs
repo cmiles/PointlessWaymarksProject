@@ -4,7 +4,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
 {
     public partial class SinglePointDiv
     {
-        public SinglePointDiv(PointContent dbEntry)
+        public SinglePointDiv(PointContentDto dbEntry)
         {
             DbEntry = dbEntry;
 
@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             PageUrl = settings.PointPageUrl(DbEntry);
         }
 
-        public PointContent DbEntry { get; set; }
+        public PointContentDto DbEntry { get; set; }
 
         public string PageUrl { get; set; }
 

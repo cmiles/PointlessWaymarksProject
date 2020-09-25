@@ -242,7 +242,7 @@ namespace PointlessWaymarksCmsData.Html
         {
             if (string.IsNullOrWhiteSpace(slug)) return false;
 
-            //!Content Type List!
+            //!!Content Type List!!
             if (excludedContentId == null)
             {
                 var fileCheck = await context.FileContents.AnyAsync(x => x.Slug == slug);

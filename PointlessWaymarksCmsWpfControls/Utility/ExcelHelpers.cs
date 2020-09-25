@@ -131,9 +131,9 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             var detailList = new List<(Guid, string)>();
 
             foreach (var loopContent in toDisplay)
-                // !! This content format is used by ExcelContentImports !!
+                // ! This content format is used by ExcelContentImports !
                 // Push the content into a compromise format that is ok for human generation (the target here is not creating 'by
-                //  hand in Excel' rather taking something like GNIS data and concatenating/text manipulating the data into 
+                //  hand in Excel' rather taking something like GNIS data and concatenating/text manipulating the data into
                 //  shape) and still ok for parsing in code
             foreach (var loopDetail in loopContent.PointDetails)
                 detailList.Add((loopContent.ContentId,

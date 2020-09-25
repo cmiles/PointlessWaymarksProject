@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="favicon.ico" />
     <None Remove="style.css" />
   </ItemGroup>
 
@@ -19,7 +20,7 @@
     <PackageReference Include="FluentMigrator.Runner" Version="3.2.9" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="3.2.9" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
-    <PackageReference Include="GitInfo" Version="2.0.38">
+    <PackageReference Include="GitInfo" Version="2.1.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -261,6 +262,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="favicon.ico" />
     <EmbeddedResource Include="style.css" />
   </ItemGroup>
 
