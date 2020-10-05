@@ -48,6 +48,10 @@
  
 ## Notes
 
+10/5/2020
+
+Sqlite's sqldiff.exe is a pretty great tool but one interesting detail for me has been discovering that when it diffs schemas it considers column order important - this made diffing some older and newer schemas rather tough with this tool (never found and an option to ignore order, never found a clever way to automatically order the columns in an existing db...) - this also is interesting from an EF Code perspective as order of the property names in a class do seem to matter when a db is created. I don't think there is a todo here but I cleaned up a few of the Model classes where there were fields out of order to try to help things stay consistent at least with newly created dbs. (As a side note I will add that the Sqlite Db Browser makes GUI reordering of columns quite easy).
+
 9/21/2020
 
 Worked has centered around Points - current status:
