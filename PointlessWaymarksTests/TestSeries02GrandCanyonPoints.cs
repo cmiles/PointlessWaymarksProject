@@ -3,13 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.ExcelImport;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Spatial;
@@ -119,7 +119,7 @@ namespace PointlessWaymarksTests
 
             var pointCountAfterImport = db.PointContents.Count();
 
-            var excelFile = new ClosedXML.Excel.XLWorkbook(testFile.FullName);
+            var excelFile = new XLWorkbook(testFile.FullName);
             var excelDataRowCount = excelFile.Worksheets.First().RangeUsed().RowCount() - 1;
 
             Assert.AreEqual(pointCountAfterImport, pointCountBeforeImport + excelDataRowCount);

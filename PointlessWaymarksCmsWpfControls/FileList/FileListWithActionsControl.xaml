@@ -58,10 +58,7 @@
                     Command="{Binding GenerateSelectedHtmlCommand}"
                     Content="_Generate Html"
                     Style="{StaticResource ActionPanelButton}" />
-                <Button
-                    Command="{Binding FilePageLinkCodesToClipboardForSelectedCommand}"
-                    Content="_Code to Clipboard"
-                    Style="{StaticResource ActionPanelButton}" />
+                <Button Command="{Binding FilePageLinkCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButton}">Link Code</Button>
                 <Button Command="{Binding FileDownloadLinkCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButton}">
                     Download Link Code
                 </Button>

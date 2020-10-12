@@ -372,8 +372,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         public void CheckForChangesAndValidationIssues()
         {
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges ||
-                         DbEntry.MainPicture !=
-                         BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent.BodyContent);
+                         DbEntry?.MainPicture !=
+                         BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.BodyContent);
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                                   SelectedFileHasValidationIssues;
         }

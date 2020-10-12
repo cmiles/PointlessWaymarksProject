@@ -828,7 +828,7 @@ namespace PointlessWaymarksCmsData.Html
         {
             currentGenerationVersion = currentGenerationVersion.TrimDateTimeToSeconds();
 
-            var tagData = await Db.TagSlugsAndContentList(true, progress);
+            var tagData = await Db.TagSlugsAndContentList(true, true, progress);
 
             var db = await Db.Context();
 

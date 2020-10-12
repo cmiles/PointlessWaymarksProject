@@ -240,12 +240,6 @@ namespace PointlessWaymarksCmsData.Content
         {
             var temporaryDirectory = UserSettingsUtilities.TempStorageDirectory();
 
-            if (!temporaryDirectory.Exists)
-            {
-                temporaryDirectory.Create();
-                return;
-            }
-
             var allFiles = temporaryDirectory.GetFiles().ToList();
 
             var frozenUtcNow = DateTime.UtcNow;
@@ -258,6 +252,31 @@ namespace PointlessWaymarksCmsData.Content
                     var lastWriteDayDiff = frozenUtcNow.Subtract(loopFiles.LastWriteTimeUtc).Days;
 
                     if (creationDayDiff > 28 && lastAccessDayDiff > 28 && lastWriteDayDiff > 28)
+                        loopFiles.Delete();
+                }
+                catch (Exception e)
+                {
+                    await EventLogContext.TryWriteExceptionToLog(e, "FileManagement.CleanUpTemporaryFiles",
+                        $"Could not delete temporary file - {e}");
+                }
+        }
+
+        public static async Task CleanupTemporaryHtmlFiles()
+        {
+            var temporaryDirectory = UserSettingsUtilities.TempStorageHtmlDirectory();
+
+            var allFiles = temporaryDirectory.GetFiles().ToList();
+
+            var frozenUtcNow = DateTime.UtcNow;
+
+            foreach (var loopFiles in allFiles)
+                try
+                {
+                    var creationDayDiff = frozenUtcNow.Subtract(loopFiles.CreationTimeUtc).Days;
+                    var lastAccessDayDiff = frozenUtcNow.Subtract(loopFiles.LastAccessTimeUtc).Days;
+                    var lastWriteDayDiff = frozenUtcNow.Subtract(loopFiles.LastWriteTimeUtc).Days;
+
+                    if (creationDayDiff > 2 && lastAccessDayDiff > 2 && lastWriteDayDiff > 2)
                         loopFiles.Delete();
                 }
                 catch (Exception e)
@@ -300,6 +319,7 @@ namespace PointlessWaymarksCmsData.Content
             await RemoveNoteDirectoriesNotFoundInCurrentDatabase(progress);
             await RemovePostDirectoriesNotFoundInCurrentDatabase(progress);
             await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress);
+            await RemovePointDirectoriesNotFoundInCurrentDatabase(progress);
             await RemoveTagContentFilesNotInCurrentDatabase(progress);
         }
 
@@ -621,6 +641,54 @@ namespace PointlessWaymarksCmsData.Content
             }
         }
 
+        public static async Task RemovePointDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        {
+            progress?.Report("Starting Directory Cleanup");
+
+            var db = await Db.Context();
+            var dbFolders = db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+
+            var siteTopLevelPointDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePointDirectory();
+            var folderDirectories = siteTopLevelPointDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+            progress?.Report(
+                $"Found {folderDirectories.Count} Existing Point Directories to Check against {dbFolders.Count} Point Folders in the Database");
+
+            foreach (var loopExistingDirectories in folderDirectories)
+            {
+                if (!dbFolders.Contains(loopExistingDirectories.Name))
+                {
+                    progress?.Report($"Deleting {loopExistingDirectories.FullName}");
+
+                    loopExistingDirectories.Delete(true);
+                    continue;
+                }
+
+                progress?.Report($"Staring Point Content Directory Check for {loopExistingDirectories.FullName}");
+
+                var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
+                var dbContentSlugs = db.PointContents.Where(x => x.Folder == loopExistingDirectories.Name)
+                    .Select(x => x.Slug).OrderBy(x => x).ToList();
+
+                progress?.Report(
+                    $"Found {existingContentDirectories.Count} Existing Point Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
+
+                foreach (var loopExistingContentDirectories in existingContentDirectories)
+                {
+                    if (!dbContentSlugs.Contains(loopExistingContentDirectories.Name))
+                    {
+                        progress?.Report($"Deleting {loopExistingContentDirectories.FullName}");
+                        loopExistingContentDirectories.Delete(true);
+                        continue;
+                    }
+
+                    progress?.Report($"{loopExistingContentDirectories.FullName} matches current Point Content");
+                }
+            }
+
+            progress?.Report("Ending Point Directory Cleanup");
+        }
+
         public static async Task RemovePostDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
         {
             progress?.Report("Starting Directory Cleanup");
@@ -673,7 +741,7 @@ namespace PointlessWaymarksCmsData.Content
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var tags = (await Db.TagSlugsAndContentList(true, progress)).Select(x => x.tag).Distinct().ToList();
+            var tags = (await Db.TagSlugsAndContentList(true, true, progress)).Select(x => x.tag).Distinct().ToList();
 
             var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("TagList-*.html")
                 .OrderBy(x => x.Name).ToList();

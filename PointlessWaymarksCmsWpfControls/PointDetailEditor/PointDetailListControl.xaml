@@ -73,10 +73,13 @@
         <GroupBox Grid.Row="1" Header="Details">
             <ListBox
                 HorizontalContentAlignment="Stretch"
-                utility:ListBoxAutoScrollToBottomBehavior.ScrollOnNewItem="True"
                 ItemTemplateSelector="{StaticResource DetailEditorSelector}"
                 ItemsSource="{Binding Items}"
-                ScrollViewer.CanContentScroll="False" />
+                ScrollViewer.CanContentScroll="False">
+                <b:Interaction.Behaviors>
+                    <utility:ListBoxAutoScrollToNewItems />
+                </b:Interaction.Behaviors>
+            </ListBox>
         </GroupBox>
     </Grid>
 </UserControl>

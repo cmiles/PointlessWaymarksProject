@@ -87,7 +87,7 @@ namespace PointlessWaymarksTests
         }
 
         [Test]
-        public async Task A21_PhotoEditorContextEditOfQuarryPhoto()
+        public async Task A21_PhotoEditorGuiContextEditOfQuarryPhoto()
         {
             ThreadSwitcher.PinnedDispatcher = Dispatcher.CurrentDispatcher;
             DataNotifications.SuspendNotifications = false;
@@ -293,7 +293,7 @@ namespace PointlessWaymarksTests
         [Test]
         public async Task B10_FileMapLoadTest()
         {
-            await IronwoodFileInfo.FileTest(IronwoodFileInfo.MapFilename, IronwoodFileInfo.MapContent01);
+            await TestFileInfo.FileTest(TestFileInfo.MapFilename, TestFileInfo.MapContent01);
         }
 
         [Test]
@@ -310,7 +310,7 @@ namespace PointlessWaymarksTests
 
             var mapImage = db.ImageContents.Single(x => x.Title == IronwoodImageInfo.MapContent01.Title);
 
-            var mapFile = db.FileContents.Single(x => x.Title == IronwoodFileInfo.MapContent01.Title);
+            var mapFile = db.FileContents.Single(x => x.Title == TestFileInfo.MapContent01.Title);
 
             mapFile.BodyContent =
                 $"{BracketCodeImages.ImageBracketCode(mapImage)} {Environment.NewLine}{Environment.NewLine}{mapFile.BodyContent}";
@@ -324,7 +324,7 @@ namespace PointlessWaymarksTests
 
             Assert.False(bodyUpdateReturn.generationReturn.HasError, bodyUpdateReturn.generationReturn.GenerationNote);
 
-            var mapFileRefresh = db.FileContents.Single(x => x.Title == IronwoodFileInfo.MapContent01.Title);
+            var mapFileRefresh = db.FileContents.Single(x => x.Title == TestFileInfo.MapContent01.Title);
 
             Assert.AreEqual(mapImage.ContentId, mapFileRefresh.MainPicture,
                 "Adding an image code to the Map File Content Body didn't result in Main Image being set.");
@@ -356,7 +356,7 @@ namespace PointlessWaymarksTests
 
             //Tags
 
-            var tags = await Db.TagSlugsAndContentList(true, DebugTrackers.DebugProgressTracker());
+            var tags = await Db.TagSlugsAndContentList(true, true, DebugTrackers.DebugProgressTracker());
 
             var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("*.html").ToList();
 

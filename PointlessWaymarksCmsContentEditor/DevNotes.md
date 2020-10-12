@@ -1,15 +1,19 @@
 ﻿## Todos
- - Importing a new Point From Excel gives an unhelpful change message
+ - Continue GUI Context tests in new series
+ - Excel updates for links - currently fails with no slug
+ - Points:
+  - Setup RSS Feed
+  - Generated Html - need details included and default styled
+  - Related Content
+  - Bracket Code
+  - Importing a new Point From Excel gives an unhelpful change message
+ - Look at Canon Canon in the imports - clean up Pointless waymarks and look at logic in the Photo Metadata code
  - Text to Speech:
    - Cancellation
    - in Update Notes
  - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
- - Points:
-  - Setup RSS Feed
-  - Generated Html...
-  - Related Content
-  - Map in Front End
- - Integration Testing - Link Saving
+ - Track tags in db so changes can be more quickly detected (long generation time on PointlessWaymarks.com after adding all photos)
+ - Consider pages but no links for excluded tags
  - Integrate Xaml Styler - is the git hook working?
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
@@ -47,6 +51,26 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+10/11/2020
+
+Finished adding all my non-Santa Catalina 'outside' photos to PointlessWaymarks without any major problems. now that there are several thousand pictures on the site the biggest problem I noticed was the speed to check and generate tags - for performance it may be necessary to track changes in the database? Added todo.
+
+Added a new folder and new cleanup routines for the temp HTML files.
+
+ItemsControl wrapped in a scroll viewer is a great solution for listbox like functionality when there won't be any sense of selection. One interesting detail is how to handle scrolling for new items - for now I put together a simple behavior to scroll to the end - this of course quickly falls apart with more sophisticated additions.
+
+Reworked the List Scroll on new item from attached property based to a behavior based solution and simplified the code. This code may not be as careful and safe as the previous code but I think this does the job in this scenario.
+
+Found in the GUI editor for tags that excluded tags were not shown - that was not the intent since in the main GUI you should (obviously...) see all the tags. Fixed.
+
+In some older photos found that in the details 'no' ISO wasn't handled correctly and the code thought the ISO appended to the beginning meant there was a valid value.
+
+10/6/2020
+
+Fixing small bugs inspired the start of a new test series on the GUI Contexts - hopefully I can steadily add to this for awhile. While it will be nice to have better testing I'm also glad to cycle back to actually using the software (working on PointlessWaymarks at the moment), it is a real advantage to being a 'real' user of your product.
+
+Found that the WiebView2 NavigateToString method apparently has a limit on the size of the string (the error message is cryptic but reducing string size or writing the full string to a file and loading both fix the issue) which was causing problems in the Post preview - quickly switched this over to writing a file and using file:// but need to go back and clean up the files now. (Writing files had partly not been an option in the original WebView because UWP security restrictions made file access more complicated for the control).
 
 10/5/2020
 

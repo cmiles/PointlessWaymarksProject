@@ -491,6 +491,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
             await FileManagement.CleanUpTemporaryFiles();
+            await FileManagement.CleanupTemporaryHtmlFiles();
         }
 
         private async Task ConfirmAllFileContent()

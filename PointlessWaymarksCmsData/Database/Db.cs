@@ -496,7 +496,9 @@ namespace PointlessWaymarksCmsData.Database
             var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
             var pointContent = (await db.PointContents.Where(x => x.ShowInMainSiteFeed)
-                .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Select(x => x.ContentId).ToListAsync()).Select(x => PointAndPointDetails(x).Result).Cast<dynamic>().ToList();
+                    .OrderByDescending(x => x.CreatedOn).Take(topNumberOfEntries).Select(x => x.ContentId)
+                    .ToListAsync())
+                .Select(x => PointAndPointDetails(x).Result).Cast<dynamic>().ToList();
             var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed).OrderByDescending(x => x.CreatedOn)
                 .Take(topNumberOfEntries).Cast<dynamic>().ToListAsync();
 
@@ -515,7 +517,8 @@ namespace PointlessWaymarksCmsData.Database
         }
 
         public static List<(string tag, List<object> contentObjects)> ParseToTagSlugsAndContentList(
-            List<(string tag, List<object> contentObjects)> list, List<ITag> toAdd, IProgress<string> progress)
+            List<(string tag, List<object> contentObjects)> list, List<ITag> toAdd, bool removeExcludedTags,
+            IProgress<string> progress)
         {
             list ??= new List<(string tag, List<object> contentObjects)>();
 
@@ -528,18 +531,18 @@ namespace PointlessWaymarksCmsData.Database
                 i++;
 
                 if (i % 20 == 0) progress?.Report($"Processing Tag Content - {i} of {toAdd.Count}");
-                ParseToTagSlugsAndContentList(list, x);
+                ParseToTagSlugsAndContentList(list, x, removeExcludedTags);
             });
 
             return list;
         }
 
         public static List<(string tag, List<object> contentObjects)> ParseToTagSlugsAndContentList(
-            List<(string tag, List<object> contentObjects)> list, ITag toAdd)
+            List<(string tag, List<object> contentObjects)> list, ITag toAdd, bool removeExcludedTags)
         {
             list ??= new List<(string tag, List<object> contentObjects)>();
 
-            var tags = TagListParseToSlugs(toAdd, true);
+            var tags = TagListParseToSlugs(toAdd, removeExcludedTags);
 
             foreach (var loopTags in tags)
             {
@@ -574,7 +577,8 @@ namespace PointlessWaymarksCmsData.Database
             return toReturn;
         }
 
-        public static async Task<List<PointContentDto>> PointAndPointDetails(List<Guid> pointContentIdList, PointlessWaymarksContext db)
+        public static async Task<List<PointContentDto>> PointAndPointDetails(List<Guid> pointContentIdList,
+            PointlessWaymarksContext db)
         {
             if (pointContentIdList == null) return new List<PointContentDto>();
 
@@ -1136,7 +1140,7 @@ namespace PointlessWaymarksCmsData.Database
         }
 
         public static async Task<List<(string tag, List<dynamic> contentObjects)>> TagSlugsAndContentList(
-            bool includePagesExcludedFromSearch, IProgress<string> progress)
+            bool includePagesExcludedFromSearch, bool removeExcludedTags, IProgress<string> progress)
         {
             var db = await Context();
 
@@ -1146,34 +1150,34 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report("Process File Content Tags");
             ParseToTagSlugsAndContentList(returnList, (await db.FileContents.ToListAsync()).Cast<ITag>().ToList(),
-                progress);
+                removeExcludedTags, progress);
 
             progress?.Report("Process Photo Content Tags");
             ParseToTagSlugsAndContentList(returnList, (await db.PhotoContents.ToListAsync()).Cast<ITag>().ToList(),
-                progress);
+                removeExcludedTags, progress);
 
             progress?.Report("Process Image Content Tags");
             ParseToTagSlugsAndContentList(returnList,
                 includePagesExcludedFromSearch
                     ? (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList()
                     : (await db.ImageContents.Where(x => x.ShowInSearch).ToListAsync()).Cast<ITag>().ToList(),
-                progress);
+                removeExcludedTags, progress);
 
             progress?.Report("Process Point Content Tags");
             ParseToTagSlugsAndContentList(returnList, (await db.PointContents.ToListAsync()).Cast<ITag>().ToList(),
-                progress);
+                removeExcludedTags, progress);
 
             progress?.Report("Process Post Content Tags");
             ParseToTagSlugsAndContentList(returnList, (await db.PostContents.ToListAsync()).Cast<ITag>().ToList(),
-                progress);
+                removeExcludedTags, progress);
 
             progress?.Report("Process Note Content Tags");
             ParseToTagSlugsAndContentList(returnList, (await db.NoteContents.ToListAsync()).Cast<ITag>().ToList(),
-                progress);
+                removeExcludedTags, progress);
 
             progress?.Report("Process Link Content Tags");
             ParseToTagSlugsAndContentList(returnList, (await db.LinkContents.ToListAsync()).Cast<ITag>().ToList(),
-                progress);
+                removeExcludedTags, progress);
 
             progress?.Report("Finished Parsing Tag Content");
 

@@ -2,6 +2,7 @@
     x:Class="PointlessWaymarksCmsWpfControls.Status.StatusControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
@@ -41,7 +42,6 @@
                 Margin="24"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
-                utility:ListBoxScrollBehavior.ScrollOnNewItem="True"
                 BorderThickness="0"
                 Cursor="Wait"
                 ItemsSource="{Binding StatusLog}"
@@ -49,6 +49,9 @@
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 ScrollViewer.VerticalScrollBarVisibility="Hidden"
                 Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
+                <b:Interaction.Behaviors>
+                    <utility:ListBoxAutoScrollToNewItems />
+                </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="0,0,0,4">

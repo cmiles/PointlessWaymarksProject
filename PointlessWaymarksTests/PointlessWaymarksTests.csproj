@@ -66,6 +66,9 @@
     <None Update="IronwoodTestContent\GrandCanyonPointsImport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="IronwoodTestContent\GrandviewTrail.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="IronwoodTestContent\HermitsRestDuplicateSlugImport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -15,8 +15,28 @@ using PointlessWaymarksCmsData.Json;
 
 namespace PointlessWaymarksTests
 {
-    public static class IronwoodFileInfo
+    public static class TestFileInfo
     {
+        public static FileContent GrandviewContent01 =>
+            new FileContent
+            {
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                BodyContent =
+                    "NPS Overview Information on the Grandview Trail including a map but lacking" +
+                    "detailed information on the day hike 'full' loops.",
+                ContentId = Guid.NewGuid(),
+                CreatedBy = "GC File Test",
+                CreatedOn = new DateTime(2020, 10, 6, 6, 18, 00),
+                Folder = "Trails",
+                PublicDownloadLink = true,
+                Title = "Grandview Trail",
+                ShowInMainSiteFeed = true,
+                Slug = SlugUtility.Create(true, "Grandview Trail"),
+                Summary = "NPS Grandview Overview.",
+                Tags = "grand canyon national park, grandview trail, nps",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            };
+
         public static FileContent MapContent01 =>
             new FileContent
             {
@@ -37,6 +57,8 @@ namespace PointlessWaymarksTests
 
         public static string MapFilename => "AZ_IronwoodForest_NM_map.pdf";
         public static string ProclamationFilename => "ironwood_proc.pdf";
+
+        public static string TrailInfoGrandviewFilename => "GrandviewTrail.pdf";
 
         public static async Task CheckForExpectedFilesAfterHtmlGeneration(FileContent newContent)
         {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -118,8 +117,9 @@ namespace PointlessWaymarksCmsWpfControls.TagExclusionEditor
             if (Items == null)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                Items = new ObservableCollection<TagExclusionEditorListItem>();
+                Items = new ObservableCollection<TagExclusionEditorListItem>(listItems);
                 await ThreadSwitcher.ResumeBackgroundAsync();
+                return;
             }
 
             foreach (var loopListItem in listItems)

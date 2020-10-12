@@ -418,7 +418,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
             DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
-            var allTags = await Db.TagSlugsAndContentList(true, StatusContext.ProgressTracker());
+            var allTags = await Db.TagSlugsAndContentList(true, false, StatusContext.ProgressTracker());
 
             var listItems = new List<TagListListItem>();
 
