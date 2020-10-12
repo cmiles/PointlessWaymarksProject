@@ -540,8 +540,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
                 if (archiveFile.Exists)
                 {
-                    SelectedFile = archiveFile;
                     _loadedFile = archiveFile;
+                    SelectedFile = archiveFile;
                 }
                 else
                 {

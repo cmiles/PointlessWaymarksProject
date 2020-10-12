@@ -11,6 +11,7 @@ using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.ExcelImport;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
@@ -69,6 +70,20 @@ namespace PointlessWaymarksTests
             Assert.True(TestSiteSettings.LocalMediaArchiveFileDirectory().Exists);
             Assert.True(TestSiteSettings.LocalMediaArchivePhotoDirectory().Exists);
             Assert.True(TestSiteSettings.LocalSiteDirectory().Exists);
+        }
+
+        [Test]
+        public async Task A09_TagExclusionAddTests()
+        {
+            var validSave = await TagExclusionGenerator.Save(new TagExclusion {Tag = "manville road"});
+
+            Assert.IsFalse(validSave.generationReturn.HasError);
+            Assert.Greater(validSave.returnContent.Id, 0);
+
+            var duplicateTagValidationFailureResult =
+                await TagExclusionGenerator.Validate(new TagExclusion {Tag = "manville road"});
+
+            Assert.IsTrue(duplicateTagValidationFailureResult.HasError);
         }
 
         [Test]
@@ -356,7 +371,7 @@ namespace PointlessWaymarksTests
 
             //Tags
 
-            var tags = await Db.TagSlugsAndContentList(true, true, DebugTrackers.DebugProgressTracker());
+            var tags = await Db.TagSlugsAndContentList(true, false, DebugTrackers.DebugProgressTracker());
 
             var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("*.html").ToList();
 
@@ -398,6 +413,13 @@ namespace PointlessWaymarksTests
             Assert.AreEqual(currentGeneration.GenerationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff"),
                 cameraRollGenerationVersionAttributeString,
                 "Generation Version of Camera Roll Does not match expected Log");
+
+            //Note Check
+            var noteContent = UserSettingsSingleton.CurrentSettings().LocalSiteNoteDirectory()
+                .GetFiles("*.html", SearchOption.AllDirectories).ToList();
+
+            noteContent.ForEach(x =>
+                IronwoodHtmlHelpers.CheckGenerationVersionEquals(x, currentGeneration.GenerationVersion));
         }
 
 
@@ -408,18 +430,20 @@ namespace PointlessWaymarksTests
         }
 
         [Test]
-        public async Task E11_HtmlChangedGenerationAfterPostAddedTest()
+        public async Task F11_HtmlChangedGenerationAfterPostAddedTest()
         {
             var db = await Db.Context();
 
             var currentGenerationCount = db.GenerationLogs.Count();
 
+            var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
+
             await GenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+
+            currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
             Assert.AreEqual(currentGenerationCount + 1, db.GenerationLogs.Count(),
                 $"Expected {currentGenerationCount + 1} generation logs - found {db.GenerationLogs.Count()}");
-
-            var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
             await FileManagement.RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(
                 DebugTrackers.DebugProgressTracker());

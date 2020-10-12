@@ -485,8 +485,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
 
                 if (archiveFile.Exists)
                 {
-                    SelectedFile = archiveFile;
                     _loadedFile = archiveFile;
+                    SelectedFile = archiveFile;
                 }
                 else
                 {

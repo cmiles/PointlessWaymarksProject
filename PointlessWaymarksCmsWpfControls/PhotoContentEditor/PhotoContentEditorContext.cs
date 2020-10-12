@@ -667,8 +667,8 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
                 if (archiveFile.Exists)
                 {
-                    SelectedFile = archiveFile;
                     _loadedFile = archiveFile;
+                    SelectedFile = archiveFile;
                 }
                 else
                 {

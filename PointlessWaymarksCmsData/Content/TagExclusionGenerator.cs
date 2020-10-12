@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Database;
@@ -18,7 +19,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (toSave.Id < 1)
             {
-                toSave.Tag = toSave.Tag.TrimNullToEmpty();
+                toSave.Tag = Db.TagListItemCleanup(toSave.Tag);
                 toSave.ContentVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
 
                 await db.AddAsync(toSave);
@@ -28,7 +29,7 @@ namespace PointlessWaymarksCmsData.Content
 
             var toModify = await db.TagExclusions.SingleAsync(x => x.Id == toSave.Id);
 
-            toModify.Tag = toSave.Tag.TrimNullToEmpty();
+            toModify.Tag = Db.TagListItemCleanup(toSave.Tag);
             toModify.ContentVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
 
             await db.SaveChangesAsync(true);
@@ -44,8 +45,14 @@ namespace PointlessWaymarksCmsData.Content
                 return await GenerationReturn.Error("Excluded Tag can not be blank");
 
             var validationResult = CommonContentValidation.ValidateTags(toValidate.Tag.TrimNullToEmpty());
-
             if (!validationResult.isValid) return await GenerationReturn.Error(validationResult.explanation);
+
+            var cleanedTag = Db.TagListItemCleanup(toValidate.Tag);
+
+            var db = await Db.Context();
+            if (db.TagExclusions.Any(x => x.Id != toValidate.Id && x.Tag == cleanedTag))
+                return await GenerationReturn.Error(
+                    $"It appears that the tag '{cleanedTag}' is already in the Exclusion List?");
 
             return await GenerationReturn.Success("Tag Exclusion is Valid");
         }

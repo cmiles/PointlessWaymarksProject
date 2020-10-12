@@ -323,7 +323,15 @@ namespace PointlessWaymarksTests
 
             await IronwoodHtmlHelpers.CommonContentChecks(document, newContent);
 
-            //Todo: Continue checking...
+            var tagContainers = document.QuerySelectorAll(".tags-detail-link-container");
+            var contentTags = Db.TagListParseToSlugsAndIsExcluded(newContent);
+            Assert.AreEqual(tagContainers.Length, contentTags.Count);
+
+            var tagLinks = document.QuerySelectorAll(".tag-detail-link");
+            Assert.AreEqual(tagLinks.Length, contentTags.Count(x => !x.IsExcluded));
+
+            var tagNoLinks = document.QuerySelectorAll(".tag-detail-text");
+            Assert.AreEqual(tagNoLinks.Length, contentTags.Count(x => x.IsExcluded));
         }
 
         public static void JsonTest(PhotoContent newContent)

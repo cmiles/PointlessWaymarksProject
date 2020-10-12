@@ -1139,6 +1139,28 @@ namespace PointlessWaymarksCmsData.Database
             return TagListParseToSlugs(tag.Tags, removeExcludedTags);
         }
 
+        public static List<TagSlugAndIsExcluded> TagListParseToSlugsAndIsExcluded(ITag tag)
+        {
+            if (tag == null) return new List<TagSlugAndIsExcluded>();
+            if (string.IsNullOrWhiteSpace(tag.Tags)) return new List<TagSlugAndIsExcluded>();
+
+            return TagListParseToSlugsAndIsExcluded(tag.Tags);
+        }
+
+        public static List<TagSlugAndIsExcluded> TagListParseToSlugsAndIsExcluded(string rawTagString)
+        {
+            if (rawTagString == null) return new List<TagSlugAndIsExcluded>();
+            if (string.IsNullOrWhiteSpace(rawTagString)) return new List<TagSlugAndIsExcluded>();
+
+            var db = Context().Result;
+            var excludedTags = db.TagExclusions.ToList().Select(x => SlugUtility.Create(true, x.Tag, 200)).ToList();
+
+            var tagSlugs = rawTagString.Split(",").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
+                .Select(x => SlugUtility.Create(true, x, 200)).Distinct().ToList();
+
+            return tagSlugs.Select(x => new TagSlugAndIsExcluded(x, excludedTags.Contains(x))).ToList();
+        }
+
         public static async Task<List<(string tag, List<dynamic> contentObjects)>> TagSlugsAndContentList(
             bool includePagesExcludedFromSearch, bool removeExcludedTags, IProgress<string> progress)
         {
@@ -1181,7 +1203,9 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report("Finished Parsing Tag Content");
 
-            return returnList;
+            return returnList.OrderBy(x => x.tag).ToList();
         }
+
+        public record TagSlugAndIsExcluded(string TagSlug, bool IsExcluded);
     }
 }

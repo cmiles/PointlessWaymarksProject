@@ -236,7 +236,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
 
                     pointDetail.StructuredDataAsJson = jsonString;
                 }
-                catch (Exception e)
+                catch
                 {
                     toAdd.ParsedValue = null;
                     toAdd.ValueParsed = false;
@@ -442,7 +442,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     };
                 }
 
-                var internalSlugDuplicates = updateList.Select(x => x.ToUpdate).GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key).Cast<string>().ToList();
+                var internalSlugDuplicates = updateList.Select(x => x.ToUpdate).Where(x => !(x is LinkContent)).GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key).Cast<string>().ToList();
 
                 if (internalSlugDuplicates.Any())
                 {
@@ -604,7 +604,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
             var propertyNames = properties.Select(x => x.Name.ToLower()).ToList();
             var columnNames = headerInfo.Columns.Where(x => !string.IsNullOrWhiteSpace(x.ColumnHeader))
                 .Select(x => x.ColumnHeader.TrimNullToEmpty().ToLower()).ToList();
-            var namesToProcess = propertyNames.Intersect(columnNames).Where(x => !skipColumns.Any(y => x.StartsWith(y)))
+            var namesToProcess = propertyNames.Intersect(columnNames).Where(x => !skipColumns.Any(x.StartsWith))
                 .ToList();
 
             var propertiesToUpdate = properties.Where(x => namesToProcess.Contains(x.Name.ToLower())).ToList();
@@ -741,14 +741,12 @@ namespace PointlessWaymarksCmsData.ExcelImport
         {
             public string ErrorNotes { get; set; }
             public bool HasError { get; set; }
-
             public List<ExcelImportContentUpdateSuggestion> ToUpdate { get; set; }
         }
 
         public class ExcelImportContentUpdateSuggestion
         {
             public string DifferenceNotes { get; set; }
-
             public string Title { get; set; }
             public dynamic ToUpdate { get; set; }
         }

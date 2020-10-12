@@ -4,6 +4,7 @@ using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using JetBrains.Annotations;
+using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 
 namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
@@ -17,7 +18,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
         [CanBeNull] public DailyPhotosPage NextDailyPhotosPage { get; set; }
         public string PageUrl { get; set; }
         public DateTime PhotoPageDate { get; set; }
-        public List<string> PhotoTags { get; set; }
+        public List<Db.TagSlugAndIsExcluded> PhotoTags { get; set; }
         public DailyPhotosPage PreviousDailyPhotosPage { get; set; }
         public string SiteName { get; set; }
         public string Summary { get; set; }

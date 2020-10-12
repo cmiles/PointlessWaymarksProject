@@ -432,16 +432,14 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
 
-            var tags = Db.TagListParseToSlugs(dbEntry, true);
+            var tags = Db.TagListParseToSlugsAndIsExcluded(dbEntry);
 
             return TagList(tags);
         }
 
-        public static HtmlTag TagList(List<string> tags)
+        public static HtmlTag TagList(List<Db.TagSlugAndIsExcluded> tags)
         {
-            tags ??= new List<string>();
-
-            tags = tags.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
+            tags ??= new List<Db.TagSlugAndIsExcluded>();
 
             if (!tags.Any()) return HtmlTag.Empty();
 
@@ -452,11 +450,22 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             foreach (var loopTag in tags)
             {
                 var tagLinkContainer = new DivTag().AddClass("tags-detail-link-container");
-                var tagLink =
-                    new LinkTag(loopTag.Replace("-", " "), UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag))
-                        .AddClass("tag-detail-link");
-                tagLinkContainer.Children.Add(tagLink);
-                tagsContainer.Children.Add(tagLinkContainer);
+                if (loopTag.IsExcluded)
+                {
+                    var tagP = new HtmlTag("p").AddClass("tag-detail-text");
+                    tagP.Text(loopTag.TagSlug.Replace("-", " "));
+                    tagLinkContainer.Children.Add(tagP);
+                    tagsContainer.Children.Add(tagLinkContainer);
+                }
+                else
+                {
+                    var tagLink =
+                        new LinkTag(loopTag.TagSlug.Replace("-", " "),
+                                UserSettingsSingleton.CurrentSettings().TagPageUrl(loopTag.TagSlug))
+                            .AddClass("tag-detail-link");
+                    tagLinkContainer.Children.Add(tagLink);
+                    tagsContainer.Children.Add(tagLinkContainer);
+                }
             }
 
             return tagsContainer;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using NUnit.Framework;
 using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksTests
@@ -99,6 +101,16 @@ namespace PointlessWaymarksTests
             Assert.AreEqual("article",
                 document.QuerySelector("meta[property='og:type']")?.Attributes
                     .FirstOrDefault(x => x.LocalName == "content")?.Value);
+
+            var tagContainers = document.QuerySelectorAll(".tags-detail-link-container");
+            var contentTags = Db.TagListParseToSlugsAndIsExcluded(toCheck);
+            Assert.AreEqual(tagContainers.Length, contentTags.Count);
+
+            var tagLinks = document.QuerySelectorAll(".tag-detail-link");
+            Assert.AreEqual(tagLinks.Length, contentTags.Count(x => !x.IsExcluded));
+
+            var tagNoLinks = document.QuerySelectorAll(".tag-detail-text");
+            Assert.AreEqual(tagNoLinks.Length, contentTags.Count(x => x.IsExcluded));
         }
 
         public static IHtmlDocument DocumentFromFile(FileInfo htmlFile)

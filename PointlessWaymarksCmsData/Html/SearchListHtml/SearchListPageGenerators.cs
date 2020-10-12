@@ -169,7 +169,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             //Tags is reset - above for tag search we don't include tags from pages that are hidden from search - but to
             //ensure all tags have a page we generate pages from all tags (if an image excluded from search had a unique
             //tag we need a page for the links on that page, excluded from search does not mean 'unreachable'...)
-            var pageTags = Db.TagSlugsAndContentList(true, true, progress).Result;
+            var pageTags = Db.TagSlugsAndContentList(true, false, progress).Result;
 
             var loopCount = 0;
 

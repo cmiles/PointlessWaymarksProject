@@ -1,13 +1,11 @@
 ﻿## Todos
  - Continue GUI Context tests in new series
- - Excel updates for links - currently fails with no slug
  - Points:
   - Setup RSS Feed
   - Generated Html - need details included and default styled
   - Related Content
   - Bracket Code
   - Importing a new Point From Excel gives an unhelpful change message
- - Look at Canon Canon in the imports - clean up Pointless waymarks and look at logic in the Photo Metadata code
  - Text to Speech:
    - Cancellation
    - in Update Notes
@@ -51,6 +49,12 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+10/12/2020
+
+Changing approaches a little on Excluded Tags - I like the idea that I am not providing inappropriate pages where you can see all the images of a person (other potential uses but this is core), but as a result I can't see on the site who is in some pictures (annoying) and can't share with someone pictures of them in a reasonable way (not ideal). So trying a different compromise - Excluded Tags will appear as tags but with no link and will have a tag page generated but it will not be linked to anything - so if you know the url you can get to it, you are still 'named' in the photo, but there is no one-click solution to seeing everything you are in... Not sure - this thinking evolved from actually using the site so I think it will be most interesting to use it...
+
+Spent quite a bit of time tracking down a newly failing test where I was doing >= to find newly generated content but should have been doing > - the could still go wrong in a chase where something else generated 'immediately' but I don't immediately know how that is a real scenario for now.
 
 10/11/2020
 
