@@ -7,8 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="favicon.ico" />
-    <None Remove="style.css" />
+    <None Remove="leaflet.css" />
+    <None Remove="leaflet.js" />
+    <None Remove="SiteResources\images\layers-2x.png" />
+    <None Remove="SiteResources\images\layers.png" />
+    <None Remove="SiteResources\images\marker-icon-2x.png" />
+    <None Remove="SiteResources\images\marker-icon.png" />
+    <None Remove="SiteResources\images\marker-shadow.png" />
+    <None Remove="SiteResources\leaflet-gesture-handling.min.css" />
+    <None Remove="SiteResources\leaflet-gesture-handling.min.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -263,6 +270,15 @@
 
   <ItemGroup>
     <EmbeddedResource Include="favicon.ico" />
+    <EmbeddedResource Include="SiteResources\images\layers-2x.png" />
+    <EmbeddedResource Include="SiteResources\images\layers.png" />
+    <EmbeddedResource Include="SiteResources\images\marker-icon-2x.png" />
+    <EmbeddedResource Include="SiteResources\images\marker-icon.png" />
+    <EmbeddedResource Include="SiteResources\images\marker-shadow.png" />
+    <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.css" />
+    <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js" />
+    <EmbeddedResource Include="SiteResources\leaflet.css" />
+    <EmbeddedResource Include="SiteResources\leaflet.js" />
     <EmbeddedResource Include="style.css" />
   </ItemGroup>
 

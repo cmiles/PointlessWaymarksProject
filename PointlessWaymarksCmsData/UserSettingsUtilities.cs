@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -663,6 +665,16 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory, "RssIndexFeed")}.xml");
         }
 
+        public static DirectoryInfo LocalSiteSiteResourcesDirectory(this UserSettings settings)
+        {
+            var photoDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "SiteResources"));
+            if (!photoDirectory.Exists) photoDirectory.Create();
+
+            photoDirectory.Refresh();
+
+            return photoDirectory;
+        }
+
         public static FileInfo LocalSiteTagListFileInfo(this UserSettings settings, string tag)
         {
             var directory = settings.LocalSiteTagsDirectory();
@@ -976,29 +988,48 @@ namespace PointlessWaymarksCmsData
 
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
-            string styleCss;
-            await using (var embeddedAsStream = embeddedProvider.GetFileInfo("style.css").CreateReadStream())
+            var siteResources = embeddedProvider.GetDirectoryContents("");
+
+            foreach (var loopSiteResources in siteResources)
             {
-                var reader = new StreamReader(embeddedAsStream);
-                styleCss = await reader.ReadToEndAsync();
+                var fileAsStream = loopSiteResources.CreateReadStream();
+
+                string filePathStyleName;
+
+                if (loopSiteResources.Name.StartsWith("SiteResources.images."))
+                {
+                    filePathStyleName = $"SiteResources\\images\\{loopSiteResources.Name.Substring(21)}";
+                }
+                else if (loopSiteResources.Name.StartsWith("SiteResources."))
+                {
+                    filePathStyleName = $"SiteResources\\{loopSiteResources.Name.Substring(14)}";
+                }
+                else
+                {
+                    filePathStyleName = loopSiteResources.Name;
+                }
+
+                var destinationFile =
+                    new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
+                        filePathStyleName));
+
+                var destinationDirectory = destinationFile.Directory;
+                if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
+
+                var fileStream = File.Create(destinationFile.FullName);
+                fileAsStream.Seek(0, SeekOrigin.Begin);
+                await fileAsStream.CopyToAsync(fileStream);
+                fileStream.Close();
+
+                progress?.Report($"Site Resources - Writing {loopSiteResources.Name} to {destinationFile.FullName}");
             }
-
-            var styleCssFile = Path.Combine(siteRoot.FullName, "style.css");
-            progress?.Report($"Writing default style.css to {styleCssFile}");
-            await File.WriteAllTextAsync(styleCssFile, styleCss);
-
-            string defaultFavicon;
-            await using (var embeddedAsStream = embeddedProvider.GetFileInfo("favicon.ico").CreateReadStream())
-            {
-                var reader = new StreamReader(embeddedAsStream);
-                defaultFavicon = await reader.ReadToEndAsync();
-            }
-
-            var defaultFaviconFile = Path.Combine(siteRoot.FullName, "favicon.ico");
-            progress?.Report($"Writing default style.css to {defaultFaviconFile}");
-            await File.WriteAllTextAsync(defaultFaviconFile, defaultFavicon);
 
             return newSettings;
+        }
+
+        public static string SiteResourcesUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/SiteResources/";
         }
 
         public static DirectoryInfo StorageDirectory()

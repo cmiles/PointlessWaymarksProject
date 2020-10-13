@@ -741,7 +741,7 @@ namespace PointlessWaymarksCmsData.Content
         {
             progress?.Report("Starting Directory Cleanup");
 
-            var tags = (await Db.TagSlugsAndContentList(true, true, progress)).Select(x => x.tag).Distinct().ToList();
+            var tags = (await Db.TagSlugsAndContentList(true, false, progress)).Select(x => x.tag).Distinct().ToList();
 
             var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("TagList-*.html")
                 .OrderBy(x => x.Name).ToList();
@@ -790,7 +790,8 @@ namespace PointlessWaymarksCmsData.Content
                 settings.LocalSitePostDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteLinkDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteNoteDirectory().CreateIfItDoesNotExist(),
-                settings.LocalSiteTagsDirectory().CreateIfItDoesNotExist()
+                settings.LocalSiteTagsDirectory().CreateIfItDoesNotExist(),
+                settings.LocalSiteSiteResourcesDirectory().CreateIfItDoesNotExist()
             };
         }
 

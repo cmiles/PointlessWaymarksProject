@@ -65,27 +65,34 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             this.Write("\r\n    ");
             
             #line 9 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(PointParts.PointDetailsDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 10 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result));
             
             #line default
             #line hidden
             this.Write("\r\n    <script>\r\n\t\tlazyInit(document.querySelector(\"#");
             
-            #line 11 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
+            #line 12 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Slug));
             
             #line default
             #line hidden
             this.Write("Map\"), () => singlePointMapInit(document.querySelector(\"#");
             
-            #line 11 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
+            #line 12 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Slug));
             
             #line default
             #line hidden
             this.Write("Map\"), \"");
             
-            #line 11 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
+            #line 12 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Slug));
             
             #line default

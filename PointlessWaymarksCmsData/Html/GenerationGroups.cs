@@ -313,13 +313,13 @@ namespace PointlessWaymarksCmsData.Html
                 .ToListAsync();
             progress?.Report($"Found {photos.Count} Photo Content Entries Changed After {contentAfter}");
 
-            var posts = await db.PostContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
-                .ToListAsync();
-            progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
-
             var points = await db.PointContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {points.Count} Point Content Entries Changed After {contentAfter}");
+
+            var posts = await db.PostContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
+                .ToListAsync();
+            progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
 
             var contentChanges = files.Concat(images).Concat(links).Concat(notes).Concat(photos).Concat(posts).ToList();
 
@@ -633,9 +633,7 @@ namespace PointlessWaymarksCmsData.Html
             await GenerateChangeFilteredFileHtml(generationVersion, progress);
             await GenerateChangeFilteredNoteHtml(generationVersion, progress);
             await GenerateChangeFilteredPostHtml(generationVersion, progress);
-
-            //TODO: Switch out for Changed
-            await GenerateAllPointHtml(generationVersion, progress);
+            await GenerateChangeFilteredPointHtml(generationVersion, progress);
 
             var hasDirectPhotoChanges = db.PhotoContents.Join(db.GenerationChangedContentIds, o => o.ContentId,
                 i => i.ContentId, (o, i) => o.PhotoCreatedOn).Any();
@@ -785,6 +783,32 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 var htmlModel = new SinglePostPage(loopItem) {GenerationVersion = generationVersion};
+                htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
+
+                loopCount++;
+            }
+        }
+
+        public static async Task GenerateChangeFilteredPointHtml(DateTime generationVersion, IProgress<string> progress)
+        {
+            var db = await Db.Context();
+
+            var allItems = await db.PointContents
+                .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            progress?.Report($"Found {totalCount} Points to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var loopItemAndDetails = await Db.PointAndPointDetails(loopItem.ContentId);
+
+                var htmlModel = new SinglePointPage(loopItemAndDetails) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 

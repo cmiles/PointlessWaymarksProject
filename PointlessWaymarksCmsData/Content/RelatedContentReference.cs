@@ -53,7 +53,8 @@ namespace PointlessWaymarksCmsData.Content
 
             if (!toAdd.Any()) return;
 
-            var dbEntries = toAdd.Select(x => new GenerationRelatedContent {ContentOne = content.ContentId, ContentTwo = x});
+            var dbEntries = toAdd.Select(x =>
+                new GenerationRelatedContent {ContentOne = content.ContentId, ContentTwo = x});
 
             await db.GenerationRelatedContents.AddRangeAsync(dbEntries);
 
@@ -96,15 +97,15 @@ namespace PointlessWaymarksCmsData.Content
             progress?.Report($"Processing {photos.Count} Photo Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(photos, db, progress);
 
-            var posts = (await db.PostContents.Where(x => x.ContentVersion > contentAfter).ToListAsync())
-                .Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {posts.Count} Post Content Entries for Related Content");
-            await ExtractAndWriteRelatedContentDbReferences(posts, db, progress);
-
             var points = (await db.PointContents.Where(x => x.ContentVersion > contentAfter).ToListAsync())
                 .Cast<IContentCommon>().ToList();
             progress?.Report($"Processing {points.Count} Point Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(points, db, progress);
+
+            var posts = (await db.PostContents.Where(x => x.ContentVersion > contentAfter).ToListAsync())
+                .Cast<IContentCommon>().ToList();
+            progress?.Report($"Processing {posts.Count} Post Content Entries for Related Content");
+            await ExtractAndWriteRelatedContentDbReferences(posts, db, progress);
         }
     }
 }

@@ -2,8 +2,6 @@
  - Continue GUI Context tests in new series
  - Points:
   - Setup RSS Feed
-  - Generated Html - need details included and default styled
-  - Related Content
   - Bracket Code
   - Importing a new Point From Excel gives an unhelpful change message
  - Text to Speech:
@@ -49,6 +47,10 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+10/13/2020
+
+I want the generated sites to have high durability - leaflet is obviously a compromise, but I don't think writing a full mapping control is a reasonable and at the moment I don't quite have an alternative (I have been thinking about generating static images for the maps but I'm not sure...) - to help just a little with being durable I moved the libraries local instead of linking to a service.
 
 10/12/2020
 
