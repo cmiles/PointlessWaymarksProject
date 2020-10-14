@@ -41,9 +41,9 @@
     <PackageReference Include="Jot" Version="2.1.7" />
     <PackageReference Include="Markdig" Version="0.18.3" />
     <PackageReference Include="Markdig.Wpf" Version="0.4.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-rc.1.20451.13" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0-rc.1.20451.13" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-rc.1.20451.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-rc.2.20475.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0-rc.2.20475.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-rc.2.20475.5" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="0.9.628-prerelease" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="NetTopologySuite" Version="2.1.0" />
@@ -54,9 +54,9 @@
     <PackageReference Include="pinboard.net" Version="1.0.0" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.1" />
-    <PackageReference Include="System.Runtime.Caching" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0-rc.1.20451.14" />
+    <PackageReference Include="System.Runtime.Caching" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0-rc.2.20475.5" />
     <PackageReference Include="TinyIpc" Version="2.1.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
     <PackageReference Include="WpfScreenHelper" Version="1.0.0" />

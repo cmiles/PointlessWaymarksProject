@@ -77,6 +77,8 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
 
                         if (pointDetails == null) return outerDiv;
 
+                        typeLine.Text($"Point Detail: {pointDetails.Type}");
+
                         var infoList = new HtmlTag("ul").AddClass("point-detail-info-list");
 
                         if (!string.IsNullOrEmpty(pointDetails.Notes))
