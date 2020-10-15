@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -997,17 +995,11 @@ namespace PointlessWaymarksCmsData
                 string filePathStyleName;
 
                 if (loopSiteResources.Name.StartsWith("SiteResources.images."))
-                {
                     filePathStyleName = $"SiteResources\\images\\{loopSiteResources.Name.Substring(21)}";
-                }
                 else if (loopSiteResources.Name.StartsWith("SiteResources."))
-                {
                     filePathStyleName = $"SiteResources\\{loopSiteResources.Name.Substring(14)}";
-                }
                 else
-                {
                     filePathStyleName = loopSiteResources.Name;
-                }
 
                 var destinationFile =
                     new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,

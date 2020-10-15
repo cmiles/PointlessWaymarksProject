@@ -9,7 +9,6 @@
    - in Update Notes
  - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
  - Track tags in db so changes can be more quickly detected (long generation time on PointlessWaymarks.com after adding all photos)
- - Consider pages but no links for excluded tags
  - Integrate Xaml Styler - is the git hook working?
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check

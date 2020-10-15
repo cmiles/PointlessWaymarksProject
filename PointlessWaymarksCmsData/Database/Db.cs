@@ -172,6 +172,18 @@ namespace PointlessWaymarksCmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
+        public static async Task<List<HistoricPointContent>> DeletedPointContent()
+        {
+            var db = await Context();
+
+            var deletedContent = await (from h in db.HistoricPointContents
+                where !db.PointContents.Any(x => x.ContentId == h.ContentId)
+                select h).ToListAsync();
+
+            return deletedContent.GroupBy(x => x.ContentId)
+                .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
+        }
+
         public static async Task<List<HistoricPostContent>> DeletedPostContent()
         {
             var db = await Context();

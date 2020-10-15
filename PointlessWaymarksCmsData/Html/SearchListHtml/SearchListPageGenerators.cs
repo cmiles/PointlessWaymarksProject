@@ -101,6 +101,22 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
                 UserSettingsSingleton.CurrentSettings().LocalSitePhotoRssFile(), "Photos");
         }
 
+        public static void WritePointContentListHtml(DateTime? generationVersion)
+        {
+            List<object> ContentList()
+            {
+                var db = Db.Context().Result;
+                return db.PointContents.OrderBy(x => x.Title).Cast<object>().ToList();
+            }
+
+            var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePointListFile();
+
+            WriteSearchListHtml(ContentList, fileInfo, "Points", UserSettingsSingleton.CurrentSettings().PointsRssUrl(),
+                generationVersion);
+            RssBuilder.WriteContentCommonListRss(ContentList().Cast<IContentCommon>().ToList(),
+                UserSettingsSingleton.CurrentSettings().LocalSitePointRssFile(), "Points");
+        }
+
         public static void WritePostContentListHtml(DateTime? generationVersion)
         {
             List<object> ContentList()
