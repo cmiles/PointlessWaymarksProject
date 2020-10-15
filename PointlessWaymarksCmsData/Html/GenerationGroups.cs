@@ -10,8 +10,10 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.FileHtml;
+using PointlessWaymarksCmsData.Html.GeoJsonHtml;
 using PointlessWaymarksCmsData.Html.ImageHtml;
 using PointlessWaymarksCmsData.Html.IndexHtml;
+using PointlessWaymarksCmsData.Html.LineHtml;
 using PointlessWaymarksCmsData.Html.LinkListHtml;
 using PointlessWaymarksCmsData.Html.NoteHtml;
 using PointlessWaymarksCmsData.Html.PhotoGalleryHtml;
@@ -92,6 +94,29 @@ namespace PointlessWaymarksCmsData.Html
             }
         }
 
+        public static async Task GenerateAllGeoJsonHtml(DateTime? generationVersion, IProgress<string> progress)
+        {
+            var db = await Db.Context();
+
+            var allItems = await db.GeoJsonContents.ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            progress?.Report($"Found {totalCount} GeoJsons to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var htmlModel = new SingleGeoJsonPage(loopItem) {GenerationVersion = generationVersion};
+                htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
+
+                loopCount++;
+            }
+        }
+
         public static async Task GenerateAllHtml(IProgress<string> progress)
         {
             await CleanupGenerationInformation(progress);
@@ -107,6 +132,8 @@ namespace PointlessWaymarksCmsData.Html
             await GenerateAllNoteHtml(generationVersion, progress);
             await GenerateAllPostHtml(generationVersion, progress);
             await GenerateAllPointHtml(generationVersion, progress);
+            await GenerateAllLineHtml(generationVersion, progress);
+            await GenerateAllGeoJsonHtml(generationVersion, progress);
             await GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress);
             await GenerateCameraRollHtml(generationVersion, progress);
             GenerateAllTagHtml(generationVersion, progress);
@@ -146,6 +173,29 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 var htmlModel = new SingleImagePage(loopItem) {GenerationVersion = generationVersion};
+                htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
+
+                loopCount++;
+            }
+        }
+
+        public static async Task GenerateAllLineHtml(DateTime? generationVersion, IProgress<string> progress)
+        {
+            var db = await Db.Context();
+
+            var allItems = await db.LineContents.ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            progress?.Report($"Found {totalCount} Lines to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var htmlModel = new SingleLinePage(loopItem) {GenerationVersion = generationVersion};
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -644,6 +694,8 @@ namespace PointlessWaymarksCmsData.Html
             await GenerateChangeFilteredNoteHtml(generationVersion, progress);
             await GenerateChangeFilteredPostHtml(generationVersion, progress);
             await GenerateChangeFilteredPointHtml(generationVersion, progress);
+            await GenerateChangeFilteredLineHtml(generationVersion, progress);
+            await GenerateChangeFilteredGeoJsonHtml(generationVersion, progress);
 
             var hasDirectPhotoChanges = db.PhotoContents.Join(db.GenerationChangedContentIds, o => o.ContentId,
                 i => i.ContentId, (o, i) => o.PhotoCreatedOn).Any();
@@ -704,6 +756,31 @@ namespace PointlessWaymarksCmsData.Html
             }
         }
 
+        public static async Task GenerateChangeFilteredGeoJsonHtml(DateTime generationVersion,
+            IProgress<string> progress)
+        {
+            var db = await Db.Context();
+
+            var allItems = await db.GeoJsonContents
+                .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            progress?.Report($"Found {totalCount} GeoJsons to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var htmlModel = new SingleGeoJsonPage(loopItem) {GenerationVersion = generationVersion};
+                htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
+
+                loopCount++;
+            }
+        }
+
         public static async Task GenerateChangeFilteredImageHtml(DateTime generationVersion, IProgress<string> progress)
         {
             var db = await Db.Context();
@@ -721,6 +798,30 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 var htmlModel = new SingleImagePage(loopItem) {GenerationVersion = generationVersion};
+                htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
+
+                loopCount++;
+            }
+        }
+
+        public static async Task GenerateChangeFilteredLineHtml(DateTime generationVersion, IProgress<string> progress)
+        {
+            var db = await Db.Context();
+
+            var allItems = await db.LineContents
+                .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            progress?.Report($"Found {totalCount} Lines to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                var htmlModel = new SingleLinePage(loopItem) {GenerationVersion = generationVersion};
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 

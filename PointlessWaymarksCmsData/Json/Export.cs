@@ -108,6 +108,67 @@ namespace PointlessWaymarksCmsData.Json
             await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
+        public static async Task WriteLocalDbJson(LineContent dbEntry)
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+            var db = await Db.Context();
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteLineContentDirectory(dbEntry).FullName,
+                $"{Names.LineContentPrefix}{dbEntry.ContentId}.json"));
+
+            if (jsonFile.Exists) jsonFile.Delete();
+            jsonFile.Refresh();
+
+            await File.WriteAllTextAsync(jsonFile.FullName, jsonDbEntry);
+
+            var latestHistoricEntries = db.HistoricLineContents.Where(x => x.ContentId == dbEntry.ContentId)
+                .OrderByDescending(x => x.LastUpdatedOn).Take(10);
+
+            if (!latestHistoricEntries.Any()) return;
+
+            var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
+
+            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteLineContentDirectory(dbEntry).FullName,
+                $"{Names.HistoricLineContentPrefix}{dbEntry.ContentId}.json"));
+
+            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
+            jsonHistoricFile.Refresh();
+
+            await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+        }
+
+        public static async Task WriteLocalDbJson(GeoJsonContent dbEntry)
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+            var db = await Db.Context();
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteGeoJsonContentDirectory(dbEntry).FullName,
+                $"{Names.GeoJsonContentPrefix}{dbEntry.ContentId}.json"));
+
+            if (jsonFile.Exists) jsonFile.Delete();
+            jsonFile.Refresh();
+
+            await File.WriteAllTextAsync(jsonFile.FullName, jsonDbEntry);
+
+            var latestHistoricEntries = db.HistoricGeoJsonContents.Where(x => x.ContentId == dbEntry.ContentId)
+                .OrderByDescending(x => x.LastUpdatedOn).Take(10);
+
+            if (!latestHistoricEntries.Any()) return;
+
+            var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
+
+            var jsonHistoricFile = new FileInfo(Path.Combine(
+                settings.LocalSiteGeoJsonContentDirectory(dbEntry).FullName,
+                $"{Names.HistoricGeoJsonContentPrefix}{dbEntry.ContentId}.json"));
+
+            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
+            jsonHistoricFile.Refresh();
+
+            await File.WriteAllTextAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+        }
+
         public static async Task WriteLocalDbJson(PointContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();

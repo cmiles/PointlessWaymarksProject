@@ -141,6 +141,15 @@ namespace PointlessWaymarksCmsContentEditor
             GenerateHtmlForAllPostContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await GenerationGroups.GenerateAllPostHtml(null, StatusContext.ProgressTracker()));
 
+            GenerateHtmlForAllPointContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllPointHtml(null, StatusContext.ProgressTracker()));
+
+            GenerateHtmlForAllLineContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllLineHtml(null, StatusContext.ProgressTracker()));
+
+            GenerateHtmlForAllGeoJsonContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await GenerationGroups.GenerateAllGeoJsonHtml(null, StatusContext.ProgressTracker()));
+
             //Derived
             GenerateAllListHtmlCommand = StatusContext.RunBlockingActionCommand(() =>
                 GenerationGroups.GenerateAllListHtml(null, StatusContext.ProgressTracker()));
@@ -164,8 +173,6 @@ namespace PointlessWaymarksCmsContentEditor
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanupTemporaryFiles);
         }
-
-        public Command WvTwoExperimentCommand { get; set; }
 
         public Command AllEventsExcelReportCommand { get; set; }
 
@@ -197,11 +204,17 @@ namespace PointlessWaymarksCmsContentEditor
 
         public Command GenerateHtmlForAllFileContentCommand { get; set; }
 
+        public Command GenerateHtmlForAllGeoJsonContentCommand { get; set; }
+
         public Command GenerateHtmlForAllImageContentCommand { get; set; }
+
+        public Command GenerateHtmlForAllLineContentCommand { get; set; }
 
         public Command GenerateHtmlForAllNoteContentCommand { get; set; }
 
         public Command GenerateHtmlForAllPhotoContentCommand { get; set; }
+
+        public Command GenerateHtmlForAllPointContentCommand { get; set; }
 
         public Command GenerateHtmlForAllPostContentCommand { get; set; }
 
@@ -415,6 +428,8 @@ namespace PointlessWaymarksCmsContentEditor
         }
 
         public Command ToggleDiagnosticLoggingCommand { get; set; }
+
+        public Command WvTwoExperimentCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

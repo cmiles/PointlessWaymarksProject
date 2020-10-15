@@ -1,6 +1,6 @@
 # Pointless Waymarks CMS
 
-This project is not truly intended for 'general public' use - it is made public under an MIT license both to share with friends and just-in-case any of the code is useful to anyone.
+This project is not currently intended for 'general public' use - it is made public under an MIT license both to share with friends and just-in-case any of the code is useful to anyone.
 
 This project is a .NET Core Windows WPF GUI for generating a static website based on database information and a settings file. This software is currently being used to create https://PointlessWaymarks.com. It is not intended as 'general purpose static site generation software' and only supports the creation and generation of a limited set of content types with a limited set of options.
 
@@ -10,9 +10,8 @@ Details behind this software:
  - A static site because it is currently one of the lowest cost, least maintenance, most durable ways to put free content online.
  - Database driven because it offers a huge amount of flexibility in creating and updating content and supports the generation of multiple formats.
  - Custom software rather than a generic cms/web framework so that the limited content types I want to create can be specifically and well supported - with a limited scope I believe I can create more useful software in less time by coding something new rather than customizing something existing.
- - Desktop creation software because it is an excellent way to create zero cost software that can be used/installed by a wide variety of end users - WPF because I am most frequently working in Windows and it is my favorite Windows GUI technology atm and because it feeds back into my day job where I help to create and maintain an Inventory Management and Reporting system that has a WPF Front end component.
- 
- I hope to write high quality code and I am happy to share it - but for various reasons, including the narrow and personal focus of this project, I don't currently intend to make 'public use' a primary consideration.
+ - Desktop creation software because it is an excellent way to create zero cost software. WPF because I am most frequently working in Windows and it is my favorite Windows GUI technology atm and because it feeds back into my day job where I help to create and maintain an Inventory Management and Reporting system that has a WPF Front end component.
+ - I hope to write high quality code and I am happy to share it - but for various reasons, including the narrow and personal focus of this project, I don't currently intend to make 'public use' a primary consideration.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
 
@@ -78,3 +77,4 @@ Packages/Libraries/Services:
  - [SimpleScreenShotCapture](https://github.com/cyotek/SimpleScreenshotCapture) and [Capturing screenshots using C# and p/invoke](https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke)- An example project and blog post with information on and code for capturing screen and window shots using native methods. Used this as the basis for a WPF/[WpfScreenHelper](https://github.com/micdenny/WpfScreenHelper) version - the advantage over traditional WPF based window image methods is that XamlIsland type controls can be captured. Creative Commons Attribution 4.0 International License.
  - [Open Topo Data](https://www.opentopodata.org/) - Provides an open and free Elevation API and offers both a public service and the code to host the service yourself (including scripts/information to get the needed source data) - [GitHub: ajnisbet/opentopodata: Open alternative to the Google Elevation API!](https://github.com/ajnisbet/opentopodata). (Code) MIT License.
  - [Leaflet - a JavaScript library for interactive maps](https://leafletjs.com/) - [On GitHub](https://github.com/Leaflet/Leaflet). BSD-2-Clause License.
+ - [elmarquis/Leaflet.GestureHandling: Brings the basic functionality of Google Maps Gesture Handling into Leaflet. Prevents users from getting trapped on the map when scrolling a long page.](https://github.com/elmarquis/Leaflet.GestureHandling). MIT License.

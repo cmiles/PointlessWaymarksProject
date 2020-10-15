@@ -64,6 +64,16 @@
       <LastGenOutput>SingleFilePage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.Html.FileHtml</CustomToolNamespace>
     </None>
+    <None Update="Html\GeoJsonHtml\SingleGeoJsonDiv.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SingleGeoJsonDiv.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.Html.GeoJsonHtml</CustomToolNamespace>
+    </None>
+    <None Update="Html\GeoJsonHtml\SingleGeoJsonPage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SingleGeoJsonPage.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.Html.GeoJsonHtml</CustomToolNamespace>
+    </None>
     <None Update="Html\ImageHtml\SingleImageDiv.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SingleImageDiv.cs</LastGenOutput>
@@ -78,6 +88,16 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>IndexPage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.Html.IndexHtml</CustomToolNamespace>
+    </None>
+    <None Update="Html\LineHtml\SingleLineDiv.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SingleLineDiv.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.Html.LineHtml</CustomToolNamespace>
+    </None>
+    <None Update="Html\LineHtml\SingleLinePage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SingleLinePage.cs</LastGenOutput>
+      <CustomToolNamespace>PointlessWaymarksCmsData.Html.LineHtml</CustomToolNamespace>
     </None>
     <None Update="Html\PointHtml\PointMap.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
@@ -170,6 +190,16 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SingleFilePage.tt</DependentUpon>
     </Compile>
+    <Compile Update="Html\GeoJsonHtml\SingleGeoJsonDiv.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SingleGeoJsonDiv.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Html\GeoJsonHtml\SingleGeoJsonPage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SingleGeoJsonPage.tt</DependentUpon>
+    </Compile>
     <Compile Update="Html\ImageHtml\SingleImageDiv.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -184,6 +214,16 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>IndexPage.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Html\LineHtml\SingleLineDiv.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SingleLineDiv.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Html\LineHtml\SingleLinePage.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SingleLinePage.tt</DependentUpon>
     </Compile>
     <Compile Update="Html\PointHtml\pointmap.cs">
       <DesignTime>True</DesignTime>
