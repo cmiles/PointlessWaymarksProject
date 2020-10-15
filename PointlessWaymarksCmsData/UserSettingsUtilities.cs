@@ -155,6 +155,21 @@ namespace PointlessWaymarksCmsData
             return (UserSettingsGenerationValues) new UserSettingsGenerationValues().InjectFrom(settings);
         }
 
+        public static string GeoJsonListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/GeoJson/GeoJsonList.html";
+        }
+
+        public static string GeoJsonPageUrl(this UserSettings settings, GeoJsonContent content)
+        {
+            return $"//{settings.SiteUrl}/GeoJson/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static string GeoJsonRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/GeoJson/GeoJsonRss.xml";
+        }
+
         public static string ImageListUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/Images/ImageList.html";
@@ -173,6 +188,21 @@ namespace PointlessWaymarksCmsData
         public static string IndexPageUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/index.html";
+        }
+
+        public static string LinePageUrl(this UserSettings settings, LineContent content)
+        {
+            return $"//{settings.SiteUrl}/Lines/{content.Folder}/{content.Slug}/{content.Slug}.html";
+        }
+
+        public static string LinesListUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Lines/LineList.html";
+        }
+
+        public static string LinesRssUrl(this UserSettings settings)
+        {
+            return $"//{settings.SiteUrl}/Lines/LineRss.xml";
         }
 
         public static string LinkListUrl(this UserSettings settings)
@@ -362,6 +392,49 @@ namespace PointlessWaymarksCmsData
             return new FileInfo($"{Path.Combine(directory.FullName, "FileRss")}.xml");
         }
 
+        public static DirectoryInfo LocalSiteGeoJsonContentDirectory(this UserSettings settings, GeoJsonContent content,
+            bool createDirectoryIfNotFound = true)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteGeoJsonDirectory().FullName,
+                content.Folder, content.Slug));
+
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+
+        public static DirectoryInfo LocalSiteGeoJsonDirectory(this UserSettings settings)
+        {
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "GeoJson"));
+            if (!localDirectory.Exists) localDirectory.Create();
+
+            localDirectory.Refresh();
+
+            return localDirectory;
+        }
+
+        public static FileInfo LocalSiteGeoJsonHtmlFile(this UserSettings settings, GeoJsonContent content)
+        {
+            var directory = settings.LocalSiteGeoJsonContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
+        public static FileInfo LocalSiteGeoJsonListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteGeoJsonDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "GeoJsonList")}.html");
+        }
+
+        public static FileInfo LocalSiteGeoJsonRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteGeoJsonDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "GeoJsonRss")}.xml");
+        }
+
         public static DirectoryInfo LocalSiteImageContentDirectory(this UserSettings settings, ImageContent content,
             bool createDirectoryIfNotFound = true)
         {
@@ -415,6 +488,50 @@ namespace PointlessWaymarksCmsData
         {
             var directory = settings.LocalSiteRootDirectory;
             return new FileInfo($"{Path.Combine(directory, "index")}.html");
+        }
+
+
+        public static DirectoryInfo LocalSiteLineContentDirectory(this UserSettings settings, LineContent content,
+            bool createDirectoryIfNotFound = true)
+        {
+            var contentDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteLineDirectory().FullName,
+                content.Folder, content.Slug));
+
+            if (contentDirectory.Exists || !createDirectoryIfNotFound) return contentDirectory;
+
+            contentDirectory.Create();
+            contentDirectory.Refresh();
+
+            return contentDirectory;
+        }
+
+
+        public static DirectoryInfo LocalSiteLineDirectory(this UserSettings settings)
+        {
+            var localDirectory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Lines"));
+            if (!localDirectory.Exists) localDirectory.Create();
+
+            localDirectory.Refresh();
+
+            return localDirectory;
+        }
+
+        public static FileInfo LocalSiteLineHtmlFile(this UserSettings settings, LineContent content)
+        {
+            var directory = settings.LocalSiteLineContentDirectory(content, false);
+            return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+        }
+
+        public static FileInfo LocalSiteLineListFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteLineDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "LineList")}.html");
+        }
+
+        public static FileInfo LocalSiteLineRssFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSiteLineDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "LineRss")}.xml");
         }
 
         public static DirectoryInfo LocalSiteLinkDirectory(this UserSettings settings)
@@ -656,6 +773,7 @@ namespace PointlessWaymarksCmsData
             var directory = settings.LocalSitePostDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "PostRss")}.xml");
         }
+
 
         public static FileInfo LocalSiteRssIndexFeedListFile(this UserSettings settings)
         {

@@ -1,9 +1,7 @@
 ﻿## Todos
  - Continue GUI Context tests in new series
  - Points:
-  - Setup RSS Feed
   - Bracket Code
-  - Importing a new Point From Excel gives an unhelpful change message
  - Text to Speech:
    - Cancellation
    - in Update Notes
@@ -46,6 +44,10 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+10/15/2020
+
+Started adding in Line and GeoJson Content Types. Like Points these are more speculative than the other content types because they haven't been tested by long use/need on other platforms... Decided to keep line separate from GeoJson because line is likely to get dedicated ui elements for distance and elevation calculations and graphs.
 
 10/13/2020
 

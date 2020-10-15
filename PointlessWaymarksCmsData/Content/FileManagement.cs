@@ -17,29 +17,37 @@ namespace PointlessWaymarksCmsData.Content
 
             var returnList = new List<GenerationReturn>();
 
-            var y = await Task.WhenAll((await db.ImageContents.ToListAsync()).Select(x =>
-                GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteImageContentDirectory(x),
-                    $"Check Content Folder for Image {x.Title}")));
+            returnList.AddRange(await Task.WhenAll((await db.FileContents.ToListAsync()).Select(x =>
+                GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteFileContentDirectory(x),
+                    $"Check Content Folder for File {x.Title}"))));
+
+            returnList.AddRange(await Task.WhenAll((await db.GeoJsonContents.ToListAsync()).Select(x =>
+                GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteGeoJsonContentDirectory(x),
+                    $"Check Content Folder for GeoJson {x.Title}"))));
 
             returnList.AddRange(await Task.WhenAll((await db.ImageContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteImageContentDirectory(x),
                     $"Check Content Folder for Image {x.Title}"))));
 
-            returnList.AddRange(await Task.WhenAll((await db.FileContents.ToListAsync()).Select(x =>
-                GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteFileContentDirectory(x),
-                    $"Check Content Folder for File {x.Title}"))));
+            returnList.AddRange(await Task.WhenAll((await db.LineContents.ToListAsync()).Select(x =>
+                GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteLineContentDirectory(x),
+                    $"Check Content Folder for Line {x.Title}"))));
 
             returnList.AddRange(await Task.WhenAll((await db.NoteContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteNoteContentDirectory(x),
                     $"Check Content Folder for Note {x.Title}"))));
 
-            returnList.AddRange(await Task.WhenAll((await db.PostContents.ToListAsync()).Select(x =>
-                GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePostContentDirectory(x),
-                    $"Check Content Folder for Post {x.Title}"))));
-
             returnList.AddRange(await Task.WhenAll((await db.PhotoContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePhotoContentDirectory(x),
                     $"Check Content Folder for Photo {x.Title}"))));
+
+            returnList.AddRange(await Task.WhenAll((await db.PointContents.ToListAsync()).Select(x =>
+                GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePointContentDirectory(x),
+                    $"Check Content Folder for Point {x.Title}"))));
+
+            returnList.AddRange(await Task.WhenAll((await db.PostContents.ToListAsync()).Select(x =>
+                GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePostContentDirectory(x),
+                    $"Check Content Folder for Post {x.Title}"))));
 
             return returnList;
         }
@@ -315,11 +323,13 @@ namespace PointlessWaymarksCmsData.Content
         public static async Task RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(IProgress<string> progress)
         {
             await RemoveFileDirectoriesNotFoundInCurrentDatabase(progress);
+            await RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(progress);
             await RemoveImageDirectoriesNotFoundInCurrentDatabase(progress);
+            await RemoveLineDirectoriesNotFoundInCurrentDatabase(progress);
             await RemoveNoteDirectoriesNotFoundInCurrentDatabase(progress);
-            await RemovePostDirectoriesNotFoundInCurrentDatabase(progress);
             await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress);
             await RemovePointDirectoriesNotFoundInCurrentDatabase(progress);
+            await RemovePostDirectoriesNotFoundInCurrentDatabase(progress);
             await RemoveTagContentFilesNotInCurrentDatabase(progress);
         }
 
@@ -398,6 +408,54 @@ namespace PointlessWaymarksCmsData.Content
             }
         }
 
+        public static async Task RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        {
+            progress?.Report("Starting Directory Cleanup");
+
+            var db = await Db.Context();
+            var dbFolders = db.GeoJsonContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+
+            var siteTopLevelGeoJsonDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteGeoJsonDirectory();
+            var folderDirectories = siteTopLevelGeoJsonDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+            progress?.Report(
+                $"Found {folderDirectories.Count} Existing GeoJson Directories to Check against {dbFolders.Count} GeoJson Folders in the Database");
+
+            foreach (var loopExistingDirectories in folderDirectories)
+            {
+                if (!dbFolders.Contains(loopExistingDirectories.Name))
+                {
+                    progress?.Report($"Deleting {loopExistingDirectories.FullName}");
+
+                    loopExistingDirectories.Delete(true);
+                    continue;
+                }
+
+                progress?.Report($"Staring GeoJson Content Directory Check for {loopExistingDirectories.FullName}");
+
+                var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
+                var dbContentSlugs = db.GeoJsonContents.Where(x => x.Folder == loopExistingDirectories.Name)
+                    .Select(x => x.Slug).OrderBy(x => x).ToList();
+
+                progress?.Report(
+                    $"Found {existingContentDirectories.Count} Existing GeoJson Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
+
+                foreach (var loopExistingContentDirectories in existingContentDirectories)
+                {
+                    if (!dbContentSlugs.Contains(loopExistingContentDirectories.Name))
+                    {
+                        progress?.Report($"Deleting {loopExistingContentDirectories.FullName}");
+                        loopExistingContentDirectories.Delete(true);
+                        continue;
+                    }
+
+                    progress?.Report($"{loopExistingContentDirectories.FullName} matches current GeoJson Content");
+                }
+            }
+
+            progress?.Report("Ending GeoJson Directory Cleanup");
+        }
+
         public static async Task RemoveImageDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
         {
             progress?.Report("Starting Directory Cleanup");
@@ -471,6 +529,54 @@ namespace PointlessWaymarksCmsData.Content
 
                 progress?.Report($"Found {loopFiles.Name} in Database");
             }
+        }
+
+        public static async Task RemoveLineDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        {
+            progress?.Report("Starting Directory Cleanup");
+
+            var db = await Db.Context();
+            var dbFolders = db.LineContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+
+            var siteTopLevelLineDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteLineDirectory();
+            var folderDirectories = siteTopLevelLineDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+            progress?.Report(
+                $"Found {folderDirectories.Count} Existing Line Directories to Check against {dbFolders.Count} Line Folders in the Database");
+
+            foreach (var loopExistingDirectories in folderDirectories)
+            {
+                if (!dbFolders.Contains(loopExistingDirectories.Name))
+                {
+                    progress?.Report($"Deleting {loopExistingDirectories.FullName}");
+
+                    loopExistingDirectories.Delete(true);
+                    continue;
+                }
+
+                progress?.Report($"Staring Line Content Directory Check for {loopExistingDirectories.FullName}");
+
+                var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
+                var dbContentSlugs = db.LineContents.Where(x => x.Folder == loopExistingDirectories.Name)
+                    .Select(x => x.Slug).OrderBy(x => x).ToList();
+
+                progress?.Report(
+                    $"Found {existingContentDirectories.Count} Existing Line Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
+
+                foreach (var loopExistingContentDirectories in existingContentDirectories)
+                {
+                    if (!dbContentSlugs.Contains(loopExistingContentDirectories.Name))
+                    {
+                        progress?.Report($"Deleting {loopExistingContentDirectories.FullName}");
+                        loopExistingContentDirectories.Delete(true);
+                        continue;
+                    }
+
+                    progress?.Report($"{loopExistingContentDirectories.FullName} matches current Line Content");
+                }
+            }
+
+            progress?.Report("Ending Line Directory Cleanup");
         }
 
         public static async Task RemoveMediaArchiveFilesNotInDatabase(IProgress<string> progress)
@@ -739,7 +845,7 @@ namespace PointlessWaymarksCmsData.Content
 
         public static async Task RemoveTagContentFilesNotInCurrentDatabase(IProgress<string> progress)
         {
-            progress?.Report("Starting Directory Cleanup");
+            progress?.Report("Starting Tag Directory Cleanup");
 
             var tags = (await Db.TagSlugsAndContentList(true, false, progress)).Select(x => x.tag).Distinct().ToList();
 
@@ -780,16 +886,17 @@ namespace PointlessWaymarksCmsData.Content
             return new List<GenerationReturn>
             {
                 settings.LocalSiteDirectory().CreateIfItDoesNotExist(),
+                settings.LocalSiteFileDirectory().CreateIfItDoesNotExist(),
+                settings.LocalSiteGeoJsonDirectory().CreateIfItDoesNotExist(),
+                settings.LocalSiteImageDirectory().CreateIfItDoesNotExist(),
+                settings.LocalSiteLineDirectory().CreateIfItDoesNotExist(),
+                settings.LocalSiteLinkDirectory().CreateIfItDoesNotExist(),
+                settings.LocalSiteNoteDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSitePhotoDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSitePhotoGalleryDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteDailyPhotoGalleryDirectory().CreateIfItDoesNotExist(),
-                settings.LocalSiteFileDirectory().CreateIfItDoesNotExist(),
-                settings.LocalSiteImageDirectory().CreateIfItDoesNotExist(),
-                settings.LocalSiteNoteDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSitePointDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSitePostDirectory().CreateIfItDoesNotExist(),
-                settings.LocalSiteLinkDirectory().CreateIfItDoesNotExist(),
-                settings.LocalSiteNoteDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteTagsDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteSiteResourcesDirectory().CreateIfItDoesNotExist()
             };

@@ -27,19 +27,20 @@ namespace PointlessWaymarksCmsData
 
         public static DataNotificationContentType NotificationContentTypeFromContent(dynamic content)
         {
-            switch (content)
+            return content switch
             {
-                case FileContent _: return DataNotificationContentType.File;
-                case ImageContent _: return DataNotificationContentType.Image;
-                case LinkContent _: return DataNotificationContentType.Link;
-                case Note _: return DataNotificationContentType.Note;
-                case PhotoContent _: return DataNotificationContentType.Photo;
-                case PointContent _: return DataNotificationContentType.Point;
-                case PointDetail _: return DataNotificationContentType.PointDetail;
-                case PostContent _: return DataNotificationContentType.Post;
-                default:
-                    return DataNotificationContentType.Unknown;
-            }
+                FileContent => DataNotificationContentType.File,
+                GeoJsonContent => DataNotificationContentType.GeoJson,
+                ImageContent => DataNotificationContentType.Image,
+                LineContent => DataNotificationContentType.Line,
+                LinkContent => DataNotificationContentType.Link,
+                Note => DataNotificationContentType.Note,
+                PhotoContent => DataNotificationContentType.Photo,
+                PointContent => DataNotificationContentType.Point,
+                PointDetail => DataNotificationContentType.PointDetail,
+                PostContent => DataNotificationContentType.Post,
+                _ => DataNotificationContentType.Unknown
+            };
         }
 
         public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
@@ -112,13 +113,15 @@ namespace PointlessWaymarksCmsData
     public enum DataNotificationContentType
     {
         File,
+        GeoJson,
         Image,
+        Line,
         Link,
         Note,
         Photo,
         Point,
         PointDetail,
         Post,
-        Unknown
+        Unknown,
     }
 }

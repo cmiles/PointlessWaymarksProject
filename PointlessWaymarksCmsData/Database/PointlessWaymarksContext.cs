@@ -15,8 +15,11 @@ namespace PointlessWaymarksCmsData.Database
         public DbSet<GenerationLog> GenerationLogs { get; set; }
         public DbSet<GenerationRelatedContent> GenerationRelatedContents { get; set; }
         public DbSet<GenerationTagLog> GenerationTagLogs { get; set; }
+        public DbSet<GeoJsonContent> GeoJsonContents { get; set; }
         public DbSet<HistoricFileContent> HistoricFileContents { get; set; }
+        public DbSet<HistoricGeoJsonContent> HistoricGeoJsonContents { get; set; }
         public DbSet<HistoricImageContent> HistoricImageContents { get; set; }
+        public DbSet<HistoricLineContent> HistoricLineContents { get; set; }
         public DbSet<HistoricLinkContent> HistoricLinkContents { get; set; }
         public DbSet<HistoricNoteContent> HistoricNoteContents { get; set; }
         public DbSet<HistoricPhotoContent> HistoricPhotoContents { get; set; }
@@ -25,6 +28,7 @@ namespace PointlessWaymarksCmsData.Database
         public DbSet<HistoricPointDetail> HistoricPointDetails { get; set; }
         public DbSet<HistoricPostContent> HistoricPostContents { get; set; }
         public DbSet<ImageContent> ImageContents { get; set; }
+        public DbSet<LineContent> LineContents { get; set; }
         public DbSet<LinkContent> LinkContents { get; set; }
         public DbSet<MenuLink> MenuLinks { get; set; }
         public DbSet<NoteContent> NoteContents { get; set; }
@@ -39,7 +43,9 @@ namespace PointlessWaymarksCmsData.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<FileContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<GeoJsonContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<ImageContent>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<LineContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<LinkContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<NoteContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<PhotoContent>().HasIndex(b => b.ContentId).IsUnique();
