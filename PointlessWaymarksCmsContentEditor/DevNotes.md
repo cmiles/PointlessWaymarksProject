@@ -1,8 +1,4 @@
 ﻿## Todos
- - Test the general bracket code extraction BracketCodeContentIds
- - Integrate Related Content Change Detection into Changed Html Detection
- - Clean up older Related Content Entries
- - Ironwood - add a test for related content in post/photo combination
  - Continue GUI Context tests in new series
  - Points:
   - Bracket Code
@@ -48,6 +44,13 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+10/16/2020
+
+Working on related content:
+ - Found a bug in BracketCodeContentIds that meant all related content wasn't being found, corrected and simple test added
+ - Related content was including Photo Content Id + Same Main Image Id pairs - corrected
+ - Related content wasn't covered correctly in the first Changed generation code because without a record of previous related content there is no way to catch removals - data structure changed and routines updated
 
 10/15/2020
 

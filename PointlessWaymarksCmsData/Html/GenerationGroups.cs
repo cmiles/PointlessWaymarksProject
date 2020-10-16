@@ -337,7 +337,8 @@ namespace PointlessWaymarksCmsData.Html
             cameraRollPage.WriteLocalHtml();
         }
 
-        public static async Task GenerateChangedContentIdReferences(DateTime contentAfter, IProgress<string> progress)
+        public static async Task GenerateChangedContentIdReferences(DateTime contentAfter, DateTime generationVersion,
+            IProgress<string> progress)
         {
             var db = await Db.Context();
 
@@ -349,10 +350,19 @@ namespace PointlessWaymarksCmsData.Html
                 .ToListAsync();
             progress?.Report($"Found {files.Count} File Content Entries Changed After {contentAfter}");
 
+            var geoJson = await db.GeoJsonContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
+                .ToListAsync();
+            progress?.Report($"Found {files.Count} GeoJson Content Entries Changed After {contentAfter}");
+
             var images = await db.ImageContents.Where(x => x.ContentVersion > contentAfter)
                 .Select(x => x.ContentId) //!Cont
                 .ToListAsync();
             progress?.Report($"Found {images.Count} Image Content Entries Changed After {contentAfter}");
+
+            var lines = await db.LineContents.Where(x => x.ContentVersion > contentAfter)
+                .Select(x => x.ContentId) //!Cont
+                .ToListAsync();
+            progress?.Report($"Found {images.Count} Line Content Entries Changed After {contentAfter}");
 
             var links = await db.LinkContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
@@ -374,24 +384,65 @@ namespace PointlessWaymarksCmsData.Html
                 .ToListAsync();
             progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
 
-            var contentChanges = files.Concat(images).Concat(links).Concat(notes).Concat(photos).Concat(posts).ToList();
+            var contentChanges = files.Concat(geoJson).Concat(images).Concat(lines).Concat(links).Concat(notes)
+                .Concat(photos).Concat(points).Concat(posts).ToList();
+
+            progress?.Report("Gathering deleted and new content with related content...");
+
+            var previousGenerationVersion = db.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
+                .Select(x => x.GenerationVersion).OrderByDescending(x => x).FirstOrDefault();
+
+            var lastLoopPrimaryIds = await db.GenerationRelatedContents
+                .Where(x => x.GenerationVersion == previousGenerationVersion).Select(x => x.ContentOne).Distinct()
+                .ToListAsync();
+
+            var thisLoopPrimaryIds = await db.GenerationRelatedContents
+                .Where(x => x.GenerationVersion == generationVersion).Select(x => x.ContentOne).Distinct()
+                .ToListAsync();
+
+            var noLongerPresentIds = lastLoopPrimaryIds.Except(thisLoopPrimaryIds).ToList();
+            progress?.Report($"Found {noLongerPresentIds.Count} Content Ids not in current Related Ids");
+
+            var addedIds = thisLoopPrimaryIds.Except(lastLoopPrimaryIds).ToList();
+            progress?.Report($"Found {addedIds.Count} new Content Ids in current Related Ids");
+
+            contentChanges = contentChanges.Concat(noLongerPresentIds).Concat(addedIds).Distinct().ToList();
 
             var originalContentSets = contentChanges.Partition(500).ToList();
 
             var relatedIds = new List<Guid>();
 
-            progress?.Report($"Processing {originalContentSets.Count} Sets of Changed Content for Related Content");
-
             var currentCount = 1;
 
+            progress?.Report($"Processing {originalContentSets.Count} Sets of Changed Content for Related Content");
+
+            //This loop should get everything the content touches and everything that touches it refreshing both this time and last time
             foreach (var loopSets in originalContentSets)
             {
                 progress?.Report($"Processing Related Content Set {currentCount++}");
-                relatedIds.AddRange(await db.GenerationRelatedContents.Where(x => loopSets.Contains(x.ContentTwo))
+                relatedIds.AddRange(await db.GenerationRelatedContents
+                    .Where(x => loopSets.Contains(x.ContentTwo) && x.GenerationVersion == generationVersion)
                     .Select(x => x.ContentOne).Distinct().ToListAsync());
+                relatedIds.AddRange(await db.GenerationRelatedContents
+                    .Where(x => loopSets.Contains(x.ContentTwo) && x.GenerationVersion == previousGenerationVersion)
+                    .Select(x => x.ContentOne).Distinct().ToListAsync());
+                relatedIds.AddRange(await db.GenerationRelatedContents
+                    .Where(x => loopSets.Contains(x.ContentOne) && x.GenerationVersion == generationVersion)
+                    .Select(x => x.ContentTwo).Distinct().ToListAsync());
+                relatedIds.AddRange(await db.GenerationRelatedContents
+                    .Where(x => loopSets.Contains(x.ContentOne) && x.GenerationVersion == previousGenerationVersion)
+                    .Select(x => x.ContentTwo).Distinct().ToListAsync());
+
+                relatedIds = relatedIds.Distinct().ToList();
             }
 
             contentChanges.AddRange(relatedIds.Distinct());
+
+            //TODO: This current regenerates the Main Feed Content in order to make sure all previous/next content links are correct - this
+            //could be improved to just detect changes.
+            var mainFeedContent = (await Db.MainFeedCommonContent()).Select(x => x.ContentId).ToList();
+
+            contentChanges = contentChanges.Concat(mainFeedContent).Distinct().ToList();
 
             progress?.Report($"Adding {relatedIds.Distinct().Count()} Content Ids Generate");
 
@@ -682,7 +733,7 @@ namespace PointlessWaymarksCmsData.Html
             progress?.Report($"Generation HTML based on changes after UTC - {lastGenerationValues.GenerationVersion}");
 
             await RelatedContentReference.GenerateRelatedContentDbTable(generationVersion, progress);
-            await GenerateChangedContentIdReferences(lastGenerationDateTime, progress);
+            await GenerateChangedContentIdReferences(lastGenerationDateTime, generationVersion, progress);
             await SetupTagGenerationDbData(generationVersion, progress);
             await SetupDailyPhotoGenerationDbData(generationVersion, progress);
 

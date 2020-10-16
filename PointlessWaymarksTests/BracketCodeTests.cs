@@ -243,5 +243,63 @@ namespace PointlessWaymarksTests
             Assert.AreEqual(string.Empty, matches[0].displayText);
             Assert.AreEqual(string.Empty, matches[1].displayText);
         }
+
+        [Test]
+        public void BracketCodeContentIdsFindsAllMatches()
+        {
+            var testString = @"
+A Test Post for Ironwood Forest National Monument. From
+Wikipedia:
+> Ironwood Forest National Monument is located in the Sonoran Desert of Arizona. Created by Bill Clinton by Presidential Proclamation 7320 on June 9, 2000, the monument is managed by the Bureau of Land Management, an agency within the United States Department of the Interior. The monument covers 129,055 acres (52,227 ha),[2] of which 59,573 acres (24,108 ha) are non-federal and include private land holdings and Arizona State School Trust lands.
+
+A significant concentration of ironwood (also known as desert ironwood, Olneya tesota) trees is found in the monument, along with two federally recognized endangered animal and plant species. More than 200 Hohokam and Paleo-Indian archaeological sites have been identified in the monument, dated between 600 and 1450.
+
+{{photo be010d97-a2b1-4c88-97ac-c36ebbd3fad4; 2020 June Disappearing into the Flower}}
+{{photo ce493d74-516c-4e7d-a51f-2db458a834e3; 2020 May Ironwood Pod}}
+{{photo 32563d87-d002-4672-a27e-d0b31c2a6875; 2020 May A Quarry in Ironwood Forest National Monument}}
+{{photo d45ef8f8-e376-4144-acef-164310ee85bc; 2017 May Ironwood Tree Against The Sky}}
+{{photo 611a88cd-908b-45bc-ac3c-a904b0c7a9c7; 2018 August Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument}}Basic information for Ironwood Forest National Monument
+";
+            var result = BracketCodeCommon.BracketCodeContentIds(testString);
+
+            Assert.AreEqual(5, result.Count);
+        }
+
+        [Test]
+        public void BracketCodeContentIdsFindsAllMatchesInBackToBackBracketCodes()
+        {
+            var testString = @"
+A Test Post for Ironwood Forest National Monument. From
+Wikipedia:
+> Ironwood Forest National Monument is located in the Sonoran Desert of Arizona. Created by Bill Clinton by Presidential Proclamation 7320 on June 9, 2000, the monument is managed by the Bureau of Land Management, an agency within the United States Department of the Interior. The monument covers 129,055 acres (52,227 ha),[2] of which 59,573 acres (24,108 ha) are non-federal and include private land holdings and Arizona State School Trust lands.
+
+A significant concentration of ironwood (also known as desert ironwood, Olneya tesota) trees is found in the monument, along with two federally recognized endangered animal and plant species. More than 200 Hohokam and Paleo-Indian archaeological sites have been identified in the monument, dated between 600 and 1450.{{photo efe8caac-9d62-4456-af54-873c0d6a0dce; 2018 August Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument}}{{photo d1bc6caf-2155-45f8-ac35-6b811535de0d; 2020 June Disappearing into the Flower}}{{photo 11d4c9e7-bfa0-489d-8dc0-69e93e3384de; 2020 May A Quarry in Ironwood Forest National Monument}}{{photo 481f4177-329b-46ae-8f53-b9f742a3d227; 2020 May Ironwood Pod}}{{photo 8526996b-71b5-4d31-85a8-4267619884b5; 2017 May Ironwood Tree Against The Sky}}Basic information for Ironwood Forest National Monument
+";
+            var result = BracketCodeCommon.BracketCodeContentIds(testString);
+
+            Assert.AreEqual(5, result.Count);
+        }
+
+
+        [Test]
+        public void PhotoOrImageCodeFirstIdInContentFindsFirstPhoto()
+        {
+            var testString = @"
+A Test Post for Ironwood Forest National Monument. From
+Wikipedia:
+> Ironwood Forest National Monument is located in the Sonoran Desert of Arizona. Created by Bill Clinton by Presidential Proclamation 7320 on June 9, 2000, the monument is managed by the Bureau of Land Management, an agency within the United States Department of the Interior. The monument covers 129,055 acres (52,227 ha),[2] of which 59,573 acres (24,108 ha) are non-federal and include private land holdings and Arizona State School Trust lands.
+
+A significant concentration of ironwood (also known as desert ironwood, Olneya tesota) trees is found in the monument, along with two federally recognized endangered animal and plant species. More than 200 Hohokam and Paleo-Indian archaeological sites have been identified in the monument, dated between 600 and 1450.
+
+{{photo be010d97-a2b1-4c88-97ac-c36ebbd3fad4; 2020 June Disappearing into the Flower}}
+{{photo ce493d74-516c-4e7d-a51f-2db458a834e3; 2020 May Ironwood Pod}}
+{{photo 32563d87-d002-4672-a27e-d0b31c2a6875; 2020 May A Quarry in Ironwood Forest National Monument}}
+{{photo d45ef8f8-e376-4144-acef-164310ee85bc; 2017 May Ironwood Tree Against The Sky}}
+{{photo 611a88cd-908b-45bc-ac3c-a904b0c7a9c7; 2018 August Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument}}Basic information for Ironwood Forest National Monument
+";
+            var result = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(testString);
+
+            Assert.AreEqual(Guid.Parse("be010d97-a2b1-4c88-97ac-c36ebbd3fad4"), result);
+        }
     }
 }

@@ -609,6 +609,22 @@ namespace PointlessWaymarksCmsData.Database
                 .Take(numberOfEntries).ToList();
         }
 
+        public static async Task<List<IContentCommon>> MainFeedCommonContent()
+        {
+            var db = await Context();
+            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+
+            return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
+                .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.CreatedOn).ToList();
+        }
+
         public static async Task<List<dynamic>> MainFeedRecentDynamicContent(int topNumberOfEntries)
         {
             var db = await Context();

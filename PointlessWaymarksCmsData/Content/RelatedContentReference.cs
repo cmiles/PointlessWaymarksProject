@@ -68,9 +68,15 @@ namespace PointlessWaymarksCmsData.Content
         {
             var db = await Db.Context();
 
-            progress?.Report("Clearing GenerationRelatedContents Db Table");
+            var olderGenerations = db.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
+                .OrderByDescending(x => x.GenerationVersion).Take(3).Select(x => x.GenerationVersion);
 
-            await db.Database.ExecuteSqlRawAsync("DELETE FROM [" + "GenerationRelatedContents" + "];");
+            if (olderGenerations.Any())
+            {
+                var toRemove = db.GenerationRelatedContents.Where(x => x.GenerationVersion < olderGenerations.Min());
+                db.GenerationRelatedContents.RemoveRange(toRemove);
+                await db.SaveChangesAsync();
+            }
 
             //!!Content Type List!!
             var files = (await db.FileContents.ToListAsync()).Cast<IContentCommon>().ToList();

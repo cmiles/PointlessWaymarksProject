@@ -17,7 +17,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             if (string.IsNullOrWhiteSpace(toProcess)) return returnList;
 
-            var regexObj = new Regex(@"{{.* (?<siteGuid>[\dA-Za-z-]*);[^}]*}}");
+            var regexObj = new Regex(@"{{[a-zA-Z-]*[ ]*(?<siteGuid>[\dA-Za-z-]*);[^}]*}}");
             var matchResult = regexObj.Match(toProcess);
             while (matchResult.Success)
             {
