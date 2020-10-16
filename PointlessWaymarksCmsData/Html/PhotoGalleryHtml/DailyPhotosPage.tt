@@ -57,7 +57,7 @@
         <#= Tags.TagList(PhotoTags).ToString() #>
         <#=
                 BodyContentReferences.RelatedContentTag(
-                    ImageList.Select(x => ((IContentId) x.Pictures.DbEntry).ContentId).ToList()).Result #>
+                    ImageList.Select(x => ((IContentId) x.Pictures.DbEntry).ContentId).ToList(), GenerationVersion).Result #>
         <#=
                 DailyPhotosPageParts.PreviousAndNextPostsDiv(this) #>
     </div>

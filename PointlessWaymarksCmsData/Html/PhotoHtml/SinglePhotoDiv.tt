@@ -8,5 +8,5 @@
                 PhotoDetails.PhotoDetailsDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#=
-                BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
+                BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
 </div>

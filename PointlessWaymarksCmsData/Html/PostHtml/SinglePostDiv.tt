@@ -5,5 +5,5 @@
     <#= Tags.TitleLinkDiv(DbEntry, DbEntry) #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= Tags.PostBodyDiv(DbEntry) #>
-    <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
+    <#= BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
 </div>

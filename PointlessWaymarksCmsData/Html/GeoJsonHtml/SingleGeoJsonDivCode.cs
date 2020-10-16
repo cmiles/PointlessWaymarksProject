@@ -1,4 +1,5 @@
-﻿using PointlessWaymarksCmsData.Database.Models;
+﻿using System;
+using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
 {
@@ -15,6 +16,8 @@ namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
         }
 
         public GeoJsonContent DbEntry { get; set; }
+
+        public DateTime? GenerationVersion { get; set; }
 
         public string PageUrl { get; set; }
 

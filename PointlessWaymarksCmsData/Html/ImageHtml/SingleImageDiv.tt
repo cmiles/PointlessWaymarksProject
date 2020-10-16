@@ -7,5 +7,5 @@
                 PictureInformation.PictureFigureWithCaptionTag("100vw") #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#=
-                BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result #>
+                BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
 </div>

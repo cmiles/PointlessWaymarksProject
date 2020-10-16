@@ -21,7 +21,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             var matchResult = regexObj.Match(toProcess);
             while (matchResult.Success)
             {
-                if (Guid.TryParse(matchResult.Value, out var toAdd)) returnList.Add(toAdd);
+                if (Guid.TryParse(matchResult.Groups["siteGuid"].Value, out var toAdd)) returnList.Add(toAdd);
 
                 matchResult = matchResult.NextMatch();
             }

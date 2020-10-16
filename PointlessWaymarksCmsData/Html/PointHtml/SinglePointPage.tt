@@ -55,7 +55,7 @@
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=
-                BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
+                BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
         <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>

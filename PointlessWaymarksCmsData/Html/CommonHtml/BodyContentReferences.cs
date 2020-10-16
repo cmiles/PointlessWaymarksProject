@@ -12,43 +12,22 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 {
     public static class BodyContentReferences
     {
-        public static async Task<List<IContentCommon>> RelatedContent(this PointlessWaymarksContext toQuery,
-            Guid toCheckFor)
-        {
-            var posts = await toQuery.PostContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
-                .Cast<IContentCommon>().ToListAsync();
-            var notes = await toQuery.NoteContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
-                .Cast<IContentCommon>().ToListAsync();
-            var files = await toQuery.FileContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
-                .Cast<IContentCommon>().ToListAsync();
-
-            return posts.Concat(notes).Concat(files).OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
-        }
-
         public static HtmlTag RelatedContentDiv(IContentCommon post)
         {
             if (post == null) return HtmlTag.Empty();
-
             var relatedPostContainerDiv = new DivTag().AddClass("related-post-container");
-
             if (post.MainPicture != null)
             {
                 var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");
-
                 var image = new PictureSiteInformation(post.MainPicture.Value);
-
                 relatedPostMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(image.Pictures,
                     UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result));
-
                 relatedPostContainerDiv.Children.Add(relatedPostMainPictureContentDiv);
             }
 
             var relatedPostMainTextContentDiv = new DivTag().AddClass("related-post-text-content-container");
-
             var relatedPostMainTextTitleTextDiv = new DivTag().AddClass("related-post-text-content-title-container");
-
             HtmlTag relatedPostMainTextTitleLink;
-
             if (post.MainPicture == null)
                 relatedPostMainTextTitleLink =
                     new LinkTag($"{post.Title} - {post.Summary}",
@@ -58,28 +37,85 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
                 relatedPostMainTextTitleLink =
                     new LinkTag(post.Title, UserSettingsSingleton.CurrentSettings().ContentUrl(post.ContentId).Result)
                         .AddClass("related-post-text-content-title-link");
-
             relatedPostMainTextTitleTextDiv.Children.Add(relatedPostMainTextTitleLink);
-
             var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("related-post-text-content-date")
                 .Text(Tags.LatestCreatedOnOrUpdatedOn(post)?.ToString("M/d/yyyy") ?? string.Empty);
-
             relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextTitleTextDiv);
             relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextCreatedOrUpdatedTextDiv);
-
             relatedPostContainerDiv.Children.Add(relatedPostMainTextContentDiv);
-
             return relatedPostContainerDiv;
         }
 
-        public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor, string bodyContentToCheckIn,
+        public static async Task<List<IContentCommon>> RelatedContentReferencesFromOtherContent(
+            this PointlessWaymarksContext toQuery, Guid toCheckFor, DateTime? generationVersion)
+        {
+            if (generationVersion == null)
+            {
+                var posts = await toQuery.PostContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
+                    .Cast<IContentCommon>().ToListAsync();
+                var notes = await toQuery.NoteContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
+                    .Cast<IContentCommon>().ToListAsync();
+                var files = await toQuery.FileContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
+                    .Cast<IContentCommon>().ToListAsync();
+
+                return posts.Concat(notes).Concat(files).OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToList();
+            }
+
+            var db = await Db.Context();
+
+            var referencesFromOtherContent = await db.GenerationRelatedContents
+                .Where(x => x.GenerationVersion == generationVersion && x.ContentTwo == toCheckFor)
+                .Select(x => x.ContentOne).Distinct().ToListAsync();
+
+            var otherReferences = await db.ContentFromContentIds(referencesFromOtherContent);
+
+            var typeFilteredReferences = new List<IContentCommon>();
+
+            foreach (var loopContent in otherReferences)
+                switch (loopContent)
+                {
+                    case FileContent content:
+                    {
+                        typeFilteredReferences.Add(content);
+                        break;
+                    }
+                    case PostContent content:
+                    {
+                        typeFilteredReferences.Add(content);
+                        break;
+                    }
+                    case NoteContent content:
+                    {
+                        typeFilteredReferences.Add(content);
+                        break;
+                    }
+                }
+
+            return typeFilteredReferences.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
+        }
+
+        public static async Task<HtmlTag> RelatedContentTag(IContentCommon content, DateTime? generationVersion,
             IProgress<string> progress = null)
+        {
+            var toSearch = string.Empty;
+
+            toSearch += content.BodyContent + content.Summary;
+
+            if (content is IUpdateNotes updateContent) toSearch += updateContent.UpdateNotes;
+
+            return await RelatedContentTag(content.ContentId, toSearch, generationVersion, progress);
+        }
+
+        public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor, string bodyContentToCheckIn,
+            DateTime? generationVersion, IProgress<string> progress = null)
         {
             var contentCommonList = new List<IContentCommon>();
 
             var db = await Db.Context();
 
-            contentCommonList.AddRange(await RelatedContent(db, toCheckFor));
+            contentCommonList.AddRange(
+                await RelatedContentReferencesFromOtherContent(db, toCheckFor, generationVersion));
             contentCommonList.AddRange(BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
@@ -132,10 +168,10 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return relatedPostsList;
         }
 
-        public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor)
+        public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor, DateTime? generationVersion)
         {
             var db = await Db.Context();
-            var related = await db.RelatedContent(toCheckFor);
+            var related = await db.RelatedContentReferencesFromOtherContent(toCheckFor, generationVersion);
 
             if (related == null || !related.Any()) return HtmlTag.Empty();
 
@@ -148,7 +184,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return relatedPostsList;
         }
 
-        public static async Task<HtmlTag> RelatedContentTag(List<Guid> toCheckFor)
+        public static async Task<HtmlTag> RelatedContentTag(List<Guid> toCheckFor, DateTime? generationVersion)
         {
             toCheckFor ??= new List<Guid>();
 
@@ -156,7 +192,8 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             var allRelated = new List<IContentCommon>();
 
-            foreach (var loopGuid in toCheckFor) allRelated.AddRange(await db.RelatedContent(loopGuid));
+            foreach (var loopGuid in toCheckFor)
+                allRelated.AddRange(await db.RelatedContentReferencesFromOtherContent(loopGuid, generationVersion));
 
             if (!allRelated.Any()) return HtmlTag.Empty();
 

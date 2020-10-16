@@ -1,4 +1,5 @@
-﻿using PointlessWaymarksCmsData.Database;
+﻿using System;
+using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.Html.FileHtml
@@ -18,6 +19,8 @@ namespace PointlessWaymarksCmsData.Html.FileHtml
         }
 
         public FileContent DbEntry { get; set; }
+
+        public DateTime? GenerationVersion { get; set; }
 
         public string PageUrl { get; set; }
 

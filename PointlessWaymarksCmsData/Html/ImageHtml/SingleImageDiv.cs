@@ -16,7 +16,7 @@ namespace PointlessWaymarksCmsData.Html.ImageHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class SingleImageDiv : SingleImageDivBase
     {
@@ -28,29 +28,29 @@ namespace PointlessWaymarksCmsData.Html.ImageHtml
         {
             this.Write("\r\n<div class=\"content-container\" data-contentversion=\"");
             
-            #line 5 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
+            #line 5 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")));
             
             #line default
             #line hidden
             this.Write("\">\r\n    ");
             
-            #line 6 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
+            #line 6 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureWithCaptionTag("100vw")));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 8 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
+            #line 8 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 9 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, "").Result));
+            #line 9 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\ImageHtml\SingleImageDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden

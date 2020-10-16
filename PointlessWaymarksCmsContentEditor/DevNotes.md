@@ -1,4 +1,8 @@
 ﻿## Todos
+ - Test the general bracket code extraction BracketCodeContentIds
+ - Integrate Related Content Change Detection into Changed Html Detection
+ - Clean up older Related Content Entries
+ - Ironwood - add a test for related content in post/photo combination
  - Continue GUI Context tests in new series
  - Points:
   - Bracket Code

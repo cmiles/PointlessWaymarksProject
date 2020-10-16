@@ -7,7 +7,7 @@
     <div id="<#= DbEntry.Slug#>Map" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map"></div>
     <#= Tags.PostBodyDiv(DbEntry) #>
     <#= PointParts.PointDetailsDiv(DbEntry).ToString() #>
-    <#= BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result #>
+    <#= BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
     <script>
 		lazyInit(document.querySelector("#<#= DbEntry.Slug#>Map"), () => singlePointMapInit(document.querySelector("#<#= DbEntry.Slug#>Map"), "<#= DbEntry.Slug #>"));
     </script>

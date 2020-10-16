@@ -72,7 +72,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             this.Write("\r\n    ");
             
             #line 10 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result));
+            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden

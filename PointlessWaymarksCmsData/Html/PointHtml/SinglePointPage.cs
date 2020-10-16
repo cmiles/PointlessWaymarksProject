@@ -261,7 +261,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             this.Write("\r\n        ");
             
             #line 57 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry.ContentId, DbEntry.BodyContent).Result));
+            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden

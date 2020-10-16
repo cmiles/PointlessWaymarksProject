@@ -123,6 +123,7 @@ namespace PointlessWaymarksCmsData.Html
 
             var generationVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime();
 
+            await RelatedContentReference.GenerateRelatedContentDbTable(generationVersion, progress);
             await SetupTagGenerationDbData(generationVersion, progress);
             await SetupDailyPhotoGenerationDbData(generationVersion, progress);
 
@@ -680,7 +681,7 @@ namespace PointlessWaymarksCmsData.Html
 
             progress?.Report($"Generation HTML based on changes after UTC - {lastGenerationValues.GenerationVersion}");
 
-            await RelatedContentReference.GenerateRelatedContentDbTable(lastGenerationDateTime, progress);
+            await RelatedContentReference.GenerateRelatedContentDbTable(generationVersion, progress);
             await GenerateChangedContentIdReferences(lastGenerationDateTime, progress);
             await SetupTagGenerationDbData(generationVersion, progress);
             await SetupDailyPhotoGenerationDbData(generationVersion, progress);
