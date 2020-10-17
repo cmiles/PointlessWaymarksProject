@@ -7,6 +7,7 @@
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     d:DataContext="{d:DesignInstance userSettingsEditor:UserSettingsEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -161,10 +162,8 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
-        <windowScreenShot:WindowScreenShotControl
-            Grid.Row="0"
-            Grid.Column="0"
-            HorizontalContentAlignment="Right"
-            VerticalContentAlignment="Bottom" />
+        <status:StatusControl
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
     </Grid>
 </UserControl>

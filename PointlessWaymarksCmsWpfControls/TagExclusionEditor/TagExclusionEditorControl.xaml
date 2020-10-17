@@ -106,12 +106,6 @@
                     Style="{StaticResource ActionPanelButton}" />
             </WrapPanel>
         </Border>
-        <windowScreenShot:WindowScreenShotControl
-            Grid.Row="0"
-            Grid.RowSpan="3"
-            Grid.Column="0"
-            HorizontalContentAlignment="Right"
-            VerticalContentAlignment="Bottom" />
         <status:StatusControl
             Grid.Row="0"
             Grid.RowSpan="2"
