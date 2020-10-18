@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailDataModels;
@@ -43,7 +44,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
                 htmlFileInfo.Refresh();
             }
 
-            await File.WriteAllTextAsync(htmlFileInfo.FullName, TransformText());
+            await FileManagement.WriteAllTextToFileAndLogAsync(htmlFileInfo.FullName, TransformText());
         }
     }
 }

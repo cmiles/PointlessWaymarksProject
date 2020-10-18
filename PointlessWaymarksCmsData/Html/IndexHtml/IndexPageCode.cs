@@ -7,6 +7,7 @@ using System.Web;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
@@ -159,7 +160,7 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
                 htmlFileInfo.Refresh();
             }
 
-            File.WriteAllText(htmlFileInfo.FullName, htmlString);
+            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
 
         public bool IncludePointContentHeaders { get; set; }
@@ -312,7 +313,7 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
                 localIndexFile.Refresh();
             }
 
-            File.WriteAllText(localIndexFile.FullName,
+            FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
                 RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName}",
                     string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }

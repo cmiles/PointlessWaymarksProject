@@ -6,6 +6,7 @@ using System.Linq;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
@@ -129,7 +130,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
                 htmlFileInfo.Refresh();
             }
 
-            File.WriteAllText(htmlFileInfo.FullName, htmlString);
+            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
     }
 }

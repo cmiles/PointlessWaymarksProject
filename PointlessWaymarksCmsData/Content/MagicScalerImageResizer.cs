@@ -27,7 +27,7 @@ namespace PointlessWaymarksCmsData.Content
             var finalFileName = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
                 $"{Path.GetFileNameWithoutExtension(toResize.Name)}--{imageTypeString}{(addSizeString ? $"--{width}w--{results.Settings.Height}h" : string.Empty)}.jpg");
 
-            File.Move(newFileInfo.FullName, finalFileName);
+            FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName);
 
             newFileInfo = new FileInfo(finalFileName);
 
@@ -57,7 +57,7 @@ namespace PointlessWaymarksCmsData.Content
 
             toRotate.Delete();
 
-            File.Move(newFileInfo.FullName, finalFileName);
+            FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName);
 
             newFileInfo = new FileInfo(finalFileName);
 

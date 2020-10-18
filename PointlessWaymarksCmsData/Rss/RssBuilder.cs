@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Web;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 
@@ -92,7 +93,7 @@ namespace PointlessWaymarksCmsData.Rss
                 localIndexFile.Refresh();
             }
 
-            await File.WriteAllTextAsync(localIndexFile.FullName,
+            await FileManagement.WriteAllTextToFileAndLogAsync(localIndexFile.FullName,
                 RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - {titleAdd}",
                     string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }

@@ -5,6 +5,7 @@ using System.Linq;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
+using PointlessWaymarksCmsData.Content;
 
 namespace PointlessWaymarksCmsData.Html.TagListHtml
 {
@@ -57,7 +58,7 @@ namespace PointlessWaymarksCmsData.Html.TagListHtml
                 htmlFileInfo.Refresh();
             }
 
-            File.WriteAllText(htmlFileInfo.FullName, htmlString);
+            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
     }
 }

@@ -102,7 +102,7 @@ namespace PointlessWaymarksCmsData.Content
                 targetFile.Refresh();
             }
 
-            if (!targetFile.Exists) sourceFile.CopyTo(targetFile.FullName);
+            if (!targetFile.Exists) await sourceFile.CopyToAndLogAsync(targetFile.FullName);
 
             PictureResizing.DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(imageContent, progress);
 

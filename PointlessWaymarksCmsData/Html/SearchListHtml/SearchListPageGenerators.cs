@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.TagListHtml;
@@ -157,7 +158,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
                 fileInfo.Refresh();
             }
 
-            File.WriteAllText(fileInfo.FullName, htmlString);
+            FileManagement.WriteAllTextToFileAndLog(fileInfo.FullName, htmlString);
         }
 
         public static void WriteTagList(DateTime generationVersion, IProgress<string> progress)

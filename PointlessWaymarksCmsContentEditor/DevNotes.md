@@ -1,4 +1,5 @@
 ﻿## Todos
+ - Report on Written Files
  - Continue GUI Context tests in new series
  - Points:
   - Bracket Code
@@ -44,6 +45,10 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+10/17/2020
+
+I had decided previously not to integrate AmazonS3 functionality directly into the app - still reasonable, BeyondCompare has been easy to use but it occurred to me that it would be simple to keep a log of files that are written to potentially use as a list of files to sync. Created Methods in the FileManagement class that do both the file operation and write to the log table.
 
 10/16/2020
 

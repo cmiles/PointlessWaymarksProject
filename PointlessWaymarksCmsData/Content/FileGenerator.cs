@@ -98,7 +98,10 @@ namespace PointlessWaymarksCmsData.Content
                 targetFile.Refresh();
             }
 
-            if (!targetFile.Exists) sourceFile.CopyTo(targetFile.FullName);
+            if (!targetFile.Exists)
+            {
+                sourceFile.CopyToAndLog(targetFile.FullName);
+            }
         }
     }
 }

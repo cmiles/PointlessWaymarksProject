@@ -11,6 +11,7 @@ namespace PointlessWaymarksCmsData.Database
 
         public DbSet<FileContent> FileContents { get; set; }
         public DbSet<GenerationChangedContentId> GenerationChangedContentIds { get; set; }
+        public DbSet<GenerationFileWriteLog> GenerationFileWriteLogs { get; set; }
         public DbSet<GenerationDailyPhotoLog> GenerationDailyPhotoLogs { get; set; }
         public DbSet<GenerationLog> GenerationLogs { get; set; }
         public DbSet<GenerationRelatedContent> GenerationRelatedContents { get; set; }

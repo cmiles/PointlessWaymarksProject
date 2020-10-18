@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Database;
@@ -80,9 +81,9 @@ namespace PointlessWaymarksCmsData.Content
                     dbContent.ContentId);
 
 
-            if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
+            if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName);
 
-            if (!archiveFile.Exists && contentFile.Exists) contentFile.CopyTo(archiveFile.FullName);
+            if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName);
 
             archiveFile.Refresh();
             contentFile.Refresh();
@@ -128,9 +129,9 @@ namespace PointlessWaymarksCmsData.Content
                     dbContent.ContentId);
 
 
-            if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
+            if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName);
 
-            if (!archiveFile.Exists && contentFile.Exists) contentFile.CopyTo(archiveFile.FullName);
+            if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName);
 
             archiveFile.Refresh();
             contentFile.Refresh();
@@ -175,9 +176,9 @@ namespace PointlessWaymarksCmsData.Content
                     $"there appears to be a file missing for Photo Title {dbContent.Title} " + $"slug {dbContent.Slug}",
                     dbContent.ContentId);
 
-            if (archiveFile.Exists && !contentFile.Exists) archiveFile.CopyTo(contentFile.FullName);
+            if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName);
 
-            if (!archiveFile.Exists && contentFile.Exists) contentFile.CopyTo(archiveFile.FullName);
+            if (!archiveFile.Exists && contentFile.Exists) await contentFile.CopyToAndLogAsync(archiveFile.FullName);
 
             archiveFile.Refresh();
             contentFile.Refresh();
@@ -318,6 +319,63 @@ namespace PointlessWaymarksCmsData.Content
             }
 
             return returnList;
+        }
+
+        public static FileInfo CopyToAndLog(this FileInfo fileInfo, string destinationFileName, bool overwrite = false)
+        {
+            var returnValue = fileInfo.CopyTo(destinationFileName);
+
+            LogFileWrite(destinationFileName);
+
+            return returnValue;
+        }
+
+        public static async Task<FileInfo> CopyToAndLogAsync(this FileInfo fileInfo, string destinationFileName,
+            bool overwrite = false)
+        {
+            var returnValue = fileInfo.CopyTo(destinationFileName);
+
+            await LogFileWriteAsync(destinationFileName);
+
+            return returnValue;
+        }
+
+        public static void LogFileWrite(string fileName)
+        {
+            var db = Db.Context().Result;
+
+            db.GenerationFileWriteLogs.Add(new GenerationFileWriteLog
+            {
+                FileName = fileName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+            });
+
+            db.SaveChanges(true);
+        }
+
+        public static async Task LogFileWriteAsync(string fileName)
+        {
+            var db = await Db.Context();
+
+            await db.GenerationFileWriteLogs.AddAsync(new GenerationFileWriteLog
+            {
+                FileName = fileName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+            });
+
+            await db.SaveChangesAsync(true);
+        }
+
+        public static void MoveFileAndLog(string sourceFile, string destinationFile)
+        {
+            File.Move(sourceFile, destinationFile);
+
+            LogFileWrite(destinationFile);
+        }
+
+        public static async Task MoveFileAndLogAsync(string sourceFile, string destinationFile)
+        {
+            File.Move(sourceFile, destinationFile);
+
+            await LogFileWriteAsync(destinationFile);
         }
 
         public static async Task RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(IProgress<string> progress)
@@ -918,6 +976,34 @@ namespace PointlessWaymarksCmsData.Content
             };
         }
 
+        public static void WriteAllTextToFileAndLog(string path, string contents)
+        {
+            File.WriteAllText(path, contents);
+
+            LogFileWrite(path);
+        }
+
+        public static void WriteAllTextToFileAndLog(string path, string contents, Encoding encoding)
+        {
+            File.WriteAllText(path, contents, encoding);
+
+            LogFileWrite(path);
+        }
+
+        public static async Task WriteAllTextToFileAndLogAsync(string path, string contents)
+        {
+            await File.WriteAllTextAsync(path, contents);
+
+            await LogFileWriteAsync(path);
+        }
+
+        public static async Task WriteAllTextToFileAndLogAsync(string path, string contents, Encoding encoding)
+        {
+            await File.WriteAllTextAsync(path, contents, encoding);
+
+            await LogFileWriteAsync(path);
+        }
+
         public static void WriteSelectedFileContentFileToMediaArchive(FileInfo selectedFile)
         {
             var userSettings = UserSettingsSingleton.CurrentSettings();
@@ -930,7 +1016,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            selectedFile.CopyTo(destinationFileName);
+            selectedFile.CopyToAndLog(destinationFileName);
         }
 
         public static async Task<GenerationReturn> WriteSelectedFileContentFileToMediaArchive(FileInfo selectedFile,
@@ -947,7 +1033,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            selectedFile.CopyTo(destinationFileName);
+            await selectedFile.CopyToAndLogAsync(destinationFileName);
 
             return await GenerationReturn.Success("File is copied to Media Archive");
         }
@@ -964,7 +1050,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            selectedFile.CopyTo(destinationFileName);
+            selectedFile.CopyToAndLog(destinationFileName);
         }
 
         public static async Task<GenerationReturn> WriteSelectedImageContentFileToMediaArchive(FileInfo selectedFile,
@@ -981,7 +1067,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            selectedFile.CopyTo(destinationFileName);
+            await selectedFile.CopyToAndLogAsync(destinationFileName);
 
             return await GenerationReturn.Success("Image is copied to Media Archive");
         }
@@ -998,7 +1084,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            selectedFile.CopyTo(destinationFileName);
+            selectedFile.CopyToAndLog(destinationFileName);
         }
 
         public static async Task<GenerationReturn> WriteSelectedPhotoContentFileToMediaArchive(FileInfo selectedFile,
@@ -1015,7 +1101,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            selectedFile.CopyTo(destinationFileName);
+            await selectedFile.CopyToAndLogAsync(destinationFileName);
 
             return await GenerationReturn.Success("Photo is copied to Media Archive");
         }

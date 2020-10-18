@@ -7,6 +7,7 @@ using System.Text;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Rss;
@@ -93,7 +94,7 @@ namespace PointlessWaymarksCmsData.Html.LinkListHtml
                 localIndexFile.Refresh();
             }
 
-            File.WriteAllText(localIndexFile.FullName,
+            FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
                 RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - Link List",
                     string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }
@@ -118,7 +119,7 @@ namespace PointlessWaymarksCmsData.Html.LinkListHtml
                 htmlFileInfo.Refresh();
             }
 
-            File.WriteAllText(htmlFileInfo.FullName, htmlString);
+            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
 
             WriteContentListRss();
         }

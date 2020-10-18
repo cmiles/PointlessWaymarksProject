@@ -4,6 +4,7 @@ using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using JetBrains.Annotations;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 
@@ -43,7 +44,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
                 htmlFileInfo.Refresh();
             }
 
-            File.WriteAllText(htmlFileInfo.FullName, htmlString);
+            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
     }
 }

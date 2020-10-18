@@ -3,6 +3,7 @@ using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 
 namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
@@ -35,7 +36,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
                 htmlFileInfo.Refresh();
             }
 
-            File.WriteAllText(htmlFileInfo.FullName, htmlString);
+            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
     }
 }
