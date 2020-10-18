@@ -21,6 +21,7 @@
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:filesWrittenLogList="clr-namespace:PointlessWaymarksCmsWpfControls.FilesWrittenLogList;assembly=PointlessWaymarksCmsWpfControls"
     Title="{Binding InfoTitle}"
     Width="900"
     Height="650"
@@ -227,6 +228,9 @@
                     </GroupBox>
 
                 </StackPanel>
+            </TabItem>
+            <TabItem Header="File Log">
+                <filesWrittenLogList:FilesWrittenLogListControl DataContext="{Binding FilesWrittenContext}" />
             </TabItem>
             <TabItem Header="About">
                 <helpDisplay:HelpDisplayControl DataContext="{Binding SoftwareComponentsHelpContext}" />

@@ -46,6 +46,12 @@
  
 ## Notes
 
+10/18/2020
+
+Very Basic Gui to see written files - leaving this very basic until I explore what software/command line options there might be for uploading a list of files and what information would be needed (seems like they there will need to be some help generating the destination file/url).
+
+Did a quick experiment with SourceGenerators for INotifyPropertyChanged - incredibly attractive technology but after trying and almost getting this working I think that it is better to wait until someone is willing/able to put this into an easy to reference Nuget package.
+
 10/17/2020
 
 I had decided previously not to integrate AmazonS3 functionality directly into the app - still reasonable, BeyondCompare has been easy to use but it occurred to me that it would be simple to keep a log of files that are written to potentially use as a list of files to sync. Created Methods in the FileManagement class that do both the file operation and write to the log table.

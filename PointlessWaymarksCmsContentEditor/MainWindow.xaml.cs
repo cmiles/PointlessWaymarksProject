@@ -21,6 +21,7 @@ using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.Diagnostics;
 using PointlessWaymarksCmsWpfControls.FileList;
+using PointlessWaymarksCmsWpfControls.FilesWrittenLogList;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.ImageList;
 using PointlessWaymarksCmsWpfControls.LinkList;
@@ -44,6 +45,7 @@ namespace PointlessWaymarksCmsContentEditor
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
+        private FilesWrittenLogListContext _filesWrittenContext;
         private string _infoTitle;
         private string _recentSettingsFilesNames;
         private TabItem _selectedTab;
@@ -189,6 +191,17 @@ namespace PointlessWaymarksCmsContentEditor
         public Command ExceptionEventsExcelReportCommand { get; set; }
 
         public Command ExceptionEventsHtmlReportCommand { get; set; }
+
+        public FilesWrittenLogListContext FilesWrittenContext
+        {
+            get => _filesWrittenContext;
+            set
+            {
+                if (Equals(value, _filesWrittenContext)) return;
+                _filesWrittenContext = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command GenerateAllHtmlCommand { get; set; }
 
@@ -678,6 +691,8 @@ namespace PointlessWaymarksCmsContentEditor
                 TabMenuLinkContext = new MenuLinkEditorContext(null);
             if (SelectedTab.Header.ToString() == "Tags" && TabTagListContext == null)
                 TabTagListContext = new TagListContext(null);
+            if (SelectedTab.Header.ToString() == "File Log" && FilesWrittenContext == null)
+                FilesWrittenContext = new FilesWrittenLogListContext(null);
         }
 
         [NotifyPropertyChangedInvocator]
