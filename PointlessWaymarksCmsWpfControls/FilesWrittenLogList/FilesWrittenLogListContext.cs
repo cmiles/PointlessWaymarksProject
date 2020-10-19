@@ -1,14 +1,19 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
+using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -16,26 +21,54 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 {
     public class FilesWrittenLogListContext : INotifyPropertyChanged
     {
-        private Command _generateItemsCommand;
-        private ObservableCollection<string> _generationChoices;
-        private List<FileWrittenEntry> _items;
-        private string _selectedGenerationChoice;
-        private StatusControlContext _statusContext;
+        private bool _changeSlashes = true;
+        private bool _filterForFilesInCurrentGenerationDirectory = true;
+        private Command? _generateItemsCommand;
+        private ObservableCollection<string>? _generationChoices;
+        private ObservableCollection<FilesWrittenLogListListItem>? _items;
+        private Command? _scriptStringsToClipboardCommand;
+        private string? _selectedGenerationChoice;
+        private StatusControlContext? _statusContext;
+        private string _userFilePrefix = string.Empty;
+        private string _userScriptPrefix = "aws s3 cp";
+        private Command? _writtenFilesToClipboardCommand;
 
-        private FilesWrittenLogListContext()
-        {
-        }
-
-        public FilesWrittenLogListContext(StatusControlContext statusContext)
+        public FilesWrittenLogListContext(StatusControlContext? statusContext, bool loadInBackground)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             GenerateItemsCommand = StatusContext.RunBlockingTaskCommand(async () => await GenerateItems());
+            ScriptStringsToClipboardCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ScriptStringsToClipboard());
+            WrittenFilesToClipboardCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await WrittenFilesToClipboard());
 
-            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+            if (loadInBackground) StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public Command GenerateItemsCommand
+        public bool ChangeSlashes
+        {
+            get => _changeSlashes;
+            set
+            {
+                if (value == _changeSlashes) return;
+                _changeSlashes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool FilterForFilesInCurrentGenerationDirectory
+        {
+            get => _filterForFilesInCurrentGenerationDirectory;
+            set
+            {
+                if (value == _filterForFilesInCurrentGenerationDirectory) return;
+                _filterForFilesInCurrentGenerationDirectory = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? GenerateItemsCommand
         {
             get => _generateItemsCommand;
             set
@@ -46,7 +79,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public ObservableCollection<string> GenerationChoices
+        public ObservableCollection<string>? GenerationChoices
         {
             get => _generationChoices;
             set
@@ -57,7 +90,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public List<FileWrittenEntry> Items
+        public ObservableCollection<FilesWrittenLogListListItem>? Items
         {
             get => _items;
             set
@@ -68,7 +101,18 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public string SelectedGenerationChoice
+        public Command? ScriptStringsToClipboardCommand
+        {
+            get => _scriptStringsToClipboardCommand;
+            set
+            {
+                if (Equals(value, _scriptStringsToClipboardCommand)) return;
+                _scriptStringsToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string? SelectedGenerationChoice
         {
             get => _selectedGenerationChoice;
             set
@@ -79,7 +123,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public StatusControlContext StatusContext
+        public StatusControlContext? StatusContext
         {
             get => _statusContext;
             set
@@ -90,38 +134,105 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
+        public string UserFilePrefix
+        {
+            get => _userFilePrefix;
+            set
+            {
+                if (value == _userFilePrefix) return;
+                _userFilePrefix = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string UserScriptPrefix
+        {
+            get => _userScriptPrefix;
+            set
+            {
+                if (value == _userScriptPrefix) return;
+                _userScriptPrefix = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? WrittenFilesToClipboardCommand
+        {
+            get => _writtenFilesToClipboardCommand;
+            set
+            {
+                if (Equals(value, _writtenFilesToClipboardCommand)) return;
+                _writtenFilesToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public static async Task<FilesWrittenLogListContext> CreateInstance(StatusControlContext statusContext)
+        public static async Task<FilesWrittenLogListContext> CreateInstance(StatusControlContext? statusContext)
         {
-            var newContext =
-                new FilesWrittenLogListContext {StatusContext = statusContext ?? new StatusControlContext()};
+            var newContext = new FilesWrittenLogListContext(statusContext, false);
             await newContext.LoadData();
             return newContext;
         }
 
         public async Task GenerateItems()
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             if (string.IsNullOrWhiteSpace(SelectedGenerationChoice))
             {
-                StatusContext.ToastError("Please make a Generation Date Choice");
+                StatusContext?.ToastError("Please make a Generation Date Choice");
                 return;
             }
 
             var db = await Db.Context();
 
-            if (SelectedGenerationChoice == "All")
+            var generationDirectory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)
+                .FullName;
+
+            IQueryable<GenerationFileWriteLog> searchQuery = FilterForFilesInCurrentGenerationDirectory
+                ? db.GenerationFileWriteLogs.Where(x => x.FileName.StartsWith(generationDirectory))
+                : db.GenerationFileWriteLogs;
+
+            if (SelectedGenerationChoice != "All")
             {
-                Items = (await db.GenerationFileWriteLogs.OrderBy(x => x.WrittenOnVersion).ToListAsync())
-                    .Select(x => new FileWrittenEntry(x.WrittenOnVersion, x.FileName)).ToList();
-                return;
+                var parsedGenerationChoice = DateTime.Parse(SelectedGenerationChoice);
+                searchQuery = searchQuery.Where(x => x.WrittenOnVersion >= parsedGenerationChoice);
             }
 
-            var parsedGenerationChoice = DateTime.Parse(SelectedGenerationChoice);
+            var dbItems = await searchQuery.OrderBy(x => x.WrittenOnVersion).ToListAsync();
 
-            Items = (await db.GenerationFileWriteLogs.Where(x => x.WrittenOnVersion >= parsedGenerationChoice)
-                    .OrderBy(x => x.WrittenOnVersion).ToListAsync())
-                .Select(x => new FileWrittenEntry(x.WrittenOnVersion, x.FileName)).ToList();
+            var transformedItems = new List<FilesWrittenLogListListItem>();
+
+            foreach (var loopDbItems in dbItems)
+            {
+                var directory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory);
+                var fileBase = loopDbItems.FileName.Replace(directory.FullName, string.Empty);
+                var isInGenerationDirectory = loopDbItems.FileName.StartsWith(generationDirectory);
+                var transformedFileName = ToTransformedFileString(fileBase);
+
+                transformedItems.Add(new FilesWrittenLogListListItem
+                {
+                    FileBase = fileBase,
+                    TransformedFile = transformedFileName,
+                    WrittenOn = loopDbItems.WrittenOnVersion,
+                    WrittenFile = loopDbItems.FileName,
+                    IsInGenerationDirectory = isInGenerationDirectory
+                });
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            if (Items == null)
+            {
+                Items = new ObservableCollection<FilesWrittenLogListListItem>(transformedItems);
+            }
+            else
+            {
+                Items.Clear();
+                transformedItems.ForEach(x => Items.Add(x));
+            }
         }
 
         private async Task LoadData()
@@ -143,11 +254,62 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         }
 
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            if (propertyName == nameof(UserFilePrefix) || propertyName == nameof(UserScriptPrefix) ||
+                propertyName == nameof(ChangeSlashes))
+                StatusContext?.RunBlockingAction(() =>
+                {
+                    var currentItems = Items?.ToList();
+                    currentItems?.Where(x => x.IsInGenerationDirectory).ToList().ForEach(x =>
+                        x.TransformedFile = ToTransformedFileString(x.FileBase));
+                });
         }
 
-        public record FileWrittenEntry(DateTime WrittenOn, string FileName);
+        public async Task ScriptStringsToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext?.ToastError("No Items?");
+                return;
+            }
+
+            var scriptString = string.Join(Environment.NewLine,
+                Items.Where(x => x.IsInGenerationDirectory).Distinct().ToList().Select(x =>
+                    $"{UserScriptPrefix} '{x.WrittenFile}' {x.TransformedFile};"));
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(scriptString);
+        }
+
+        public string ToTransformedFileString(string fileBase)
+        {
+            var allPieces = $"{UserFilePrefix.TrimNullToEmpty()}{fileBase}";
+            if (ChangeSlashes) allPieces = allPieces.Replace("\\", "/");
+
+            return allPieces;
+        }
+
+        public async Task WrittenFilesToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext?.ToastError("No Items?");
+                return;
+            }
+
+            var scriptString = string.Join(Environment.NewLine, Items.Select(x => x.WrittenFile).Distinct().ToList());
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(scriptString);
+        }
     }
 }

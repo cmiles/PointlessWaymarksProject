@@ -692,7 +692,7 @@ namespace PointlessWaymarksCmsContentEditor
             if (SelectedTab.Header.ToString() == "Tags" && TabTagListContext == null)
                 TabTagListContext = new TagListContext(null);
             if (SelectedTab.Header.ToString() == "File Log" && FilesWrittenContext == null)
-                FilesWrittenContext = new FilesWrittenLogListContext(null);
+                FilesWrittenContext = new FilesWrittenLogListContext(null, true);
         }
 
         [NotifyPropertyChangedInvocator]

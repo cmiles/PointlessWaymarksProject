@@ -20,14 +20,72 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Border Style="{StaticResource ActionPanelBorder}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource ActionPanelBorder}">
+                <Border.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="Margin" Value="4" />
+                        <Setter Property="CornerRadius" Value="4" />
+                        <Setter Property="BorderThickness" Value="1" />
+                        <Setter Property="BorderBrush" Value="LightGray" />
+                    </Style>
+                </Border.Resources>
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Border>
+                        <CheckBox VerticalAlignment="Center" Margin="4"
+                                  IsChecked="{Binding FilterForFilesInCurrentGenerationDirectory}">
+                            Filter For Generation Directory
+                        </CheckBox>
+                    </Border>
+                    <Border>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4">
+                            <Label>Files Written After:</Label>
+                            <ComboBox Width="180" VerticalAlignment="Center" HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center" ItemsSource="{Binding GenerationChoices}"
+                                      SelectedItem="{Binding SelectedGenerationChoice}" />
+                        </StackPanel>
+                    </Border>
+                    <Border>
+                        <StackPanel Margin="4" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label>Remote File Prefix:</Label>
+                            <TextBox VerticalAlignment="Center"
+                                     Text="{Binding UserFilePrefix, UpdateSourceTrigger=PropertyChanged, Delay=300}"
+                                     Width="120" />
+                        </StackPanel>
+                    </Border>
+                    <Border>
+                        <StackPanel Margin="4" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label>Script Prefix:</Label>
+                            <TextBox VerticalAlignment="Center"
+                                     Text="{Binding UserScriptPrefix, UpdateSourceTrigger=PropertyChanged, Delay=300}"
+                                     Width="120" />
+                        </StackPanel>
+                    </Border>
+                    <Border>
+                        <CheckBox VerticalAlignment="Center" Margin="4"
+                                  IsChecked="{Binding ChangeSlashes}">
+                            \ to /
+                        </CheckBox>
+                    </Border>
+                </WrapPanel>
+            </Border>
+            <Border Grid.Column="1" Style="{StaticResource ActionPanelBorder}">
+                <Button Margin="4" Width="120" Command="{Binding GenerateItemsCommand}">Run Report</Button>
+            </Border>
+        </Grid>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" CanUserAddRows="False" AutoGenerateColumns="True" IsReadOnly="True" />
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <ComboBox Width="180" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ItemsSource="{Binding GenerationChoices}" SelectedItem="{Binding SelectedGenerationChoice}" />
-                <Button Width="120" Command="{Binding GenerateItemsCommand}">Run Report</Button>
+                <Button Margin="4" Padding="6,0,6,0" Command="{Binding WrittenFilesToClipboardCommand}">Written Files to Clipboard</Button>
+                <Button Margin="4" Command="{Binding ScriptStringsToClipboardCommand}">Script to Clipboard</Button>
             </StackPanel>
         </Border>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" CanUserAddRows="False" AutoGenerateColumns="True" />
         <status:StatusControl
             Grid.Row="0"
             Grid.RowSpan="2"
