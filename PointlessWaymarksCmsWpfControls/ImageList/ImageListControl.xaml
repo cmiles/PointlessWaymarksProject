@@ -91,6 +91,9 @@
                 ItemsSource="{Binding Items}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
+                <ListBox.Resources>
+                    <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+                </ListBox.Resources>
                 <i:Interaction.Behaviors>
                     <utility:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
@@ -103,7 +106,21 @@
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Orientation="Vertical">
-                                    <Image Margin="2" Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" />
+                                    <Image
+                                        Margin="2"
+                                        Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
+                                        ToolTip="Double Click to View, Shift Double Click to Edit">
+                                        <Image.InputBindings>
+                                            <MouseBinding
+                                                Command="{Binding Data.ViewImageCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding DbEntry}"
+                                                MouseAction="LeftDoubleClick" />
+                                            <MouseBinding
+                                                Command="{Binding Data.EditContentCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding DbEntry}"
+                                                Gesture="Shift+LeftDoubleClick" />
+                                        </Image.InputBindings>
+                                    </Image>
                                     <Button
                                         Height="24"
                                         Margin="0,0,8,8"

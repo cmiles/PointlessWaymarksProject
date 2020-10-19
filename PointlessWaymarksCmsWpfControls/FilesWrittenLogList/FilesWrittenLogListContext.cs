@@ -278,9 +278,12 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 return;
             }
 
+            var sortedItems = Items.OrderByDescending(x => x.WrittenFile.Count(y => y == '\\'))
+                .ThenBy(x => x.WrittenFile);
+
             var scriptString = string.Join(Environment.NewLine,
-                Items.Where(x => x.IsInGenerationDirectory).Distinct().ToList().Select(x =>
-                    $"{UserScriptPrefix} '{x.WrittenFile}' {x.TransformedFile};"));
+                sortedItems.Where(x => x.IsInGenerationDirectory).Distinct().ToList().Select(x =>
+                    $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' {x.TransformedFile};"));
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

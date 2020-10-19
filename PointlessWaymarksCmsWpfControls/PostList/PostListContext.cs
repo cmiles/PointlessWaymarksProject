@@ -12,6 +12,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 using TinyIpc.Messaging;
@@ -20,6 +21,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 {
     public class PostListContext : INotifyPropertyChanged
     {
+        private Command<PostContent> _editContentCommand;
         private ObservableCollection<PostListListItem> _items;
         private string _lastSortColumn;
         private List<PostListListItem> _selectedItems;
@@ -33,7 +35,9 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+
+            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(EditContent);
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -49,6 +53,16 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
+        public Command<PostContent> EditContentCommand
+        {
+            get => _editContentCommand;
+            set
+            {
+                if (Equals(value, _editContentCommand)) return;
+                _editContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<PostListListItem> Items
         {
@@ -151,6 +165,29 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             if (translatedMessage.ContentType != DataNotificationContentType.Post)
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
                     await PossibleMainImageUpdateDataNotificationReceived(translatedMessage));
+        }
+
+        private async Task EditContent(PostContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null) return;
+
+            var context = await Db.Context();
+
+            var refreshedData = context.PostContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null)
+                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
+                                         "look for a historic version...");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PostContentEditorWindow(refreshedData);
+
+            newContentWindow.Show();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
         private async Task FilterList()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -13,6 +14,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsWpfControls.ImageContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 using TinyIpc.Messaging;
@@ -22,18 +24,23 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
     public class ImageListContext : INotifyPropertyChanged
     {
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
+        private Command<ImageContent> _editContentCommand;
         private ObservableCollection<ImageListListItem> _items;
         private string _lastSortColumn;
         private Command<ImageListListItem> _openFileCommand;
         private List<ImageListListItem> _selectedItems;
         private StatusControlContext _statusContext;
         private string _userFilterText;
+        private Command<ImageContent> _viewImageCommand;
 
         public ImageListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+
+            ViewImageCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewImage);
+            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(EditContent);
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -53,6 +60,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             {
                 if (Equals(value, _dataNotificationsProcessor)) return;
                 _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<ImageContent> EditContentCommand
+        {
+            get => _editContentCommand;
+            set
+            {
+                if (Equals(value, _editContentCommand)) return;
+                _editContentCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -121,6 +139,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
+        public Command<ImageContent> ViewImageCommand
+        {
+            get => _viewImageCommand;
+            set
+            {
+                if (Equals(value, _viewImageCommand)) return;
+                _viewImageCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -180,6 +209,29 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+        }
+
+        private async Task EditContent(ImageContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null) return;
+
+            var context = await Db.Context();
+
+            var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null)
+                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
+                                         "look for a historic version...");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new ImageContentEditorWindow(refreshedData);
+
+            newContentWindow.Show();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
         private async Task FilterList()
@@ -320,6 +372,38 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             if (string.IsNullOrWhiteSpace(sortColumn)) return;
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
+        }
+
+        private async Task ViewImage(ImageContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null) return;
+
+            try
+            {
+                var context = await Db.Context();
+
+                var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+                var possibleFile = UserSettingsSingleton.CurrentSettings()
+                    .LocalMediaArchiveImageContentFile(refreshedData);
+
+                if (possibleFile == null || !possibleFile.Exists)
+                {
+                    StatusContext.ToastWarning("No Media File Found?");
+                    return;
+                }
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var ps = new ProcessStartInfo(possibleFile.FullName) {UseShellExecute = true, Verb = "open"};
+                Process.Start(ps);
+            }
+            catch (Exception e)
+            {
+                StatusContext.ToastWarning($"Trouble Showing Image - {e.Message}");
+            }
         }
     }
 }

@@ -8,9 +8,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     //<local:BindingProxy x:Key="Proxy" Data="{Binding}" />
     //</DataGrid.Resources>
     //
-    //Visibility="{Binding Data.ShowPrice,
-    //    Converter={StaticResource visibilityConverter},
-    //    Source={StaticResource Proxy}}"
+    //Visibility="{Binding Data.ShowPrice, Converter={StaticResource visibilityConverter}, Source={StaticResource Proxy}}"
     public class BindingProxy : Freezable
     {
         // Using a DependencyProperty as the backing store for Data.  This enables animation, styling, binding, etc...

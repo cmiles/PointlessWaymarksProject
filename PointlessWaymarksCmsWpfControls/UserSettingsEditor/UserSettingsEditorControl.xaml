@@ -4,10 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
-    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     d:DataContext="{d:DesignInstance userSettingsEditor:UserSettingsEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -162,8 +162,6 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
-        <status:StatusControl
-            d:IsHidden="true"
-            DataContext="{Binding StatusContext}" />
+        <status:StatusControl d:IsHidden="true" DataContext="{Binding StatusContext}" />
     </Grid>
 </UserControl>

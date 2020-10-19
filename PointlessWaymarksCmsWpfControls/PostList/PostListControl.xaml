@@ -101,6 +101,9 @@
                 <i:Interaction.Behaviors>
                     <utility:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
+                <ListBox.Resources>
+                    <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+                </ListBox.Resources>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:PostListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
@@ -109,7 +112,17 @@
                                     <ColumnDefinition Width="100" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Image Margin="2" Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" />
+                                <Image
+                                    Margin="2"
+                                    Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
+                                    ToolTip="Shift Double Click to Edit Post">
+                                    <Image.InputBindings>
+                                        <MouseBinding
+                                            Command="{Binding Data.EditContentCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding DbEntry}"
+                                            Gesture="Shift+LeftDoubleClick" />
+                                    </Image.InputBindings>
+                                </Image>
                                 <StackPanel
                                     Grid.Column="1"
                                     Margin="2"
