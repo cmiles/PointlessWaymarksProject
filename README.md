@@ -1,48 +1,48 @@
 # Pointless Waymarks CMS
 
-This project is not currently intended for 'general public' use - it is made public under an MIT license both to share with friends and just-in-case any of the code is useful to anyone.
+This project is not currently intended for general use - it is made public under an MIT license to share with friends, colleagues and anyone who finds the code interesting or useful.
 
-This project is a .NET Core Windows WPF GUI for generating a static website based on database information and a settings file. This software is currently being used to create https://PointlessWaymarks.com. It is not intended as 'general purpose static site generation software' and only supports the creation and generation of a limited set of content types with a limited set of options.
+Pointless Waymarks CMS is a .NET Core 5 Windows WPF GUI for generating a static website based on database information and a settings file. It is not intended as an 'all purpose static site generation solution' and only supports the creation of a limited set of content types with a focus on long-lasting free content about landscape, place, photography, nature, history, creativity...
 
-Because this is a personal project without commercial goals it may be useful to understand that the focus of this project is to help create long-lasting beautiful free authentic content out of a love for the subject matter. The inspiration is the incredible richness and joy that creating content about the landscape has added to my life and the focus for the project is informed by my realization that having front page search results for personal content hasn't added to my happiness in any measurable way.
+[Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of the output and intent. The inspiration for this code is the incredible richness and joy that creating content about the landscape has added to my life. The direction of the project is driven by my love of authentic content and informed by many years spent learning the deep value of creating personal content with great care but without the need for SEO, First Page Search Results, Engagement Numbers, Advertising or Tracking...
 
 Details behind this software:
- - A static site because it is currently one of the lowest cost, least maintenance, most durable ways to put free content online.
- - Database driven because it offers a huge amount of flexibility in creating and updating content and supports the generation of multiple formats.
- - Custom software rather than a generic cms/web framework so that the limited content types I want to create can be specifically and well supported - with a limited scope I believe I can create more useful software in less time by coding something new rather than customizing something existing.
- - Desktop creation software because it is an excellent way to create zero cost software. WPF because I am most frequently working in Windows and it is my favorite Windows GUI technology atm and because it feeds back into my day job where I help to create and maintain an Inventory Management and Reporting system that has a WPF Front end component.
- - I hope to write high quality code and I am happy to share it - but for various reasons, including the narrow and personal focus of this project, I don't currently intend to make 'public use' a primary consideration.
+ - A static site because it is currently one of the lowest cost, lowest maintenance, most durable ways to put content online.
+ - Database driven to offer flexibility in creating and updating content and to potentially support the generation of multiple formats.
+ - Custom software rather than a generic cms/web framework so that the limited content types I want to create can be specifically and well supported - with a limited scope I believe I can create more useful software in less time by coding something new/specific rather than customizing an existing system.
+ - Desktop creation software because it is an excellent way to create zero cost software. WPF because I largely work in Windows, it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my job where I help to create and maintain an Inventory Management and Reporting system that has a WPF Front End.
+ - A focus on 'content' with a simple and beautiful presentation
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
 
-If you have questions or comments you are certainly welcome to contact me at PointlessWaymarks@gmail.com
+If you have questions or comments please contact me at PointlessWaymarks@gmail.com
 
 
 ### Application Screen Shots
 
-Launch screen with recent files and option to create a new project.
+Launch screen with quick and easy options to launch recent projects or create a new project.
 
 ![Launch Screen](PointlessWaymarksCmsScreenShots/LaunchScreen.jpg "Launch Screen")
 
 
-Each Content Type has a list interface:
-
+Each Content Type has a list interface - these are all similar with sorting, filtering and access to Excel Export/Import. The ability to export to Excel, edit and import the changes is provided for all content types and most fields - many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
 ![Posts List](PointlessWaymarksCmsScreenShots/PostsList.jpg "Posts List")
+
+The Photo List items have buttons to quickly find other photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. Not shown but available in the Photo List under the Reports menu are reports on photos with potential problems such as No Tags or Blank License and an option to export all of a photo's 'raw' metadata to an html file.
+From the Photo List you can import photos in bulk - where possible the program will use the Photo's Metadata to generate an entry and in many cases can create and save Photo Content without any additional data entry.
 ![Photos List](PointlessWaymarksCmsScreenShots/PhotoList.jpg "Photos List")
 
-
-Various Content Editors:
-
+The content editors are intended to be simple, helpful and functional. Change and validation indicators, previews and help with common editing actions are provided.
 ![Post Content Editor](PointlessWaymarksCmsScreenShots/PostEditorWithPreview.jpg "Post Content Editor")
 ![Photo Content Editor](PointlessWaymarksCmsScreenShots/PhotoEditor-ShowingFileAndPhotoMetadata.jpg "Photo Content Editor")
 ![Image Content Editor](PointlessWaymarksCmsScreenShots/ImageEditor.jpg "Image Content Editor")
 ![File Content Editor](PointlessWaymarksCmsScreenShots/FileEditorShowingValidationAndChangeIndicators.jpg "File Content Editor")
 
-
-Link and Menu Editors:
-
-![Posts List](PointlessWaymarksCmsScreenShots/MenuLinksEditor.jpg "File Content Editor")
+Tags are a valuable way to search and categorize content and the Tag Screen provides search and display of Tags and Content. Rather than try to provide in-editor actions for bulk edits the interface relies on the Excel export/import process - while it is occasionally cumbersome using Excel to bulk edit tags the advantage is that you are not limited in what you can do...
 ![Posts List](PointlessWaymarksCmsScreenShots/TagList.jpg "File Content Editor")
+
+Content is the focus of the project and admin/widget/header/menu options are kept as minimal as possible - but some options are still needed such as a very simple menu editor [Pointless Waymarks](https://PointlessWaymarks.com).
+![Posts List](PointlessWaymarksCmsScreenShots/MenuLinksEditor.jpg "Menu Links Editor")
 
 
 ### Software Used By and In Building Pointless Waymarks CMS
