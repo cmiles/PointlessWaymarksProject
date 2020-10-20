@@ -1,4 +1,12 @@
 ﻿## Todos
+ - Written File Tracking:
+  - Save the destination prefix and maybe script prefix to settings (or maybe the script prefix is in code? not sure how flexible to leave this)
+  - The dropdown filter of generations in the written file menu should probably have local time to minimize confusion
+  - Generation Date Filter - 'all' should be at the bottom if it is in the filter at all (maybe only all when there are no generations yet?)
+  - Filter script generation thru a 'file still exists check' to minimize script errors?
+  - ?Track script generation (or track script running? how?) - maybe a table to save the generated scripts (save the generated scripts 'raw' or enough info to regen the script?) - have a filter for this in the File window
+  - Option to write the output to a ps1 file
+  - Looks like System.Management.Automation might hint at a nice way to run powershell scripts and get info back - should this be the mechanism to upload and the script returns a written on date to the db? Or a new 'last uploaded table' - or is this too far and if we get this specific should there just be an integrated aws uploader?
  - Continue GUI Context tests in new series
  - Points:
   - Bracket Code
@@ -44,6 +52,12 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+10/20/2020
+
+Getting https://pointlesswaymarks.com/Posts/2020/cocopa-and-yuma-points-grand-canyon-9-30-10-1-2020/cocopa-and-yuma-points-grand-canyon-9-30-10-1-2020.html helped generated some small GUI improvements and bug fixes!
+
+The most interesting part of this update was working with the written files log and the aws cli - this worked much much more nicely than expected so immediately generated some todos...
 
 10/18/2020
 

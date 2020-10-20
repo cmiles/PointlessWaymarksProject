@@ -36,6 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         private Command _openUrlForSelectedCommand;
         private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
+        private Command _newContentFromFilesCommand;
 
         public ImageListWithActionsContext(StatusControlContext statusContext)
         {
@@ -137,7 +138,16 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
-        public Command NewContentFromFilesCommand { get; set; }
+        public Command NewContentFromFilesCommand
+        {
+            get => _newContentFromFilesCommand;
+            set
+            {
+                if (Equals(value, _newContentFromFilesCommand)) return;
+                _newContentFromFilesCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command OpenUrlForSelectedCommand
         {
