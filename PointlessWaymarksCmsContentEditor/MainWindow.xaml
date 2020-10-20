@@ -194,6 +194,7 @@
                                 <Button Command="{Binding GenerateHtmlForAllNoteContentCommand}">Points</Button>
                                 <Button Command="{Binding GenerateHtmlForAllPhotoContentCommand}">Photos</Button>
                                 <Button Command="{Binding GenerateHtmlForAllPostContentCommand}">Posts</Button>
+                                <Button Command="{Binding GenerateSiteResourcesCommand}">Site Resources</Button>
                             </WrapPanel>
                         </Grid>
                     </GroupBox>

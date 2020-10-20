@@ -3,11 +3,9 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -1034,6 +1032,12 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/RssIndexFeed.xml";
         }
 
+        public static string SearchListJavascriptUrl(this UserSettings settings)
+        {
+            return
+                $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-content-list-search.js";
+        }
+
         public static FileInfo SettingsFile()
         {
             return new FileInfo(Path.Combine(StorageDirectory().FullName, SettingsFileName));
@@ -1101,38 +1105,10 @@ namespace PointlessWaymarksCmsData
             progress?.Report("Setting up directory structure.");
 
             newSettings.VerifyOrCreateAllTopLevelFolders(progress);
+            await newSettings.EnsureDbIsPresent(progress);
 
-            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
-
-            var siteResources = embeddedProvider.GetDirectoryContents("");
-
-            foreach (var loopSiteResources in siteResources)
-            {
-                var fileAsStream = loopSiteResources.CreateReadStream();
-
-                string filePathStyleName;
-
-                if (loopSiteResources.Name.StartsWith("SiteResources.images."))
-                    filePathStyleName = $"SiteResources\\images\\{loopSiteResources.Name.Substring(21)}";
-                else if (loopSiteResources.Name.StartsWith("SiteResources."))
-                    filePathStyleName = $"SiteResources\\{loopSiteResources.Name.Substring(14)}";
-                else
-                    filePathStyleName = loopSiteResources.Name;
-
-                var destinationFile =
-                    new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
-                        filePathStyleName));
-
-                var destinationDirectory = destinationFile.Directory;
-                if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
-
-                var fileStream = File.Create(destinationFile.FullName);
-                fileAsStream.Seek(0, SeekOrigin.Begin);
-                await fileAsStream.CopyToAsync(fileStream);
-                fileStream.Close();
-
-                progress?.Report($"Site Resources - Writing {loopSiteResources.Name} to {destinationFile.FullName}");
-            }
+            await FileManagement.WriteStylesCssAndFavIconIcoToGeneratedSite(progress);
+            await FileManagement.WriteSiteResourcesToGeneratedSite(progress);
 
             return newSettings;
         }

@@ -16,6 +16,7 @@
     <None Remove="SiteResources\images\marker-shadow.png" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.css" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.js" />
+    <None Remove="SiteResources\pointless-waymarks-content-list-search.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -319,6 +320,7 @@
     <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js" />
     <EmbeddedResource Include="SiteResources\leaflet.css" />
     <EmbeddedResource Include="SiteResources\leaflet.js" />
+    <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />
     <EmbeddedResource Include="style.css" />
   </ItemGroup>
 

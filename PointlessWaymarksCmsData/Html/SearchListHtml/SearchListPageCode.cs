@@ -85,8 +85,8 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             {
                 var itemContainer = new DivTag().AddClass("content-list-filter-item");
                 var checkbox = new CheckboxTag(false).Id($"{loopTag}-content-list-filter-checkbox")
-                    .AddClass("content-list-filter-checkbox").Value(loopTag).Attr("onclick", "searchContent()");
-                var label = new HtmlTag("label").AddClass("content-list-filter-checkbox-label")
+                    .AddClasses("content-list-filter-checkbox", "enable-after-loading", "wait-cursor").Value(loopTag).Attr("onclick", "searchContent()").BooleanAttr("disabled");
+                var label = new HtmlTag("label").AddClasses("content-list-filter-checkbox-label", "enable-after-loading", "wait-cursor")
                     .Text(textInfo.ToTitleCase(loopTag));
                 itemContainer.Children.Add(checkbox);
                 itemContainer.Children.Add(label);

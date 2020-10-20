@@ -20,7 +20,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class SearchListPage : SearchListPageBase
     {
@@ -32,14 +32,14 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
         {
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
-            #line 10 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 10 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
-            #line 12 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 12 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle.HtmlEncode()));
             
             #line default
@@ -47,7 +47,7 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             this.Write("</title>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=" +
                     "1.0\">\r\n\r\n    ");
             
-            #line 16 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
 
     if (!string.IsNullOrWhiteSpace(RssUrl))
     {
@@ -57,21 +57,21 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             #line hidden
             this.Write("    <link rel=\"alternate\" type=\"application/rss+xml\" \r\n      title=\"");
             
-            #line 21 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 21 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\"     \r\n      href=\"https:");
             
-            #line 23 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RssUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    ");
             
-            #line 24 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 24 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
 
     } 
             
@@ -79,116 +79,84 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
             #line hidden
             this.Write("\r\n    ");
             
-            #line 27 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 27 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 28 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 28 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
-            this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
+            this.Write("\r\n    <script src=\"");
             
-            #line 32 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 29 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SearchListJavascriptUrl()));
+            
+            #line default
+            #line hidden
+            this.Write("\"></script>\r\n</head>\r\n\r\n<body>\r\n    ");
+            
+            #line 33 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 33 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 34 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <h1 class=\"index-title-content\">");
             
-            #line 34 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 35 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"Search {ListTitle}"));
             
             #line default
             #line hidden
             this.Write("</h1>\r\n    <div class=\"search-input-container\">\r\n        <input type=\"text\" class" +
-                    "=\"search-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Searc" +
-                    "h ");
+                    "=\"search-input enable-after-loading wait-cursor\" id=\"userSearchText\" onkeyup=\"se" +
+                    "archContent()\" disabled placeholder=\"Search ");
             
-            #line 36 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 37 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));
             
             #line default
             #line hidden
             this.Write("...\">\r\n    </div>\r\n    ");
             
-            #line 38 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 39 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(FilterCheckboxesTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 39 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 40 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ContentTableTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 40 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 41 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksCmsSpatiaLite\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
+            #line 42 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
             #line hidden
-            this.Write(@"
-
-<script>
-    function searchContent() {
-      // Declare variables
-      var input, filterText, contentTypes, contentDivs, loopDiv, i, divDataText;
-      input = document.getElementById('userSearchText');
-      filterText = input.value.toUpperCase();
-      contentTypes = Array.from(document.getElementsByClassName('content-list-filter-checkbox'))
-            .filter(x => x.checked).map(x => x.value);
-
-      contentDivs = document.getElementsByClassName('content-list-item-container');
-
-      // Loop through all list items, and hide those who don't match the search query
-      for (i = 0; i < contentDivs.length; i++) {
-        loopDiv = contentDivs[i];
-        divDataContentType = loopDiv.getAttribute('data-contenttype');
-
-        if(contentTypes.length && !contentTypes.includes(divDataContentType)){
-           loopDiv.style.display = ""none"";
-           continue;s
-        }
-
-	    divDataText = loopDiv.getAttribute('data-title').concat(
-		    loopDiv.getAttribute('data-summary'),
-		    loopDiv.getAttribute('data-tags')).toUpperCase();
-
-        if (divDataText.indexOf(filterText) > -1) {
-		    loopDiv.style.display = """";
-        } else {
-		    loopDiv.style.display = ""none"";
-        }
-      }
-    }
-</script>
-
-</body>
-
-</html>
-");
+            this.Write("\r\n</body>\r\n\r\n</html>\r\n");
             return this.GenerationEnvironment.ToString();
         }
     }

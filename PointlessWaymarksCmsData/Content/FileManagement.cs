@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 
@@ -1104,6 +1106,72 @@ namespace PointlessWaymarksCmsData.Content
             await selectedFile.CopyToAndLogAsync(destinationFileName);
 
             return await GenerationReturn.Success("Photo is copied to Media Archive");
+        }
+
+        public static async Task WriteSiteResourcesToGeneratedSite(IProgress<string> progress)
+        {
+            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+            var siteResources = embeddedProvider.GetDirectoryContents("");
+
+            foreach (var loopSiteResources in siteResources.Where(x => x.Name.StartsWith("SiteResources")))
+            {
+                var fileAsStream = loopSiteResources.CreateReadStream();
+
+                string filePathStyleName;
+
+                if (loopSiteResources.Name.StartsWith("SiteResources.images."))
+                    filePathStyleName = $"SiteResources\\images\\{loopSiteResources.Name.Substring(21)}";
+                else if (loopSiteResources.Name.StartsWith("SiteResources."))
+                    filePathStyleName = $"SiteResources\\{loopSiteResources.Name.Substring(14)}";
+                else
+                    filePathStyleName = loopSiteResources.Name;
+
+                var destinationFile =
+                    new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
+                        filePathStyleName));
+
+                var destinationDirectory = destinationFile.Directory;
+                if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
+
+                var fileStream = File.Create(destinationFile.FullName);
+                fileAsStream.Seek(0, SeekOrigin.Begin);
+                await fileAsStream.CopyToAsync(fileStream);
+                fileStream.Close();
+
+                await LogFileWriteAsync(destinationFile.FullName);
+
+                progress?.Report($"Site Resources - Writing {loopSiteResources.Name} to {destinationFile.FullName}");
+            }
+        }
+
+        public static async Task WriteStylesCssAndFavIconIcoToGeneratedSite(IProgress<string> progress)
+        {
+            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+            var siteResources = embeddedProvider.GetDirectoryContents("");
+
+            foreach (var loopSiteResources in siteResources.Where(x => x.Name == "style.css" || x.Name == "favicon.ico")
+            )
+            {
+                var fileAsStream = loopSiteResources.CreateReadStream();
+
+                var destinationFile =
+                    new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
+                        loopSiteResources.Name));
+
+                var destinationDirectory = destinationFile.Directory;
+                if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
+
+                var fileStream = File.Create(destinationFile.FullName);
+                fileAsStream.Seek(0, SeekOrigin.Begin);
+                await fileAsStream.CopyToAsync(fileStream);
+                fileStream.Close();
+
+                await LogFileWriteAsync(destinationFile.FullName);
+
+                progress?.Report($"Site Resources - Writing {loopSiteResources.Name} to {destinationFile.FullName}");
+            }
         }
     }
 }

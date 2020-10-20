@@ -267,8 +267,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
                 var processResults =
                     ContentProcessing.ProcessContent(preprocessResults, BodyContentFormat.SelectedContentFormat);
 
-                var possibleStyleFile =
-                    new FileInfo(Path.Combine(settings.LocalSiteDirectory().FullName, "style.css"));
+                var possibleStyleFile = new FileInfo(Path.Combine(settings.LocalSiteDirectory().FullName, "style.css"));
 
                 var styleBlock = "body { margin-right: 20px; }" + Environment.NewLine;
 

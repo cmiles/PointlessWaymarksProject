@@ -103,7 +103,7 @@ namespace PointlessWaymarksCmsData.Html
             var loopCount = 1;
             var totalCount = allItems.Count;
 
-            progress?.Report($"Found {totalCount} GeoJsons to Generate");
+            progress?.Report($"Found {totalCount} GeoJson Entries to Generate");
 
             foreach (var loopItem in allItems)
             {
@@ -122,6 +122,8 @@ namespace PointlessWaymarksCmsData.Html
             await CleanupGenerationInformation(progress);
 
             var generationVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime();
+
+            await FileManagement.WriteSiteResourcesToGeneratedSite(progress);
 
             await RelatedContentReference.GenerateRelatedContentDbTable(generationVersion, progress);
             await SetupTagGenerationDbData(generationVersion, progress);
@@ -730,6 +732,9 @@ namespace PointlessWaymarksCmsData.Html
                 return;
             }
 
+            progress?.Report("Write Site Resources");
+            await FileManagement.WriteSiteResourcesToGeneratedSite(progress);
+
             progress?.Report($"Generation HTML based on changes after UTC - {lastGenerationValues.GenerationVersion}");
 
             await RelatedContentReference.GenerateRelatedContentDbTable(generationVersion, progress);
@@ -819,7 +824,7 @@ namespace PointlessWaymarksCmsData.Html
             var loopCount = 1;
             var totalCount = allItems.Count;
 
-            progress?.Report($"Found {totalCount} GeoJsons to Generate");
+            progress?.Report($"Found {totalCount} GeoJson Entries to Generate");
 
             foreach (var loopItem in allItems)
             {

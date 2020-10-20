@@ -128,6 +128,9 @@ namespace PointlessWaymarksCmsContentEditor
             });
 
             //Main Parts
+            GenerateSiteResourcesCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileManagement.WriteSiteResourcesToGeneratedSite(StatusContext.ProgressTracker()));
+
             GenerateHtmlForAllFileContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await GenerationGroups.GenerateAllFileHtml(null, StatusContext.ProgressTracker()));
 
@@ -232,6 +235,8 @@ namespace PointlessWaymarksCmsContentEditor
         public Command GenerateHtmlForAllPostContentCommand { get; set; }
 
         public Command GenerateIndexCommand { get; set; }
+
+        public Command GenerateSiteResourcesCommand { get; set; }
 
         public Command ImportJsonFromDirectoryCommand { get; set; }
 

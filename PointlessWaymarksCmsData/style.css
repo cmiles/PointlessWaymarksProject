@@ -3,6 +3,10 @@ body {
     font-size: 16px;
 }
 
+.wait-cursor {
+    cursor: wait;
+}
+
 .single-photo-body {
     font-family: Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
     color: rgb(180, 180, 180);
