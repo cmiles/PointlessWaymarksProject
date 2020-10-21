@@ -1,13 +1,5 @@
 ﻿## Todos
  - Could Tag List javascript be abstracted to site resources easily?
- - Written File Tracking:
-  - Save the destination prefix and maybe script prefix to settings (or maybe the script prefix is in code? not sure how flexible to leave this)
-  - The dropdown filter of generations in the written file menu should probably have local time to minimize confusion
-  - Generation Date Filter - 'all' should be at the bottom if it is in the filter at all (maybe only all when there are no generations yet?)
-  - Filter script generation thru a 'file still exists check' to minimize script errors?
-  - ?Track script generation (or track script running? how?) - maybe a table to save the generated scripts (save the generated scripts 'raw' or enough info to regen the script?) - have a filter for this in the File window
-  - Option to write the output to a ps1 file
-  - Looks like System.Management.Automation might hint at a nice way to run powershell scripts and get info back - should this be the mechanism to upload and the script returns a written on date to the db? Or a new 'last uploaded table' - or is this too far and if we get this specific should there just be an integrated aws uploader?
  - Continue GUI Context tests in new series
  - Points:
   - Bracket Code
@@ -36,6 +28,7 @@
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
 
 ## Ideas
+ - Amazon Uploader
  - Look at https://github.com/icsharpcode/AvalonEdit for Markdown editor - maybe look at https://github.com/martinkirsche/AsYouTypeSpellChecker for spell checking
  - Review https://github.com/Softwire/HighlightingTextBox/blob/master/HighlightingTextBox/HighlightingTextBox.cs - is there something useful here?
  - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well - perhaps via Behavior?
@@ -53,6 +46,13 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+10/21/2020
+
+I think the current round of improvements take the written file log to an obvious stopping point for now - small improvements, the scripts can now generate automatically to a file and explorer pops open with the file selected, when files are written is tracked and presented as a choice. I believe after a little work using this that this gets the core functionality taken care of. But this is also probably a classic 80% scenario:
+ - This is an awesome feature if the user 'just' installs and configures the aws cli and permissions to run the scripts and everything goes right with the uploads (80%)
+ - But a good implementation of this feature wouldn't require external program install/configs, would offer good error messages and a way to try again/recover and offer good progress information - getting to this is the last 20% but to build a custom Amazon S3 uploader will probably take as more time than building out the 80% did...
+ So for now added Amazon Uploader to the idea list...
 
 10/20/2020
 

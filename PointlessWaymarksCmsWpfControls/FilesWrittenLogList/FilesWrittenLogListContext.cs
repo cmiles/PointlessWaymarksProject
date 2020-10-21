@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -24,12 +25,14 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private bool _changeSlashes = true;
         private bool _filterForFilesInCurrentGenerationDirectory = true;
         private Command? _generateItemsCommand;
-        private ObservableCollection<string>? _generationChoices;
+        private ObservableCollection<FileWrittenLogListDateTimeFilterChoice>? _generationChoices;
         private ObservableCollection<FilesWrittenLogListListItem>? _items;
         private Command? _scriptStringsToClipboardCommand;
-        private string? _selectedGenerationChoice;
+        private Command? _scriptStringsToPowerShellScriptCommand;
+        private FileWrittenLogListDateTimeFilterChoice? _selectedGenerationChoice;
         private List<FilesWrittenLogListListItem> _selectedItems = new List<FilesWrittenLogListListItem>();
         private Command? _selectedScriptStringsToClipboardCommand;
+        private Command? _selectedScriptStringsToPowerShellScriptCommand;
         private StatusControlContext? _statusContext;
         private string _userFilePrefix = string.Empty;
         private string _userScriptPrefix = "aws s3 cp";
@@ -43,9 +46,13 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             ScriptStringsToClipboardCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ScriptStringsToClipboard());
             SelectedScriptStringsToClipboardCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SelectedStringsToClipboard());
+                StatusContext.RunBlockingTaskCommand(async () => await SelectedScriptStringsToClipboard());
             WrittenFilesToClipboardCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await WrittenFilesToClipboard());
+            SelectedScriptStringsToPowerShellScriptCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SelectedScriptStringsToPowerShellScript());
+            ScriptStringsToPowerShellScriptCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ScriptStringsToPowerShellScript());
 
             if (loadInBackground) StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -83,7 +90,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public ObservableCollection<string>? GenerationChoices
+        public ObservableCollection<FileWrittenLogListDateTimeFilterChoice>? GenerationChoices
         {
             get => _generationChoices;
             set
@@ -116,7 +123,18 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public string? SelectedGenerationChoice
+        public Command? ScriptStringsToPowerShellScriptCommand
+        {
+            get => _scriptStringsToPowerShellScriptCommand;
+            set
+            {
+                if (Equals(value, _scriptStringsToPowerShellScriptCommand)) return;
+                _scriptStringsToPowerShellScriptCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public FileWrittenLogListDateTimeFilterChoice? SelectedGenerationChoice
         {
             get => _selectedGenerationChoice;
             set
@@ -145,6 +163,17 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             {
                 if (Equals(value, _selectedScriptStringsToClipboardCommand)) return;
                 _selectedScriptStringsToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? SelectedScriptStringsToPowerShellScriptCommand
+        {
+            get => _selectedScriptStringsToPowerShellScriptCommand;
+            set
+            {
+                if (Equals(value, _selectedScriptStringsToPowerShellScriptCommand)) return;
+                _selectedScriptStringsToPowerShellScriptCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -202,11 +231,53 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             return newContext;
         }
 
+        public async Task FileItemsToScriptFile(List<FilesWrittenLogListListItem> toWrite)
+        {
+            var scriptString = FileItemsToScriptString(toWrite);
+
+            var file = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Script.ps1"));
+
+            await File.WriteAllTextAsync(file.FullName, scriptString);
+
+            var db = await Db.Context();
+
+            await db.GenerationFileScriptLogs.AddAsync(new GenerationFileScriptLog
+            {
+                FileName = file.Name, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+            });
+
+            await db.SaveChangesAsync();
+
+            await LoadDateTimeFilterChoices();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var ps = new ProcessStartInfo("explorer.exe", $"/select, \"{file.FullName}\"")
+            {
+                UseShellExecute = true, Verb = "open"
+            };
+            Process.Start(ps);
+        }
+
+        public string FileItemsToScriptString(List<FilesWrittenLogListListItem> toConvert)
+        {
+            var sortedItems = toConvert.OrderByDescending(x => x.WrittenFile.Count(y => y == '\\'))
+                .ThenBy(x => x.WrittenFile).ToList();
+
+            sortedItems = sortedItems.Where(x => File.Exists(x.WrittenFile)).ToList();
+
+            return string.Join(Environment.NewLine,
+                sortedItems.Where(x => x.IsInGenerationDirectory).Distinct().ToList().Select(x =>
+                    $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' {x.TransformedFile};"));
+        }
+
         public async Task GenerateItems()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (string.IsNullOrWhiteSpace(SelectedGenerationChoice))
+            if (SelectedGenerationChoice == null)
             {
                 StatusContext?.ToastError("Please make a Generation Date Choice");
                 return;
@@ -221,13 +292,10 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 ? db.GenerationFileWriteLogs.Where(x => x.FileName.StartsWith(generationDirectory))
                 : db.GenerationFileWriteLogs;
 
-            if (SelectedGenerationChoice != "All")
-            {
-                var parsedGenerationChoice = DateTime.Parse(SelectedGenerationChoice);
-                searchQuery = searchQuery.Where(x => x.WrittenOnVersion >= parsedGenerationChoice);
-            }
+            if (SelectedGenerationChoice.FilterDateTimeUtc != null)
+                searchQuery = searchQuery.Where(x => x.WrittenOnVersion >= SelectedGenerationChoice.FilterDateTimeUtc);
 
-            var dbItems = await searchQuery.OrderBy(x => x.WrittenOnVersion).ToListAsync();
+            var dbItems = await searchQuery.OrderByDescending(x => x.WrittenOnVersion).ToListAsync();
 
             var transformedItems = new List<FilesWrittenLogListListItem>();
 
@@ -242,7 +310,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 {
                     FileBase = fileBase,
                     TransformedFile = transformedFileName,
-                    WrittenOn = loopDbItems.WrittenOnVersion,
+                    WrittenOn = loopDbItems.WrittenOnVersion.ToLocalTime(),
                     WrittenFile = loopDbItems.FileName,
                     IsInGenerationDirectory = isInGenerationDirectory
                 });
@@ -265,18 +333,57 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            UserFilePrefix = UserSettingsSingleton.CurrentSettings().RemoteFileRoot;
+
+            await LoadDateTimeFilterChoices();
+        }
+
+        private async Task LoadDateTimeFilterChoices()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
             var db = await Db.Context();
 
-            var logChoiceList = new List<string> {"All"};
+            var logChoiceList = new List<FileWrittenLogListDateTimeFilterChoice>();
 
-            logChoiceList.AddRange((await db.GenerationLogs.Select(x => x.GenerationVersion).OrderByDescending(x => x)
-                .ToListAsync()).Select(x => x.ToString("F")));
+            logChoiceList.AddRange(
+                (await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).Take(15).ToListAsync()).Select(x =>
+                    new FileWrittenLogListDateTimeFilterChoice
+                    {
+                        DisplayText = $"{x.GenerationVersion.ToLocalTime():F} - Html Generated",
+                        FilterDateTimeUtc = x.GenerationVersion
+                    }));
+
+            logChoiceList.AddRange(
+                (await db.GenerationFileScriptLogs.OrderByDescending(x => x.WrittenOnVersion).Take(30).ToListAsync())
+                .Select(x => new FileWrittenLogListDateTimeFilterChoice
+                {
+                    DisplayText = $"{x.WrittenOnVersion.ToLocalTime():F} - Script Generated",
+                    FilterDateTimeUtc = x.WrittenOnVersion
+                }));
+
+            logChoiceList = logChoiceList.OrderByDescending(x => x.FilterDateTimeUtc).ToList();
+
+            logChoiceList.Add(new FileWrittenLogListDateTimeFilterChoice {DisplayText = "All"});
+
+            FileWrittenLogListDateTimeFilterChoice toSelect;
+
+            if (SelectedGenerationChoice == null) toSelect = logChoiceList[0];
+            else
+            {
+                var possibleCurrentObject = logChoiceList.FirstOrDefault(x =>
+                    x.FilterDateTimeUtc == SelectedGenerationChoice.FilterDateTimeUtc &&
+                    x.DisplayText == SelectedGenerationChoice.DisplayText);
+
+                toSelect = possibleCurrentObject ?? logChoiceList[0];
+            }
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            GenerationChoices ??= new ObservableCollection<string>();
+            GenerationChoices ??= new ObservableCollection<FileWrittenLogListDateTimeFilterChoice>();
             GenerationChoices.Clear();
             logChoiceList.ForEach(x => GenerationChoices.Add(x));
+
+            SelectedGenerationChoice = toSelect;
         }
 
         [NotifyPropertyChangedInvocator]
@@ -304,19 +411,27 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 return;
             }
 
-            var sortedItems = Items.OrderByDescending(x => x.WrittenFile.Count(y => y == '\\'))
-                .ThenBy(x => x.WrittenFile);
-
-            var scriptString = string.Join(Environment.NewLine,
-                sortedItems.Where(x => x.IsInGenerationDirectory).Distinct().ToList().Select(x =>
-                    $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' {x.TransformedFile};"));
+            var scriptString = FileItemsToScriptString(Items.ToList());
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Clipboard.SetText(scriptString);
         }
 
-        public async Task SelectedStringsToClipboard()
+        public async Task ScriptStringsToPowerShellScript()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext?.ToastError("No Items Selected?");
+                return;
+            }
+
+            await FileItemsToScriptFile(Items.ToList());
+        }
+
+        public async Task SelectedScriptStringsToClipboard()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -326,16 +441,24 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 return;
             }
 
-            var sortedItems = SelectedItems.OrderByDescending(x => x.WrittenFile.Count(y => y == '\\'))
-                .ThenBy(x => x.WrittenFile);
-
-            var scriptString = string.Join(Environment.NewLine,
-                sortedItems.Where(x => x.IsInGenerationDirectory).Distinct().ToList().Select(x =>
-                    $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' {x.TransformedFile};"));
+            var scriptString = FileItemsToScriptString(SelectedItems);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Clipboard.SetText(scriptString);
+        }
+
+        public async Task SelectedScriptStringsToPowerShellScript()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (!SelectedItems.Any())
+            {
+                StatusContext?.ToastError("No Items Selected?");
+                return;
+            }
+
+            await FileItemsToScriptFile(SelectedItems);
         }
 
         public string ToTransformedFileString(string fileBase)

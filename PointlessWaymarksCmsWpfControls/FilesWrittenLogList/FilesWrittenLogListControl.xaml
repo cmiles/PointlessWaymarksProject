@@ -59,7 +59,8 @@
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
                                 ItemsSource="{Binding GenerationChoices}"
-                                SelectedItem="{Binding SelectedGenerationChoice}" />
+                                SelectedItem="{Binding SelectedGenerationChoice}"
+                                DisplayMemberPath="DisplayText"/>
                         </StackPanel>
                     </Border>
                     <Border>
@@ -108,19 +109,30 @@
         <DataGrid
             x:Name="WrittenFilesDataGrid"
             Grid.Row="1"
-            AutoGenerateColumns="True"
+            AutoGenerateColumns="False"
             CanUserAddRows="False"
             IsReadOnly="True"
+            CanUserResizeColumns="True"
+            AlternationCount="1"
+            AlternatingRowBackground="LightGray"
             ItemsSource="{Binding Items}"
-            SelectionChanged="Selector_OnSelectionChanged"/>
+            SelectionChanged="Selector_OnSelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Written On" Binding="{Binding WrittenOn}"></DataGridTextColumn>
+                <DataGridTextColumn Header="File" Binding="{Binding FileBase}"></DataGridTextColumn>
+                <DataGridCheckBoxColumn Header="In Generated" Binding="{Binding IsInGenerationDirectory}"></DataGridCheckBoxColumn>
+                <DataGridTextColumn Header="Remote File" Binding="{Binding TransformedFile}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Written File" Binding="{Binding WrittenFile}"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
-            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <StackPanel.Resources>
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <WrapPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Margin" Value="4"></Setter>
                         <Setter Property="Padding" Value="6,0,6,0"></Setter>
                     </Style>
-                </StackPanel.Resources>
+                </WrapPanel.Resources>
                 <Button
                     Command="{Binding WrittenFilesToClipboardCommand}">
                     Written Files to Clipboard
@@ -129,7 +141,11 @@
                     Command="{Binding ScriptStringsToClipboardCommand}">Script to Clipboard - All Items</Button>
                 <Button 
                     Command="{Binding SelectedScriptStringsToClipboardCommand}">Script to Clipboard - Selected Items</Button>
-            </StackPanel>
+                <Button 
+                    Command="{Binding ScriptStringsToPowerShellScriptCommand}">Script to File - All Items</Button>
+                <Button 
+                    Command="{Binding SelectedScriptStringsToPowerShellScriptCommand}">Script to File - Selected Items</Button>
+            </WrapPanel>
         </Border>
         <status:StatusControl
             Grid.Row="0"

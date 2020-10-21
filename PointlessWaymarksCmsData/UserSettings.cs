@@ -16,6 +16,7 @@ namespace PointlessWaymarksCmsData
         private double _longitudeDefault;
         private string _pdfToCairoExeDirectory;
         private string _pinboardApiToken;
+        private string _remoteFileRoot;
         private string _siteAuthors;
         private string _siteEmailTo;
         private string _siteKeywords;
@@ -129,6 +130,17 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _pinboardApiToken) return;
                 _pinboardApiToken = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string RemoteFileRoot
+        {
+            get => _remoteFileRoot;
+            set
+            {
+                if (value == _remoteFileRoot) return;
+                _remoteFileRoot = value;
                 OnPropertyChanged();
             }
         }

@@ -8,9 +8,9 @@ namespace PointlessWaymarksCmsData.Database
         public PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext> options) : base(options)
         {
         }
-
         public DbSet<FileContent> FileContents { get; set; }
         public DbSet<GenerationChangedContentId> GenerationChangedContentIds { get; set; }
+        public DbSet<GenerationFileScriptLog> GenerationFileScriptLogs { get; set; }
         public DbSet<GenerationFileWriteLog> GenerationFileWriteLogs { get; set; }
         public DbSet<GenerationDailyPhotoLog> GenerationDailyPhotoLogs { get; set; }
         public DbSet<GenerationLog> GenerationLogs { get; set; }
