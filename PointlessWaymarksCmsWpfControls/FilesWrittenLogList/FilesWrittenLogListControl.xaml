@@ -106,20 +106,29 @@
             </Border>
         </Grid>
         <DataGrid
+            x:Name="WrittenFilesDataGrid"
             Grid.Row="1"
             AutoGenerateColumns="True"
             CanUserAddRows="False"
             IsReadOnly="True"
-            ItemsSource="{Binding Items}" />
+            ItemsSource="{Binding Items}"
+            SelectionChanged="Selector_OnSelectionChanged"/>
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Margin" Value="4"></Setter>
+                        <Setter Property="Padding" Value="6,0,6,0"></Setter>
+                    </Style>
+                </StackPanel.Resources>
                 <Button
-                    Margin="4"
-                    Padding="6,0,6,0"
                     Command="{Binding WrittenFilesToClipboardCommand}">
                     Written Files to Clipboard
                 </Button>
-                <Button Margin="4" Command="{Binding ScriptStringsToClipboardCommand}">Script to Clipboard</Button>
+                <Button 
+                    Command="{Binding ScriptStringsToClipboardCommand}">Script to Clipboard - All Items</Button>
+                <Button 
+                    Command="{Binding SelectedScriptStringsToClipboardCommand}">Script to Clipboard - Selected Items</Button>
             </StackPanel>
         </Border>
         <status:StatusControl

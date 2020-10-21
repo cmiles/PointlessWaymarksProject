@@ -1,4 +1,5 @@
 ﻿## Todos
+ - Could Tag List javascript be abstracted to site resources easily?
  - Written File Tracking:
   - Save the destination prefix and maybe script prefix to settings (or maybe the script prefix is in code? not sure how flexible to leave this)
   - The dropdown filter of generations in the written file menu should probably have local time to minimize confusion

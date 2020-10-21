@@ -28,6 +28,8 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private ObservableCollection<FilesWrittenLogListListItem>? _items;
         private Command? _scriptStringsToClipboardCommand;
         private string? _selectedGenerationChoice;
+        private List<FilesWrittenLogListListItem> _selectedItems = new List<FilesWrittenLogListListItem>();
+        private Command? _selectedScriptStringsToClipboardCommand;
         private StatusControlContext? _statusContext;
         private string _userFilePrefix = string.Empty;
         private string _userScriptPrefix = "aws s3 cp";
@@ -40,6 +42,8 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             GenerateItemsCommand = StatusContext.RunBlockingTaskCommand(async () => await GenerateItems());
             ScriptStringsToClipboardCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ScriptStringsToClipboard());
+            SelectedScriptStringsToClipboardCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SelectedStringsToClipboard());
             WrittenFilesToClipboardCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await WrittenFilesToClipboard());
 
@@ -119,6 +123,28 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             {
                 if (value == _selectedGenerationChoice) return;
                 _selectedGenerationChoice = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<FilesWrittenLogListListItem> SelectedItems
+        {
+            get => _selectedItems;
+            set
+            {
+                if (Equals(value, _selectedItems)) return;
+                _selectedItems = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? SelectedScriptStringsToClipboardCommand
+        {
+            get => _selectedScriptStringsToClipboardCommand;
+            set
+            {
+                if (Equals(value, _selectedScriptStringsToClipboardCommand)) return;
+                _selectedScriptStringsToClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -279,6 +305,28 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
 
             var sortedItems = Items.OrderByDescending(x => x.WrittenFile.Count(y => y == '\\'))
+                .ThenBy(x => x.WrittenFile);
+
+            var scriptString = string.Join(Environment.NewLine,
+                sortedItems.Where(x => x.IsInGenerationDirectory).Distinct().ToList().Select(x =>
+                    $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' {x.TransformedFile};"));
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(scriptString);
+        }
+
+        public async Task SelectedStringsToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (!SelectedItems.Any())
+            {
+                StatusContext?.ToastError("No Items Selected?");
+                return;
+            }
+
+            var sortedItems = SelectedItems.OrderByDescending(x => x.WrittenFile.Count(y => y == '\\'))
                 .ThenBy(x => x.WrittenFile);
 
             var scriptString = string.Join(Environment.NewLine,

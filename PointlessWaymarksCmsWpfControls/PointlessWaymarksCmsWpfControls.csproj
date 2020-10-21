@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-827" />
+    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-842" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="ClosedXML" Version="0.95.3" />
     <PackageReference Include="CompareNETObjects" Version="4.67.0" />
@@ -32,7 +32,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-rc.2.20475.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0-rc.2.20475.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-rc.2.20475.5" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="0.9.628-prerelease" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.674-prerelease" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="NetTopologySuite" Version="2.1.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />
