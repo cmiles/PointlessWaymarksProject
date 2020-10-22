@@ -19,15 +19,25 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     public static class ExcelHelpers
     {
         public static FileInfo ContentToExcelFileAsTable(List<object> toDisplay, string fileName,
-            bool openAfterSaving = true)
+            bool openAfterSaving = true, bool limitRowHeight = true, IProgress<string> progress = null)
         {
+            progress?.Report($"Starting transfer of {toDisplay.Count} to Excel");
+
             var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FolderFileUtility.TryMakeFilenameValid(fileName)}.xlsx"));
+
+            progress?.Report($"File Name: {file.FullName}");
+
+            progress?.Report("Creating Workbook");
 
             var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("Exported Data");
 
+            progress?.Report("Inserting Data");
+
             ws.Cell(1, 1).InsertTable(toDisplay);
+
+            progress?.Report("Applying Formatting");
 
             ws.Columns().AdjustToContents();
 
@@ -39,12 +49,16 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             ws.Rows().AdjustToContents();
 
-            foreach (var loopRow in ws.RowsUsed().Where(x => x.Height > 70)) loopRow.Height = 70;
+            if(limitRowHeight) foreach (var loopRow in ws.RowsUsed().Where(x => x.Height > 70)) loopRow.Height = 70;
+
+            progress?.Report($"Saving Excel File {file.FullName}");
 
             wb.SaveAs(file.FullName);
 
             if (openAfterSaving)
             {
+                progress?.Report($"Opening Excel File {file.FullName}");
+
                 var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
                 Process.Start(ps);
             }
@@ -114,38 +128,51 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         }
 
         public static async Task<FileInfo> PointContentToExcel(List<Guid> toDisplay, string fileName,
-            bool openAfterSaving = true)
+            bool openAfterSaving = true, IProgress<string> progress = null)
         {
             var pointsAndDetails = await Db.PointsAndPointDetails(toDisplay);
 
-            return PointContentToExcel(pointsAndDetails, fileName, openAfterSaving);
+            return PointContentToExcel(pointsAndDetails, fileName, openAfterSaving, progress);
         }
 
         public static FileInfo PointContentToExcel(List<PointContentDto> toDisplay, string fileName,
-            bool openAfterSaving = true)
+            bool openAfterSaving = true, IProgress<string> progress = null)
         {
             if (toDisplay == null || !toDisplay.Any()) return null;
+
+            progress?.Report("Setting up list to transfer to Excel");
 
             var transformedList = toDisplay.Select(x => new PointContent().InjectFrom(x)).Cast<PointContent>().ToList();
 
             var detailList = new List<(Guid, string)>();
 
             foreach (var loopContent in toDisplay)
+            {
+                progress?.Report($"Processing {loopContent.Title} with {loopContent.PointDetails.Count} details");
                 // ! This content format is used by ExcelContentImports !
                 // Push the content into a compromise format that is ok for human generation (the target here is not creating 'by
                 //  hand in Excel' rather taking something like GNIS data and concatenating/text manipulating the data into
                 //  shape) and still ok for parsing in code
-            foreach (var loopDetail in loopContent.PointDetails)
-                detailList.Add((loopContent.ContentId,
-                    $"ContentId:{loopDetail.ContentId}||{Environment.NewLine}Type:{loopDetail.DataType}||{Environment.NewLine}Data:{loopDetail.StructuredDataAsJson}"));
+                foreach (var loopDetail in loopContent.PointDetails)
+                {
+                    detailList.Add((loopContent.ContentId,
+                        $"ContentId:{loopDetail.ContentId}||{Environment.NewLine}Type:{loopDetail.DataType}||{Environment.NewLine}Data:{loopDetail.StructuredDataAsJson}"));
+                }
+            }
 
             var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FolderFileUtility.TryMakeFilenameValid(fileName)}.xlsx"));
 
+            progress?.Report($"File Name {file.FullName} - creating Excel Workbook");
+
             var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("Exported Data");
 
+            progress?.Report("Inserting Content Data");
+
             var insertedTable = ws.Cell(1, 1).InsertTable(transformedList);
+
+            progress?.Report("Adding Detail Columns...");
 
             var contentIdColumn = insertedTable.Row(1).Cells().Single(x => x.GetString() == "ContentId")
                 .WorksheetColumn().ColumnNumber();
@@ -175,6 +202,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 }
             }
 
+            progress?.Report("Applying Formatting");
+
             //Format
             ws.Columns().AdjustToContents();
 
@@ -188,10 +217,14 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             foreach (var loopRow in ws.RowsUsed().Where(x => x.Height > 100)) loopRow.Height = 100;
 
+            progress?.Report($"Saving Excel File {file.FullName}");
+
             wb.SaveAs(file.FullName);
 
             if (openAfterSaving)
             {
+                progress?.Report($"Opening Excel File {file.FullName}");
+
                 var ps = new ProcessStartInfo(file.FullName) {UseShellExecute = true, Verb = "open"};
                 Process.Start(ps);
             }
@@ -205,11 +238,11 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             if (selected == null || !selected.Any())
             {
-                statusContext.ToastError("Nothing to send to Excel?");
+                statusContext?.ToastError("Nothing to send to Excel?");
                 return;
             }
 
-            ContentToExcelFileAsTable(selected.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedPhotos");
+            ContentToExcelFileAsTable(selected.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedItems", progress: statusContext?.ProgressTracker());
         }
     }
 }

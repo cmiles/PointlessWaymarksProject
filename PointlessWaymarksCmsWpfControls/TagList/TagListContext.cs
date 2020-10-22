@@ -209,17 +209,17 @@ namespace PointlessWaymarksCmsWpfControls.TagList
         {
             switch (content)
             {
-                case FileContent _:
+                case FileContent:
                     return "File";
-                case ImageContent _:
+                case ImageContent:
                     return "Image";
-                case NoteContent _:
+                case NoteContent:
                     return "Note";
-                case PhotoContent _:
+                case PhotoContent:
                     return "Photo";
-                case PostContent _:
+                case PostContent:
                     return "Post";
-                case LinkContent _:
+                case LinkContent:
                     return "Link";
                 default:
                     StatusContext.ToastError("Unknown Content Type - Unusual Error...");
@@ -491,7 +491,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags");
+            ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags", progress: StatusContext?.ProgressTracker());
         }
 
         private async Task SortList(string sortColumn)
@@ -522,7 +522,8 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
             var toTransfer = content.Select(x => StaticValueInjecter.InjectFrom(new ContentCommonShell(), x)).ToList();
 
-            ExcelHelpers.ContentToExcelFileAsTable(toTransfer, "TagDetails");
+            ExcelHelpers.ContentToExcelFileAsTable(toTransfer, "TagDetails",
+                progress: StatusContext?.ProgressTracker());
         }
 
         private void UpdateDetails()
@@ -557,7 +558,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags");
+            ExcelHelpers.ContentToExcelFileAsTable(tagsProjection, "Tags", progress: StatusContext?.ProgressTracker());
         }
     }
 }
