@@ -55,35 +55,39 @@ namespace PointlessWaymarksCmsData.Rss
         }
 
         public static async void WriteContentCommonListRss(List<IContentCommon> content, FileInfo fileInfo,
-            string titleAdd)
+            string titleAdd, IProgress<string> progress)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var items = new List<string>();
 
-            foreach (var loopPosts in content)
+            progress?.Report($"Processing {content.Count} Content Entries to write to {titleAdd} RSS");
+
+            foreach (var loopContent in content)
             {
-                var contentUrl = await settings.ContentUrl(loopPosts.ContentId);
+                var contentUrl = await settings.ContentUrl(loopContent.ContentId);
 
                 string itemDescription = null;
 
-                if (loopPosts.MainPicture != null)
+                if (loopContent.MainPicture != null)
                 {
-                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(loopPosts.MainPicture.Value);
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(loopContent.MainPicture.Value);
 
                     if (imageInfo != null)
                         itemDescription =
-                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(loopContent.Summary)}</p>" +
                             $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
                 }
 
                 if (string.IsNullOrWhiteSpace(itemDescription))
-                    itemDescription = $"<p>{HttpUtility.HtmlEncode(loopPosts.Summary)}</p>" +
+                    itemDescription = $"<p>{HttpUtility.HtmlEncode(loopContent.Summary)}</p>" +
                                       $"<p>Read more at <a href=\"https:{contentUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
 
-                items.Add(RssItemString(loopPosts.Title, $"https:{contentUrl}", itemDescription, loopPosts.CreatedOn,
-                    loopPosts.ContentId.ToString()));
+                items.Add(RssItemString(loopContent.Title, $"https:{contentUrl}", itemDescription,
+                    loopContent.CreatedOn, loopContent.ContentId.ToString()));
             }
+
+            progress?.Report($"Writing {titleAdd} RSS to {fileInfo.FullName}");
 
             var localIndexFile = fileInfo;
 

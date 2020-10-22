@@ -69,7 +69,7 @@ namespace PointlessWaymarksCmsData.Content
             var db = await Db.Context();
 
             var olderGenerations = db.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
-                .OrderByDescending(x => x.GenerationVersion).Take(3).Select(x => x.GenerationVersion);
+                .OrderByDescending(x => x.GenerationVersion).Skip(10).Select(x => x.GenerationVersion).ToList();
 
             if (olderGenerations.Any())
             {

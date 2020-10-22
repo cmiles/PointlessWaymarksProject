@@ -310,8 +310,9 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             sortedItems = sortedItems.Where(x => File.Exists(x.WrittenFile)).ToList();
 
             return string.Join(Environment.NewLine,
-                sortedItems.Where(x => x.IsInGenerationDirectory).Distinct().ToList().Select(x =>
-                    $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' {x.TransformedFile};"));
+                sortedItems.Where(x => x.IsInGenerationDirectory).Select(x =>
+                        $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' {x.TransformedFile};")
+                    .Distinct().ToList());
         }
 
         private async Task FilesToClipboard(List<FilesWrittenLogListListItem> items)

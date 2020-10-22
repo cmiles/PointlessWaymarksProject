@@ -208,13 +208,13 @@ namespace PointlessWaymarksCmsData.Html
 
         public static void GenerateAllListHtml(DateTime? generationVersion, IProgress<string> progress)
         {
-            SearchListPageGenerators.WriteAllContentCommonSearchListHtml(generationVersion);
-            SearchListPageGenerators.WriteFileContentListHtml(generationVersion);
-            SearchListPageGenerators.WriteImageContentListHtml(generationVersion);
-            SearchListPageGenerators.WritePhotoContentListHtml(generationVersion);
-            SearchListPageGenerators.WritePostContentListHtml(generationVersion);
-            SearchListPageGenerators.WritePointContentListHtml(generationVersion);
-            SearchListPageGenerators.WriteNoteContentListHtml(generationVersion);
+            SearchListPageGenerators.WriteAllContentCommonSearchListHtml(generationVersion, progress);
+            SearchListPageGenerators.WriteFileContentListHtml(generationVersion, progress);
+            SearchListPageGenerators.WriteImageContentListHtml(generationVersion, progress);
+            SearchListPageGenerators.WritePhotoContentListHtml(generationVersion, progress);
+            SearchListPageGenerators.WritePostContentListHtml(generationVersion, progress);
+            SearchListPageGenerators.WritePointContentListHtml(generationVersion, progress);
+            SearchListPageGenerators.WriteNoteContentListHtml(generationVersion, progress);
 
             var linkListPage = new LinkListPage {GenerationVersion = generationVersion};
             linkListPage.WriteLocalHtmlRssAndJson();
@@ -511,7 +511,7 @@ namespace PointlessWaymarksCmsData.Html
         public static async Task GenerateChangedListHtml(DateTime lastGenerationDateTime, DateTime generationVersion,
             IProgress<string> progress)
         {
-            SearchListPageGenerators.WriteAllContentCommonSearchListHtml(generationVersion);
+            SearchListPageGenerators.WriteAllContentCommonSearchListHtml(generationVersion, progress);
 
             var db = await Db.Context();
             var filesChanged =
@@ -519,19 +519,28 @@ namespace PointlessWaymarksCmsData.Html
                     .Any() || db.FileContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
                     o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
             var filesDeleted = (await Db.DeletedFileContent()).Any(x => x.ContentVersion > lastGenerationDateTime);
-            if (filesChanged || filesDeleted) SearchListPageGenerators.WriteFileContentListHtml(generationVersion);
-            else progress?.Report("Skipping File List Generation - no file or file main picture changes found");
+            if (filesChanged || filesDeleted)
+            {
+                progress?.Report("Found File Changes - generating content list");
+                SearchListPageGenerators.WriteFileContentListHtml(generationVersion, progress);
+            }
+            else
+            {
+                progress?.Report("Skipping File List Generation - no file or file main picture changes found");
+            }
 
             var imagesChanged = db.ImageContents
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
             var imagesDeleted = (await Db.DeletedImageContent()).Any(x => x.ContentVersion > lastGenerationDateTime);
-            if (imagesChanged || imagesDeleted) SearchListPageGenerators.WriteImageContentListHtml(generationVersion);
+            if (imagesChanged || imagesDeleted)
+                SearchListPageGenerators.WriteImageContentListHtml(generationVersion, progress);
             else progress?.Report("Skipping Image List Generation - no image changes found");
 
             var photosChanged = db.PhotoContents
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
             var photosDeleted = (await Db.DeletedPhotoContent()).Any(x => x.ContentVersion > lastGenerationDateTime);
-            if (photosChanged || photosDeleted) SearchListPageGenerators.WritePhotoContentListHtml(generationVersion);
+            if (photosChanged || photosDeleted)
+                SearchListPageGenerators.WritePhotoContentListHtml(generationVersion, progress);
             else progress?.Report("Skipping Photo List Generation - no image changes found");
 
             var postChanged =
@@ -539,7 +548,8 @@ namespace PointlessWaymarksCmsData.Html
                     .Any() || db.PostContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
                     o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
             var postsDeleted = (await Db.DeletedPostContent()).Any(x => x.ContentVersion > lastGenerationDateTime);
-            if (postChanged || postsDeleted) SearchListPageGenerators.WritePostContentListHtml(generationVersion);
+            if (postChanged || postsDeleted)
+                SearchListPageGenerators.WritePostContentListHtml(generationVersion, progress);
             else progress?.Report("Skipping Post List Generation - no file or file main picture changes found");
 
             var pointChanged =
@@ -547,13 +557,15 @@ namespace PointlessWaymarksCmsData.Html
                     .Any() || db.PointContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
                     o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
             var pointsDeleted = (await Db.DeletedPointContent()).Any(x => x.ContentVersion > lastGenerationDateTime);
-            if (pointChanged || pointsDeleted) SearchListPageGenerators.WritePointContentListHtml(generationVersion);
+            if (pointChanged || pointsDeleted)
+                SearchListPageGenerators.WritePointContentListHtml(generationVersion, progress);
             else progress?.Report("Skipping Point List Generation - no file or file main picture changes found");
 
             var notesChanged = db.NoteContents
                 .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
             var notesDeleted = (await Db.DeletedNoteContent()).Any(x => x.ContentVersion > lastGenerationDateTime);
-            if (notesChanged || notesDeleted) SearchListPageGenerators.WriteNoteContentListHtml(generationVersion);
+            if (notesChanged || notesDeleted)
+                SearchListPageGenerators.WriteNoteContentListHtml(generationVersion, progress);
             else progress?.Report("Skipping Note List Generation - no image changes found");
 
             var linkListPage = new LinkListPage {GenerationVersion = generationVersion};
@@ -645,7 +657,7 @@ namespace PointlessWaymarksCmsData.Html
                     progress?.Report($"New content found for tag {loopTags} - creating page");
                     var contentToWrite =
                         await db.ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList());
-                    SearchListPageGenerators.WriteTagPage(loopTags, contentToWrite, generationVersion);
+                    SearchListPageGenerators.WriteTagPage(loopTags, contentToWrite, generationVersion, progress);
                     continue;
                 }
 
@@ -667,7 +679,7 @@ namespace PointlessWaymarksCmsData.Html
                 {
                     progress?.Report($"Content Changes found for tag {loopTags} - creating page");
 
-                    SearchListPageGenerators.WriteTagPage(loopTags, directTagContent, generationVersion);
+                    SearchListPageGenerators.WriteTagPage(loopTags, directTagContent, generationVersion, progress);
 
                     continue;
                 }
