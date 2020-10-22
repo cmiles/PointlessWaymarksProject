@@ -38,7 +38,7 @@ namespace PointlessWaymarksCmsData.Content
 
             progress?.Report("Looking for Title");
 
-            var titleString = document.Head.Children.FirstOrDefault(x => x.TagName == "TITLE")?.TextContent;
+            var titleString = document.Head?.Children.FirstOrDefault(x => x.TagName == "TITLE")?.TextContent;
 
             if (string.IsNullOrWhiteSpace(titleString))
                 titleString = document.QuerySelector("meta[property='og:title']")?.Attributes
@@ -239,7 +239,7 @@ namespace PointlessWaymarksCmsData.Content
             if (linkContent == null) return await GenerationReturn.Error("Link Content is Null?");
 
             var (createdUpdatedValid, createdUpdatedValidationMessage) =
-                CommonContentValidation.ValidateCreatedAndUpdatedBy(linkContent, linkContent.Id > 0);
+                CommonContentValidation.ValidateCreatedAndUpdatedBy(linkContent, linkContent.Id < 1);
 
             if (!createdUpdatedValid)
                 return await GenerationReturn.Error(createdUpdatedValidationMessage, linkContent.ContentId);

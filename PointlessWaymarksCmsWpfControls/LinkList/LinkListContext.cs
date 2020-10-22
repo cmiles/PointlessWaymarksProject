@@ -206,7 +206,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
                 return;
             }
 
-            if (translatedMessage.ContentType != DataNotificationContentType.Photo) return;
+            if (translatedMessage.ContentType != DataNotificationContentType.Link) return;
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -231,7 +231,21 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
 
             foreach (var loopItems in dbItems)
             {
-                var existingItem = listItems.SingleOrDefault(x => x.DbEntry.ContentId == loopItems.DbEntry.ContentId);
+                var existingItems = listItems.Where(x => x.DbEntry.ContentId == loopItems.DbEntry.ContentId).ToList();
+
+                if (existingItems.Count > 1)
+                {
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
+                    foreach (var loopDelete in existingItems.Skip(1).ToList())
+                    {
+                        Items.Remove(loopDelete);
+                    }
+
+                    await ThreadSwitcher.ResumeBackgroundAsync();
+                }
+
+                var existingItem = existingItems.FirstOrDefault();
 
                 if (existingItem == null)
                 {

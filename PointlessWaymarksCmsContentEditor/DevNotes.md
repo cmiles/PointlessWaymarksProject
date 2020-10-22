@@ -1,5 +1,9 @@
 ﻿## Todos
+ - The changed HTML generation seems too aggressive - need to recheck the process and the data, especially tags?
+ - In the HTML Changed generations there is no progress for 'some time' after the last tag - add some indication about progress 
+ - In the last upload script the LinkList appeared multiple times? Check for distinct/dedup on all paths?
  - Could Tag List javascript be abstracted to site resources easily?
+ - Better loading indication on the search lists
  - Continue GUI Context tests in new series
  - Points:
   - Bracket Code
