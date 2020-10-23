@@ -63,7 +63,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             var fileVariants = directoryInfo.GetFiles().Where(x => x.Name.StartsWith($"{baseFileName}--")).ToList();
 
-            var displayImageFile = fileVariants.SingleOrDefault(x => x.Name.Contains("--For-Display"));
+            var possibleDisplayImageFile = fileVariants.Where(x => x.Name.Contains("--For-Display")).ToList();
+
+            if (possibleDisplayImageFile.Count > 1) possibleDisplayImageFile.Skip(1).ToList().ForEach(x => x.Delete());
+
+            var displayImageFile = possibleDisplayImageFile.FirstOrDefault();
 
             if (displayImageFile != null && displayImageFile.Exists)
                 toReturn.DisplayPicture = new PictureFile
@@ -136,7 +140,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             var fileVariants = directoryInfo.GetFiles().Where(x => x.Name.StartsWith($"{baseFileName}--")).ToList();
 
-            var displayImageFile = fileVariants.FirstOrDefault(x => x.Name.Contains("--For-Display"));
+            var possibleDisplayImageFile = fileVariants.Where(x => x.Name.Contains("--For-Display")).ToList();
+
+            if (possibleDisplayImageFile.Count > 1) possibleDisplayImageFile.Skip(1).ToList().ForEach(x => x.Delete());
+
+            var displayImageFile = possibleDisplayImageFile.FirstOrDefault();
 
             if (displayImageFile != null && displayImageFile.Exists)
                 toReturn.DisplayPicture = new PictureFile

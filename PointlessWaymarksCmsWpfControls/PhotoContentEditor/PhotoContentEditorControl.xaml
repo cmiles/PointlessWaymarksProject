@@ -187,8 +187,8 @@
                     Content="Save and Close"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
-                    Command="{Binding SaveUpdateDatabaseCommand}"
-                    Content="Quick _Save to DB"
+                    Command="{Binding SaveAndReprocessPhotoCommand}"
+                    Content="Save and Reprocess Photo"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
                     Command="{Binding ViewOnSiteCommand}"

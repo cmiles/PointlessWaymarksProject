@@ -41,9 +41,11 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private Command _linkToClipboardCommand;
         private FileInfo _loadedFile;
         private Command _renameSelectedFileCommand;
+        private bool _resizeSelectedFile;
         private Command _rotateImageLeftCommand;
         private Command _rotateImageRightCommand;
         private Command _saveAndCloseCommand;
+        private Command _saveAndReprocessImageCommand;
         private Command _saveCommand;
         private FileInfo _selectedFile;
         private BitmapSource _selectedFileBitmapSource;
@@ -167,6 +169,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
+        public bool ResizeSelectedFile
+        {
+            get => _resizeSelectedFile;
+            set
+            {
+                if (value == _resizeSelectedFile) return;
+                _resizeSelectedFile = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command RotateImageLeftCommand
         {
             get => _rotateImageLeftCommand;
@@ -196,6 +209,17 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 if (Equals(value, _saveAndCloseCommand)) return;
                 _saveAndCloseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SaveAndReprocessImageCommand
+        {
+            get => _saveAndReprocessImageCommand;
+            set
+            {
+                if (Equals(value, _saveAndReprocessImageCommand)) return;
+                _saveAndReprocessImageCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -385,6 +409,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
 
             SelectedFile = newFile;
+            ResizeSelectedFile = true;
 
             StatusContext.Progress($"Image set - {SelectedFile.FullName}");
         }
@@ -510,6 +535,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 FileHelpers.ImageFileTypeIsSupported(_initialImage))
             {
                 SelectedFile = _initialImage;
+                ResizeSelectedFile = true;
                 _initialImage = null;
             }
         }
@@ -541,6 +567,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             var rotate = new MagicScalerImageResizer();
 
             rotate.Rotate(SelectedFile, rotationType);
+            ResizeSelectedFile = true;
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
         }
@@ -603,9 +630,12 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             StatusContext = statusContext ?? new StatusControlContext();
 
             ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
-            SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
-            SaveAndCloseCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
+            SaveCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges, false));
+            SaveAndReprocessImageCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));
+            SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges, true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
             RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>

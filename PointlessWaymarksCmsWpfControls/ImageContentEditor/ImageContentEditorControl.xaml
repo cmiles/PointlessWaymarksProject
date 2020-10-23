@@ -121,13 +121,20 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
-                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
-                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSearch}" Style="{StaticResource DataEntryBoolStyle}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}"
+                                                                Style="{StaticResource DataEntryBoolStyle}" />
+                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSearch}"
+                                                                Style="{StaticResource DataEntryBoolStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding AltTextEntry}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -156,6 +163,10 @@
                 <Button
                     Command="{Binding SaveAndCloseCommand}"
                     Content="Save and Close"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding SaveAndReprocessImageCommand}"
+                    Content="Save and Reprocess Image"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
                     Command="{Binding ExtractNewLinksCommand}"

@@ -1,6 +1,6 @@
 ﻿## Todos
  - The changed HTML generation seems slightly off at least in regards to tags - need to recheck the process and the data, especially tags?
- - Look again about what is included in the RSS Feed, I think there needs to be an limit on included content (the current photo rss on PointlessWaymarks as an example, too long I think)
+ - Look again about what is included in the RSS Feed, I think there needs to be an limit on included content (the current photo rss on PointlessWaymarks as an example, too long I think) - also review sorting?
  - Could Tag List javascript be abstracted to site resources easily?
  - Better loading indication on the search lists
  - Continue GUI Context tests in new series

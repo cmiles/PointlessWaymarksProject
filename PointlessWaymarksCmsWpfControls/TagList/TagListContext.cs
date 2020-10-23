@@ -300,6 +300,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
                     loopEntries.ContentInformation = newContentList;
                     loopEntries.ContentCount = newContentList.Count;
+                    UpdateDetails();
                 }
 
                 foreach (var loopTags in tags)
@@ -333,6 +334,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
                         possibleTagEntry.ContentInformation = adjustedContentEntries;
                         possibleTagEntry.ContentCount = adjustedContentEntries.Count;
+                        UpdateDetails();
                     }
                 }
             }

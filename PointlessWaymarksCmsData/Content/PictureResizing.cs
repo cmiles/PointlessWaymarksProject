@@ -36,7 +36,12 @@ namespace PointlessWaymarksCmsData.Content
                     loopFiles.File.Delete();
                 }
 
-            currentFiles.DisplayPicture?.File?.Delete();
+            var sourceFileReference =
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(dbEntry);
+            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference, progress);
+
+            if (currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth)
+                currentFiles.DisplayPicture?.File?.Delete();
         }
 
         /// <summary>
@@ -64,7 +69,12 @@ namespace PointlessWaymarksCmsData.Content
                     loopFiles.File.Delete();
                 }
 
-            currentFiles.DisplayPicture?.File?.Delete();
+            var sourceFileReference =
+                UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(dbEntry);
+            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference, progress);
+
+            if ((currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth) || deleteAll)
+                currentFiles.DisplayPicture?.File?.Delete();
         }
 
         public static async Task<GenerationReturn> CopyCleanResizeImage(ImageContent dbEntry,
@@ -133,7 +143,10 @@ namespace PointlessWaymarksCmsData.Content
             IProgress<string> progress)
         {
             if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+            {
                 progress?.Report("Nothing to delete.");
+                return;
+            }
 
             var baseFileNameList = dbEntry.OriginalFileName.Split(".").ToList();
             var baseFileName = string.Join("", baseFileNameList.Take(baseFileNameList.Count - 1));
@@ -141,7 +154,8 @@ namespace PointlessWaymarksCmsData.Content
             var directoryInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
             var fileVariants = directoryInfo.GetFiles().Where(x =>
-                FolderFileUtility.PictureFileTypeIsSupported(x) && !x.Name.StartsWith($"{baseFileName}--")).ToList();
+                FolderFileUtility.PictureFileTypeIsSupported(x) && !x.Name.StartsWith($"{baseFileName}--") &&
+                x.Name != dbEntry.OriginalFileName).ToList();
 
             progress?.Report(
                 $"Found {fileVariants.Count} Supported Photo File Type files in {directoryInfo.FullName} that don't match the " +
@@ -178,35 +192,29 @@ namespace PointlessWaymarksCmsData.Content
             fileVariants.ForEach(x => x.Delete());
         }
 
-        public static FileInfo ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
-            IProgress<string> progress)
+        public static int DisplayPictureWidth(FileInfo fileToProcess, IProgress<string> progress)
         {
             var imageInfo = ImageFileInfo.Load(fileToProcess.FullNameWithLongFilePrefix());
 
             var originalWidth = imageInfo.Frames.First().Width;
 
-            if (originalWidth > 1200)
-            {
-                progress?.Report("Resize For Display: 1200, 82");
+            if (originalWidth > 1200) return 1200;
 
-                return ResizeWithForDisplayFileName(fileToProcess, 1200, 82, overwriteExistingFile, progress);
-            }
+            if (originalWidth > 800) return 800;
 
-            if (originalWidth > 800)
-            {
-                progress?.Report("Resize For Display: 800, 82");
+            if (originalWidth > 400) return 400;
 
-                return ResizeWithForDisplayFileName(fileToProcess, 800, 82, overwriteExistingFile, progress);
-            }
+            return originalWidth;
+        }
 
-            if (originalWidth > 400)
-            {
-                progress?.Report("Resize For Display: 800, 82");
+        public static FileInfo ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
+            IProgress<string> progress)
+        {
+            var displayWidth = DisplayPictureWidth(fileToProcess, progress);
 
-                return ResizeWithForDisplayFileName(fileToProcess, 400, 82, overwriteExistingFile, progress);
-            }
+            progress?.Report($"Resize For Display: {displayWidth}, 82");
 
-            return ResizeWithForDisplayFileName(fileToProcess, originalWidth, 82, overwriteExistingFile, progress);
+            return ResizeWithForDisplayFileName(fileToProcess, displayWidth, 82, overwriteExistingFile, progress);
         }
 
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(PhotoContent dbEntry,

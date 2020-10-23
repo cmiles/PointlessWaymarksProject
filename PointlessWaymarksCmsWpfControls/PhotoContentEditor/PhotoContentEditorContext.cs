@@ -53,11 +53,12 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
         private StringDataEntryContext _photoCreatedByEntry;
         private ConversionDataEntryContext<DateTime> _photoCreatedOnEntry;
         private Command _renameSelectedFileCommand;
+        private bool _resizeSelectedFile;
         private Command _rotatePhotoLeftCommand;
         private Command _rotatePhotoRightCommand;
         private Command _saveAndCloseCommand;
+        private Command _saveAndReprocessPhotoCommand;
         private Command _saveCommand;
-        private Command _saveUpdateDatabaseCommand;
         private FileInfo _selectedFile;
         private BitmapSource _selectedFileBitmapSource;
         private bool _selectedFileHasPathOrNameChanges;
@@ -300,6 +301,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public bool ResizeSelectedFile
+        {
+            get => _resizeSelectedFile;
+            set
+            {
+                if (value == _resizeSelectedFile) return;
+                _resizeSelectedFile = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command RotatePhotoLeftCommand
         {
             get => _rotatePhotoLeftCommand;
@@ -333,6 +345,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
+        public Command SaveAndReprocessPhotoCommand
+        {
+            get => _saveAndReprocessPhotoCommand;
+            set
+            {
+                if (Equals(value, _saveAndReprocessPhotoCommand)) return;
+                _saveAndReprocessPhotoCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command SaveCommand
         {
             get => _saveCommand;
@@ -340,17 +363,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             {
                 if (Equals(value, _saveCommand)) return;
                 _saveCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command SaveUpdateDatabaseCommand
-        {
-            get => _saveUpdateDatabaseCommand;
-            set
-            {
-                if (Equals(value, _saveUpdateDatabaseCommand)) return;
-                _saveUpdateDatabaseCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -547,6 +559,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             SelectedFile = newFile;
+            ResizeSelectedFile = true;
 
             StatusContext.Progress($"Photo load - {SelectedFile.FullName} ");
 
@@ -754,6 +767,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
                 FileHelpers.PhotoFileTypeIsSupported(_initialPhoto))
             {
                 SelectedFile = _initialPhoto;
+                ResizeSelectedFile = true;
                 _initialPhoto = null;
                 var (generationReturn, metadataReturn) =
                     await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
@@ -814,6 +828,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             var rotate = new MagicScalerImageResizer();
 
             rotate.Rotate(SelectedFile, rotationType);
+            ResizeSelectedFile = true;
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
         }
@@ -894,12 +909,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             ChooseFileAndFillMetadataCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(true));
             ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile(false));
-            SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
-            SaveAndCloseCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, true));
+            SaveCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges));
+            SaveAndReprocessPhotoCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges, true));
             ViewPhotoMetadataCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext));
-            SaveUpdateDatabaseCommand = StatusContext.RunBlockingTaskCommand(SaveToDbWithValidation);
             ViewSelectedFileCommand = StatusContext.RunNonBlockingTaskCommand(ViewSelectedFile);
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             RenameSelectedFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
