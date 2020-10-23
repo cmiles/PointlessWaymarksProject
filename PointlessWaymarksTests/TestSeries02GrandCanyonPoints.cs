@@ -161,7 +161,7 @@ namespace PointlessWaymarksTests
 
             var currentGenerationCount = db.GenerationLogs.Count();
 
-            await GenerationGroups.GenerateAllHtml(DebugTrackers.DebugProgressTracker());
+            await HtmlGenerationGroups.GenerateAllHtml(DebugTrackers.DebugProgressTracker());
 
             Assert.AreEqual(currentGenerationCount + 1, db.GenerationLogs.Count(),
                 $"Expected {currentGenerationCount + 1} generation logs - found {db.GenerationLogs.Count()}");

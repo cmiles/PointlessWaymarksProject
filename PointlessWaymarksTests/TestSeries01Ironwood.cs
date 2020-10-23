@@ -358,7 +358,7 @@ namespace PointlessWaymarksTests
 
             Assert.True(!db.GenerationLogs.Any(), "Unexpected Content in Generation Logs");
 
-            await GenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+            await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
             Assert.AreEqual(1, db.GenerationLogs.Count(),
                 $"Expected 1 generation log - found {db.GenerationLogs.Count()}");
@@ -438,7 +438,7 @@ namespace PointlessWaymarksTests
 
             var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
-            await GenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+            await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
             currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
@@ -502,7 +502,7 @@ namespace PointlessWaymarksTests
 
             var currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
-            await GenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+            await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
             currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
@@ -541,7 +541,7 @@ namespace PointlessWaymarksTests
 
             currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
-            await GenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+            await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
             currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
@@ -581,7 +581,7 @@ namespace PointlessWaymarksTests
 
             currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
-            await GenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+            await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
 
             currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 

@@ -25,7 +25,7 @@ using PointlessWaymarksCmsData.Json;
 
 namespace PointlessWaymarksCmsData.Html
 {
-    public static class GenerationGroups
+    public static class HtmlGenerationGroups
     {
         public static async Task CleanupGenerationInformation(IProgress<string> progress)
         {

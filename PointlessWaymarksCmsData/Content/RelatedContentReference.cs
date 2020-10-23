@@ -92,7 +92,7 @@ namespace PointlessWaymarksCmsData.Content
             await ExtractAndWriteRelatedContentDbReferences(generationVersion, images, db, progress);
 
             var lines = (await db.LineContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {images.Count} Image Content Entries for Related Content");
+            progress?.Report($"Processing {images.Count} Line Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(generationVersion, lines, db, progress);
 
             var links = await db.LinkContents.Select(x => new {x.ContentId, toCheck = x.Comments + x.Description})

@@ -84,7 +84,7 @@ namespace PointlessWaymarksCmsContentEditor
 
             //Common
             GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker()));
 
             RemoveUnusedFilesFromMediaArchiveCommand =
                 StatusContext.RunBlockingTaskCommand(RemoveUnusedFilesFromMediaArchive);
@@ -93,11 +93,11 @@ namespace PointlessWaymarksCmsContentEditor
                 StatusContext.RunBlockingTaskCommand(RemoveUnusedFoldersAndFilesFromContent);
 
             GenerateIndexCommand = StatusContext.RunBlockingActionCommand(() =>
-                GenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker()));
+                HtmlGenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker()));
 
             //All/Forced Regeneration
             GenerateAllHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllHtml(StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllHtml(StatusContext.ProgressTracker()));
 
             ConfirmOrGenerateAllPhotosImagesFilesCommand =
                 StatusContext.RunBlockingTaskCommand(ConfirmOrGenerateAllPhotosImagesFiles);
@@ -132,41 +132,41 @@ namespace PointlessWaymarksCmsContentEditor
                 await FileManagement.WriteSiteResourcesToGeneratedSite(StatusContext.ProgressTracker()));
 
             GenerateHtmlForAllFileContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllFileHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllFileHtml(null, StatusContext.ProgressTracker()));
 
             GenerateHtmlForAllImageContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllImageHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllImageHtml(null, StatusContext.ProgressTracker()));
 
             GenerateHtmlForAllNoteContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllNoteHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllNoteHtml(null, StatusContext.ProgressTracker()));
 
             GenerateHtmlForAllPhotoContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllPhotoHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllPhotoHtml(null, StatusContext.ProgressTracker()));
 
             GenerateHtmlForAllPostContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllPostHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllPostHtml(null, StatusContext.ProgressTracker()));
 
             GenerateHtmlForAllPointContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllPointHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllPointHtml(null, StatusContext.ProgressTracker()));
 
             GenerateHtmlForAllLineContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllLineHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllLineHtml(null, StatusContext.ProgressTracker()));
 
             GenerateHtmlForAllGeoJsonContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllGeoJsonHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllGeoJsonHtml(null, StatusContext.ProgressTracker()));
 
             //Derived
             GenerateAllListHtmlCommand = StatusContext.RunBlockingActionCommand(() =>
-                GenerationGroups.GenerateAllListHtml(null, StatusContext.ProgressTracker()));
+                HtmlGenerationGroups.GenerateAllListHtml(null, StatusContext.ProgressTracker()));
 
             GenerateAllTagHtmlCommand = StatusContext.RunBlockingActionCommand(() =>
-                GenerationGroups.GenerateAllTagHtml(null, StatusContext.ProgressTracker()));
+                HtmlGenerationGroups.GenerateAllTagHtml(null, StatusContext.ProgressTracker()));
 
             GenerateCameraRollCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateCameraRollHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateCameraRollHtml(null, StatusContext.ProgressTracker()));
 
             GenerateDailyGalleryHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await GenerationGroups.GenerateAllDailyPhotoGalleriesHtml(null, StatusContext.ProgressTracker()));
+                await HtmlGenerationGroups.GenerateAllDailyPhotoGalleriesHtml(null, StatusContext.ProgressTracker()));
 
             //Rebuild
             ImportJsonFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(ImportJsonFromDirectory);

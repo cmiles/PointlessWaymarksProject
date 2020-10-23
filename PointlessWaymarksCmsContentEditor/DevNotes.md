@@ -32,6 +32,7 @@
 
 ## Ideas
  - Amazon Uploader
+ - Should the code record a checksum of media archive files to be able to check if they change on disk rather than thru the program?
  - Look at https://github.com/icsharpcode/AvalonEdit for Markdown editor - maybe look at https://github.com/martinkirsche/AsYouTypeSpellChecker for spell checking
  - Review https://github.com/Softwire/HighlightingTextBox/blob/master/HighlightingTextBox/HighlightingTextBox.cs - is there something useful here?
  - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well - perhaps via Behavior?
@@ -49,6 +50,10 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+10/23/2020
+
+Doing the majority of sync via written file logs vs sync made me think again about how aggressive the code was about regenerating pictures - did a pass thru the code to reduce some of that by doing a better job detecting images in the editor and 
 
 10/21/2020
 
