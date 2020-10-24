@@ -68,23 +68,13 @@ namespace PointlessWaymarksCmsData.Content
         {
             var db = await Db.Context();
 
-            var olderGenerations = db.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
-                .OrderByDescending(x => x.GenerationVersion).Skip(10).Select(x => x.GenerationVersion).ToList();
-
-            if (olderGenerations.Any())
-            {
-                var toRemove = db.GenerationRelatedContents.Where(x => x.GenerationVersion < olderGenerations.Min());
-                db.GenerationRelatedContents.RemoveRange(toRemove);
-                await db.SaveChangesAsync();
-            }
-
             //!!Content Type List!!
             var files = (await db.FileContents.ToListAsync()).Cast<IContentCommon>().ToList();
             progress?.Report($"Processing {files.Count} File Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(generationVersion, files, db, progress);
 
             var geoJson = (await db.GeoJsonContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {files.Count} GeoJson Content Entries for Related Content");
+            progress?.Report($"Processing {geoJson.Count} GeoJson Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(generationVersion, geoJson, db, progress);
 
             var images = (await db.ImageContents.ToListAsync()).Cast<IContentCommon>().ToList();
@@ -92,7 +82,7 @@ namespace PointlessWaymarksCmsData.Content
             await ExtractAndWriteRelatedContentDbReferences(generationVersion, images, db, progress);
 
             var lines = (await db.LineContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {images.Count} Line Content Entries for Related Content");
+            progress?.Report($"Processing {lines.Count} Line Content Entries for Related Content");
             await ExtractAndWriteRelatedContentDbReferences(generationVersion, lines, db, progress);
 
             var links = await db.LinkContents.Select(x => new {x.ContentId, toCheck = x.Comments + x.Description})

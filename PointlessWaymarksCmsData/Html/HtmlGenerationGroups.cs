@@ -33,16 +33,24 @@ namespace PointlessWaymarksCmsData.Html
 
             var db = await Db.Context();
 
-            var olderGenerationLogs =
-                await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).Skip(100).ToListAsync();
+            var generationLogs = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).ToListAsync();
+            var generationLogsToKeep = generationLogs.Take(30).ToList();
+            var generationLogsToDelete = generationLogs.Skip(30).ToList();
 
-            progress?.Report($"Keeping Top 100 Logs, Found {olderGenerationLogs.Count} logs to remove");
+            progress?.Report(
+                $"Keeping Top {generationLogsToKeep.Count} Logs, Found {generationLogsToDelete.Count} logs to remove");
 
-            db.GenerationLogs.RemoveRange(olderGenerationLogs);
+            db.GenerationLogs.RemoveRange(generationLogsToDelete);
 
-            await db.SaveChangesAsync(true);
+            await db.SaveChangesAsync();
+
+
+            //Current Generation Versions for Reference
 
             var currentGenerationVersions = await db.GenerationLogs.Select(x => x.GenerationVersion).ToListAsync();
+
+
+            //Photo Log Cleanup
 
             var olderPhotoGenerationInformationToRemove = await db.GenerationDailyPhotoLogs
                 .Where(x => !currentGenerationVersions.Contains(x.GenerationVersion)).ToListAsync();
@@ -51,16 +59,71 @@ namespace PointlessWaymarksCmsData.Html
 
             db.GenerationDailyPhotoLogs.RemoveRange(olderPhotoGenerationInformationToRemove);
 
+            await db.SaveChangesAsync();
+
+
+            //File Script Cleanup
+
+            var olderScriptGenerations = await db.GenerationFileScriptLogs.OrderByDescending(x => x.WrittenOnVersion)
+                .Skip(30).ToListAsync();
+
+            progress?.Report($"Found {olderScriptGenerations.Count} logs to remove");
+
+            db.GenerationFileScriptLogs.RemoveRange(olderScriptGenerations);
+
+            await db.SaveChangesAsync();
+
+
+            //File Write Logs
+
+            DateTime? oldestDateTimeLog = null;
+
+            if (currentGenerationVersions.Any()) oldestDateTimeLog = currentGenerationVersions.Min();
+
+            if (db.GenerationFileScriptLogs.Any())
+            {
+                var oldestGenerationLog = db.GenerationFileScriptLogs.Min(x => x.WrittenOnVersion);
+                if (oldestDateTimeLog == null || oldestGenerationLog < oldestDateTimeLog)
+                    oldestDateTimeLog = oldestGenerationLog;
+            }
+
+            if (oldestDateTimeLog != null)
+            {
+                var toRemove = await db.GenerationFileWriteLogs.Where(x => x.WrittenOnVersion < oldestDateTimeLog.Value)
+                    .ToListAsync();
+
+                progress?.Report($"Found {toRemove.Count} File Write Logs to remove");
+
+                db.GenerationFileWriteLogs.RemoveRange(toRemove);
+
+                await db.SaveChangesAsync();
+            }
+            else
+            {
+                progress?.Report("Found zero File Write Logs to remove");
+            }
+
+
+            //Related Contents
+            var relatedToRemove = await db.GenerationRelatedContents
+                .Where(x => !currentGenerationVersions.Contains(x.GenerationVersion)).ToListAsync();
+
+            progress?.Report($"Found {relatedToRemove.Count} Related Content Entries to Remove");
+
+            await db.SaveChangesAsync();
+
+
+            //Tag Logs
             var olderTagGenerationInformationToRemove = await db.GenerationTagLogs
                 .Where(x => !currentGenerationVersions.Contains(x.GenerationVersion)).ToListAsync();
 
-            progress?.Report($"Found {olderTagGenerationInformationToRemove.Count} tag generation logs to remove.");
+            progress?.Report($"Found {olderTagGenerationInformationToRemove.Count} tag logs to remove.");
 
             db.GenerationTagLogs.RemoveRange(olderTagGenerationInformationToRemove);
 
-            progress?.Report("Saving Photo and Tag log changes");
-
             await db.SaveChangesAsync(true);
+
+            progress?.Report("Done with Generation Clean Up");
         }
 
         public static async Task GenerateAllDailyPhotoGalleriesHtml(DateTime? generationVersion,
@@ -354,17 +417,15 @@ namespace PointlessWaymarksCmsData.Html
 
             var geoJson = await db.GeoJsonContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
-            progress?.Report($"Found {files.Count} GeoJson Content Entries Changed After {contentAfter}");
+            progress?.Report($"Found {geoJson.Count} GeoJson Content Entries Changed After {contentAfter}");
 
-            var images = await db.ImageContents.Where(x => x.ContentVersion > contentAfter)
-                .Select(x => x.ContentId) //!Cont
+            var images = await db.ImageContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {images.Count} Image Content Entries Changed After {contentAfter}");
 
-            var lines = await db.LineContents.Where(x => x.ContentVersion > contentAfter)
-                .Select(x => x.ContentId) //!Cont
+            var lines = await db.LineContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
-            progress?.Report($"Found {images.Count} Line Content Entries Changed After {contentAfter}");
+            progress?.Report($"Found {lines.Count} Line Content Entries Changed After {contentAfter}");
 
             var links = await db.LinkContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
@@ -440,11 +501,7 @@ namespace PointlessWaymarksCmsData.Html
 
             contentChanges.AddRange(relatedIds.Distinct());
 
-            //TODO: This current regenerates the Main Feed Content in order to make sure all previous/next content links are correct - this
-            //could be improved to just detect changes.
-            var mainFeedContent = (await Db.MainFeedCommonContent()).Select(x => x.ContentId).ToList();
-
-            contentChanges = contentChanges.Concat(mainFeedContent).Distinct().ToList();
+            contentChanges = contentChanges.Distinct().ToList();
 
             progress?.Report($"Adding {relatedIds.Distinct().Count()} Content Ids Generate");
 
@@ -754,7 +811,7 @@ namespace PointlessWaymarksCmsData.Html
             await SetupTagGenerationDbData(generationVersion, progress);
             await SetupDailyPhotoGenerationDbData(generationVersion, progress);
 
-            if (!(await db.GenerationChangedContentIds.AnyAsync()))
+            if (!await db.GenerationChangedContentIds.AnyAsync())
                 progress?.Report("No Changes Detected - ending HTML generation.");
 
             await GenerateChangeFilteredPhotoHtml(generationVersion, progress);
@@ -765,6 +822,8 @@ namespace PointlessWaymarksCmsData.Html
             await GenerateChangeFilteredPointHtml(generationVersion, progress);
             await GenerateChangeFilteredLineHtml(generationVersion, progress);
             await GenerateChangeFilteredGeoJsonHtml(generationVersion, progress);
+
+            await GenerateMainFeedContent(generationVersion, progress);
 
             var hasDirectPhotoChanges = db.PhotoContents.Join(db.GenerationChangedContentIds, o => o.ContentId,
                 i => i.ContentId, (o, i) => o.PhotoCreatedOn).Any();
@@ -996,17 +1055,73 @@ namespace PointlessWaymarksCmsData.Html
             }
         }
 
+        public static async Task GenerateHtmlFromCommonContent(IContentCommon content, DateTime generationVersion,
+            IProgress<string> progress)
+        {
+            //!!Content Type List!!
+            switch (content)
+            {
+                case FileContent file:
+                    FileGenerator.GenerateHtml(file, generationVersion, progress);
+                    break;
+                case ImageContent image:
+                    ImageGenerator.GenerateHtml(image, generationVersion, progress);
+                    break;
+                case NoteContent note:
+                    NoteGenerator.GenerateHtml(note, generationVersion, progress);
+                    break;
+                case PhotoContent photo:
+                    PhotoGenerator.GenerateHtml(photo, generationVersion, progress);
+                    break;
+                case PostContent post:
+                    PostGenerator.GenerateHtml(post, generationVersion, progress);
+                    break;
+                case PointContent point:
+                    var dto = await Db.PointAndPointDetails(point.ContentId);
+                    PointGenerator.GenerateHtml(dto, generationVersion, progress);
+                    break;
+                case PointContentDto pointDto:
+                    PointGenerator.GenerateHtml(pointDto, generationVersion, progress);
+                    break;
+                default:
+                    throw new Exception("The method GenerateHtmlFromCommonContent didn't find a content type match");
+            }
+        }
+
         public static void GenerateIndex(DateTime? generationVersion, IProgress<string> progress)
         {
             var index = new IndexPage {GenerationVersion = generationVersion};
             index.WriteLocalHtml();
         }
 
+        public static async Task GenerateMainFeedContent(DateTime generationVersion, IProgress<string> progress)
+        {
+            //TODO: This current regenerates the Main Feed Content in order to make sure all previous/next content links are correct - this
+            //could be improved to just detect changes.
+            var mainFeedContent = (await Db.MainFeedCommonContent()).ToList();
+
+            progress?.Report($"{mainFeedContent.Count} Main Feed Content Entries to Check");
+
+            if (!mainFeedContent.Any()) return;
+
+            var db = await Db.Context();
+
+            foreach (var loopMains in mainFeedContent)
+            {
+                if (await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == loopMains.ContentId))
+                {
+                    progress?.Report($"Main Feed - {loopMains.Title} already in Changed List");
+                    continue;
+                }
+
+                progress?.Report($"Main Feed - Generating {loopMains.Title}");
+                await GenerateHtmlFromCommonContent(loopMains, generationVersion, progress);
+            }
+        }
+
         public static async Task SetupDailyPhotoGenerationDbData(DateTime currentGenerationVersion,
             IProgress<string> progress)
         {
-            currentGenerationVersion = currentGenerationVersion.TrimDateTimeToSeconds();
-
             var db = await Db.Context();
 
             progress?.Report("Getting list of all Photo Dates and Content");
@@ -1036,8 +1151,6 @@ namespace PointlessWaymarksCmsData.Html
 
         public static async Task SetupTagGenerationDbData(DateTime currentGenerationVersion, IProgress<string> progress)
         {
-            currentGenerationVersion = currentGenerationVersion.TrimDateTimeToSeconds();
-
             var tagData = await Db.TagSlugsAndContentList(true, false, progress);
 
             var db = await Db.Context();

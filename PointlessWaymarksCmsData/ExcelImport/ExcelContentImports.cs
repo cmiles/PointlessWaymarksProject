@@ -544,7 +544,7 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     }
                     case PointContentDto point:
                     {
-                        generationResult = (await PointGenerator.SaveAndGenerateHtml(point, progress)).generationReturn;
+                        generationResult = (await PointGenerator.SaveAndGenerateHtml(point, null, progress)).generationReturn;
                         break;
                     }
                     case PostContent post:

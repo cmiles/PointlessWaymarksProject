@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-842" />
+    <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="ClosedXML" Version="0.95.3" />
     <PackageReference Include="CompareNETObjects" Version="4.67.0" />

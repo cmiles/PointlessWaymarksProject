@@ -10,17 +10,17 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class PointGenerator
     {
-        public static void GenerateHtml(PointContentDto toGenerate, IProgress<string> progress)
+        public static void GenerateHtml(PointContentDto toGenerate, DateTime? generationVersion, IProgress<string> progress)
         {
             progress?.Report($"Point Content - Generate HTML for {toGenerate.Title}");
 
-            var htmlContext = new SinglePointPage(toGenerate);
+            var htmlContext = new SinglePointPage(toGenerate) {GenerationVersion = generationVersion};
 
             htmlContext.WriteLocalHtml();
         }
 
         public static async Task<(GenerationReturn generationReturn, PointContentDto pointContent)> SaveAndGenerateHtml(
-            PointContentDto toSave, IProgress<string> progress)
+            PointContentDto toSave, DateTime? generationVersion, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave);
 
@@ -30,7 +30,7 @@ namespace PointlessWaymarksCmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             var savedPoint = await Db.SavePointContent(toSave);
-            GenerateHtml(savedPoint, progress);
+            GenerateHtml(savedPoint, generationVersion, progress);
             await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint).content);
 
             DataNotifications.PublishDataNotification("Point Generator", DataNotificationContentType.Point,

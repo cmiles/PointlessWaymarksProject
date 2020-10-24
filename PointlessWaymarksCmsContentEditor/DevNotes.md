@@ -1,6 +1,6 @@
 ﻿## Todos
- - The changed HTML generation seems slightly off at least in regards to tags - need to recheck the process and the data, especially tags?
- - Look again about what is included in the RSS Feed, I think there needs to be an limit on included content (the current photo rss on PointlessWaymarks as an example, too long I think) - also review sorting?
+ - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
+ - Look again and Main Feed/Before/After for content - currently the entire main feed is regenerated - could this be done selectively and/or does other content need before/after help?
  - Could Tag List javascript be abstracted to site resources easily?
  - Better loading indication on the search lists
  - Continue GUI Context tests in new series
@@ -53,7 +53,9 @@
 
 10/23/2020
 
-Doing the majority of sync via written file logs vs sync made me think again about how aggressive the code was about regenerating pictures - did a pass thru the code to reduce some of that by doing a better job detecting images in the editor and 
+Doing the majority of sync via written file logs vs sync made me think again about how aggressive the code was about regenerating pictures - did a pass thru the code to reduce some of that by doing a better job detecting image changes in the editor and reduced some writes.
+
+Fixed some small issues in the Changed HTML generation - the Tag generation remains on the todo but I have more confidence that other parts of the process are reasonable now. The most interesting detail was that atm I don't have any code to look at and only generate 'changes' to the Main Feed (Main Feed entries have a before) so to get the main feed regenerated I added it into the changes but that was triggering other content generations - pulled it out into a method that does just the Main Feed content if not in the changed list.
 
 10/21/2020
 

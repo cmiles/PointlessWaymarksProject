@@ -520,7 +520,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var (generationReturn, newContent) = await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContentDto(), StatusContext.ProgressTracker());
+            var (generationReturn, newContent) = await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContentDto(), null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {
