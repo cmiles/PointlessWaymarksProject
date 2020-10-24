@@ -1,4 +1,9 @@
 ﻿## Todos
+ - Bad Content Code Scan
+  - Use returns from Html Generation to leave message for user (in window or new window to help leaving it up and tracking changes?)
+  - Add a diag button to Scan all content in the Main Window
+  - Do at least a manual test...
+ - Tag and camera detail margins
  - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
  - Look again and Main Feed/Before/After for content - currently the entire main feed is regenerated - could this be done selectively and/or does other content need before/after help?
  - Could Tag List javascript be abstracted to site resources easily?
@@ -15,8 +20,6 @@
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - A bad content code should be handled better
- - Bad Content Code Content Scan
- - To Excel for logs
  - Could the body and update content control vertical and horizontal variations be combined into one control each?
  - Deleted Content Report so it is possible to restore completely deleted
  - In Search it might be nice to have the content type on the line with date?

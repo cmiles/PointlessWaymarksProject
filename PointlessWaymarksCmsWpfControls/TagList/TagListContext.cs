@@ -207,26 +207,17 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
         private string ContentTypeString(dynamic content)
         {
-            switch (content)
+            var contentTypeString = Db.ContentTypeString(content);
+
+            if (contentTypeString == string.Empty)
             {
-                case FileContent:
-                    return "File";
-                case ImageContent:
-                    return "Image";
-                case NoteContent:
-                    return "Note";
-                case PhotoContent:
-                    return "Photo";
-                case PostContent:
-                    return "Post";
-                case LinkContent:
-                    return "Link";
-                default:
-                    StatusContext.ToastError("Unknown Content Type - Unusual Error...");
-                    EventLogContext.TryWriteExceptionToLogBlocking(
-                        new DataException("The Content Object was of Unknown Type"), "TagListContent Load", "");
-                    return "Unknown";
+                StatusContext.ToastError("Unknown Content Type - Unusual Error...");
+                EventLogContext.TryWriteExceptionToLogBlocking(
+                    new DataException("The Content Object was of Unknown Type"), "TagListContent Load", "");
+                return "Unknown";
             }
+
+            return contentTypeString;
         }
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)

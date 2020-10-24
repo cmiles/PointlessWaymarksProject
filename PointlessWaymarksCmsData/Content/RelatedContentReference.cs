@@ -20,6 +20,8 @@ namespace PointlessWaymarksCmsData.Content
                 await ExtractAndWriteRelatedContentDbReferences(generationVersion, loopContent, db, progress);
         }
 
+
+
         public static async Task ExtractAndWriteRelatedContentDbReferences(DateTime generationVersion,
             IContentCommon content, PointlessWaymarksContext db, IProgress<string> progress)
         {

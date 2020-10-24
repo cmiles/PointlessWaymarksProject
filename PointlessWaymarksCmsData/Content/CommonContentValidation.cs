@@ -7,11 +7,145 @@ using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
+using PointlessWaymarksCmsData.Html.CommonHtml;
 
 namespace PointlessWaymarksCmsData.Content
 {
     public static class CommonContentValidation
     {
+        public static async Task<List<GenerationReturn>> CheckAllContentForBadContentReferences(
+            IProgress<string> progress)
+        {
+            var returnList = new List<GenerationReturn>();
+
+            var db = await Db.Context();
+
+            returnList.AddRange(await CheckForBadContentReferences(
+                (await db.FileContents.ToListAsync()).Cast<IContentCommon>().ToList(), db, progress));
+            returnList.AddRange(await CheckForBadContentReferences(
+                (await db.GeoJsonContents.ToListAsync()).Cast<IContentCommon>().ToList(), db, progress));
+            returnList.AddRange(await CheckForBadContentReferences(
+                (await db.ImageContents.ToListAsync()).Cast<IContentCommon>().ToList(), db, progress));
+            returnList.AddRange(await CheckForBadContentReferences(
+                (await db.LineContents.ToListAsync()).Cast<IContentCommon>().ToList(), db, progress));
+            returnList.AddRange(await CheckForBadContentReferences(
+                (await db.NoteContents.ToListAsync()).Cast<IContentCommon>().ToList(), db, progress));
+            returnList.AddRange(await CheckForBadContentReferences(
+                (await db.PhotoContents.ToListAsync()).Cast<IContentCommon>().ToList(), db, progress));
+            returnList.AddRange(await CheckForBadContentReferences(
+                (await db.PointContents.ToListAsync()).Cast<IContentCommon>().ToList(), db, progress));
+            returnList.AddRange(await CheckForBadContentReferences(
+                (await db.PostContents.ToListAsync()).Cast<IContentCommon>().ToList(), db, progress));
+
+            return returnList;
+        }
+
+        public static async Task<List<GenerationReturn>> CheckForBadContentReferences(List<IContentCommon> content,
+            PointlessWaymarksContext db, IProgress<string> progress)
+        {
+            var returnList = new List<GenerationReturn>();
+
+            if (content == null || !content.Any()) return returnList;
+
+            foreach (var loopContent in content)
+                returnList.Add(await CheckForBadContentReferences(loopContent, db, progress));
+
+            return returnList;
+        }
+
+        public static async Task<GenerationReturn> CheckForBadContentReferences(IContentCommon content,
+            PointlessWaymarksContext db, IProgress<string> progress)
+        {
+            progress?.Report($"Checking ContentIds for {content.Title}");
+
+            var extracted = new List<Guid>();
+
+            if (content.MainPicture != null && content.MainPicture != content.ContentId)
+                extracted.Add(content.MainPicture.Value);
+
+            var toSearch = string.Empty;
+
+            toSearch += content.BodyContent + content.Summary;
+
+            if (content is IUpdateNotes updateContent) toSearch += updateContent.UpdateNotes;
+
+            if (content is PointContentDto pointDto)
+                pointDto.PointDetails.ForEach(x => toSearch += x.StructuredDataAsJson);
+
+            if (content is PointContent point)
+                (await Db.PointDetailsForPoint(point.ContentId, db)).ForEach(x => toSearch += x.StructuredDataAsJson);
+
+            if (string.IsNullOrWhiteSpace(toSearch) && !extracted.Any())
+                return await GenerationReturn.Success(
+                    $"{Db.ContentTypeString(content)} {content.Title} - No Content Ids Found", content.ContentId);
+
+            extracted.AddRange(BracketCodeCommon.BracketCodeContentIds(toSearch));
+
+            if (!extracted.Any())
+                return await GenerationReturn.Success(
+                    $"{Db.ContentTypeString(content)} {content.Title} - No Content Ids Found", content.ContentId);
+
+            progress?.Report($"Found {extracted.Count} ContentIds to check for {content.Title}");
+
+            var notFoundList = new List<Guid>();
+
+            foreach (var loopExtracted in extracted)
+            {
+                var contentLookup = await db.ContentFromContentId(loopExtracted);
+
+                if (contentLookup == null)
+                {
+                    progress?.Report($"ContentId {loopExtracted} Not Found in Db...");
+                    notFoundList.Add(loopExtracted);
+                }
+            }
+
+            if (content is PointContent)
+
+                if (notFoundList.Any())
+                    return await GenerationReturn.Error(
+                        $"{Db.ContentTypeString(content)} {content.Title} has " +
+                        $"Invalid ContentIds in Bracket Codes - {string.Join(", ", notFoundList)}", content.ContentId);
+
+            return await GenerationReturn.Success(
+                $"{Db.ContentTypeString(content)} {content.Title} - No Invalid Content Ids Found");
+        }
+
+        public static async Task<GenerationReturn> CheckStringForBadContentReferences(string toSearch,
+            PointlessWaymarksContext db, IProgress<string> progress)
+        {
+            var extracted = new List<Guid>();
+
+            if (string.IsNullOrWhiteSpace(toSearch))
+                return await GenerationReturn.Success("No Content Ids Found");
+
+            extracted.AddRange(BracketCodeCommon.BracketCodeContentIds(toSearch));
+
+            if (!extracted.Any())
+                return await GenerationReturn.Success("No Content Ids Found");
+
+            progress?.Report($"Found {extracted.Count} ContentIds to check for");
+
+            var notFoundList = new List<Guid>();
+
+            foreach (var loopExtracted in extracted)
+            {
+                var contentLookup = await db.ContentFromContentId(loopExtracted);
+
+                if (contentLookup == null)
+                {
+                    progress?.Report($"ContentId {loopExtracted} Not Found in Db...");
+                    notFoundList.Add(loopExtracted);
+                }
+            }
+
+            if (notFoundList.Any())
+                return await GenerationReturn.Error(
+                    $"Invalid ContentIds in Bracket Codes - {string.Join(", ", notFoundList)}");
+
+            return await GenerationReturn.Success("No Invalid Content Ids Found");
+        }
+
         public static (bool isValid, string explanation) ElevationValidation(double? elevation)
         {
             if (elevation == null) return (true, "Null Elevation is Valid");
@@ -26,6 +160,7 @@ namespace PointlessWaymarksCmsData.Content
 
             return (true, "Elevation is Valid");
         }
+
 
         public static async Task<(bool isValid, string explanation)> FileContentFileValidation(FileInfo fileContentFile,
             Guid? currentContentId)
@@ -183,6 +318,14 @@ namespace PointlessWaymarksCmsData.Content
             {
                 isValid = false;
                 errorMessage.Add(bodyContentFormatValidation.explanation);
+            }
+
+            var contentIdCheck = await CheckForBadContentReferences(toValidate, await Db.Context(), null);
+
+            if (contentIdCheck.HasError)
+            {
+                isValid = false;
+                errorMessage.Add(contentIdCheck.GenerationNote);
             }
 
             return (isValid, string.Join(Environment.NewLine, errorMessage));

@@ -180,7 +180,7 @@ namespace PointlessWaymarksCmsData.Html
             }
         }
 
-        public static async Task GenerateAllHtml(IProgress<string> progress)
+        public static async Task<List<GenerationReturn>> GenerateAllHtml(IProgress<string> progress)
         {
             await CleanupGenerationInformation(progress);
 
@@ -220,6 +220,8 @@ namespace PointlessWaymarksCmsData.Html
             };
             await db.GenerationLogs.AddAsync(dbGenerationRecord);
             await db.SaveChangesAsync(true);
+
+            return await CommonContentValidation.CheckAllContentForBadContentReferences(progress);
         }
 
 
@@ -745,7 +747,7 @@ namespace PointlessWaymarksCmsData.Html
             }
         }
 
-        public static async Task GenerateChangedToHtml(IProgress<string> progress)
+        public static async Task<List<GenerationReturn>> GenerateChangedToHtml(IProgress<string> progress)
         {
             await CleanupGenerationInformation(progress);
 
@@ -761,8 +763,7 @@ namespace PointlessWaymarksCmsData.Html
             {
                 progress?.Report("No value for Last Generation in Settings - Generating All HTML");
 
-                await GenerateAllHtml(progress);
-                return;
+                return await GenerateAllHtml(progress);
             }
 
             progress?.Report($"Last Generation - {lastGenerationValues.GenerationVersion}");
@@ -775,8 +776,7 @@ namespace PointlessWaymarksCmsData.Html
             {
                 progress?.Report("Menu Updates detected - menu updates impact all pages, generating All HTML");
 
-                await GenerateAllHtml(progress);
-                return;
+                return await GenerateAllHtml(progress);
             }
 
             //If the generation settings have changed trigger a full rebuild
@@ -797,8 +797,7 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report(
                     $"Generation Settings Changes detected - generating All HTML: {Environment.NewLine}{generationSettingsComparisonDifferences}");
 
-                await GenerateAllHtml(progress);
-                return;
+                return await GenerateAllHtml(progress);
             }
 
             progress?.Report("Write Site Resources");
@@ -858,6 +857,12 @@ namespace PointlessWaymarksCmsData.Html
             };
             await db.GenerationLogs.AddAsync(dbGenerationRecord);
             await db.SaveChangesAsync(true);
+
+            var allChangedContent =
+                (await db.ContentFromContentIds(await db.GenerationChangedContentIds.Select(x => x.ContentId)
+                    .ToListAsync())).Cast<IContentCommon>().ToList();
+
+            return await CommonContentValidation.CheckForBadContentReferences(allChangedContent, db, progress);
         }
 
         public static async Task GenerateChangeFilteredFileHtml(DateTime generationVersion, IProgress<string> progress)

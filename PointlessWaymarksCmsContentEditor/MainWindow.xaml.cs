@@ -119,14 +119,6 @@ namespace PointlessWaymarksCmsContentEditor
             AllEventsHtmlReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsHtmlReport);
             AllEventsExcelReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsExcelReport);
 
-            //Experimental
-            WvTwoExperimentCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            {
-                await ThreadSwitcher.ResumeForegroundAsync();
-                var nw = new WebViewTwoScratchWindow();
-                nw.Show();
-            });
-
             //Main Parts
             GenerateSiteResourcesCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await FileManagement.WriteSiteResourcesToGeneratedSite(StatusContext.ProgressTracker()));

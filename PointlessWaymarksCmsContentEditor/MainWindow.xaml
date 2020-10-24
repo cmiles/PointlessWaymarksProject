@@ -168,12 +168,6 @@
                                     Command="{Binding AllEventsExcelReportCommand}">
                                     All Events Excel Report
                                 </Button>
-                                <Button
-                                    Grid.Row="2"
-                                    Grid.Column="0"
-                                    Command="{Binding WvTwoExperimentCommand}">
-                                    WV2
-                                </Button>
                             </Grid>
                         </StackPanel>
                     </GroupBox>

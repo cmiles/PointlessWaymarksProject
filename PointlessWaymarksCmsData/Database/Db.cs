@@ -17,9 +17,17 @@ namespace PointlessWaymarksCmsData.Database
 {
     public static class Db
     {
+        /// <summary>
+        /// Returns a ContentCommonShell based on the ContentId - all content that types are included but because of the
+        /// transformation to a concrete ContentCommonShell not all data will be available.
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="contentId"></param>
+        /// <returns></returns>
         public static async Task<ContentCommonShell> ContentCommonShellFromContentId(this PointlessWaymarksContext db,
             Guid contentId)
         {
+            //!Content Type List!!
             var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possibleFile != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleFile);
 
@@ -36,21 +44,43 @@ namespace PointlessWaymarksCmsData.Database
             var possibleLink = await db.LinkContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possibleLink != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleLink);
 
+            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if(possibleNote != null) return (ContentCommonShell)new ContentCommonShell().InjectFrom(possibleNote);
+
             var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePhoto != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePhoto);
+
+            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePoint != null) return (ContentCommonShell)new ContentCommonShell().InjectFrom(possiblePoint);
 
             var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePost != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePost);
 
-            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
-            if (possiblePoint != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePoint);
+            return null;
+        }
 
-            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
-            return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleNote);
+        public static string ContentTypeString(dynamic content)
+        {
+            //!!Content Type List!!
+            return content switch
+            {
+                FileContent => "File",
+                GeoJsonContent => "GeoJson",
+                ImageContent => "Image",
+                LineContent => "Line",
+                LinkContent => "Link",
+                NoteContent => "Note",
+                PhotoContent => "Photo",
+                PostContent => "Post",
+                PointContent => "Point",
+                PointContentDto => "Point",
+                _ => string.Empty
+            };
         }
 
         public static async Task<dynamic> ContentFromContentId(this PointlessWaymarksContext db, Guid contentId)
         {
+            //!!Content Type List!!
             var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possibleFile != null) return possibleFile;
 
@@ -66,17 +96,19 @@ namespace PointlessWaymarksCmsData.Database
             var possibleLink = await db.LinkContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possibleLink != null) return possibleLink;
 
+            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if(possibleNote != null) return possibleNote;
+
             var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePhoto != null) return possiblePhoto;
-
-            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
-            if (possiblePost != null) return possiblePost;
 
             var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePoint != null) return await PointAndPointDetails(contentId, db);
 
-            var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
-            return possibleNote;
+            var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
+            if (possiblePost != null) return possiblePost;
+
+            return null;
         }
 
         public static async Task<List<dynamic>> ContentFromContentIds(this PointlessWaymarksContext db,
