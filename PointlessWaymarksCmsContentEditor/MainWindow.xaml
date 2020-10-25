@@ -100,6 +100,9 @@
                             <Button Margin="12" Command="{Binding RemoveUnusedFilesFromMediaArchiveCommand}">
                                 Remove Unused Files From Media Archive
                             </Button>
+                            <Button Margin="12" Command="{Binding CheckAllContentForInvalidBracketCodeContentIdsCommand}">
+                                Check Content for Invalid Ids in Bracket Codes
+                            </Button>
                             <Button Margin="12" Command="{Binding GenerateIndexCommand}">Generate Index</Button>
                         </StackPanel>
                     </GroupBox>

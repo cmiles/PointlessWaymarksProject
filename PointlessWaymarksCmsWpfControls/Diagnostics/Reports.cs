@@ -1,6 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using HtmlTableHelper;
+using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -90,6 +94,28 @@ namespace PointlessWaymarksCmsWpfControls.Diagnostics
             var reportWindow =
                 new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Exception Events Report", string.Empty));
             reportWindow.Show();
+        }
+
+        public static async Task GenerationListHtmlReport(List<GenerationReturn> generationReturns, string title,
+            string intro)
+        {
+            var bodyBuilder = new StringBuilder();
+            bodyBuilder.AppendLine($"<p>{HttpUtility.HtmlEncode(intro)}</p>");
+            bodyBuilder.AppendLine(generationReturns.ToHtmlTable(new {@class = "pure-table pure-table-striped"}));
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var reportWindow =
+                new HtmlViewerWindow(bodyBuilder.ToString().ToHtmlDocumentWithPureCss(title, string.Empty));
+            reportWindow.Show();
+        }
+
+        public static async Task InvalidBracketCodeContentIdsHtmlReport(List<GenerationReturn> generationReturns)
+        {
+            await GenerationListHtmlReport(generationReturns.Where(x => x.HasError).ToList(),
+                    "Bracket Codes with Invalid Content Ids",
+                    "The content listed below contains one or more bracket codes where the ContentId is not valid. This can happen when deleting content and can be particularly unexpected when deleting and re-creating content...")
+                .ConfigureAwait(false);
         }
     }
 }

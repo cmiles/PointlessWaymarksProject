@@ -1,7 +1,5 @@
 ﻿## Todos
  - Bad Content Code Scan
-  - Use returns from Html Generation to leave message for user (in window or new window to help leaving it up and tracking changes?)
-  - Add a diag button to Scan all content in the Main Window
   - Do at least a manual test...
  - Tag and camera detail margins
  - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
@@ -16,7 +14,7 @@
    - in Update Notes
  - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
  - Track tags in db so changes can be more quickly detected (long generation time on PointlessWaymarks.com after adding all photos)
- - Integrate Xaml Styler - is the git hook working?
+ - Integrate Xaml Styler - is the git hook working? I don't think it is...
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
  - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
  - A bad content code should be handled better

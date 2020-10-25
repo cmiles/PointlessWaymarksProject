@@ -35,7 +35,6 @@ using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
 using PointlessWaymarksCmsWpfControls.TagList;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
-using PointlessWaymarksCmsWpfControls.WebViewTwoScratch;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsContentEditor
@@ -83,8 +82,7 @@ namespace PointlessWaymarksCmsContentEditor
             StatusContext = new StatusControlContext();
 
             //Common
-            GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker()));
+            GenerateChangedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateChangedHtml);
 
             RemoveUnusedFilesFromMediaArchiveCommand =
                 StatusContext.RunBlockingTaskCommand(RemoveUnusedFilesFromMediaArchive);
@@ -95,9 +93,11 @@ namespace PointlessWaymarksCmsContentEditor
             GenerateIndexCommand = StatusContext.RunBlockingActionCommand(() =>
                 HtmlGenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker()));
 
+            CheckAllContentForInvalidBracketCodeContentIdsCommand =
+                StatusContext.RunBlockingTaskCommand(CheckAllContentForInvalidBracketCodeContentIds);
+
             //All/Forced Regeneration
-            GenerateAllHtmlCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await HtmlGenerationGroups.GenerateAllHtml(StatusContext.ProgressTracker()));
+            GenerateAllHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateAllHtml);
 
             ConfirmOrGenerateAllPhotosImagesFilesCommand =
                 StatusContext.RunBlockingTaskCommand(ConfirmOrGenerateAllPhotosImagesFiles);
@@ -163,7 +163,6 @@ namespace PointlessWaymarksCmsContentEditor
             //Rebuild
             ImportJsonFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(ImportJsonFromDirectory);
 
-
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
 
             SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
@@ -174,6 +173,8 @@ namespace PointlessWaymarksCmsContentEditor
         public Command AllEventsExcelReportCommand { get; set; }
 
         public Command AllEventsHtmlReportCommand { get; set; }
+
+        public Command CheckAllContentForInvalidBracketCodeContentIdsCommand { get; set; }
 
         public Command ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }
 
@@ -443,6 +444,22 @@ namespace PointlessWaymarksCmsContentEditor
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private async Task CheckAllContentForInvalidBracketCodeContentIds()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var generationResults =
+                await CommonContentValidation.CheckAllContentForBadContentReferences(StatusContext.ProgressTracker());
+
+            if (generationResults.All(x => !x.HasError))
+            {
+                StatusContext.ToastSuccess("No problems with Bracket Code Content Ids Found!");
+                return;
+            }
+
+            await Reports.InvalidBracketCodeContentIdsHtmlReport(generationResults);
+        }
+
         private async Task CleanAndResizeAllImageFiles()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -605,6 +622,26 @@ namespace PointlessWaymarksCmsContentEditor
             await ConfirmAllFileContent();
 
             StatusContext.ToastSuccess("All HTML Generation Finished");
+        }
+
+        private async Task GenerateAllHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            var generationResults = await HtmlGenerationGroups.GenerateAllHtml(StatusContext.ProgressTracker());
+
+            if (generationResults.All(x => !x.HasError)) return;
+
+            await Reports.InvalidBracketCodeContentIdsHtmlReport(generationResults);
+        }
+
+        private async Task GenerateChangedHtml()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            var generationResults = await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+
+            if (generationResults.All(x => !x.HasError)) return;
+
+            await Reports.InvalidBracketCodeContentIdsHtmlReport(generationResults);
         }
 
 
