@@ -43,6 +43,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private string _lastSortColumn = "CreatedOn";
         private Command<PhotoContent> _lensSearchCommand;
         private PhotoListLoadMode _loadMode = PhotoListLoadMode.Recent;
+        private Command<PhotoContent> _photoTakenOnSearchCommand;
         private Func<Task<List<PhotoContent>>> _reportGenerator;
         private List<PhotoListListItem> _selectedItems;
         private Command<PhotoContent> _shutterSpeedSearchCommand;
@@ -76,6 +77,10 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 await RunReport(async () => await IsoSearch(x), $"Iso - {x.Iso}"));
             ShutterSpeedSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await ShutterSpeedSearch(x), $"Shutter Speed - {x.ShutterSpeed}"));
+            PhotoTakenOnSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
+                await RunReport(async () => await PhotoTakenOnSearch(x),
+                    $"Photo Created On - {x.PhotoCreatedOn.Date:D}"));
+
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -207,6 +212,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (value == _loadMode) return;
                 _loadMode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<PhotoContent> PhotoTakenOnSearchCommand
+        {
+            get => _photoTakenOnSearchCommand;
+            set
+            {
+                if (Equals(value, _photoTakenOnSearchCommand)) return;
+                _photoTakenOnSearchCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -395,10 +411,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                 {
                     await ThreadSwitcher.ResumeForegroundAsync();
 
-                    foreach (var loopDelete in existingItems.Skip(1).ToList())
-                    {
-                        Items.Remove(loopDelete);
-                    }
+                    foreach (var loopDelete in existingItems.Skip(1).ToList()) Items.Remove(loopDelete);
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
                 }
@@ -594,6 +607,21 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task<List<PhotoContent>> PhotoTakenOnSearch(PhotoContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            //Todo: I think this should be possible via something like DbFunctions or EF functions?
+            //I didn't understand what approach to take from a few google searches...
+            var dateTimeAfter = content.PhotoCreatedOn.Date.AddDays(-1);
+            var dateTimeBefore = content.PhotoCreatedOn.Date.AddDays(1);
+
+            return await db.PhotoContents
+                .Where(x => x.PhotoCreatedOn > dateTimeAfter && x.PhotoCreatedOn < dateTimeBefore).ToListAsync();
         }
 
 

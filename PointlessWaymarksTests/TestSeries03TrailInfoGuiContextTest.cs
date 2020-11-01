@@ -65,10 +65,33 @@ namespace PointlessWaymarksTests
             var newFileContext = await FileContentEditorContext.CreateInstance(null, testFileInOriginalLocation);
 
             //Blank Title is the only validation issue
+
+            //Initial State is blank and invalid
             Assert.IsTrue(newFileContext.TitleSummarySlugFolder.TitleEntry.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.TitleEntry.HasChanges);
+
+            //Spaces detected as blank
+            newFileContext.TitleSummarySlugFolder.TitleEntry.UserValue = "             ";
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.TitleEntry.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.TitleEntry.HasChanges);
+
+            //Null detected as blank
+            newFileContext.TitleSummarySlugFolder.TitleEntry.UserValue = null;
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.TitleEntry.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.TitleEntry.HasChanges);
+
+            //Empty String detected as blank
+            newFileContext.TitleSummarySlugFolder.TitleEntry.UserValue = string.Empty;
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.TitleEntry.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.TitleEntry.HasChanges);
+
+            //Valid Title
             newFileContext.TitleSummarySlugFolder.TitleEntry.UserValue = TestFileInfo.GrandviewContent01.Title;
             Assert.IsFalse(newFileContext.TitleSummarySlugFolder.TitleEntry.HasValidationIssues);
             Assert.IsTrue(newFileContext.TitleSummarySlugFolder.TitleEntry.HasChanges);
+
+
+
 
             //Slug Tests
             Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SlugEntry.HasValidationIssues);
@@ -113,15 +136,12 @@ namespace PointlessWaymarksTests
             newFileContext.TitleSummarySlugFolder.SlugEntry.UserValue = $"{new string('-', 101)}";
             Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SlugEntry.HasValidationIssues);
 
+            //Valid Slug Entry
             newFileContext.TitleSummarySlugFolder.SlugEntry.UserValue = TestFileInfo.GrandviewContent01.Slug;
             Assert.IsFalse(newFileContext.TitleSummarySlugFolder.SlugEntry.HasValidationIssues);
             Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SlugEntry.HasChanges);
 
-            //Blank Summary is the only validation issue
-            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasValidationIssues);
-            newFileContext.TitleSummarySlugFolder.SummaryEntry.UserValue = TestFileInfo.GrandviewContent01.Summary;
-            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasValidationIssues);
-            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasChanges);
+
 
 
             //Folder Tests
@@ -129,6 +149,7 @@ namespace PointlessWaymarksTests
 
             newFileContext.TitleSummarySlugFolder.FolderEntry.UserValue = TestFileInfo.GrandviewContent01.Folder;
             Assert.IsFalse(newFileContext.TitleSummarySlugFolder.FolderEntry.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.FolderEntry.HasChanges);
 
             //Upper Case permitted
             newFileContext.TitleSummarySlugFolder.FolderEntry.UserValue =
@@ -159,10 +180,57 @@ namespace PointlessWaymarksTests
             newFileContext.TitleSummarySlugFolder.FolderEntry.UserValue = TestFileInfo.GrandviewContent01.Slug;
             Assert.IsFalse(newFileContext.TitleSummarySlugFolder.FolderEntry.HasValidationIssues);
 
-            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.HasValidationIssues);
-            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.HasChanges);
+            //Valid Entry for Folder
+            newFileContext.TitleSummarySlugFolder.FolderEntry.UserValue = TestFileInfo.GrandviewContent01.Folder;
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.FolderEntry.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.FolderEntry.HasChanges);
 
 
+
+
+            //Summary Tests
+
+            //Blank is not valid and is starting condition
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasChanges);
+
+            //Valid Entry
+            newFileContext.TitleSummarySlugFolder.SummaryEntry.UserValue = "Simple Summary";
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasChanges);
+
+            //Blank not permitted
+            newFileContext.TitleSummarySlugFolder.SummaryEntry.UserValue = "";
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasChanges);
+
+            //Null not permitted and handled ok
+            newFileContext.TitleSummarySlugFolder.SummaryEntry.UserValue = null;
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasChanges);
+
+            //All spaces detected as blank
+            newFileContext.TitleSummarySlugFolder.SummaryEntry.UserValue = "              ";
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasChanges);
+
+            //Valid Summary
+            newFileContext.TitleSummarySlugFolder.SummaryEntry.UserValue = "Simple Summary";
+            Assert.IsFalse(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SummaryEntry.HasChanges);
+
+
+
+            //Tags
+
+            //Invalid initial blank state
+            Assert.IsTrue(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TagEdit.HasChanges);
+
+            //Single valid tag
+            newFileContext.TagEdit.Tags = "simple test";
+            Assert.IsFalse(newFileContext.HasValidationIssues);
+            Assert.IsTrue(newFileContext.HasChanges);
         }
     }
 }

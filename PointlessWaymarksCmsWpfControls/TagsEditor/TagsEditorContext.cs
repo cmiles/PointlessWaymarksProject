@@ -17,6 +17,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         private ITag _dbEntry;
         private bool _hasChanges;
         private bool _hasValidationIssues;
+        private string _helpText;
         private StatusControlContext _statusContext;
         private string _tags = string.Empty;
         private string _tagsValidationMessage;
@@ -25,6 +26,8 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
             DbEntry = dbEntry;
+            HelpText =
+                "Comma separated tags - only a-z 0-9 _ - [space] are valid, each tag must be less than 200 characters long.";
             Tags = dbEntry?.Tags ?? string.Empty;
             Tags = TagListString();
         }
@@ -58,6 +61,17 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             {
                 if (value == _hasValidationIssues) return;
                 _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string HelpText
+        {
+            get => _helpText;
+            set
+            {
+                if (value == _helpText) return;
+                _helpText = value;
                 OnPropertyChanged();
             }
         }

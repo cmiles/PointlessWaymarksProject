@@ -1,4 +1,5 @@
 ﻿## Todos
+ - Default the file list choice to last script not last event since in all likelyhood you want to go from the last script or you are not 'really' using the scripts and will have to search/change defaults anyway...
  - Bad Content Code Scan
   - Do at least a manual test...
  - Tag and camera detail margins
@@ -51,6 +52,14 @@
  - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+11/1/2020
+
+Added a search in the Photo List to pull up photos from the same date - this came up when looking for older photos where expanding to 'day' was an obvious/useful action after filtering for one of the photos.
+
+Change the default css to have the same styling for tags and photo details.
+
+Fixed missing help text on Tags and Folders.
 
 10/23/2020
 

@@ -322,13 +322,13 @@ a.index-title-content-link:active {
     color: rgb(180, 180, 180);
 }
 
-   
 .photo-details-container {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     align-items: center;
     margin-top: 1rem;
+    color: rgb(180, 180, 180);
     margin-left: 1%;
     margin-right: 1%;
 }
@@ -609,8 +609,8 @@ a.tag-list-link {
     }
 
     .photo-details-container {
-        margin-left: 2vw;
-        margin-right: 2vw;
+        margin-left: 4%;
+        margin-right: 4%;
     }
 
     .daily-photo-gallery-photo-container {
