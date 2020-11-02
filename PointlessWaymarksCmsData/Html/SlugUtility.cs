@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,12 @@ namespace PointlessWaymarksCmsData.Html
             return swap;
         }
 
+        /// <summary>
+        ///     Creates a Slug.
+        /// </summary>
+        /// <param name="toLower"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static string Create(bool toLower, params string[] values)
         {
             return Create(toLower, string.Join("-", values));
@@ -108,7 +115,64 @@ namespace PointlessWaymarksCmsData.Html
             return sb.ToString();
         }
 
-        public static string CreateSpacedString(bool toLower, string value, int maxLength = 100)
+        /// <summary>
+        ///     This is intended for use in the live processing of user input where you want to create slug like strings but to be
+        ///     friendly to typed input (for example so trailing spaces must be allowed to avoid fighting the user) - in general
+        ///     this is not as strict as CreateSpacedString.
+        /// </summary>
+        /// <param name="toLower"></param>
+        /// <param name="value"></param>
+        /// <param name="allowedBeyondAtoZ1To9"></param>
+        /// <returns></returns>
+        public static string CreateRelaxedInputSpacedString(bool toLower, string value,
+            List<char> allowedBeyondAtoZ1To9 = null)
+        {
+            if (value == null)
+                return "";
+
+            allowedBeyondAtoZ1To9 ??= new List<char>();
+
+            var normalized = value.Normalize(NormalizationForm.FormKD);
+
+            var len = normalized.Length;
+            var sb = new StringBuilder(len);
+
+            for (var i = 0; i < len; i++)
+            {
+                var c = normalized[i];
+                if (c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || allowedBeyondAtoZ1To9.Contains(c))
+                {
+                    sb.Append(c);
+                }
+                else if (c >= 'A' && c <= 'Z')
+                {
+                    // Tricky way to convert to lowercase
+                    if (toLower)
+                        sb.Append((char) (c | 32));
+                    else
+                        sb.Append(c);
+                }
+                else
+                {
+                    var swap = ConvertEdgeCases(c, toLower);
+
+                    if (swap != null) sb.Append(swap);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        ///     This method mimics the Create method but is focused on creating a spaced string with the intent that in some cases
+        ///     this may create a format that communicates the same information and intent as the Create Slug method but is easier
+        ///     to read and more user friendly.
+        /// </summary>
+        /// <param name="toLower"></param>
+        /// <param name="value"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
+        public static string CreateSpacedString(bool toLower, string value, int? maxLength = 100)
         {
             if (value == null)
                 return "";
@@ -116,7 +180,7 @@ namespace PointlessWaymarksCmsData.Html
             var normalized = value.Normalize(NormalizationForm.FormKD);
 
             var len = normalized.Length;
-            var prevDash = false;
+            var previousSpace = false;
             var sb = new StringBuilder(len);
 
             for (var i = 0; i < len; i++)
@@ -124,20 +188,20 @@ namespace PointlessWaymarksCmsData.Html
                 var c = normalized[i];
                 if (c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_' || c == '-')
                 {
-                    if (prevDash)
+                    if (previousSpace)
                     {
                         sb.Append(' ');
-                        prevDash = false;
+                        previousSpace = false;
                     }
 
                     sb.Append(c);
                 }
                 else if (c >= 'A' && c <= 'Z')
                 {
-                    if (prevDash)
+                    if (previousSpace)
                     {
                         sb.Append(' ');
-                        prevDash = false;
+                        previousSpace = false;
                     }
 
                     // Tricky way to convert to lowercase
@@ -148,7 +212,7 @@ namespace PointlessWaymarksCmsData.Html
                 }
                 else if (c == ',' || c == '.' || c == '/' || c == '\\' || c == '=' || c == ' ' || c == ';')
                 {
-                    if (!prevDash && sb.Length > 0) prevDash = true;
+                    if (!previousSpace && sb.Length > 0) previousSpace = true;
                 }
                 else
                 {
@@ -156,17 +220,17 @@ namespace PointlessWaymarksCmsData.Html
 
                     if (swap != null)
                     {
-                        if (prevDash)
+                        if (previousSpace)
                         {
                             sb.Append(' ');
-                            prevDash = false;
+                            previousSpace = false;
                         }
 
                         sb.Append(swap);
                     }
                 }
 
-                if (sb.Length == maxLength)
+                if (maxLength != null && sb.Length == maxLength)
                     break;
             }
 

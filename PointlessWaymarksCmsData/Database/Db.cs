@@ -18,8 +18,8 @@ namespace PointlessWaymarksCmsData.Database
     public static class Db
     {
         /// <summary>
-        /// Returns a ContentCommonShell based on the ContentId - all content that types are included but because of the
-        /// transformation to a concrete ContentCommonShell not all data will be available.
+        ///     Returns a ContentCommonShell based on the ContentId - all content that types are included but because of the
+        ///     transformation to a concrete ContentCommonShell not all data will be available.
         /// </summary>
         /// <param name="db"></param>
         /// <param name="contentId"></param>
@@ -45,37 +45,18 @@ namespace PointlessWaymarksCmsData.Database
             if (possibleLink != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleLink);
 
             var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
-            if(possibleNote != null) return (ContentCommonShell)new ContentCommonShell().InjectFrom(possibleNote);
+            if (possibleNote != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possibleNote);
 
             var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePhoto != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePhoto);
 
             var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
-            if (possiblePoint != null) return (ContentCommonShell)new ContentCommonShell().InjectFrom(possiblePoint);
+            if (possiblePoint != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePoint);
 
             var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePost != null) return (ContentCommonShell) new ContentCommonShell().InjectFrom(possiblePost);
 
             return null;
-        }
-
-        public static string ContentTypeString(dynamic content)
-        {
-            //!!Content Type List!!
-            return content switch
-            {
-                FileContent => "File",
-                GeoJsonContent => "GeoJson",
-                ImageContent => "Image",
-                LineContent => "Line",
-                LinkContent => "Link",
-                NoteContent => "Note",
-                PhotoContent => "Photo",
-                PostContent => "Post",
-                PointContent => "Point",
-                PointContentDto => "Point",
-                _ => string.Empty
-            };
         }
 
         public static async Task<dynamic> ContentFromContentId(this PointlessWaymarksContext db, Guid contentId)
@@ -97,7 +78,7 @@ namespace PointlessWaymarksCmsData.Database
             if (possibleLink != null) return possibleLink;
 
             var possibleNote = await db.NoteContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
-            if(possibleNote != null) return possibleNote;
+            if (possibleNote != null) return possibleNote;
 
             var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
             if (possiblePhoto != null) return possiblePhoto;
@@ -129,6 +110,25 @@ namespace PointlessWaymarksCmsData.Database
             returnList.AddRange(db.PostContents.Where(x => contentIds.Contains(x.ContentId)));
 
             return returnList;
+        }
+
+        public static string ContentTypeString(dynamic content)
+        {
+            //!!Content Type List!!
+            return content switch
+            {
+                FileContent => "File",
+                GeoJsonContent => "GeoJson",
+                ImageContent => "Image",
+                LineContent => "Line",
+                LinkContent => "Link",
+                NoteContent => "Note",
+                PhotoContent => "Photo",
+                PostContent => "Post",
+                PointContent => "Point",
+                PointContentDto => "Point",
+                _ => string.Empty
+            };
         }
 
         private static DateTime ContentVersionDateTime()
@@ -591,6 +591,31 @@ namespace PointlessWaymarksCmsData.Database
             return new EventLogContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options);
         }
 
+        public static async Task<List<IContentCommon>> MainFeedCommonContent()
+        {
+            var db = await Context();
+            var fileContent =
+                await db.FileContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>()
+                .ToListAsync();
+            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>()
+                .ToListAsync();
+            var lineContent =
+                await db.LineContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var noteContent =
+                await db.NoteContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>()
+                .ToListAsync();
+            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>()
+                .ToListAsync();
+            var postContent =
+                await db.PostContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
+
+            return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
+                .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.CreatedOn)
+                .ToList();
+        }
+
         public static async Task<List<IContentCommon>> MainFeedCommonContentAfter(DateTime after, int numberOfEntries)
         {
             var db = await Context();
@@ -639,22 +664,6 @@ namespace PointlessWaymarksCmsData.Database
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
                 .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.CreatedOn)
                 .Take(numberOfEntries).ToList();
-        }
-
-        public static async Task<List<IContentCommon>> MainFeedCommonContent()
-        {
-            var db = await Context();
-            var fileContent = await db.FileContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
-            var geoJsonContent = await db.GeoJsonContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
-            var imageContent = await db.ImageContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
-            var lineContent = await db.LineContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
-            var noteContent = await db.NoteContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
-            var photoContent = await db.PhotoContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
-            var pointContent = await db.PointContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
-            var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed).Cast<IContentCommon>().ToListAsync();
-
-            return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-                .Concat(postContent).Concat(photoContent).Concat(pointContent).OrderByDescending(x => x.CreatedOn).ToList();
         }
 
         public static async Task<List<dynamic>> MainFeedRecentDynamicContent(int topNumberOfEntries)

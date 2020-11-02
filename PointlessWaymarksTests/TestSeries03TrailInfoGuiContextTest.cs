@@ -92,7 +92,6 @@ namespace PointlessWaymarksTests
 
 
 
-
             //Slug Tests
             Assert.IsTrue(newFileContext.TitleSummarySlugFolder.SlugEntry.HasValidationIssues);
 
@@ -229,8 +228,53 @@ namespace PointlessWaymarksTests
 
             //Single valid tag
             newFileContext.TagEdit.Tags = "simple test";
-            Assert.IsFalse(newFileContext.HasValidationIssues);
-            Assert.IsTrue(newFileContext.HasChanges);
+            Assert.IsFalse(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TagEdit.HasChanges);
+
+            //Blanks as nothing
+            newFileContext.TagEdit.Tags = "    ";
+            Assert.IsTrue(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TagEdit.HasChanges);
+
+            //Null as nothing
+            newFileContext.TagEdit.Tags = null;
+            Assert.IsTrue(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsFalse(newFileContext.TagEdit.HasChanges);
+
+            //Reset to good state
+            newFileContext.TagEdit.Tags = "simple test";
+            Assert.IsFalse(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TagEdit.HasChanges);
+
+            //Test invalid symbol is removed in processing
+            newFileContext.TagEdit.Tags = "simple test; another ";
+            Assert.IsFalse(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TagEdit.HasChanges);
+            Assert.AreEqual("simple test another ", newFileContext.TagEdit.Tags);
+
+            //Capitals removed
+            newFileContext.TagEdit.Tags = "  SIMPLE TEST ";
+            Assert.IsFalse(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TagEdit.HasChanges);
+            Assert.AreEqual("  simple test ", newFileContext.TagEdit.Tags);
+
+            //Hyphens Valid - 3 tags
+            newFileContext.TagEdit.Tags = "test-one, test--two, test---three";
+            Assert.IsFalse(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TagEdit.HasChanges);
+            Assert.AreEqual(3, newFileContext.TagEdit.TagList().Count);
+
+            //New Line not Valid
+            newFileContext.TagEdit.Tags = "test-1, test--2, \r\n test---3";
+            Assert.IsFalse(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TagEdit.HasChanges);
+            Assert.AreEqual("test-1, test--2,  test---3", newFileContext.TagEdit.Tags);
+
+            //Hyphens Valid - 3 tags
+            newFileContext.TagEdit.Tags = "test-1, test--2, test---3";
+            Assert.IsFalse(newFileContext.TagEdit.HasValidationIssues);
+            Assert.IsTrue(newFileContext.TagEdit.HasChanges);
+            Assert.AreEqual(3, newFileContext.TagEdit.TagList().Count);
         }
     }
 }

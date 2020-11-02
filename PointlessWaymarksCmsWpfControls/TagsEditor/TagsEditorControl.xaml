@@ -45,7 +45,7 @@
             <TextBox
                 Name="TagsTextBox"
                 Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
-                Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
         </StackPanel>
     </Grid>
 </UserControl>

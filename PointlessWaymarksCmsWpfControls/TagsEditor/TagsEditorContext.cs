@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -111,6 +112,9 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
         public void CheckForChangesAndValidationIssues()
         {
+            Tags = SlugUtility.CreateRelaxedInputSpacedString(true, Tags, new List<char> {',', ' ', '-', '_'})
+                .ToLower();
+
             HasChanges = !TagSlugList().SequenceEqual(DbTagList());
 
             var tagValidation = CommonContentValidation.ValidateTags(Tags);
