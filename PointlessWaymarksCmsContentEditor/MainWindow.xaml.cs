@@ -123,6 +123,9 @@ namespace PointlessWaymarksCmsContentEditor
             GenerateSiteResourcesCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await FileManagement.WriteSiteResourcesToGeneratedSite(StatusContext.ProgressTracker()));
 
+            WriteStyleCssFileCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await FileManagement.WriteStylesCssToGeneratedSite(StatusContext.ProgressTracker()));
+
             GenerateHtmlForAllFileContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await HtmlGenerationGroups.GenerateAllFileHtml(null, StatusContext.ProgressTracker()));
 
@@ -439,6 +442,8 @@ namespace PointlessWaymarksCmsContentEditor
         }
 
         public Command ToggleDiagnosticLoggingCommand { get; set; }
+
+        public Command WriteStyleCssFileCommand { get; set; }
 
         public Command WvTwoExperimentCommand { get; set; }
 

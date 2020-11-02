@@ -1,4 +1,12 @@
 ﻿#nullable enable
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
+using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,14 +17,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
-using MvvmHelpers.Commands;
-using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 {
@@ -461,7 +461,10 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (SelectedGenerationChoice == null)
             {
-                toSelect = logChoiceList[0];
+                var possibleLastScript =
+                    logChoiceList.FirstOrDefault(x => x.DisplayText.EndsWith("  - Script Generated"));
+
+                toSelect = possibleLastScript ?? logChoiceList[0];
             }
             else
             {

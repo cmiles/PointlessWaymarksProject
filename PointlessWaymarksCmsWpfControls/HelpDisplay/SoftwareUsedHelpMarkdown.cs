@@ -5,7 +5,7 @@
         public static string HelpBlock =>
             @"
 ### Software Used By and In Building Pointless Waymarks CMS
- - [cmiles/PointlessWaymarksCms: Personal .NET Core 3.1 WPF Gui for Static Site Generation](https://github.com/cmiles/PointlessWaymarksCms) - The code for this project is hosted on GitHub. MIT License.
+ - [cmiles/PointlessWaymarksCms: A .NET Core WPF Gui for Static Site Generation](https://github.com/cmiles/PointlessWaymarksCms) - The code for this project is hosted on GitHub. MIT License.
 
 Tools:
  - [Visual Studio IDE](https://visualstudio.microsoft.com/), [.NET Core (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download/dotnet-core)

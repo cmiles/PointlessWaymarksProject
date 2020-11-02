@@ -1133,7 +1133,8 @@ namespace PointlessWaymarksCmsData
             newSettings.VerifyOrCreateAllTopLevelFolders(progress);
             await newSettings.EnsureDbIsPresent(progress);
 
-            await FileManagement.WriteStylesCssAndFavIconIcoToGeneratedSite(progress);
+            await FileManagement.WriteFavIconToGeneratedSite(progress);
+            await FileManagement.WriteStylesCssToGeneratedSite(progress);
             await FileManagement.WriteSiteResourcesToGeneratedSite(progress);
 
             return newSettings;

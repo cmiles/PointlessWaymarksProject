@@ -1006,6 +1006,31 @@ namespace PointlessWaymarksCmsData.Content
             await LogFileWriteAsync(path);
         }
 
+        public static async Task WriteFavIconToGeneratedSite(IProgress<string> progress)
+        {
+            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+            var siteResources = embeddedProvider.GetDirectoryContents("").Single(x => x.Name == "favicon.ico");
+
+            var fileAsStream = siteResources.CreateReadStream();
+
+            var destinationFile =
+                new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
+                    siteResources.Name));
+
+            var destinationDirectory = destinationFile.Directory;
+            if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
+
+            var fileStream = File.Create(destinationFile.FullName);
+            fileAsStream.Seek(0, SeekOrigin.Begin);
+            await fileAsStream.CopyToAsync(fileStream);
+            fileStream.Close();
+
+            await LogFileWriteAsync(destinationFile.FullName);
+
+            progress?.Report($"Site Resources - Writing {siteResources.Name} to {destinationFile.FullName}");
+        }
+
         public static void WriteSelectedFileContentFileToMediaArchive(FileInfo selectedFile)
         {
             var userSettings = UserSettingsSingleton.CurrentSettings();
@@ -1145,33 +1170,29 @@ namespace PointlessWaymarksCmsData.Content
             }
         }
 
-        public static async Task WriteStylesCssAndFavIconIcoToGeneratedSite(IProgress<string> progress)
+        public static async Task WriteStylesCssToGeneratedSite(IProgress<string> progress)
         {
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
-            var siteResources = embeddedProvider.GetDirectoryContents("");
+            var siteResources = embeddedProvider.GetDirectoryContents("").Single(x => x.Name == "style.css");
 
-            foreach (var loopSiteResources in siteResources.Where(x => x.Name == "style.css" || x.Name == "favicon.ico")
-            )
-            {
-                var fileAsStream = loopSiteResources.CreateReadStream();
+            var fileAsStream = siteResources.CreateReadStream();
 
-                var destinationFile =
-                    new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
-                        loopSiteResources.Name));
+            var destinationFile =
+                new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
+                    siteResources.Name));
 
-                var destinationDirectory = destinationFile.Directory;
-                if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
+            var destinationDirectory = destinationFile.Directory;
+            if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
 
-                var fileStream = File.Create(destinationFile.FullName);
-                fileAsStream.Seek(0, SeekOrigin.Begin);
-                await fileAsStream.CopyToAsync(fileStream);
-                fileStream.Close();
+            var fileStream = File.Create(destinationFile.FullName);
+            fileAsStream.Seek(0, SeekOrigin.Begin);
+            await fileAsStream.CopyToAsync(fileStream);
+            fileStream.Close();
 
-                await LogFileWriteAsync(destinationFile.FullName);
+            await LogFileWriteAsync(destinationFile.FullName);
 
-                progress?.Report($"Site Resources - Writing {loopSiteResources.Name} to {destinationFile.FullName}");
-            }
+            progress?.Report($"Site Resources - Writing {siteResources.Name} to {destinationFile.FullName}");
         }
     }
 }
