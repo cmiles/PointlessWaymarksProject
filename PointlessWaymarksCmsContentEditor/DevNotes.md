@@ -52,6 +52,12 @@
  
 ## Notes
 
+11/3/2020
+
+Working on the UI Context Tests made me think about the possible mismatch between what you type into the Tags and how the program parses it. The tag parsing was heavily informed by the need to process in the tags from Imported photo metadata safely which I think it does nicely but a test with ';' in the tag string made me realize that in the UI the parsing was overly aggressive and possibly misleading. Changed the cleanup for the user input to tags in the UI so that nicely allowing free form input and clean up are better balanced.
+
+I writing test for the Created and Updated UI context found that with new items the load method was exiting before the control hooked into the child controls Validation and HasChanges - fixed.
+
 11/1/2020
 
 Added a search in the Photo List to pull up photos from the same date - this came up when looking for older photos where expanding to 'day' was an obvious/useful action after filtering for one of the photos.

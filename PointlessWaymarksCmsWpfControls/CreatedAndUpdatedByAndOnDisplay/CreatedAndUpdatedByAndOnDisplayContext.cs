@@ -197,7 +197,7 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             CreatedByEntry.Title = "Created By";
             CreatedByEntry.HelpText = "Created By Name";
             CreatedByEntry.ReferenceValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
-                ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+                ? string.Empty
                 : DbEntry.CreatedBy;
             CreatedByEntry.UserValue = string.IsNullOrWhiteSpace(toLoad?.CreatedBy)
                 ? UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
@@ -212,6 +212,7 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             UpdatedByEntry.ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty;
             UpdatedByEntry.UserValue = toLoad?.LastUpdatedBy ?? string.Empty;
 
+            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
 
             //If this is a 'first update' go ahead and fill in the Created by as the updated by, this
             //is realistically just a trade off, better for most common workflow - potential mistake
@@ -253,8 +254,6 @@ namespace PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             if (DbEntry.LastUpdatedOn != null) newStringParts.Add($"On {DbEntry.LastUpdatedOn:g}");
 
             CreatedAndUpdatedByAndOn = string.Join(" ", newStringParts);
-
-            PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
 
         [NotifyPropertyChangedInvocator]

@@ -275,6 +275,21 @@ namespace PointlessWaymarksTests
             Assert.IsFalse(newFileContext.TagEdit.HasValidationIssues);
             Assert.IsTrue(newFileContext.TagEdit.HasChanges);
             Assert.AreEqual(3, newFileContext.TagEdit.TagList().Count);
+
+
+            //Created/Updated By
+
+            Assert.AreEqual("Trail Notes Ghost Writer", newFileContext.CreatedUpdatedDisplay.CreatedByEntry.UserValue);
+            Assert.True(newFileContext.CreatedUpdatedDisplay.HasChanges);
+            Assert.False(newFileContext.CreatedUpdatedDisplay.HasValidationIssues);
+
+            newFileContext.CreatedUpdatedDisplay.CreatedByEntry.UserValue = "   ";
+            Assert.False(newFileContext.CreatedUpdatedDisplay.HasChanges);
+            Assert.True(newFileContext.CreatedUpdatedDisplay.HasValidationIssues);
+
+            newFileContext.CreatedUpdatedDisplay.CreatedByEntry.UserValue = "Trail Notes Ghost Writer";
+            Assert.True(newFileContext.CreatedUpdatedDisplay.HasChanges);
+            Assert.False(newFileContext.CreatedUpdatedDisplay.HasValidationIssues);
         }
     }
 }

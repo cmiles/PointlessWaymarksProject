@@ -657,8 +657,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             DbEntry = toLoad ?? new PhotoContent
             {
-                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice()
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);

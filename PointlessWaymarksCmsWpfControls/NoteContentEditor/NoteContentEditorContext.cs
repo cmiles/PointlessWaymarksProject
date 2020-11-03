@@ -273,8 +273,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
 
             DbEntry = toLoad ?? new NoteContent
             {
-                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()
             };
 
             FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);

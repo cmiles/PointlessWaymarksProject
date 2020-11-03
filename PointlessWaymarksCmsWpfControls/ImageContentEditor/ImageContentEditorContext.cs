@@ -486,7 +486,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             DbEntry = toLoad ?? new ImageContent
             {
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);

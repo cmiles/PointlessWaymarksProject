@@ -503,7 +503,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
                 PublicDownloadLink = true
             };
 

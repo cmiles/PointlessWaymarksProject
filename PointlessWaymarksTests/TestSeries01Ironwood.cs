@@ -452,7 +452,7 @@ namespace PointlessWaymarksTests
 
             var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("*.html").ToList();
 
-            var changedTags = (await Db.MainFeedCommonContent()).Select(x => Db.TagListParseToSlugs(x, false)).SelectMany(x => x).Distinct().Select(x => $"TagList-{x}").ToList();
+            var changedTags = Db.TagListParseToSlugs((await db.PostContents.SingleAsync(x => x.Title == "First Post")), false).Select(x => $"TagList-{x}").ToList();
 
             var notChanged = tagFiles.Where(x => !changedTags.Contains(Path.GetFileNameWithoutExtension(x.Name)))
                 .ToList();
@@ -470,7 +470,7 @@ namespace PointlessWaymarksTests
                 IronwoodHtmlHelpers.CheckGenerationVersionLessThan(x, currentGeneration.GenerationVersion));
 
             var noteContent = UserSettingsSingleton.CurrentSettings().LocalSiteNoteDirectory()
-                .GetFiles("*.html", SearchOption.AllDirectories).ToList();
+                .GetFiles("*.html", SearchOption.AllDirectories).Where(x => !x.Name.Contains("List")).ToList();
 
             noteContent.ForEach(x =>
                 IronwoodHtmlHelpers.CheckGenerationVersionEquals(x, currentGeneration.GenerationVersion));

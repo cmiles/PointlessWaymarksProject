@@ -281,7 +281,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
                 UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
                 ShowInMainSiteFeed = true
             };
 
