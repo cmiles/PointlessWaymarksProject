@@ -346,7 +346,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
             EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
             PostCodesToClipboardForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
+                StatusContext.RunBlockingTaskCommand(BracketCodesToClipboardForSelected);
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
             OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
             NewContentCommand = StatusContext.RunBlockingTaskCommand(NewContent);
@@ -397,7 +397,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             }
         }
 
-        private async Task PhotoCodesToClipboardForSelected()
+        private async Task BracketCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 

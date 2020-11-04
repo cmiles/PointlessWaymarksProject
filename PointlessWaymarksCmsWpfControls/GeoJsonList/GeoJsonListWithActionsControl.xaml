@@ -5,8 +5,76 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.GeoJsonList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    d:DataContext="{d:DesignInstance local:GeoJsonListWithActionsContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <Grid />
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Menu>
+            <MenuItem Header="Excel">
+                <MenuItem Command="{Binding SelectedToExcelCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ImportFromExcelCommand}" Header="Import From Excel" />
+            </MenuItem>
+            <MenuItem Header="Email">
+                <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
+            </MenuItem>
+        </Menu>
+        <local:GeoJsonListControl
+            Grid.Row="1"
+            Margin="4,5,4,6"
+            DataContext="{Binding ListContext}" />
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button
+                    Command="{Binding RefreshDataCommand}"
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding EditSelectedContentCommand}"
+                    Content="_Edit"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding NewContentCommand}"
+                    Content="_New Content"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding GenerateSelectedHtmlCommand}"
+                    Content="_Generate Html"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding GeoJsonCodesToClipboardForSelectedCommand}"
+                    Content="_Code to Clipboard"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding EmailHtmlToClipboardCommand}"
+                    Content="Email to Clipboard"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding OpenUrlForSelectedCommand}"
+                    Content="_Open Selected In Browser"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
+                <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButton}">View History</Button>
+                <Button Command="{Binding ExtractNewLinksInSelectedCommand}" Style="{StaticResource ActionPanelButton}">Extract Links</Button>
+            </WrapPanel>
+        </Border>
+        <status:StatusControl
+            Grid.Row="0"
+            Grid.RowSpan="3"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+    </Grid>
 </UserControl>

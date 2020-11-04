@@ -22,8 +22,10 @@ using PointlessWaymarksCmsData.Json;
 using PointlessWaymarksCmsWpfControls.Diagnostics;
 using PointlessWaymarksCmsWpfControls.FileList;
 using PointlessWaymarksCmsWpfControls.FilesWrittenLogList;
+using PointlessWaymarksCmsWpfControls.GeoJsonList;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.ImageList;
+using PointlessWaymarksCmsWpfControls.LineList;
 using PointlessWaymarksCmsWpfControls.LinkList;
 using PointlessWaymarksCmsWpfControls.MenuLinkEditor;
 using PointlessWaymarksCmsWpfControls.NoteList;
@@ -54,7 +56,9 @@ namespace PointlessWaymarksCmsContentEditor
         private HelpDisplayContext _softwareComponentsHelpContext;
         private StatusControlContext _statusContext;
         private FileListWithActionsContext _tabFileListContext;
+        private GeoJsonListWithActionsContext _tabGeoJsonListContext;
         private ImageListWithActionsContext _tabImageListContext;
+        private LineListWithActionsContext _tabLineListContext;
         private LinkListWithActionsContext _tabLinkContext;
         private MenuLinkEditorContext _tabMenuLinkContext;
         private NoteListWithActionsContext _tabNoteListContext;
@@ -342,6 +346,17 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        public GeoJsonListWithActionsContext TabGeoJsonListContext
+        {
+            get => _tabGeoJsonListContext;
+            set
+            {
+                if (Equals(value, _tabGeoJsonListContext)) return;
+                _tabGeoJsonListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ImageListWithActionsContext TabImageListContext
         {
             get => _tabImageListContext;
@@ -349,6 +364,17 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _tabImageListContext)) return;
                 _tabImageListContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public LineListWithActionsContext TabLineListContext
+        {
+            get => _tabLineListContext;
+            set
+            {
+                if (Equals(value, _tabLineListContext)) return;
+                _tabLineListContext = value;
                 OnPropertyChanged();
             }
         }
@@ -716,6 +742,10 @@ namespace PointlessWaymarksCmsContentEditor
                 TabPhotoListContext = new PhotoListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Points" && TabPointListContext == null)
                 TabPointListContext = new PointListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Lines" && TabLineListContext == null)
+                TabLineListContext = new LineListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "GeoJson" && TabGeoJsonListContext == null)
+                TabGeoJsonListContext = new GeoJsonListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Images" && TabImageListContext == null)
                 TabImageListContext = new ImageListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Files" && TabFileListContext == null)

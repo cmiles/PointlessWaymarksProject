@@ -6,8 +6,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:fileList="clr-namespace:PointlessWaymarksCmsWpfControls.FileList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:filesWrittenLogList="clr-namespace:PointlessWaymarksCmsWpfControls.FilesWrittenLogList;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:geoJsonList="clr-namespace:PointlessWaymarksCmsWpfControls.GeoJsonList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:imageList="clr-namespace:PointlessWaymarksCmsWpfControls.ImageList;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:lineList="clr-namespace:PointlessWaymarksCmsWpfControls.LineList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:linkList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkList;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:local="clr-namespace:PointlessWaymarksCmsContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -63,6 +65,12 @@
             </TabItem>
             <TabItem Header="Points">
                 <pointList:PointListWithActionsControl DataContext="{Binding TabPointListContext}" />
+            </TabItem>
+            <TabItem Header="Lines">
+                <lineList:LineListWithActionsControl DataContext="{Binding TabLineListContext}" />
+            </TabItem>
+            <TabItem Header="GeoJson">
+                <geoJsonList:GeoJsonListWithActionsControl DataContext="{Binding TabGeoJsonListContext}" />
             </TabItem>
             <TabItem Header="Links">
                 <linkList:LinkListWithActionsControl DataContext="{Binding TabLinkContext}" />

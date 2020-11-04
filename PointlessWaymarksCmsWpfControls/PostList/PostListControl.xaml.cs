@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         {
             if (DataContext == null) return;
             var viewmodel = (PostListContext) DataContext;
-            viewmodel.SelectedItems = PhotoListBox?.SelectedItems.Cast<PostListListItem>().ToList();
+            viewmodel.SelectedItems = ItemsListBox?.SelectedItems.Cast<PostListListItem>().ToList();
         }
     }
 }

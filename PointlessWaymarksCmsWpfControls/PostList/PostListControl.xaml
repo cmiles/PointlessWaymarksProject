@@ -94,7 +94,7 @@
             Header="Posts"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
-                Name="PhotoListBox"
+                Name="ItemsListBox"
                 ItemsSource="{Binding Items}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
