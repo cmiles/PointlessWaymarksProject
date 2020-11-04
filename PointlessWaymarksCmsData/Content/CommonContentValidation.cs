@@ -100,12 +100,10 @@ namespace PointlessWaymarksCmsData.Content
                 }
             }
 
-            if (content is PointContent)
-
-                if (notFoundList.Any())
-                    return await GenerationReturn.Error(
-                        $"{Db.ContentTypeString(content)} {content.Title} has " +
-                        $"Invalid ContentIds in Bracket Codes - {string.Join(", ", notFoundList)}", content.ContentId);
+            if (notFoundList.Any())
+                return await GenerationReturn.Error(
+                    $"{Db.ContentTypeString(content)} {content.Title} has " +
+                    $"Invalid ContentIds in Bracket Codes - {string.Join(", ", notFoundList)}", content.ContentId);
 
             return await GenerationReturn.Success(
                 $"{Db.ContentTypeString(content)} {content.Title} - No Invalid Content Ids Found");
@@ -165,6 +163,8 @@ namespace PointlessWaymarksCmsData.Content
         public static async Task<(bool isValid, string explanation)> FileContentFileValidation(FileInfo fileContentFile,
             Guid? currentContentId)
         {
+            if (fileContentFile == null) return (false, "Please choose a file");
+
             fileContentFile.Refresh();
 
             if (!fileContentFile.Exists) return (false, "File does not Exist?");

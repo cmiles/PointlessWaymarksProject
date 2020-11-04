@@ -57,7 +57,6 @@ namespace PointlessWaymarksTests
 
         public static string MapFilename => "AZ_IronwoodForest_NM_map.pdf";
         public static string ProclamationFilename => "ironwood_proc.pdf";
-
         public static string TrailInfoGrandviewFilename => "GrandviewTrail.pdf";
 
         public static async Task CheckForExpectedFilesAfterHtmlGeneration(FileContent newContent)
@@ -149,7 +148,7 @@ namespace PointlessWaymarksTests
 
         public static async Task<FileContent> FileTest(string fileName, FileContent contentReference)
         {
-            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent", fileName));
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia", fileName));
             Assert.True(testFile.Exists, "Test File Found");
 
             var contentToSave = new FileContent();

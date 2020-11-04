@@ -10,7 +10,7 @@
 
 To create links to site content use the 'Bracket Codes' below - using these, rather than html links, will allow the URL and Titles of linked content to update automatically. Because the content referenced by a Bracket Code is identified by a rather long ContentId the intent is for you to use the PointlessWaymarksCMS software to generate these links rather than write them by hand.
 
-All of the codes below have an area for an identifier text or note - this text does NOT impact the link or displayed text in any way, it is just for easy  reference. While you can use the code variations below that let you specify the display text the nice detail about not specifying text is that by default the title of the content will be used which means that the display text will change if the Title of the content changes (once the html is regenerated...)
+All of the codes below have an area for an identifier text or note - this text does NOT impact the link or displayed text in any way, it is just for easy reference. While you can use the code variations below that let you specify the display text the nice detail about not specifying text is that by default the title of the content will be used which means that the display text will change if the Title of the content changes (once the html is regenerated...)
 
 Codes can not contain {{ or }}.
 

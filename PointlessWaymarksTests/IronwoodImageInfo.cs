@@ -139,7 +139,7 @@ namespace PointlessWaymarksTests
 
         public static async Task<ImageContent> ImageTest(string fileName, ImageContent contentReference, int width)
         {
-            var originalFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent",
+            var originalFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
                 fileName));
             Assert.True(originalFile.Exists, "Test File Found");
 

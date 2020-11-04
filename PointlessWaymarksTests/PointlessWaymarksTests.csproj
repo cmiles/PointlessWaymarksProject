@@ -42,40 +42,43 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="IronwoodTestContent\1705-Ironwood-02.jpg">
+    <None Update="TestMedia\1705-Ironwood-02.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\1808-Agua-Blanca-Ranch-Sign-at-the-Manville-Road-Entrance-to-the-Ironwood-Forest-National-Monument.jpg">
+    <None Update="TestMedia\1808-Agua-Blanca-Ranch-Sign-at-the-Manville-Road-Entrance-to-the-Ironwood-Forest-National-Monument.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\2020-05-A-Quarry-in-Ironwood-Forest-National-Monument.jpg">
+    <None Update="TestMedia\2020-05-A-Quarry-in-Ironwood-Forest-National-Monument.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\2020-05-Ironwood-Pod.jpg">
+    <None Update="TestMedia\2020-05-Ironwood-Pod.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\2020-06-Disappearing-into-the-Flower.jpg">
+    <None Update="TestMedia\2020-06-Disappearing-into-the-Flower.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\AZ_IronwoodForest_NM_map-CoverPage.jpg">
+    <None Update="TestMedia\AZ_IronwoodForest_NM_map-CoverPage.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\AZ_IronwoodForest_NM_map.pdf">
+    <None Update="TestMedia\AZ_IronwoodForest_NM_map.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\GrandCanyonPointsImport.xlsx">
+    <None Update="TestMedia\GrandCanyonPointsImport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\GrandviewTrail.pdf">
+    <None Update="TestMedia\GrandviewTrail'sIllegalName.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\HermitsRestDuplicateSlugImport.xlsx">
+    <None Update="TestMedia\GrandviewTrail.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\ironwood_proc.pdf">
+    <None Update="TestMedia\HermitsRestDuplicateSlugImport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="IronwoodTestContent\YumaPointImport.xlsx">
+    <None Update="TestMedia\ironwood_proc.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestMedia\YumaPointImport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

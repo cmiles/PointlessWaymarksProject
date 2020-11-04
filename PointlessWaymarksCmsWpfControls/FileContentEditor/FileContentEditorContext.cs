@@ -263,9 +263,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 _selectedFile = value;
                 OnPropertyChanged();
 
-                SelectedFileHasPathOrNameChanges = (SelectedFile?.FullName ?? string.Empty) !=
-                                                   (_loadedFile?.FullName ?? string.Empty);
-
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(SelectedFileChanged);
             }
         }
@@ -421,7 +418,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             return newControl;
         }
 
-        private FileContent CurrentStateToFileContent()
+        public FileContent CurrentStateToFileContent()
         {
             var newEntry = new FileContent();
 
@@ -558,6 +555,8 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 SelectedFile = _initialFile;
                 _initialFile = null;
             }
+
+            await SelectedFileChanged();
         }
 
         [NotifyPropertyChangedInvocator]

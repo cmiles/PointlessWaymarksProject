@@ -103,7 +103,7 @@ namespace PointlessWaymarksTests
             var db = await Db.Context();
             var pointCountBeforeImport = db.PointContents.Count();
 
-            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent",
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
                 "GrandCanyonPointsImport.xlsx"));
             Assert.True(testFile.Exists, "Test File Found");
 
@@ -128,7 +128,7 @@ namespace PointlessWaymarksTests
         [Test]
         public async Task C11_ExcelNewPointImportValidationFailureOnDuplicatingExistingSlug()
         {
-            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent",
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
                 "GrandCanyonPointsImport.xlsx"));
             Assert.True(testFile.Exists, "Test File Found");
 
@@ -141,7 +141,7 @@ namespace PointlessWaymarksTests
         [Test]
         public async Task C12_ExcelNewPointImportValidationFailureTryingToImportSameSlugMultipleTimes()
         {
-            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "IronwoodTestContent",
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
                 "HermitsRestDuplicateSlugImport.xlsx"));
             Assert.True(testFile.Exists, "Test File Found");
 
