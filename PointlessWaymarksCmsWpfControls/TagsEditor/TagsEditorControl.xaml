@@ -25,7 +25,7 @@
                 <Label
                     Content="Tags (Comma,Separated)"
                     Style="{StaticResource DataEntryLabelStyle}"
-                    Target="{Binding ElementName=TagsTextBox}" 
+                    Target="{Binding ElementName=TagsTextBox}"
                     ToolTip="{Binding HelpText}" />
                 <utility:IndicatorIcon
                     VerticalAlignment="Center"

@@ -1,27 +1,67 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
 {
     /// <summary>
-    /// Interaction logic for GeoJsonContentEditorWindow.xaml
+    ///     Interaction logic for GeoJsonContentEditorWindow.xaml
     /// </summary>
-    public partial class GeoJsonContentEditorWindow : Window
+    public partial class GeoJsonContentEditorWindow : INotifyPropertyChanged
     {
-        public GeoJsonContentEditorWindow()
+        private GeoJsonContentEditorContext _geoJsonContent;
+        private StatusControlContext _statusContext;
+
+        public GeoJsonContentEditorWindow(GeoJsonContent toLoad)
         {
             InitializeComponent();
+            StatusContext = new StatusControlContext();
+
+            StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
+            {
+                GeoJsonContent = await GeoJsonContentEditorContext.CreateInstance(StatusContext, toLoad);
+
+                GeoJsonContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, GeoJsonContent);
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                DataContext = this;
+            });
+        }
+
+        public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
+
+        public GeoJsonContentEditorContext GeoJsonContent
+        {
+            get => _geoJsonContent;
+            set
+            {
+                if (Equals(value, _geoJsonContent)) return;
+                _geoJsonContent = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -21,8 +21,7 @@
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <photoList:PhotoLoadAllRecentNextActionTextMessageConverter x:Key="PhotoLoadAllRecentNextActionTextMessage" />
-            <photoList:PhotoLoadAllowsAllRecentChoiceVisibilityConverter
-                x:Key="PhotoLoadAllowsAllRecentChoiceVisibility" />
+            <photoList:PhotoLoadAllowsAllRecentChoiceVisibilityConverter x:Key="PhotoLoadAllowsAllRecentChoiceVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -201,27 +200,27 @@
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBox
                                             HorizontalAlignment="Right"
+                                            Cursor="Arrow"
                                             Style="{StaticResource ReadOnlyTextBox}"
                                             Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo Created On: {0}'}"
-                                            TextWrapping="Wrap"
                                             TextDecorations="Underline"
-                                            Cursor="Arrow">
+                                            TextWrapping="Wrap">
                                             <TextBox.InputBindings>
-                                                <MouseBinding MouseAction="LeftClick"
-                                                              Command="{Binding Data.PhotoTakenOnSearchCommand, Source={StaticResource Proxy}}"
-                                                              CommandParameter="{Binding DbEntry}" />
+                                                <MouseBinding
+                                                    Command="{Binding Data.PhotoTakenOnSearchCommand, Source={StaticResource Proxy}}"
+                                                    CommandParameter="{Binding DbEntry}"
+                                                    MouseAction="LeftClick" />
                                             </TextBox.InputBindings>
                                         </TextBox>
                                     </WrapPanel>
-                                    <WrapPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                    <WrapPanel Margin="0,4,0,0" Orientation="Horizontal">
                                         <WrapPanel.Resources>
                                             <Style TargetType="Button">
                                                 <Setter Property="Padding" Value="6,0,6,0" />
                                                 <Setter Property="Margin" Value="2,0,2,0" />
                                             </Style>
                                         </WrapPanel.Resources>
-                                        <Button
-                                            Content="{Binding DbEntry.CameraMake, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Make)'}">
+                                        <Button Content="{Binding DbEntry.CameraMake, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Make)'}">
                                             <Button.InputBindings>
                                                 <MouseBinding
                                                     Command="{Binding Data.CameraMakeSearchCommand, Source={StaticResource Proxy}}"
@@ -229,8 +228,7 @@
                                                     MouseAction="LeftClick" />
                                             </Button.InputBindings>
                                         </Button>
-                                        <Button
-                                            Content="{Binding DbEntry.CameraModel, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Model)'}">
+                                        <Button Content="{Binding DbEntry.CameraModel, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Model)'}">
                                             <Button.InputBindings>
                                                 <MouseBinding
                                                     Command="{Binding Data.CameraModelSearchCommand, Source={StaticResource Proxy}}"
@@ -238,8 +236,7 @@
                                                     MouseAction="LeftClick" />
                                             </Button.InputBindings>
                                         </Button>
-                                        <Button
-                                            Content="{Binding DbEntry.Lens, Converter={StaticResource StringDefault}, ConverterParameter='(No Lens)'}">
+                                        <Button Content="{Binding DbEntry.Lens, Converter={StaticResource StringDefault}, ConverterParameter='(No Lens)'}">
                                             <Button.InputBindings>
                                                 <MouseBinding
                                                     Command="{Binding Data.LensSearchCommand, Source={StaticResource Proxy}}"
@@ -247,8 +244,7 @@
                                                     MouseAction="LeftClick" />
                                             </Button.InputBindings>
                                         </Button>
-                                        <Button
-                                            Content="{Binding DbEntry.FocalLength, Converter={StaticResource StringDefault}, ConverterParameter='(No Focal Length)'}">
+                                        <Button Content="{Binding DbEntry.FocalLength, Converter={StaticResource StringDefault}, ConverterParameter='(No Focal Length)'}">
                                             <Button.InputBindings>
                                                 <MouseBinding
                                                     Command="{Binding Data.FocalLengthSearchCommand, Source={StaticResource Proxy}}"
@@ -256,8 +252,7 @@
                                                     MouseAction="LeftClick" />
                                             </Button.InputBindings>
                                         </Button>
-                                        <Button
-                                            Content="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture Model)'}">
+                                        <Button Content="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture Model)'}">
                                             <Button.InputBindings>
                                                 <MouseBinding
                                                     Command="{Binding Data.ApertureSearchCommand, Source={StaticResource Proxy}}"
@@ -265,8 +260,7 @@
                                                     MouseAction="LeftClick" />
                                             </Button.InputBindings>
                                         </Button>
-                                        <Button
-                                            Content="{Binding DbEntry.ShutterSpeed, Converter={StaticResource StringDefault}, ConverterParameter='(No Shutter Speed)'}">
+                                        <Button Content="{Binding DbEntry.ShutterSpeed, Converter={StaticResource StringDefault}, ConverterParameter='(No Shutter Speed)'}">
                                             <Button.InputBindings>
                                                 <MouseBinding
                                                     Command="{Binding Data.ShutterSpeedSearchCommand, Source={StaticResource Proxy}}"
@@ -274,8 +268,7 @@
                                                     MouseAction="LeftClick" />
                                             </Button.InputBindings>
                                         </Button>
-                                        <Button
-                                            Content="{Binding DbEntry.Iso, StringFormat='Iso: {0}', Converter={StaticResource StringDefault}, ConverterParameter='(No Iso)'}">
+                                        <Button Content="{Binding DbEntry.Iso, StringFormat='Iso: {0}', Converter={StaticResource StringDefault}, ConverterParameter='(No Iso)'}">
                                             <Button.InputBindings>
                                                 <MouseBinding
                                                     Command="{Binding Data.IsoSearchCommand, Source={StaticResource Proxy}}"

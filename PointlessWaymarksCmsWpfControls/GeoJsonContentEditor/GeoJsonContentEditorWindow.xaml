@@ -5,9 +5,17 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.GeoJsonContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:postContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.PostContentEditor"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     Title="GeoJsonContentEditorWindow"
     Width="800"
     Height="450"
     mc:Ignorable="d">
-    <Grid />
+    <Grid>
+        <postContentEditor:PostContentEditorControl DataContext="{Binding PostContent}" />
+        <status:StatusControl
+            Grid.Column="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+    </Grid>
 </Window>

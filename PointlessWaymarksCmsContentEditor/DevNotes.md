@@ -1,6 +1,4 @@
 ﻿## Todos
- - Bad Content Code Scan
-  - Do at least a manual test...
  - Tag and camera detail margins
  - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
  - Look again and Main Feed/Before/After for content - currently the entire main feed is regenerated - could this be done selectively and/or does other content need before/after help?
