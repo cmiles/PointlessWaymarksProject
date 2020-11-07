@@ -83,7 +83,7 @@
                         BorderThickness="0"
                         FontSize="{Binding ElementName=BodyMarkDownFontSizeSlider, Path=Value}"
                         SpellCheck.IsEnabled="True"
-                        Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged, Delay=350}"
                         TextWrapping="Wrap"
                         VerticalScrollBarVisibility="Visible">
                         <b:Interaction.Behaviors>

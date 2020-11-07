@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -59,7 +60,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
                 var ssml = @"<speak version='1.0' " +
                            $"xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='{localCode}'>" +
-                           $"<prosody pitch='{pitchProsody}' rate='1.0'>{text}</prosody> " + "</speak>";
+                           $"<prosody pitch='{pitchProsody}' rate='1.0'>{SecurityElement.Escape(text)}</prosody> " + "</speak>";
 
                 var tcs = new TaskCompletionSource<object>();
                 var handler = new TypedEventHandler<MediaPlayer, object>((sender, args) => tcs.TrySetResult(null));

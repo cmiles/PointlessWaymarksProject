@@ -242,7 +242,7 @@ namespace PointlessWaymarksCmsWpfControls.BodyContentEditor
 
             if (string.IsNullOrWhiteSpace(propertyName)) return;
 
-            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
+            if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation") && propertyName != nameof(BodyContent))
                 CheckForChangesAndValidationIssues();
         }
 
