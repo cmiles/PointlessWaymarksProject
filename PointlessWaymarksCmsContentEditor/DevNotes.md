@@ -1,12 +1,15 @@
 ﻿## Todos
- - Tag and camera detail margins
  - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
  - Look again and Main Feed/Before/After for content - currently the entire main feed is regenerated - could this be done selectively and/or does other content need before/after help?
+ - Revisit AvalonEdit for the BodyContent Editor for performance reasons
  - Could Tag List javascript be abstracted to site resources easily?
  - Better loading indication on the search lists
  - Continue GUI Context tests in new series
- - Points:
-  - Bracket Code
+ - Spatial:
+  - Bracket Codes - Points, GeoJson, Lines
+  - 'Maps' idea combining these
+  - GeoJson
+  - Lines
  - Text to Speech:
    - Cancellation
    - in Update Notes

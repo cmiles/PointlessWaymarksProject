@@ -214,7 +214,6 @@ namespace PointlessWaymarksCmsWpfControls.ContentFolder
             return newControl;
         }
 
-
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
         {
             var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
@@ -234,13 +233,14 @@ namespace PointlessWaymarksCmsWpfControls.ContentFolder
 
             var currentDbFolders = await Db.FolderNamesFromContent(DbEntry);
 
-            var newFolderNames = ExistingFolderChoices.Except(currentDbFolders).ToList();
+            var newFolderNames = currentDbFolders.Except(ExistingFolderChoices).ToList();
 
             if (newFolderNames.Any())
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
                 ExistingFolderChoices.Clear();
                 currentDbFolders.ForEach(x => ExistingFolderChoices.Add(x));
+                ExistingFolderChoices.SortBy(x => x);
             }
         }
 

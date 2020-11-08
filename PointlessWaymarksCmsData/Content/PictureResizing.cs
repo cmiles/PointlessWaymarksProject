@@ -40,7 +40,7 @@ namespace PointlessWaymarksCmsData.Content
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(dbEntry);
             var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference, progress);
 
-            if (currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth)
+            if ((currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth) || deleteAll)
                 currentFiles.DisplayPicture?.File?.Delete();
         }
 

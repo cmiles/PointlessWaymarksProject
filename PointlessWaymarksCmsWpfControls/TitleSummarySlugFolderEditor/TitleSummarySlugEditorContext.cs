@@ -30,7 +30,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             StatusContext = statusContext ?? new StatusControlContext();
         }
 
-
         public ITitleSummarySlugFolder DbEntry
         {
             get => _dbEntry;
