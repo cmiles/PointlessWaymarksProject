@@ -1044,6 +1044,12 @@ namespace PointlessWaymarksCmsData
                 hasUpdates = true;
             }
 
+            if (readResult.SettingsId == Guid.Empty)
+            {
+                readResult.SettingsId = Guid.NewGuid();
+                hasUpdates = true;
+            }
+
             if (hasUpdates)
             {
                 progress?.Report("Found missing values - writing defaults back to settings.");
@@ -1120,6 +1126,7 @@ namespace PointlessWaymarksCmsData
             newSettings.SiteEmailTo = "nothing@nowhere.com";
             newSettings.LatitudeDefault = 32.443131;
             newSettings.LongitudeDefault = -110.788429;
+            newSettings.SettingsId = Guid.NewGuid();
 
             SettingsFileName =
                 Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsSettings-{userFilename}.json");

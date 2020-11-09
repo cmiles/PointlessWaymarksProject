@@ -172,8 +172,6 @@ namespace PointlessWaymarksCmsData.Content
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name)))
                 return (false, "Limit File Names to A-Z a-z 0-9 - . _");
 
-            var db = await Db.Context();
-
             if (await (await Db.Context()).ImageFilenameExistsInDatabase(fileContentFile.Name, currentContentId))
                 return (false, "This filename already exists in the database - file names must be unique.");
 
@@ -192,8 +190,6 @@ namespace PointlessWaymarksCmsData.Content
 
             if (!FolderFileUtility.PictureFileTypeIsSupported(imageFile))
                 return (false, "The file doesn't appear to be a supported file type.");
-
-            var db = await Db.Context();
 
             if (await (await Db.Context()).ImageFilenameExistsInDatabase(imageFile.Name, currentContentId))
                 return (false, "This filename already exists in the database - image file names must be unique.");
@@ -229,8 +225,6 @@ namespace PointlessWaymarksCmsData.Content
 
             if (!FolderFileUtility.PictureFileTypeIsSupported(photoFile))
                 return (false, "The file doesn't appear to be a supported file type.");
-
-            var db = await Db.Context();
 
             if (await (await Db.Context()).PhotoFilenameExistsInDatabase(photoFile.Name, currentContentId))
                 return (false, "This filename already exists in the database - photo file names must be unique.");

@@ -169,6 +169,9 @@
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.RemoteFileRoot, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Button Command="{Binding EnterAwsCredentials}">Enter AWS Credentials</Button>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
         <status:StatusControl d:IsHidden="true" DataContext="{Binding StatusContext}" />

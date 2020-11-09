@@ -16,6 +16,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
     public class UserSettingsEditorContext : INotifyPropertyChanged
     {
         private UserSettings _editorSettings;
+        private Command _enterAwsCredentials;
         private Command _saveSettingsCommand;
         private StatusControlContext _statusContext;
 
@@ -33,6 +34,17 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
             {
                 if (Equals(value, _editorSettings)) return;
                 _editorSettings = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command EnterAwsCredentials
+        {
+            get => _enterAwsCredentials;
+            set
+            {
+                if (Equals(value, _enterAwsCredentials)) return;
+                _enterAwsCredentials = value;
                 OnPropertyChanged();
             }
         }
@@ -74,6 +86,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             SaveSettingsCommand = StatusContext.RunBlockingTaskCommand(SaveSettings);
+            EnterAwsCredentials = StatusContext.RunBlockingTaskCommand(UserAwsKeyAndSecretEntry);
 
             EditorSettings = toLoad;
         }
@@ -97,6 +110,45 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
             await JsonSerializer.SerializeAsync(writeStream, EditorSettings, null, CancellationToken.None);
 
             UserSettingsSingleton.CurrentSettings().InjectFrom(EditorSettings);
+        }
+
+        public async Task UserAwsKeyAndSecretEntry()
+        {
+            var newKeyEntry = await StatusContext.ShowStringEntry("AWS Access Key",
+                "Enter the AWS Access Key", string.Empty);
+
+            if (!newKeyEntry.Item1)
+            {
+                StatusContext.ToastWarning("AWS Credential Entry Canceled");
+                return;
+            }
+
+            var cleanedKey = newKeyEntry.Item2.TrimNullToEmpty();
+
+            if (string.IsNullOrWhiteSpace(cleanedKey))
+            {
+                StatusContext.ToastError("AWS Credential Entry Canceled - key can not be blank");
+                return;
+            }
+
+            var newSecretEntry = await StatusContext.ShowStringEntry("AWS Secret Access Key",
+                "Enter the AWS Secret Access Key", string.Empty);
+
+            if (!newSecretEntry.Item1)
+            {
+                StatusContext.ToastWarning("AWS Credential Entry Canceled");
+                return;
+            }
+
+            var cleanedSecret = newSecretEntry.Item2.TrimNullToEmpty();
+
+            if (string.IsNullOrWhiteSpace(cleanedSecret))
+            {
+                StatusContext.ToastError("AWS Credential Entry Canceled - secret can not be blank");
+                return;
+            }
+
+            AwsCredentials.SaveAwsCredential(cleanedKey, cleanedSecret);
         }
     }
 }

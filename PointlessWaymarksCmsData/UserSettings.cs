@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -17,6 +18,7 @@ namespace PointlessWaymarksCmsData
         private string _pdfToCairoExeDirectory;
         private string _pinboardApiToken;
         private string _remoteFileRoot;
+        private Guid _settingsId;
         private string _siteAuthors;
         private string _siteEmailTo;
         private string _siteKeywords;
@@ -141,6 +143,17 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _remoteFileRoot) return;
                 _remoteFileRoot = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Guid SettingsId
+        {
+            get => _settingsId;
+            set
+            {
+                if (value.Equals(_settingsId)) return;
+                _settingsId = value;
                 OnPropertyChanged();
             }
         }
