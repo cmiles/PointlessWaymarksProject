@@ -1,0 +1,62 @@
+﻿<UserControl
+    x:Class="PointlessWaymarksCmsWpfControls.S3Uploads.S3UploadsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.S3Uploads"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    d:DataContext="{d:DesignInstance local:S3UploadsContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Actions">
+            <Button Command="{Binding StartSelectedUploadsCommand}">Upload Selected</Button>
+        </GroupBox>
+        <GroupBox
+            Grid.Row="1"
+            Header="Upload Items"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <ListBox
+                x:Name="ItemsListBox"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ItemsSource="{Binding Items}"
+                SelectionChanged="Selector_OnSelectionChanged">
+                <b:Interaction.Behaviors>
+                    <utility:ListBoxOneLineMouseWheelScroll />
+                </b:Interaction.Behaviors>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="local:S3UploadsItem">
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <Grid Margin="4">
+                                <WrapPanel>
+                                    <TextBlock Text="{Binding FileToUpload.FullName}" />
+                                    <TextBlock Text="{Binding BucketName}" />
+                                    <TextBlock Text="{Binding AmazonObjectKey}" />
+                                    <TextBlock Text="{Binding Status}" />
+                                    <TextBlock Text="{Binding IsUploading, StringFormat='Is Running {0}'}" />
+                                    <TextBlock Text="{Binding Completed, StringFormat='Complete {0}'}" />
+                                    <TextBlock Text="{Binding HasError, StringFormat='Has Error {0}'}" />
+                                    <TextBlock Text="{Binding ErrorMessage, StringFormat='Error Message {0}'}" />
+                                </WrapPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
+    </Grid>
+</UserControl>

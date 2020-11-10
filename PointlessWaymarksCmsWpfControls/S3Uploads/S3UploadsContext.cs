@@ -1,0 +1,129 @@
+﻿#nullable enable
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
+using MvvmHelpers.Commands;
+using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
+
+namespace PointlessWaymarksCmsWpfControls.S3Uploads
+{
+    public class S3UploadsContext : INotifyPropertyChanged
+    {
+        private string _bucketName = string.Empty;
+
+        private ObservableCollection<S3UploadsItem>? _items;
+        private List<S3UploadsItem> _selectedItems = new List<S3UploadsItem>();
+        private Command? _startSelectedUploadsCommand;
+        private StatusControlContext _statusContext;
+
+        public S3UploadsContext(StatusControlContext? statusContext)
+        {
+            _statusContext = statusContext ?? new StatusControlContext();
+
+            StartSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
+        }
+
+        public string BucketName
+        {
+            get => _bucketName;
+            set
+            {
+                if (value == _bucketName) return;
+                _bucketName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<S3UploadsItem>? Items
+        {
+            get => _items;
+            set
+            {
+                if (Equals(value, _items)) return;
+                _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<S3UploadsItem> SelectedItems
+        {
+            get => _selectedItems;
+            set
+            {
+                if (Equals(value, _selectedItems)) return;
+                _selectedItems = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? StartSelectedUploadsCommand
+        {
+            get => _startSelectedUploadsCommand;
+            set
+            {
+                if (Equals(value, _startSelectedUploadsCommand)) return;
+                _startSelectedUploadsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public static async Task<S3UploadsContext> CreateInstance(StatusControlContext statusContext,
+            List<S3Upload> uploadList)
+        {
+            var newControl = new S3UploadsContext(statusContext);
+            await newControl.LoadData(uploadList);
+            return newControl;
+        }
+
+        public async Task LoadData(List<S3Upload> uploadList)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (!uploadList.Any()) return;
+
+            var newItemsList = uploadList.Select(x => new S3UploadsItem(x.ToUpload, x.S3Key)).ToList();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+            if (Items == null)
+            {
+                Items = new ObservableCollection<S3UploadsItem>(newItemsList);
+            }
+            else
+            {
+                Items.Clear();
+                newItemsList.ForEach(x => Items.Add(x));
+            }
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public async Task StartSelectedUploads()
+        {
+            var localSelected = SelectedItems;
+
+            foreach (var loopSelected in localSelected) await loopSelected.StartUpload();
+        }
+    }
+}

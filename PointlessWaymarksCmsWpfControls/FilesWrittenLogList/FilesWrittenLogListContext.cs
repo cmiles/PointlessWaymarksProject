@@ -1,12 +1,4 @@
 ﻿#nullable enable
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
-using MvvmHelpers.Commands;
-using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +9,15 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
+using PointlessWaymarksCmsData;
+using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsWpfControls.S3Uploads;
+using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 {
@@ -36,6 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private Command? _selectedScriptStringsToClipboardCommand;
         private Command? _selectedScriptStringsToPowerShellScriptCommand;
         private Command? _selectedWrittenFilesToClipboardCommand;
+        private Command _siteComparisonReportCommand;
         private StatusControlContext? _statusContext;
         private string _userFilePrefix = string.Empty;
         private string _userScriptPrefix = "aws s3 cp";
@@ -45,22 +47,20 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            GenerateItemsCommand = StatusContext.RunBlockingTaskCommand(async () => await GenerateItems());
-            ScriptStringsToClipboardCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await ScriptStringsToClipboard());
+            GenerateItemsCommand = StatusContext.RunBlockingTaskCommand(GenerateItems);
+            ScriptStringsToClipboardCommand = StatusContext.RunBlockingTaskCommand(ScriptStringsToClipboard);
             SelectedScriptStringsToClipboardCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SelectedScriptStringsToClipboard());
-            WrittenFilesToClipboardCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await WrittenFilesToClipboard());
+                StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToClipboard);
+            WrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(WrittenFilesToClipboard);
             SelectedWrittenFilesToClipboardCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SelectedWrittenFilesToClipboard());
+                StatusContext.RunBlockingTaskCommand(SelectedWrittenFilesToClipboard);
             SelectedScriptStringsToPowerShellScriptCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SelectedScriptStringsToPowerShellScript());
+                StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToPowerShellScript);
             ScriptStringsToPowerShellScriptCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await ScriptStringsToPowerShellScript());
-            SelectedFilesToExcelCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await SelectedFilesToExcel());
-            FilesToExcelCommand = StatusContext.RunBlockingTaskCommand(async () => await FilesToExcel());
+                StatusContext.RunBlockingTaskCommand(ScriptStringsToPowerShellScript);
+            SelectedFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedFilesToExcel);
+            FilesToExcelCommand = StatusContext.RunBlockingTaskCommand(FilesToExcel);
+            SiteComparisonReportCommand = StatusContext.RunBlockingTaskCommand(SiteComparisonReport);
 
             if (loadInBackground) StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -215,6 +215,17 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             {
                 if (Equals(value, _selectedWrittenFilesToClipboardCommand)) return;
                 _selectedWrittenFilesToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SiteComparisonReportCommand
+        {
+            get => _siteComparisonReportCommand;
+            set
+            {
+                if (Equals(value, _siteComparisonReportCommand)) return;
+                _siteComparisonReportCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -585,6 +596,16 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
 
             await FilesToClipboard(SelectedItems).ConfigureAwait(true);
+        }
+
+        public async Task SiteComparisonReport()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            var results = await AwsS3GeneratedSiteComparison.FilesInGeneratedDirectoryButNotInS3(StatusContext?.ProgressTracker());
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+            var newUploadWindow = new S3UploadsWindow(results.MissingFiles);
+            newUploadWindow.Show();
         }
 
         public string ToTransformedFileString(string fileBase)

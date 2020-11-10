@@ -1,0 +1,16 @@
+﻿<Window
+    x:Class="PointlessWaymarksCmsWpfControls.S3Uploads.S3UploadsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.S3Uploads"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="S3UploadsWindow"
+    Width="800"
+    Height="450"
+    d:DataContext="{d:DesignInstance local:S3UploadsWindow}"
+    mc:Ignorable="d">
+    <Grid>
+        <local:S3UploadsControl DataContext="{Binding UploadContent}" />
+    </Grid>
+</Window>

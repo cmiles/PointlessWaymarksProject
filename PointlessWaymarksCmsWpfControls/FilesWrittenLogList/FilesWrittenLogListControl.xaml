@@ -35,6 +35,9 @@
                 <MenuItem Command="{Binding SelectedFilesToExcelCommand}" Header="Selected to Excel" />
                 <MenuItem Command="{Binding FilesToExcelCommand}" Header="All to Excel" />
             </MenuItem>
+            <MenuItem Header="AWS S3 Utilities">
+                <MenuItem Command="{Binding SiteComparisonReportCommand}" Header="Site Comparison Report" />
+            </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

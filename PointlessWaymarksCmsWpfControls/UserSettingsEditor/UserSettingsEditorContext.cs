@@ -15,6 +15,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
 {
     public class UserSettingsEditorContext : INotifyPropertyChanged
     {
+        private Command _deleteAwsCredentials;
         private UserSettings _editorSettings;
         private Command _enterAwsCredentials;
         private Command _saveSettingsCommand;
@@ -25,6 +26,17 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
             StatusContext = statusContext ?? new StatusControlContext();
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await LoadData(toLoad));
+        }
+
+        public Command DeleteAwsCredentials
+        {
+            get => _deleteAwsCredentials;
+            set
+            {
+                if (Equals(value, _deleteAwsCredentials)) return;
+                _deleteAwsCredentials = value;
+                OnPropertyChanged();
+            }
         }
 
         public UserSettings EditorSettings
@@ -87,6 +99,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
 
             SaveSettingsCommand = StatusContext.RunBlockingTaskCommand(SaveSettings);
             EnterAwsCredentials = StatusContext.RunBlockingTaskCommand(UserAwsKeyAndSecretEntry);
+            DeleteAwsCredentials = StatusContext.RunBlockingActionCommand(AwsCredentials.RemoveAwsSiteCredentials);
 
             EditorSettings = toLoad;
         }
@@ -148,7 +161,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
                 return;
             }
 
-            AwsCredentials.SaveAwsCredential(cleanedKey, cleanedSecret);
+            AwsCredentials.SaveAwsSiteCredential(cleanedKey, cleanedSecret);
         }
     }
 }
