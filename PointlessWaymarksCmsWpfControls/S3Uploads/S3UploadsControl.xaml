@@ -16,6 +16,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility"></utility:BooleanToVisibilityConverter>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -32,9 +33,11 @@
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 x:Name="ItemsListBox"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding Items}"
-                SelectionChanged="Selector_OnSelectionChanged">
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                SelectionChanged="Selector_OnSelectionChanged"
+                SelectionMode="Extended">
                 <b:Interaction.Behaviors>
                     <utility:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
@@ -42,15 +45,54 @@
                     <DataTemplate DataType="local:S3UploadsItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
-                                <WrapPanel>
-                                    <TextBlock Text="{Binding FileToUpload.FullName}" />
-                                    <TextBlock Text="{Binding BucketName}" />
-                                    <TextBlock Text="{Binding AmazonObjectKey}" />
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBox
+                                    FontWeight="Bold"
+                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    Text="{Binding Note, Mode=OneWay}"
+                                    TextWrapping="Wrap">
+                                    <b:Interaction.Behaviors>
+                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                                <TextBox
+                                    FontWeight="Bold"
+                                    Grid.Row="1"
+                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    Text="{Binding FileToUpload.FullName, StringFormat='From: {0}', Mode=OneWay}"
+                                    TextWrapping="Wrap">
+                                    <b:Interaction.Behaviors>
+                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                                <TextBox
+                                    Grid.Row="2"
+                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="To: {0}/{1}">
+                                            <Binding Path="BucketName" />
+                                            <Binding Path="AmazonObjectKey" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                    <b:Interaction.Behaviors>
+                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                                <WrapPanel Grid.Row="3">
+                                    <TextBlock Text="Queued" Visibility="{Binding Queued, Converter={StaticResource BooleanToVisibility}}" Background="DarkGray"/>
+                                    <TextBlock Text="Uploading" Visibility="{Binding IsUploading, Converter={StaticResource BooleanToVisibility}}" Background="LightSkyBlue"></TextBlock>
+                                    <TextBlock Text="Completed" Background="GreenYellow" Visibility="{Binding Completed, Converter={StaticResource BooleanToVisibility}}" />
+                                    <TextBlock Background="Yellow" Text="{Binding ErrorMessage, StringFormat='Error: {0}'}" Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}"/>
+                                </WrapPanel>
+                                <WrapPanel Grid.Row="4">
                                     <TextBlock Text="{Binding Status}" />
-                                    <TextBlock Text="{Binding IsUploading, StringFormat='Is Running {0}'}" />
-                                    <TextBlock Text="{Binding Completed, StringFormat='Complete {0}'}" />
-                                    <TextBlock Text="{Binding HasError, StringFormat='Has Error {0}'}" />
-                                    <TextBlock Text="{Binding ErrorMessage, StringFormat='Error Message {0}'}" />
                                 </WrapPanel>
                             </Grid>
                         </Border>

@@ -162,12 +162,12 @@
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=RemoteFileRoot}">
-                        Remote File Root (Used in File Uploads - for S3 the format would be s3://YourBucketName )
+                        S3 Bucket Name
                     </Label>
                     <TextBox
                         Name="RemoteFileRootTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                        Text="{Binding EditorSettings.RemoteFileRoot, UpdateSourceTrigger=PropertyChanged}" />
+                        Text="{Binding EditorSettings.SiteS3Bucket, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <Grid>

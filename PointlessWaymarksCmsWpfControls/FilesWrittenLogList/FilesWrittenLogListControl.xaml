@@ -28,15 +28,17 @@
             <MenuItem Header="Scripts">
                 <MenuItem Command="{Binding SelectedScriptStringsToPowerShellScriptCommand}" Header="Selected to PowerShell Ps1 File" />
                 <MenuItem Command="{Binding SelectedScriptStringsToClipboardCommand}" Header="Selected to Clipboard" />
-                <MenuItem Command="{Binding ScriptStringsToPowerShellScriptCommand}" Header="All to PowerShell Ps1 File" />
-                <MenuItem Command="{Binding ScriptStringsToClipboardCommand}" Header="All to Clipboard" />
+                <MenuItem Command="{Binding AllScriptStringsToPowerShellScriptCommand}" Header="All to PowerShell Ps1 File" />
+                <MenuItem Command="{Binding AllScriptStringsToClipboardCommand}" Header="All to Clipboard" />
             </MenuItem>
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding SelectedFilesToExcelCommand}" Header="Selected to Excel" />
-                <MenuItem Command="{Binding FilesToExcelCommand}" Header="All to Excel" />
+                <MenuItem Command="{Binding AllFilesToExcelCommand}" Header="All to Excel" />
             </MenuItem>
-            <MenuItem Header="AWS S3 Utilities">
+            <MenuItem Header="S3 ">
                 <MenuItem Command="{Binding SiteComparisonReportCommand}" Header="Site Comparison Report" />
+                <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}" Header="Selected to Uploader" />
+                <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}" Header="All to Uploader" />
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
@@ -83,11 +85,11 @@
                             Margin="4"
                             VerticalAlignment="Center"
                             Orientation="Horizontal">
-                            <Label>Remote File Prefix:</Label>
+                            <Label>Bucket Name:</Label>
                             <TextBox
                                 Width="180"
                                 VerticalAlignment="Center"
-                                Text="{Binding UserFilePrefix, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+                                Text="{Binding UserBucketName, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
                         </StackPanel>
                     </Border>
                     <Border>

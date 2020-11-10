@@ -14,8 +14,6 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 {
     public class S3UploadsContext : INotifyPropertyChanged
     {
-        private string _bucketName = string.Empty;
-
         private ObservableCollection<S3UploadsItem>? _items;
         private List<S3UploadsItem> _selectedItems = new List<S3UploadsItem>();
         private Command? _startSelectedUploadsCommand;
@@ -26,17 +24,6 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             _statusContext = statusContext ?? new StatusControlContext();
 
             StartSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
-        }
-
-        public string BucketName
-        {
-            get => _bucketName;
-            set
-            {
-                if (value == _bucketName) return;
-                _bucketName = value;
-                OnPropertyChanged();
-            }
         }
 
         public ObservableCollection<S3UploadsItem>? Items
@@ -99,9 +86,11 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 
             if (!uploadList.Any()) return;
 
-            var newItemsList = uploadList.Select(x => new S3UploadsItem(x.ToUpload, x.S3Key)).ToList();
+            var newItemsList = uploadList.Select(x => new S3UploadsItem(x.ToUpload, x.S3Key, x.BucketName, x.Note))
+                .ToList();
 
             await ThreadSwitcher.ResumeForegroundAsync();
+
             if (Items == null)
             {
                 Items = new ObservableCollection<S3UploadsItem>(newItemsList);
@@ -121,9 +110,32 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 
         public async Task StartSelectedUploads()
         {
-            var localSelected = SelectedItems;
+            if (!SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected...");
+                return;
+            }
 
-            foreach (var loopSelected in localSelected) await loopSelected.StartUpload();
+            var localSelected = SelectedItems.Where(x => !x.Queued).ToList();
+
+            if (!localSelected.Any())
+            {
+                StatusContext.ToastError("All Selected Items are already queued for upload...");
+                return;
+            }
+
+            var skipCount = SelectedItems.Count(x => x.Queued);
+
+            if (skipCount > 0)
+                StatusContext.ToastWarning($"{skipCount} Items skipped because they are already queued for Upload.");
+
+            localSelected.ForEach(x => x.Queued = true);
+
+            foreach (var loopSelected in localSelected)
+            {
+                await loopSelected.StartUpload();
+                loopSelected.Queued = false;
+            }
         }
     }
 }

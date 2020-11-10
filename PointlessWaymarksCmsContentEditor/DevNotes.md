@@ -1,7 +1,12 @@
 ﻿## Todos
  - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
  - Look again and Main Feed/Before/After for content - currently the entire main feed is regenerated - could this be done selectively and/or does other content need before/after help?
- - Revisit AvalonEdit for the BodyContent Editor for performance reasons
+ - S3 Upload:
+  - Delete files not in local (maybe a different window for deletions?)
+  - Revisit naming and intent of the written scripts table and the filter choices in files written
+  - Sort the files to check in the Comp method - not a technical concern but makes it easier to 'see' progress
+  - Filter option in S3 window to hide completed items (and/or sorting or?)
+ - Revisit AvalonEdit for the BodyContent Editor for performance reasons - probably 'as a service' since for perf AvalonEdit doesn't expose a bound Text property
  - Could Tag List javascript be abstracted to site resources easily?
  - Better loading indication on the search lists
  - Continue GUI Context tests in new series
@@ -13,12 +18,11 @@
  - Text to Speech:
    - Cancellation
    - in Update Notes
+   - Potentially in editor
  - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
  - Track tags in db so changes can be more quickly detected (long generation time on PointlessWaymarks.com after adding all photos)
  - Integrate Xaml Styler - is the git hook working? I don't think it is...
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
- - Try upgrading EF to preview and using the Collate function for the Link 'does url already exist' check
- - A bad content code should be handled better
  - Could the body and update content control vertical and horizontal variations be combined into one control each?
  - Deleted Content Report so it is possible to restore completely deleted
  - In Search it might be nice to have the content type on the line with date?
@@ -33,7 +37,7 @@
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
 
 ## Ideas
- - Amazon Uploader
+ - Could you write S3 object metadata to indicate file version in a way that would coordinate and be a quick check against local files?
  - Should the code record a checksum of media archive files to be able to check if they change on disk rather than thru the program?
  - Look at https://github.com/icsharpcode/AvalonEdit for Markdown editor - maybe look at https://github.com/martinkirsche/AsYouTypeSpellChecker for spell checking
  - Review https://github.com/Softwire/HighlightingTextBox/blob/master/HighlightingTextBox/HighlightingTextBox.cs - is there something useful here?
@@ -47,11 +51,14 @@
  - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site - or maybe look for other PDF generation strategies
  - How hard would it be to create a GridSplitter that would be easy to set the initial split based off of the last editor use - and/or that could completely hide content to one side with a shortcut
  
-## Issues to Track
- - https://github.com/dotnet/wpf/issues/152 - Vaguely anyway tracks the issue where Xaml Islands render over all WPF content - not sure this is going anywhere but it would be nice...
- - https://github.com/dotnet/efcore/issues/14561 - Too many db operations and Spatialite crashes taking down entire program - in debug crashes the process with no information!
  
 ## Notes
+
+11/10/2020
+
+The scripts to upload files to S3 have been quite nice - but recently I have had unreliable internet and I had some upload failures that I wasn't aware of until I saw a broken link for an image on the site. The current scripts are fast and easy but not at all robust for failures. Originally part of the attraction of the scripts is that there was at least a chance that method could be adapted for other storage services which I really like - but after having to diagnose some failures I am now seeing the benefit of leaning the other way and more directly supporting S3. This is long less flexible but it maximizes my benefit and programming time...
+ - Minimum Amazon S3 upload window is now working - lots to do on this over time but the basics have already proved useful
+ - A basic comparison between the local Generated Site and version on S3 is now working - far from lightning fast but faster than expected. Missing Files, mismatched size files and S3 files no longer in the local site are found. This seems pragmatic and reasonable even though esp. with the shorter files I can envision small changes that wouldn't generate a file size change.
 
 11/3/2020
 

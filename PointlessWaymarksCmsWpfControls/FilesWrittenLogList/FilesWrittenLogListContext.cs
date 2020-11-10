@@ -23,46 +23,106 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 {
     public class FilesWrittenLogListContext : INotifyPropertyChanged
     {
+        private Command? _allFilesToExcelCommand;
+        private Command? _allScriptStringsToClipboardCommand;
+        private Command? _allScriptStringsToPowerShellScriptCommand;
+        private Command? _allWrittenFilesToClipboardCommand;
+        private Command? _allWrittenFilesToS3UploaderCommand;
         private bool _changeSlashes = true;
-        private Command? _filesToExcelCommand;
         private bool _filterForFilesInCurrentGenerationDirectory = true;
         private Command? _generateItemsCommand;
         private ObservableCollection<FileWrittenLogListDateTimeFilterChoice>? _generationChoices;
         private ObservableCollection<FilesWrittenLogListListItem>? _items;
-        private Command? _scriptStringsToClipboardCommand;
-        private Command? _scriptStringsToPowerShellScriptCommand;
         private Command? _selectedFilesToExcelCommand;
         private FileWrittenLogListDateTimeFilterChoice? _selectedGenerationChoice;
         private List<FilesWrittenLogListListItem> _selectedItems = new List<FilesWrittenLogListListItem>();
         private Command? _selectedScriptStringsToClipboardCommand;
         private Command? _selectedScriptStringsToPowerShellScriptCommand;
         private Command? _selectedWrittenFilesToClipboardCommand;
+        private Command? _selectedWrittenFilesToS3UploaderCommand;
         private Command _siteComparisonReportCommand;
         private StatusControlContext? _statusContext;
-        private string _userFilePrefix = string.Empty;
+        private string _userBucketName = string.Empty;
         private string _userScriptPrefix = "aws s3 cp";
-        private Command? _writtenFilesToClipboardCommand;
 
         public FilesWrittenLogListContext(StatusControlContext? statusContext, bool loadInBackground)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             GenerateItemsCommand = StatusContext.RunBlockingTaskCommand(GenerateItems);
-            ScriptStringsToClipboardCommand = StatusContext.RunBlockingTaskCommand(ScriptStringsToClipboard);
+            AllScriptStringsToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllScriptStringsToClipboard);
             SelectedScriptStringsToClipboardCommand =
                 StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToClipboard);
-            WrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(WrittenFilesToClipboard);
+            AllWrittenFilesToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllWrittenFilesToClipboard);
             SelectedWrittenFilesToClipboardCommand =
                 StatusContext.RunBlockingTaskCommand(SelectedWrittenFilesToClipboard);
             SelectedScriptStringsToPowerShellScriptCommand =
                 StatusContext.RunBlockingTaskCommand(SelectedScriptStringsToPowerShellScript);
-            ScriptStringsToPowerShellScriptCommand =
-                StatusContext.RunBlockingTaskCommand(ScriptStringsToPowerShellScript);
+            AllScriptStringsToPowerShellScriptCommand =
+                StatusContext.RunBlockingTaskCommand(AllScriptStringsToPowerShellScript);
             SelectedFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedFilesToExcel);
-            FilesToExcelCommand = StatusContext.RunBlockingTaskCommand(FilesToExcel);
+            AllFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(AllFilesToExcel);
             SiteComparisonReportCommand = StatusContext.RunBlockingTaskCommand(SiteComparisonReport);
+            SelectedWrittenFilesToS3UploaderCommand =
+                StatusContext.RunNonBlockingTaskCommand(SelectedWrittenFilesToS3Uploader);
+            AllWrittenFilesToS3UploaderCommand = StatusContext.RunNonBlockingTaskCommand(AllWrittenFilesToS3Uploader);
 
             if (loadInBackground) StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public Command? AllFilesToExcelCommand
+        {
+            get => _allFilesToExcelCommand;
+            set
+            {
+                if (Equals(value, _allFilesToExcelCommand)) return;
+                _allFilesToExcelCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? AllScriptStringsToClipboardCommand
+        {
+            get => _allScriptStringsToClipboardCommand;
+            set
+            {
+                if (Equals(value, _allScriptStringsToClipboardCommand)) return;
+                _allScriptStringsToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? AllScriptStringsToPowerShellScriptCommand
+        {
+            get => _allScriptStringsToPowerShellScriptCommand;
+            set
+            {
+                if (Equals(value, _allScriptStringsToPowerShellScriptCommand)) return;
+                _allScriptStringsToPowerShellScriptCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? AllWrittenFilesToClipboardCommand
+        {
+            get => _allWrittenFilesToClipboardCommand;
+            set
+            {
+                if (Equals(value, _allWrittenFilesToClipboardCommand)) return;
+                _allWrittenFilesToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? AllWrittenFilesToS3UploaderCommand
+        {
+            get => _allWrittenFilesToS3UploaderCommand;
+            set
+            {
+                if (Equals(value, _allWrittenFilesToS3UploaderCommand)) return;
+                _allWrittenFilesToS3UploaderCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public bool ChangeSlashes
@@ -72,17 +132,6 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             {
                 if (value == _changeSlashes) return;
                 _changeSlashes = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command? FilesToExcelCommand
-        {
-            get => _filesToExcelCommand;
-            set
-            {
-                if (Equals(value, _filesToExcelCommand)) return;
-                _filesToExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -127,28 +176,6 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command? ScriptStringsToClipboardCommand
-        {
-            get => _scriptStringsToClipboardCommand;
-            set
-            {
-                if (Equals(value, _scriptStringsToClipboardCommand)) return;
-                _scriptStringsToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command? ScriptStringsToPowerShellScriptCommand
-        {
-            get => _scriptStringsToPowerShellScriptCommand;
-            set
-            {
-                if (Equals(value, _scriptStringsToPowerShellScriptCommand)) return;
-                _scriptStringsToPowerShellScriptCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -219,7 +246,18 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public Command SiteComparisonReportCommand
+        public Command? SelectedWrittenFilesToS3UploaderCommand
+        {
+            get => _selectedWrittenFilesToS3UploaderCommand;
+            set
+            {
+                if (Equals(value, _selectedWrittenFilesToS3UploaderCommand)) return;
+                _selectedWrittenFilesToS3UploaderCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? SiteComparisonReportCommand
         {
             get => _siteComparisonReportCommand;
             set
@@ -241,13 +279,13 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public string UserFilePrefix
+        public string UserBucketName
         {
-            get => _userFilePrefix;
+            get => _userBucketName;
             set
             {
-                if (value == _userFilePrefix) return;
-                _userFilePrefix = value;
+                if (value == _userBucketName) return;
+                _userBucketName = value;
                 OnPropertyChanged();
             }
         }
@@ -263,24 +301,122 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public Command? WrittenFilesToClipboardCommand
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private async Task AllFilesToExcel()
         {
-            get => _writtenFilesToClipboardCommand;
-            set
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
             {
-                if (Equals(value, _writtenFilesToClipboardCommand)) return;
-                _writtenFilesToClipboardCommand = value;
-                OnPropertyChanged();
+                StatusContext?.ToastError("No Items?");
+                return;
             }
+
+            FilesToExcel(Items.ToList());
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public async Task AllScriptStringsToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext?.ToastError("No Items?");
+                return;
+            }
+
+            var scriptString = FileItemsToScriptString(Items.ToList());
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(scriptString);
+        }
+
+        public async Task AllScriptStringsToPowerShellScript()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext?.ToastError("No Items Selected?");
+                return;
+            }
+
+            await FileItemsToScriptFile(Items.ToList()).ConfigureAwait(true);
+        }
+
+        public async Task AllWrittenFilesToClipboard()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext?.ToastError("No Items?");
+                return;
+            }
+
+            await FilesToClipboard(Items.ToList()).ConfigureAwait(true);
+        }
+
+        public async Task AllWrittenFilesToS3Uploader()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext?.ToastError("No Items?");
+                return;
+            }
+
+            await FileItemsToS3Uploader(Items.ToList());
+        }
 
         public static async Task<FilesWrittenLogListContext> CreateInstance(StatusControlContext? statusContext)
         {
             var newContext = new FilesWrittenLogListContext(statusContext, false);
             await newContext.LoadData();
             return newContext;
+        }
+
+
+        private async Task FileItemsToS3Uploader(List<FilesWrittenLogListListItem> items)
+        {
+            if (!items.Any()) return;
+
+            var toTransfer = items.Where(x => x.IsInGenerationDirectory).Select(x =>
+                new S3Upload(new FileInfo(x.WrittenFile), x.TransformedFile, UserBucketName,
+                    $"From Files Written Log - {x.WrittenOn}")).ToList();
+
+            if (!toTransfer.Any())
+            {
+                StatusContext?.ToastError("No Files in the Generation Directory?");
+                return;
+            }
+
+            var toSkipCount = SelectedItems.Count(x => !x.IsInGenerationDirectory);
+
+            if (toSkipCount > 0)
+                StatusContext?.ToastWarning($"{toSkipCount} skipped files not in the Generation Directory");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newUploadWindow = new S3UploadsWindow(toTransfer);
+            newUploadWindow.Show();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            await db.GenerationFileScriptLogs.AddAsync(new GenerationFileScriptLog
+            {
+                FileName = "Pointless Waymarks S3 Uploader",
+                WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+            });
+
+            await db.SaveChangesAsync();
+
+            await LoadDateTimeFilterChoices();
         }
 
         public async Task FileItemsToScriptFile(List<FilesWrittenLogListListItem> toWrite)
@@ -333,19 +469,6 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Clipboard.SetText(scriptString);
-        }
-
-        private async Task FilesToExcel()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (Items == null || !Items.Any())
-            {
-                StatusContext?.ToastError("No Items?");
-                return;
-            }
-
-            FilesToExcel(Items.ToList());
         }
 
         private void FilesToExcel(List<FilesWrittenLogListListItem> items)
@@ -425,7 +548,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            UserFilePrefix = UserSettingsSingleton.CurrentSettings().RemoteFileRoot;
+            UserBucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
 
             await LoadDateTimeFilterChoices();
         }
@@ -502,7 +625,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            if (propertyName == nameof(UserFilePrefix) || propertyName == nameof(UserScriptPrefix) ||
+            if (propertyName == nameof(UserBucketName) || propertyName == nameof(UserScriptPrefix) ||
                 propertyName == nameof(ChangeSlashes))
                 StatusContext?.RunBlockingAction(() =>
                 {
@@ -510,36 +633,6 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                     currentItems?.Where(x => x.IsInGenerationDirectory).ToList().ForEach(x =>
                         x.TransformedFile = ToTransformedFileString(x.FileBase));
                 });
-        }
-
-        public async Task ScriptStringsToClipboard()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (Items == null || !Items.Any())
-            {
-                StatusContext?.ToastError("No Items?");
-                return;
-            }
-
-            var scriptString = FileItemsToScriptString(Items.ToList());
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(scriptString);
-        }
-
-        public async Task ScriptStringsToPowerShellScript()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (Items == null || !Items.Any())
-            {
-                StatusContext?.ToastError("No Items Selected?");
-                return;
-            }
-
-            await FileItemsToScriptFile(Items.ToList()).ConfigureAwait(true);
         }
 
         private async Task SelectedFilesToExcel()
@@ -598,35 +691,46 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             await FilesToClipboard(SelectedItems).ConfigureAwait(true);
         }
 
-        public async Task SiteComparisonReport()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-            var results = await AwsS3GeneratedSiteComparison.FilesInGeneratedDirectoryButNotInS3(StatusContext?.ProgressTracker());
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-            var newUploadWindow = new S3UploadsWindow(results.MissingFiles);
-            newUploadWindow.Show();
-        }
-
-        public string ToTransformedFileString(string fileBase)
-        {
-            var allPieces = $"{UserFilePrefix.TrimNullToEmpty()}{fileBase}";
-            if (ChangeSlashes) allPieces = allPieces.Replace("\\", "/");
-
-            return allPieces;
-        }
-
-        public async Task WrittenFilesToClipboard()
+        public async Task SelectedWrittenFilesToS3Uploader()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (Items == null || !Items.Any())
+            if (!SelectedItems.Any())
             {
                 StatusContext?.ToastError("No Items?");
                 return;
             }
 
-            await FilesToClipboard(Items.ToList()).ConfigureAwait(true);
+            await FileItemsToS3Uploader(SelectedItems);
+        }
+
+        public async Task SiteComparisonReport()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            var results =
+                await AwsS3GeneratedSiteComparison
+                    .FilesInGeneratedDirectoryButNotInS3(StatusContext?.ProgressTracker());
+
+            var toUpload = results.FileSizeMismatches.Concat(results.MissingFiles).ToList();
+
+            if (!toUpload.Any())
+            {
+                StatusContext?.ToastSuccess("No Missing Files or Size Mismatches Found");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newUploadWindow = new S3UploadsWindow(toUpload);
+            newUploadWindow.Show();
+        }
+
+        public string ToTransformedFileString(string fileBase)
+        {
+            var allPieces = $"s3://{UserBucketName.TrimNullToEmpty()}{fileBase}";
+            if (ChangeSlashes) allPieces = allPieces.Replace("\\", "/");
+
+            return allPieces;
         }
     }
 }

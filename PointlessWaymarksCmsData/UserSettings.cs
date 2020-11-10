@@ -17,12 +17,12 @@ namespace PointlessWaymarksCmsData
         private double _longitudeDefault;
         private string _pdfToCairoExeDirectory;
         private string _pinboardApiToken;
-        private string _remoteFileRoot;
         private Guid _settingsId;
         private string _siteAuthors;
         private string _siteEmailTo;
         private string _siteKeywords;
         private string _siteName;
+        private string _siteS3Bucket;
         private string _siteSummary;
         private string _siteUrl;
 
@@ -136,17 +136,6 @@ namespace PointlessWaymarksCmsData
             }
         }
 
-        public string RemoteFileRoot
-        {
-            get => _remoteFileRoot;
-            set
-            {
-                if (value == _remoteFileRoot) return;
-                _remoteFileRoot = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Guid SettingsId
         {
             get => _settingsId;
@@ -198,6 +187,17 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _siteName) return;
                 _siteName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SiteS3Bucket
+        {
+            get => _siteS3Bucket;
+            set
+            {
+                if (value == _siteS3Bucket) return;
+                _siteS3Bucket = value;
                 OnPropertyChanged();
             }
         }

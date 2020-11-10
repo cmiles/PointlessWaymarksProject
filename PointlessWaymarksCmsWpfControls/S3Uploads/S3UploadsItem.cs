@@ -14,18 +14,22 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
     public class S3UploadsItem : INotifyPropertyChanged
     {
         private string _amazonObjectKey;
-        private string _bucketName = string.Empty;
+        private string _bucketName;
         private bool _completed;
         private string _errorMessage = string.Empty;
         private FileInfo _fileToUpload;
         private bool _hasError;
         private bool _isUploading;
+        private string _note;
+        private bool _queued;
         private string _status = string.Empty;
 
-        public S3UploadsItem(FileInfo fileToUpload, string amazonObjectKey)
+        public S3UploadsItem(FileInfo fileToUpload, string amazonObjectKey, string bucket, string note)
         {
             _fileToUpload = fileToUpload;
             _amazonObjectKey = amazonObjectKey;
+            _bucketName = bucket;
+            _note = note;
         }
 
         public string AmazonObjectKey
@@ -101,6 +105,29 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             {
                 if (value == _isUploading) return;
                 _isUploading = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Note
+        {
+            get => _note;
+            set
+            {
+                if (value == _note) return;
+                _note = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public bool Queued
+        {
+            get => _queued;
+            set
+            {
+                if (value == _queued) return;
+                _queued = value;
                 OnPropertyChanged();
             }
         }

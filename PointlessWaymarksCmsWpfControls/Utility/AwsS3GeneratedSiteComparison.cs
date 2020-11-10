@@ -18,10 +18,25 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         public List<S3Upload> MissingFiles { get; set; } = new List<S3Upload>();
         public List<S3Object> S3ObjectsNotInGeneratedSite { get; set; } = new List<S3Object>();
 
+
+        public static string FileInfoInGeneratedSiteToS3Key(FileInfo file)
+        {
+            return file.FullName.Replace($"{UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory}\\", "")
+                .Replace("\\", "/");
+        }
+
         public static async Task<AwsS3GeneratedSiteComparison> FilesInGeneratedDirectoryButNotInS3(
             IProgress<string>? progress)
         {
             var returnReport = new AwsS3GeneratedSiteComparison();
+
+            if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().SiteS3Bucket))
+            {
+                returnReport.ErrorMessages.Add("Amazon S3 Bucket Name not filled?");
+                return returnReport;
+            }
+
+            var bucket = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
 
             progress?.Report("Getting list of all generated files");
 
@@ -52,8 +67,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             var s3Client = new AmazonS3Client(accessKey, secret);
 
-            var listRequest =
-                new ListObjectsV2Request {BucketName = UserSettingsSingleton.CurrentSettings().RemoteFileRoot};
+            var listRequest = new ListObjectsV2Request {BucketName = bucket};
 
             var awsObjects = new List<S3Object>();
 
@@ -86,28 +100,27 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     progress?.Report(
                         $"File Loop vs Aws S3 Objects Comparison - {fileLoopCount} or {totalGeneratedFiles} - {loopFile.FullName}");
 
-                var loopFileKey =
-                    loopFile.FullName.Replace($"{UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory}\\", "").Replace("\\", "/");
+                var loopFileKey = FileInfoInGeneratedSiteToS3Key(loopFile);
 
-                var matches = awsObjects.Where(x => !x.Key.EndsWith("\\") && x.Size != 0 && x.Key == loopFileKey)
+                var matches = awsObjects.Where(x => !x.Key.EndsWith("/") && x.Size != 0 && x.Key == loopFileKey)
                     .ToList();
 
                 if (matches.Count > 1)
                 {
                     returnReport.ErrorMessages.Add(
-                        $"Unexpected Condition - {matches.Count()} matches found for {loopFile.FullName} - {string.Join(", ", matches.Select(x => x.Key))}");
+                        $"Unexpected Condition - {matches.Count} matches found for {loopFile.FullName} - {string.Join(", ", matches.Select(x => x.Key))}");
                 }
                 else if (matches.Count == 1)
                 {
                     if (loopFile.Length != matches.First().Size)
-                        returnReport.FileSizeMismatches.Add(new S3Upload(loopFile, matches.First().Key));
+                        returnReport.FileSizeMismatches.Add(new S3Upload(loopFile, matches.First().Key, bucket,
+                            "S3 File Size Mismatch"));
                     matches.ForEach(x => awsObjects.Remove(x));
                 }
                 else
                 {
-                    returnReport.MissingFiles.Add(new S3Upload(loopFile,
-                        loopFile.FullName.Replace(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory,
-                            string.Empty)));
+                    returnReport.MissingFiles.Add(new S3Upload(loopFile, FileInfoInGeneratedSiteToS3Key(loopFile),
+                        bucket, "File Missing on S3"));
                 }
             }
 
