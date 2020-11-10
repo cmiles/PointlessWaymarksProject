@@ -385,7 +385,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             if (!items.Any()) return;
 
             var toTransfer = items.Where(x => x.IsInGenerationDirectory).Select(x =>
-                new S3Upload(new FileInfo(x.WrittenFile), x.TransformedFile, UserBucketName,
+                new S3Upload(new FileInfo(x.WrittenFile), x.FileBase, UserBucketName,
                     $"From Files Written Log - {x.WrittenOn}")).ToList();
 
             if (!toTransfer.Any())
@@ -458,7 +458,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             return string.Join(Environment.NewLine,
                 sortedItems.Where(x => x.IsInGenerationDirectory).Select(x =>
-                        $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' {x.TransformedFile};")
+                        $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' s3://{x.TransformedFile};")
                     .Distinct().ToList());
         }
 
@@ -727,7 +727,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
         public string ToTransformedFileString(string fileBase)
         {
-            var allPieces = $"s3://{UserBucketName.TrimNullToEmpty()}{fileBase}";
+            var allPieces = $"{UserBucketName.TrimNullToEmpty()}{fileBase}";
             if (ChangeSlashes) allPieces = allPieces.Replace("\\", "/");
 
             return allPieces;

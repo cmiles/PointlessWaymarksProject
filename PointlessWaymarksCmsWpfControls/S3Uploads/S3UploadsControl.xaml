@@ -76,7 +76,7 @@
                                     Style="{StaticResource ReadOnlyTextBox}"
                                     TextWrapping="Wrap">
                                     <TextBox.Text>
-                                        <MultiBinding StringFormat="To: {0}/{1}">
+                                        <MultiBinding StringFormat="To: {0}{1}">
                                             <Binding Path="BucketName" />
                                             <Binding Path="AmazonObjectKey" />
                                         </MultiBinding>

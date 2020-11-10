@@ -87,7 +87,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             if (!uploadList.Any()) return;
 
             var newItemsList = uploadList.Select(x => new S3UploadsItem(x.ToUpload, x.S3Key, x.BucketName, x.Note))
-                .ToList();
+                .OrderByDescending(x => x.FileToUpload.FullName.Count(y => y == '\\'))
+                .ThenBy(x => x.FileToUpload.FullName).ToList();
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
