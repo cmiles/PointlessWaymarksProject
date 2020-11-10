@@ -385,7 +385,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             if (!items.Any()) return;
 
             var toTransfer = items.Where(x => x.IsInGenerationDirectory).Select(x =>
-                new S3Upload(new FileInfo(x.WrittenFile), x.FileBase, UserBucketName,
+                new S3Upload(new FileInfo(x.WrittenFile), AwsS3GeneratedSiteComparison.FileInfoInGeneratedSiteToS3Key(new FileInfo(x.WrittenFile)), UserBucketName,
                     $"From Files Written Log - {x.WrittenOn}")).ToList();
 
             if (!toTransfer.Any())
