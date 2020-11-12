@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.PostList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    Name="PostListControlXaml"
     d:DataContext="{d:DesignInstance local:PostListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -101,9 +102,6 @@
                 <i:Interaction.Behaviors>
                     <utility:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
-                <ListBox.Resources>
-                    <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
-                </ListBox.Resources>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:PostListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
@@ -118,7 +116,7 @@
                                     ToolTip="Shift Double Click to Edit Post">
                                     <Image.InputBindings>
                                         <MouseBinding
-                                            Command="{Binding Data.EditContentCommand, Source={StaticResource Proxy}}"
+                                            Command="{Binding DataContext.EditContentCommand, ElementName=PostListControlXaml}"
                                             CommandParameter="{Binding DbEntry}"
                                             Gesture="Shift+LeftDoubleClick" />
                                     </Image.InputBindings>

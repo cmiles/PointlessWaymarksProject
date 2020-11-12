@@ -7,6 +7,7 @@
     xmlns:linkList="clr-namespace:PointlessWaymarksCmsWpfControls.LinkList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    Name="LinkListControlXaml"
     d:DataContext="{d:DesignInstance linkList:LinkListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -17,7 +18,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
@@ -126,7 +126,7 @@
                                     </TextBox>
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
-                                            <Hyperlink Command="{Binding Data.OpenUrlCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding DbEntry.Url}">
+                                            <Hyperlink Command="{Binding DataContext.OpenUrlCommand, ElementName=LinkListControlXaml}" CommandParameter="{Binding DbEntry.Url}">
                                                 <Hyperlink.Inlines>
                                                     <Run Text="{Binding DbEntry.Url}" />
                                                 </Hyperlink.Inlines>
@@ -136,7 +136,7 @@
                                             Width="80"
                                             Height="20"
                                             VerticalAlignment="Center"
-                                            Command="{Binding Data.CopyUrlCommand, Source={StaticResource Proxy}}"
+                                            Command="{Binding DataContext.CopyUrlCommand, ElementName=LinkListControlXaml}"
                                             CommandParameter="{Binding DbEntry.Url}">
                                             Copy Link
                                         </Button>

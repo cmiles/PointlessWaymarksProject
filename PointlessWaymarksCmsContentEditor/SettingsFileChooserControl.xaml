@@ -7,13 +7,11 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
+    Name="SettingsFileChooserControlXaml"
     d:DataContext="{d:DesignInstance local:SettingsFileChooserControlContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <UserControl.Resources>
-        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
-    </UserControl.Resources>
     <StackPanel>
         <TextBlock
             HorizontalAlignment="Center"
@@ -49,7 +47,7 @@
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
                                 <Button
-                                    Command="{Binding Data.ChooseRecentFileCommand, Source={StaticResource Proxy}}"
+                                    Command="{Binding DataContext.ChooseRecentFileCommand, ElementName=SettingsFileChooserControlXaml}"
                                     CommandParameter="{Binding .}"
                                     FontSize="16">
                                     Launch

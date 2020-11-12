@@ -9,6 +9,7 @@
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    Name="MenuLinkEditorControlXaml"
     d:DataContext="{d:DesignInstance local:MenuLinkEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -18,7 +19,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -80,7 +80,7 @@
                                     <Button
                                         Width="24"
                                         Height="24"
-                                        Command="{Binding Data.MoveItemUpCommand, Source={StaticResource Proxy}}"
+                                        Command="{Binding DataContext.MoveItemUpCommand, ElementName=MenuLinkEditorControlXaml}"
                                         CommandParameter="{Binding .}">
                                         <Viewbox StretchDirection="DownOnly">
                                             <Canvas Width="24" Height="24">
@@ -93,7 +93,7 @@
                                         Grid.Column="0"
                                         Width="24"
                                         Height="24"
-                                        Command="{Binding Data.MoveItemDownCommand, Source={StaticResource Proxy}}"
+                                        Command="{Binding DataContext.MoveItemDownCommand, ElementName=MenuLinkEditorControlXaml}"
                                         CommandParameter="{Binding .}">
                                         <Viewbox StretchDirection="DownOnly">
                                             <Canvas Width="24" Height="24">
@@ -137,19 +137,19 @@
                                         </Style>
                                     </WrapPanel.Resources>
                                     <Label>Insert Special Page Bracket Code:</Label>
-                                    <Button Command="{Binding Data.InsertIndexTagIndexCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                    <Button Command="{Binding DataContext.InsertIndexTagIndexCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Index
                                     </Button>
-                                    <Button Command="{Binding Data.InsertSearchPageCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                    <Button Command="{Binding DataContext.InsertSearchPageCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Search
                                     </Button>
-                                    <Button Command="{Binding Data.InsertPhotoGalleryCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                    <Button Command="{Binding DataContext.InsertPhotoGalleryCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Photo Gallery
                                     </Button>
-                                    <Button Command="{Binding Data.InsertLinkListCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                    <Button Command="{Binding DataContext.InsertLinkListCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Links
                                     </Button>
-                                    <Button Command="{Binding Data.InsertTagSearchCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                    <Button Command="{Binding DataContext.InsertTagSearchCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Tags
                                     </Button>
                                 </WrapPanel>

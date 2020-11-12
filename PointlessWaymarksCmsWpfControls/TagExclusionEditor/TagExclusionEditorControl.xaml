@@ -8,8 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-    xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    Name="TagExclusionEditorControlXaml"
     d:DataContext="{d:DesignInstance local:TagExclusionEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -41,9 +41,6 @@
                     <b:Interaction.Behaviors>
                         <utility:ItemsControlScrollToEndOnNewItemBehaviour ItemsControlScrollViewer="{Binding ElementName=TagExclusionListScrollViewer}" />
                     </b:Interaction.Behaviors>
-                    <ItemsControl.Resources>
-                        <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
-                    </ItemsControl.Resources>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel IsItemsHost="True" />
@@ -81,13 +78,13 @@
                                         Visibility="{Binding HasChanges, Converter={StaticResource BooleanToHidden}}" />
                                     <Button
                                         Height="32"
-                                        Command="{Binding Data.SaveItemCommand, Source={StaticResource Proxy}}"
+                                        Command="{Binding DataContext.SaveItemCommand, ElementName=TagExclusionEditorControlXaml}"
                                         CommandParameter="{Binding .}">
                                         Save
                                     </Button>
                                     <Button
                                         Height="32"
-                                        Command="{Binding Data.DeleteItemCommand, Source={StaticResource Proxy}}"
+                                        Command="{Binding DataContext.DeleteItemCommand, ElementName=TagExclusionEditorControlXaml}"
                                         CommandParameter="{Binding .}">
                                         Delete
                                     </Button>

@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    Name="TagListControlXaml"
     d:DataContext="{d:DesignInstance local:TagListContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -107,9 +108,7 @@
                         ItemsSource="{Binding DetailsList}"
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                         SelectionChanged="Details_Selector_OnSelectionChanged">
-                        <ListBox.Resources>
-                            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
-                        </ListBox.Resources>
+
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="local:TagItemContentInformation">
                                 <Border BorderBrush="LightGray" BorderThickness="1">
@@ -152,7 +151,7 @@
                                             Grid.Column="1"
                                             Width="45"
                                             Height="45"
-                                            Command="{Binding Data.EditContentCommand, Source={StaticResource Proxy}}"
+                                            Command="{Binding ElementName=TagListControlXaml, Path=DataContext.EditContentCommand}"
                                             CommandParameter="{Binding ContentId}">
                                             Edit
                                         </Button>

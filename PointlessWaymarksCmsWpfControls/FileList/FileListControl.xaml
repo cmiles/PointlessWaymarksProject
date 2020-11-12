@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.FileList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    Name="ImageListControlXaml"
     d:DataContext="{d:DesignInstance local:FileListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -20,7 +21,6 @@
             <utility:ImageCacheConverter x:Key="ImageCache" />
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -162,7 +162,7 @@
                                             Width="180"
                                             Height="30"
                                             HorizontalAlignment="Left"
-                                            Command="{Binding Data.OpenFileCommand, Source={StaticResource Proxy}}"
+                                            Command="{Binding DataContext.OpenFileCommand, ElementName=ImageListControlXaml}"
                                             CommandParameter="{Binding .}">
                                             Open File
                                         </Button>

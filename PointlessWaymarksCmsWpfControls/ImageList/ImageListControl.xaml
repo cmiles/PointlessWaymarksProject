@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.ImageList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    Name="LineListControlXaml"
     d:DataContext="{d:DesignInstance local:ImageListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -20,7 +21,6 @@
             <utility:ImageCacheConverter x:Key="ImageCache" />
             <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -91,9 +91,6 @@
                 ItemsSource="{Binding Items}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
-                <ListBox.Resources>
-                    <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
-                </ListBox.Resources>
                 <i:Interaction.Behaviors>
                     <utility:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
@@ -112,11 +109,11 @@
                                         ToolTip="Double Click to View, Shift Double Click to Edit">
                                         <Image.InputBindings>
                                             <MouseBinding
-                                                Command="{Binding Data.ViewImageCommand, Source={StaticResource Proxy}}"
+                                                Command="{Binding DataContext.ViewImageCommand, ElementName=LineListControlXaml}"
                                                 CommandParameter="{Binding DbEntry}"
                                                 MouseAction="LeftDoubleClick" />
                                             <MouseBinding
-                                                Command="{Binding Data.EditContentCommand, Source={StaticResource Proxy}}"
+                                                Command="{Binding DataContext.EditContentCommand, ElementName=LineListControlXaml}"
                                                 CommandParameter="{Binding DbEntry}"
                                                 Gesture="Shift+LeftDoubleClick" />
                                         </Image.InputBindings>
@@ -125,7 +122,7 @@
                                         Height="24"
                                         Margin="0,0,8,8"
                                         HorizontalAlignment="Center"
-                                        Command="{Binding Data.OpenFileCommand, Source={StaticResource Proxy}}"
+                                        Command="{Binding DataContext.OpenFileCommand, ElementName=LineListControlXaml}"
                                         CommandParameter="{Binding .}"
                                         Opacity=".5">
                                         view image
