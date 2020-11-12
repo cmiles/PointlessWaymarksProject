@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
@@ -28,11 +29,13 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private Command? _allScriptStringsToPowerShellScriptCommand;
         private Command? _allWrittenFilesToClipboardCommand;
         private Command? _allWrittenFilesToS3UploaderCommand;
+        private Command? _allWrittenFilesToS3UploaderJsonFileCommand;
         private bool _changeSlashes = true;
         private bool _filterForFilesInCurrentGenerationDirectory = true;
         private Command? _generateItemsCommand;
         private ObservableCollection<FileWrittenLogListDateTimeFilterChoice>? _generationChoices;
         private ObservableCollection<FilesWrittenLogListListItem>? _items;
+        private Command? _openUploaderJsonFileCommand;
         private Command? _selectedFilesToExcelCommand;
         private FileWrittenLogListDateTimeFilterChoice? _selectedGenerationChoice;
         private List<FilesWrittenLogListListItem> _selectedItems = new List<FilesWrittenLogListListItem>();
@@ -40,7 +43,8 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private Command? _selectedScriptStringsToPowerShellScriptCommand;
         private Command? _selectedWrittenFilesToClipboardCommand;
         private Command? _selectedWrittenFilesToS3UploaderCommand;
-        private Command _siteComparisonReportCommand;
+        private Command? _selectedWrittenFilesToS3UploaderJsonFileCommand;
+        private Command? _siteComparisonReportCommand;
         private StatusControlContext? _statusContext;
         private string _userBucketName = string.Empty;
         private string _userScriptPrefix = "aws s3 cp";
@@ -66,6 +70,11 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             SelectedWrittenFilesToS3UploaderCommand =
                 StatusContext.RunNonBlockingTaskCommand(SelectedWrittenFilesToS3Uploader);
             AllWrittenFilesToS3UploaderCommand = StatusContext.RunNonBlockingTaskCommand(AllWrittenFilesToS3Uploader);
+            SelectedWrittenFilesToS3UploaderJsonFileCommand =
+                StatusContext.RunNonBlockingTaskCommand(SelectedWrittenFilesToS3UploaderJsonFile);
+            AllWrittenFilesToS3UploaderJsonFileCommand =
+                StatusContext.RunNonBlockingTaskCommand(AllWrittenFilesToS3UploaderJsonFile);
+            OpenUploaderJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenUploaderJsonFile);
 
             if (loadInBackground) StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -125,6 +134,17 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
+        public Command? AllWrittenFilesToS3UploaderJsonFileCommand
+        {
+            get => _allWrittenFilesToS3UploaderJsonFileCommand;
+            set
+            {
+                if (Equals(value, _allWrittenFilesToS3UploaderJsonFileCommand)) return;
+                _allWrittenFilesToS3UploaderJsonFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool ChangeSlashes
         {
             get => _changeSlashes;
@@ -176,6 +196,17 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? OpenUploaderJsonFileCommand
+        {
+            get => _openUploaderJsonFileCommand;
+            set
+            {
+                if (Equals(value, _openUploaderJsonFileCommand)) return;
+                _openUploaderJsonFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -253,6 +284,17 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             {
                 if (Equals(value, _selectedWrittenFilesToS3UploaderCommand)) return;
                 _selectedWrittenFilesToS3UploaderCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? SelectedWrittenFilesToS3UploaderJsonFileCommand
+        {
+            get => _selectedWrittenFilesToS3UploaderJsonFileCommand;
+            set
+            {
+                if (Equals(value, _selectedWrittenFilesToS3UploaderJsonFileCommand)) return;
+                _selectedWrittenFilesToS3UploaderJsonFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -372,6 +414,19 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             await FileItemsToS3Uploader(Items.ToList());
         }
 
+        public async Task AllWrittenFilesToS3UploaderJsonFile()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext?.ToastError("No Items?");
+                return;
+            }
+
+            await FileItemsToS3UploaderJsonFile(Items.ToList());
+        }
+
         public static async Task<FilesWrittenLogListContext> CreateInstance(StatusControlContext? statusContext)
         {
             var newContext = new FilesWrittenLogListContext(statusContext, false);
@@ -379,14 +434,11 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             return newContext;
         }
 
-
         private async Task FileItemsToS3Uploader(List<FilesWrittenLogListListItem> items)
         {
             if (!items.Any()) return;
 
-            var toTransfer = items.Where(x => x.IsInGenerationDirectory).Select(x =>
-                new S3Upload(new FileInfo(x.WrittenFile), AwsS3GeneratedSiteComparison.FileInfoInGeneratedSiteToS3Key(new FileInfo(x.WrittenFile)), UserBucketName,
-                    $"From Files Written Log - {x.WrittenOn}")).ToList();
+            var toTransfer = FileItemsToUploaderItems(items);
 
             if (!toTransfer.Any())
             {
@@ -406,17 +458,35 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
+
+            await S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
+
             var db = await Db.Context();
 
             await db.GenerationFileScriptLogs.AddAsync(new GenerationFileScriptLog
             {
-                FileName = "Pointless Waymarks S3 Uploader",
-                WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+                FileName = fileName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
             });
 
             await db.SaveChangesAsync();
 
             await LoadDateTimeFilterChoices();
+        }
+
+        private async Task FileItemsToS3UploaderJsonFile(List<FilesWrittenLogListListItem> items)
+        {
+            if (!items.Any()) return;
+
+            var toTransfer = FileItemsToUploaderItems(items);
+
+            var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
+
+            await S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
+
+            await ProcessHelpers.OpenExplorerWindowForFile(fileName).ConfigureAwait(false);
         }
 
         public async Task FileItemsToScriptFile(List<FilesWrittenLogListListItem> toWrite)
@@ -440,13 +510,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             await LoadDateTimeFilterChoices();
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var ps = new ProcessStartInfo("explorer.exe", $"/select, \"{file.FullName}\"")
-            {
-                UseShellExecute = true, Verb = "open"
-            };
-            Process.Start(ps);
+            await ProcessHelpers.OpenExplorerWindowForFile(file.FullName).ConfigureAwait(false);
         }
 
         public string FileItemsToScriptString(List<FilesWrittenLogListListItem> toConvert)
@@ -460,6 +524,14 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 sortedItems.Where(x => x.IsInGenerationDirectory).Select(x =>
                         $"{UserScriptPrefix}{(string.IsNullOrWhiteSpace(UserScriptPrefix) ? "" : " ")}'{x.WrittenFile}' s3://{x.TransformedFile};")
                     .Distinct().ToList());
+        }
+
+
+        private List<S3Upload> FileItemsToUploaderItems(List<FilesWrittenLogListListItem> items)
+        {
+            return items.Where(x => x.IsInGenerationDirectory).Select(x => new S3Upload(new FileInfo(x.WrittenFile),
+                AwsS3GeneratedSiteComparison.FileInfoInGeneratedSiteToS3Key(new FileInfo(x.WrittenFile)),
+                UserBucketName, $"From Files Written Log - {x.WrittenOn}")).ToList();
         }
 
         private async Task FilesToClipboard(List<FilesWrittenLogListListItem> items)
@@ -579,7 +651,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 (await db.GenerationFileScriptLogs.OrderByDescending(x => x.WrittenOnVersion).Take(30).ToListAsync())
                 .Select(x => new FileWrittenLogListDateTimeFilterChoice
                 {
-                    DisplayText = $"{x.WrittenOnVersion.ToLocalTime():F} - Script Generated",
+                    DisplayText = $"{x.WrittenOnVersion.ToLocalTime():F} - Upload Generated",
                     FilterDateTimeUtc = x.WrittenOnVersion
                 }));
 
@@ -633,6 +705,78 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                     currentItems?.Where(x => x.IsInGenerationDirectory).ToList().ForEach(x =>
                         x.TransformedFile = ToTransformedFileString(x.FileBase));
                 });
+        }
+
+        private async Task OpenUploaderJsonFile()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            StatusContext?.Progress("Starting photo load.");
+
+            var dialog = new VistaOpenFileDialog
+            {
+                Multiselect = false,
+                Filter = "json files (*.json)|*.json|All files (*.*)|*.*",
+                InitialDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName
+            };
+
+            if (!(dialog.ShowDialog() ?? false)) return;
+
+            var selectedFileName = dialog.FileNames?.FirstOrDefault() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(selectedFileName)) return;
+
+            var file = new FileInfo(selectedFileName);
+
+            if (!file.Exists)
+            {
+                StatusContext?.ToastError($"Selected Json Upload File - {selectedFileName} - doesn't exist?");
+                return;
+            }
+
+            try
+            {
+                var items = JsonSerializer.Deserialize<List<S3UploadFileRecord>>(
+                    await File.ReadAllTextAsync(file.FullName));
+
+                if (items == null || !items.Any())
+                {
+                    StatusContext?.ToastError("File format error or no items to upload?");
+                    return;
+                }
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var newUploaderWindow = new S3UploadsWindow(items
+                    .Select(x => new S3Upload(new FileInfo(x.fileFullName), x.S3Key, x.BucketName, x.Note)).ToList());
+                newUploaderWindow.Show();
+            }
+            catch (Exception e)
+            {
+                if (StatusContext != null)
+                    await StatusContext?.ShowMessageWithOkButton("File Import Error", e.ToString());
+            }
+        }
+
+        private async Task S3UploaderItemsToS3UploaderJsonFile(List<S3Upload> items, string fileName)
+        {
+            var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
+                new S3UploadFileRecord(x.ToUpload.FullName, x.S3Key, x.BucketName, x.Note)));
+
+            var file = new FileInfo(fileName);
+
+            await File.WriteAllTextAsync(file.FullName, jsonInfo);
+
+            var db = await Db.Context();
+
+            await db.GenerationFileScriptLogs.AddAsync(new GenerationFileScriptLog
+            {
+                FileName = file.Name, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+            });
+
+            await db.SaveChangesAsync();
+
+            await LoadDateTimeFilterChoices();
         }
 
         private async Task SelectedFilesToExcel()
@@ -702,6 +846,19 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
 
             await FileItemsToS3Uploader(SelectedItems);
+        }
+
+        public async Task SelectedWrittenFilesToS3UploaderJsonFile()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (!SelectedItems.Any())
+            {
+                StatusContext?.ToastError("No Items?");
+                return;
+            }
+
+            await FileItemsToS3UploaderJsonFile(SelectedItems);
         }
 
         public async Task SiteComparisonReport()

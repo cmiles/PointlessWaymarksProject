@@ -17,6 +17,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         private string _bucketName;
         private bool _completed;
         private string _errorMessage = string.Empty;
+        private bool _fileNoLongerExistsOnDisk;
         private FileInfo _fileToUpload;
         private bool _hasError;
         private bool _isUploading;
@@ -72,6 +73,17 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             {
                 if (value == _errorMessage) return;
                 _errorMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool FileNoLongerExistsOnDisk
+        {
+            get => _fileNoLongerExistsOnDisk;
+            set
+            {
+                if (value == _fileNoLongerExistsOnDisk) return;
+                _fileNoLongerExistsOnDisk = value;
                 OnPropertyChanged();
             }
         }
@@ -157,6 +169,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 
             HasError = false;
             ErrorMessage = string.Empty;
+            Completed = false;
 
             if (string.IsNullOrWhiteSpace(BucketName))
             {
@@ -178,6 +191,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             {
                 HasError = true;
                 ErrorMessage = $"File to Upload {FileToUpload.FullName} does not exist?";
+                FileNoLongerExistsOnDisk = true;
                 return;
             }
 

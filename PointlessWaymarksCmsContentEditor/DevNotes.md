@@ -6,8 +6,8 @@
   - Revisit naming and intent of the written scripts table and the filter choices in files written
   - Sort the files to check in the Comp method - not a technical concern but makes it easier to 'see' progress
   - Filter option in S3 window to hide completed items (and/or sorting or?)
-  - Overall Queue progress (maybe a queue object - let multiples run?)
   - Prevent window closure while running?
+  - Saving Uploads from Uploads Window
  - Revisit AvalonEdit for the BodyContent Editor for performance reasons - probably 'as a service' since for perf AvalonEdit doesn't expose a bound Text property
  - Could Tag List javascript be abstracted to site resources easily?
  - Better loading indication on the search lists
@@ -55,6 +55,10 @@
  
  
 ## Notes
+
+11/12/2020
+
+First upload batch tracking in uploads window and saving Json Uploads from the written files tab. Still quite a few todos but it continues to look like this will be a very useful project.
 
 11/10/2020
 

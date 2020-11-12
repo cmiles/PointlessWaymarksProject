@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
 {
-    public sealed class BooleanToVisibilityConverter : IValueConverter
+    public sealed class BooleanToHiddenConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -15,7 +15,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     return Visibility.Visible;
 
                 case bool b:
-                    return b ? Visibility.Visible : Visibility.Collapsed;
+                    return b ? Visibility.Visible : Visibility.Hidden;
 
                 default:
                     return Visibility.Visible;

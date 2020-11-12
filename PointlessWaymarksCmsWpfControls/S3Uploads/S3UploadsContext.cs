@@ -16,14 +16,17 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
     {
         private ObservableCollection<S3UploadsItem>? _items;
         private List<S3UploadsItem> _selectedItems = new List<S3UploadsItem>();
+        private Command? _startAllUploadsCommand;
         private Command? _startSelectedUploadsCommand;
         private StatusControlContext _statusContext;
+        private S3UploadsUploadBatch? _uploadBatch;
 
         public S3UploadsContext(StatusControlContext? statusContext)
         {
             _statusContext = statusContext ?? new StatusControlContext();
 
-            StartSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
+            StartSelectedUploadsCommand = StatusContext.RunBlockingTaskCommand(StartSelectedUploads);
+            StartAllUploadsCommand = StatusContext.RunBlockingTaskCommand(StartAllUploads);
         }
 
         public ObservableCollection<S3UploadsItem>? Items
@@ -48,6 +51,17 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             }
         }
 
+        public Command? StartAllUploadsCommand
+        {
+            get => _startAllUploadsCommand;
+            set
+            {
+                if (Equals(value, _startAllUploadsCommand)) return;
+                _startAllUploadsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command? StartSelectedUploadsCommand
         {
             get => _startSelectedUploadsCommand;
@@ -66,6 +80,17 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public S3UploadsUploadBatch? UploadBatch
+        {
+            get => _uploadBatch;
+            set
+            {
+                if (Equals(value, _uploadBatch)) return;
+                _uploadBatch = value;
                 OnPropertyChanged();
             }
         }
@@ -109,34 +134,46 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        public async Task StartAllUploads()
+        {
+            if (UploadBatch != null && !UploadBatch.Completed)
+            {
+                StatusContext.ToastWarning("Wait for the current Upload Batch to Complete...");
+                return;
+            }
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext.ToastError("Nothing Selected...");
+                return;
+            }
+
+            var localSelected = Items.ToList();
+
+            UploadBatch = await S3UploadsUploadBatch.CreateInstance(localSelected);
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await UploadBatch.StartUploadBatch());
+        }
+
         public async Task StartSelectedUploads()
         {
+            if (UploadBatch != null && !UploadBatch.Completed)
+            {
+                StatusContext.ToastWarning("Wait for the current Upload Batch to Complete...");
+                return;
+            }
+
             if (!SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected...");
                 return;
             }
 
-            var localSelected = SelectedItems.Where(x => !x.Queued).ToList();
+            var localSelected = SelectedItems.ToList();
 
-            if (!localSelected.Any())
-            {
-                StatusContext.ToastError("All Selected Items are already queued for upload...");
-                return;
-            }
+            UploadBatch = await S3UploadsUploadBatch.CreateInstance(localSelected);
 
-            var skipCount = SelectedItems.Count(x => x.Queued);
-
-            if (skipCount > 0)
-                StatusContext.ToastWarning($"{skipCount} Items skipped because they are already queued for Upload.");
-
-            localSelected.ForEach(x => x.Queued = true);
-
-            foreach (var loopSelected in localSelected)
-            {
-                await loopSelected.StartUpload();
-                loopSelected.Queued = false;
-            }
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () => await UploadBatch.StartUploadBatch());
         }
     }
 }

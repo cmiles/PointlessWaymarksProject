@@ -161,11 +161,11 @@
                         Text="{Binding EditorSettings.PdfToCairoExeDirectory, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=RemoteFileRoot}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
                         S3 Bucket Name
                     </Label>
                     <TextBox
-                        Name="RemoteFileRootTextBox"
+                        Name="S3BucketTextBox"
                         Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                         Text="{Binding EditorSettings.SiteS3Bucket, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>

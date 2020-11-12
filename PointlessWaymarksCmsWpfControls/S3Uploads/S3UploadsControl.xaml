@@ -16,24 +16,104 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility"></utility:BooleanToVisibilityConverter>
+            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <utility:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
+        <Grid.Resources>
+            <DataTemplate x:Key="S3UploadsDataTemplate" DataType="local:S3UploadsItem">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBox
+                            FontWeight="Bold"
+                            Style="{StaticResource ReadOnlyTextBox}"
+                            Text="{Binding Note, Mode=OneWay}"
+                            TextWrapping="Wrap">
+                            <b:Interaction.Behaviors>
+                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                            </b:Interaction.Behaviors>
+                        </TextBox>
+                        <TextBox
+                            Grid.Row="1"
+                            FontWeight="Bold"
+                            Style="{StaticResource ReadOnlyTextBox}"
+                            Text="{Binding FileToUpload.FullName, StringFormat='From: {0}', Mode=OneWay}"
+                            TextWrapping="Wrap">
+                            <b:Interaction.Behaviors>
+                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                            </b:Interaction.Behaviors>
+                        </TextBox>
+                        <TextBox
+                            Grid.Row="2"
+                            Style="{StaticResource ReadOnlyTextBox}"
+                            TextWrapping="Wrap">
+                            <TextBox.Text>
+                                <MultiBinding StringFormat="To: {0}/{1}">
+                                    <Binding Path="BucketName" />
+                                    <Binding Path="AmazonObjectKey" />
+                                </MultiBinding>
+                            </TextBox.Text>
+                            <b:Interaction.Behaviors>
+                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                            </b:Interaction.Behaviors>
+                        </TextBox>
+                        <WrapPanel Grid.Row="3">
+                            <TextBlock
+                                Background="DarkGray"
+                                Text="Queued"
+                                Visibility="{Binding Queued, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}" />
+                            <TextBlock
+                                Background="LightSkyBlue"
+                                Text="Uploading"
+                                Visibility="{Binding IsUploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}" />
+                            <TextBlock
+                                Background="GreenYellow"
+                                Text="Completed"
+                                Visibility="{Binding Completed, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}" />
+                            <TextBlock
+                                Background="Yellow"
+                                Text="{Binding ErrorMessage, StringFormat='Error: {0}'}"
+                                Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}" />
+                        </WrapPanel>
+                        <WrapPanel Grid.Row="4">
+                            <TextBlock Text="{Binding Status}" />
+                        </WrapPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </Grid.Resources>
         <Grid.RowDefinitions>
+            s
             <RowDefinition Height="Auto" />
             <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <GroupBox Header="Actions">
-            <Button Command="{Binding StartSelectedUploadsCommand}">Upload Selected</Button>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Button Command="{Binding StartSelectedUploadsCommand}">Upload Selected</Button>
+                <Button Grid.Column="1" Command="{Binding StartAllUploadsCommand}">Upload All</Button>
+            </Grid>
         </GroupBox>
         <GroupBox
             Grid.Row="1"
-            Header="Upload Items"
+            Header="Items"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 x:Name="ItemsListBox"
                 HorizontalContentAlignment="Stretch"
+                ItemTemplate="{StaticResource S3UploadsDataTemplate}"
                 ItemsSource="{Binding Items}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectionChanged="Selector_OnSelectionChanged"
@@ -41,64 +121,70 @@
                 <b:Interaction.Behaviors>
                     <utility:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="local:S3UploadsItem">
-                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-                            <Grid Margin="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <TextBox
-                                    FontWeight="Bold"
-                                    Style="{StaticResource ReadOnlyTextBox}"
-                                    Text="{Binding Note, Mode=OneWay}"
-                                    TextWrapping="Wrap">
-                                    <b:Interaction.Behaviors>
-                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
-                                    </b:Interaction.Behaviors>
-                                </TextBox>
-                                <TextBox
-                                    FontWeight="Bold"
-                                    Grid.Row="1"
-                                    Style="{StaticResource ReadOnlyTextBox}"
-                                    Text="{Binding FileToUpload.FullName, StringFormat='From: {0}', Mode=OneWay}"
-                                    TextWrapping="Wrap">
-                                    <b:Interaction.Behaviors>
-                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
-                                    </b:Interaction.Behaviors>
-                                </TextBox>
-                                <TextBox
-                                    Grid.Row="2"
-                                    Style="{StaticResource ReadOnlyTextBox}"
-                                    TextWrapping="Wrap">
-                                    <TextBox.Text>
-                                        <MultiBinding StringFormat="To: {0}/{1}">
-                                            <Binding Path="BucketName" />
-                                            <Binding Path="AmazonObjectKey" />
-                                        </MultiBinding>
-                                    </TextBox.Text>
-                                    <b:Interaction.Behaviors>
-                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
-                                    </b:Interaction.Behaviors>
-                                </TextBox>
-                                <WrapPanel Grid.Row="3">
-                                    <TextBlock Text="Queued" Visibility="{Binding Queued, Converter={StaticResource BooleanToVisibility}}" Background="DarkGray"/>
-                                    <TextBlock Text="Uploading" Visibility="{Binding IsUploading, Converter={StaticResource BooleanToVisibility}}" Background="LightSkyBlue"></TextBlock>
-                                    <TextBlock Text="Completed" Background="GreenYellow" Visibility="{Binding Completed, Converter={StaticResource BooleanToVisibility}}" />
-                                    <TextBlock Background="Yellow" Text="{Binding ErrorMessage, StringFormat='Error: {0}'}" Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}"/>
-                                </WrapPanel>
-                                <WrapPanel Grid.Row="4">
-                                    <TextBlock Text="{Binding Status}" />
-                                </WrapPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
             </ListBox>
+        </GroupBox>
+        <GroupBox
+            Grid.Row="2"
+            Header="Uploads"
+            Style="{StaticResource UiComponentGroupBoxStyle}"
+            Visibility="{Binding UploadBatch, Converter={StaticResource NullToCollapsedVisibility}}">
+            <Grid Margin="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.RowSpan="2"
+                        Grid.Column="0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontWeight="Bold"
+                        Text="{Binding UploadBatch.Status}" />
+                    <TextBlock Grid.Row="0" Grid.Column="1">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0:P} of {3} Items Processed - {1} Uploads, {2} Errors">
+                                <Binding Path="UploadBatch.CompletedItemPercent" />
+                                <Binding Path="UploadBatch.UploadedItemCount" />
+                                <Binding Path="UploadBatch.ErrorItemCount" />
+                                <Binding Path="UploadBatch.TotalItemCount" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="1">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0:P} of {3} Bytes Processed - {1} Uploads, {2} Errors">
+                                <Binding Path="UploadBatch.CompletedSizePercent" />
+                                <Binding Path="UploadBatch.UploadedSize" />
+                                <Binding Path="UploadBatch.ErrorSize" />
+                                <Binding Path=" UploadBatch.TotalUploadSize" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </Grid>
+                <ContentControl
+                    Grid.Row="3"
+                    Content="{Binding UploadBatch.CurrentUpload}"
+                    ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
+                <Button
+                    Grid.Row="4"
+                    Command="{Binding UploadBatch.CancelCommand}"
+                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}">
+                    Cancel
+                </Button>
+            </Grid>
         </GroupBox>
     </Grid>
 </UserControl>

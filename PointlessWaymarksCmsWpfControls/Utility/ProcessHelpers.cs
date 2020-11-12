@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
 {
@@ -13,6 +14,19 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             if (url == "about:blank") return;
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
+        }
+
+        public static async Task OpenExplorerWindowForFile(string fileName)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var ps = new ProcessStartInfo("explorer.exe", $"/select, \"{fileName}\"")
+            {
+                UseShellExecute = true,
+                Verb = "open"
+            };
+
             Process.Start(ps);
         }
     }
