@@ -1,12 +1,16 @@
 ﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
+using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 
@@ -15,6 +19,9 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
     public class S3UploadsContext : INotifyPropertyChanged
     {
         private ObservableCollection<S3UploadsItem>? _items;
+        private Command? _saveAllToUploadJsonFileCommand;
+        private Command? _saveNotUploadedToUploadJsonFileCommand;
+        private Command? _saveSelectedToUploadJsonFileCommand;
         private List<S3UploadsItem> _selectedItems = new List<S3UploadsItem>();
         private Command? _startAllUploadsCommand;
         private Command? _startSelectedUploadsCommand;
@@ -25,8 +32,13 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         {
             _statusContext = statusContext ?? new StatusControlContext();
 
-            StartSelectedUploadsCommand = StatusContext.RunBlockingTaskCommand(StartSelectedUploads);
-            StartAllUploadsCommand = StatusContext.RunBlockingTaskCommand(StartAllUploads);
+            StartSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
+            StartAllUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartAllUploads);
+
+            SaveAllToUploadJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(SaveAllToUploadJsonFile);
+            SaveSelectedToUploadJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(SaveSelectedToUploadJsonFile);
+            SaveNotUploadedToUploadJsonFileCommand =
+                StatusContext.RunNonBlockingTaskCommand(SaveNotUploadedToUploadJsonFile);
         }
 
         public ObservableCollection<S3UploadsItem>? Items
@@ -36,6 +48,39 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? SaveAllToUploadJsonFileCommand
+        {
+            get => _saveAllToUploadJsonFileCommand;
+            set
+            {
+                if (Equals(value, _saveAllToUploadJsonFileCommand)) return;
+                _saveAllToUploadJsonFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? SaveNotUploadedToUploadJsonFileCommand
+        {
+            get => _saveNotUploadedToUploadJsonFileCommand;
+            set
+            {
+                if (Equals(value, _saveNotUploadedToUploadJsonFileCommand)) return;
+                _saveNotUploadedToUploadJsonFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command? SaveSelectedToUploadJsonFileCommand
+        {
+            get => _saveSelectedToUploadJsonFileCommand;
+            set
+            {
+                if (Equals(value, _saveSelectedToUploadJsonFileCommand)) return;
+                _saveSelectedToUploadJsonFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -105,6 +150,23 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             return newControl;
         }
 
+        private async Task FileItemsToS3UploaderJsonFile(List<S3UploadsItem> items)
+        {
+            if (!items.Any()) return;
+
+            var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
+                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
+
+            var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
+                new S3UploadFileRecord(x.FileToUpload.FullName, x.AmazonObjectKey, x.BucketName, x.Note)));
+
+            var file = new FileInfo(fileName);
+
+            await File.WriteAllTextAsync(file.FullName, jsonInfo);
+
+            await ProcessHelpers.OpenExplorerWindowForFile(fileName).ConfigureAwait(false);
+        }
+
         public async Task LoadData(List<S3Upload> uploadList)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -132,6 +194,45 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public async Task SaveAllToUploadJsonFile()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any())
+            {
+                StatusContext.ToastError("No Items to Save?");
+                return;
+            }
+
+            await FileItemsToS3UploaderJsonFile(Items.ToList());
+        }
+
+        public async Task SaveNotUploadedToUploadJsonFile()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null || !Items.Any(x => x.Completed && !x.HasError))
+            {
+                StatusContext.ToastError("No Items to Save?");
+                return;
+            }
+
+            await FileItemsToS3UploaderJsonFile(Items.Where(x => x.Completed && !x.HasError).ToList());
+        }
+
+        public async Task SaveSelectedToUploadJsonFile()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (!SelectedItems.Any())
+            {
+                StatusContext.ToastError("No Items to Save?");
+                return;
+            }
+
+            await FileItemsToS3UploaderJsonFile(SelectedItems);
         }
 
         public async Task StartAllUploads()

@@ -4,7 +4,6 @@
  - S3 Upload:
   - Delete files not in local (maybe a different window for deletions?)
   - Revisit naming and intent of the written scripts table and the filter choices in files written
-  - Sort the files to check in the Comp method - not a technical concern but makes it easier to 'see' progress
   - Filter option in S3 window to hide completed items (and/or sorting or?)
   - Prevent window closure while running?
   - Saving Uploads from Uploads Window

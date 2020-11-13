@@ -91,12 +91,21 @@
             </DataTemplate>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            s
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox Header="Actions">
+        <Menu>
+            <MenuItem Header="S3 ">
+                <MenuItem Command="{Binding SaveSelectedToUploadJsonFileCommand}"
+                          Header="Selected to Uploader Json File" />
+                <MenuItem Command="{Binding SaveAllToUploadJsonFileCommand}" Header="All to Uploader Json File" />
+                <MenuItem Command="{Binding SaveNotUploadedToUploadJsonFileCommand}"
+                          Header="Not Uploaded to Uploader Json File" />
+            </MenuItem>
+        </Menu>
+        <GroupBox Grid.Row="1" Header="Actions" Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=False}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -107,7 +116,7 @@
             </Grid>
         </GroupBox>
         <GroupBox
-            Grid.Row="1"
+            Grid.Row="2"
             Header="Items"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
@@ -124,7 +133,7 @@
             </ListBox>
         </GroupBox>
         <GroupBox
-            Grid.Row="2"
+            Grid.Row="3"
             Header="Uploads"
             Style="{StaticResource UiComponentGroupBoxStyle}"
             Visibility="{Binding UploadBatch, Converter={StaticResource NullToCollapsedVisibility}}">
@@ -177,7 +186,8 @@
                 <ContentControl
                     Grid.Row="3"
                     Content="{Binding UploadBatch.CurrentUpload}"
-                    ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
+                    ContentTemplate="{StaticResource S3UploadsDataTemplate}"
+                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}" />
                 <Button
                     Grid.Row="4"
                     Command="{Binding UploadBatch.CancelCommand}"

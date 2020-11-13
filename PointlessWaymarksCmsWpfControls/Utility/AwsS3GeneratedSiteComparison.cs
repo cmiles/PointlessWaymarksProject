@@ -41,7 +41,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             progress?.Report("Getting list of all generated files");
 
             var allGeneratedFiles = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)
-                .GetFiles("*", SearchOption.AllDirectories).ToList();
+                .GetFiles("*", SearchOption.AllDirectories).OrderBy(x => x.FullName).ToList();
 
             if (!allGeneratedFiles.Any())
             {

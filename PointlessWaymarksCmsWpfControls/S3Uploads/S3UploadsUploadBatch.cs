@@ -216,7 +216,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 
             toUpload.ForEach(x => x.Queued = true);
 
-            TotalItemCount = toUpload.Count();
+            TotalItemCount = toUpload.Count;
             TotalUploadSize = toUpload.Sum(x => x.FileToUpload.Exists ? x.FileToUpload.Length : 0);
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -247,11 +247,11 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
                 return;
             }
 
-            Cancellation = new CancellationTokenSource();
-            var cancelToken = Cancellation.Token;
-
             Uploading = true;
             Status = "Uploading";
+
+            Cancellation = new CancellationTokenSource();
+            var cancelToken = Cancellation.Token;
 
             foreach (var loopSelected in Items.ToList())
             {
@@ -302,6 +302,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
                 CompletedItemPercent = (UploadedItemCount + ErrorItemCount) / (decimal) TotalItemCount;
             }
 
+            Uploading = false;
             Completed = true;
             Status = "Complete";
         }

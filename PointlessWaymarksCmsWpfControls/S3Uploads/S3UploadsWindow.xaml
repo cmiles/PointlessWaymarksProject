@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.S3Uploads"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     Title="S3UploadsWindow"
     Width="800"
     Height="600"
@@ -12,5 +13,9 @@
     mc:Ignorable="d">
     <Grid>
         <local:S3UploadsControl DataContext="{Binding UploadContent}" />
+        <status:StatusControl
+            Grid.Column="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>
