@@ -20,7 +20,7 @@
             <utility:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
+    <Grid Margin="4">
         <Grid.Resources>
             <DataTemplate x:Key="S3UploadsDataTemplate" DataType="local:S3UploadsItem">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
@@ -105,7 +105,8 @@
                           Header="Not Uploaded to Uploader Json File" />
             </MenuItem>
         </Menu>
-        <GroupBox Grid.Row="1" Header="Actions" Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=False}">
+        <GroupBox Grid.Row="1" Header="Actions"
+                  Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=False}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -134,7 +135,7 @@
         </GroupBox>
         <GroupBox
             Grid.Row="3"
-            Header="Uploads"
+            Header="Upload"
             Style="{StaticResource UiComponentGroupBoxStyle}"
             Visibility="{Binding UploadBatch, Converter={StaticResource NullToCollapsedVisibility}}">
             <Grid Margin="4">
@@ -143,9 +144,9 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid>
+                <Grid Margin="4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="120" />
                         <ColumnDefinition />
@@ -164,7 +165,8 @@
                         Text="{Binding UploadBatch.Status}" />
                     <TextBlock Grid.Row="0" Grid.Column="1">
                         <TextBlock.Text>
-                            <MultiBinding StringFormat="{}{0:P} of {3} Items Processed - {1} Uploads, {2} Errors">
+                            <MultiBinding
+                                StringFormat="{}{0:P1} - Total Upload Count: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
                                 <Binding Path="UploadBatch.CompletedItemPercent" />
                                 <Binding Path="UploadBatch.UploadedItemCount" />
                                 <Binding Path="UploadBatch.ErrorItemCount" />
@@ -174,7 +176,8 @@
                     </TextBlock>
                     <TextBlock Grid.Row="1" Grid.Column="1">
                         <TextBlock.Text>
-                            <MultiBinding StringFormat="{}{0:P} of {3} Bytes Processed - {1} Uploads, {2} Errors">
+                            <MultiBinding
+                                StringFormat="{}{0:P1} - Total Upload Size: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
                                 <Binding Path="UploadBatch.CompletedSizePercent" />
                                 <Binding Path="UploadBatch.UploadedSize" />
                                 <Binding Path="UploadBatch.ErrorSize" />
@@ -183,17 +186,21 @@
                         </TextBlock.Text>
                     </TextBlock>
                 </Grid>
-                <ContentControl
-                    Grid.Row="3"
-                    Content="{Binding UploadBatch.CurrentUpload}"
-                    ContentTemplate="{StaticResource S3UploadsDataTemplate}"
-                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}" />
                 <Button
-                    Grid.Row="4"
+                    Margin="4"
+                    Grid.Row="3"
                     Command="{Binding UploadBatch.CancelCommand}"
                     Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}">
                     Cancel
                 </Button>
+                <ScrollViewer Margin="4" Grid.Row="4" HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Visible" Height="160"
+                              Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}">
+                    <ContentControl
+                        Content="{Binding UploadBatch.CurrentUpload}"
+                        ContentTemplate="{StaticResource S3UploadsDataTemplate}"
+                         />
+                </ScrollViewer>
             </Grid>
         </GroupBox>
     </Grid>

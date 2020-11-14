@@ -233,7 +233,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 
         private void UploadRequestOnUploadProgressEvent(object? sender, UploadProgressArgs e)
         {
-            Status = $"{e.PercentDone}% Done, {e.TransferredBytes} Transferred of {e.TotalBytes}";
+            Status = $"{e.PercentDone}% Done, {e.TransferredBytes:N0} Transferred of {e.TotalBytes:N0}";
         }
     }
 }

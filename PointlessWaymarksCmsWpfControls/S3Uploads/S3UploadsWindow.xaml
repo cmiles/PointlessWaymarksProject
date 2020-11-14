@@ -6,9 +6,9 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.S3Uploads"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
-    Title="S3UploadsWindow"
+    Title="S3 Uploads"
     Width="800"
-    Height="600"
+    Height="700"
     d:DataContext="{d:DesignInstance local:S3UploadsWindow}"
     mc:Ignorable="d">
     <Grid>
