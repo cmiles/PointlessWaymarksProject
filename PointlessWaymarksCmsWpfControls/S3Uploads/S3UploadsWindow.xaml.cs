@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
     public partial class S3UploadsWindow : INotifyPropertyChanged
     {
         private StatusControlContext _statusContext;
-        private S3UploadsContext? _uploadContent;
+        private S3UploadsContext? _uploadContext;
 
         public S3UploadsWindow(List<S3Upload> toLoad)
         {
@@ -25,7 +25,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
             {
-                UploadContent = await S3UploadsContext.CreateInstance(StatusContext, toLoad);
+                UploadContext = await S3UploadsContext.CreateInstance(StatusContext, toLoad);
             });
         }
 
@@ -40,13 +40,13 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             }
         }
 
-        public S3UploadsContext? UploadContent
+        public S3UploadsContext? UploadContext
         {
-            get => _uploadContent;
+            get => _uploadContext;
             set
             {
-                if (Equals(value, _uploadContent)) return;
-                _uploadContent = value;
+                if (Equals(value, _uploadContext)) return;
+                _uploadContext = value;
                 OnPropertyChanged();
             }
         }

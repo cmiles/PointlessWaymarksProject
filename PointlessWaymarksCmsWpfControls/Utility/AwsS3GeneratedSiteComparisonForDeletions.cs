@@ -103,15 +103,18 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     var directoryMatches = allGeneratedDirectories.Where(x => x == loopObject.Key).ToList();
 
                     if (directoryMatches.Any()) continue;
+
+                    returnReport.S3KeysToDelete.Add(loopObject.Key);
                 }
                 else
                 {
                     var fileMatches = allGeneratedFiles.Where(x => x == loopObject.Key).ToList();
 
                     if (fileMatches.Any()) continue;
+
+                    returnReport.S3KeysToDelete.Add(loopObject.Key);
                 }
 
-                returnReport.S3KeysToDelete.Add(loopObject.Key);
             }
 
             progress?.Report(

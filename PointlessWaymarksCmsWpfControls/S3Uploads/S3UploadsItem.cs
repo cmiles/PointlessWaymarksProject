@@ -167,6 +167,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         {
             if (IsUploading) return;
 
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             HasError = false;
             ErrorMessage = string.Empty;
             Completed = false;
@@ -194,8 +196,6 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
                 FileNoLongerExistsOnDisk = true;
                 return;
             }
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
 
             var (accessKey, secret) = AwsCredentials.GetAwsSiteCredentials();
 

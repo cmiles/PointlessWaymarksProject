@@ -98,15 +98,15 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="S3 ">
-                <MenuItem Command="{Binding SaveSelectedToUploadJsonFileCommand}"
-                          Header="Selected to Uploader Json File" />
+                <MenuItem Command="{Binding SaveSelectedToUploadJsonFileCommand}" Header="Selected to Uploader Json File" />
                 <MenuItem Command="{Binding SaveAllToUploadJsonFileCommand}" Header="All to Uploader Json File" />
-                <MenuItem Command="{Binding SaveNotUploadedToUploadJsonFileCommand}"
-                          Header="Not Uploaded to Uploader Json File" />
+                <MenuItem Command="{Binding SaveNotUploadedToUploadJsonFileCommand}" Header="Not Uploaded to Uploader Json File" />
             </MenuItem>
         </Menu>
-        <GroupBox Grid.Row="1" Header="Actions"
-                  Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=False}">
+        <GroupBox
+            Grid.Row="1"
+            Header="Actions"
+            Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=False}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -165,8 +165,7 @@
                         Text="{Binding UploadBatch.Status}" />
                     <TextBlock Grid.Row="0" Grid.Column="1">
                         <TextBlock.Text>
-                            <MultiBinding
-                                StringFormat="{}{0:P1} - Total Upload Count: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
+                            <MultiBinding StringFormat="{}{0:P1} - Total Upload Count: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
                                 <Binding Path="UploadBatch.CompletedItemPercent" />
                                 <Binding Path="UploadBatch.UploadedItemCount" />
                                 <Binding Path="UploadBatch.ErrorItemCount" />
@@ -176,8 +175,7 @@
                     </TextBlock>
                     <TextBlock Grid.Row="1" Grid.Column="1">
                         <TextBlock.Text>
-                            <MultiBinding
-                                StringFormat="{}{0:P1} - Total Upload Size: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
+                            <MultiBinding StringFormat="{}{0:P1} - Total Upload Size: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
                                 <Binding Path="UploadBatch.CompletedSizePercent" />
                                 <Binding Path="UploadBatch.UploadedSize" />
                                 <Binding Path="UploadBatch.ErrorSize" />
@@ -187,19 +185,20 @@
                     </TextBlock>
                 </Grid>
                 <Button
-                    Margin="4"
                     Grid.Row="3"
+                    Margin="4"
                     Command="{Binding UploadBatch.CancelCommand}"
                     Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}">
                     Cancel
                 </Button>
-                <ScrollViewer Margin="4" Grid.Row="4" HorizontalScrollBarVisibility="Disabled"
-                              VerticalScrollBarVisibility="Visible" Height="160"
-                              Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}">
-                    <ContentControl
-                        Content="{Binding UploadBatch.CurrentUpload}"
-                        ContentTemplate="{StaticResource S3UploadsDataTemplate}"
-                         />
+                <ScrollViewer
+                    Grid.Row="4"
+                    Height="160"
+                    Margin="4"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Visible"
+                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}">
+                    <ContentControl Content="{Binding UploadBatch.CurrentUpload}" ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
                 </ScrollViewer>
             </Grid>
         </GroupBox>

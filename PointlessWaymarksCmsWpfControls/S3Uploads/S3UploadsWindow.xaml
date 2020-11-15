@@ -12,7 +12,7 @@
     d:DataContext="{d:DesignInstance local:S3UploadsWindow}"
     mc:Ignorable="d">
     <Grid>
-        <local:S3UploadsControl DataContext="{Binding UploadContent}" />
+        <local:S3UploadsControl DataContext="{Binding UploadContext}" />
         <status:StatusControl
             Grid.Column="0"
             d:IsHidden="true"

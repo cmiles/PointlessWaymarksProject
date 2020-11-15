@@ -1,28 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PointlessWaymarksCmsWpfControls.S3Deletions
 {
     /// <summary>
-    /// Interaction logic for S3DeletionsControl.xaml
+    ///     Interaction logic for S3DeletionsControl.xaml
     /// </summary>
     public partial class S3DeletionsControl : UserControl
     {
         public S3DeletionsControl()
         {
             InitializeComponent();
+        }
+
+        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DataContext == null) return;
+            var viewmodel = (S3DeletionsContext) DataContext;
+            viewmodel.SelectedItems = ItemsListBox?.SelectedItems.Cast<S3DeletionsItem>().ToList() ??
+                                      new List<S3DeletionsItem>();
         }
     }
 }

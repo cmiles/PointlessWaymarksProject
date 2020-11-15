@@ -16,6 +16,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsWpfControls.S3Deletions;
 using PointlessWaymarksCmsWpfControls.S3Uploads;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
@@ -900,6 +901,16 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                         $"The report returned no items and the following errors:{Environment.NewLine}{Environment.NewLine}{string.Join($"{{Environment.NewLine}}{Environment.NewLine}", results.ErrorMessages)}");
                 }
             }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newUploadWindow = new S3DeletionsWindow(results.S3KeysToDelete.Select(x =>
+                new S3DeletionsItem
+                {
+                    AmazonObjectKey = x, BucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket
+                }).ToList());
+
+            newUploadWindow.Show();
         }
 
         public async Task SiteMissingAndChangedFilesReport()
