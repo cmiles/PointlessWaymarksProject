@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsContentEditor
 {
     public class SettingsFileChooserControlContext : INotifyPropertyChanged
     {
-        private ObservableCollection<SettingsFileListItem> _items = new ObservableCollection<SettingsFileListItem>();
+        private ObservableCollection<SettingsFileListItem> _items = new();
 
         private StatusControlContext _statusContext;
         private string _userNewFileName;

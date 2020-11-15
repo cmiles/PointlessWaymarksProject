@@ -31,7 +31,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentFolder
         private string _userValue;
 
         private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions =
-            new List<Func<string, (bool passed, string validationMessage)>>();
+            new();
 
         private string _validationMessage;
 

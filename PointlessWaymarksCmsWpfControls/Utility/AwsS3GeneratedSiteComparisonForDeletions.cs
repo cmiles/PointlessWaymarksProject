@@ -17,8 +17,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 .Replace("\\", "/") + "/";
         }
 
-        public List<string> ErrorMessages { get; set; } = new List<string>();
-        public List<string> S3KeysToDelete { get; set; } = new List<string>();
+        public List<string> ErrorMessages { get; set; } = new();
+        public List<string> S3KeysToDelete { get; set; } = new();
 
         public static async Task<AwsS3GeneratedSiteComparisonForDeletions> RunReport(IProgress<string>? progress)
         {

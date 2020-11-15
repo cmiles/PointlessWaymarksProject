@@ -411,7 +411,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public Command RunBlockingActionCommand(Action toRun)
         {
-            return new Command(() => RunBlockingAction(toRun));
+            return new(() => RunBlockingAction(toRun));
         }
 
         public void RunBlockingTask(Func<Task> toRun)
@@ -428,12 +428,12 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public Command<T> RunBlockingTaskCommand<T>(Func<T, Task> toRun)
         {
-            return new Command<T>(x => RunBlockingTask(async () => await toRun(x)));
+            return new(x => RunBlockingTask(async () => await toRun(x)));
         }
 
         public Command RunBlockingTaskCommand(Func<Task> toRun)
         {
-            return new Command(() => RunBlockingTask(toRun));
+            return new(() => RunBlockingTask(toRun));
         }
 
         public void RunBlockingTaskWithCancellation(Func<CancellationToken, Task> toRun, string cancelDescription)
@@ -457,7 +457,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
         public Command RunBlockingTaskWithCancellationCommand(Func<CancellationToken, Task> toRun,
             string cancelDescription)
         {
-            return new Command(() => RunBlockingTaskWithCancellation(toRun, cancelDescription));
+            return new(() => RunBlockingTaskWithCancellation(toRun, cancelDescription));
         }
 
         public void RunFireAndForgetBlockingTaskWithUiMessageReturn(Func<Task> toRun)
@@ -501,7 +501,7 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public Command RunNonBlockingActionCommand(Action toRun)
         {
-            return new Command(() => RunNonBlockingAction(toRun));
+            return new(() => RunNonBlockingAction(toRun));
         }
 
         public void RunNonBlockingTask(Func<Task> toRun)
@@ -512,12 +512,12 @@ namespace PointlessWaymarksCmsWpfControls.Status
 
         public Command<T> RunNonBlockingTaskCommand<T>(Func<T, Task> toRun)
         {
-            return new Command<T>(x => RunNonBlockingTask(async () => await toRun(x)));
+            return new(x => RunNonBlockingTask(async () => await toRun(x)));
         }
 
         public Command RunNonBlockingTaskCommand(Func<Task> toRun)
         {
-            return new Command(() => RunNonBlockingTask(toRun));
+            return new(() => RunNonBlockingTask(toRun));
         }
 
         public async Task<string> ShowMessage(string title, string body, List<string> buttons)

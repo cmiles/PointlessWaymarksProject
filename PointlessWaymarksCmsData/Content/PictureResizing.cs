@@ -40,7 +40,8 @@ namespace PointlessWaymarksCmsData.Content
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(dbEntry);
             var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference, progress);
 
-            if ((currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth) || deleteAll)
+            if ((currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth) ||
+                deleteAll)
                 currentFiles.DisplayPicture?.File?.Delete();
         }
 
@@ -73,7 +74,8 @@ namespace PointlessWaymarksCmsData.Content
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(dbEntry);
             var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference, progress);
 
-            if ((currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth) || deleteAll)
+            if ((currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth) ||
+                deleteAll)
                 currentFiles.DisplayPicture?.File?.Delete();
         }
 
@@ -86,7 +88,7 @@ namespace PointlessWaymarksCmsData.Content
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
-                await GenerationReturn.Error($"Image {dbEntry.Title} has no Original File", dbEntry.ContentId);
+                return await GenerationReturn.Error($"Image {dbEntry.Title} has no Original File", dbEntry.ContentId);
 
             var imageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
@@ -116,7 +118,7 @@ namespace PointlessWaymarksCmsData.Content
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
-                await GenerationReturn.Error($"Photo {dbEntry.Title} has no Original File", dbEntry.ContentId);
+                return await GenerationReturn.Error($"Photo {dbEntry.Title} has no Original File", dbEntry.ContentId);
 
             var photoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
@@ -175,7 +177,10 @@ namespace PointlessWaymarksCmsData.Content
             IProgress<string> progress)
         {
             if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+            {
                 progress?.Report("Nothing to delete.");
+                return;
+            }
 
             var baseFileNameList = dbEntry.OriginalFileName.Split(".").ToList();
             var baseFileName = string.Join("", baseFileNameList.Take(baseFileNameList.Count - 1));

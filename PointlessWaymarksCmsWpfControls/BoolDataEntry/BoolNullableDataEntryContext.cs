@@ -18,7 +18,7 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
         private bool? _userValue;
 
         private List<Func<bool?, (bool passed, string validationMessage)>> _validationFunctions =
-            new List<Func<bool?, (bool passed, string validationMessage)>>();
+            new();
 
         private string _validationMessage;
 
@@ -140,7 +140,7 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
 
         public static BoolNullableDataEntryContext CreateInstance()
         {
-            return new BoolNullableDataEntryContext();
+            return new();
         }
 
         [NotifyPropertyChangedInvocator]

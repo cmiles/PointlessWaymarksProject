@@ -15,7 +15,7 @@ namespace PointlessWaymarksCmsData
     {
         //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
         private readonly BlockingCollection<TinyMessageReceivedEventArgs> _jobs =
-            new BlockingCollection<TinyMessageReceivedEventArgs>();
+            new();
 
         public DataNotificationsWorkQueue()
         {

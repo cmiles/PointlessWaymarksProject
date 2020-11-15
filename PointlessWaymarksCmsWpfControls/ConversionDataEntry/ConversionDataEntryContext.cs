@@ -23,7 +23,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
         private T _userValue;
 
         private List<Func<T, (bool passed, string validationMessage)>> _validationFunctions =
-            new List<Func<T, (bool passed, string validationMessage)>>();
+            new();
 
         private string _validationMessage;
 
@@ -177,7 +177,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 
         public static ConversionDataEntryContext<T> CreateInstance()
         {
-            return new ConversionDataEntryContext<T>();
+            return new();
         }
 
         [NotifyPropertyChangedInvocator]

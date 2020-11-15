@@ -1072,7 +1072,7 @@ namespace PointlessWaymarksCmsData
 
         public static FileInfo SettingsFile()
         {
-            return new FileInfo(Path.Combine(StorageDirectory().FullName, SettingsFileName));
+            return new(Path.Combine(StorageDirectory().FullName, SettingsFileName));
         }
 
         /// <summary>

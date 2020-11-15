@@ -22,7 +22,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         private Command? _saveAllToUploadJsonFileCommand;
         private Command? _saveNotUploadedToUploadJsonFileCommand;
         private Command? _saveSelectedToUploadJsonFileCommand;
-        private List<S3UploadsItem> _selectedItems = new List<S3UploadsItem>();
+        private List<S3UploadsItem> _selectedItems = new();
         private Command? _startAllUploadsCommand;
         private Command? _startSelectedUploadsCommand;
         private StatusControlContext _statusContext;

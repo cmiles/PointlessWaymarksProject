@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         public static ThreadPoolThreadSwitcher ResumeBackgroundAsync()
         {
             //Debug.Print($"ThreadSwitcher ResumeBackgroundAsync from {Thread.CurrentThread.ManagedThreadId}");
-            return new ThreadPoolThreadSwitcher();
+            return new();
         }
 
         /// <summary>

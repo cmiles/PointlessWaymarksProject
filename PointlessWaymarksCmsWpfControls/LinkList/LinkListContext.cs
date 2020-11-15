@@ -32,7 +32,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
         private string _lastSortColumn;
 
         private ObservableCollection<CommandBinding> _listBoxAppCommandBindings =
-            new ObservableCollection<CommandBinding>();
+            new();
 
         private Command _listSelectedLinksNotOnPinboardCommand;
         private Command<string> _openUrlCommand;

@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 {
     public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
     {
-        private List<FileInfo> _previousFiles = new List<FileInfo>();
+        private List<FileInfo> _previousFiles = new();
 
         public static readonly DependencyProperty HtmlStringProperty = DependencyProperty.Register("HtmlString",
             typeof(string), typeof(WebViewHtmlStringBindingBehavior),

@@ -21,7 +21,7 @@ namespace PointlessWaymarksCmsWpfControls.MenuLinkEditor
     {
         private Command _addItemCommand;
         private string _helpMarkdown;
-        private ObservableCollection<MenuLinkListItem> _items = new ObservableCollection<MenuLinkListItem>();
+        private ObservableCollection<MenuLinkListItem> _items = new();
         private List<MenuLinkListItem> _selectedItems;
         private StatusControlContext _statusContext;
 

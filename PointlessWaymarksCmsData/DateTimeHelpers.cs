@@ -41,7 +41,7 @@ namespace PointlessWaymarksCmsData
 
         public static DateTime TrimDateTimeToSeconds(this DateTime currentDateTime)
         {
-            return new DateTime(currentDateTime.Year, currentDateTime.Month, currentDateTime.Day, currentDateTime.Hour,
+            return new(currentDateTime.Year, currentDateTime.Month, currentDateTime.Day, currentDateTime.Hour,
                 currentDateTime.Minute, currentDateTime.Second, currentDateTime.Kind);
         }
     }

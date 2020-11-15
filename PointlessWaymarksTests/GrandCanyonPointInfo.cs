@@ -56,7 +56,8 @@ namespace PointlessWaymarksTests
                 CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                 Folder = "GrandCanyon",
                 ShowInMainSiteFeed = false,
-                Summary = "A named point on the South Rim of the Grand Canyon - under the open skies and free flying helicopters.",
+                Summary =
+                    "A named point on the South Rim of the Grand Canyon - under the open skies and free flying helicopters.",
                 Tags = "grand canyon,yuma point",
                 UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
                 Latitude = 36.079982,

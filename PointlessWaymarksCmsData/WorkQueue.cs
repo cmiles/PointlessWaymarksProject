@@ -12,9 +12,9 @@ namespace PointlessWaymarksCmsData
     public class WorkQueue<T>
     {
         //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
-        private readonly BlockingCollection<T> _jobs = new BlockingCollection<T>();
+        private readonly BlockingCollection<T> _jobs = new();
 
-        private readonly List<T> _pausedQueue = new List<T>();
+        private readonly List<T> _pausedQueue = new();
 
         private bool _suspended;
 
@@ -57,9 +57,9 @@ namespace PointlessWaymarksCmsData
     public class TaskQueue
     {
         //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
-        private readonly BlockingCollection<Func<Task>> _jobs = new BlockingCollection<Func<Task>>();
+        private readonly BlockingCollection<Func<Task>> _jobs = new();
 
-        private readonly List<Func<Task>> _pausedQueue = new List<Func<Task>>();
+        private readonly List<Func<Task>> _pausedQueue = new();
 
         private bool _suspended;
 

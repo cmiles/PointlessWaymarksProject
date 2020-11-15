@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
         private bool _userValue;
 
         private List<Func<bool, (bool passed, string validationMessage)>> _validationFunctions =
-            new List<Func<bool, (bool passed, string validationMessage)>>();
+            new();
 
         private string _validationMessage;
 
@@ -141,7 +141,7 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
 
         public static BoolDataEntryContext CreateInstance()
         {
-            return new BoolDataEntryContext();
+            return new();
         }
 
         public static BoolDataEntryContext CreateInstanceForShowInSearch(IShowInSearch dbEntry, bool defaultSetting)

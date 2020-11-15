@@ -195,10 +195,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
                 {
                     await ThreadSwitcher.ResumeForegroundAsync();
 
-                    foreach (var loopDelete in existingItems.Skip(1).ToList())
-                    {
-                        Items.Remove(loopDelete);
-                    }
+                    foreach (var loopDelete in existingItems.Skip(1).ToList()) Items.Remove(loopDelete);
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
                 }

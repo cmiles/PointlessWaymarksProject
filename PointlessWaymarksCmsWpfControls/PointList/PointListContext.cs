@@ -33,7 +33,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
 
@@ -160,7 +160,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+            ((CollectionView) CollectionViewSource.GetDefaultView(Items)).Filter = o =>
             {
                 if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
 
@@ -197,7 +197,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 
         public PointListListItem ListItemFromDbItem(PointContent content)
         {
-            return new PointListListItem { DbEntry = content, SmallImageUrl = GetSmallImageUrl(content) };
+            return new PointListListItem {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }
 
         public async Task LoadData()
@@ -248,22 +248,6 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private async Task PossibleMainImageUpdateDataNotificationReceived(
-            InterProcessDataNotification translatedMessage)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var toUpdate = Items.Where(x =>
-                    x.DbEntry.MainPicture != null && translatedMessage.ContentIds.Contains(x.DbEntry.MainPicture.Value))
-                .ToList();
-
-            toUpdate.ForEach(x =>
-            {
-                x.SmallImageUrl = null;
-                x.SmallImageUrl = GetSmallImageUrl(x.DbEntry);
-            });
-        }
-
         private async Task PointDataNotificationReceived(InterProcessDataNotification translatedMessage)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -295,10 +279,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
                 {
                     await ThreadSwitcher.ResumeForegroundAsync();
 
-                    foreach (var loopDelete in existingItems.Skip(1).ToList())
-                    {
-                        Items.Remove(loopDelete);
-                    }
+                    foreach (var loopDelete in existingItems.Skip(1).ToList()) Items.Remove(loopDelete);
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
                 }
@@ -325,13 +306,29 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
+        private async Task PossibleMainImageUpdateDataNotificationReceived(
+            InterProcessDataNotification translatedMessage)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var toUpdate = Items.Where(x =>
+                    x.DbEntry.MainPicture != null && translatedMessage.ContentIds.Contains(x.DbEntry.MainPicture.Value))
+                .ToList();
+
+            toUpdate.ForEach(x =>
+            {
+                x.SmallImageUrl = null;
+                x.SmallImageUrl = GetSmallImageUrl(x.DbEntry);
+            });
+        }
+
         private async Task SortList(string sortColumn)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
             _lastSortColumn = sortColumn;
 
-            var collectionView = ((CollectionView)CollectionViewSource.GetDefaultView(Items));
+            var collectionView = ((CollectionView) CollectionViewSource.GetDefaultView(Items));
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;

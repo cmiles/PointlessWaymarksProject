@@ -16,7 +16,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     /// </summary>
     public class TextToSpeech : IDisposable
     {
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
         private readonly SpeechSynthesizer _speechSynthesizer;
 
 

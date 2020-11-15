@@ -21,7 +21,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
         private string _userValue;
 
         private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions =
-            new List<Func<string, (bool passed, string validationMessage)>>();
+            new();
 
         private string _validationMessage;
 
@@ -141,7 +141,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
 
         public static StringDataEntryContext CreateInstance()
         {
-            return new StringDataEntryContext();
+            return new();
         }
 
         public static StringDataEntryContext CreateSlugInstance(ITitleSummarySlugFolder dbEntry)

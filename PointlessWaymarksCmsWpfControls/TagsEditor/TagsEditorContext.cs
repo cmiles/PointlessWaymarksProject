@@ -127,7 +127,7 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
         public static TagsEditorContext CreateInstance(StatusControlContext statusContext, ITag dbEntry)
         {
-            return new TagsEditorContext(statusContext, dbEntry);
+            return new(statusContext, dbEntry);
         }
 
         private List<string> DbTagList()

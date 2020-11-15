@@ -94,7 +94,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
 
         public static ContentFormatChooserContext CreateInstance(StatusControlContext statusContext)
         {
-            return new ContentFormatChooserContext(statusContext);
+            return new(statusContext);
         }
 
         public ContentFormatEnum SelectedContentFormat

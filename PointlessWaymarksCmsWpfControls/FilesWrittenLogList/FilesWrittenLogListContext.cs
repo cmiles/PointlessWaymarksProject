@@ -38,7 +38,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private Command? _openUploaderJsonFileCommand;
         private Command? _selectedFilesToExcelCommand;
         private FileWrittenLogListDateTimeFilterChoice? _selectedGenerationChoice;
-        private List<FilesWrittenLogListListItem> _selectedItems = new List<FilesWrittenLogListListItem>();
+        private List<FilesWrittenLogListListItem> _selectedItems = new();
         private Command? _selectedScriptStringsToClipboardCommand;
         private Command? _selectedScriptStringsToPowerShellScriptCommand;
         private Command? _selectedWrittenFilesToClipboardCommand;

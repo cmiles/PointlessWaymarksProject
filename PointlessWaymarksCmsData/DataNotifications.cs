@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using pinboard.net.Models;
 using PointlessWaymarksCmsData.Database.Models;
 using TinyIpc.Messaging;
@@ -11,18 +10,19 @@ namespace PointlessWaymarksCmsData
 {
     public static class DataNotifications
     {
-        public static bool SuspendNotifications { get; set; }
-
-        private static readonly TinyMessageBus DataNotificationTransmissionChannel = new TinyMessageBus("PointlessWaymarksDataNotificationChannel");
+        private static readonly TinyMessageBus DataNotificationTransmissionChannel =
+            new("PointlessWaymarksDataNotificationChannel");
 
         private static readonly WorkQueue<string> SendMessageQueue = new WorkQueue<string>
         {
             Processor = async x => await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(x))
         };
 
+        public static bool SuspendNotifications { get; set; }
+
         public static TinyMessageBus NewDataNotificationChannel()
         {
-            return new TinyMessageBus("PointlessWaymarksDataNotificationChannel");
+            return new("PointlessWaymarksDataNotificationChannel");
         }
 
         public static DataNotificationContentType NotificationContentTypeFromContent(dynamic content)
