@@ -44,14 +44,15 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private Command? _selectedWrittenFilesToClipboardCommand;
         private Command? _selectedWrittenFilesToS3UploaderCommand;
         private Command? _selectedWrittenFilesToS3UploaderJsonFileCommand;
-        private Command? _siteComparisonReportCommand;
-        private StatusControlContext? _statusContext;
+        private Command? _siteDeletedFilesReportCommand;
+        private Command? _siteMissingFilesReportCommand;
+        private StatusControlContext _statusContext;
         private string _userBucketName = string.Empty;
         private string _userScriptPrefix = "aws s3 cp";
 
         public FilesWrittenLogListContext(StatusControlContext? statusContext, bool loadInBackground)
         {
-            StatusContext = statusContext ?? new StatusControlContext();
+            _statusContext = statusContext ?? new StatusControlContext();
 
             GenerateItemsCommand = StatusContext.RunBlockingTaskCommand(GenerateItems);
             AllScriptStringsToClipboardCommand = StatusContext.RunBlockingTaskCommand(AllScriptStringsToClipboard);
@@ -66,7 +67,8 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 StatusContext.RunBlockingTaskCommand(AllScriptStringsToPowerShellScript);
             SelectedFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedFilesToExcel);
             AllFilesToExcelCommand = StatusContext.RunBlockingTaskCommand(AllFilesToExcel);
-            SiteComparisonReportCommand = StatusContext.RunBlockingTaskCommand(SiteComparisonReport);
+            SiteMissingFilesReportCommand = StatusContext.RunBlockingTaskCommand(SiteMissingAndChangedFilesReport);
+            SiteDeletedFilesReportCommand = StatusContext.RunBlockingTaskCommand(SiteDeletedFilesReport);
             SelectedWrittenFilesToS3UploaderCommand =
                 StatusContext.RunNonBlockingTaskCommand(SelectedWrittenFilesToS3Uploader);
             AllWrittenFilesToS3UploaderCommand = StatusContext.RunNonBlockingTaskCommand(AllWrittenFilesToS3Uploader);
@@ -299,18 +301,29 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
-        public Command? SiteComparisonReportCommand
+        public Command? SiteDeletedFilesReportCommand
         {
-            get => _siteComparisonReportCommand;
+            get => _siteDeletedFilesReportCommand;
             set
             {
-                if (Equals(value, _siteComparisonReportCommand)) return;
-                _siteComparisonReportCommand = value;
+                if (Equals(value, _siteDeletedFilesReportCommand)) return;
+                _siteDeletedFilesReportCommand = value;
                 OnPropertyChanged();
             }
         }
 
-        public StatusControlContext? StatusContext
+        public Command? SiteMissingFilesReportCommand
+        {
+            get => _siteMissingFilesReportCommand;
+            set
+            {
+                if (Equals(value, _siteMissingFilesReportCommand)) return;
+                _siteMissingFilesReportCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StatusControlContext StatusContext
         {
             get => _statusContext;
             set
@@ -351,7 +364,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (Items == null || !Items.Any())
             {
-                StatusContext?.ToastError("No Items?");
+                StatusContext.ToastError("No Items?");
                 return;
             }
 
@@ -364,7 +377,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (Items == null || !Items.Any())
             {
-                StatusContext?.ToastError("No Items?");
+                StatusContext.ToastError("No Items?");
                 return;
             }
 
@@ -381,7 +394,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (Items == null || !Items.Any())
             {
-                StatusContext?.ToastError("No Items Selected?");
+                StatusContext.ToastError("No Items Selected?");
                 return;
             }
 
@@ -394,7 +407,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (Items == null || !Items.Any())
             {
-                StatusContext?.ToastError("No Items?");
+                StatusContext.ToastError("No Items?");
                 return;
             }
 
@@ -407,7 +420,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (Items == null || !Items.Any())
             {
-                StatusContext?.ToastError("No Items?");
+                StatusContext.ToastError("No Items?");
                 return;
             }
 
@@ -420,7 +433,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (Items == null || !Items.Any())
             {
-                StatusContext?.ToastError("No Items?");
+                StatusContext.ToastError("No Items?");
                 return;
             }
 
@@ -442,14 +455,14 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (!toTransfer.Any())
             {
-                StatusContext?.ToastError("No Files in the Generation Directory?");
+                StatusContext.ToastError("No Files in the Generation Directory?");
                 return;
             }
 
             var toSkipCount = SelectedItems.Count(x => !x.IsInGenerationDirectory);
 
             if (toSkipCount > 0)
-                StatusContext?.ToastWarning($"{toSkipCount} skipped files not in the Generation Directory");
+                StatusContext.ToastWarning($"{toSkipCount} skipped files not in the Generation Directory");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -530,8 +543,8 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private List<S3Upload> FileItemsToUploaderItems(List<FilesWrittenLogListListItem> items)
         {
             return items.Where(x => x.IsInGenerationDirectory).Select(x => new S3Upload(new FileInfo(x.WrittenFile),
-                AwsS3GeneratedSiteComparison.FileInfoInGeneratedSiteToS3Key(new FileInfo(x.WrittenFile)),
-                UserBucketName, $"From Files Written Log - {x.WrittenOn}")).ToList();
+                AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key(
+                    new FileInfo(x.WrittenFile)), UserBucketName, $"From Files Written Log - {x.WrittenOn}")).ToList();
         }
 
         private async Task FilesToClipboard(List<FilesWrittenLogListListItem> items)
@@ -546,7 +559,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private void FilesToExcel(List<FilesWrittenLogListListItem> items)
         {
             ExcelHelpers.ContentToExcelFileAsTable(items.Cast<object>().ToList(), "WrittenFiles", limitRowHeight: false,
-                progress: StatusContext?.ProgressTracker());
+                progress: StatusContext.ProgressTracker());
         }
 
         public async Task GenerateItems()
@@ -555,19 +568,18 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (SelectedGenerationChoice == null)
             {
-                StatusContext?.ToastError("Please make a Generation Date Choice");
+                StatusContext.ToastError("Please make a Generation Date Choice");
                 return;
             }
 
-            StatusContext?.Progress("Setting up db");
+            StatusContext.Progress("Setting up db");
 
             var db = await Db.Context();
 
             var generationDirectory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)
                 .FullName;
 
-            StatusContext?.Progress(
-                $"Filtering for Generation Directory: {FilterForFilesInCurrentGenerationDirectory}");
+            StatusContext.Progress($"Filtering for Generation Directory: {FilterForFilesInCurrentGenerationDirectory}");
 
             IQueryable<GenerationFileWriteLog> searchQuery = FilterForFilesInCurrentGenerationDirectory
                 ? db.GenerationFileWriteLogs.Where(x => x.FileName.StartsWith(generationDirectory))
@@ -575,7 +587,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (SelectedGenerationChoice.FilterDateTimeUtc != null)
             {
-                StatusContext?.Progress($"Filtering by Date and Time {SelectedGenerationChoice.FilterDateTimeUtc:F}");
+                StatusContext.Progress($"Filtering by Date and Time {SelectedGenerationChoice.FilterDateTimeUtc:F}");
                 searchQuery = searchQuery.Where(x => x.WrittenOnVersion >= SelectedGenerationChoice.FilterDateTimeUtc);
             }
 
@@ -583,7 +595,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             var transformedItems = new List<FilesWrittenLogListListItem>();
 
-            StatusContext?.Progress($"Processing {dbItems.Count} items for display");
+            StatusContext.Progress($"Processing {dbItems.Count} items for display");
             foreach (var loopDbItems in dbItems)
             {
                 var directory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory);
@@ -601,7 +613,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 });
             }
 
-            StatusContext?.Progress("Transferring items to the UI");
+            StatusContext.Progress("Transferring items to the UI");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -629,13 +641,13 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            StatusContext?.Progress("Setting up db");
+            StatusContext.Progress("Setting up db");
 
             var db = await Db.Context();
 
             var logChoiceList = new List<FileWrittenLogListDateTimeFilterChoice>();
 
-            StatusContext?.Progress("Adding Generation Dates");
+            StatusContext.Progress("Adding Generation Dates");
 
             logChoiceList.AddRange(
                 (await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).Take(15).ToListAsync()).Select(x =>
@@ -645,7 +657,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                         FilterDateTimeUtc = x.GenerationVersion
                     }));
 
-            StatusContext?.Progress($"Using {logChoiceList.Count} Generation Dates - Adding Script Dates");
+            StatusContext.Progress($"Using {logChoiceList.Count} Generation Dates - Adding Script Dates");
 
             logChoiceList.AddRange(
                 (await db.GenerationFileScriptLogs.OrderByDescending(x => x.WrittenOnVersion).Take(30).ToListAsync())
@@ -655,7 +667,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                     FilterDateTimeUtc = x.WrittenOnVersion
                 }));
 
-            StatusContext?.Progress("Finished adding Filter Date Times - setting up choices");
+            StatusContext.Progress("Finished adding Filter Date Times - setting up choices");
 
 
             logChoiceList = logChoiceList.OrderByDescending(x => x.FilterDateTimeUtc).ToList();
@@ -681,7 +693,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 toSelect = possibleCurrentObject ?? logChoiceList[0];
             }
 
-            StatusContext?.Progress("Transferring choices to the UI");
+            StatusContext.Progress("Transferring choices to the UI");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -699,7 +711,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (propertyName == nameof(UserBucketName) || propertyName == nameof(UserScriptPrefix) ||
                 propertyName == nameof(ChangeSlashes))
-                StatusContext?.RunBlockingAction(() =>
+                StatusContext.RunBlockingAction(() =>
                 {
                     var currentItems = Items?.ToList();
                     currentItems?.Where(x => x.IsInGenerationDirectory).ToList().ForEach(x =>
@@ -711,7 +723,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            StatusContext?.Progress("Starting photo load.");
+            StatusContext.Progress("Starting photo load.");
 
             var dialog = new VistaOpenFileDialog
             {
@@ -730,7 +742,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (!file.Exists)
             {
-                StatusContext?.ToastError($"Selected Json Upload File - {selectedFileName} - doesn't exist?");
+                StatusContext.ToastError($"Selected Json Upload File - {selectedFileName} - doesn't exist?");
                 return;
             }
 
@@ -741,7 +753,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
                 if (items == null || !items.Any())
                 {
-                    StatusContext?.ToastError("File format error or no items to upload?");
+                    StatusContext.ToastError("File format error or no items to upload?");
                     return;
                 }
 
@@ -754,7 +766,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             catch (Exception e)
             {
                 if (StatusContext != null)
-                    await StatusContext?.ShowMessageWithOkButton("File Import Error", e.ToString());
+                    await StatusContext.ShowMessageWithOkButton("File Import Error", e.ToString());
             }
         }
 
@@ -785,7 +797,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (Items == null || !Items.Any())
             {
-                StatusContext?.ToastError("No Items?");
+                StatusContext.ToastError("No Items?");
                 return;
             }
 
@@ -798,7 +810,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (!SelectedItems.Any())
             {
-                StatusContext?.ToastError("No Items Selected?");
+                StatusContext.ToastError("No Items Selected?");
                 return;
             }
 
@@ -815,7 +827,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (!SelectedItems.Any())
             {
-                StatusContext?.ToastError("No Items Selected?");
+                StatusContext.ToastError("No Items Selected?");
                 return;
             }
 
@@ -828,7 +840,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (Items == null || !Items.Any())
             {
-                StatusContext?.ToastError("No Items?");
+                StatusContext.ToastError("No Items?");
                 return;
             }
 
@@ -841,7 +853,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (!SelectedItems.Any())
             {
-                StatusContext?.ToastError("No Items?");
+                StatusContext.ToastError("No Items?");
                 return;
             }
 
@@ -854,25 +866,71 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
             if (!SelectedItems.Any())
             {
-                StatusContext?.ToastError("No Items?");
+                StatusContext.ToastError("No Items?");
                 return;
             }
 
             await FileItemsToS3UploaderJsonFile(SelectedItems);
         }
 
-        public async Task SiteComparisonReport()
+        public async Task SiteDeletedFilesReport()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            var results = await AwsS3GeneratedSiteComparisonForDeletions.RunReport(StatusContext.ProgressTracker());
+
+            if (!results.S3KeysToDelete.Any())
+            {
+                StatusContext.ToastSuccess("Nothing on site found to delete.");
+                return;
+            }
+
+            if (results.ErrorMessages.Any())
+            {
+                if (results.S3KeysToDelete.Any())
+                {
+                    var cancelOrContinue = await StatusContext.ShowMessage("Files For Deletion Report Error",
+                        $"The report returned {results.S3KeysToDelete.Count} results and the errors below - Cancel or Continue?{Environment.NewLine}{Environment.NewLine}{string.Join($"{{Environment.NewLine}}{Environment.NewLine}", results.ErrorMessages)}",
+                        new List<string> {"Cancel", "Continue"});
+
+                    if (cancelOrContinue == "Cancel") return;
+                }
+                else
+                {
+                    await StatusContext.ShowMessageWithOkButton("Files For Deletion Report Error",
+                        $"The report returned no items and the following errors:{Environment.NewLine}{Environment.NewLine}{string.Join($"{{Environment.NewLine}}{Environment.NewLine}", results.ErrorMessages)}");
+                }
+            }
+        }
+
+        public async Task SiteMissingAndChangedFilesReport()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
             var results =
-                await AwsS3GeneratedSiteComparison
-                    .FilesInGeneratedDirectoryButNotInS3(StatusContext?.ProgressTracker());
+                await AwsS3GeneratedSiteComparisonForAdditionsAndChanges.RunReport(StatusContext.ProgressTracker());
+
+            if (results.ErrorMessages.Any())
+            {
+                if (results.FileSizeMismatches.Any() || results.MissingFiles.Any())
+                {
+                    var cancelOrContinue = await StatusContext.ShowMessage("Missing And Changed Files Report Error",
+                        $"The report returned {results.FileSizeMismatches.Count + results.MissingFiles.Count} results and the errors below - Cancel or Continue?{Environment.NewLine}{Environment.NewLine}{string.Join($"{{Environment.NewLine}}{Environment.NewLine}", results.ErrorMessages)}",
+                        new List<string> {"Cancel", "Continue"});
+
+                    if (cancelOrContinue == "Cancel") return;
+                }
+                else
+                {
+                    await StatusContext.ShowMessageWithOkButton("Missing And Changed Files Report Error",
+                        $"The report returned no items and the following errors:{Environment.NewLine}{Environment.NewLine}{string.Join($"{{Environment.NewLine}}{Environment.NewLine}", results.ErrorMessages)}");
+                    return;
+                }
+            }
 
             var toUpload = results.FileSizeMismatches.Concat(results.MissingFiles).ToList();
 
             if (!toUpload.Any())
             {
-                StatusContext?.ToastSuccess("No Missing Files or Size Mismatches Found");
+                StatusContext.ToastSuccess("No Missing Files or Size Mismatches Found");
                 return;
             }
 

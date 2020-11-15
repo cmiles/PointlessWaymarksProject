@@ -11,13 +11,11 @@ using PointlessWaymarksCmsWpfControls.S3Uploads;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
 {
-    public class AwsS3GeneratedSiteComparison
+    public class AwsS3GeneratedSiteComparisonForAdditionsAndChanges
     {
-        public List<string> ErrorMessages { get; set; } = new List<string>();
-        public List<S3Upload> FileSizeMismatches { get; set; } = new List<S3Upload>();
-        public List<S3Upload> MissingFiles { get; set; } = new List<S3Upload>();
-        public List<S3Object> S3ObjectsNotInGeneratedSite { get; set; } = new List<S3Object>();
-
+        public List<string> ErrorMessages { get; set; } = new();
+        public List<S3Upload> FileSizeMismatches { get; set; } = new();
+        public List<S3Upload> MissingFiles { get; set; } = new();
 
         public static string FileInfoInGeneratedSiteToS3Key(FileInfo file)
         {
@@ -25,10 +23,10 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 .Replace("\\", "/");
         }
 
-        public static async Task<AwsS3GeneratedSiteComparison> FilesInGeneratedDirectoryButNotInS3(
+        public static async Task<AwsS3GeneratedSiteComparisonForAdditionsAndChanges> RunReport(
             IProgress<string>? progress)
         {
-            var returnReport = new AwsS3GeneratedSiteComparison();
+            var returnReport = new AwsS3GeneratedSiteComparisonForAdditionsAndChanges();
 
             if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().SiteS3Bucket))
             {
@@ -124,12 +122,9 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 }
             }
 
-            returnReport.S3ObjectsNotInGeneratedSite = awsObjects.ToList();
-
             progress?.Report(
                 $"Returning Report - {returnReport.MissingFiles.Count} Missing Files, {returnReport.ErrorMessages.Count} Error " +
-                $"Messages, {returnReport.FileSizeMismatches.Count} File Size Mismatches, {returnReport.S3ObjectsNotInGeneratedSite.Count} " +
-                "objects not in generated site.");
+                $"Messages, {returnReport.FileSizeMismatches.Count} File Size Mismatches.");
 
             return returnReport;
         }

@@ -26,7 +26,8 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="S3 ">
-                <MenuItem Command="{Binding SiteComparisonReportCommand}" Header="Site Comparison Report" />
+                <MenuItem Command="{Binding SiteMissingFilesReportCommand}" Header="Missing and Changed Files on Site" />
+                <MenuItem Command="{Binding SiteDeletedFilesReportCommand}" Header="Deleted Files on Site" />
                 <Separator />
                 <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}" Header="Selected to Uploader" />
                 <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}" Header="All to Uploader" />
