@@ -23,60 +23,81 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <Button Command="{Binding DeleteSelectedCommand}">Delete Selected</Button>
-            <Button Grid.Column="1" Command="{Binding DeleteAllCommand}">Delete All</Button>
-        </Grid>
-        <ListBox
-            Name="ItemsListBox"
+        <Menu>
+            <MenuItem Header="Excel">
+                <MenuItem Command="{Binding ToExcelSelectedItemsCommand}" Header="Selected To Excel"></MenuItem>
+                <MenuItem Command="{Binding ToExcelAllItemsCommand}" Header="All To Excel"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Clipboard">
+                <MenuItem Command="{Binding ToClipboardSelectedItemsCommand}" Header="Selected To Clipboard"></MenuItem>
+                <MenuItem Command="{Binding ToClipboardAllItemsCommand}" Header="All To Clipboard"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <GroupBox
             Grid.Row="1"
-            HorizontalContentAlignment="Stretch"
-            ItemsSource="{Binding Items}"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            SelectionChanged="Selector_OnSelectionChanged"
-            SelectionMode="Extended">
-            <b:Interaction.Behaviors>
-                <utility:ListBoxOneLineMouseWheelScroll />
-            </b:Interaction.Behaviors>
-            <ListBox.ItemTemplate>
-                <DataTemplate DataType="local:S3DeletionsItem">
-                    <Border Style="{StaticResource ContentListOuterBorderStyle}">
-                        <Grid Margin="4">
-                            <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <TextBox Style="{StaticResource ReadOnlyTextBox}" TextWrapping="Wrap">
-                                <TextBox.Text>
-                                    <MultiBinding StringFormat="{}{0}/{1}">
-                                        <Binding Path="BucketName" />
-                                        <Binding Path="AmazonObjectKey" />
-                                    </MultiBinding>
-                                </TextBox.Text>
-                                <b:Interaction.Behaviors>
-                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
-                                </b:Interaction.Behaviors>
-                            </TextBox>
-                            <TextBox
-                                Grid.Row="1"
-                                Style="{StaticResource ReadOnlyTextBox}"
-                                Text="{Binding ErrorMessage, StringFormat='Error: {0}'}"
-                                TextWrapping="Wrap"
-                                Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">
-                                <b:Interaction.Behaviors>
-                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
-                                </b:Interaction.Behaviors>
-                            </TextBox>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+            Header="Actions"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <WrapPanel HorizontalAlignment="Center">
+                <WrapPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Width" Value="180" />
+                    </Style>
+                </WrapPanel.Resources>
+                <Button Command="{Binding DeleteSelectedCommand}">Delete Selected</Button>
+                <Button Grid.Column="1" Command="{Binding DeleteAllCommand}">Delete All</Button>
+            </WrapPanel>
+        </GroupBox>
+        <GroupBox
+            Grid.Row="2"
+            Header="Items"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <ListBox
+                Name="ItemsListBox"
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding Items}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                SelectionChanged="Selector_OnSelectionChanged"
+                SelectionMode="Extended">
+                <b:Interaction.Behaviors>
+                    <utility:ListBoxOneLineMouseWheelScroll />
+                </b:Interaction.Behaviors>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="local:S3DeletionsItem">
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <Grid Margin="4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBox Style="{StaticResource ReadOnlyTextBox}" TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="{}{0}/{1}">
+                                            <Binding Path="BucketName" />
+                                            <Binding Path="AmazonObjectKey" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                    <b:Interaction.Behaviors>
+                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                                <TextBox
+                                    Grid.Row="1"
+                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    Text="{Binding ErrorMessage, StringFormat='Error: {0}'}"
+                                    TextWrapping="Wrap"
+                                    Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">
+                                    <b:Interaction.Behaviors>
+                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
     </Grid>
 </UserControl>

@@ -113,6 +113,7 @@ namespace PointlessWaymarksCmsData
     public enum DataNotificationContentType
     {
         File,
+        GenerationLog,
         GeoJson,
         Image,
         Line,

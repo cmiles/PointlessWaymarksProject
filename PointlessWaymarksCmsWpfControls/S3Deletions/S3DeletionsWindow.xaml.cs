@@ -57,5 +57,12 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        private void S3DeletionsWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            if (DeletionContext == null || !StatusContext.BlockUi) return;
+
+            e.Cancel = true;
+        }
     }
 }

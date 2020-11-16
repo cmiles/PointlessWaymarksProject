@@ -11,14 +11,14 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 {
     public class AwsS3GeneratedSiteComparisonForDeletions
     {
+        public List<string> ErrorMessages { get; set; } = new();
+        public List<string> S3KeysToDelete { get; set; } = new();
+
         public static string DirectoryInfoInGeneratedSiteToS3Key(DirectoryInfo directory)
         {
             return directory.FullName.Replace($"{UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory}\\", "")
                 .Replace("\\", "/") + "/";
         }
-
-        public List<string> ErrorMessages { get; set; } = new();
-        public List<string> S3KeysToDelete { get; set; } = new();
 
         public static async Task<AwsS3GeneratedSiteComparisonForDeletions> RunReport(IProgress<string>? progress)
         {
@@ -35,11 +35,13 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             progress?.Report("Getting list of all generated files");
 
             var allGeneratedFiles = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)
-                .GetFiles("*", SearchOption.AllDirectories).OrderBy(x => x.FullName).Select(AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key).ToList();
+                .GetFiles("*", SearchOption.AllDirectories).OrderBy(x => x.FullName)
+                .Select(AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key).ToList();
 
             var allGeneratedDirectories =
-                new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory).GetDirectories("*",
-                    SearchOption.AllDirectories).OrderBy(x => x.FullName).Select(DirectoryInfoInGeneratedSiteToS3Key).ToList();
+                new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)
+                    .GetDirectories("*", SearchOption.AllDirectories).OrderBy(x => x.FullName)
+                    .Select(DirectoryInfoInGeneratedSiteToS3Key).ToList();
 
             if (!allGeneratedFiles.Any() && !allGeneratedDirectories.Any())
             {
@@ -114,7 +116,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
                     returnReport.S3KeysToDelete.Add(loopObject.Key);
                 }
-
             }
 
             progress?.Report(

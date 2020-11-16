@@ -20,6 +20,7 @@ using PointlessWaymarksCmsWpfControls.S3Deletions;
 using PointlessWaymarksCmsWpfControls.S3Uploads;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 {
@@ -32,6 +33,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private Command? _allWrittenFilesToS3UploaderCommand;
         private Command? _allWrittenFilesToS3UploaderJsonFileCommand;
         private bool _changeSlashes = true;
+        private DataNotificationsWorkQueue _dataNotificationsProcessor;
         private bool _filterForFilesInCurrentGenerationDirectory = true;
         private Command? _generateItemsCommand;
         private ObservableCollection<FileWrittenLogListDateTimeFilterChoice>? _generationChoices;
@@ -80,6 +82,8 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             OpenUploaderJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(OpenUploaderJsonFile);
 
             if (loadInBackground) StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+
+            _dataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
         }
 
         public Command? AllFilesToExcelCommand
@@ -155,6 +159,17 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             {
                 if (value == _changeSlashes) return;
                 _changeSlashes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DataNotificationsWorkQueue DataNotificationsProcessor
+        {
+            get => _dataNotificationsProcessor;
+            set
+            {
+                if (Equals(value, _dataNotificationsProcessor)) return;
+                _dataNotificationsProcessor = value;
                 OnPropertyChanged();
             }
         }
@@ -446,6 +461,25 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             var newContext = new FilesWrittenLogListContext(statusContext, false);
             await newContext.LoadData();
             return newContext;
+        }
+
+        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
+        {
+            var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+
+            if (translatedMessage.HasError)
+            {
+                await EventLogContext.TryWriteDiagnosticMessageToLog(
+                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
+                    StatusContext.StatusControlContextId.ToString());
+                return;
+            }
+
+            if (translatedMessage.ContentType != DataNotificationContentType.GenerationLog) return;
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            await LoadDateTimeFilterChoices();
         }
 
         private async Task FileItemsToS3Uploader(List<FilesWrittenLogListListItem> items)
@@ -766,8 +800,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
             catch (Exception e)
             {
-                if (StatusContext != null)
-                    await StatusContext.ShowMessageWithOkButton("File Import Error", e.ToString());
+                await StatusContext.ShowMessageWithOkButton("File Import Error", e.ToString());
             }
         }
 

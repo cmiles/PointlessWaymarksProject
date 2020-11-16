@@ -40,6 +40,7 @@ namespace PointlessWaymarksCmsData.Html
             progress?.Report(
                 $"Keeping Top {generationLogsToKeep.Count} Logs, Found {generationLogsToDelete.Count} logs to remove");
 
+            //TODO Integrate into DataNotifications
             db.GenerationLogs.RemoveRange(generationLogsToDelete);
 
             await db.SaveChangesAsync();
@@ -210,16 +211,7 @@ namespace PointlessWaymarksCmsData.Html
             progress?.Report(
                 $"Generation Complete - Writing Generation Date Time of UTC {generationVersion} in Db Generation log as Last Generation");
 
-            var db = await Db.Context();
-
-            var serializedSettings =
-                JsonSerializer.Serialize(UserSettingsSingleton.CurrentSettings().GenerationValues());
-            var dbGenerationRecord = new GenerationLog
-            {
-                GenerationSettings = serializedSettings, GenerationVersion = generationVersion
-            };
-            await db.GenerationLogs.AddAsync(dbGenerationRecord);
-            await db.SaveChangesAsync(true);
+            await Db.SaveGenerationLogAndRecordSettings(generationVersion);
 
             return await CommonContentValidation.CheckAllContentForBadContentReferences(progress);
         }
@@ -849,14 +841,7 @@ namespace PointlessWaymarksCmsData.Html
             progress?.Report(
                 $"Generation Complete - writing {generationVersion} as Last Generation UTC into db Generation Log");
 
-            var serializedSettings =
-                JsonSerializer.Serialize(UserSettingsSingleton.CurrentSettings().GenerationValues());
-            var dbGenerationRecord = new GenerationLog
-            {
-                GenerationSettings = serializedSettings, GenerationVersion = generationVersion
-            };
-            await db.GenerationLogs.AddAsync(dbGenerationRecord);
-            await db.SaveChangesAsync(true);
+            await Db.SaveGenerationLogAndRecordSettings(generationVersion);
 
             var allChangedContent =
                 (await db.ContentFromContentIds(await db.GenerationChangedContentIds.Select(x => x.ContentId)

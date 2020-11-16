@@ -908,6 +908,24 @@ namespace PointlessWaymarksCmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
+        public static async Task SaveGenerationLogAndRecordSettings(DateTime generationVersion)
+        {
+            var db = await Context();
+
+            var serializedSettings =
+                JsonSerializer.Serialize(UserSettingsSingleton.CurrentSettings().GenerationValues());
+            var dbGenerationRecord = new GenerationLog
+            {
+                GenerationSettings = serializedSettings, GenerationVersion = generationVersion
+            };
+
+            await db.GenerationLogs.AddAsync(dbGenerationRecord);
+            await db.SaveChangesAsync(true);
+
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.GenerationLog,
+                DataNotificationUpdateType.New, new List<Guid>());
+        }
+
         public static async Task SaveGeoJsonContent(GeoJsonContent toSave)
         {
             if (toSave == null) return;

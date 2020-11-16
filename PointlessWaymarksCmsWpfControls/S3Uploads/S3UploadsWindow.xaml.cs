@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.S3Uploads
 {
@@ -12,6 +14,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
     /// </summary>
     public partial class S3UploadsWindow : INotifyPropertyChanged
     {
+        private bool _forceClose;
         private StatusControlContext _statusContext;
         private S3UploadsContext? _uploadContext;
 
@@ -57,6 +60,48 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void S3UploadsWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            if (_forceClose) return;
+
+            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(WindowCloseOverload);
+            e.Cancel = true;
+        }
+
+        public async Task WindowCloseOverload()
+        {
+            if (UploadContext?.UploadBatch == null || !UploadContext.UploadBatch.Uploading)
+            {
+                _forceClose = true;
+                await ThreadSwitcher.ResumeForegroundAsync();
+                Close();
+            }
+
+            ;
+
+            var userAction = await StatusContext.ShowMessage("Running Upload...",
+                "Exiting this window with an upload running could create errors on S3:",
+                new List<string> {"Close Immediately", "Cancel and Close", "Return to Upload"});
+
+            switch (userAction)
+            {
+                case "Close Immediately":
+                {
+                    _forceClose = true;
+                    await ThreadSwitcher.ResumeForegroundAsync();
+                    Close();
+                    break;
+                }
+                    ;
+                case "Return and Cancel":
+                {
+                    UploadContext?.UploadBatch?.Cancellation?.Cancel();
+                    break;
+                }
+                    ;
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
@@ -18,27 +19,57 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 {
     public class S3UploadsContext : INotifyPropertyChanged
     {
+        private Command _clearUploadedCommand;
         private ObservableCollection<S3UploadsItem>? _items;
-        private Command? _saveAllToUploadJsonFileCommand;
-        private Command? _saveNotUploadedToUploadJsonFileCommand;
-        private Command? _saveSelectedToUploadJsonFileCommand;
+        private Command<S3UploadsItem> _openLocalFileInExplorerCommand;
+        private Command _saveAllToUploadJsonFileCommand;
+        private Command _saveNotUploadedToUploadJsonFileCommand;
+        private Command _saveSelectedToUploadJsonFileCommand;
         private List<S3UploadsItem> _selectedItems = new();
-        private Command? _startAllUploadsCommand;
-        private Command? _startSelectedUploadsCommand;
+        private Command _startAllUploadsCommand;
+        private Command _startSelectedUploadsCommand;
         private StatusControlContext _statusContext;
+        private Command _toClipboardAllItemsCommand;
+        private Command _toClipboardSelectedItemsCommand;
+        private Command _toExcelAllItemsCommand;
+        private Command _toExcelSelectedItemsCommand;
         private S3UploadsUploadBatch? _uploadBatch;
 
         public S3UploadsContext(StatusControlContext? statusContext)
         {
             _statusContext = statusContext ?? new StatusControlContext();
 
-            StartSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
-            StartAllUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartAllUploads);
+            _startSelectedUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartSelectedUploads);
+            _startAllUploadsCommand = StatusContext.RunNonBlockingTaskCommand(StartAllUploads);
+            _clearUploadedCommand = StatusContext.RunNonBlockingTaskCommand(ClearUploaded);
 
-            SaveAllToUploadJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(SaveAllToUploadJsonFile);
-            SaveSelectedToUploadJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(SaveSelectedToUploadJsonFile);
-            SaveNotUploadedToUploadJsonFileCommand =
+            _saveAllToUploadJsonFileCommand = StatusContext.RunNonBlockingTaskCommand(SaveAllToUploadJsonFile);
+            _saveSelectedToUploadJsonFileCommand =
+                StatusContext.RunNonBlockingTaskCommand(SaveSelectedToUploadJsonFile);
+            _saveNotUploadedToUploadJsonFileCommand =
                 StatusContext.RunNonBlockingTaskCommand(SaveNotUploadedToUploadJsonFile);
+            _openLocalFileInExplorerCommand =
+                StatusContext.RunBlockingTaskCommand<S3UploadsItem>(async x => await OpenLocalFileInExplorer(x));
+
+            _toExcelAllItemsCommand =
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
+            _toExcelSelectedItemsCommand =
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(SelectedItems.ToList()));
+            _toClipboardAllItemsCommand =
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
+            _toClipboardSelectedItemsCommand =
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(SelectedItems.ToList()));
+        }
+        
+        public Command ClearUploadedCommand
+        {
+            get => _clearUploadedCommand;
+            set
+            {
+                if (Equals(value, _clearUploadedCommand)) return;
+                _clearUploadedCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public ObservableCollection<S3UploadsItem>? Items
@@ -52,7 +83,18 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             }
         }
 
-        public Command? SaveAllToUploadJsonFileCommand
+        public Command<S3UploadsItem> OpenLocalFileInExplorerCommand
+        {
+            get => _openLocalFileInExplorerCommand;
+            set
+            {
+                if (Equals(value, _openLocalFileInExplorerCommand)) return;
+                _openLocalFileInExplorerCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SaveAllToUploadJsonFileCommand
         {
             get => _saveAllToUploadJsonFileCommand;
             set
@@ -63,7 +105,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             }
         }
 
-        public Command? SaveNotUploadedToUploadJsonFileCommand
+        public Command SaveNotUploadedToUploadJsonFileCommand
         {
             get => _saveNotUploadedToUploadJsonFileCommand;
             set
@@ -74,7 +116,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             }
         }
 
-        public Command? SaveSelectedToUploadJsonFileCommand
+        public Command SaveSelectedToUploadJsonFileCommand
         {
             get => _saveSelectedToUploadJsonFileCommand;
             set
@@ -96,7 +138,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             }
         }
 
-        public Command? StartAllUploadsCommand
+        public Command StartAllUploadsCommand
         {
             get => _startAllUploadsCommand;
             set
@@ -107,7 +149,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             }
         }
 
-        public Command? StartSelectedUploadsCommand
+        public Command StartSelectedUploadsCommand
         {
             get => _startSelectedUploadsCommand;
             set
@@ -129,6 +171,50 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             }
         }
 
+        public Command ToClipboardAllItemsCommand
+        {
+            get => _toClipboardAllItemsCommand;
+            set
+            {
+                if (Equals(value, _toClipboardAllItemsCommand)) return;
+                _toClipboardAllItemsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ToClipboardSelectedItemsCommand
+        {
+            get => _toClipboardSelectedItemsCommand;
+            set
+            {
+                if (Equals(value, _toClipboardSelectedItemsCommand)) return;
+                _toClipboardSelectedItemsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ToExcelAllItemsCommand
+        {
+            get => _toExcelAllItemsCommand;
+            set
+            {
+                if (Equals(value, _toExcelAllItemsCommand)) return;
+                _toExcelAllItemsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ToExcelSelectedItemsCommand
+        {
+            get => _toExcelSelectedItemsCommand;
+            set
+            {
+                if (Equals(value, _toExcelSelectedItemsCommand)) return;
+                _toExcelSelectedItemsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public S3UploadsUploadBatch? UploadBatch
         {
             get => _uploadBatch;
@@ -141,6 +227,19 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public async Task ClearUploaded()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null) return;
+
+            var toRemove = Items.Where(x => !x.HasError && !x.Completed).ToList();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            toRemove.ForEach(x => Items.Remove(x));
+        }
 
         public static async Task<S3UploadsContext> CreateInstance(StatusControlContext statusContext,
             List<S3Upload> uploadList)
@@ -165,6 +264,49 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             await File.WriteAllTextAsync(file.FullName, jsonInfo);
 
             await ProcessHelpers.OpenExplorerWindowForFile(fileName).ConfigureAwait(false);
+        }
+
+        public async Task ItemsToClipboard(List<S3UploadsItem>? items)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (items == null || !items.Any())
+            {
+                StatusContext.ToastError("No items?");
+                return;
+            }
+
+            var itemsForClipboard = string.Join(Environment.NewLine,
+                items.Select(x =>
+                        $"{x.FileToUpload.FullName}\t{x.BucketName}\t{x.AmazonObjectKey}\tCompleted: {x.Completed}\tHas Error: {x.HasError}\t Error: {x.ErrorMessage}")
+                    .ToList());
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(itemsForClipboard);
+        }
+
+        public async Task ItemsToExcel(List<S3UploadsItem>? items)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (items == null || !items.Any())
+            {
+                StatusContext.ToastError("No items?");
+                return;
+            }
+
+            var itemsForExcel = items.Select(x => new
+            {
+                x.FileToUpload.FullName,
+                x.BucketName,
+                x.AmazonObjectKey,
+                x.Completed,
+                x.HasError,
+                x.ErrorMessage
+            }).ToList();
+
+            ExcelHelpers.ContentToExcelFileAsTable(itemsForExcel.Cast<object>().ToList(), "UploadItemsList");
         }
 
         public async Task LoadData(List<S3Upload> uploadList)
@@ -194,6 +336,12 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public async Task OpenLocalFileInExplorer(S3UploadsItem toOpen)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            await ProcessHelpers.OpenExplorerWindowForFile(toOpen.FileToUpload.FullName);
         }
 
         public async Task SaveAllToUploadJsonFile()

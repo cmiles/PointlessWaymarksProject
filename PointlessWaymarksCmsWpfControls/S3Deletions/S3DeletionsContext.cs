@@ -5,7 +5,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using Amazon.S3;
 using Amazon.S3.Model;
 using JetBrains.Annotations;
@@ -22,12 +24,26 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
         private ObservableCollection<S3DeletionsItem>? _items;
         private List<S3DeletionsItem> _selectedItems = new();
         private StatusControlContext _statusContext;
+        private Command _toClipboardAllItemsCommand;
+        private Command _toClipboardSelectedItemsCommand;
+        private Command _toExcelAllItemsCommand;
+        private Command _toExcelSelectedItemsCommand;
+        private bool _isRunning;
 
         public S3DeletionsContext(StatusControlContext? statusContext)
         {
             _statusContext = statusContext ?? new StatusControlContext();
-            _deleteAllCommand = StatusContext.RunBlockingTaskCommand(DeleteAll);
-            _deleteSelectedCommand = StatusContext.RunBlockingTaskCommand(DeleteSelected);
+            _deleteAllCommand = StatusContext.RunBlockingTaskWithCancellationCommand(async x => await DeleteAll(x), "Cancel Deletions");
+            _deleteSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(async x => await DeleteSelected(x), "Cancel Deletions");
+
+            _toExcelAllItemsCommand =
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
+            _toExcelSelectedItemsCommand =
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(SelectedItems.ToList()));
+            _toClipboardAllItemsCommand =
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
+            _toClipboardSelectedItemsCommand =
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(SelectedItems.ToList()));
         }
 
         public Command DeleteAllCommand
@@ -85,6 +101,50 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
             }
         }
 
+        public Command ToClipboardAllItemsCommand
+        {
+            get => _toClipboardAllItemsCommand;
+            set
+            {
+                if (Equals(value, _toClipboardAllItemsCommand)) return;
+                _toClipboardAllItemsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ToClipboardSelectedItemsCommand
+        {
+            get => _toClipboardSelectedItemsCommand;
+            set
+            {
+                if (Equals(value, _toClipboardSelectedItemsCommand)) return;
+                _toClipboardSelectedItemsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ToExcelAllItemsCommand
+        {
+            get => _toExcelAllItemsCommand;
+            set
+            {
+                if (Equals(value, _toExcelAllItemsCommand)) return;
+                _toExcelAllItemsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ToExcelSelectedItemsCommand
+        {
+            get => _toExcelSelectedItemsCommand;
+            set
+            {
+                if (Equals(value, _toExcelSelectedItemsCommand)) return;
+                _toExcelSelectedItemsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public static async Task<S3DeletionsContext> CreateInstance(StatusControlContext? statusContext,
@@ -95,7 +155,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
             return newControl;
         }
 
-        public async Task Delete(List<S3DeletionsItem> itemsToDelete, IProgress<string> progress)
+        public async Task Delete(List<S3DeletionsItem> itemsToDelete, CancellationToken cancellationToken,
+            IProgress<string> progress)
         {
             if (!itemsToDelete.Any())
             {
@@ -113,6 +174,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
                 return;
             }
 
+            if (cancellationToken.IsCancellationRequested) throw new TaskCanceledException();
+
             progress.Report("Getting Amazon Client");
 
             var s3Client = new AmazonS3Client(accessKey, secret);
@@ -126,15 +189,17 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
 
             foreach (var loopDeletionItems in sortedItems)
             {
+                if (cancellationToken.IsCancellationRequested) throw new TaskCanceledException();
+
                 if (++loopCount % 10 == 0)
                     progress.Report($"S3 Deletion {loopCount} of {totalCount} - {loopDeletionItems.AmazonObjectKey}");
 
                 try
                 {
-                    var deleteResult = await s3Client.DeleteObjectAsync(new DeleteObjectRequest
+                    await s3Client.DeleteObjectAsync(new DeleteObjectRequest
                     {
                         BucketName = loopDeletionItems.BucketName, Key = loopDeletionItems.AmazonObjectKey
-                    });
+                    }, cancellationToken);
                 }
                 catch (Exception e)
                 {
@@ -155,14 +220,50 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
             toRemoveFromList.ForEach(x => Items.Remove(x));
         }
 
-        public async Task DeleteAll()
+        public async Task DeleteAll(CancellationToken cancellationToken)
         {
-            await Delete(Items?.ToList() ?? new List<S3DeletionsItem>(), StatusContext.ProgressTracker());
+            await Delete(Items?.ToList() ?? new List<S3DeletionsItem>(), cancellationToken, StatusContext.ProgressTracker());
         }
 
-        public async Task DeleteSelected()
+        public async Task DeleteSelected(CancellationToken cancellationToken)
         {
-            await Delete(SelectedItems.ToList(), StatusContext.ProgressTracker());
+            await Delete(SelectedItems.ToList(), cancellationToken, StatusContext.ProgressTracker());
+        }
+
+        public async Task ItemsToClipboard(List<S3DeletionsItem>? items)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (items == null || !items.Any())
+            {
+                StatusContext.ToastError("No items?");
+                return;
+            }
+
+            var itemsForClipboard = string.Join(Environment.NewLine,
+                items.Select(x =>
+                        $"{x.BucketName}\t{x.AmazonObjectKey}\tHas Error: {x.HasError}\t Error: {x.ErrorMessage}")
+                    .ToList());
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(itemsForClipboard);
+        }
+
+        public async Task ItemsToExcel(List<S3DeletionsItem>? items)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (items == null || !items.Any())
+            {
+                StatusContext.ToastError("No items?");
+                return;
+            }
+
+            var itemsForExcel = items.Select(x => new {x.BucketName, x.AmazonObjectKey, x.HasError, x.ErrorMessage})
+                .ToList();
+
+            ExcelHelpers.ContentToExcelFileAsTable(itemsForExcel.Cast<object>().ToList(), "UploadItemsList");
         }
 
         public async Task LoadData(List<S3DeletionsItem> toDelete)
