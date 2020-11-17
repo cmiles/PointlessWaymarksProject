@@ -7,11 +7,11 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.S3Uploads"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    Name="S3UploadsControlXaml"
     d:DataContext="{d:DesignInstance local:S3UploadsContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    mc:Ignorable="d"
-    Name="S3UploadsControlXaml">
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -44,25 +44,26 @@
                             </b:Interaction.Behaviors>
                         </TextBox>
                         <TextBox
-                            Margin="2"
                             Grid.Row="1"
+                            Margin="2"
+                            Cursor="Arrow"
                             Style="{StaticResource ReadOnlyTextBox}"
                             Text="{Binding FileToUpload.FullName, StringFormat='From: {0}', Mode=OneWay}"
-                            TextWrapping="Wrap"
                             TextDecorations="Underline"
-                            Cursor="Arrow">
+                            TextWrapping="Wrap">
                             <TextBox.InputBindings>
-                                <MouseBinding MouseAction="LeftClick"
-                                              Command="{Binding ElementName=S3UploadsControlXaml, Path=DataContext.OpenLocalFileInExplorerCommand}"
-                                              CommandParameter="{Binding .}" />
+                                <MouseBinding
+                                    Command="{Binding ElementName=S3UploadsControlXaml, Path=DataContext.OpenLocalFileInExplorerCommand}"
+                                    CommandParameter="{Binding .}"
+                                    MouseAction="LeftClick" />
                             </TextBox.InputBindings>
                             <b:Interaction.Behaviors>
                                 <utility:ReadOnlyTextBoxClickAndKeyboardPass />
                             </b:Interaction.Behaviors>
                         </TextBox>
                         <TextBox
-                            Margin="2"
                             Grid.Row="2"
+                            Margin="2"
                             Style="{StaticResource ReadOnlyTextBox}"
                             TextWrapping="Wrap">
                             <TextBox.Text>
@@ -108,19 +109,17 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Save">
-                <MenuItem Command="{Binding SaveSelectedToUploadJsonFileCommand}"
-                          Header="Selected to Uploader Json File" />
+                <MenuItem Command="{Binding SaveSelectedToUploadJsonFileCommand}" Header="Selected to Uploader Json File" />
                 <MenuItem Command="{Binding SaveAllToUploadJsonFileCommand}" Header="All to Uploader Json File" />
-                <MenuItem Command="{Binding SaveNotUploadedToUploadJsonFileCommand}"
-                          Header="Not Uploaded to Uploader Json File" />
+                <MenuItem Command="{Binding SaveNotUploadedToUploadJsonFileCommand}" Header="Not Uploaded to Uploader Json File" />
             </MenuItem>
             <MenuItem Header="Excel">
-                <MenuItem Command="{Binding ToExcelSelectedItemsCommand}" Header="Selected To Excel"></MenuItem>
-                <MenuItem Command="{Binding ToExcelAllItemsCommand}" Header="All To Excel"></MenuItem>
+                <MenuItem Command="{Binding ToExcelSelectedItemsCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ToExcelAllItemsCommand}" Header="All To Excel" />
             </MenuItem>
             <MenuItem Header="Clipboard">
-                <MenuItem Command="{Binding ToClipboardSelectedItemsCommand}" Header="Selected To Clipboard"></MenuItem>
-                <MenuItem Command="{Binding ToClipboardAllItemsCommand}" Header="All To Clipboard"></MenuItem>
+                <MenuItem Command="{Binding ToClipboardSelectedItemsCommand}" Header="Selected To Clipboard" />
+                <MenuItem Command="{Binding ToClipboardAllItemsCommand}" Header="All To Clipboard" />
             </MenuItem>
         </Menu>
         <GroupBox
@@ -131,7 +130,7 @@
             <WrapPanel HorizontalAlignment="Center">
                 <WrapPanel.Resources>
                     <Style TargetType="Button">
-                        <Setter Property="Width" Value="180"></Setter>
+                        <Setter Property="Width" Value="180" />
                     </Style>
                 </WrapPanel.Resources>
                 <Button Command="{Binding StartSelectedUploadsCommand}">Upload Selected</Button>
@@ -188,8 +187,7 @@
                         Text="{Binding UploadBatch.Status}" />
                     <TextBlock Grid.Row="0" Grid.Column="1">
                         <TextBlock.Text>
-                            <MultiBinding
-                                StringFormat="{}{0:P1} - Total Upload Count: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
+                            <MultiBinding StringFormat="{}{0:P1} - Total Upload Count: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
                                 <Binding Path="UploadBatch.CompletedItemPercent" />
                                 <Binding Path="UploadBatch.UploadedItemCount" />
                                 <Binding Path="UploadBatch.ErrorItemCount" />
@@ -199,8 +197,7 @@
                     </TextBlock>
                     <TextBlock Grid.Row="1" Grid.Column="1">
                         <TextBlock.Text>
-                            <MultiBinding
-                                StringFormat="{}{0:P1} - Total Upload Size: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
+                            <MultiBinding StringFormat="{}{0:P1} - Total Upload Size: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
                                 <Binding Path="UploadBatch.CompletedSizePercent" />
                                 <Binding Path="UploadBatch.UploadedSize" />
                                 <Binding Path="UploadBatch.ErrorSize" />
@@ -223,8 +220,7 @@
                     HorizontalScrollBarVisibility="Disabled"
                     VerticalScrollBarVisibility="Visible"
                     Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}">
-                    <ContentControl Content="{Binding UploadBatch.CurrentUpload}"
-                                    ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
+                    <ContentControl Content="{Binding UploadBatch.CurrentUpload}" ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
                 </ScrollViewer>
             </Grid>
         </GroupBox>

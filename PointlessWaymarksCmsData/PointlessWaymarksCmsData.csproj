@@ -17,6 +17,7 @@
     <None Remove="SiteResources\leaflet-gesture-handling.min.css" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.js" />
     <None Remove="SiteResources\pointless-waymarks-content-list-search.js" />
+    <None Remove="SiteResources\pointless-waymarks-spatial-common.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -100,11 +101,6 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SingleLinePage.cs</LastGenOutput>
       <CustomToolNamespace>PointlessWaymarksCmsData.Html.LineHtml</CustomToolNamespace>
-    </None>
-    <None Update="Html\PointHtml\PointMap.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>pointmap.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarksCmsData.Html.PointHtml</CustomToolNamespace>
     </None>
     <None Update="Html\PointHtml\SinglePointDiv.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
@@ -227,11 +223,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SingleLinePage.tt</DependentUpon>
     </Compile>
-    <Compile Update="Html\PointHtml\pointmap.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>PointMap.tt</DependentUpon>
-    </Compile>
     <Compile Update="Html\PointHtml\SinglePointDiv.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -322,6 +313,7 @@
     <EmbeddedResource Include="SiteResources\leaflet.css" />
     <EmbeddedResource Include="SiteResources\leaflet.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />
+    <EmbeddedResource Include="SiteResources\pointless-waymarks-spatial-common.js" />
     <EmbeddedResource Include="style.css" />
   </ItemGroup>
 

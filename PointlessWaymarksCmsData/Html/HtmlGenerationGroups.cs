@@ -327,8 +327,7 @@ namespace PointlessWaymarksCmsData.Html
 
         public static async Task GenerateAllPointHtml(DateTime? generationVersion, IProgress<string> progress)
         {
-            var javascriptFile = new PointMap();
-            await javascriptFile.WriteLocalJavascript();
+            await PointData.WriteLocalJsonData();
 
             var db = await Db.Context();
 

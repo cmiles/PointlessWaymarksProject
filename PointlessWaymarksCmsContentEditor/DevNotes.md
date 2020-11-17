@@ -56,6 +56,10 @@
  
 ## Notes
 
+11/17/2020
+
+With the uploader in a decent spot (and probably needing more usage to really figure out what would be the most valuable to add/change/fix) I started working on the 'map' feature for an upcoming Ironwwod Forest/Dos Titos post. Points, Lines and GeoJson are all both important enough to be treated as 'content'/a distinct unit - but also flexible enough to serve as a reasonably complete basis for showing a user maps. The idea with the maps is to give a way to associate sets of features into a map. Atm the idea is that maps will not actually be available as a 'page' or distinct type but only as a part of something else - and that the maps will depend on looking up on site json information to pull together the various elements.
+
 11/12/2020
 
 First upload batch tracking in uploads window and saving Json Uploads from the written files tab. Still quite a few todos but it continues to look like this will be a very useful project.

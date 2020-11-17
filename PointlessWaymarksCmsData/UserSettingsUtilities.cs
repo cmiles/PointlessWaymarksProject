@@ -420,6 +420,15 @@ namespace PointlessWaymarksCmsData
             return directory;
         }
 
+        public static DirectoryInfo LocalSiteGeoJsonDataDirectory(this UserSettings settings)
+        {
+            var directory = new DirectoryInfo(Path.Combine(LocalSiteGeoJsonDirectory(settings).FullName, "Data"));
+            if (!directory.Exists) directory.Create();
+
+            directory.Refresh();
+
+            return directory;
+        }
 
         public static DirectoryInfo LocalSiteGeoJsonDirectory(this UserSettings settings)
         {
@@ -518,6 +527,16 @@ namespace PointlessWaymarksCmsData
             return directory;
         }
 
+        public static DirectoryInfo LocalSiteLineDataDirectory(this UserSettings settings)
+        {
+            var directory = new DirectoryInfo(Path.Combine(LocalSiteLineDirectory(settings).FullName, "Lines"));
+            if (!directory.Exists) directory.Create();
+
+            directory.Refresh();
+
+            return directory;
+        }
+
         public static DirectoryInfo LocalSiteLineDirectory(this UserSettings settings)
         {
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Lines"));
@@ -566,6 +585,32 @@ namespace PointlessWaymarksCmsData
         {
             var directory = settings.LocalSiteLinkDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "LinkRss")}.xml");
+        }
+
+        public static DirectoryInfo LocalSiteMapComponentDataDirectory(this UserSettings settings)
+        {
+            var directory = new DirectoryInfo(Path.Combine(LocalSiteMapComponentDirectory(settings).FullName, "Data"));
+            if (!directory.Exists) directory.Create();
+
+            directory.Refresh();
+
+            return directory;
+        }
+
+        public static FileInfo LocalSiteMapComponentDataFile(this UserSettings settings, Guid contentId)
+        {
+            var directory = settings.LocalSiteMapComponentDataDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, contentId.ToString())}.json");
+        }
+
+        public static DirectoryInfo LocalSiteMapComponentDirectory(this UserSettings settings)
+        {
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Maps"));
+            if (!directory.Exists) directory.Create();
+
+            directory.Refresh();
+
+            return directory;
         }
 
         public static DirectoryInfo LocalSiteMediaArchiveDirectory(this UserSettings settings)
@@ -700,6 +745,22 @@ namespace PointlessWaymarksCmsData
             return directory;
         }
 
+        public static DirectoryInfo LocalSitePointDataDirectory(this UserSettings settings)
+        {
+            var directory = new DirectoryInfo(Path.Combine(LocalSitePointDirectory(settings).FullName, "Data"));
+            if (!directory.Exists) directory.Create();
+
+            directory.Refresh();
+
+            return directory;
+        }
+
+        public static FileInfo LocalSitePointDataFile(this UserSettings settings)
+        {
+            var directory = settings.LocalSitePointDataDirectory();
+            return new FileInfo($"{Path.Combine(directory.FullName, "pointdata")}.json");
+        }
+
         public static DirectoryInfo LocalSitePointDirectory(this UserSettings settings)
         {
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Points"));
@@ -709,6 +770,7 @@ namespace PointlessWaymarksCmsData
 
             return directory;
         }
+
 
         public static FileInfo LocalSitePointHtmlFile(this UserSettings settings, PointContent content)
         {
@@ -728,12 +790,6 @@ namespace PointlessWaymarksCmsData
         {
             var directory = settings.LocalSitePointDirectory();
             return new FileInfo($"{Path.Combine(directory.FullName, "PointList")}.html");
-        }
-
-        public static FileInfo LocalSitePointMapJavascriptFile(this UserSettings settings)
-        {
-            var directory = settings.LocalSitePointDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, "pointmap")}.js");
         }
 
         public static FileInfo LocalSitePointRssFile(this UserSettings settings)
@@ -895,9 +951,9 @@ namespace PointlessWaymarksCmsData
             return string.Empty;
         }
 
-        public static string PointMapJavascriptUrl(this UserSettings settings)
+        public static string PointDataUrl(this UserSettings settings)
         {
-            return $"//{settings.SiteUrl}/Points/pointmap.js";
+            return $"//{settings.SiteUrl}/Points/Data/pointdata.json";
         }
 
         public static string PointPageUrl(this UserSettings settings, PointContent content)

@@ -10,8 +10,8 @@
     Width="800"
     Height="600"
     d:DataContext="{d:DesignInstance local:S3DeletionsWindow}"
-    mc:Ignorable="d"
-    Closing="S3DeletionsWindow_OnClosing">
+    Closing="S3DeletionsWindow_OnClosing"
+    mc:Ignorable="d">
     <Grid>
         <local:S3DeletionsControl Margin="4" DataContext="{Binding DeletionContext}" />
         <status:StatusControl

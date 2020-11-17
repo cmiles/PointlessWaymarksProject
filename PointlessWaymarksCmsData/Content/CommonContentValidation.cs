@@ -242,6 +242,72 @@ namespace PointlessWaymarksCmsData.Content
             return (false, $"Could not parse {contentFormat} into a known Content Format");
         }
 
+        public static async Task<(bool valid, string explanation)> ValidateMapComponent(MapComponent toValidate,
+            List<MapComponentElement> elements)
+        {
+            if (toValidate == null) return (false, "Null Content to Validate");
+
+            var isNewEntry = toValidate.Id < 1;
+
+            var isValid = true;
+            var errorMessage = new List<string>();
+
+            if (toValidate.ContentId == Guid.Empty)
+            {
+                isValid = false;
+                errorMessage.Add("Content ID is Empty");
+            }
+
+            var summaryValidation = ValidateSummary(toValidate.Summary);
+
+            if (!summaryValidation.isValid)
+            {
+                isValid = false;
+                errorMessage.Add(summaryValidation.explanation);
+            }
+
+            var (createdUpdatedIsValid, createdUpdatedExplanation) =
+                ValidateCreatedAndUpdatedBy(toValidate, isNewEntry);
+
+            if (!createdUpdatedIsValid)
+            {
+                isValid = false;
+                errorMessage.Add(createdUpdatedExplanation);
+            }
+
+            if (elements == null || !elements.Any())
+            {
+                isValid = false;
+                errorMessage.Add("A map must have at least one element");
+            }
+
+            if (!isValid) return (isValid, string.Join(Environment.NewLine, errorMessage));
+
+            if (elements.Any(x => x.MapComponentContentId != toValidate.ContentId))
+            {
+                isValid = false;
+                errorMessage.Add("Not all map elements are correctly associated with the map.");
+            }
+
+            if(!elements.Any(x => x.InitialFocus))
+            {
+                isValid = false;
+                errorMessage.Add("Please set at least one element as the initial focus.");
+            }
+
+            if (!isValid) return (isValid, string.Join(Environment.NewLine, errorMessage));
+
+            foreach (var loopElements in elements)
+            {
+                if (await Db.ContentIdIsSpatialContentInDatabase(loopElements.MapComponentContentId)) continue;
+                isValid = false;
+                errorMessage.Add("Could not find all Elements Content Items in Db?");
+                break;
+            }
+
+            return (isValid, string.Join(Environment.NewLine, errorMessage));
+        }
+
         public static async Task<(bool valid, string explanation)> ValidateContentCommon(IContentCommon toValidate)
         {
             if (toValidate == null) return (false, "Null Content to Validate");
@@ -374,7 +440,12 @@ namespace PointlessWaymarksCmsData.Content
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(folder))
                 return (false, "Limit folder names to a-z A-Z 0-9 _ -");
 
-            return (true, string.Empty);
+            if (folder.ToLower() == "data")
+                return (false, "Folders can not be named 'Data' - this folder is reserved for use by the CMS");
+            if (folder.ToLower() == "galleries")
+                return (false, "Folders can not be named 'Galleries' - this folder is reserved for use by the CMS");
+
+                return (true, string.Empty);
         }
 
         public static async Task<(bool isValid, string explanation)> ValidateLinkContentLinkUrl(string url,

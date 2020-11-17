@@ -43,7 +43,7 @@
     <script src="<#= UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>leaflet.js"></script>
     <link rel="stylesheet" href="<#= UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>leaflet-gesture-handling.min.css" type="text/css">
     <script src="<#= UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>leaflet-gesture-handling.min.js"></script>
-    <script src="<#= UserSettingsSingleton.CurrentSettings().PointMapJavascriptUrl() #>"></script>
+    <script src="<#= UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>pointless-waymarks-spatial-common.js"></script>
     <#
     } #>
 </head>

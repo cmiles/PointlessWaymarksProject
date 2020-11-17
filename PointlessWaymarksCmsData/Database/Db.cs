@@ -112,6 +112,17 @@ namespace PointlessWaymarksCmsData.Database
             return returnList;
         }
 
+        public static async Task<bool> ContentIdIsSpatialContentInDatabase(Guid toValidate)
+        {
+            var db = await Context();
+
+            if (db.PointContents.Any(x => x.ContentId == toValidate)) return true;
+            if (db.GeoJsonContents.Any(x => x.ContentId == toValidate)) return true;
+            if (db.LineContents.Any(x => x.ContentId == toValidate)) return true;
+
+            return false;
+        }
+
         public static string ContentTypeString(dynamic content)
         {
             //!!Content Type List!!

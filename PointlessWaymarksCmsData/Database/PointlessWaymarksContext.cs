@@ -22,6 +22,8 @@ namespace PointlessWaymarksCmsData.Database
         public DbSet<HistoricImageContent> HistoricImageContents { get; set; }
         public DbSet<HistoricLineContent> HistoricLineContents { get; set; }
         public DbSet<HistoricLinkContent> HistoricLinkContents { get; set; }
+        public DbSet<HistoricMapComponent> HistoricMapComponents { get; set; }
+        public DbSet<HistoricMapComponentElement> HistoricMapComponentElements { get; set; }
         public DbSet<HistoricNoteContent> HistoricNoteContents { get; set; }
         public DbSet<HistoricPhotoContent> HistoricPhotoContents { get; set; }
         public DbSet<HistoricPointContentPointDetailLink> HistoricPointContentPointDetailLinks { get; set; }
@@ -31,6 +33,8 @@ namespace PointlessWaymarksCmsData.Database
         public DbSet<ImageContent> ImageContents { get; set; }
         public DbSet<LineContent> LineContents { get; set; }
         public DbSet<LinkContent> LinkContents { get; set; }
+        public DbSet<MapComponent> MapComponents { get; set; }
+        public DbSet<MapComponentElement> MapComponentElements { get; set; }
         public DbSet<MenuLink> MenuLinks { get; set; }
         public DbSet<NoteContent> NoteContents { get; set; }
         public DbSet<PhotoContent> PhotoContents { get; set; }

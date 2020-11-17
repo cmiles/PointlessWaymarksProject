@@ -28,12 +28,12 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Excel">
-                <MenuItem Command="{Binding ToExcelSelectedItemsCommand}" Header="Selected To Excel"></MenuItem>
-                <MenuItem Command="{Binding ToExcelAllItemsCommand}" Header="All To Excel"></MenuItem>
+                <MenuItem Command="{Binding ToExcelSelectedItemsCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ToExcelAllItemsCommand}" Header="All To Excel" />
             </MenuItem>
             <MenuItem Header="Clipboard">
-                <MenuItem Command="{Binding ToClipboardSelectedItemsCommand}" Header="Selected To Clipboard"></MenuItem>
-                <MenuItem Command="{Binding ToClipboardAllItemsCommand}" Header="All To Clipboard"></MenuItem>
+                <MenuItem Command="{Binding ToClipboardSelectedItemsCommand}" Header="Selected To Clipboard" />
+                <MenuItem Command="{Binding ToClipboardAllItemsCommand}" Header="All To Clipboard" />
             </MenuItem>
         </Menu>
         <GroupBox

@@ -1,33 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailDataModels;
 
 namespace PointlessWaymarksCmsData.Html.PointHtml
 {
-    public partial class PointMap
+    public static class PointData
     {
-        public DateTime? GenerationVersion { get; set; }
-
-        public string PointJson { get; set; }
-
-        public async Task WriteLocalJavascript()
+        public static async Task WriteLocalJsonData()
         {
             var db = await Db.Context();
             var allPointIds = await db.PointContents.Select(x => x.ContentId).ToListAsync();
             var extendedPointInformation = await Db.PointAndPointDetails(allPointIds, db);
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            PointJson = JsonSerializer.Serialize(extendedPointInformation.Select(x =>
+            var pointJson = JsonSerializer.Serialize(extendedPointInformation.Select(x =>
                 new
                 {
+                    x.ContentId,
                     x.Title,
                     x.Longitude,
                     x.Latitude,
@@ -36,15 +30,15 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
                     DetailTypeString = string.Join(", ", PointDetailUtilities.PointDtoTypeList(x))
                 }).ToList());
 
-            var htmlFileInfo = new FileInfo($"{settings.LocalSitePointMapJavascriptFile()}");
+            var dataFileInfo = new FileInfo($"{settings.LocalSitePointDataFile()}");
 
-            if (htmlFileInfo.Exists)
+            if (dataFileInfo.Exists)
             {
-                htmlFileInfo.Delete();
-                htmlFileInfo.Refresh();
+                dataFileInfo.Delete();
+                dataFileInfo.Refresh();
             }
 
-            await FileManagement.WriteAllTextToFileAndLogAsync(htmlFileInfo.FullName, TransformText());
+            await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName, pointJson);
         }
     }
 }

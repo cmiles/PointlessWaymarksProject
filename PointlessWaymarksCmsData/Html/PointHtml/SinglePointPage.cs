@@ -197,11 +197,11 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             this.Write("leaflet-gesture-handling.min.js\"></script>\r\n    <script src=\"");
             
             #line 43 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().PointMapJavascriptUrl()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()));
             
             #line default
             #line hidden
-            this.Write("\"></script>\r\n</head>\r\n\r\n<body>\r\n    ");
+            this.Write("pointless-waymarks-spatial-common.js\"></script>\r\n</head>\r\n\r\n<body>\r\n    ");
             
             #line 47 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
