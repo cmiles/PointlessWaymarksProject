@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -10,6 +11,7 @@ using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.ExcelImport;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Spatial;
@@ -29,7 +31,6 @@ namespace PointlessWaymarksTests
         public const string TestSummary = "'Testing' in the beautiful Grand Canyon";
 
         public static UserSettings TestSiteSettings;
-
 
         [OneTimeSetUp]
         public async Task A00_CreateTestSite()
@@ -149,6 +150,51 @@ namespace PointlessWaymarksTests
                 await ExcelContentImports.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
             Assert.True(importResult.HasError,
                 "Expected a validation failure due to duplicate slug but not detected...");
+        }
+
+        [Test]
+        public async Task M01_GenerateMap()
+        {
+            var newMap = new MapComponent
+            {
+                ContentId = Guid.NewGuid(),
+                CreatedBy = "Map Test D01",
+                CreatedOn = DateTime.Now,
+                Summary = "Grand Canyon Test Grouping",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+            };
+
+            var db = await Db.Context();
+            var piutePoint = await db.PointContents.SingleAsync(x => x.Title == "Piute Point");
+            var pointsNearPiutePoint = await db.PointContents.Where(x =>
+                x.Longitude > piutePoint.Longitude - .1 && x.Longitude < piutePoint.Longitude + .1 &&
+                x.Latitude > piutePoint.Longitude - .1 && x.Latitude < piutePoint.Longitude + .1 &&
+                x.Title.EndsWith("Point")).ToListAsync();
+
+            var pointElements = new List<MapComponentElement>();
+
+            foreach (var loopPoints in pointsNearPiutePoint)
+            {
+                pointElements.Add(new MapComponentElement
+                {
+                    ElementContentId = loopPoints.ContentId,
+                    InitialFocus = false,
+                    MapComponentContentId = newMap.ContentId,
+                });
+            }
+
+            pointElements.First().InitialFocus = true;
+
+            var newMapDto = new MapComponentDto(newMap, pointElements);
+
+            var validationResult = await MapComponentGenerator.Validate(newMapDto);
+
+            Assert.IsFalse(validationResult.HasError);
+
+            var saveResult =
+                await MapComponentGenerator.SaveAndGenerateData(newMapDto, null, DebugTrackers.DebugProgressTracker());
+
+            Assert.IsFalse(saveResult.generationReturn.HasError);
         }
 
         [Test]

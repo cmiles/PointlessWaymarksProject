@@ -118,11 +118,13 @@ namespace PointlessWaymarksCmsData
         Image,
         Line,
         Link,
+        Map,
+        MapElement,
         Note,
         Photo,
         Point,
         PointDetail,
         Post,
-        Unknown,
+        Unknown
     }
 }

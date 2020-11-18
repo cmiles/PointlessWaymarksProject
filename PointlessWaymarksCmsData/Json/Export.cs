@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
@@ -168,6 +170,44 @@ namespace PointlessWaymarksCmsData.Json
             jsonHistoricFile.Refresh();
 
             await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+        }
+
+        public static async Task WriteLocalDbJson(MapComponent dbEntry)
+        {
+            var settings = UserSettingsSingleton.CurrentSettings();
+            var db = await Db.Context();
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+
+            var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteMapComponentDataDirectory().FullName,
+                $"{Names.MapComponentContentPrefix}{dbEntry.ContentId}.json"));
+
+            if (jsonFile.Exists) jsonFile.Delete();
+            jsonFile.Refresh();
+
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry);
+
+            var latestHistoricEntries = db.HistoricMapComponents.Where(x => x.ContentId == dbEntry.ContentId)
+                .OrderByDescending(x => x.LastUpdatedOn).Take(10);
+
+            var toArchive = new List<HistoricMapComponentDto>();
+
+            foreach (var loopHistoricEntries in latestHistoricEntries)
+            {
+                var historicElements = await db.HistoricMapComponentElements.Where(x =>
+                    x.MapComponentContentId == loopHistoricEntries.ContentId &&
+                    x.LastUpdateOn == loopHistoricEntries.LastUpdatedOn).ToListAsync();
+
+                toArchive.Add(new HistoricMapComponentDto(loopHistoricEntries, historicElements));
+            }
+
+            var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteMapComponentDataDirectory().FullName,
+                $"{Names.HistoricMapComponentContentPrefix}{dbEntry.ContentId}.json"));
+
+            if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
+            jsonHistoricFile.Refresh();
+
+            await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName,
+                JsonSerializer.Serialize(toArchive));
         }
 
         public static async Task WriteLocalDbJson(PointContent dbEntry)

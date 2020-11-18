@@ -12,6 +12,7 @@ namespace PointlessWaymarksCmsData.Database.Models
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
         public string Summary { get; set; }
+        public string Title { get; set; }
         public string UpdateNotes { get; set; }
         public string UpdateNotesFormat { get; set; }
     }

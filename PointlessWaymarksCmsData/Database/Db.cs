@@ -1081,6 +1081,86 @@ namespace PointlessWaymarksCmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
+        public static async Task<MapComponentDto> SaveMapComponent(MapComponentDto toSaveDto)
+        {
+            var context = await Context();
+
+            var toHistoric = await context.MapComponents.Where(x => x.ContentId == toSaveDto.Map.ContentId)
+                .ToListAsync();
+
+            var isUpdate = toHistoric.Any();
+
+            var lastUpdatedForHistoric = DateTime.Now;
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricMapComponent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = lastUpdatedForHistoric;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+                await context.HistoricMapComponents.AddAsync(newHistoric);
+                context.MapComponents.Remove(loopToHistoric);
+            }
+
+            if (toSaveDto.Map.Id > 0) toSaveDto.Map.Id = 0;
+            toSaveDto.Map.ContentVersion = ContentVersionDateTime();
+
+            await context.MapComponents.AddAsync(toSaveDto.Map);
+
+            await context.SaveChangesAsync(true);
+
+            var dbElements = await context.MapComponentElements.Where(x => x.ElementContentId == toSaveDto.Map.ContentId)
+                .ToListAsync();
+
+            var dbElementContentIds = dbElements.Select(x => x.ElementContentId).Distinct().ToList();
+
+            foreach (var loopElements in dbElements)
+            {
+                await context.HistoricMapComponentElements.AddAsync(new HistoricMapComponentElement
+                {
+                    ContentId = loopElements.ElementContentId,
+                    InitialFocus = loopElements.InitialFocus,
+                    LastUpdateOn = lastUpdatedForHistoric,
+                    MapComponentContentId = loopElements.MapComponentContentId
+                });
+
+                context.MapComponentElements.Remove(loopElements);
+            }
+
+            await context.SaveChangesAsync();
+
+            var newElementsContentIds = toSaveDto.Elements.Select(x => x.ElementContentId).ToList();
+
+            foreach (var loopElements in toSaveDto.Elements)
+            {
+                loopElements.Id = 0;
+                await context.MapComponentElements.AddAsync(loopElements);
+            }
+
+            await context.SaveChangesAsync();
+
+            var newElements = newElementsContentIds.Except(dbElementContentIds).ToList();
+            var updatedElements = newElementsContentIds.Where(x => dbElementContentIds.Contains(x)).ToList();
+            var deletedElements = dbElementContentIds.Except(newElementsContentIds).ToList();
+
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Map,
+                isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+                new List<Guid> {toSaveDto.Map.ContentId});
+
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.MapElement,
+                DataNotificationUpdateType.New, newElements);
+
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.MapElement,
+                DataNotificationUpdateType.Update, updatedElements);
+
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.MapElement,
+                DataNotificationUpdateType.Delete, deletedElements);
+
+            return toSaveDto;
+        }
+
         public static async Task SaveNoteContent(NoteContent toSave)
         {
             if (toSave == null) return;

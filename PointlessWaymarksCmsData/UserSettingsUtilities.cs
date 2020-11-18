@@ -11,6 +11,7 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
+using PointlessWaymarksCmsData.Json;
 
 namespace PointlessWaymarksCmsData
 {
@@ -600,7 +601,7 @@ namespace PointlessWaymarksCmsData
         public static FileInfo LocalSiteMapComponentDataFile(this UserSettings settings, Guid contentId)
         {
             var directory = settings.LocalSiteMapComponentDataDirectory();
-            return new FileInfo($"{Path.Combine(directory.FullName, contentId.ToString())}.json");
+            return new FileInfo($"{Path.Combine(directory.FullName, Names.MapComponentContentPrefix, contentId.ToString())}.json");
         }
 
         public static DirectoryInfo LocalSiteMapComponentDirectory(this UserSettings settings)

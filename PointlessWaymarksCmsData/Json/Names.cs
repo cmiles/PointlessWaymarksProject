@@ -19,6 +19,9 @@
         public static string LineContentPrefix = "Line---";
         public static string HistoricLineContentPrefix = "HistoricLine---";
 
+        public static string MapComponentContentPrefix = "MapComponent---";
+        public static string HistoricMapComponentContentPrefix = "HistoricMapComponent---";
+
         public static string NoteContentPrefix = "Note---";
         public static string HistoricNoteContentPrefix = "HistoricNotes---";
 
