@@ -64,9 +64,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
                 progress?.Report($"Adding mapComponent {dbContent.Title} from Code");
                 var settings = UserSettingsSingleton.CurrentSettings();
 
-                var tag = $"<div id=\"MapComponent---{dbContent.ContentId}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
+                var divScriptGuidConnector = Guid.NewGuid();
 
-                var script = $"<script>lazyInit(document.querySelector(\"#MapComponent---{dbContent.ContentId}\"), () => mapComponentInit(document.querySelector(\"#MapComponent---{dbContent.ContentId}\"), \"{dbContent.ContentId}\"));</script>";
+                var tag = $"<div id=\"MapComponent-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
+
+                var script = $"<script>lazyInit(document.querySelector(\"#MapComponent-{divScriptGuidConnector}\"), () => mapComponentInit(document.querySelector(\"#MapComponent-{divScriptGuidConnector}\"), \"{dbContent.ContentId}\"));</script>";
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, tag + script);
             }

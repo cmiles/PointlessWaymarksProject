@@ -27,7 +27,7 @@ namespace PointlessWaymarksCmsData.Html.MapComponentData
 
             var mapDtoJson = new MapSiteJsonData(dto.Map, geoJsonGuids, lineGuids, pointGuids);
 
-            var dataFileInfo = new FileInfo("Map-(dto.Map.ContentId)");
+            var dataFileInfo = new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteMapComponentDataDirectory().FullName, $"Map-{dto.Map.ContentId}.json"));
 
             if (dataFileInfo.Exists)
             {
@@ -39,7 +39,7 @@ namespace PointlessWaymarksCmsData.Html.MapComponentData
                 JsonSerializer.Serialize(mapDtoJson));
         }
 
-        public record MapSiteJsonData(MapComponent MapComponentData, List<Guid> GeoJsonGuids, List<Guid> LineGuids,
+        public record MapSiteJsonData(MapComponent MapComponent, List<Guid> GeoJsonGuids, List<Guid> LineGuids,
             List<Guid> PointGuids);
     }
 }

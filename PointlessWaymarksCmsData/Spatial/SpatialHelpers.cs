@@ -35,11 +35,11 @@ namespace PointlessWaymarksCmsData.Spatial
         /// <returns></returns>
         public static T RoundLatLongElevation<T>(T toProcess)
         {
-            var positionPropertyNames = new List<string> {"Latitude", "Longitude", "Elevation"};
+            var positionPropertyNames = new List<string> {"Latitude", "Longitude", "Elevation" };
 
             var positionProperties = typeof(T).GetProperties().Where(x =>
                     x.PropertyType == typeof(double) && x.GetSetMethod() != null &&
-                    positionPropertyNames.Contains(x.Name))
+                    positionPropertyNames.Any(y => x.Name.EndsWith(y)))
                 .ToList();
 
             foreach (var loopProperty in positionProperties)

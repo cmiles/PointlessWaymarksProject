@@ -93,11 +93,11 @@ namespace PointlessWaymarksCmsData.Content
             {
                 var contentLookup = await db.ContentFromContentId(loopExtracted);
 
-                if (contentLookup == null)
-                {
-                    progress?.Report($"ContentId {loopExtracted} Not Found in Db...");
-                    notFoundList.Add(loopExtracted);
-                }
+                if (contentLookup != null) continue;
+                if (await db.MapComponents.AnyAsync(x => x.ContentId == loopExtracted)) continue;
+
+                progress?.Report($"ContentId {loopExtracted} Not Found in Db...");
+                notFoundList.Add(loopExtracted);
             }
 
             if (notFoundList.Any())
@@ -446,6 +446,40 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add(createdUpdatedExplanation);
             }
 
+            var initialBoundsUpperLeftLatitudeValidation =
+                LatitudeValidation(mapComponent.Map.InitialViewBoundsUpperLeftLatitude);
+            var initialBoundsUpperLeftLongitudeValidation =
+                LongitudeValidation(mapComponent.Map.InitialViewBoundsUpperLeftLongitude);
+            var initialBoundsLowerRightLatitudeValidation =
+                LatitudeValidation(mapComponent.Map.InitialViewBoundsLowerRightLatitude);
+            var initialBoundsLowerRightLongitudeValidation =
+                LongitudeValidation(mapComponent.Map.InitialViewBoundsLowerRightLongitude);
+
+            if (!initialBoundsUpperLeftLatitudeValidation.isValid)
+            {
+                isValid = false;
+                errorMessage.Add($"Upper Left Initial Latitude - {initialBoundsUpperLeftLatitudeValidation.explanation}");
+            }
+
+            if (!initialBoundsUpperLeftLongitudeValidation.isValid)
+            {
+                isValid = false;
+                errorMessage.Add($"Upper Left Initial Longitude - {initialBoundsUpperLeftLongitudeValidation.explanation}");
+            }
+
+            if (!initialBoundsLowerRightLatitudeValidation.isValid)
+            {
+                isValid = false;
+                errorMessage.Add($"Lower Right Initial Latitude - {initialBoundsLowerRightLatitudeValidation.explanation}");
+            }
+
+            if (!initialBoundsLowerRightLongitudeValidation.isValid)
+            {
+                isValid = false;
+                errorMessage.Add($"Upper Left Initial Latitude - {initialBoundsLowerRightLongitudeValidation.explanation}");
+            }
+
+
             if (!mapComponent.Elements.Any())
             {
                 isValid = false;
@@ -460,7 +494,7 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add("Not all map elements are correctly associated with the map.");
             }
 
-            if (!mapComponent.Elements.Any(x => x.InitialFocus))
+            if (!mapComponent.Elements.Any(x => x.InitialDetails))
             {
                 isValid = false;
                 errorMessage.Add("Please set at least one element as the initial focus.");
@@ -470,7 +504,8 @@ namespace PointlessWaymarksCmsData.Content
 
             foreach (var loopElements in mapComponent.Elements)
             {
-                if (await Db.ContentIdIsSpatialContentInDatabase(loopElements.MapComponentContentId)) continue;
+                if (loopElements.Id < 1 ||
+                    await Db.ContentIdIsSpatialContentInDatabase(loopElements.MapComponentContentId)) continue;
                 isValid = false;
                 errorMessage.Add("Could not find all Elements Content Items in Db?");
                 break;

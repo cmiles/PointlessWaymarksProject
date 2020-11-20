@@ -17,32 +17,32 @@ async function mapComponentInit(mapElement, contentId) {
                 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
         });
 
-    const mapComponentResponse = await fetch(`/MapComponents/Data/MapComponent---${contentId}.json`);
+    const mapComponentResponse = await fetch(`/Maps/Data/Map-${contentId}.json`);
     if (!mapComponentResponse.ok)
         throw new Error(mapComponentResponse.statusText);
 
-    const mapComponentData = await mapComponentResponse.json();
+    const mapComponent = await mapComponentResponse.json();
 
-    if (mapComponentData.pointGuids?.length)
-    {
+    var map = L.map(mapElement,
+        {
+            layers: [openTopoMap],
+            doubleClickZoom: false,
+            gestureHandling: true
+        });
+
+    map.fitBounds([
+        [mapComponent.MapComponent.InitialViewBoundsUpperLeftLatitude, mapComponent.MapComponent.InitialViewBoundsUpperLeftLongitude],
+        [mapComponent.MapComponent.InitialViewBoundsLowerRightLatitude, mapComponent.MapComponent.InitialViewBoundsLowerRightLongitude]
+    ]);
+
+    if (mapComponent.PointGuids?.length) {
         const response = await fetch('/Points/Data/pointdata.json');
         if (!response.ok)
             throw new Error(response.statusText);
 
         const pointData = await response.json();
 
-        let includedPoints = pointData.filter(x => mapComponentData.pointGuids.includes(x.ContentId));
-
-        let pagePoint = includedPoints[0];
-
-        var map = L.map(mapElement,
-            {
-                center: { lat: pagePoint.Latitude, lng: pagePoint.Longitude },
-                zoom: 13,
-                layers: [openTopoMap],
-                doubleClickZoom: false,
-                gestureHandling: true
-            });
+        let includedPoints = pointData.filter(x => mapComponent.PointGuids.includes(x.ContentId));
 
         for (let circlePoint of includedPoints) {
             let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude],
@@ -50,7 +50,7 @@ async function mapComponentInit(mapElement, contentId) {
                 { color: 'gray', fillColor: 'gray', fillOpacity: .5 });
             toAdd.bindTooltip(
                 `<p style="margin-top: .5rem; margin-bottom: 0;">${circlePoint.Title
-                }</p><p style="margin-left: .5rem; margin-top: .1rem;">${circlePoint.DetailTypeString}</p>`);
+                }</p><p style="margin-left: .5rem; margin-top: .1rem;">${circlePoint.DetailTypeString}</p>`).openPopup();
             toAdd.addTo(map).on("click", (e) => window.location.href = circlePoint.PointPageUrl);
         };
     }
@@ -87,6 +87,7 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
             draggable: false,
             autoPan: true
         }).addTo(map);
+
     pointContentMarker
         .bindPopup(
             `<p style="margin-top: .5rem; margin-bottom: 0;">${pagePoint.Title

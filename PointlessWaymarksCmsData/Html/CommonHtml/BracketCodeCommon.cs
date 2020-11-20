@@ -131,6 +131,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
             input = BracketCodePoints.PointLinkCodeProcess(input, progress);
+            input = BracketCodeMapComponents.MapComponentLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
             return input;

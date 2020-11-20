@@ -160,6 +160,7 @@ namespace PointlessWaymarksTests
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "Map Test D01",
                 CreatedOn = DateTime.Now,
+                Title = "Grand Canyon Map",
                 Summary = "Grand Canyon Test Grouping",
                 UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
             };
@@ -167,9 +168,14 @@ namespace PointlessWaymarksTests
             var db = await Db.Context();
             var piutePoint = await db.PointContents.SingleAsync(x => x.Title == "Piute Point");
             var pointsNearPiutePoint = await db.PointContents.Where(x =>
-                x.Longitude > piutePoint.Longitude - .1 && x.Longitude < piutePoint.Longitude + .1 &&
-                x.Latitude > piutePoint.Longitude - .1 && x.Latitude < piutePoint.Longitude + .1 &&
-                x.Title.EndsWith("Point")).ToListAsync();
+                Math.Abs(x.Longitude - piutePoint.Longitude) < .1
+                && Math.Abs(x.Latitude - piutePoint.Latitude) < .1
+                && x.Title.EndsWith("Point")).ToListAsync();
+
+            newMap.InitialViewBoundsUpperLeftLatitude = pointsNearPiutePoint.Min(x => x.Latitude);
+            newMap.InitialViewBoundsUpperLeftLongitude = pointsNearPiutePoint.Max(x => x.Longitude);
+            newMap.InitialViewBoundsLowerRightLatitude = pointsNearPiutePoint.Max(x => x.Latitude);
+            newMap.InitialViewBoundsLowerRightLongitude = pointsNearPiutePoint.Min(x => x.Longitude);
 
             var pointElements = new List<MapComponentElement>();
 
@@ -178,12 +184,12 @@ namespace PointlessWaymarksTests
                 pointElements.Add(new MapComponentElement
                 {
                     ElementContentId = loopPoints.ContentId,
-                    InitialFocus = false,
+                    InitialDetails = false,
                     MapComponentContentId = newMap.ContentId,
                 });
             }
 
-            pointElements.First().InitialFocus = true;
+            pointElements.First().InitialDetails = true;
 
             var newMapDto = new MapComponentDto(newMap, pointElements);
 
@@ -195,6 +201,33 @@ namespace PointlessWaymarksTests
                 await MapComponentGenerator.SaveAndGenerateData(newMapDto, null, DebugTrackers.DebugProgressTracker());
 
             Assert.IsFalse(saveResult.generationReturn.HasError);
+        }
+
+        [Test]
+        public async Task M02_MapInPost()
+        {
+            var db = await Db.Context();
+
+            var mapItem = db.MapComponents.First();
+
+            var post = new PostContent
+            {
+                Title = "Piute Point Map Test Point",
+                Slug = "first-post",
+                BodyContent = $@"This post should have a map below this test showing points near Piute Point in the Grand Canyon.
+{{{{mapComponent {mapItem.ContentId}; Piute Point Map}}}}",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                ContentId = Guid.NewGuid(),
+                CreatedBy = "Map Tester",
+                CreatedOn = new DateTime(2020, 10, 19, 7, 16, 16),
+                Folder = "GrandCanyon",
+                ShowInMainSiteFeed = true,
+                Summary = "A basic map of points around Piute Point",
+                Tags = "grand canyon, piute point, map",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+            };
+
+            await IronwoodPostInfo.PostTest(post);
         }
 
         [Test]

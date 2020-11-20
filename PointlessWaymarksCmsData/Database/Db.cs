@@ -1121,7 +1121,7 @@ namespace PointlessWaymarksCmsData.Database
                 await context.HistoricMapComponentElements.AddAsync(new HistoricMapComponentElement
                 {
                     ContentId = loopElements.ElementContentId,
-                    InitialFocus = loopElements.InitialFocus,
+                    InitialDetails = loopElements.InitialDetails,
                     LastUpdateOn = lastUpdatedForHistoric,
                     MapComponentContentId = loopElements.MapComponentContentId
                 });
