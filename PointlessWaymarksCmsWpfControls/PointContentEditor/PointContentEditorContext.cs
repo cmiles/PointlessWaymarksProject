@@ -465,9 +465,9 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             LatitudeEntry.HelpText = "In DDD.DDDDDD°";
             LatitudeEntry.ReferenceValue = DbEntry.Latitude;
             LatitudeEntry.UserText = DbEntry.Latitude.ToString("F6");
-            LatitudeEntry.PropertyChanged += (sender, args) =>
+            LatitudeEntry.PropertyChanged += (_, args) =>
             {
-                if (args == null || string.IsNullOrWhiteSpace(args.PropertyName)) return;
+                if (string.IsNullOrWhiteSpace(args.PropertyName)) return;
                 if (args.PropertyName == nameof(LatitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
             };
 
@@ -482,9 +482,9 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             LongitudeEntry.HelpText = "In DDD.DDDDDD°";
             LongitudeEntry.ReferenceValue = DbEntry.Longitude;
             LongitudeEntry.UserText = DbEntry.Longitude.ToString("F6");
-            LongitudeEntry.PropertyChanged += (sender, args) =>
+            LongitudeEntry.PropertyChanged += (_, args) =>
             {
-                if (args == null || string.IsNullOrWhiteSpace(args.PropertyName)) return;
+                if (string.IsNullOrWhiteSpace(args.PropertyName)) return;
                 if (args.PropertyName == nameof(LongitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
             };
 
