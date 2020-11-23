@@ -7,7 +7,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using PointlessWaymarksCmsData;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.Aws
 {
     public class AwsS3GeneratedSiteComparisonForDeletions
     {

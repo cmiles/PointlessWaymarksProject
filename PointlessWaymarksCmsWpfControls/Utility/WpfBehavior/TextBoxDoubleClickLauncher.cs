@@ -12,7 +12,7 @@ using Microsoft.Xaml.Behaviors;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
 {
     public class TextBoxDoubleClickLauncher : Behavior<TextBox>
     {

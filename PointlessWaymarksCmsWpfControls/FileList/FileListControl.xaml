@@ -7,6 +7,8 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.FileList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     Name="ImageListControlXaml"
     d:DataContext="{d:DesignInstance local:FileListContext}"
     d:DesignHeight="300"
@@ -19,7 +21,7 @@
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:ImageCacheConverter x:Key="ImageCache" />
-            <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -99,7 +101,7 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
-                    <utility:ListBoxOneLineMouseWheelScroll />
+                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:FileListListItem">
@@ -120,7 +122,7 @@
                                         Text="{Binding DbEntry.Title}"
                                         TextWrapping="Wrap">
                                         <i:Interaction.Behaviors>
-                                            <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </i:Interaction.Behaviors>
                                     </TextBox>
                                     <TextBox
@@ -129,7 +131,7 @@
                                         Text="{Binding DbEntry.Summary}"
                                         TextWrapping="Wrap">
                                         <i:Interaction.Behaviors>
-                                            <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </i:Interaction.Behaviors>
                                     </TextBox>
                                     <WrapPanel Orientation="Horizontal">
@@ -139,7 +141,7 @@
                                             Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
                                             TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>
-                                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                             </i:Interaction.Behaviors>
                                         </TextBox>
                                         <TextBox
@@ -149,7 +151,7 @@
                                             Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
                                             TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>
-                                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                             </i:Interaction.Behaviors>
                                         </TextBox>
                                     </WrapPanel>
@@ -173,7 +175,7 @@
                                                 Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
                                                 TextWrapping="Wrap">
                                                 <i:Interaction.Behaviors>
-                                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                                 </i:Interaction.Behaviors>
                                             </TextBox>
                                             <TextBox
@@ -182,7 +184,7 @@
                                                 Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
                                                 TextWrapping="Wrap">
                                                 <i:Interaction.Behaviors>
-                                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                                 </i:Interaction.Behaviors>
                                             </TextBox>
                                         </WrapPanel>

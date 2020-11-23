@@ -68,7 +68,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         public static async Task ImportFromExcel(StatusControlContext statusContext)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
             statusContext.Progress("Starting excel load.");
 
@@ -234,7 +234,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         public static async Task SelectedToExcel(List<dynamic> selected, StatusControlContext statusContext)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
             if (selected == null || !selected.Any())
             {

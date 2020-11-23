@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 
 namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
 {

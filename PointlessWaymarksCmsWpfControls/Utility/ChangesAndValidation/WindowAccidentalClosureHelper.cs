@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using PointlessWaymarksCmsWpfControls.Status;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation
 {
     public class WindowAccidentalClosureHelper
     {
@@ -34,12 +34,12 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
         private async Task WindowClosing()
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
             if (!_hasChangesToCheck.HasChanges)
             {
                 _closeConfirmed = true;
-                await ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
                 _toClose.Close();
             }
 
@@ -48,7 +48,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 new List<string> {"Yes - Close Window", "No"}) == "Yes - Close Window")
             {
                 _closeConfirmed = true;
-                await ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
                 _toClose.Close();
             }
         }

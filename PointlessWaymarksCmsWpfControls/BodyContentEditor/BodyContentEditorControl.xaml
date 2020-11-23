@@ -9,6 +9,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     d:DataContext="{d:DesignInstance bodyContentEditor:BodyContentEditorContext}"
     d:DesignHeight="300"
@@ -20,7 +22,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -78,7 +80,7 @@
                     </GroupBox.Header>
                     <TextBox
                         x:Name="BodyContentTextBox"
-                        utility:TextBoxHelper.SelectedText="{Binding SelectedBodyText}"
+                        wpfBehavior:TextBoxHelper.SelectedText="{Binding SelectedBodyText}"
                         AcceptsReturn="True"
                         BorderThickness="0"
                         FontSize="{Binding ElementName=BodyMarkDownFontSizeSlider, Path=Value}"
@@ -87,7 +89,7 @@
                         TextWrapping="Wrap"
                         VerticalScrollBarVisibility="Visible">
                         <b:Interaction.Behaviors>
-                            <utility:TextBoxDoubleClickLauncher />
+                            <wpfBehavior:TextBoxDoubleClickLauncher />
                         </b:Interaction.Behaviors>
                     </TextBox>
                 </GroupBox>

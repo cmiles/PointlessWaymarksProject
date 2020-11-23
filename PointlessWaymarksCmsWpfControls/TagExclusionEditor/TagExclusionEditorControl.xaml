@@ -9,6 +9,7 @@
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     Name="TagExclusionEditorControlXaml"
     d:DataContext="{d:DesignInstance local:TagExclusionEditorContext}"
     d:DesignHeight="450"
@@ -39,7 +40,7 @@
             <ScrollViewer Name="TagExclusionListScrollViewer" HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl ItemsSource="{Binding Items}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <b:Interaction.Behaviors>
-                        <utility:ItemsControlScrollToEndOnNewItemBehaviour ItemsControlScrollViewer="{Binding ElementName=TagExclusionListScrollViewer}" />
+                        <wpfBehavior:ItemsControlScrollToEndOnNewItemBehaviour ItemsControlScrollViewer="{Binding ElementName=TagExclusionListScrollViewer}" />
                     </b:Interaction.Behaviors>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

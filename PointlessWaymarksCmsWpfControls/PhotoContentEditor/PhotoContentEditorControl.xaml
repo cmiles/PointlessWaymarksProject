@@ -17,6 +17,7 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -101,7 +102,7 @@
                     TextDecorations="Underline"
                     TextWrapping="Wrap">
                     <b:Interaction.Behaviors>
-                        <utility:TextBoxDoubleClickLauncher />
+                        <wpfBehavior:TextBoxDoubleClickLauncher />
                     </b:Interaction.Behaviors>
                 </TextBox>
                 <WrapPanel

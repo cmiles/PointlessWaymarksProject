@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 
 namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
 {

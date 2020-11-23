@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Windows.Data;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
@@ -14,16 +12,10 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         {
             var path = (string) value;
 
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return ImageConstants.BlankImage;
-            }
+            if (string.IsNullOrWhiteSpace(path)) return ImageHelpers.BlankImage;
 
             var possibleFile = new FileInfo(path);
-            if (!possibleFile.Exists)
-            {
-                return ImageConstants.BlankImage;
-            }
+            if (!possibleFile.Exists) return ImageHelpers.BlankImage;
 
             var uriSource = new Uri(path, UriKind.Absolute);
 
@@ -41,7 +33,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             }
             catch
             {
-                return ImageConstants.BlankImage;
+                return ImageHelpers.BlankImage;
             }
         }
 

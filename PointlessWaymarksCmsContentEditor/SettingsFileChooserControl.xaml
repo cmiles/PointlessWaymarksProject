@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarksCmsContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior;assembly=PointlessWaymarksCmsWpfControls"
     Name="SettingsFileChooserControlXaml"
     d:DataContext="{d:DesignInstance local:SettingsFileChooserControlContext}"
     d:DesignHeight="450"
@@ -32,7 +32,7 @@
                 ItemsSource="{Binding Items}"
                 SelectionMode="Single">
                 <b:Interaction.Behaviors>
-                    <utility:ListBoxOneLineMouseWheelScroll />
+                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate>

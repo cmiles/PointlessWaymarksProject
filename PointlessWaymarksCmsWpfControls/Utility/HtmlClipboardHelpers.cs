@@ -12,7 +12,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     /// <remarks>
     ///     The MIT License  (MIT) Copyright (c) 2014 Arthur Teplitzki.
     /// </remarks>
-    public static class HtmlClipboardHelper
+    public static class HtmlClipboardHelpers
     {
         /// <summary>
         ///     The string contains index references to  other spots in the string, so we need placeholders so we can compute the

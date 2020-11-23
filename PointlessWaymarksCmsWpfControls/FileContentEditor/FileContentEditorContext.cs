@@ -23,6 +23,8 @@ using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 {
@@ -642,7 +644,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             await LoadData(saveResult.fileContent);
 
-            await PdfConversion.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> {DbEntry},
+            await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> {DbEntry},
                 pageNumber);
         }
 

@@ -9,6 +9,7 @@
     xmlns:toastControl="clr-namespace:PointlessWaymarksCmsWpfControls.ToastControl"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:waitingSpinner="clr-namespace:PointlessWaymarksCmsWpfControls.WaitingSpinner"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     Name="StatusControlXaml"
     d:DataContext="{d:DesignInstance status:StatusControlContext}"
     d:DesignHeight="450"
@@ -50,7 +51,7 @@
                 ScrollViewer.VerticalScrollBarVisibility="Hidden"
                 Visibility="{Binding BlockUi, Converter={StaticResource BoolTrueVisibleFalseCollapsed}}">
                 <b:Interaction.Behaviors>
-                    <utility:ListBoxAutoScrollToNewItems />
+                    <wpfBehavior:ListBoxAutoScrollToNewItems />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate>

@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher
 {
     public struct ThreadPoolThreadSwitcher : INotifyCompletion
     {

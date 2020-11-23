@@ -16,6 +16,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
 

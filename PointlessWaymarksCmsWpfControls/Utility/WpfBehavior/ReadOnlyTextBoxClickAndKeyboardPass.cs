@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
 {
     public class ReadOnlyTextBoxClickAndKeyboardPass : Behavior<TextBox>
     {

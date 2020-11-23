@@ -10,6 +10,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.StringDataEntry"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     d:DataContext="{d:DesignInstance local:TrailJunctionPointDetailContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -31,7 +32,7 @@
                     Text="{Binding DbEntry.DataType}"
                     TextWrapping="Wrap">
                     <b:Interaction.Behaviors>
-                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                     </b:Interaction.Behaviors>
                 </TextBox>
                 <boolDataEntry:BoolDataEntryControl DataContext="{Binding SignEditor}" Style="{StaticResource DataEntryBoolStyle}" />

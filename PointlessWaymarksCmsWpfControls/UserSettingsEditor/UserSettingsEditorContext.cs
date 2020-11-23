@@ -10,6 +10,8 @@ using Omu.ValueInjecter;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.Aws;
+using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
 {

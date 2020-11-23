@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Windows.Threading;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher
 {
     public struct DispatcherThreadSwitcher : INotifyCompletion
     {

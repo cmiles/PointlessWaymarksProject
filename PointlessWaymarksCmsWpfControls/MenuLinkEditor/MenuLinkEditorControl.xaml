@@ -9,6 +9,7 @@
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     Name="MenuLinkEditorControlXaml"
     d:DataContext="{d:DesignInstance local:MenuLinkEditorContext}"
     d:DesignHeight="450"
@@ -44,7 +45,7 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 VirtualizingPanel.ScrollUnit="Pixel">
                 <b:Interaction.Behaviors>
-                    <utility:ListBoxAutoScrollToNewItems />
+                    <wpfBehavior:ListBoxAutoScrollToNewItems />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:MenuLinkListItem">

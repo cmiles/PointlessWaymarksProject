@@ -9,7 +9,7 @@ using Amazon.S3.Model;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.S3Uploads;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.Aws
 {
     public class AwsS3GeneratedSiteComparisonForAdditionsAndChanges
     {

@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.Xaml.Behaviors;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
 {
     public class ListBoxAutoScrollToNewItems : Behavior<ListBox>
     {

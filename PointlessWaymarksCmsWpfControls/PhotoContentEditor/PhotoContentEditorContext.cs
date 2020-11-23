@@ -25,6 +25,8 @@ using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 {
@@ -887,7 +889,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (SelectedFile == null)
             {
-                SelectedFileBitmapSource = ImageConstants.BlankImage;
+                SelectedFileBitmapSource = ImageHelpers.BlankImage;
                 return;
             }
 
@@ -895,11 +897,11 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
 
             if (!SelectedFile.Exists)
             {
-                SelectedFileBitmapSource = ImageConstants.BlankImage;
+                SelectedFileBitmapSource = ImageHelpers.BlankImage;
                 return;
             }
 
-            SelectedFileBitmapSource = await Thumbnails.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
+            SelectedFileBitmapSource = await ImageHelpers.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
         }
 
         public void SetupContextAndCommands(StatusControlContext statusContext)

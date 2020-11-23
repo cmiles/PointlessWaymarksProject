@@ -16,6 +16,7 @@ using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.NoteContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.NoteList
 {
@@ -280,7 +281,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            HtmlClipboardHelper.CopyToClipboard(emailHtml, emailHtml);
+            HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
 
             StatusContext.ToastSuccess("Email Html on Clipboard");
         }

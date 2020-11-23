@@ -9,6 +9,8 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     d:DataContext="{d:DesignInstance updateNotesEditor:UpdateNotesEditorContext}"
     d:DesignHeight="300"
@@ -20,7 +22,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -67,7 +69,7 @@
                         TextWrapping="Wrap"
                         VerticalScrollBarVisibility="Visible">
                         <b:Interaction.Behaviors>
-                            <utility:TextBoxDoubleClickLauncher />
+                            <wpfBehavior:TextBoxDoubleClickLauncher />
                         </b:Interaction.Behaviors>
                     </TextBox>
                 </GroupBox>

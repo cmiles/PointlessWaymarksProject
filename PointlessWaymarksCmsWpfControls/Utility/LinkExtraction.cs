@@ -15,7 +15,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         public static async Task ExtractNewAndShowLinkContentEditors(string toExtractFrom,
             IProgress<string> progressTracker, List<string> excludedUrls = null)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
             excludedUrls ??= new List<string>();
             excludedUrls = excludedUrls.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim().ToLower())
@@ -58,7 +58,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 }
             }
 
-            await ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
             foreach (var loopLinks in linksToShow)
             {

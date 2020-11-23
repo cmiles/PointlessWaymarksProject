@@ -8,6 +8,8 @@ using Amazon.S3;
 using Amazon.S3.Transfer;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.Aws;
+using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.S3Uploads
 {

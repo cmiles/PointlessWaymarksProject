@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     Name="PointDetailListControlXaml"
     d:DataContext="{d:DesignInstance local:PointDetailListContext}"
     d:DesignHeight="450"
@@ -75,7 +76,7 @@
                 ItemsSource="{Binding Items}"
                 ScrollViewer.CanContentScroll="False">
                 <b:Interaction.Behaviors>
-                    <utility:ListBoxAutoScrollToNewItems />
+                    <wpfBehavior:ListBoxAutoScrollToNewItems />
                 </b:Interaction.Behaviors>
             </ListBox>
         </GroupBox>

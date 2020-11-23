@@ -9,6 +9,7 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 
 namespace PointlessWaymarksCmsWpfControls.TagsEditor
 {

@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using Omu.ValueInjecter.Utils;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation
 {
     public static class PropertyScanners
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using Windows.Security.Credentials;
 using PointlessWaymarksCmsData;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.Aws
 {
     public static class AwsCredentials
     {

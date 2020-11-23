@@ -19,6 +19,7 @@ using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.FileList
 {
@@ -309,7 +310,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            HtmlClipboardHelper.CopyToClipboard(emailHtml, emailHtml);
+            HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
 
             StatusContext.ToastSuccess("Email Html on Clipboard");
         }
@@ -395,7 +396,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 return;
             }
 
-            await PdfConversion.PdfPageToImageWithPdfToCairo(StatusContext, selected.Select(x => x.DbEntry).ToList(),
+            await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, selected.Select(x => x.DbEntry).ToList(),
                 1);
         }
 

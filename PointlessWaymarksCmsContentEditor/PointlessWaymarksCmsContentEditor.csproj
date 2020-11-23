@@ -26,7 +26,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.5.3.12" />
+    <PackageReference Include="AWSSDK.S3" Version="3.5.5" />
     <PackageReference Include="CompareNETObjects" Version="4.67.0" />
     <PackageReference Include="FluentMigrator" Version="3.2.9" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.2.9" />
@@ -37,27 +37,27 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="HtmlTableHelper" Version="1.2.2" />
-    <PackageReference Include="HtmlTags" Version="8.0.0" />
+    <PackageReference Include="HtmlTags" Version="8.1.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.2.0-eap" />
     <PackageReference Include="Jot" Version="2.1.7" />
     <PackageReference Include="Markdig" Version="0.18.3" />
     <PackageReference Include="Markdig.Wpf" Version="0.4.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-rc.2.20475.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0-rc.2.20475.6" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.674-prerelease" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="NetTopologySuite" Version="2.1.0" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />
     <PackageReference Include="ObjectDumper.NET" Version="3.0.20251.2-pre" />
-    <PackageReference Include="Ookii.Dialogs.Wpf.NETCore" Version="2.2.0-alpha.1" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="3.0.1" />
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.11.2" />
     <PackageReference Include="pinboard.net" Version="1.0.0" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.6" />
-    <PackageReference Include="System.Runtime.Caching" Version="5.0.0-rc.2.20475.5" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0-rc.2.20475.5" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0" />
     <PackageReference Include="TinyIpc" Version="2.1.0" />
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
     <PackageReference Include="WpfScreenHelper" Version="1.0.0" />

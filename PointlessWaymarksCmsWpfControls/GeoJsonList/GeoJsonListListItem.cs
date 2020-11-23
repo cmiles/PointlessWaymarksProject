@@ -1,11 +1,13 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.GeoJsonList
 {
-    public class GeoJsonListListItem : INotifyPropertyChanged
+    public class GeoJsonListListItem : INotifyPropertyChanged, IContentCommonGuiListItem
     {
         private GeoJsonContent _dbEntry;
         private string _smallImageUrl;
@@ -30,6 +32,11 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
                 _smallImageUrl = value;
                 OnPropertyChanged();
             }
+        }
+
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

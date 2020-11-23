@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
 {
     //https://stackoverflow.com/questions/48506185/using-applicationcommands-in-wpf-prism/48506698#48506698
     public class AttachCommandBindingsBehavior : Behavior<FrameworkElement>

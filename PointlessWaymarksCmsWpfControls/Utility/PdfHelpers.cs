@@ -13,12 +13,12 @@ using PointlessWaymarksCmsWpfControls.Status;
 
 namespace PointlessWaymarksCmsWpfControls.Utility
 {
-    public static class PdfConversion
+    public static class PdfHelpers
     {
         public static async Task PdfPageToImageWithPdfToCairo(StatusControlContext statusContext,
             List<FileContent> selected, int pageNumber)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
 
             var pdfToCairoDirectoryString = UserSettingsSingleton.CurrentSettings().PdfToCairoExeDirectory;
@@ -98,8 +98,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     ? $"-jpeg -singlefile \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\""
                     : $"-jpeg -f {pageNumber} -l {pageNumber} \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\"";
 
-                var (success, _, errorOutput) = Processes.ExecuteProcess(pdfToCairoExe.FullName, executionParameters,
-                    statusContext.ProgressTracker());
+                var (success, _, errorOutput) = ProcessHelpers.ExecuteProcess(pdfToCairoExe.FullName,
+                    executionParameters, statusContext.ProgressTracker());
 
                 if (!success)
                 {
@@ -150,7 +150,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                     continue;
                 }
 
-                await ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
 
                 var newImage = new ImageContent {ContentId = Guid.NewGuid()};
 
@@ -177,7 +177,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 var editor = new ImageContentEditorWindow(newImage, updatedDestination);
                 editor.Show();
 
-                await ThreadSwitcher.ResumeBackgroundAsync();
+                await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
             }
         }
     }

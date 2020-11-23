@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.S3Deletions"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     d:DataContext="{d:DesignInstance local:S3DeletionsContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -62,7 +63,7 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 SelectionMode="Extended">
                 <b:Interaction.Behaviors>
-                    <utility:ListBoxOneLineMouseWheelScroll />
+                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:S3DeletionsItem">
@@ -80,7 +81,7 @@
                                         </MultiBinding>
                                     </TextBox.Text>
                                     <b:Interaction.Behaviors>
-                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                     </b:Interaction.Behaviors>
                                 </TextBox>
                                 <TextBox
@@ -90,7 +91,7 @@
                                     TextWrapping="Wrap"
                                     Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">
                                     <b:Interaction.Behaviors>
-                                        <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                     </b:Interaction.Behaviors>
                                 </TextBox>
                             </Grid>

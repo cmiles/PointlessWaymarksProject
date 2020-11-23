@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     Name="TagListControlXaml"
     d:DataContext="{d:DesignInstance local:TagListContext}"
     d:DesignHeight="450"
@@ -72,7 +73,7 @@
                                             </MultiBinding>
                                         </TextBox.Text>
                                         <b:Interaction.Behaviors>
-                                            <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </b:Interaction.Behaviors>
                                     </TextBox>
                                 </StackPanel>
@@ -125,7 +126,7 @@
                                                 Text="{Binding Title}"
                                                 TextWrapping="Wrap">
                                                 <b:Interaction.Behaviors>
-                                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                             <TextBox
@@ -134,7 +135,7 @@
                                                 Text="{Binding ContentType}"
                                                 TextWrapping="Wrap">
                                                 <b:Interaction.Behaviors>
-                                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                             <TextBox
@@ -143,7 +144,7 @@
                                                 Text="{Binding Tags, StringFormat='Tags: {0}'}"
                                                 TextWrapping="Wrap">
                                                 <b:Interaction.Behaviors>
-                                                    <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                         </StackPanel>

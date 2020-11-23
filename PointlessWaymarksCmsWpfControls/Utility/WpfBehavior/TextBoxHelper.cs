@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
 {
     //From https://stackoverflow.com/questions/2245928/mvvm-and-the-textboxs-selectedtext-property
     public static class TextBoxHelper

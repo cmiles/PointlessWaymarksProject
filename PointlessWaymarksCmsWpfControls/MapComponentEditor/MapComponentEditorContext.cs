@@ -15,10 +15,15 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarksCmsWpfControls.GeoJsonList;
+using PointlessWaymarksCmsWpfControls.LineList;
+using PointlessWaymarksCmsWpfControls.PointList;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
+using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
+using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 {
@@ -28,20 +33,15 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private List<MapComponentElement> _dbElements;
         private MapComponent _dbEntry;
-        private ObservableCollection<GeoJsonContent> _geoJson;
         private bool _hasChanges;
         private bool _hasValidationIssues;
-        private ObservableCollection<LineContent> _lines;
-        private ObservableCollection<PointContentDto> _points;
+        private ObservableCollection<IContentCommonGuiListItem> _mapElements = new();
 
         private StatusControlContext _statusContext;
         private StringDataEntryContext _summaryEntry;
         private StringDataEntryContext _titleEntry;
         private UpdateNotesEditorContext _updateNotes;
         private string _userGeoContentInput;
-        private ObservableCollection<GeoJsonContent> _userGeoJson;
-        private ObservableCollection<LineContent> _userLines;
-        private ObservableCollection<PointContentDto> _userPoints;
 
         private MapComponentEditorContext(StatusControlContext statusContext)
         {
@@ -114,6 +114,17 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
+        public ObservableCollection<IContentCommonGuiListItem> MapElements
+        {
+            get => _mapElements;
+            set
+            {
+                if (Equals(value, _mapElements)) return;
+                _mapElements = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -169,91 +180,48 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
-        public ObservableCollection<GeoJsonContent> UserGeoJson
-        {
-            get => _userGeoJson;
-            set
-            {
-                if (Equals(value, _userGeoJson)) return;
-                _userGeoJson = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ObservableCollection<LineContent> UserLines
-        {
-            get => _userLines;
-            set
-            {
-                if (Equals(value, _userLines)) return;
-                _userLines = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ObservableCollection<PointContentDto> UserPoints
-        {
-            get => _userPoints;
-            set
-            {
-                if (Equals(value, _userPoints)) return;
-                _userPoints = value;
-                OnPropertyChanged();
-            }
-        }
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private async Task AddGeoJson(GeoJsonContent possibleGeoJson)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (UserGeoJson.Any(x => x.ContentId == possibleGeoJson.ContentId))
+            if (MapElements.Any(x => x.ContentId() == possibleGeoJson.ContentId))
             {
                 StatusContext.ToastWarning($"GeoJson {possibleGeoJson.Title} is already on the map");
                 return;
             }
 
-            UserGeoJson.Add(possibleGeoJson);
+            //Todo initial list item
+            MapElements.Add(new GeoJsonListListItem());
         }
 
         private async Task AddLine(LineContent possibleLine)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (UserLines.Any(x => x.ContentId == possibleLine.ContentId))
+            if (MapElements.Any(x => x.ContentId() == possibleLine.ContentId))
             {
                 StatusContext.ToastWarning($"Line {possibleLine.Title} is already on the map");
                 return;
             }
 
-            UserLines.Add(possibleLine);
+            //Todo initial list item
+            MapElements.Add(new LineListListItem());
         }
 
         private async Task AddPoint(PointContent possiblePoint)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (UserPoints.Any(x => x.ContentId == possiblePoint.ContentId))
+            if (MapElements.Any(x => x.ContentId() == possiblePoint.ContentId))
             {
                 StatusContext.ToastWarning($"GeoJson {possiblePoint.Title} is already on the map");
                 return;
             }
 
-            UserPoints.Add(await Db.PointAndPointDetails(possiblePoint.ContentId));
-        }
-
-        private async Task AddPoint(PointContentDto possiblePoint)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (UserPoints.Any(x => x.ContentId == possiblePoint.ContentId))
-            {
-                StatusContext.ToastWarning($"GeoJson {possiblePoint.Title} is already on the map");
-                return;
-            }
-
-            UserPoints.Add(possiblePoint);
+            //Todo initial list item
+            MapElements.Add(new PointListListItem());
         }
 
         public void CheckForChangesAndValidationIssues()

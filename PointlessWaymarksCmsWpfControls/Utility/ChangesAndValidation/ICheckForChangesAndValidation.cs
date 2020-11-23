@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarksCmsWpfControls.Utility
+﻿namespace PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation
 {
     public interface ICheckForChangesAndValidation
     {

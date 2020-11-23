@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.S3Uploads"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     Name="S3UploadsControlXaml"
     d:DataContext="{d:DesignInstance local:S3UploadsContext}"
     d:DesignHeight="450"
@@ -40,7 +41,7 @@
                             Text="{Binding Note, Mode=OneWay}"
                             TextWrapping="Wrap">
                             <b:Interaction.Behaviors>
-                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                             </b:Interaction.Behaviors>
                         </TextBox>
                         <TextBox
@@ -58,7 +59,7 @@
                                     MouseAction="LeftClick" />
                             </TextBox.InputBindings>
                             <b:Interaction.Behaviors>
-                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                             </b:Interaction.Behaviors>
                         </TextBox>
                         <TextBox
@@ -73,7 +74,7 @@
                                 </MultiBinding>
                             </TextBox.Text>
                             <b:Interaction.Behaviors>
-                                <utility:ReadOnlyTextBoxClickAndKeyboardPass />
+                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                             </b:Interaction.Behaviors>
                         </TextBox>
                         <WrapPanel Grid.Row="3" Margin="2">
@@ -151,7 +152,7 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 SelectionMode="Extended">
                 <b:Interaction.Behaviors>
-                    <utility:ListBoxOneLineMouseWheelScroll />
+                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
             </ListBox>
         </GroupBox>

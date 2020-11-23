@@ -9,6 +9,7 @@
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     Title="HtmlViewerWindow"
     Width="800"
@@ -20,7 +21,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>

@@ -1,11 +1,13 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.LineList
 {
-    public class LineListListItem : INotifyPropertyChanged
+    public class LineListListItem : INotifyPropertyChanged, IContentCommonGuiListItem
     {
         private LineContent _dbEntry;
         private string _smallImageUrl;
@@ -30,6 +32,11 @@ namespace PointlessWaymarksCmsWpfControls.LineList
                 _smallImageUrl = value;
                 OnPropertyChanged();
             }
+        }
+
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
