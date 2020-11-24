@@ -27,6 +27,7 @@ using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.ImageList;
 using PointlessWaymarksCmsWpfControls.LineList;
 using PointlessWaymarksCmsWpfControls.LinkList;
+using PointlessWaymarksCmsWpfControls.MapComponentList;
 using PointlessWaymarksCmsWpfControls.MenuLinkEditor;
 using PointlessWaymarksCmsWpfControls.NoteList;
 using PointlessWaymarksCmsWpfControls.PhotoList;
@@ -36,7 +37,6 @@ using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
 using PointlessWaymarksCmsWpfControls.TagList;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 
@@ -61,6 +61,7 @@ namespace PointlessWaymarksCmsContentEditor
         private ImageListWithActionsContext _tabImageListContext;
         private LineListWithActionsContext _tabLineListContext;
         private LinkListWithActionsContext _tabLinkContext;
+        private MapComponentListWithActionsContext _tabMapListContext;
         private MenuLinkEditorContext _tabMenuLinkContext;
         private NoteListWithActionsContext _tabNoteListContext;
         private PhotoListWithActionsContext _tabPhotoListContext;
@@ -387,6 +388,17 @@ namespace PointlessWaymarksCmsContentEditor
             {
                 if (Equals(value, _tabLinkContext)) return;
                 _tabLinkContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public MapComponentListWithActionsContext TabMapListContext
+        {
+            get => _tabMapListContext;
+            set
+            {
+                if (Equals(value, _tabMapListContext)) return;
+                _tabMapListContext = value;
                 OnPropertyChanged();
             }
         }
@@ -741,16 +753,18 @@ namespace PointlessWaymarksCmsContentEditor
 
             if (SelectedTab.Header.ToString() == "Photos" && TabPhotoListContext == null)
                 TabPhotoListContext = new PhotoListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Images" && TabImageListContext == null)
+                TabImageListContext = new ImageListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Files" && TabFileListContext == null)
+                TabFileListContext = new FileListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Points" && TabPointListContext == null)
                 TabPointListContext = new PointListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Lines" && TabLineListContext == null)
                 TabLineListContext = new LineListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "GeoJson" && TabGeoJsonListContext == null)
                 TabGeoJsonListContext = new GeoJsonListWithActionsContext(null);
-            if (SelectedTab.Header.ToString() == "Images" && TabImageListContext == null)
-                TabImageListContext = new ImageListWithActionsContext(null);
-            if (SelectedTab.Header.ToString() == "Files" && TabFileListContext == null)
-                TabFileListContext = new FileListWithActionsContext(null);
+            if (SelectedTab.Header.ToString() == "Maps" && TabMapListContext == null)
+                TabMapListContext = new MapComponentListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Notes" && TabNoteListContext == null)
                 TabNoteListContext = new NoteListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Links" && TabLinkContext == null)

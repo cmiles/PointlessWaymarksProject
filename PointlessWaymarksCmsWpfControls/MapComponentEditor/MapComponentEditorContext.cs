@@ -325,15 +325,17 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 if (possibleExistingElement == null)
                     finalElementList.Add(new MapComponentElement
                     {
-                        ElementContentId = Guid.NewGuid(),
-                        InitialDetails = loopUserElements.ShowInitialDetails,
+                        ContentId = Guid.NewGuid(),
+                        ShowDetailsDefault = loopUserElements.ShowInitialDetails,
+                        IncludeInDefaultView = loopUserElements.InInitialView,
                         MapComponentContentId = loopUserElements.ContentId() ?? Guid.Empty
                     });
                 else
                     finalElementList.Add(new MapComponentElement
                     {
-                        ElementContentId = possibleExistingElement.ElementContentId,
-                        InitialDetails = loopUserElements.ShowInitialDetails,
+                        ContentId = possibleExistingElement.ContentId,
+                        ShowDetailsDefault = loopUserElements.ShowInitialDetails,
+                        IncludeInDefaultView = loopUserElements.InInitialView,
                         MapComponentContentId = loopUserElements.ContentId() ?? Guid.Empty
                     });
             }
@@ -409,7 +411,24 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             MapElements ??= new();
 
             MapElements.Clear();
-            elementContent.ForEach(x => MapElements.Add(x));
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            elementContent.ForEach(async x =>
+            {
+                switch (x)
+                {
+                    case GeoJsonContent gj:
+                        await AddGeoJson(gj);
+                        break;
+                    case LineContent l:
+                        await AddLine(l);
+                        break;
+                    case PointContent p:
+                        await AddPoint(p);
+                        break;
+                }
+            });
         }
 
         [NotifyPropertyChangedInvocator]

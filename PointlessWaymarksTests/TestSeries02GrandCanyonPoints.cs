@@ -172,24 +172,20 @@ namespace PointlessWaymarksTests
                 && Math.Abs(x.Latitude - piutePoint.Latitude) < .1
                 && x.Title.EndsWith("Point")).ToListAsync();
 
-            newMap.InitialViewBoundsUpperLeftLatitude = pointsNearPiutePoint.Min(x => x.Latitude);
-            newMap.InitialViewBoundsUpperLeftLongitude = pointsNearPiutePoint.Max(x => x.Longitude);
-            newMap.InitialViewBoundsLowerRightLatitude = pointsNearPiutePoint.Max(x => x.Latitude);
-            newMap.InitialViewBoundsLowerRightLongitude = pointsNearPiutePoint.Min(x => x.Longitude);
-
             var pointElements = new List<MapComponentElement>();
 
             foreach (var loopPoints in pointsNearPiutePoint)
             {
                 pointElements.Add(new MapComponentElement
                 {
-                    ElementContentId = loopPoints.ContentId,
-                    InitialDetails = false,
+                    ContentId = loopPoints.ContentId,
+                    ShowDetailsDefault = false,
+                    IncludeInDefaultView = true,
                     MapComponentContentId = newMap.ContentId,
                 });
             }
 
-            pointElements.First().InitialDetails = true;
+            pointElements.First().ShowDetailsDefault = true;
 
             var newMapDto = new MapComponentDto(newMap, pointElements);
 
@@ -201,6 +197,11 @@ namespace PointlessWaymarksTests
                 await MapComponentGenerator.SaveAndGenerateData(newMapDto, null, DebugTrackers.DebugProgressTracker());
 
             Assert.IsFalse(saveResult.generationReturn.HasError);
+
+            Assert.AreEqual(saveResult.mapDto.Map.InitialViewBoundsMaxX, pointsNearPiutePoint.Max(x => x.Longitude));
+            Assert.AreEqual(saveResult.mapDto.Map.InitialViewBoundsMaxY, pointsNearPiutePoint.Max(x => x.Latitude));
+            Assert.AreEqual(saveResult.mapDto.Map.InitialViewBoundsMinX, pointsNearPiutePoint.Min(x => x.Longitude));
+            Assert.AreEqual(saveResult.mapDto.Map.InitialViewBoundsMinY, pointsNearPiutePoint.Min(x => x.Latitude));
         }
 
         [Test]

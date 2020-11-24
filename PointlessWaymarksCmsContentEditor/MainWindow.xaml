@@ -23,6 +23,7 @@
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:mapComponentList="clr-namespace:PointlessWaymarksCmsWpfControls.MapComponentList;assembly=PointlessWaymarksCmsWpfControls"
     Name="MainWindowXaml"
     Title="{Binding InfoTitle}"
     Width="900"
@@ -53,14 +54,11 @@
             <TabItem Header="Photos">
                 <photoList:PhotoListWithActionsControl DataContext="{Binding TabPhotoListContext}" />
             </TabItem>
-            <TabItem Header="Images">
-                <imageList:ImageListWithActionsControl DataContext="{Binding TabImageListContext}" />
-            </TabItem>
             <TabItem Header="Files">
                 <fileList:FileListWithActionsControl DataContext="{Binding TabFileListContext}" />
             </TabItem>
-            <TabItem Header="Notes">
-                <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />
+            <TabItem Header="Images">
+                <imageList:ImageListWithActionsControl DataContext="{Binding TabImageListContext}" />
             </TabItem>
             <TabItem Header="Points">
                 <pointList:PointListWithActionsControl DataContext="{Binding TabPointListContext}" />
@@ -71,6 +69,13 @@
             <TabItem Header="GeoJson">
                 <geoJsonList:GeoJsonListWithActionsControl DataContext="{Binding TabGeoJsonListContext}" />
             </TabItem>
+            <TabItem Header="Maps">
+                <mapComponentList:MapComponentListWithActionsControl DataContext="{Binding TabMapListContext}" />
+            </TabItem>
+            <TabItem Header="Notes">
+                <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />
+            </TabItem>
+
             <TabItem Header="Links">
                 <linkList:LinkListWithActionsControl DataContext="{Binding TabLinkContext}" />
             </TabItem>

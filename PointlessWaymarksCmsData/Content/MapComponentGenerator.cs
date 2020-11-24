@@ -16,7 +16,7 @@ namespace PointlessWaymarksCmsData.Content
             await MapData.WriteLocalJsonData(toGenerate);
         }
 
-        public static async Task<(GenerationReturn generationReturn, MapComponentDto pointContent)> SaveAndGenerateData(
+        public static async Task<(GenerationReturn generationReturn, MapComponentDto mapDto)> SaveAndGenerateData(
             MapComponentDto toSave, DateTime? generationVersion, IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave);

@@ -446,38 +446,38 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add(createdUpdatedExplanation);
             }
 
-            var initialBoundsUpperLeftLatitudeValidation =
-                LatitudeValidation(mapComponent.Map.InitialViewBoundsUpperLeftLatitude);
-            var initialBoundsUpperLeftLongitudeValidation =
-                LongitudeValidation(mapComponent.Map.InitialViewBoundsUpperLeftLongitude);
-            var initialBoundsLowerRightLatitudeValidation =
-                LatitudeValidation(mapComponent.Map.InitialViewBoundsLowerRightLatitude);
-            var initialBoundsLowerRightLongitudeValidation =
-                LongitudeValidation(mapComponent.Map.InitialViewBoundsLowerRightLongitude);
+            //var initialBoundsUpperLeftLatitudeValidation =
+            //    LatitudeValidation(mapComponent.Map.InitialViewBoundsUpperLeftLatitude);
+            //var initialBoundsUpperLeftLongitudeValidation =
+            //    LongitudeValidation(mapComponent.Map.InitialViewBoundsUpperLeftLongitude);
+            //var initialBoundsLowerRightLatitudeValidation =
+            //    LatitudeValidation(mapComponent.Map.InitialViewBoundsLowerRightLatitude);
+            //var initialBoundsLowerRightLongitudeValidation =
+            //    LongitudeValidation(mapComponent.Map.InitialViewBoundsLowerRightLongitude);
 
-            if (!initialBoundsUpperLeftLatitudeValidation.isValid)
-            {
-                isValid = false;
-                errorMessage.Add($"Upper Left Initial Latitude - {initialBoundsUpperLeftLatitudeValidation.explanation}");
-            }
+            //if (!initialBoundsUpperLeftLatitudeValidation.isValid)
+            //{
+            //    isValid = false;
+            //    errorMessage.Add($"Upper Left Initial Latitude - {initialBoundsUpperLeftLatitudeValidation.explanation}");
+            //}
 
-            if (!initialBoundsUpperLeftLongitudeValidation.isValid)
-            {
-                isValid = false;
-                errorMessage.Add($"Upper Left Initial Longitude - {initialBoundsUpperLeftLongitudeValidation.explanation}");
-            }
+            //if (!initialBoundsUpperLeftLongitudeValidation.isValid)
+            //{
+            //    isValid = false;
+            //    errorMessage.Add($"Upper Left Initial Longitude - {initialBoundsUpperLeftLongitudeValidation.explanation}");
+            //}
 
-            if (!initialBoundsLowerRightLatitudeValidation.isValid)
-            {
-                isValid = false;
-                errorMessage.Add($"Lower Right Initial Latitude - {initialBoundsLowerRightLatitudeValidation.explanation}");
-            }
+            //if (!initialBoundsLowerRightLatitudeValidation.isValid)
+            //{
+            //    isValid = false;
+            //    errorMessage.Add($"Lower Right Initial Latitude - {initialBoundsLowerRightLatitudeValidation.explanation}");
+            //}
 
-            if (!initialBoundsLowerRightLongitudeValidation.isValid)
-            {
-                isValid = false;
-                errorMessage.Add($"Upper Left Initial Latitude - {initialBoundsLowerRightLongitudeValidation.explanation}");
-            }
+            //if (!initialBoundsLowerRightLongitudeValidation.isValid)
+            //{
+            //    isValid = false;
+            //    errorMessage.Add($"Upper Left Initial Latitude - {initialBoundsLowerRightLongitudeValidation.explanation}");
+            //}
 
 
             if (!mapComponent.Elements.Any())
@@ -492,12 +492,6 @@ namespace PointlessWaymarksCmsData.Content
             {
                 isValid = false;
                 errorMessage.Add("Not all map elements are correctly associated with the map.");
-            }
-
-            if (!mapComponent.Elements.Any(x => x.InitialDetails))
-            {
-                isValid = false;
-                errorMessage.Add("Please set at least one element as the initial focus.");
             }
 
             if (!isValid) return (false, string.Join(Environment.NewLine, errorMessage));

@@ -6,12 +6,15 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailDataModels;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Spatial;
+using Feature = PointlessWaymarksCmsData.Database.PointDetailDataModels.Feature;
 
 namespace PointlessWaymarksCmsData.Database
 {
@@ -454,14 +457,15 @@ namespace PointlessWaymarksCmsData.Database
 
             var elementsToDelete =
                 context.MapComponentElements.Where(x => x.MapComponentContentId == contentId).ToList();
-            var elementsToDeleteContentIds = elementsToDelete.Select(x => x.ElementContentId).ToList();
+            var elementsToDeleteContentIds = elementsToDelete.Select(x => x.ContentId).ToList();
 
             foreach (var loopElements in elementsToDelete)
             {
                 await context.HistoricMapComponentElements.AddAsync(new HistoricMapComponentElement
                 {
-                    ContentId = loopElements.ElementContentId,
-                    InitialDetails = loopElements.InitialDetails,
+                    ContentId = loopElements.ContentId,
+                    ShowDetailsDefault = loopElements.ShowDetailsDefault,
+                    IncludeInDefaultView = loopElements.IncludeInDefaultView,
                     LastUpdateOn = lastUpdatedOnForHistoric,
                     MapComponentContentId = loopElements.MapComponentContentId
                 });
@@ -1165,16 +1169,17 @@ namespace PointlessWaymarksCmsData.Database
             await context.SaveChangesAsync(true);
 
             var dbElements = await context.MapComponentElements
-                .Where(x => x.ElementContentId == toSaveDto.Map.ContentId).ToListAsync();
+                .Where(x => x.MapComponentContentId == toSaveDto.Map.ContentId).ToListAsync();
 
-            var dbElementContentIds = dbElements.Select(x => x.ElementContentId).Distinct().ToList();
+            var dbElementContentIds = dbElements.Select(x => x.ContentId).Distinct().ToList();
 
             foreach (var loopElements in dbElements)
             {
                 await context.HistoricMapComponentElements.AddAsync(new HistoricMapComponentElement
                 {
-                    ContentId = loopElements.ElementContentId,
-                    InitialDetails = loopElements.InitialDetails,
+                    ContentId = loopElements.ContentId,
+                    ShowDetailsDefault = loopElements.ShowDetailsDefault,
+                    IncludeInDefaultView = loopElements.IncludeInDefaultView,
                     LastUpdateOn = lastUpdatedForHistoric,
                     MapComponentContentId = loopElements.MapComponentContentId
                 });
@@ -1184,13 +1189,26 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync();
 
-            var newElementsContentIds = toSaveDto.Elements.Select(x => x.ElementContentId).ToList();
+            var newElementsContentIds = toSaveDto.Elements.Select(x => x.ContentId).ToList();
 
             foreach (var loopElements in toSaveDto.Elements)
             {
                 loopElements.Id = 0;
                 await context.MapComponentElements.AddAsync(loopElements);
             }
+
+            await context.SaveChangesAsync();
+
+            //TODO: Need to calculate on all Types
+
+            var points = await context.PointContents.Where(x => newElementsContentIds.Contains(x.ContentId)).ToListAsync();
+
+            var boundingBox = SpatialConverters.PointBoundingBox(points);
+            toSaveDto.Map.InitialViewBoundsMaxY = boundingBox.MaxY;
+            toSaveDto.Map.InitialViewBoundsMaxX = boundingBox.MaxX;
+            toSaveDto.Map.InitialViewBoundsMinY = boundingBox.MinY;
+            toSaveDto.Map.InitialViewBoundsMinX = boundingBox.MinX;
+            DefaultPropertyCleanup(toSaveDto.Map);
 
             await context.SaveChangesAsync();
 
