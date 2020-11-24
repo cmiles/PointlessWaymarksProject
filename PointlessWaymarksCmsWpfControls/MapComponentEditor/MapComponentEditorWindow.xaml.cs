@@ -1,29 +1,33 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
-namespace PointlessWaymarksCmsWpfControls.PostContentEditor
+namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 {
-    public partial class PostContentEditorWindow : INotifyPropertyChanged
+    /// <summary>
+    ///     Interaction logic for MapComponentEditorWindow.xaml
+    /// </summary>
+    public partial class MapComponentEditorWindow : Window
     {
-        private PostContentEditorContext _postContent;
+        private MapComponentEditorContext _mapComponentContent;
         private StatusControlContext _statusContext;
 
-        public PostContentEditorWindow(PostContent toLoad)
+        public MapComponentEditorWindow(MapComponent toLoad)
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
             {
-                PostContent = await PostContentEditorContext.CreateInstance(StatusContext, toLoad);
+                MapComponentContent = await MapComponentEditorContext.CreateInstance(StatusContext, toLoad);
 
-                PostContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
-                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PostContent);
+                MapComponentContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
+                AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, MapComponentContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
                 DataContext = this;
@@ -32,13 +36,13 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
 
         public WindowAccidentalClosureHelper AccidentalCloserHelper { get; set; }
 
-        public PostContentEditorContext PostContent
+        public MapComponentEditorContext MapComponentContent
         {
-            get => _postContent;
+            get => _mapComponentContent;
             set
             {
-                if (Equals(value, _postContent)) return;
-                _postContent = value;
+                if (Equals(value, _mapComponentContent)) return;
+                _mapComponentContent = value;
                 OnPropertyChanged();
             }
         }
@@ -54,12 +58,12 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

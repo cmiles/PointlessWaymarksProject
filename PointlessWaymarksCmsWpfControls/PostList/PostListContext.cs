@@ -14,7 +14,6 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using TinyIpc.Messaging;
 

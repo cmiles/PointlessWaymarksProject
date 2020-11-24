@@ -42,7 +42,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
-        public EventHandler RequestLinkContentEditorWindowClose;
+        public EventHandler RequestContentEditorWindowClose;
 
         private GeoJsonContentEditorContext(StatusControlContext statusContext)
         {
@@ -328,7 +328,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
         }
 

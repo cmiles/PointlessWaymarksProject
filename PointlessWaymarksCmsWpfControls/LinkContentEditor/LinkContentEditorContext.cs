@@ -15,7 +15,6 @@ using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
@@ -43,7 +42,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
         private TagsEditorContext _tagEdit;
         private StringDataEntryContext _titleEntry;
 
-        public EventHandler RequestLinkContentEditorWindowClose;
+        public EventHandler RequestContentEditorWindowClose;
 
         private LinkContentEditorContext(StatusControlContext statusContext)
         {
@@ -441,7 +440,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkContentEditor
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
         }
 

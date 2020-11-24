@@ -63,7 +63,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
         private Command _viewOnSiteCommand;
         private Command _viewSelectedFileCommand;
 
-        public EventHandler RequestLinkContentEditorWindowClose;
+        public EventHandler RequestContentEditorWindowClose;
 
         private ImageContentEditorContext(StatusControlContext statusContext)
         {
@@ -591,7 +591,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
         }
 

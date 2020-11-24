@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
@@ -26,7 +25,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
             {
                 GeoJsonContent = await GeoJsonContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-                GeoJsonContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                GeoJsonContent.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, GeoJsonContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();

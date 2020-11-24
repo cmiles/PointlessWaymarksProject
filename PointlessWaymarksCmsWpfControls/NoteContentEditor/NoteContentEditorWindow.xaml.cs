@@ -26,7 +26,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             {
                 NoteContent = await NoteContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-                NoteContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                NoteContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, NoteContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();

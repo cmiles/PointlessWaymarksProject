@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
@@ -24,7 +23,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             {
                 FileContent = await FileContentEditorContext.CreateInstance(StatusContext);
 
-                FileContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                FileContent.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -41,7 +40,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             {
                 FileContent = await FileContentEditorContext.CreateInstance(StatusContext, initialFile);
 
-                FileContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                FileContent.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -58,7 +57,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             {
                 FileContent = await FileContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-                FileContent.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                FileContent.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();

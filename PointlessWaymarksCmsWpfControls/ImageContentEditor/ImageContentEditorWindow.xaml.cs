@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
@@ -25,7 +24,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             {
                 ImageEditor = await ImageContentEditorContext.CreateInstance(StatusContext);
 
-                ImageEditor.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                ImageEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -44,7 +43,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 ImageEditor =
                     await ImageContentEditorContext.CreateInstance(StatusContext, contentToLoad, initialImage);
 
-                ImageEditor.RequestLinkContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                ImageEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, ImageEditor);
 
                 await ThreadSwitcher.ResumeForegroundAsync();

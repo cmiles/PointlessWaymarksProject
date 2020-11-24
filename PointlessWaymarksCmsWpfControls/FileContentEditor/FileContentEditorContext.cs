@@ -60,7 +60,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
-        public EventHandler RequestLinkContentEditorWindowClose;
+        public EventHandler RequestContentEditorWindowClose;
 
         private FileContentEditorContext(StatusControlContext statusContext, FileInfo initialFile = null)
         {
@@ -644,8 +644,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
 
             await LoadData(saveResult.fileContent);
 
-            await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> {DbEntry},
-                pageNumber);
+            await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> {DbEntry}, pageNumber);
         }
 
         public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave)
@@ -667,7 +666,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
         }
 

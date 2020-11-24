@@ -56,7 +56,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
-        public EventHandler RequestLinkContentEditorWindowClose;
+        public EventHandler RequestContentEditorWindowClose;
 
         private PointContentEditorContext(StatusControlContext statusContext)
         {
@@ -312,15 +312,6 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             return newControl;
         }
 
-        private PointContentDto CurrentStateToPointContentDto()
-        {
-            var toReturn = new PointContentDto();
-            var currentPoint = CurrentStateToPointContent();
-            toReturn.InjectFrom(currentPoint);
-            toReturn.PointDetails = PointDetails.CurrentStateToPointDetailsList() ?? new List<PointDetail>();
-            return toReturn;
-        }
-
         private PointContent CurrentStateToPointContent()
         {
             var newEntry = new PointContent();
@@ -355,6 +346,15 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             newEntry.Elevation = ElevationEntry.UserValue;
 
             return newEntry;
+        }
+
+        private PointContentDto CurrentStateToPointContentDto()
+        {
+            var toReturn = new PointContentDto();
+            var currentPoint = CurrentStateToPointContent();
+            toReturn.InjectFrom(currentPoint);
+            toReturn.PointDetails = PointDetails.CurrentStateToPointDetailsList() ?? new List<PointDetail>();
+            return toReturn;
         }
 
 
@@ -522,7 +522,9 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var (generationReturn, newContent) = await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContentDto(), null, StatusContext.ProgressTracker());
+            var (generationReturn, newContent) =
+                await PointGenerator.SaveAndGenerateHtml(CurrentStateToPointContentDto(), null,
+                    StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)
             {
@@ -536,7 +538,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
         }
 

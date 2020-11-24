@@ -2,17 +2,12 @@
     x:Class="PointlessWaymarksCmsWpfControls.MapComponentEditor.MapComponentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:bodyContentEditor="clr-namespace:PointlessWaymarksCmsWpfControls.BodyContentEditor"
-    xmlns:boolDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.BoolDataEntry"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helpDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.HelpDisplay"
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.MapComponentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.StringDataEntry"
-    xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
-    xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     d:DataContext="{d:DesignInstance local:MapComponentEditorContext}"
@@ -24,11 +19,59 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <DataTemplate x:Key="MapElementGeoJsonTemplate" DataType="local:MapElementListGeoJsonItem">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox IsChecked="{Binding ShowInitialDetails}"> Show Details</CheckBox>
+                            <CheckBox IsChecked="{Binding InInitialView}">In View</CheckBox>
+                        </StackPanel>
+                        <ContentControl Grid.Column="1" ContentTemplate="{StaticResource GeoJsonListItemTemplate}"
+                                        Content="{Binding .}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="MapElementLineTemplate" DataType="local:MapElementListLineItem">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                            <CheckBox IsChecked="{Binding InInitialView}">In View</CheckBox>
+                        </StackPanel>
+                        <ContentControl Grid.Column="1" ContentTemplate="{StaticResource LineListItemTemplate}"
+                                        Content="{Binding .}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="MapElementPointTemplate" DataType="local:MapElementListPointItem">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                            <CheckBox IsChecked="{Binding InInitialView}">In View</CheckBox>
+                        </StackPanel>
+                        <ContentControl Grid.Column="1" ContentTemplate="{StaticResource PointListItemTemplate}"
+                                        Content="{Binding .}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
             <local:MapElementDataTemplateSelector
                 x:Key="MapElementSelector"
-                GeoJsonTemplate="{StaticResource GeoJsonListItemTemplate}"
-                LineTemplate="{StaticResource LineListItemTemplate}"
-                PointTemplate="{StaticResource PointListItemTemplate}" />
+                GeoJsonTemplate="{StaticResource MapElementGeoJsonTemplate}"
+                LineTemplate="{StaticResource MapElementLineTemplate}"
+                PointTemplate="{StaticResource MapElementPointTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -43,8 +86,11 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding TitleEntry}" />
                             <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SummaryEntry}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -64,9 +110,10 @@
                             Height="90"
                             AcceptsReturn="True"
                             Text="{Binding UserGeoContentInput, UpdateSourceTrigger=PropertyChanged}" />
-                        <Button Grid.Column="1" Width="90">Add from Text</Button>
+                        <Button Grid.Column="1" Width="90" Command="{Binding UserGeoContentIdInputToMapCommand}">Add from Text</Button>
                     </Grid>
-                    <ListBox Grid.Row="1" ItemTemplateSelector="{StaticResource MapElementSelector}" />
+                    <ListBox Grid.Row="1" ItemTemplateSelector="{StaticResource MapElementSelector}"
+                             ItemsSource="{Binding MapElements}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">

@@ -41,7 +41,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
         private TagsEditorContext _tagEdit;
         private Command _viewOnSiteCommand;
 
-        public EventHandler RequestLinkContentEditorWindowClose;
+        public EventHandler RequestContentEditorWindowClose;
 
         private NoteContentEditorContext(StatusControlContext statusContext)
         {
@@ -319,7 +319,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
         }
 

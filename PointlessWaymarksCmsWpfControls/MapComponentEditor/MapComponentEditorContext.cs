@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
@@ -15,40 +16,46 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
-using PointlessWaymarksCmsWpfControls.GeoJsonList;
-using PointlessWaymarksCmsWpfControls.LineList;
-using PointlessWaymarksCmsWpfControls.PointList;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 {
-    public class MapComponentEditorContext : INotifyPropertyChanged
+    public class MapComponentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
+        ICheckForChangesAndValidation
     {
-        private ContentIdViewerControlContext _contentId;
-        private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
-        private List<MapComponentElement> _dbElements;
-        private MapComponent _dbEntry;
+        private ContentIdViewerControlContext? _contentId;
+        private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
+        private List<MapComponentElement> _dbElements = new();
+        private MapComponent? _dbEntry;
         private bool _hasChanges;
         private bool _hasValidationIssues;
-        private ObservableCollection<IContentCommonGuiListItem> _mapElements = new();
+        private ObservableCollection<IMapElementListItem>? _mapElements;
+        private Command _saveAndCloseCommand;
+        private Command _saveCommand;
 
         private StatusControlContext _statusContext;
-        private StringDataEntryContext _summaryEntry;
-        private StringDataEntryContext _titleEntry;
-        private UpdateNotesEditorContext _updateNotes;
-        private string _userGeoContentInput;
+        private StringDataEntryContext? _summaryEntry;
+        private StringDataEntryContext? _titleEntry;
+        private UpdateNotesEditorContext? _updateNotes;
+        private Command _userGeoContentIdInputToMapCommand;
+        private string _userGeoContentInput = string.Empty;
+
+        public EventHandler? RequestContentEditorWindowClose;
 
         private MapComponentEditorContext(StatusControlContext statusContext)
         {
             _statusContext = statusContext;
+
+            _userGeoContentIdInputToMapCommand = StatusContext.RunBlockingTaskCommand(UserGeoContentIdInputToMap);
+            _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
+            _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
         }
 
-        public ContentIdViewerControlContext ContentId
+        public ContentIdViewerControlContext? ContentId
         {
             get => _contentId;
             set
@@ -59,7 +66,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
-        public CreatedAndUpdatedByAndOnDisplayContext CreatedUpdatedDisplay
+        public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay
         {
             get => _createdUpdatedDisplay;
             set
@@ -81,7 +88,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
-        public MapComponent DbEntry
+        public MapComponent? DbEntry
         {
             get => _dbEntry;
             set
@@ -114,13 +121,35 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
-        public ObservableCollection<IContentCommonGuiListItem> MapElements
+        public ObservableCollection<IMapElementListItem>? MapElements
         {
             get => _mapElements;
             set
             {
                 if (Equals(value, _mapElements)) return;
                 _mapElements = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SaveAndCloseCommand
+        {
+            get => _saveAndCloseCommand;
+            set
+            {
+                if (Equals(value, _saveAndCloseCommand)) return;
+                _saveAndCloseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SaveCommand
+        {
+            get => _saveCommand;
+            set
+            {
+                if (Equals(value, _saveCommand)) return;
+                _saveCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -136,7 +165,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
-        public StringDataEntryContext SummaryEntry
+        public StringDataEntryContext? SummaryEntry
         {
             get => _summaryEntry;
             set
@@ -147,7 +176,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
-        public StringDataEntryContext TitleEntry
+        public StringDataEntryContext? TitleEntry
         {
             get => _titleEntry;
             set
@@ -158,13 +187,24 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
-        public UpdateNotesEditorContext UpdateNotes
+        public UpdateNotesEditorContext? UpdateNotes
         {
             get => _updateNotes;
             set
             {
                 if (Equals(value, _updateNotes)) return;
                 _updateNotes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command UserGeoContentIdInputToMapCommand
+        {
+            get => _userGeoContentIdInputToMapCommand;
+            set
+            {
+                if (Equals(value, _userGeoContentIdInputToMapCommand)) return;
+                _userGeoContentIdInputToMapCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -180,11 +220,19 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
+        public void CheckForChangesAndValidationIssues()
+        {
+            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private async Task AddGeoJson(GeoJsonContent possibleGeoJson)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (MapElements == null) return;
 
             if (MapElements.Any(x => x.ContentId() == possibleGeoJson.ContentId))
             {
@@ -192,13 +240,17 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 return;
             }
 
-            //Todo initial list item
-            MapElements.Add(new GeoJsonListListItem());
+            MapElements.Add(new MapElementListGeoJsonItem
+            {
+                DbEntry = possibleGeoJson, SmallImageUrl = GetSmallImageUrl(possibleGeoJson)
+            });
         }
 
         private async Task AddLine(LineContent possibleLine)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (MapElements == null) return;
 
             if (MapElements.Any(x => x.ContentId() == possibleLine.ContentId))
             {
@@ -206,13 +258,17 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 return;
             }
 
-            //Todo initial list item
-            MapElements.Add(new LineListListItem());
+            MapElements.Add(new MapElementListLineItem
+            {
+                DbEntry = possibleLine, SmallImageUrl = GetSmallImageUrl(possibleLine)
+            });
         }
 
         private async Task AddPoint(PointContent possiblePoint)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (MapElements == null) return;
 
             if (MapElements.Any(x => x.ContentId() == possiblePoint.ContentId))
             {
@@ -220,14 +276,10 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 return;
             }
 
-            //Todo initial list item
-            MapElements.Add(new PointListListItem());
-        }
-
-        public void CheckForChangesAndValidationIssues()
-        {
-            HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
-            HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+            MapElements.Add(new MapElementListPointItem
+            {
+                DbEntry = possiblePoint, SmallImageUrl = GetSmallImageUrl(possiblePoint)
+            });
         }
 
         public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -236,6 +288,77 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             var newControl = new MapComponentEditorContext(statusContext);
             await newControl.LoadData(mapComponent);
             return newControl;
+        }
+
+        public MapComponentDto CurrentStateToContent()
+        {
+            var newEntry = new MapComponent();
+
+            if (DbEntry == null || DbEntry.Id < 1)
+            {
+                newEntry.ContentId = Guid.NewGuid();
+                newEntry.CreatedOn = DateTime.Now;
+            }
+            else
+            {
+                newEntry.ContentId = DbEntry.ContentId;
+                newEntry.CreatedOn = DbEntry.CreatedOn;
+                newEntry.LastUpdatedOn = DateTime.Now;
+                newEntry.LastUpdatedBy =
+                    CreatedUpdatedDisplay?.UpdatedByEntry.UserValue.TrimNullToEmpty() ?? string.Empty;
+            }
+
+            newEntry.Summary = SummaryEntry?.UserValue.TrimNullToEmpty() ?? string.Empty;
+            newEntry.Title = TitleEntry?.UserValue.TrimNullToEmpty() ?? string.Empty;
+            newEntry.CreatedBy = CreatedUpdatedDisplay?.CreatedByEntry.UserValue.TrimNullToEmpty() ?? string.Empty;
+            newEntry.UpdateNotes = UpdateNotes?.UpdateNotes.TrimNullToEmpty();
+            newEntry.UpdateNotesFormat = UpdateNotes?.UpdateNotesFormat.SelectedContentFormatAsString ?? string.Empty;
+
+            var currentElementList = MapElements?.ToList() ?? new();
+            var finalElementList = new List<MapComponentElement>();
+
+            foreach (var loopUserElements in currentElementList)
+            {
+                var possibleExistingElement =
+                    DbElements.SingleOrDefault(x => x.MapComponentContentId == loopUserElements.ContentId());
+
+                if (possibleExistingElement == null)
+                    finalElementList.Add(new MapComponentElement
+                    {
+                        ElementContentId = Guid.NewGuid(),
+                        InitialDetails = loopUserElements.ShowInitialDetails,
+                        MapComponentContentId = loopUserElements.ContentId() ?? Guid.Empty
+                    });
+                else
+                    finalElementList.Add(new MapComponentElement
+                    {
+                        ElementContentId = possibleExistingElement.ElementContentId,
+                        InitialDetails = loopUserElements.ShowInitialDetails,
+                        MapComponentContentId = loopUserElements.ContentId() ?? Guid.Empty
+                    });
+            }
+
+            return new MapComponentDto(newEntry, finalElementList);
+        }
+
+        public string GetSmallImageUrl(IMainImage content)
+        {
+            if (content.MainPicture == null) return string.Empty;
+
+            string smallImageUrl;
+
+            try
+            {
+                smallImageUrl =
+                    PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture?.File
+                        .FullName ?? string.Empty;
+            }
+            catch
+            {
+                smallImageUrl = string.Empty;
+            }
+
+            return smallImageUrl;
         }
 
         public async Task LoadData(MapComponent toLoad)
@@ -276,6 +399,17 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
+
+            var db = await Db.Context();
+            var elementContent =
+                await db.ContentFromContentIds(DbElements.Select(x => x.MapComponentContentId).ToList());
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            MapElements ??= new();
+
+            MapElements.Clear();
+            elementContent.ForEach(x => MapElements.Add(x));
         }
 
         [NotifyPropertyChangedInvocator]
@@ -287,6 +421,31 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
                 CheckForChangesAndValidationIssues();
+        }
+
+
+        public async Task SaveAndGenerateHtml(bool closeAfterSave)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var (generationReturn, newContent) =
+                await MapComponentGenerator.SaveAndGenerateData(CurrentStateToContent(), null,
+                    StatusContext.ProgressTracker());
+
+            if (generationReturn.HasError || newContent == null)
+            {
+                await StatusContext.ShowMessageWithOkButton("Problem Saving and Generating Html",
+                    generationReturn.GenerationNote);
+                return;
+            }
+
+            await LoadData(newContent.Map);
+
+            if (closeAfterSave)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
+            }
         }
 
         public async Task UserGeoContentIdInputToMap()
@@ -335,6 +494,8 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 StatusContext.ToastWarning(
                     $"ContentId {loopCode} doesn't appear to be a valid point, line or GeoJson content for the map?");
             }
+
+            UserGeoContentInput = string.Empty;
         }
     }
 }

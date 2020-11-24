@@ -42,7 +42,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
 
-        public EventHandler RequestLinkContentEditorWindowClose;
+        public EventHandler RequestContentEditorWindowClose;
 
         private LineContentEditorContext(StatusControlContext statusContext)
         {
@@ -327,7 +327,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             if (closeAfterSave)
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                RequestLinkContentEditorWindowClose?.Invoke(this, new EventArgs());
+                RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
         }
 
