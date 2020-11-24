@@ -1,13 +1,16 @@
-﻿<Window x:Class="PointlessWaymarksCmsWpfControls.MapComponentEditor.MapComponentEditorWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.MapComponentEditor"
-        xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
-        mc:Ignorable="d"
-        Title="Map Component Editor" Height="450" Width="800"
-        d:DataContext="{d:DesignInstance local:MapComponentEditorWindow}">
+﻿<Window
+    x:Class="PointlessWaymarksCmsWpfControls.MapComponentEditor.MapComponentEditorWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.MapComponentEditor"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    Title="Map Component Editor"
+    Width="800"
+    Height="450"
+    d:DataContext="{d:DesignInstance local:MapComponentEditorWindow}"
+    mc:Ignorable="d">
     <Grid>
         <local:MapComponentEditorControl DataContext="{Binding MapComponentContent}" />
         <status:StatusControl

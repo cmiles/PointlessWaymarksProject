@@ -1,8 +1,10 @@
 ﻿## Todos
+ - MapComponent Editor and List
+  - Integrate into Main Window
+  - Needs testing
+ - Review Points Data Structure and look at Delete in the Db class - does Detail Link make sense?
  - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
  - Look again and Main Feed/Before/After for content - currently the entire main feed is regenerated - could this be done selectively and/or does other content need before/after help?
- - S3 Upload:
-  - Prevent window closure while running? Done but should get some testing...
  - File Log Window:
   - DataNotification for Generation Log needs a quick test
   - The script written refreshes to the datetime filter should be via datanotifications not direct
@@ -10,11 +12,10 @@
   - Clearing Generation Log Entries needs DataNotification Support
  - Revisit AvalonEdit for the BodyContent Editor for performance reasons - probably 'as a service' since for perf AvalonEdit doesn't expose a bound Text property
  - Could Tag List javascript be abstracted to site resources easily?
- - Better loading indication on the search lists
+ - Better loading indication on the search lists site pages
  - Continue GUI Context tests in new series
  - Spatial:
   - Bracket Codes - Points, GeoJson, Lines
-  - 'Maps' idea combining these
   - GeoJson
   - Lines
  - Text to Speech:

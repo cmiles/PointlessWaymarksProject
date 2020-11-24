@@ -13,6 +13,13 @@ namespace PointlessWaymarksCmsData.Html.MapComponentData
 {
     public static class MapData
     {
+        public static async Task WriteLocalJsonData(Guid mapComponentGuid)
+        {
+            var db = await Db.Context();
+
+            await WriteLocalJsonData(await Db.MapComponentDtoFromContentId(mapComponentGuid));
+        }
+
         public static async Task WriteLocalJsonData(MapComponentDto dto)
         {
             var dtoElementGuids = dto.Elements.Select(x => x.ElementContentId).ToList();

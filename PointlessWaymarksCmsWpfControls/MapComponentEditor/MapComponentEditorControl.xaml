@@ -27,11 +27,13 @@
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Vertical">
-                            <CheckBox IsChecked="{Binding ShowInitialDetails}"> Show Details</CheckBox>
+                            <CheckBox IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                             <CheckBox IsChecked="{Binding InInitialView}">In View</CheckBox>
                         </StackPanel>
-                        <ContentControl Grid.Column="1" ContentTemplate="{StaticResource GeoJsonListItemTemplate}"
-                                        Content="{Binding .}" />
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource GeoJsonListItemTemplate}" />
                     </Grid>
                 </Border>
             </DataTemplate>
@@ -46,8 +48,10 @@
                             <CheckBox IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                             <CheckBox IsChecked="{Binding InInitialView}">In View</CheckBox>
                         </StackPanel>
-                        <ContentControl Grid.Column="1" ContentTemplate="{StaticResource LineListItemTemplate}"
-                                        Content="{Binding .}" />
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource LineListItemTemplate}" />
                     </Grid>
                 </Border>
             </DataTemplate>
@@ -62,8 +66,10 @@
                             <CheckBox IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                             <CheckBox IsChecked="{Binding InInitialView}">In View</CheckBox>
                         </StackPanel>
-                        <ContentControl Grid.Column="1" ContentTemplate="{StaticResource PointListItemTemplate}"
-                                        Content="{Binding .}" />
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource PointListItemTemplate}" />
                     </Grid>
                 </Border>
             </DataTemplate>
@@ -86,11 +92,8 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding TitleEntry}" />
                             <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SummaryEntry}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -110,10 +113,17 @@
                             Height="90"
                             AcceptsReturn="True"
                             Text="{Binding UserGeoContentInput, UpdateSourceTrigger=PropertyChanged}" />
-                        <Button Grid.Column="1" Width="90" Command="{Binding UserGeoContentIdInputToMapCommand}">Add from Text</Button>
+                        <Button
+                            Grid.Column="1"
+                            Width="90"
+                            Command="{Binding UserGeoContentIdInputToMapCommand}">
+                            Add from Text
+                        </Button>
                     </Grid>
-                    <ListBox Grid.Row="1" ItemTemplateSelector="{StaticResource MapElementSelector}"
-                             ItemsSource="{Binding MapElements}" />
+                    <ListBox
+                        Grid.Row="1"
+                        ItemTemplateSelector="{StaticResource MapElementSelector}"
+                        ItemsSource="{Binding MapElements}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">

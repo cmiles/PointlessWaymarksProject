@@ -428,6 +428,59 @@ namespace PointlessWaymarksCmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        public static async Task DeleteMapComponent(Guid contentId, IProgress<string> progress)
+        {
+            var context = await Context();
+
+            var lastUpdatedOnForHistoric = DateTime.Now;
+
+            var toHistoric = await context.MapComponents.Where(x => x.ContentId == contentId).ToListAsync();
+
+            if (!toHistoric.Any()) return;
+
+            progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+            foreach (var loopToHistoric in toHistoric)
+            {
+                var newHistoric = new HistoricMapComponent();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = lastUpdatedOnForHistoric;
+                if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                    newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+                await context.HistoricMapComponents.AddAsync(newHistoric);
+                context.MapComponents.Remove(loopToHistoric);
+            }
+
+            var elementsToDelete =
+                context.MapComponentElements.Where(x => x.MapComponentContentId == contentId).ToList();
+            var elementsToDeleteContentIds = elementsToDelete.Select(x => x.ElementContentId).ToList();
+
+            foreach (var loopElements in elementsToDelete)
+            {
+                await context.HistoricMapComponentElements.AddAsync(new HistoricMapComponentElement
+                {
+                    ContentId = loopElements.ElementContentId,
+                    InitialDetails = loopElements.InitialDetails,
+                    LastUpdateOn = lastUpdatedOnForHistoric,
+                    MapComponentContentId = loopElements.MapComponentContentId
+                });
+
+                context.MapComponentElements.Remove(loopElements);
+            }
+
+            await context.SaveChangesAsync();
+
+            progress?.Report($"{toHistoric.First().Title} Deleted");
+
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Map,
+                DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+
+            if (elementsToDeleteContentIds.Any())
+                DataNotifications.PublishDataNotification("Db", DataNotificationContentType.MapElement,
+                    DataNotificationUpdateType.Delete, elementsToDeleteContentIds);
+        }
+
         public static async Task DeleteNoteContent(Guid contentId, IProgress<string> progress)
         {
             var context = await Context();
@@ -1111,8 +1164,8 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            var dbElements = await context.MapComponentElements.Where(x => x.ElementContentId == toSaveDto.Map.ContentId)
-                .ToListAsync();
+            var dbElements = await context.MapComponentElements
+                .Where(x => x.ElementContentId == toSaveDto.Map.ContentId).ToListAsync();
 
             var dbElementContentIds = dbElements.Select(x => x.ElementContentId).Distinct().ToList();
 
@@ -1584,5 +1637,15 @@ namespace PointlessWaymarksCmsData.Database
         }
 
         public record TagSlugAndIsExcluded(string TagSlug, bool IsExcluded);
+
+        public static async Task<MapComponentDto> MapComponentDtoFromContentId(Guid mapComponentGuid)
+        {
+            var db = await Context();
+
+            var map = db.MapComponents.Single(x => x.ContentId == mapComponentGuid);
+            var elements = await db.MapComponentElements.Where(x => x.MapComponentContentId == mapComponentGuid).ToListAsync();
+
+            return new MapComponentDto(map, elements);
+        }
     }
 }
