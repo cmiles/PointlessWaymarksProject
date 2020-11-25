@@ -354,6 +354,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             var currentPoint = CurrentStateToPointContent();
             toReturn.InjectFrom(currentPoint);
             toReturn.PointDetails = PointDetails.CurrentStateToPointDetailsList() ?? new List<PointDetail>();
+            toReturn.PointDetails.ForEach(x => x.PointContentId = toReturn.ContentId);
             return toReturn;
         }
 
