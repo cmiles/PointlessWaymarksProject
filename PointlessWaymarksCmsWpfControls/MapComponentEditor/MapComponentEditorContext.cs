@@ -29,7 +29,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
     {
         private ContentIdViewerControlContext? _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
-        private List<MapComponentElement> _dbElements = new();
+        private List<MapElement> _dbElements = new();
         private MapComponent? _dbEntry;
         private bool _hasChanges;
         private bool _hasValidationIssues;
@@ -77,7 +77,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
-        public List<MapComponentElement> DbElements
+        public List<MapElement> DbElements
         {
             get => _dbElements;
             set
@@ -315,7 +315,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             newEntry.UpdateNotesFormat = UpdateNotes?.UpdateNotesFormat.SelectedContentFormatAsString ?? string.Empty;
 
             var currentElementList = MapElements?.ToList() ?? new();
-            var finalElementList = new List<MapComponentElement>();
+            var finalElementList = new List<MapElement>();
 
             foreach (var loopUserElements in currentElementList)
             {
@@ -323,7 +323,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                     DbElements.SingleOrDefault(x => x.MapComponentContentId == loopUserElements.ContentId());
 
                 if (possibleExistingElement == null)
-                    finalElementList.Add(new MapComponentElement
+                    finalElementList.Add(new MapElement
                     {
                         ContentId = Guid.NewGuid(),
                         ShowDetailsDefault = loopUserElements.ShowInitialDetails,
@@ -331,7 +331,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                         MapComponentContentId = loopUserElements.ContentId() ?? Guid.Empty
                     });
                 else
-                    finalElementList.Add(new MapComponentElement
+                    finalElementList.Add(new MapElement
                     {
                         ContentId = possibleExistingElement.ContentId,
                         ShowDetailsDefault = loopUserElements.ShowInitialDetails,

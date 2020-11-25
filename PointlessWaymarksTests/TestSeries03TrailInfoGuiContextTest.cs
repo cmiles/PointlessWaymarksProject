@@ -81,10 +81,10 @@ namespace PointlessWaymarksTests
             Assert.False(newFileContext.SelectedFileHasPathOrNameChanges);
 
             //To make clean URLs Files have a restricted set of allowed characters
-            var illegalCharactertestFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
+            var illegalCharacterTestFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
                 "GrandviewTrail'sIllegalName.pdf"));
 
-            newFileContext.SelectedFile = illegalCharactertestFile;
+            newFileContext.SelectedFile = illegalCharacterTestFile;
 
             Assert.That(() => newFileContext.SelectedFileHasValidationIssues, Is.True.After(1000));
             Assert.True(newFileContext.SelectedFileHasPathOrNameChanges);

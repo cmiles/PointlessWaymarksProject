@@ -15,6 +15,7 @@ namespace PointlessWaymarksTests
 {
     public static class GrandCanyonPointInfo
     {
+        public static Guid YumaPointContentId => Guid.Parse("6a32fa16-bdff-4690-ada9-0da017e99d0e");
         public static PointContentDto YumaPointContent01 =>
             new PointContentDto
             {
@@ -22,7 +23,7 @@ namespace PointlessWaymarksTests
                 Slug = "yuma-point",
                 BodyContent = @"West of Hermit's Rest in Grand Canyon National Park.",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
-                ContentId = Guid.NewGuid(),
+                ContentId = YumaPointContentId,
                 CreatedBy = "Point Test",
                 CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                 Folder = "GrandCanyon",
@@ -37,6 +38,7 @@ namespace PointlessWaymarksTests
                     new PointDetail
                     {
                         ContentId = Guid.NewGuid(),
+                        PointContentId = YumaPointContentId,
                         CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
                         DataType = "Peak",
                         StructuredDataAsJson =
@@ -69,7 +71,9 @@ namespace PointlessWaymarksTests
                 {
                     new PointDetail
                     {
+                        ContentId = Guid.NewGuid(),
                         CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
+                        PointContentId = YumaPointContentId,
                         DataType = "Peak",
                         StructuredDataAsJson =
                             "{\"DataTypeIdentifier\":\"Peak\",\"Notes\":\"Yuma Point|Cliff|AZ|04|Coconino|005|360448N|1121345W|36.0799823|-112.229061\",\"NotesContentFormat\":\"MarkdigMarkdown01\"}",
@@ -112,7 +116,7 @@ namespace PointlessWaymarksTests
                 Assert.NotNull(historicJsonFile, "Historic Point Json File not Found in Content Directory");
             }
 
-            var historicPointDetails = await Db.HistoricPointDetailsForPoint(newContent.ContentId, db);
+            var historicPointDetails = await Db.HistoricPointDetailsForPoint(newContent.ContentId, db, 40);
             if (historicPointDetails.Any())
             {
                 var historicDetailsJsonFile = filesInDirectory.SingleOrDefault(x =>

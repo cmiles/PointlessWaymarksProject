@@ -260,7 +260,7 @@ namespace PointlessWaymarksCmsData.Json
             if (historicPointDetailsFile.Exists) historicPointDetailsFile.Delete();
             historicPointDetailsFile.Refresh();
 
-            var historicPointDetails = await Db.HistoricPointDetailsForPoint(dbEntry.ContentId, db);
+            var historicPointDetails = await Db.HistoricPointDetailsForPoint(dbEntry.ContentId, db, 40);
 
             if (historicPointDetails.Any())
             {

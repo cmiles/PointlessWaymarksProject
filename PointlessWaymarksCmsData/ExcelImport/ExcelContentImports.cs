@@ -731,7 +731,10 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     excelResult.Any(x => x.ParsedValue == null))
                     returnString.Add($"Row {toProcess.RowNumber()} - could not process Point Details");
                 else
+                {
                     pointDto.PointDetails = excelResult.Select(x => x.ParsedValue).ToList();
+                    pointDto.PointDetails.ForEach(x => x.PointContentId = pointDto.ContentId);
+                }
             }
 
             return returnString;

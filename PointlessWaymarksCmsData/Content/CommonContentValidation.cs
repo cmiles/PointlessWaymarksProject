@@ -446,40 +446,6 @@ namespace PointlessWaymarksCmsData.Content
                 errorMessage.Add(createdUpdatedExplanation);
             }
 
-            //var initialBoundsUpperLeftLatitudeValidation =
-            //    LatitudeValidation(mapComponent.Map.InitialViewBoundsUpperLeftLatitude);
-            //var initialBoundsUpperLeftLongitudeValidation =
-            //    LongitudeValidation(mapComponent.Map.InitialViewBoundsUpperLeftLongitude);
-            //var initialBoundsLowerRightLatitudeValidation =
-            //    LatitudeValidation(mapComponent.Map.InitialViewBoundsLowerRightLatitude);
-            //var initialBoundsLowerRightLongitudeValidation =
-            //    LongitudeValidation(mapComponent.Map.InitialViewBoundsLowerRightLongitude);
-
-            //if (!initialBoundsUpperLeftLatitudeValidation.isValid)
-            //{
-            //    isValid = false;
-            //    errorMessage.Add($"Upper Left Initial Latitude - {initialBoundsUpperLeftLatitudeValidation.explanation}");
-            //}
-
-            //if (!initialBoundsUpperLeftLongitudeValidation.isValid)
-            //{
-            //    isValid = false;
-            //    errorMessage.Add($"Upper Left Initial Longitude - {initialBoundsUpperLeftLongitudeValidation.explanation}");
-            //}
-
-            //if (!initialBoundsLowerRightLatitudeValidation.isValid)
-            //{
-            //    isValid = false;
-            //    errorMessage.Add($"Lower Right Initial Latitude - {initialBoundsLowerRightLatitudeValidation.explanation}");
-            //}
-
-            //if (!initialBoundsLowerRightLongitudeValidation.isValid)
-            //{
-            //    isValid = false;
-            //    errorMessage.Add($"Upper Left Initial Latitude - {initialBoundsLowerRightLongitudeValidation.explanation}");
-            //}
-
-
             if (!mapComponent.Elements.Any())
             {
                 isValid = false;
@@ -487,6 +453,12 @@ namespace PointlessWaymarksCmsData.Content
             }
 
             if (!isValid) return (false, string.Join(Environment.NewLine, errorMessage));
+
+            if (mapComponent.Elements.Any(x => x.ContentId == Guid.Empty))
+            {
+                isValid = false;
+                errorMessage.Add("Not all map elements have a valid Content Id.");
+            }
 
             if (mapComponent.Elements.Any(x => x.MapComponentContentId != mapComponent.Map.ContentId))
             {

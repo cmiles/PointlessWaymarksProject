@@ -6,15 +6,12 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailDataModels;
 using PointlessWaymarksCmsData.Html;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Spatial;
-using Feature = PointlessWaymarksCmsData.Database.PointDetailDataModels.Feature;
 
 namespace PointlessWaymarksCmsData.Database
 {
@@ -461,7 +458,7 @@ namespace PointlessWaymarksCmsData.Database
 
             foreach (var loopElements in elementsToDelete)
             {
-                await context.HistoricMapComponentElements.AddAsync(new HistoricMapComponentElement
+                await context.HistoricMapComponentElements.AddAsync(new HistoricMapElement
                 {
                     ContentId = loopElements.ContentId,
                     ShowDetailsDefault = loopElements.ShowDetailsDefault,
@@ -549,6 +546,9 @@ namespace PointlessWaymarksCmsData.Database
         {
             var context = await Context();
 
+            var groupLastUpdateOn = DateTime.Now;
+            var updateGroup = Guid.NewGuid();
+
             var toHistoric = await context.PointContents.Where(x => x.ContentId == contentId).ToListAsync();
 
             if (!toHistoric.Any()) return;
@@ -571,8 +571,27 @@ namespace PointlessWaymarksCmsData.Database
 
             progress?.Report($"{toHistoric.First().Title} Deleted");
 
+            var relatedDetails = context.PointDetails.Where(x => x.PointContentId == contentId).ToList();
+
+            foreach (var loopToHistoric in relatedDetails)
+            {
+                var newHistoric = new HistoricPointDetail();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = groupLastUpdateOn;
+                newHistoric.HistoricGroupId = updateGroup;
+                await context.HistoricPointDetails.AddAsync(newHistoric);
+            }
+
+            context.PointDetails.RemoveRange(relatedDetails);
+
+            await context.SaveChangesAsync();
+
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
+                DataNotificationUpdateType.Delete, relatedDetails.Select(x => x.ContentId).ToList());
         }
 
         public static async Task DeletePostContent(Guid contentId, IProgress<string> progress)
@@ -611,23 +630,23 @@ namespace PointlessWaymarksCmsData.Database
 
             switch (content)
             {
-                case FileContent _:
+                case FileContent:
                     return db.FileContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case GeoJsonContent _:
+                case GeoJsonContent:
                     return db.GeoJsonContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case ImageContent _:
+                case ImageContent:
                     return db.ImageContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case LineContent _:
+                case LineContent:
                     return db.LineContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case NoteContent _:
+                case NoteContent:
                     return db.NoteContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case PhotoContent _:
+                case PhotoContent:
                     return db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case PointContent _:
+                case PointContent:
                     return db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case PointContentDto _:
+                case PointContentDto:
                     return db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
-                case PostContent _:
+                case PostContent:
                     return db.PostContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
                 default:
                     return new List<string>();
@@ -635,18 +654,10 @@ namespace PointlessWaymarksCmsData.Database
         }
 
         public static async Task<List<HistoricPointDetail>> HistoricPointDetailsForPoint(Guid pointContentId,
-            PointlessWaymarksContext db)
+            PointlessWaymarksContext db, int entriesToReturn)
         {
-            var detailLinks = await db.HistoricPointContentPointDetailLinks
-                .Where(x => x.PointContentId == pointContentId).Select(x => x.PointContentId).Distinct().ToListAsync();
-
-            var returnList = new List<HistoricPointDetail>();
-
-            foreach (var loopDetailContentId in detailLinks)
-                returnList.AddRange(db.HistoricPointDetails.Where(x => x.ContentId == loopDetailContentId)
-                    .OrderByDescending(x => x.LastUpdatedOn).Take(10));
-
-            return returnList;
+            return await db.HistoricPointDetails.Where(x => x.PointContentId == pointContentId).Take(entriesToReturn)
+                .ToListAsync();
         }
 
 #pragma warning disable 1998
@@ -772,6 +783,17 @@ namespace PointlessWaymarksCmsData.Database
             };
         }
 
+        public static async Task<MapComponentDto> MapComponentDtoFromContentId(Guid mapComponentGuid)
+        {
+            var db = await Context();
+
+            var map = db.MapComponents.Single(x => x.ContentId == mapComponentGuid);
+            var elements = await db.MapComponentElements.Where(x => x.MapComponentContentId == mapComponentGuid)
+                .ToListAsync();
+
+            return new MapComponentDto(map, elements);
+        }
+
         public static List<(string tag, List<object> contentObjects)> ParseToTagSlugsAndContentList(
             List<(string tag, List<object> contentObjects)> list, List<ITag> toAdd, bool removeExcludedTags,
             IProgress<string> progress)
@@ -822,9 +844,7 @@ namespace PointlessWaymarksCmsData.Database
         public static async Task<PointContentDto> PointAndPointDetails(Guid pointContentId, PointlessWaymarksContext db)
         {
             var point = await db.PointContents.SingleAsync(x => x.ContentId == pointContentId);
-            var detailLinks = await db.PointContentPointDetailLinks.Where(x => x.PointContentId == pointContentId)
-                .Select(x => x.PointDetailContentId).ToListAsync();
-            var details = await db.PointDetails.Where(x => detailLinks.Contains(x.ContentId)).ToListAsync();
+            var details = await db.PointDetails.Where(x => x.PointContentId == pointContentId).ToListAsync();
 
             var toReturn = new PointContentDto();
             toReturn.InjectFrom(point);
@@ -907,9 +927,7 @@ namespace PointlessWaymarksCmsData.Database
         public static async Task<List<PointDetail>> PointDetailsForPoint(Guid pointContentId,
             PointlessWaymarksContext db)
         {
-            var detailLinks = await db.PointContentPointDetailLinks.Where(x => x.PointContentId == pointContentId)
-                .Select(x => x.PointDetailContentId).ToListAsync();
-            var details = await db.PointDetails.Where(x => detailLinks.Contains(x.ContentId)).ToListAsync();
+            var details = await db.PointDetails.Where(x => x.PointContentId == pointContentId).ToListAsync();
 
             return details;
         }
@@ -1142,19 +1160,20 @@ namespace PointlessWaymarksCmsData.Database
         {
             var context = await Context();
 
+            var groupLastUpdateOn = DateTime.Now;
+            var updateGroup = Guid.NewGuid();
+
             var toHistoric = await context.MapComponents.Where(x => x.ContentId == toSaveDto.Map.ContentId)
                 .ToListAsync();
 
             var isUpdate = toHistoric.Any();
-
-            var lastUpdatedForHistoric = DateTime.Now;
 
             foreach (var loopToHistoric in toHistoric)
             {
                 var newHistoric = new HistoricMapComponent();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
-                newHistoric.LastUpdatedOn = lastUpdatedForHistoric;
+                newHistoric.LastUpdatedOn = groupLastUpdateOn;
                 if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
                     newHistoric.LastUpdatedBy = "Historic Entry Archivist";
                 await context.HistoricMapComponents.AddAsync(newHistoric);
@@ -1175,12 +1194,13 @@ namespace PointlessWaymarksCmsData.Database
 
             foreach (var loopElements in dbElements)
             {
-                await context.HistoricMapComponentElements.AddAsync(new HistoricMapComponentElement
+                await context.HistoricMapComponentElements.AddAsync(new HistoricMapElement
                 {
                     ContentId = loopElements.ContentId,
                     ShowDetailsDefault = loopElements.ShowDetailsDefault,
                     IncludeInDefaultView = loopElements.IncludeInDefaultView,
-                    LastUpdateOn = lastUpdatedForHistoric,
+                    LastUpdateOn = groupLastUpdateOn,
+                    HistoricGroupId = updateGroup,
                     MapComponentContentId = loopElements.MapComponentContentId
                 });
 
@@ -1201,7 +1221,8 @@ namespace PointlessWaymarksCmsData.Database
 
             //TODO: Need to calculate on all Types
 
-            var points = await context.PointContents.Where(x => newElementsContentIds.Contains(x.ContentId)).ToListAsync();
+            var points = await context.PointContents.Where(x => newElementsContentIds.Contains(x.ContentId))
+                .ToListAsync();
 
             var boundingBox = SpatialConverters.PointBoundingBox(points);
             toSaveDto.Map.InitialViewBoundsMaxY = boundingBox.MaxY;
@@ -1337,56 +1358,7 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync(true);
 
-            foreach (var loopDetail in relatedDetails) await SavePointDetailContent(loopDetail);
-
-            var relatedDetailContentIds = relatedDetails.Select(x => x.ContentId).ToList();
-
-            var invalidLinks = await context.PointContentPointDetailLinks.Where(x =>
-                    x.PointContentId == toSave.ContentId && !relatedDetailContentIds.Contains(x.PointDetailContentId))
-                .ToListAsync();
-
-            foreach (var loopInvalids in invalidLinks)
-            {
-                var relatedDetailEntries =
-                    context.PointDetails.Where(x => x.ContentId == loopInvalids.PointDetailContentId);
-
-                foreach (var loopRelatedDetails in relatedDetailEntries)
-                {
-                    var newHistoricDetail = new HistoricPointDetail();
-                    newHistoricDetail.InjectFrom(loopRelatedDetails);
-                    newHistoricDetail.Id = 0;
-                    await context.HistoricPointDetails.AddAsync(newHistoricDetail);
-                    context.PointDetails.Remove(loopRelatedDetails);
-                }
-
-                var newHistoricLink = new HistoricPointContentPointDetailLink();
-                newHistoricLink.InjectFrom(loopInvalids);
-                newHistoricLink.Id = 0;
-                await context.HistoricPointContentPointDetailLinks.AddAsync(newHistoricLink);
-                context.PointContentPointDetailLinks.Remove(loopInvalids);
-            }
-
-            await context.SaveChangesAsync(true);
-
-            foreach (var loopDetails in relatedDetails)
-            {
-                var possibleLink = context.PointContentPointDetailLinks.SingleOrDefault(x =>
-                    x.PointContentId == toSave.ContentId && x.PointDetailContentId == toSave.ContentId);
-
-                if (possibleLink == null)
-                {
-                    possibleLink = new PointContentPointDetailLink
-                    {
-                        PointContentId = toSave.ContentId, PointDetailContentId = loopDetails.ContentId
-                    };
-
-                    await context.PointContentPointDetailLinks.AddAsync(possibleLink);
-                }
-
-                possibleLink.ContentVersion = ContentVersionDateTime();
-
-                await context.SaveChangesAsync();
-            }
+            await SavePointDetailContent(relatedDetails);
 
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
@@ -1395,49 +1367,101 @@ namespace PointlessWaymarksCmsData.Database
             return await PointAndPointDetails(toSaveDto.ContentId);
         }
 
-        public static async Task SavePointDetailContent(PointContentPointDetailLink toSave)
+        public static async Task SavePointDetailContent(List<PointDetail> toSave)
         {
-            if (toSave == null) return;
+            if (toSave == null || !toSave.Any()) return;
+
+            if (toSave.Select(x => x.PointContentId).Distinct().Count() > 1)
+            {
+                var grouped = toSave.GroupBy(x => x.PointContentId).ToList();
+
+                foreach (var loopGroups in grouped) await SavePointDetailContent(loopGroups.Select(x => x).ToList());
+
+                return;
+            }
+
+            //The code above is intended to insure that by this point all the PointDetails to save are related to the same PointContent
 
             var context = await Context();
 
-            var existing = await context.PointContentPointDetailLinks.AnyAsync(x =>
-                x.PointContentId == toSave.PointContentId && x.PointDetailContentId == toSave.PointDetailContentId);
+            var groupLastUpdateOn = DateTime.Now;
+            var updateGroup = Guid.NewGuid();
 
-            if (existing) return;
+            var toSaveGuids = toSave.Select(x => x.ContentId).ToList();
+            var relatedContentGuid = toSave.First().PointContentId;
 
-            if (toSave.Id > 0) toSave.Id = 0;
-            toSave.ContentVersion = ContentVersionDateTime();
+            var currentEntriesFromPoint =
+                await context.PointDetails.Where(x => x.PointContentId == relatedContentGuid).ToListAsync();
+            var detailsToReplace = currentEntriesFromPoint.Where(x => toSaveGuids.Contains(x.ContentId)).ToList();
 
-            await context.PointContentPointDetailLinks.AddAsync(toSave);
+            //The logic here is that if there are items to remove it is an update and if not the item is new
+            var updatedDetailIds = toSave.Where(x => detailsToReplace.Select(y => y.ContentId).Contains(x.ContentId))
+                .Select(x => x.ContentId).ToList();
+            var newDetailIds = toSave.Where(x => !detailsToReplace.Select(y => y.ContentId).Contains(x.ContentId))
+                .Select(x => x.ContentId).ToList();
+
+            foreach (var loopToHistoric in currentEntriesFromPoint)
+            {
+                var newHistoric = new HistoricPointDetail();
+                newHistoric.InjectFrom(loopToHistoric);
+                newHistoric.Id = 0;
+                newHistoric.LastUpdatedOn = groupLastUpdateOn;
+                newHistoric.HistoricGroupId = updateGroup;
+                await context.HistoricPointDetails.AddAsync(newHistoric);
+            }
+
+            context.PointDetails.RemoveRange(detailsToReplace);
+
+            await context.SaveChangesAsync();
+
+            toSave.ForEach(x => x.ContentVersion = ContentVersionDateTime());
+
+            await context.PointDetails.AddRangeAsync(toSave);
 
             await context.SaveChangesAsync(true);
 
-            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
-                DataNotificationUpdateType.Update, new List<Guid> {toSave.PointContentId});
-            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
-                DataNotificationUpdateType.Update, new List<Guid> {toSave.PointDetailContentId});
+            if (updatedDetailIds.Any())
+                DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
+                    DataNotificationUpdateType.Update, updatedDetailIds);
+
+            if (newDetailIds.Any())
+                DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
+                    DataNotificationUpdateType.New, updatedDetailIds);
         }
 
+        /// <summary>
+        ///     Save a PointDetail - saving a single point detail will save the entire current set of Point Details
+        ///     into Historic Details to preserve history - it is more efficient to submit all changes at once.
+        /// </summary>
+        /// <param name="toSave"></param>
+        /// <returns></returns>
         public static async Task SavePointDetailContent(PointDetail toSave)
         {
             if (toSave == null) return;
 
             var context = await Context();
 
-            var toHistoric = await context.PointDetails.Where(x => x.ContentId == toSave.ContentId).ToListAsync();
+            var groupLastUpdateOn = DateTime.Now;
+            var updateGroup = Guid.NewGuid();
 
-            var isUpdate = toHistoric.Any();
+            var currentEntriesFromPoint =
+                await context.PointDetails.Where(x => x.PointContentId == toSave.PointContentId).ToListAsync();
+            var detailsToReplace = currentEntriesFromPoint.Where(x => x.ContentId == toSave.ContentId).ToList();
+            var isUpdate = detailsToReplace.Any();
 
-            foreach (var loopToHistoric in toHistoric)
+            foreach (var loopToHistoric in currentEntriesFromPoint)
             {
                 var newHistoric = new HistoricPointDetail();
                 newHistoric.InjectFrom(loopToHistoric);
                 newHistoric.Id = 0;
-                newHistoric.LastUpdatedOn = DateTime.Now;
+                newHistoric.LastUpdatedOn = groupLastUpdateOn;
+                newHistoric.HistoricGroupId = updateGroup;
                 await context.HistoricPointDetails.AddAsync(newHistoric);
-                context.PointDetails.Remove(loopToHistoric);
             }
+
+            context.PointDetails.RemoveRange(detailsToReplace);
+
+            await context.SaveChangesAsync();
 
             if (toSave.Id > 0) toSave.Id = 0;
 
@@ -1655,15 +1679,5 @@ namespace PointlessWaymarksCmsData.Database
         }
 
         public record TagSlugAndIsExcluded(string TagSlug, bool IsExcluded);
-
-        public static async Task<MapComponentDto> MapComponentDtoFromContentId(Guid mapComponentGuid)
-        {
-            var db = await Context();
-
-            var map = db.MapComponents.Single(x => x.ContentId == mapComponentGuid);
-            var elements = await db.MapComponentElements.Where(x => x.MapComponentContentId == mapComponentGuid).ToListAsync();
-
-            return new MapComponentDto(map, elements);
-        }
     }
 }

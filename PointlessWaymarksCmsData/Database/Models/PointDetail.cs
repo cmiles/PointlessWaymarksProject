@@ -10,6 +10,7 @@ namespace PointlessWaymarksCmsData.Database.Models
         public string DataType { get; set; }
         public int Id { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
+        public Guid PointContentId { get; set; }
         public string StructuredDataAsJson { get; set; }
     }
 }

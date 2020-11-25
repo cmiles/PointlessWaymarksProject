@@ -216,10 +216,8 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             if (dbEntry != null && dbEntry.Id > 0)
             {
                 var db = await Db.Context();
-                var pointDetailsIds = db.PointContentPointDetailLinks.Where(x => x.PointContentId == dbEntry.ContentId)
-                    .Select(x => x.PointDetailContentId).ToList();
 
-                toLoad = db.PointDetails.Where(x => pointDetailsIds.Contains(x.ContentId)).ToList();
+                toLoad = db.PointDetails.Where(x => x.PointContentId == dbEntry.ContentId).ToList();
             }
 
             DbEntries = toLoad.OrderBy(x => x.DataType).ToList();

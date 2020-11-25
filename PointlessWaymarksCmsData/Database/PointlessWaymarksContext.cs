@@ -23,23 +23,21 @@ namespace PointlessWaymarksCmsData.Database
         public DbSet<HistoricImageContent> HistoricImageContents { get; set; }
         public DbSet<HistoricLineContent> HistoricLineContents { get; set; }
         public DbSet<HistoricLinkContent> HistoricLinkContents { get; set; }
-        public DbSet<HistoricMapComponentElement> HistoricMapComponentElements { get; set; }
+        public DbSet<HistoricMapElement> HistoricMapComponentElements { get; set; }
         public DbSet<HistoricMapComponent> HistoricMapComponents { get; set; }
         public DbSet<HistoricNoteContent> HistoricNoteContents { get; set; }
         public DbSet<HistoricPhotoContent> HistoricPhotoContents { get; set; }
-        public DbSet<HistoricPointContentPointDetailLink> HistoricPointContentPointDetailLinks { get; set; }
         public DbSet<HistoricPointContent> HistoricPointContents { get; set; }
         public DbSet<HistoricPointDetail> HistoricPointDetails { get; set; }
         public DbSet<HistoricPostContent> HistoricPostContents { get; set; }
         public DbSet<ImageContent> ImageContents { get; set; }
         public DbSet<LineContent> LineContents { get; set; }
         public DbSet<LinkContent> LinkContents { get; set; }
-        public DbSet<MapComponentElement> MapComponentElements { get; set; }
+        public DbSet<MapElement> MapComponentElements { get; set; }
         public DbSet<MapComponent> MapComponents { get; set; }
         public DbSet<MenuLink> MenuLinks { get; set; }
         public DbSet<NoteContent> NoteContents { get; set; }
         public DbSet<PhotoContent> PhotoContents { get; set; }
-        public DbSet<PointContentPointDetailLink> PointContentPointDetailLinks { get; set; }
         public DbSet<PointContent> PointContents { get; set; }
         public DbSet<PointDetail> PointDetails { get; set; }
         public DbSet<PostContent> PostContents { get; set; }
@@ -54,14 +52,12 @@ namespace PointlessWaymarksCmsData.Database
             modelBuilder.Entity<LineContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<LinkContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<MapComponent>().HasIndex(b => b.ContentId).IsUnique();
-            modelBuilder.Entity<MapComponentElement>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<MapElement>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<NoteContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<PhotoContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<PointContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<PointDetail>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<PostContent>().HasIndex(b => b.ContentId).IsUnique();
-
-            modelBuilder.Entity<PointContentPointDetailLink>().HasIndex(p => new {p.PointContentId});
 
             modelBuilder.Entity<GenerationChangedContentId>().Property(e => e.ContentId).ValueGeneratedNever();
         }

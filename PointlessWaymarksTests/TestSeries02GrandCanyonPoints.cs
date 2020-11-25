@@ -172,11 +172,11 @@ namespace PointlessWaymarksTests
                 && Math.Abs(x.Latitude - piutePoint.Latitude) < .1
                 && x.Title.EndsWith("Point")).ToListAsync();
 
-            var pointElements = new List<MapComponentElement>();
+            var pointElements = new List<MapElement>();
 
             foreach (var loopPoints in pointsNearPiutePoint)
             {
-                pointElements.Add(new MapComponentElement
+                pointElements.Add(new MapElement
                 {
                     ContentId = loopPoints.ContentId,
                     ShowDetailsDefault = false,

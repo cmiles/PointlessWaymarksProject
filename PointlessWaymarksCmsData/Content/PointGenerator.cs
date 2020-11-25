@@ -73,6 +73,9 @@ namespace PointlessWaymarksCmsData.Content
                 if (loopDetails.ContentId == Guid.Empty)
                     return await GenerationReturn.Error("Point Detail Data must have a valid Content Id",
                         loopDetails.ContentId);
+                if (loopDetails.PointContentId != pointContent.ContentId)
+                    return await GenerationReturn.Error($"{loopDetails.DataType} Point Detail isn't assigned to the current point?",
+                        loopDetails.ContentId);
                 if (string.IsNullOrWhiteSpace(loopDetails.DataType))
                     return await GenerationReturn.Error("Point Detail Data Type doesn't have a value",
                         loopDetails.ContentId);
