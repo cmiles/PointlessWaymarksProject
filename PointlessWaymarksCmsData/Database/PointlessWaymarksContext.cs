@@ -52,7 +52,8 @@ namespace PointlessWaymarksCmsData.Database
             modelBuilder.Entity<LineContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<LinkContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<MapComponent>().HasIndex(b => b.ContentId).IsUnique();
-            modelBuilder.Entity<MapElement>().HasIndex(b => b.ContentId).IsUnique();
+            modelBuilder.Entity<MapElement>().HasIndex(b => new {b.ElementContentId, b.MapComponentContentId})
+                .IsUnique();
             modelBuilder.Entity<NoteContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<PhotoContent>().HasIndex(b => b.ContentId).IsUnique();
             modelBuilder.Entity<PointContent>().HasIndex(b => b.ContentId).IsUnique();

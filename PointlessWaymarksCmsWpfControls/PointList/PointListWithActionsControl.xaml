@@ -55,6 +55,10 @@
                     Content="_Generate Html"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
+                    Command="{Binding BracketCodesToClipboardForSelectedCommand}"
+                    Content="_Code to Clipboard"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
                     Command="{Binding OpenUrlForSelectedCommand}"
                     Content="_Open Selected In Browser"
                     Style="{StaticResource ActionPanelButton}" />

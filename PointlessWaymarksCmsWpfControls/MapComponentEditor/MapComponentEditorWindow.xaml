@@ -8,7 +8,7 @@
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     Title="Map Component Editor"
     Width="800"
-    Height="450"
+    Height="600"
     d:DataContext="{d:DesignInstance local:MapComponentEditorWindow}"
     mc:Ignorable="d">
     <Grid>

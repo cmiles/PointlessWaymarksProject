@@ -21,7 +21,6 @@
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>

@@ -10,12 +10,12 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 {
     public class MapElementListPointItem : INotifyPropertyChanged, IMapElementListItem
     {
-        private PointContent? _dbEntry;
+        private PointContentDto? _dbEntry;
         private bool _inInitialView;
         private bool _showInitialDetails;
         private string _smallImageUrl = string.Empty;
 
-        public PointContent? DbEntry
+        public PointContentDto? DbEntry
         {
             get => _dbEntry;
             set

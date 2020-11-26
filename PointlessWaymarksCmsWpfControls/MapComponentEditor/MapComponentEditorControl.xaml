@@ -2,6 +2,7 @@
     x:Class="PointlessWaymarksCmsWpfControls.MapComponentEditor.MapComponentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,6 +11,7 @@
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.StringDataEntry"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     d:DataContext="{d:DesignInstance local:MapComponentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -26,10 +28,15 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Vertical">
-                            <CheckBox IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
-                            <CheckBox IsChecked="{Binding InInitialView}">In View</CheckBox>
-                        </StackPanel>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                            </StackPanel>
+                        </Border>
                         <ContentControl
                             Grid.Column="1"
                             Content="{Binding .}"
@@ -44,10 +51,15 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Vertical">
-                            <CheckBox IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
-                            <CheckBox IsChecked="{Binding InInitialView}">In View</CheckBox>
-                        </StackPanel>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                            </StackPanel>
+                        </Border>
                         <ContentControl
                             Grid.Column="1"
                             Content="{Binding .}"
@@ -62,10 +74,15 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Vertical">
-                            <CheckBox IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
-                            <CheckBox IsChecked="{Binding InInitialView}">In View</CheckBox>
-                        </StackPanel>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                            </StackPanel>
+                        </Border>
                         <ContentControl
                             Grid.Column="1"
                             Content="{Binding .}"
@@ -104,26 +121,37 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox
-                            Height="90"
-                            AcceptsReturn="True"
-                            Text="{Binding UserGeoContentInput, UpdateSourceTrigger=PropertyChanged}" />
-                        <Button
-                            Grid.Column="1"
-                            Width="90"
-                            Command="{Binding UserGeoContentIdInputToMapCommand}">
-                            Add from Text
-                        </Button>
-                    </Grid>
-                    <ListBox
+                    <GroupBox Header="Add Content Ids/Bracket Codes" Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Height="90"
+                                AcceptsReturn="True"
+                                Text="{Binding UserGeoContentInput, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button
+                                Grid.Column="1"
+                                Width="90"
+                                Command="{Binding UserGeoContentIdInputToMapCommand}">
+                                Add from Text
+                            </Button>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox
                         Grid.Row="1"
-                        ItemTemplateSelector="{StaticResource MapElementSelector}"
-                        ItemsSource="{Binding MapElements}" />
+                        Header="Map Elements"
+                        Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <ListBox
+                            ItemTemplateSelector="{StaticResource MapElementSelector}"
+                            ItemsSource="{Binding MapElements}"
+                            Style="{StaticResource ContentListListBoxStyle}">
+                            <b:Interaction.Behaviors>
+                                <wpfBehavior:ListBoxOneLineMouseWheelScroll />
+                            </b:Interaction.Behaviors>
+                        </ListBox>
+                    </GroupBox>
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">

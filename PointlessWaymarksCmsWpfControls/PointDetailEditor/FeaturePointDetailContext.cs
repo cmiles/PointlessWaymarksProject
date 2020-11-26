@@ -145,6 +145,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
 
             var detailData = new Feature
             {
+                Type = TypeEditor.UserValue.TrimNullToEmpty(),
                 Notes = NoteEditor.UserValue.TrimNullToEmpty(),
                 NotesContentFormat = NoteFormatEditor.SelectedContentFormatAsString
             };
@@ -194,13 +195,13 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             TypeEditor = StringDataEntryContext.CreateInstance();
             TypeEditor.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
             {
-                CommonContentValidation.ValidateTitle
+                CommonContentValidation.ValidateFeatureType
             };
             TypeEditor.Title = "Type";
             TypeEditor.HelpText =
                 "The type for this feature - this could be something unique or something recorded for many points";
-            TypeEditor.ReferenceValue = DetailData.Notes ?? string.Empty;
-            TypeEditor.UserValue = DetailData.Notes.TrimNullToEmpty();
+            TypeEditor.ReferenceValue = DetailData.Type ?? string.Empty;
+            TypeEditor.UserValue = DetailData.Type.TrimNullToEmpty();
 
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);

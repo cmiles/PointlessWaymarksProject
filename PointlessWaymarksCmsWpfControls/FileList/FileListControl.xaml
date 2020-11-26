@@ -105,7 +105,13 @@
                 </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="local:FileListListItem">
-                        <Border d:DataContext="{d:DesignInstance local:FileListListItem}" Style="{StaticResource ContentListOuterBorderStyle}">
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <Border.InputBindings>
+                                <MouseBinding
+                                    Command="{Binding ElementName=userControlXaml, Path=DataContext.EditContentCommand}"
+                                    CommandParameter="{Binding DbEntry}"
+                                    Gesture="Shift+LeftDoubleClick" />
+                            </Border.InputBindings>
                             <Grid Margin="4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="100" />

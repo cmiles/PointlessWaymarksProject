@@ -31,8 +31,8 @@ async function mapComponentInit(mapElement, contentId) {
         });
 
     map.fitBounds([
-        [mapComponent.MapComponent.InitialViewBoundsUpperLeftLatitude, mapComponent.MapComponent.InitialViewBoundsUpperLeftLongitude],
-        [mapComponent.MapComponent.InitialViewBoundsLowerRightLatitude, mapComponent.MapComponent.InitialViewBoundsLowerRightLongitude]
+        [mapComponent.MapComponent.InitialViewBoundsMinY, mapComponent.MapComponent.InitialViewBoundsMinX],
+        [mapComponent.MapComponent.InitialViewBoundsMaxY, mapComponent.MapComponent.InitialViewBoundsMaxX]
     ]);
 
     if (mapComponent.PointGuids?.length) {
@@ -44,14 +44,16 @@ async function mapComponentInit(mapElement, contentId) {
 
         let includedPoints = pointData.filter(x => mapComponent.PointGuids.includes(x.ContentId));
 
-        for (let circlePoint of includedPoints) {
-            let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude],
-                60,
-                { color: 'gray', fillColor: 'gray', fillOpacity: .5 });
-            toAdd.bindTooltip(
-                `<p style="margin-top: .5rem; margin-bottom: 0;">${circlePoint.Title
-                }</p><p style="margin-left: .5rem; margin-top: .1rem;">${circlePoint.DetailTypeString}</p>`).openPopup();
-            toAdd.addTo(map).on("click", (e) => window.location.href = circlePoint.PointPageUrl);
+        for (let pagePoint of includedPoints) {
+            let pointContentMarker = new L.marker([pagePoint.Latitude, pagePoint.Longitude],
+                {
+                    draggable: false,
+                    autoPan: true
+                }).addTo(map);
+
+            pointContentMarker
+                .bindPopup(
+                    `<p style="margin-top: .5rem; margin-bottom: 0;">${pagePoint.Title}</p><p style="margin-left: .5rem; margin-top: .1rem;">${pagePoint.DetailTypeString}</p>`);
         };
     }
 }
@@ -90,8 +92,7 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
 
     pointContentMarker
         .bindPopup(
-            `<p style="margin-top: .5rem; margin-bottom: 0;">${pagePoint.Title
-            }</p><p style="margin-left: .5rem; margin-top: .1rem;">${pagePoint.DetailTypeString}</p>`).openPopup();
+            `<p style="margin-top: .5rem; margin-bottom: 0;">${pagePoint.Title}</p><p style="margin-left: .5rem; margin-top: .1rem;">${pagePoint.DetailTypeString}</p>`).openPopup();
 
     for (let circlePoint of pointData) {
         if (circlePoint.Slug == displayedPointSlug) continue;
@@ -99,8 +100,7 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
             60,
             { color: 'gray', fillColor: 'gray', fillOpacity: .5 });
         toAdd.bindTooltip(
-            `<p style="margin-top: .5rem; margin-bottom: 0;">${circlePoint.Title
-            }</p><p style="margin-left: .5rem; margin-top: .1rem;">${circlePoint.DetailTypeString}</p>`);
+            `<p style="margin-top: .5rem; margin-bottom: 0;">${circlePoint.Title}</p><p style="margin-left: .5rem; margin-top: .1rem;"${circlePoint.DetailTypeString}</p>`);
         toAdd.addTo(map).on("click", (e) => window.location.href = circlePoint.PointPageUrl);
     };
 }

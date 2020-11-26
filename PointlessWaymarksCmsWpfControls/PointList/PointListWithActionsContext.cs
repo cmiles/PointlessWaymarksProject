@@ -23,6 +23,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 {
     public class PointListWithActionsContext : INotifyPropertyChanged
     {
+        private Command _bracketCodesToClipboardForSelectedCommand;
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _emailHtmlToClipboardCommand;
@@ -41,6 +42,17 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             StatusContext = statusContext ?? new StatusControlContext();
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public Command BracketCodesToClipboardForSelectedCommand
+        {
+            get => _bracketCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _bracketCodesToClipboardForSelectedCommand)) return;
+                _bracketCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public Command DeleteSelectedCommand
@@ -180,6 +192,28 @@ namespace PointlessWaymarksCmsWpfControls.PointList
         public Command ViewHistoryCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+
+        private async Task BracketCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + @$"{BracketCodePoints.PointLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
 
         private async Task Delete()
         {
@@ -329,6 +363,8 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
             ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
+            BracketCodesToClipboardForSelectedCommand =
+                StatusContext.RunNonBlockingTaskCommand(BracketCodesToClipboardForSelected);
 
             ImportFromExcelCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));

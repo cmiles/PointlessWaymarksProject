@@ -22,7 +22,7 @@ namespace PointlessWaymarksCmsData.Html.MapComponentData
 
         public static async Task WriteLocalJsonData(MapComponentDto dto)
         {
-            var dtoElementGuids = dto.Elements.Select(x => x.ContentId).ToList();
+            var dtoElementGuids = dto.Elements.Select(x => x.ElementContentId).ToList();
 
             var db = await Db.Context();
             var pointGuids = await db.PointContents.Where(x => dtoElementGuids.Contains(x.ContentId))

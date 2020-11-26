@@ -118,6 +118,12 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="photoList:PhotoListListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <Border.InputBindings>
+                                <MouseBinding
+                                    Command="{Binding ElementName=userControlXaml, Path=DataContext.EditContentCommand}"
+                                    CommandParameter="{Binding DbEntry}"
+                                    Gesture="Shift+LeftDoubleClick" />
+                            </Border.InputBindings>
                             <Grid Margin="4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="100" />

@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsData.Database.PointDetailDataModels
             var formatValidation = CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
             if (!formatValidation.isValid) return (false, formatValidation.explanation);
 
-            return CommonContentValidation.ValidateTitle(Type);
+            return CommonContentValidation.ValidateFeatureType(Type);
         }
     }
 }

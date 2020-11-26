@@ -1,19 +1,17 @@
 ﻿## Todos
- - MapComponent Editor and List
-  - Integrate into Main Window
-  - Needs testing
- - Review Points Data Structure and look at Delete in the Db class - does Detail Link make sense?
+ - Points: With data structure change review JSON saving
+ - Why is the top leaflet map popups getting the maxwidth in the GC Test Site? Load order? Delay loading until some initialized event?
  - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
+ - The GUI Context tests are breaking - longer waits needed for the background events to run? Something else?
  - Look again and Main Feed/Before/After for content - currently the entire main feed is regenerated - could this be done selectively and/or does other content need before/after help?
  - File Log Window:
   - DataNotification for Generation Log needs a quick test
   - The script written refreshes to the datetime filter should be via datanotifications not direct
   - Changing the datetime filter should run the report? maybe run report becomes refresh report or ...
   - Clearing Generation Log Entries needs DataNotification Support
- - Revisit AvalonEdit for the BodyContent Editor for performance reasons - probably 'as a service' since for perf AvalonEdit doesn't expose a bound Text property
+ - Revisit AvalonEdit for the BodyContent Editor for performance reasons - probably 'as a service' since for perf AvalonEdit doesn't expose a bound Text property (maybe look at https://github.com/martinkirsche/AsYouTypeSpellChecker for spell checking)
  - Could Tag List javascript be abstracted to site resources easily?
  - Better loading indication on the search lists site pages
- - Continue GUI Context tests in new series
  - Spatial:
   - Bracket Codes - Points, GeoJson, Lines
   - GeoJson
@@ -26,10 +24,8 @@
  - Track tags in db so changes can be more quickly detected (long generation time on PointlessWaymarks.com after adding all photos)
  - Integrate Xaml Styler - is the git hook working? I don't think it is...
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
- - Could the body and update content control vertical and horizontal variations be combined into one control each?
  - Deleted Content Report so it is possible to restore completely deleted
  - In Search it might be nice to have the content type on the line with date?
- - Clean up the main window - split out context - consider creating a control?
  - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
  - Sorting needs better visual indicators
  - Should temp files be auto-deleted or live forever?
@@ -41,8 +37,8 @@
 
 ## Ideas
  - Could you write S3 object metadata to indicate file version in a way that would coordinate and be a quick check against local files?
+ - Clean up the main window - split out context - consider creating a control?
  - Should the code record a checksum of media archive files to be able to check if they change on disk rather than thru the program?
- - Look at https://github.com/icsharpcode/AvalonEdit for Markdown editor - maybe look at https://github.com/martinkirsche/AsYouTypeSpellChecker for spell checking
  - Review https://github.com/Softwire/HighlightingTextBox/blob/master/HighlightingTextBox/HighlightingTextBox.cs - is there something useful here?
  - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well - perhaps via Behavior?
  - History Cleanup for Content. Maybe on save - limit to ?last 1000?, it would be great to not grow to infinity but want to save very old entries for seldom edited content and many entries for frequently edited content...
@@ -56,6 +52,16 @@
  
  
 ## Notes
+
+11/25/2020
+
+Happy Thanksgiving! Among many other things feeling thankful that I can continue to work on this project.
+
+Map GUI editor is working - the current quick hack for adding elements is to allow pasting in ContentIds and then to process those - drag and drop is the eventual target here but I had issues with Gong Drag and Drop not adding thru nuget. I may have made more sense to work on GeoJson and Lines before this but I am anxious to use this feature on PointlessWaymarks.
+
+Had to revert from the latest WebView2 - quickly ran into odd problems, good reminder about what to expect with pre-release projects.
+
+Simplified the Point Data Structures after working on the MapComponent.
 
 11/20/2020
 

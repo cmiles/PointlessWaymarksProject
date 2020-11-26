@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -228,7 +229,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private async Task AddGeoJson(GeoJsonContent possibleGeoJson)
+        private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -240,13 +241,18 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 return;
             }
 
+            await ThreadSwitcher.ResumeForegroundAsync();
+
             MapElements.Add(new MapElementListGeoJsonItem
             {
-                DbEntry = possibleGeoJson, SmallImageUrl = GetSmallImageUrl(possibleGeoJson)
+                DbEntry = possibleGeoJson,
+                SmallImageUrl = GetSmallImageUrl(possibleGeoJson),
+                InInitialView = loopContent?.IncludeInDefaultView ?? true,
+                ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
         }
 
-        private async Task AddLine(LineContent possibleLine)
+        private async Task AddLine(LineContent possibleLine, MapElement? loopContent = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -258,13 +264,18 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 return;
             }
 
+            await ThreadSwitcher.ResumeForegroundAsync();
+
             MapElements.Add(new MapElementListLineItem
             {
-                DbEntry = possibleLine, SmallImageUrl = GetSmallImageUrl(possibleLine)
+                DbEntry = possibleLine,
+                SmallImageUrl = GetSmallImageUrl(possibleLine),
+                InInitialView = loopContent?.IncludeInDefaultView ?? true,
+                ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
         }
 
-        private async Task AddPoint(PointContent possiblePoint)
+        private async Task AddPoint(PointContentDto possiblePoint, MapElement? loopContent = null)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -272,13 +283,18 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
             if (MapElements.Any(x => x.ContentId() == possiblePoint.ContentId))
             {
-                StatusContext.ToastWarning($"GeoJson {possiblePoint.Title} is already on the map");
+                StatusContext.ToastWarning($"Point {possiblePoint.Title} is already on the map");
                 return;
             }
 
+            await ThreadSwitcher.ResumeForegroundAsync();
+
             MapElements.Add(new MapElementListPointItem
             {
-                DbEntry = possiblePoint, SmallImageUrl = GetSmallImageUrl(possiblePoint)
+                DbEntry = possiblePoint,
+                SmallImageUrl = GetSmallImageUrl(possiblePoint),
+                InInitialView = loopContent?.IncludeInDefaultView ?? true,
+                ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
         }
 
@@ -315,30 +331,13 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             newEntry.UpdateNotesFormat = UpdateNotes?.UpdateNotesFormat.SelectedContentFormatAsString ?? string.Empty;
 
             var currentElementList = MapElements?.ToList() ?? new();
-            var finalElementList = new List<MapElement>();
-
-            foreach (var loopUserElements in currentElementList)
+            var finalElementList = currentElementList.Select(x => new MapElement
             {
-                var possibleExistingElement =
-                    DbElements.SingleOrDefault(x => x.MapComponentContentId == loopUserElements.ContentId());
-
-                if (possibleExistingElement == null)
-                    finalElementList.Add(new MapElement
-                    {
-                        ContentId = Guid.NewGuid(),
-                        ShowDetailsDefault = loopUserElements.ShowInitialDetails,
-                        IncludeInDefaultView = loopUserElements.InInitialView,
-                        MapComponentContentId = loopUserElements.ContentId() ?? Guid.Empty
-                    });
-                else
-                    finalElementList.Add(new MapElement
-                    {
-                        ContentId = possibleExistingElement.ContentId,
-                        ShowDetailsDefault = loopUserElements.ShowInitialDetails,
-                        IncludeInDefaultView = loopUserElements.InInitialView,
-                        MapComponentContentId = loopUserElements.ContentId() ?? Guid.Empty
-                    });
-            }
+                MapComponentContentId = newEntry.ContentId,
+                ElementContentId = x.ContentId() ?? Guid.Empty,
+                IncludeInDefaultView = x.InInitialView,
+                ShowDetailsDefault = x.ShowInitialDetails
+            }).ToList();
 
             return new MapComponentDto(newEntry, finalElementList);
         }
@@ -403,8 +402,6 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
 
             var db = await Db.Context();
-            var elementContent =
-                await db.ContentFromContentIds(DbElements.Select(x => x.MapComponentContentId).ToList());
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -414,21 +411,23 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            elementContent.ForEach(async x =>
+            foreach (var loopContent in DbElements)
             {
-                switch (x)
+                var elementContent = await db.ContentFromContentId(loopContent.ElementContentId);
+
+                switch (elementContent)
                 {
                     case GeoJsonContent gj:
-                        await AddGeoJson(gj);
+                        await AddGeoJson(gj, loopContent);
                         break;
                     case LineContent l:
-                        await AddLine(l);
+                        await AddLine(l, loopContent);
                         break;
-                    case PointContent p:
-                        await AddPoint(p);
+                    case PointContentDto p:
+                        await AddPoint(p, loopContent);
                         break;
                 }
-            });
+            }
         }
 
         [NotifyPropertyChangedInvocator]
@@ -477,9 +476,22 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 return;
             }
 
-            var codes = BracketCodeCommon.BracketCodeContentIds(UserGeoContentInput);
+            var codes = new List<Guid>();
 
-            if (codes == null || !codes.Any())
+            var regexObj = new Regex(@"(?:(\()|(\{))?\b[A-F0-9]{8}(?:-[A-F0-9]{4}){3}-[A-F0-9]{12}\b(?(1)\))(?(2)\})",
+                RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
+            Match matchResult = regexObj.Match(UserGeoContentInput);
+            while (matchResult.Success)
+            {
+                codes.Add(Guid.Parse(matchResult.Value));
+                matchResult = matchResult.NextMatch();
+            }
+
+            codes.AddRange(BracketCodeCommon.BracketCodeContentIds(UserGeoContentInput));
+
+            codes = codes.Distinct().ToList();
+
+            if (!codes.Any())
             {
                 StatusContext.ToastError("No Content Ids found?");
                 return;
@@ -492,7 +504,8 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
                 if (possiblePoint != null)
                 {
-                    await AddPoint(possiblePoint);
+                    var pointDto = await Db.PointAndPointDetails(possiblePoint.ContentId, db);
+                    await AddPoint(pointDto);
                     continue;
                 }
 

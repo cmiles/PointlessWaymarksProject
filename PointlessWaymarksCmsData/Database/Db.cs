@@ -454,13 +454,13 @@ namespace PointlessWaymarksCmsData.Database
 
             var elementsToDelete =
                 context.MapComponentElements.Where(x => x.MapComponentContentId == contentId).ToList();
-            var elementsToDeleteContentIds = elementsToDelete.Select(x => x.ContentId).ToList();
+            var elementsToDeleteContentIds = elementsToDelete.Select(x => x.ElementContentId).ToList();
 
             foreach (var loopElements in elementsToDelete)
             {
                 await context.HistoricMapComponentElements.AddAsync(new HistoricMapElement
                 {
-                    ContentId = loopElements.ContentId,
+                    ElementContentId = loopElements.ElementContentId,
                     ShowDetailsDefault = loopElements.ShowDetailsDefault,
                     IncludeInDefaultView = loopElements.IncludeInDefaultView,
                     LastUpdateOn = lastUpdatedOnForHistoric,
@@ -1190,13 +1190,13 @@ namespace PointlessWaymarksCmsData.Database
             var dbElements = await context.MapComponentElements
                 .Where(x => x.MapComponentContentId == toSaveDto.Map.ContentId).ToListAsync();
 
-            var dbElementContentIds = dbElements.Select(x => x.ContentId).Distinct().ToList();
+            var dbElementContentIds = dbElements.Select(x => x.ElementContentId).Distinct().ToList();
 
             foreach (var loopElements in dbElements)
             {
                 await context.HistoricMapComponentElements.AddAsync(new HistoricMapElement
                 {
-                    ContentId = loopElements.ContentId,
+                    ElementContentId = loopElements.ElementContentId,
                     ShowDetailsDefault = loopElements.ShowDetailsDefault,
                     IncludeInDefaultView = loopElements.IncludeInDefaultView,
                     LastUpdateOn = groupLastUpdateOn,
@@ -1209,7 +1209,7 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync();
 
-            var newElementsContentIds = toSaveDto.Elements.Select(x => x.ContentId).ToList();
+            var newElementsContentIds = toSaveDto.Elements.Select(x => x.ElementContentId).ToList();
 
             foreach (var loopElements in toSaveDto.Elements)
             {

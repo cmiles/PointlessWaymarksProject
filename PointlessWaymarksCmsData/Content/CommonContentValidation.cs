@@ -367,6 +367,13 @@ namespace PointlessWaymarksCmsData.Content
             return (true, "Created By is Ok");
         }
 
+        public static (bool isValid, string explanation) ValidateFeatureType(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title)) return (false, "Type can not be blank");
+
+            return (true, string.Empty);
+        }
+
         public static (bool isValid, string explanation) ValidateFolder(string folder)
         {
             if (string.IsNullOrWhiteSpace(folder)) return (false, "Folder can't be blank or only whitespace.");
@@ -454,7 +461,7 @@ namespace PointlessWaymarksCmsData.Content
 
             if (!isValid) return (false, string.Join(Environment.NewLine, errorMessage));
 
-            if (mapComponent.Elements.Any(x => x.ContentId == Guid.Empty))
+            if (mapComponent.Elements.Any(x => x.ElementContentId == Guid.Empty))
             {
                 isValid = false;
                 errorMessage.Add("Not all map elements have a valid Content Id.");

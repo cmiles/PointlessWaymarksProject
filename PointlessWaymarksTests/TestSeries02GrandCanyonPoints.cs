@@ -178,7 +178,7 @@ namespace PointlessWaymarksTests
             {
                 pointElements.Add(new MapElement
                 {
-                    ContentId = loopPoints.ContentId,
+                    ElementContentId = loopPoints.ContentId,
                     ShowDetailsDefault = false,
                     IncludeInDefaultView = true,
                     MapComponentContentId = newMap.ContentId,

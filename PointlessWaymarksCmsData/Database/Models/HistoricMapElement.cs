@@ -4,7 +4,7 @@ namespace PointlessWaymarksCmsData.Database.Models
 {
     public class HistoricMapElement
     {
-        public Guid ContentId { get; set; }
+        public Guid ElementContentId { get; set; }
         public Guid HistoricGroupId { get; set; }
         public int Id { get; set; }
         public bool IncludeInDefaultView { get; set; }

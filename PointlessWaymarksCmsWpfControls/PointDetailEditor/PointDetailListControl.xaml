@@ -74,7 +74,8 @@
                 HorizontalContentAlignment="Stretch"
                 ItemTemplateSelector="{StaticResource DetailEditorSelector}"
                 ItemsSource="{Binding Items}"
-                ScrollViewer.CanContentScroll="False">
+                ScrollViewer.CanContentScroll="False"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <b:Interaction.Behaviors>
                     <wpfBehavior:ListBoxAutoScrollToNewItems />
                 </b:Interaction.Behaviors>
