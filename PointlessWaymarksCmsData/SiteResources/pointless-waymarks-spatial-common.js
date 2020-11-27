@@ -51,9 +51,12 @@ async function mapComponentInit(mapElement, contentId) {
                     autoPan: true
                 }).addTo(map);
 
-            pointContentMarker
-                .bindPopup(
-                    `<p style="margin-top: .5rem; margin-bottom: 0;">${pagePoint.Title}</p><p style="margin-left: .5rem; margin-top: .1rem;">${pagePoint.DetailTypeString}</p>`);
+            let pointPopup = L.popup().setContent(`${pagePoint.Title} (${pagePoint.DetailTypeString})`);
+            pointPopup.autoClose = false;
+
+            pointContentMarker.bindPopup(pointPopup);
+
+            //if (mapComponent.ShowDetailsGuid.includes(pagePoint)) pointPopup.openPopup();
         };
     }
 }
@@ -100,7 +103,7 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
             60,
             { color: 'gray', fillColor: 'gray', fillOpacity: .5 });
         toAdd.bindTooltip(
-            `<p style="margin-top: .5rem; margin-bottom: 0;">${circlePoint.Title}</p><p style="margin-left: .5rem; margin-top: .1rem;"${circlePoint.DetailTypeString}</p>`);
+            `${circlePoint.Title}(${circlePoint.DetailTypeString})`);
         toAdd.addTo(map).on("click", (e) => window.location.href = circlePoint.PointPageUrl);
     };
 }

@@ -53,6 +53,10 @@
  
 ## Notes
 
+11/27/2020
+
+Found that the Mapcomponent was picking up post p styling in the popup and tooltip bindings causing the usual quite nice autosizing of those to break. For now just went to the simplest possible text only popup.
+
 11/25/2020
 
 Happy Thanksgiving! Among many other things feeling thankful that I can continue to work on this project.

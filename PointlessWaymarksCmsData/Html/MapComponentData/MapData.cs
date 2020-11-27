@@ -31,8 +31,10 @@ namespace PointlessWaymarksCmsData.Html.MapComponentData
                 .Select(x => x.ContentId).ToListAsync();
             var geoJsonGuids = await db.GeoJsonContents.Where(x => dtoElementGuids.Contains(x.ContentId))
                 .Select(x => x.ContentId).ToListAsync();
+            var showDetailsGuid = dto.Elements.Where(x => x.ShowDetailsDefault).Select(x => x.MapComponentContentId)
+                .Distinct().ToList();
 
-            var mapDtoJson = new MapSiteJsonData(dto.Map, geoJsonGuids, lineGuids, pointGuids);
+            var mapDtoJson = new MapSiteJsonData(dto.Map, geoJsonGuids, lineGuids, pointGuids, showDetailsGuid);
 
             var dataFileInfo = new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteMapComponentDataDirectory().FullName, $"Map-{dto.Map.ContentId}.json"));
 
@@ -47,6 +49,6 @@ namespace PointlessWaymarksCmsData.Html.MapComponentData
         }
 
         public record MapSiteJsonData(MapComponent MapComponent, List<Guid> GeoJsonGuids, List<Guid> LineGuids,
-            List<Guid> PointGuids);
+            List<Guid> PointGuids, List<Guid> ShowDetailsGuid);
     }
 }
