@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 {
     public static class BracketCodeMapComponents
     {
-        public const string BracketCodeToken = "mapComponent";
+        public const string BracketCodeToken = "mapcomponent";
 
         public static List<MapComponent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
@@ -62,7 +62,6 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
                 if (dbContent == null) continue;
 
                 progress?.Report($"Adding mapComponent {dbContent.Title} from Code");
-                var settings = UserSettingsSingleton.CurrentSettings();
 
                 var divScriptGuidConnector = Guid.NewGuid();
 

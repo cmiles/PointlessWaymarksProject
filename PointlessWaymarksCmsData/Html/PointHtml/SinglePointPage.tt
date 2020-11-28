@@ -36,11 +36,7 @@
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
-    <link rel="stylesheet" href="<#= UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>leaflet.css" />
-    <script src="<#= UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>leaflet.js"></script>
-    <link rel="stylesheet" href="<#= UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>leaflet-gesture-handling.min.css" type="text/css">
-    <script src="<#= UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>leaflet-gesture-handling.min.js"></script>
-    <script src="<#= UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() #>pointless-waymarks-spatial-common.js"></script>
+    <#= SpatialScripts.ScriptsAndLinks() #>
 </head>
 
 <body>
@@ -48,7 +44,7 @@
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
-    <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map"></div>
+    <#= PointParts.PointDivAndScript(DbEntry.Slug) #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= PointParts.PointDetailsDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
@@ -60,10 +56,6 @@
     </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>
-    <script>
-		const mapElement = document.querySelector("#mainMap");
-		lazyInit(mapElement, () => singlePointMapInit(mapElement, "<#= DbEntry.Slug #>"));
-    </script>
 </body>
 
 </html>

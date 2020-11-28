@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HtmlTags;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.Html.CommonHtml
 {
-    public static class BracketCodePoints
+    public static class BracketCodePointLinks
     {
-        public const string BracketCodeToken = "point";
+        public const string BracketCodeToken = "pointlink";
 
         public static List<PointContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
@@ -43,7 +44,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static string PointCodeProcess(string toProcess, IProgress<string> progress)
+        public static string PointLinkCodeProcess(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -62,7 +63,14 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
                 progress?.Report($"Adding point link {dbContent.Title} from Code");
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText, PointHtml.PointParts.PointDivAndScript(dbContent.Slug));
+                var linkTag =
+                    new LinkTag(
+                        string.IsNullOrWhiteSpace(loopMatch.displayText)
+                            ? dbContent.Title
+                            : loopMatch.displayText.Trim(),
+                        UserSettingsSingleton.CurrentSettings().PointPageUrl(dbContent), "point-page-link");
+
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, linkTag.ToString());
             }
 
             return toProcess;

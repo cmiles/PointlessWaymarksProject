@@ -4,11 +4,8 @@
 <div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>">
     <#= Tags.TitleLinkDiv(DbEntry, DbEntry) #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
-    <div id="<#= DbEntry.Slug#>Map" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map"></div>
+    <#= PointParts.PointDivAndScript(DbEntry.Slug) #>
     <#= Tags.PostBodyDiv(DbEntry) #>
     <#= PointParts.PointDetailsDiv(DbEntry).ToString() #>
     <#= BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
-    <script>
-		lazyInit(document.querySelector("#<#= DbEntry.Slug#>Map"), () => singlePointMapInit(document.querySelector("#<#= DbEntry.Slug#>Map"), "<#= DbEntry.Slug #>"));
-    </script>
 </div>

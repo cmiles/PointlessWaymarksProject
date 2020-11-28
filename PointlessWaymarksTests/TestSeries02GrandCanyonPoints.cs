@@ -216,7 +216,7 @@ namespace PointlessWaymarksTests
                 Title = "Piute Point Map Test Point",
                 Slug = "first-post",
                 BodyContent = $@"This post should have a map below this test showing points near Piute Point in the Grand Canyon.
-{{{{mapComponent {mapItem.ContentId}; Piute Point Map}}}}",
+{{{{mapcomponent {mapItem.ContentId}; Piute Point Map}}}}",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "Map Tester",

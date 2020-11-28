@@ -155,93 +155,48 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
             this.Write("\r\n\r\n    ");
             
             #line 39 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
-
-    if (IncludePointContentHeaders)
-    { 
+            this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.IncludeIfNeeded(IncludeSpatialScripts)));
             
             #line default
             #line hidden
-            this.Write("    <link rel=\"stylesheet\" href=\"");
-            
-            #line 42 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()));
-            
-            #line default
-            #line hidden
-            this.Write("leaflet.css\" />\r\n    <script src=\"");
+            this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
             #line 43 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()));
-            
-            #line default
-            #line hidden
-            this.Write("leaflet.js\"></script>\r\n    <link rel=\"stylesheet\" href=\"");
-            
-            #line 44 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()));
-            
-            #line default
-            #line hidden
-            this.Write("leaflet-gesture-handling.min.css\" type=\"text/css\">\r\n    <script src=\"");
-            
-            #line 45 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()));
-            
-            #line default
-            #line hidden
-            this.Write("leaflet-gesture-handling.min.js\"></script>\r\n    <script src=\"");
-            
-            #line 46 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()));
-            
-            #line default
-            #line hidden
-            this.Write("pointless-waymarks-spatial-common.js\"></script>\r\n    ");
-            
-            #line 47 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
-
-    } 
-            
-            #line default
-            #line hidden
-            this.Write("</head>\r\n\r\n<body>\r\n    ");
-            
-            #line 52 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 53 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
+            #line 44 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 54 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
+            #line 45 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(IndexPosts()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 55 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
+            #line 46 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>())));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 56 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
+            #line 47 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRuleIfNotEmptyTag(Tags.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()))));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 57 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
+            #line 48 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

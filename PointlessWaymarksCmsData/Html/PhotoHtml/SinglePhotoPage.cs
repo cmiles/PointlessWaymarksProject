@@ -171,65 +171,72 @@ namespace PointlessWaymarksCmsData.Html.PhotoHtml
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n</head>\r\n\r\n<body class=\"single-photo-body\">\r\n    ");
+            this.Write("\r\n\r\n    ");
             
-            #line 45 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            #line 42 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.IncludeIfNeeded(DbEntry)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n</head>\r\n\r\n<body class=\"single-photo-body\">\r\n    ");
+            
+            #line 46 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PictureInformation.PictureFigureWithTitleCaptionTag("100vw")));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 48 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            #line 49 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PhotoDetails.PhotoDetailsDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 50 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            #line 51 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 51 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            #line 52 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 52 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            #line 53 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 54 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            #line 55 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 56 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            #line 57 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 58 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            #line 59 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 59 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
+            #line 60 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

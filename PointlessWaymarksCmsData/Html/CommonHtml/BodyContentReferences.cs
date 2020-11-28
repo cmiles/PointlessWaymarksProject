@@ -117,11 +117,13 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             contentCommonList.AddRange(
                 await RelatedContentReferencesFromOtherContent(db, toCheckFor, generationVersion));
             contentCommonList.AddRange(BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodePoints.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodePointLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
 
             var transformedList = new List<(DateTime sortDateTime, HtmlTag tagContent)>();
 

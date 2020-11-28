@@ -55,7 +55,7 @@
                     Content="_Generate Html"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
-                    Command="{Binding BracketCodesToClipboardForSelectedCommand}"
+                    Command="{Binding PointLinkBracketCodesToClipboardForSelectedCommand}"
                     Content="_Code to Clipboard"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button

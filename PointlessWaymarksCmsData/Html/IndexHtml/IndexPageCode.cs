@@ -57,6 +57,8 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
         }
 
         public DateTime? GenerationVersion { get; set; }
+
+        public bool IncludeSpatialScripts { get; set; }
         public List<dynamic> IndexContent { get; }
         public PictureSiteInformation MainImage { get; }
         public string PageUrl { get; }
@@ -138,10 +140,10 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
         {
             WriteRss();
 
-            if (IndexContent.Any(x => x is PointContent || x is PointContentDto))
-            {
-                IncludePointContentHeaders = true;
-            }
+            foreach (var loopPosts in IndexContent.Take(_numberOfContentItemsToDisplay))
+                if (BracketCodeCommon.ContainsSpatialBracketCodes(loopPosts) ||
+                    loopPosts.GetType() == typeof(PointContentDto))
+                    IncludeSpatialScripts = true;
 
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());
@@ -162,8 +164,6 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
 
             FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
-
-        public bool IncludePointContentHeaders { get; set; }
 
 
         public void WriteRss()

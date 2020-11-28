@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.Html.CommonHtml
 {
@@ -29,6 +31,31 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return returnList;
         }
 
+        public static bool ContainsSpatialBracketCodes(string toProcess)
+        {
+            var codeMatches = new List<string>
+            {
+                $"{{{{{BracketCodePoints.BracketCodeToken}", $"{{{{{BracketCodeMapComponents.BracketCodeToken}"
+            };
+
+            return codeMatches.Any(toProcess.Contains);
+        }
+
+        public static bool ContainsSpatialBracketCodes(IContentCommon content)
+        {
+            if (content == null) return false;
+
+            var toSearch = string.Empty;
+
+            toSearch += content.BodyContent + content.Summary;
+
+            if (content is IUpdateNotes updateContent) toSearch += updateContent.UpdateNotes;
+
+            if (string.IsNullOrWhiteSpace(toSearch)) return false;
+
+            return ContainsSpatialBracketCodes(toSearch);
+        }
+
         /// <summary>
         ///     Returns Bracket Code Information from a string
         /// </summary>
@@ -54,7 +81,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
                 noTextMatch = noTextMatch.NextMatch();
             }
 
-            //Remove the more specific pattern matches before processing the less specific matches, 
+            //Remove the more specific pattern matches before processing the less specific matches,
             //as currently written there are patterns that can match both.
             foreach (var loopResultList in resultList)
                 toProcess = toProcess.Replace(loopResultList.bracketCodeText, string.Empty);
@@ -98,7 +125,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             input = BracketCodePhotos.PhotoCodeProcessForEmail(input, progress);
             input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
-            input = BracketCodePoints.PointLinkCodeProcess(input, progress);
+            input = BracketCodePointLinks.PointLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
             return input;
@@ -114,7 +141,8 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input, progress);
             input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
-            input = BracketCodePoints.PointLinkCodeProcess(input, progress);
+            input = BracketCodePointLinks.PointLinkCodeProcess(input, progress);
+            input = BracketCodePoints.PointCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
             return input;
@@ -130,7 +158,8 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input, progress);
             input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
             input = BracketCodePosts.PostLinkCodeProcess(input, progress);
-            input = BracketCodePoints.PointLinkCodeProcess(input, progress);
+            input = BracketCodePointLinks.PointLinkCodeProcess(input, progress);
+            input = BracketCodePoints.PointCodeProcess(input, progress);
             input = BracketCodeMapComponents.MapComponentLinkCodeProcess(input, progress);
             input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
 
@@ -159,7 +188,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
                 noTextMatch = noTextMatch.NextMatch();
             }
 
-            //Remove the more specific pattern matches before processing the less specific matches, 
+            //Remove the more specific pattern matches before processing the less specific matches,
             //as currently written there are patterns that can match both.
             foreach (var loopResultList in resultList)
                 toProcess = toProcess.Replace(loopResultList.bracketCodeText, string.Empty);
@@ -168,7 +197,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             var textMatch = regexObj.Match(toProcess);
             while (textMatch.Success)
             {
-                Guid.TryParse(textMatch.Groups["siteGuid"].Value, out var parsedContentId);
+                Guid.TryParse(textMatch.Groups["siteGuid"].Value, out _);
                 resultList.Add((textMatch.Value, string.Empty));
                 textMatch = textMatch.NextMatch();
             }

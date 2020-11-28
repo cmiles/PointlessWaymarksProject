@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text.Json;
 using HtmlTags;
 using PointlessWaymarksCmsData.Database.Models;
@@ -9,6 +10,17 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
 {
     public static class PointParts
     {
+        public static string PointDivAndScript(string pointSlug)
+        {
+            var divScriptGuidConnector = Guid.NewGuid();
+
+            var tag = $"<div id=\"Point-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
+
+            var script = $"<script>lazyInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), () => singlePointMapInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), \"{pointSlug}\"))</script>";
+
+            return tag + script;
+        }
+
         public static HtmlTag PointDetailsDiv(PointContentDto dbEntry)
         {
             if (dbEntry?.PointDetails == null && !dbEntry.PointDetails.Any()) return HtmlTag.Empty();

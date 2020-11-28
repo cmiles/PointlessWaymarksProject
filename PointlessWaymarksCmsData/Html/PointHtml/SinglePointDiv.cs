@@ -47,15 +47,14 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             
             #line default
             #line hidden
-            this.Write("\r\n    <div id=\"");
+            this.Write("\r\n    ");
             
             #line 7 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Slug));
+            this.Write(this.ToStringHelper.ToStringWithCulture(PointParts.PointDivAndScript(DbEntry.Slug)));
             
             #line default
             #line hidden
-            this.Write("Map\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leafl" +
-                    "et-touch-drag point-content-map\"></div>\r\n    ");
+            this.Write("\r\n    ");
             
             #line 8 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry)));
@@ -76,28 +75,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
             
             #line default
             #line hidden
-            this.Write("\r\n    <script>\r\n\t\tlazyInit(document.querySelector(\"#");
-            
-            #line 12 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Slug));
-            
-            #line default
-            #line hidden
-            this.Write("Map\"), () => singlePointMapInit(document.querySelector(\"#");
-            
-            #line 12 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Slug));
-            
-            #line default
-            #line hidden
-            this.Write("Map\"), \"");
-            
-            #line 12 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.Slug));
-            
-            #line default
-            #line hidden
-            this.Write("\"));\r\n    </script>\r\n</div>");
+            this.Write("\r\n</div>");
             return this.GenerationEnvironment.ToString();
         }
     }

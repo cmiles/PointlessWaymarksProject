@@ -33,6 +33,8 @@
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
+
+    <#= SpatialScripts.IncludeIfNeeded(DbEntry) #>
 </head>
 
 <body>
