@@ -389,6 +389,13 @@ namespace PointlessWaymarksCmsData.Content
             return (true, string.Empty);
         }
 
+        public static (bool isValid, string explanation) ValidateGeoJson(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title)) return (false, "GeoJson can not be blank");
+
+            return (true, string.Empty);
+        }
+
         public static async Task<(bool isValid, string explanation)> ValidateLinkContentLinkUrl(string url,
             Guid? contentGuid)
         {

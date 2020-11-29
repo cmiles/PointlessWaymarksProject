@@ -153,6 +153,33 @@ namespace PointlessWaymarksTests
         }
 
         [Test]
+        public async Task G01_GeoJsonGrandCanyonWildfireSave()
+        {
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
+                "GrandCanyonHistoricWildfireGeoJson.geojson"));
+            Assert.True(testFile.Exists, "GeoJson Test File Found");
+
+            var geoJsonTest = new GeoJsonContent
+            {
+                ContentId = Guid.NewGuid(),
+                BodyContent = "Grand Canyon Historic Wildfire GeoJson Test",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CreatedOn = DateTime.Now,
+                CreatedBy = "GC Test for GeoJson",
+                Folder = "Grand Canyon",
+                Title = "Grand Canyon Historic Wildfire Boundaries",
+                Slug = "grand-canyon-historic-wildfire-boundaries",
+                ShowInMainSiteFeed = true,
+                Summary = "Boundaries for Grand Canyon Wildfires",
+                Tags = "grand-canyon, geojson",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+                GeoJson = await File.ReadAllTextAsync(testFile.FullName)
+            };
+
+            GeoJsonGenerator.GenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
+        }
+
+        [Test]
         public async Task M01_GenerateMap()
         {
             var newMap = new MapComponent

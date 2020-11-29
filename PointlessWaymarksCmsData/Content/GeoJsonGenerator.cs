@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using Newtonsoft.Json;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.GeoJsonHtml;
@@ -54,6 +58,18 @@ namespace PointlessWaymarksCmsData.Content
             var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(geoJsonContent.UpdateNotesFormat);
             if (!updateFormatCheck.isValid)
                 return await GenerationReturn.Error(updateFormatCheck.explanation, geoJsonContent.ContentId);
+
+            try
+            {
+                var serializer = GeoJsonSerializer.Create();
+                using var stringReader = new StringReader(geoJsonContent.GeoJson);
+                using var jsonReader = new JsonTextReader(stringReader);
+                var geometry = serializer.Deserialize<Geometry>(jsonReader);
+            }
+            catch (Exception e)
+            {
+                return await GenerationReturn.Error($"Unable to parse the GeoJson = {e.Message}", geoJsonContent.ContentId);
+            }
 
             return await GenerationReturn.Success("GeoJson Content Validation Successful");
         }

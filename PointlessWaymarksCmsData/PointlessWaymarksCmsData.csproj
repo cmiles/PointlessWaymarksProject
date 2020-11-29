@@ -42,6 +42,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
     <PackageReference Include="NetTopologySuite" Version="2.1.0" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
     <PackageReference Include="NetTopologySuite.IO.GPX" Version="1.1.1" />
     <PackageReference Include="ObjectDumper.NET" Version="3.0.20251.2-pre" />
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.11.2" />

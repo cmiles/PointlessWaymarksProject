@@ -49,6 +49,11 @@
                     <bodyContentEditor:BodyContentEditorControl DataContext="{Binding BodyContent}" />
                 </Grid>
             </TabItem>
+            <TabItem Header="GeoJson">
+                <Grid>
+                    <bodyContentEditor:BodyContentEditorControl DataContext="{Binding BodyContent}" />
+                </Grid>
+            </TabItem>
             <TabItem Header="Update Notes">
                 <Grid>
                     <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />

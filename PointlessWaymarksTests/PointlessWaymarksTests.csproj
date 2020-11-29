@@ -21,6 +21,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0-beta.1">
       <PrivateAssets>all</PrivateAssets>
@@ -43,6 +44,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="TestMedia\GrandCanyonHistoricWildfireGeoJson.geojson" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="TestMedia\1705-Ironwood-02.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -62,6 +67,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestMedia\AZ_IronwoodForest_NM_map.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestMedia\GrandCanyonHistoricWildfireGeoJson.geojson">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestMedia\GrandCanyonPointsImport.xlsx">
