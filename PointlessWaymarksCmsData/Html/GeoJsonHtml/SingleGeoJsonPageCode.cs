@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using PointlessWaymarksCmsData.Content;
@@ -29,9 +30,11 @@ namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
         public string SiteName { get; }
         public string SiteUrl { get; }
 
-        public void WriteLocalHtml()
+        public async Task WriteLocalHtml()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
+
+            await GeoJsonData.WriteLocalJsonData(DbEntry);
 
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());
@@ -51,7 +54,7 @@ namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
                 htmlFileInfo.Refresh();
             }
 
-            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLogAsync(htmlFileInfo.FullName, htmlString);
         }
     }
 }

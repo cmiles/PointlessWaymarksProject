@@ -8,6 +8,15 @@
     observer.observe(elementToObserve);
 };
 
+function onEachMapGeoJsonFeature(feature, layer) {
+    if (feature.properties && feature.properties.PopupContent) {
+        layer.bindPopup(feature.properties.PopupContent);
+    }
+    if (feature.properties && feature.properties.popupContent) {
+        layer.bindPopup(feature.properties.PopupContent);
+    }
+}
+
 async function mapComponentInit(mapElement, contentId) {
     var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
         {
@@ -57,6 +66,23 @@ async function mapComponentInit(mapElement, contentId) {
             pointContentMarker.bindPopup(pointPopup);
 
             //if (mapComponent.ShowDetailsGuid.includes(pagePoint)) pointPopup.openPopup();
+        };
+    }
+
+    if (mapComponent.GeoJsonGuids?.length) {
+
+        for (let loopGeoJson of mapComponent.GeoJsonGuids) {
+            const response = await fetch(`/GeoJson/Data/GeoJson-${loopGeoJson}.json`);
+            if (!response.ok)
+                throw new Error(response.statusText);
+
+            const geoJsonData = await response.json();
+
+            var newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
+                onEachFeature: onEachMapGeoJsonFeature
+            });
+
+            newMapLayer.addTo(map);
         };
     }
 }

@@ -166,7 +166,7 @@ namespace PointlessWaymarksTests
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 CreatedOn = DateTime.Now,
                 CreatedBy = "GC Test for GeoJson",
-                Folder = "Grand Canyon",
+                Folder = "GrandCanyon",
                 Title = "Grand Canyon Historic Wildfire Boundaries",
                 Slug = "grand-canyon-historic-wildfire-boundaries",
                 ShowInMainSiteFeed = true,
@@ -176,7 +176,9 @@ namespace PointlessWaymarksTests
                 GeoJson = await File.ReadAllTextAsync(testFile.FullName)
             };
 
-            GeoJsonGenerator.GenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
+            var result = await GeoJsonGenerator.SaveAndGenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
+
+            Assert.IsFalse(result.generationReturn.HasError);
         }
 
         [Test]
@@ -212,6 +214,17 @@ namespace PointlessWaymarksTests
                 });
             }
 
+            var grandCanyonFireGeoJson = await db.GeoJsonContents.FirstAsync();
+
+            pointElements.Add(new MapElement
+            {
+                ElementContentId = grandCanyonFireGeoJson.ContentId,
+                ShowDetailsDefault = false,
+                IncludeInDefaultView = true,
+                MapComponentContentId = newMap.ContentId,
+            });
+
+
             pointElements.First().ShowDetailsDefault = true;
 
             var newMapDto = new MapComponentDto(newMap, pointElements);
@@ -224,11 +237,6 @@ namespace PointlessWaymarksTests
                 await MapComponentGenerator.SaveAndGenerateData(newMapDto, null, DebugTrackers.DebugProgressTracker());
 
             Assert.IsFalse(saveResult.generationReturn.HasError);
-
-            Assert.AreEqual(saveResult.mapDto.Map.InitialViewBoundsMaxX, pointsNearPiutePoint.Max(x => x.Longitude));
-            Assert.AreEqual(saveResult.mapDto.Map.InitialViewBoundsMaxY, pointsNearPiutePoint.Max(x => x.Latitude));
-            Assert.AreEqual(saveResult.mapDto.Map.InitialViewBoundsMinX, pointsNearPiutePoint.Min(x => x.Longitude));
-            Assert.AreEqual(saveResult.mapDto.Map.InitialViewBoundsMinY, pointsNearPiutePoint.Min(x => x.Latitude));
         }
 
         [Test]

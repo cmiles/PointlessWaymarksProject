@@ -36,7 +36,9 @@ namespace PointlessWaymarksCmsData.Html.MapComponentData
 
             var mapDtoJson = new MapSiteJsonData(dto.Map, geoJsonGuids, lineGuids, pointGuids, showDetailsGuid);
 
-            var dataFileInfo = new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteMapComponentDataDirectory().FullName, $"Map-{dto.Map.ContentId}.json"));
+            var dataFileInfo = new FileInfo(Path.Combine(
+                UserSettingsSingleton.CurrentSettings().LocalSiteMapComponentDataDirectory().FullName,
+                $"Map-{dto.Map.ContentId}.json"));
 
             if (dataFileInfo.Exists)
             {

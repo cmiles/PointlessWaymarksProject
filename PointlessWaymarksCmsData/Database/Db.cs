@@ -1223,8 +1223,12 @@ namespace PointlessWaymarksCmsData.Database
 
             var points = await context.PointContents.Where(x => newElementsContentIds.Contains(x.ContentId))
                 .ToListAsync();
-
             var boundingBox = SpatialConverters.PointBoundingBox(points);
+
+            var geoJson = await context.GeoJsonContents.Where(x => newElementsContentIds.Contains(x.ContentId))
+                .ToListAsync();
+            boundingBox = SpatialConverters.GeometryBoundingBox(geoJson, boundingBox);
+
             toSaveDto.Map.InitialViewBoundsMaxY = boundingBox.MaxY;
             toSaveDto.Map.InitialViewBoundsMaxX = boundingBox.MaxX;
             toSaveDto.Map.InitialViewBoundsMinY = boundingBox.MinY;
