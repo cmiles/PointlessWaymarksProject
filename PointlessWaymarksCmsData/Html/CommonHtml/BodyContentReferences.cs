@@ -121,9 +121,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
                 BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeGeoJson.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
-                BracketCodeGeoJsonLink.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                BracketCodeGeoJsonLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodeLines.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodeLineLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodePoints.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodePointLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
@@ -144,7 +146,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             }
 
             var photoContent = BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress);
-            photoContent.AddRange(BracketCodePhotoLink.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            photoContent.AddRange(BracketCodePhotoLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
 
             //If the object itself is a photo add it to the list
             photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toCheckFor));

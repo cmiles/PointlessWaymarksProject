@@ -7,25 +7,25 @@ using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.Html.CommonHtml
 {
-    public static class BracketCodeGeoJsonLink
+    public static class BracketCodeLineLinks
     {
-        public const string BracketCodeToken = "geojsonlink";
+        public const string BracketCodeToken = "linelink";
 
-        public static string Create(GeoJsonContent content)
+        public static string Create(LineContent content)
         {
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static List<GeoJsonContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
+        public static List<LineContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
-            if (string.IsNullOrWhiteSpace(toProcess)) return new List<GeoJsonContent>();
+            if (string.IsNullOrWhiteSpace(toProcess)) return new List<LineContent>();
 
-            progress?.Report("Searching for GeoJson Link Codes...");
+            progress?.Report("Searching for Line Link Codes...");
 
             var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
                 .Select(x => x.contentGuid).Distinct().ToList();
 
-            var returnList = new List<GeoJsonContent>();
+            var returnList = new List<LineContent>();
 
             if (!guidList.Any()) return returnList;
 
@@ -33,10 +33,10 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             foreach (var loopMatch in guidList)
             {
-                var dbContent = context.GeoJsonContents.FirstOrDefault(x => x.ContentId == loopMatch);
+                var dbContent = context.LineContents.FirstOrDefault(x => x.ContentId == loopMatch);
                 if (dbContent == null) continue;
 
-                progress?.Report($"GeoJson Link Code - Adding DbContent For {dbContent.Title}");
+                progress?.Report($"Line Link Code - Adding DbContent For {dbContent.Title}");
 
                 returnList.Add(dbContent);
             }
@@ -48,7 +48,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
-            progress?.Report("Searching for GeoJson Link Codes...");
+            progress?.Report("Searching for Line Link Codes...");
 
             var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
 
@@ -58,17 +58,17 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             foreach (var loopMatch in resultList)
             {
-                var dbContent = context.GeoJsonContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                var dbContent = context.LineContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
                 if (dbContent == null) continue;
 
-                progress?.Report($"Adding GeoJson Link {dbContent.Title} from Code");
+                progress?.Report($"Adding Line Link {dbContent.Title} from Code");
 
                 var linkTag =
                     new LinkTag(
                         string.IsNullOrWhiteSpace(loopMatch.displayText)
                             ? dbContent.Title
                             : loopMatch.displayText.Trim(),
-                        UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(dbContent), "geojson-page-link");
+                        UserSettingsSingleton.CurrentSettings().LinePageUrl(dbContent), "line-page-link");
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, linkTag.ToString());
             }
