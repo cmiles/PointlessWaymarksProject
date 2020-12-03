@@ -163,38 +163,45 @@ namespace PointlessWaymarksCmsData.Html.LineHtml
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n    ");
+            this.Write("\r\n    ");
             
-            #line 37 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
+            #line 36 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.ScriptsAndLinks()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
+            #line 40 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 42 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
+            #line 41 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 43 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
+            #line 42 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 44 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 45 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\LineHtml\SingleLinePage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(LineParts.LineDivAndScript(DbEntry)));
             
             #line default
             #line hidden

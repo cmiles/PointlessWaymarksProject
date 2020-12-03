@@ -32,7 +32,6 @@ namespace PointlessWaymarksCmsWpfControls.PointList
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
         private Command _pointBracketCodesToClipboardForSelectedCommand;
-        private Command _pointCodesToClipboardForSelectedCommand;
         private Command _pointLinkBracketCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private Command _selectedToExcelCommand;
@@ -401,7 +400,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 
             var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
                 (current, loopSelected) =>
-                    current + @$"{BracketCodePoints.PointBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
+                    current + @$"{BracketCodePoints.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -422,8 +421,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 
             var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
                 (current, loopSelected) =>
-                    current +
-                    @$"{BracketCodePointLinks.PointLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
+                    current + @$"{BracketCodePointLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

@@ -471,7 +471,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 return;
             }
 
-            var linkString = BracketCodeImages.ImageBracketCode(DbEntry);
+            var linkString = BracketCodeImages.Create(DbEntry);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

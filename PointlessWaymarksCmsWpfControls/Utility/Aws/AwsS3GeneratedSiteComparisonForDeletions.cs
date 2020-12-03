@@ -20,7 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility.Aws
                 .Replace("\\", "/") + "/";
         }
 
-        public static async Task<AwsS3GeneratedSiteComparisonForDeletions> RunReport(IProgress<string>? progress)
+        public static async Task<AwsS3GeneratedSiteComparisonForDeletions> RunReport(IProgress<string> progress)
         {
             var returnReport = new AwsS3GeneratedSiteComparisonForDeletions();
 

@@ -1034,7 +1034,10 @@ namespace PointlessWaymarksCmsData.Database
                 context.GeoJsonContents.Remove(loopToHistoric);
             }
 
+            await context.SaveChangesAsync();
+
             if (toSave.Id > 0) toSave.Id = 0;
+
             toSave.ContentVersion = ContentVersionDateTime();
 
             toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
@@ -1047,12 +1050,9 @@ namespace PointlessWaymarksCmsData.Database
             toSave.InitialViewBoundsMinX = boundingBox.MinX;
             DefaultPropertyCleanup(toSave);
 
-            await context.SaveChangesAsync();
-
             await context.GeoJsonContents.AddAsync(toSave);
 
             await context.SaveChangesAsync(true);
-
 
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.GeoJson,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
@@ -1119,14 +1119,23 @@ namespace PointlessWaymarksCmsData.Database
                 context.LineContents.Remove(loopToHistoric);
             }
 
+            await context.SaveChangesAsync(true);
+
             if (toSave.Id > 0) toSave.Id = 0;
+
             toSave.ContentVersion = ContentVersionDateTime();
 
             toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
 
-            await context.LineContents.AddAsync(toSave);
+            var boundingBox = SpatialConverters.GeometryBoundingBox(toSave);
 
-            await context.SaveChangesAsync(true);
+            toSave.InitialViewBoundsMaxY = boundingBox.MaxY;
+            toSave.InitialViewBoundsMaxX = boundingBox.MaxX;
+            toSave.InitialViewBoundsMinY = boundingBox.MinY;
+            toSave.InitialViewBoundsMinX = boundingBox.MinX;
+            DefaultPropertyCleanup(toSave);
+
+            await context.LineContents.AddAsync(toSave);
 
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Line,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,

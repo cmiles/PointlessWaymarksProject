@@ -33,7 +33,6 @@
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
-
     <#= SpatialScripts.ScriptsAndLinks() #>
 </head>
 
@@ -43,6 +42,7 @@
     <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#=
                 Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#= LineParts.LineDivAndScript(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">

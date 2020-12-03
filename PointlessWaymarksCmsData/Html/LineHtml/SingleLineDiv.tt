@@ -4,6 +4,7 @@
 <div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>">
     <#= Tags.TitleLinkDiv(DbEntry, DbEntry) #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#= LineParts.LineDivAndScript(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry) #>
     <#= BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
 </div>

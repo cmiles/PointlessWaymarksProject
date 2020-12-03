@@ -464,7 +464,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            var linkString = BracketCodeFileDownloads.FileDownloadLinkBracketCode(DbEntry);
+            var linkString = BracketCodeFileDownloads.Create(DbEntry);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -483,7 +483,7 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                 return;
             }
 
-            var linkString = BracketCodeFiles.FileLinkBracketCode(DbEntry);
+            var linkString = BracketCodeFiles.Create(DbEntry);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

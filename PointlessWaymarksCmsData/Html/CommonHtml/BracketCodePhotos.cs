@@ -11,6 +11,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
     {
         public const string BracketCodeToken = "photo";
 
+        public static string Create(PhotoContent content)
+        {
+            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+        }
+
         public static List<PhotoContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<PhotoContent>();
@@ -39,11 +44,6 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return returnList;
         }
 
-        public static string PhotoBracketCode(PhotoContent content)
-        {
-            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
-        }
-
 
         /// <summary>
         ///     Processes {{photo guid;human_identifier}} with a specified function - best use may be for easily building
@@ -53,7 +53,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
         /// <param name="pageConversion"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        private static string PhotoCodeProcess(string toProcess, Func<SinglePhotoPage, string> pageConversion,
+        private static string Process(string toProcess, Func<SinglePhotoPage, string> pageConversion,
             IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
@@ -87,10 +87,9 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static string PhotoCodeProcessForDirectLocalAccess(string toProcess, IProgress<string> progress)
+        public static string ProcessForDirectLocalAccess(string toProcess, IProgress<string> progress)
         {
-            return PhotoCodeProcess(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(),
-                progress);
+            return Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(), progress);
         }
 
         /// <summary>
@@ -99,10 +98,9 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static string PhotoCodeProcessForEmail(string toProcess, IProgress<string> progress)
+        public static string ProcessForEmail(string toProcess, IProgress<string> progress)
         {
-            return PhotoCodeProcess(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(),
-                progress);
+            return Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(), progress);
         }
 
         /// <summary>
@@ -111,9 +109,9 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static string PhotoCodeProcessToFigureWithLink(string toProcess, IProgress<string> progress)
+        public static string ProcessToFigureWithLink(string toProcess, IProgress<string> progress)
         {
-            return PhotoCodeProcess(toProcess,
+            return Process(toProcess,
                 page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(),
                 progress);
         }

@@ -11,6 +11,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
     {
         public const string BracketCodeToken = "filedownloadlink";
 
+        public static string Create(FileContent content)
+        {
+            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+        }
+
         public static List<FileContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
@@ -35,12 +40,12 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return resultList;
         }
 
-        public static string FileDownloadLinkBracketCode(FileContent content)
+        public static string FileLinkBracketCode(FileContent content)
         {
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static string FileDownloadLinkCodeProcess(string toProcess, IProgress<string> progress)
+        public static string Process(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -67,11 +72,6 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             }
 
             return toProcess;
-        }
-
-        public static string FileLinkBracketCode(FileContent content)
-        {
-            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
     }
 }

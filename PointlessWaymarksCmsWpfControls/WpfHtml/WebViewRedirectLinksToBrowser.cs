@@ -12,7 +12,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             AssociatedObject.NavigationStarting += WebView_OnNavigationStarting;
         }
 
-        private void WebView_OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
+        private void WebView_OnNavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
         {
             if (!e.IsUserInitiated) return;
 

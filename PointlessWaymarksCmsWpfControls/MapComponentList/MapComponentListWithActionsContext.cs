@@ -168,8 +168,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
 
             var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
                 (current, loopSelected) =>
-                    current +
-                    @$"{BracketCodeMapComponents.MapComponentLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
+                    current + @$"{BracketCodeMapComponents.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

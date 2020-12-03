@@ -98,7 +98,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             await AssociatedObject.EnsureCoreWebView2Async();
         }
 
-        private async void OnReady(object? sender, EventArgs e)
+        private async void OnReady(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(CachedHtml))
             {

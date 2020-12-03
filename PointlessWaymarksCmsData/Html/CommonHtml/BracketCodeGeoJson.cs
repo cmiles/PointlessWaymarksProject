@@ -11,6 +11,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
     {
         public const string BracketCodeToken = "geojson";
 
+        public static string Create(GeoJsonContent content)
+        {
+            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+        }
+
         public static List<GeoJsonContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<GeoJsonContent>();
@@ -39,12 +44,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return returnList;
         }
 
-        public static string GeoJsonBracketCode(GeoJsonContent content)
-        {
-            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
-        }
-
-        public static string GeoJsonCodeProcess(string toProcess, IProgress<string> progress)
+        public static string Process(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

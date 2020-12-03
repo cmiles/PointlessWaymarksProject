@@ -6,7 +6,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 {
     public static class BracketCodeSpecialPages
     {
-        public static string SpecialPagesCodeProcess(string toProcess, IProgress<string> progress)
+        public static string Process(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

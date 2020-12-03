@@ -11,6 +11,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
     {
         public const string BracketCodeToken = "photolink";
 
+        public static string Create(PhotoContent content)
+        {
+            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+        }
+
         public static List<PhotoContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<PhotoContent>();
@@ -37,12 +42,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return returnList;
         }
 
-        public static string PhotoLinkBracketCode(PhotoContent content)
-        {
-            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
-        }
-
-        public static string PhotoLinkCodeProcess(string toProcess, IProgress<string> progress)
+        public static string Process(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

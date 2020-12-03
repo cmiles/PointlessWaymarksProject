@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using Newtonsoft.Json;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.LineHtml;
@@ -10,13 +15,14 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class LineGenerator
     {
-        public static void GenerateHtml(LineContent toGenerate, DateTime? generationVersion, IProgress<string> progress)
+        public static async Task GenerateHtml(LineContent toGenerate, DateTime? generationVersion,
+            IProgress<string> progress)
         {
             progress?.Report($"Line Content - Generate HTML for {toGenerate.Title}");
 
             var htmlContext = new SingleLinePage(toGenerate) {GenerationVersion = generationVersion};
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
         }
 
         public static async Task<(GenerationReturn generationReturn, LineContent lineContent)> SaveAndGenerateHtml(
@@ -30,7 +36,7 @@ namespace PointlessWaymarksCmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             await Db.SaveLineContent(toSave);
-            GenerateHtml(toSave, generationVersion, progress);
+            await GenerateHtml(toSave, generationVersion, progress);
             await Export.WriteLocalDbJson(toSave);
 
             DataNotifications.PublishDataNotification("Line Generator", DataNotificationContentType.Line,
@@ -54,6 +60,35 @@ namespace PointlessWaymarksCmsData.Content
             var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(lineContent.UpdateNotesFormat);
             if (!updateFormatCheck.isValid)
                 return await GenerationReturn.Error(updateFormatCheck.explanation, lineContent.ContentId);
+
+            try
+            {
+                var serializer = GeoJsonSerializer.Create();
+
+                using var stringReader = new StringReader(lineContent.Line);
+                using var jsonReader = new JsonTextReader(stringReader);
+                var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+                if (featureCollection.Count < 1)
+                    return await GenerationReturn.Error(
+                        "The GeoJson for the line appears to have an empty Feature Collection?", lineContent.ContentId);
+                if (featureCollection.Count > 1)
+                    return await GenerationReturn.Error(
+                        "The GeoJson for the line appears to contain multiple elements? It should only contain 1 line...",
+                        lineContent.ContentId);
+                if (featureCollection[0].Geometry is not LineString)
+                    return await GenerationReturn.Error(
+                        "The GeoJson for the line has one element but it isn't a LineString?", lineContent.ContentId);
+                var lineString = featureCollection[0].Geometry as LineString;
+                if (lineString == null || lineString.Count < 1 || lineString.Length == 0)
+                    return await GenerationReturn.Error("The LineString doesn't have any points or is zero length?",
+                        lineContent.ContentId);
+            }
+            catch (Exception e)
+            {
+                return await GenerationReturn.Error(
+                    $"Error parsing the FeatureCollection and/or problems checking the LineString {e.Message}",
+                    lineContent.ContentId);
+            }
 
             return await GenerationReturn.Success("Line Content Validation Successful");
         }

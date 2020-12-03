@@ -181,6 +181,27 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private async Task BracketCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + @$"{BracketCodePosts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
         private async Task Delete()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -396,27 +417,6 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                 var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
                 Process.Start(ps);
             }
-        }
-
-        private async Task BracketCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
-                (current, loopSelected) =>
-                    current + @$"{BracketCodePosts.PostLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         private async Task ViewHistory()

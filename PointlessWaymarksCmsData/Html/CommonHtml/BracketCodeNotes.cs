@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
     {
         public const string BracketCodeToken = "notelink";
 
-        public static string NoteLinkBracketCode(NoteContent content)
+        public static string Create(NoteContent content)
         {
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
@@ -22,8 +22,8 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             progress?.Report("Searching for Note Codes...");
 
-            var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken).Select(x => x.contentGuid)
-                .Distinct().ToList();
+            var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
+                .Select(x => x.contentGuid).Distinct().ToList();
 
             var returnList = new List<NoteContent>();
 
@@ -44,7 +44,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return returnList;
         }
 
-        public static string NoteLinkCodeProcess(string toProcess, IProgress<string> progress)
+        public static string Process(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

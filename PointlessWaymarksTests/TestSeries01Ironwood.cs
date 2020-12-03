@@ -329,7 +329,7 @@ namespace PointlessWaymarksTests
             var mapFile = db.FileContents.Single(x => x.Title == TestFileInfo.MapContent01.Title);
 
             mapFile.BodyContent =
-                $"{BracketCodeImages.ImageBracketCode(mapImage)} {Environment.NewLine}{Environment.NewLine}{mapFile.BodyContent}";
+                $"{BracketCodeImages.Create(mapImage)} {Environment.NewLine}{Environment.NewLine}{mapFile.BodyContent}";
 
             mapFile.LastUpdatedBy = "Test B21";
             mapFile.LastUpdatedOn = DateTime.Now;
@@ -488,7 +488,7 @@ namespace PointlessWaymarksTests
 
             foreach (var loopPhotos in allPhotos)
             {
-                wikiQuotePost.BodyContent += BracketCodePhotos.PhotoBracketCode(loopPhotos);
+                wikiQuotePost.BodyContent += BracketCodePhotos.Create(loopPhotos);
             }
 
             wikiQuotePost.LastUpdatedBy = "Changed Html Test";
@@ -528,7 +528,7 @@ namespace PointlessWaymarksTests
 
             wikiQuotePost = db.PostContents.Single(x => x.Slug == IronwoodPostInfo.WikiQuotePostContent01.Slug);
 
-            wikiQuotePost.BodyContent = wikiQuotePost.BodyContent.Replace(BracketCodePhotos.PhotoBracketCode(allPhotos.First()), "");
+            wikiQuotePost.BodyContent = wikiQuotePost.BodyContent.Replace(BracketCodePhotos.Create(allPhotos.First()), "");
 
             wikiQuotePost.LastUpdatedBy = "Changed Html Test 02";
             wikiQuotePost.LastUpdatedOn = DateTime.Now;

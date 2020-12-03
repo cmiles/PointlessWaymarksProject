@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 
@@ -17,7 +16,7 @@ namespace PointlessWaymarksCmsData.Html.PhotoHtml
 
             var mdBuilder = new StringBuilder();
 
-            mdBuilder.AppendLine(BracketCodePhotos.PhotoBracketCode(content));
+            mdBuilder.AppendLine(BracketCodePhotos.Create(content));
 
             var detailsList = new List<string>
             {
@@ -48,9 +47,8 @@ namespace PointlessWaymarksCmsData.Html.PhotoHtml
             var preprocessResults = BracketCodeCommon.ProcessCodesForEmail(mdBuilder.ToString(), progress);
             var bodyHtmlString = ContentProcessing.ProcessContent(preprocessResults, content.BodyContentFormat);
 
-            var innerContent =
-                HtmlEmail.ChildrenIntoTableCells(
-                    $"{await HtmlEmail.EmailSimpleTitle(content)}{bodyHtmlString}{HtmlEmail.EmailSimpleFooter()}");
+            var innerContent = HtmlEmail.ChildrenIntoTableCells(
+                $"{await HtmlEmail.EmailSimpleTitle(content)}{bodyHtmlString}{HtmlEmail.EmailSimpleFooter()}");
 
             var emailHtml = HtmlEmail.WrapInNestedCenteringTable(innerContent);
 

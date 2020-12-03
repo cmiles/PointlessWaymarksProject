@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             set => SetValue(WebViewSelectedTextProperty, value);
         }
 
-        private void MessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private void MessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             var possibleString = e.TryGetWebMessageAsString();
             if (possibleString.StartsWith("document.onselectionchange:"))
@@ -38,7 +38,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             AssociatedObject.WebMessageReceived += MessageReceived;
         }
 
-        private void OnReady(object? sender, EventArgs e)
+        private void OnReady(object sender, EventArgs e)
         {
             if (sender is WebView2 webView)
                 webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(@"

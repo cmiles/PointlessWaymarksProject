@@ -34,10 +34,10 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         private Command _imageBracketLinkCodesToClipboardForSelectedCommand;
         private ImageListContext _listContext;
         private Command _newContentCommand;
+        private Command _newContentFromFilesCommand;
         private Command _openUrlForSelectedCommand;
         private Command _refreshDataCommand;
         private StatusControlContext _statusContext;
-        private Command _newContentFromFilesCommand;
 
         public ImageListWithActionsContext(StatusControlContext statusContext)
         {
@@ -358,7 +358,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
                 (current, loopSelected) =>
-                    current + @$"{BracketCodeImages.ImageBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
+                    current + @$"{BracketCodeImages.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -379,8 +379,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
             var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
                 (current, loopSelected) =>
-                    current +
-                    @$"{BracketCodeImageLinks.ImageLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
+                    current + @$"{BracketCodeImageLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

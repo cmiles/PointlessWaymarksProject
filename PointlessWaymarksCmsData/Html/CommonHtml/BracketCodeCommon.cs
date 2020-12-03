@@ -117,56 +117,56 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
         public static string ProcessCodesForEmail(string input, IProgress<string> progress)
         {
-            input = BracketCodeFileDownloads.FileDownloadLinkCodeProcess(input, progress);
-            input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
-            input = BracketCodeGeoJsonLink.GeoJsonLinkCodeProcess(input, progress);
-            input = BracketCodeImages.ImageCodeProcessForEmail(input, progress);
-            input = BracketCodeImageLinks.ImageLinkCodeProcess(input, progress);
-            input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
-            input = BracketCodePhotos.PhotoCodeProcessForEmail(input, progress);
-            input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
-            input = BracketCodePosts.PostLinkCodeProcess(input, progress);
-            input = BracketCodePointLinks.PointLinkCodeProcess(input, progress);
-            input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
+            input = BracketCodeFileDownloads.Process(input, progress);
+            input = BracketCodeFiles.Process(input, progress);
+            input = BracketCodeGeoJsonLink.Process(input, progress);
+            input = BracketCodeImages.ProcessForEmail(input, progress);
+            input = BracketCodeImageLinks.Process(input, progress);
+            input = BracketCodeNotes.Process(input, progress);
+            input = BracketCodePhotos.ProcessForEmail(input, progress);
+            input = BracketCodePhotoLink.Process(input, progress);
+            input = BracketCodePosts.Process(input, progress);
+            input = BracketCodePointLinks.Process(input, progress);
+            input = BracketCodeSpecialPages.Process(input, progress);
 
             return input;
         }
 
         public static string ProcessCodesForLocalDisplay(string input, IProgress<string> progress)
         {
-            input = BracketCodeFileDownloads.FileDownloadLinkCodeProcess(input, progress);
-            input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
-            input = BracketCodeGeoJson.GeoJsonCodeProcess(input, progress);
-            input = BracketCodeGeoJsonLink.GeoJsonLinkCodeProcess(input, progress);
-            input = BracketCodeImages.ImageCodeProcessForDirectLocalAccess(input, progress);
-            input = BracketCodeImageLinks.ImageLinkCodeProcess(input, progress);
-            input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
-            input = BracketCodePhotos.PhotoCodeProcessForDirectLocalAccess(input, progress);
-            input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
-            input = BracketCodePosts.PostLinkCodeProcess(input, progress);
-            input = BracketCodePointLinks.PointLinkCodeProcess(input, progress);
-            input = BracketCodePoints.PointCodeProcess(input, progress);
-            input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
+            input = BracketCodeFileDownloads.Process(input, progress);
+            input = BracketCodeFiles.Process(input, progress);
+            input = BracketCodeGeoJson.Process(input, progress);
+            input = BracketCodeGeoJsonLink.Process(input, progress);
+            input = BracketCodeImages.ProcessForDirectLocalAccess(input, progress);
+            input = BracketCodeImageLinks.Process(input, progress);
+            input = BracketCodeNotes.Process(input, progress);
+            input = BracketCodePhotos.ProcessForDirectLocalAccess(input, progress);
+            input = BracketCodePhotoLink.Process(input, progress);
+            input = BracketCodePosts.Process(input, progress);
+            input = BracketCodePointLinks.Process(input, progress);
+            input = BracketCodePoints.Process(input, progress);
+            input = BracketCodeSpecialPages.Process(input, progress);
 
             return input;
         }
 
         public static string ProcessCodesForSite(string input, IProgress<string> progress)
         {
-            input = BracketCodeFileDownloads.FileDownloadLinkCodeProcess(input, progress);
-            input = BracketCodeFiles.FileLinkCodeProcess(input, progress);
-            input = BracketCodeGeoJson.GeoJsonCodeProcess(input, progress);
-            input = BracketCodeGeoJsonLink.GeoJsonLinkCodeProcess(input, progress);
-            input = BracketCodeImages.ImageCodeProcessToFigureWithLink(input, progress);
-            input = BracketCodeImageLinks.ImageLinkCodeProcess(input, progress);
-            input = BracketCodeMapComponents.MapComponentLinkCodeProcess(input, progress);
-            input = BracketCodeNotes.NoteLinkCodeProcess(input, progress);
-            input = BracketCodePhotos.PhotoCodeProcessToFigureWithLink(input, progress);
-            input = BracketCodePhotoLink.PhotoLinkCodeProcess(input, progress);
-            input = BracketCodePoints.PointCodeProcess(input, progress);
-            input = BracketCodePointLinks.PointLinkCodeProcess(input, progress);
-            input = BracketCodePosts.PostLinkCodeProcess(input, progress);
-            input = BracketCodeSpecialPages.SpecialPagesCodeProcess(input, progress);
+            input = BracketCodeFileDownloads.Process(input, progress);
+            input = BracketCodeFiles.Process(input, progress);
+            input = BracketCodeGeoJson.Process(input, progress);
+            input = BracketCodeGeoJsonLink.Process(input, progress);
+            input = BracketCodeImages.ProcessToFigureWithLink(input, progress);
+            input = BracketCodeImageLinks.Process(input, progress);
+            input = BracketCodeMapComponents.Process(input, progress);
+            input = BracketCodeNotes.Process(input, progress);
+            input = BracketCodePhotos.ProcessToFigureWithLink(input, progress);
+            input = BracketCodePhotoLink.Process(input, progress);
+            input = BracketCodePoints.Process(input, progress);
+            input = BracketCodePointLinks.Process(input, progress);
+            input = BracketCodePosts.Process(input, progress);
+            input = BracketCodeSpecialPages.Process(input, progress);
 
             return input;
         }

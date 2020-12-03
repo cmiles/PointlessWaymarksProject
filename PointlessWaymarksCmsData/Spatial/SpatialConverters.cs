@@ -24,6 +24,12 @@ namespace PointlessWaymarksCmsData.Spatial
             return featureCollection.Select(x => DefaultGeometryFactory.CreateGeometry(x.Geometry)).ToList();
         }
 
+        public static Envelope GeometryBoundingBox(LineContent content, Envelope envelope = null)
+        {
+            var geometryList = LineContentToGeometries(content);
+            return GeometryBoundingBox(geometryList, envelope);
+        }
+
         public static Envelope GeometryBoundingBox(GeoJsonContent content, Envelope envelope = null)
         {
             var geometryList = GeoJsonContentToGeometries(content);
@@ -42,6 +48,17 @@ namespace PointlessWaymarksCmsData.Spatial
             foreach (var feature in geometries) boundingBox.ExpandToInclude(feature.EnvelopeInternal);
 
             return boundingBox;
+        }
+
+        public static List<Geometry> LineContentToGeometries(LineContent content)
+        {
+            var serializer = GeoJsonSerializer.Create();
+
+            using var stringReader = new StringReader(content.Line);
+            using var jsonReader = new JsonTextReader(stringReader);
+            var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+
+            return featureCollection.Select(x => DefaultGeometryFactory.CreateGeometry(x.Geometry)).ToList();
         }
 
         public static Envelope PointBoundingBox(List<PointContent> content, Envelope envelope = null)

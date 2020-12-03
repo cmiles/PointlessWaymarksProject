@@ -40,7 +40,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
                 }
         }
 
-        private void ListBoxItemsSourceChanged(object? sender, EventArgs e)
+        private void ListBoxItemsSourceChanged(object sender, EventArgs e)
         {
             UpdateItemsSource();
         }
