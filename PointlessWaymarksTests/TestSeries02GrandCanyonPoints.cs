@@ -176,7 +176,8 @@ namespace PointlessWaymarksTests
                 GeoJson = await File.ReadAllTextAsync(testFile.FullName)
             };
 
-            var result = await GeoJsonGenerator.SaveAndGenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
+            var result =
+                await GeoJsonGenerator.SaveAndGenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
 
             Assert.IsFalse(result.generationReturn.HasError);
         }
@@ -197,14 +198,12 @@ namespace PointlessWaymarksTests
             var db = await Db.Context();
             var piutePoint = await db.PointContents.SingleAsync(x => x.Title == "Piute Point");
             var pointsNearPiutePoint = await db.PointContents.Where(x =>
-                Math.Abs(x.Longitude - piutePoint.Longitude) < .1
-                && Math.Abs(x.Latitude - piutePoint.Latitude) < .1
-                && x.Title.EndsWith("Point")).ToListAsync();
+                Math.Abs(x.Longitude - piutePoint.Longitude) < .1 && Math.Abs(x.Latitude - piutePoint.Latitude) < .1 &&
+                x.Title.EndsWith("Point")).ToListAsync();
 
             var pointElements = new List<MapElement>();
 
             foreach (var loopPoints in pointsNearPiutePoint)
-            {
                 pointElements.Add(new MapElement
                 {
                     ElementContentId = loopPoints.ContentId,
@@ -212,7 +211,6 @@ namespace PointlessWaymarksTests
                     IncludeInDefaultView = true,
                     MapComponentContentId = newMap.ContentId,
                 });
-            }
 
             var grandCanyonFireGeoJson = await db.GeoJsonContents.FirstAsync();
 
@@ -245,13 +243,17 @@ namespace PointlessWaymarksTests
             var db = await Db.Context();
 
             var mapItem = db.MapComponents.First();
+            var geoJsonItem = db.GeoJsonContents.First();
 
             var post = new PostContent
             {
                 Title = "Piute Point Map Test Point",
                 Slug = "first-post",
-                BodyContent = $@"This post should have a map below this test showing points near Piute Point in the Grand Canyon.
-{{{{mapcomponent {mapItem.ContentId}; Piute Point Map}}}}",
+                BodyContent =
+                    $@"This post should have a map below this test showing points near Piute Point in the Grand Canyon.
+{{{{mapcomponent {mapItem.ContentId}; Piute Point Map}}}}
+And then we should have a GeoJson bracket code creating just the fire map:
+{{{{geojson {geoJsonItem.ContentId}; GC Fire Info}}}}",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "Map Tester",

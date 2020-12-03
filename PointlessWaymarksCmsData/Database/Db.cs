@@ -1039,9 +1039,20 @@ namespace PointlessWaymarksCmsData.Database
 
             toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
 
+            var boundingBox = SpatialConverters.GeometryBoundingBox(toSave);
+
+            toSave.InitialViewBoundsMaxY = boundingBox.MaxY;
+            toSave.InitialViewBoundsMaxX = boundingBox.MaxX;
+            toSave.InitialViewBoundsMinY = boundingBox.MinY;
+            toSave.InitialViewBoundsMinX = boundingBox.MinX;
+            DefaultPropertyCleanup(toSave);
+
+            await context.SaveChangesAsync();
+
             await context.GeoJsonContents.AddAsync(toSave);
 
             await context.SaveChangesAsync(true);
+
 
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.GeoJson,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,

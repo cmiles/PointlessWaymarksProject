@@ -33,7 +33,6 @@
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
-
     <#= SpatialScripts.ScriptsAndLinks() #>
 </head>
 
@@ -41,8 +40,8 @@
     <#= Tags.StandardHeader().ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(DbEntry).ToString() #>
-    <#=
-                Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
+    <#= GeoJsonParts.GeoJsonDivAndScript(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">

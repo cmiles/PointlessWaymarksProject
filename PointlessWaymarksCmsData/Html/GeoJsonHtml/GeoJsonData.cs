@@ -19,7 +19,7 @@ namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
             var contentFeatureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
 
             var jsonDto =
-                new GeoJsonSiteJsonData(UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent),
+                new GeoJsonSiteJsonData(UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent), new SpatialBounds(geoJsonContent.InitialViewBoundsMaxX, geoJsonContent.InitialViewBoundsMaxY, geoJsonContent.InitialViewBoundsMinX, geoJsonContent.InitialViewBoundsMinY),
                     contentFeatureCollection);
 
             var dataFileInfo = new FileInfo(Path.Combine(
@@ -39,6 +39,9 @@ namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
             await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName, stringWriter.ToString());
         }
 
-        public record GeoJsonSiteJsonData(string PageUrl, FeatureCollection GeoJson);
+        public record GeoJsonSiteJsonData(string PageUrl, SpatialBounds Bounds, FeatureCollection GeoJson);
+
+        public record SpatialBounds(double InitialViewBoundsMaxX, double InitialViewBoundsMaxY,
+            double InitialViewBoundsMinX, double InitialViewBoundsMinY);
     }
 }

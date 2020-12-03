@@ -24,6 +24,12 @@ namespace PointlessWaymarksCmsData.Spatial
             return featureCollection.Select(x => DefaultGeometryFactory.CreateGeometry(x.Geometry)).ToList();
         }
 
+        public static Envelope GeometryBoundingBox(GeoJsonContent content, Envelope envelope = null)
+        {
+            var geometryList = GeoJsonContentToGeometries(content);
+            return GeometryBoundingBox(geometryList, envelope);
+        }
+
         public static Envelope GeometryBoundingBox(List<GeoJsonContent> content, Envelope envelope = null)
         {
             var geometryList = content.SelectMany(GeoJsonContentToGeometries).ToList();

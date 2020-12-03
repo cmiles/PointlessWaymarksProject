@@ -8,6 +8,16 @@
     observer.observe(elementToObserve);
 };
 
+function openTopoMapLayer() {
+    return L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        {
+            maxZoom: 17,
+            id: 'osmTopo',
+            attribution:
+                'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+}
+
 function onEachMapGeoJsonFeature(feature, layer) {
     if (feature.properties && feature.properties.PopupContent) {
         layer.bindPopup(feature.properties.PopupContent);
@@ -17,24 +27,44 @@ function onEachMapGeoJsonFeature(feature, layer) {
     }
 }
 
-async function mapComponentInit(mapElement, contentId) {
-    var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+async function singleGeoJsonMapInit(mapElement, contentId) {
+
+    let geoJsonDataResponse = await fetch(`/GeoJson/Data/GeoJson-${contentId}.json`);
+    if (!geoJsonDataResponse.ok)
+        throw new Error(geoJsonDataResponse.statusText);
+
+    let geoJsonData = await geoJsonDataResponse.json();
+
+    let map = L.map(mapElement,
         {
-            maxZoom: 17,
-            id: 'osmTopo',
-            attribution:
-                'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+            layers: [openTopoMapLayer()],
+            doubleClickZoom: false,
+            gestureHandling: true
         });
 
-    const mapComponentResponse = await fetch(`/Maps/Data/Map-${contentId}.json`);
+    map.fitBounds([
+        [geoJsonData.Bounds.InitialViewBoundsMinY, geoJsonData.Bounds.InitialViewBoundsMinX],
+        [geoJsonData.Bounds.InitialViewBoundsMaxY, geoJsonData.Bounds.InitialViewBoundsMaxX]
+    ]);
+
+    let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
+        onEachFeature: onEachMapGeoJsonFeature
+    });
+
+    newMapLayer.addTo(map);
+}
+
+async function mapComponentInit(mapElement, contentId) {
+
+    let mapComponentResponse = await fetch(`/Maps/Data/Map-${contentId}.json`);
     if (!mapComponentResponse.ok)
         throw new Error(mapComponentResponse.statusText);
 
-    const mapComponent = await mapComponentResponse.json();
+    let mapComponent = await mapComponentResponse.json();
 
-    var map = L.map(mapElement,
+    let map = L.map(mapElement,
         {
-            layers: [openTopoMap],
+            layers: [openTopoMapLayer()],
             doubleClickZoom: false,
             gestureHandling: true
         });
@@ -45,22 +75,23 @@ async function mapComponentInit(mapElement, contentId) {
     ]);
 
     if (mapComponent.PointGuids?.length) {
-        const response = await fetch('/Points/Data/pointdata.json');
+
+        let response = await fetch('/Points/Data/pointdata.json');
         if (!response.ok)
             throw new Error(response.statusText);
 
-        const pointData = await response.json();
+        let pointData = await response.json();
 
         let includedPoints = pointData.filter(x => mapComponent.PointGuids.includes(x.ContentId));
 
         for (let pagePoint of includedPoints) {
-            let pointContentMarker = new L.marker([pagePoint.Latitude, pagePoint.Longitude],
+            const pointContentMarker = new L.marker([pagePoint.Latitude, pagePoint.Longitude],
                 {
                     draggable: false,
                     autoPan: true
                 }).addTo(map);
 
-            let pointPopup = L.popup().setContent(`${pagePoint.Title} (${pagePoint.DetailTypeString})`);
+            const pointPopup = L.popup().setContent(`${pagePoint.Title} (${pagePoint.DetailTypeString})`);
             pointPopup.autoClose = false;
 
             pointContentMarker.bindPopup(pointPopup);
@@ -72,13 +103,15 @@ async function mapComponentInit(mapElement, contentId) {
     if (mapComponent.GeoJsonGuids?.length) {
 
         for (let loopGeoJson of mapComponent.GeoJsonGuids) {
-            const response = await fetch(`/GeoJson/Data/GeoJson-${loopGeoJson}.json`);
+
+            let response = await fetch(`/GeoJson/Data/GeoJson-${loopGeoJson}.json`);
+
             if (!response.ok)
                 throw new Error(response.statusText);
 
-            const geoJsonData = await response.json();
+            let geoJsonData = await response.json();
 
-            var newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
+            let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
                 onEachFeature: onEachMapGeoJsonFeature
             });
 
@@ -88,27 +121,20 @@ async function mapComponentInit(mapElement, contentId) {
 }
 
 async function singlePointMapInit(mapElement, displayedPointSlug) {
-    var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-        {
-            maxZoom: 17,
-            id: 'osmTopo',
-            attribution:
-                'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-        });
 
-    const response = await fetch('/Points/Data/pointdata.json');
+    let response = await fetch('/Points/Data/pointdata.json');
     if (!response.ok)
         throw new Error(response.statusText);
 
-    const pointData = await response.json();
+    let pointData = await response.json();
 
     let pagePoint = pointData.filter(x => x.Slug === displayedPointSlug)[0];
 
-    var map = L.map(mapElement,
+    let map = L.map(mapElement,
         {
             center: { lat: pagePoint.Latitude, lng: pagePoint.Longitude },
             zoom: 13,
-            layers: [openTopoMap],
+            layers: [openTopoMapLayer()],
             doubleClickZoom: false,
             gestureHandling: true
         });

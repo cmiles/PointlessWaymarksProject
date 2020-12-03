@@ -26,6 +26,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
         /// </summary>
         public virtual string TransformText()
         {
+            this.Write("i");
             this.Write("\r\n<div class=\"content-container\" data-contentversion=\"");
             
             #line 4 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\PointHtml\SinglePointDiv.tt"

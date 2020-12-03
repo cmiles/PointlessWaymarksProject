@@ -50,13 +50,20 @@ namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
             this.Write("\r\n    ");
             
             #line 7 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(GeoJsonParts.GeoJsonDivAndScript(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
             #line 8 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 9 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
             
             #line default

@@ -1,4 +1,4 @@
-﻿<#@ template language="C#" #>
+﻿i<#@ template language="C#" #>
 <#@ import namespace="CommonHtml" #>
 
 <div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>">

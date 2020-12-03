@@ -7,20 +7,20 @@ using PointlessWaymarksCmsData.Database.Models;
 
 namespace PointlessWaymarksCmsData.Html.CommonHtml
 {
-    public static class BracketCodePointLinks
+    public static class BracketCodeGeoJsonLink
     {
-        public const string BracketCodeToken = "pointlink";
+        public const string BracketCodeToken = "geojsonlink";
 
-        public static List<PointContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
+        public static List<GeoJsonContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
         {
-            if (string.IsNullOrWhiteSpace(toProcess)) return new List<PointContent>();
+            if (string.IsNullOrWhiteSpace(toProcess)) return new List<GeoJsonContent>();
 
-            progress?.Report("Searching for Point Link Codes...");
+            progress?.Report("Searching for GeoJson Link Codes...");
 
             var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
                 .Select(x => x.contentGuid).Distinct().ToList();
 
-            var returnList = new List<PointContent>();
+            var returnList = new List<GeoJsonContent>();
 
             if (!guidList.Any()) return returnList;
 
@@ -28,10 +28,10 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             foreach (var loopMatch in guidList)
             {
-                var dbContent = context.PointContents.FirstOrDefault(x => x.ContentId == loopMatch);
+                var dbContent = context.GeoJsonContents.FirstOrDefault(x => x.ContentId == loopMatch);
                 if (dbContent == null) continue;
 
-                progress?.Report($"Point Link Code - Adding DbContent For {dbContent.Title}");
+                progress?.Report($"GeoJson Link Code - Adding DbContent For {dbContent.Title}");
 
                 returnList.Add(dbContent);
             }
@@ -39,16 +39,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             return returnList;
         }
 
-        public static string PointLinkBracketCode(PointContent content)
-        {
-            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
-        }
-
-        public static string PointLinkCodeProcess(string toProcess, IProgress<string> progress)
+        public static string GeoJsonLinkCodeProcess(string toProcess, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
-            progress?.Report("Searching for Point Link Codes...");
+            progress?.Report("Searching for GeoJson Link Codes...");
 
             var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
 
@@ -58,22 +53,27 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             foreach (var loopMatch in resultList)
             {
-                var dbContent = context.PointContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                var dbContent = context.GeoJsonContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
                 if (dbContent == null) continue;
 
-                progress?.Report($"Adding Point Link {dbContent.Title} from Code");
+                progress?.Report($"Adding GeoJson Link {dbContent.Title} from Code");
 
                 var linkTag =
                     new LinkTag(
                         string.IsNullOrWhiteSpace(loopMatch.displayText)
                             ? dbContent.Title
                             : loopMatch.displayText.Trim(),
-                        UserSettingsSingleton.CurrentSettings().PointPageUrl(dbContent), "point-page-link");
+                        UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(dbContent), "geojson-page-link");
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, linkTag.ToString());
             }
 
             return toProcess;
+        }
+
+        public static string GoeJsonLinkBracketCode(GeoJsonContent content)
+        {
+            return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
     }
 }

@@ -163,86 +163,93 @@ namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n    ");
+            this.Write("\r\n    ");
             
-            #line 37 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 36 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.ScriptsAndLinks()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 40 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 42 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 41 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 43 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 42 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 44 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 46 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 44 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(GeoJsonParts.GeoJsonDivAndScript(DbEntry)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 45 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 47 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 46 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n        ");
             
-            #line 49 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 48 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 50 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 49 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden
             this.Write("\r\n        ");
             
-            #line 52 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 51 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 54 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 53 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 55 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
+            #line 54 "C:\Code\PointlessWaymarksCms05\PointlessWaymarksCmsData\Html\GeoJsonHtml\SingleGeoJsonPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

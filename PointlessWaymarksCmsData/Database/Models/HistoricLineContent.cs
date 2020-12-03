@@ -16,6 +16,10 @@ namespace PointlessWaymarksCmsData.Database.Models
         public double ElevationMinimum { get; set; }
         public string Folder { get; set; }
         public int Id { get; set; }
+        public double InitialViewBoundsMaxX { get; set; }
+        public double InitialViewBoundsMaxY { get; set; }
+        public double InitialViewBoundsMinX { get; set; }
+        public double InitialViewBoundsMinY { get; set; }
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
         public double Length { get; set; }

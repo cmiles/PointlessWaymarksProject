@@ -22,11 +22,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
         public static string ScriptsAndLinks()
         {
             return
-                $"<link rel=\"stylesheet\" href=\"{ UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() }leaflet.css\" />\r\n" +
-                $"<script src=\"{ UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() }leaflet.js\"></script>\r\n" +
-                $"<link rel=\"stylesheet\" href=\"{ UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() }leaflet-gesture-handling.min.css\" type=\"text/css\">\r\n" +
-                $"<script src=\"{ UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() }leaflet-gesture-handling.min.js\"></script>\r\n" +
-                $"<script src=\"{ UserSettingsSingleton.CurrentSettings().SiteResourcesUrl() }pointless-waymarks-spatial-common.js\"></script>";
+                $"<link rel=\"stylesheet\" href=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet.css\" />\r\n" +
+                $"<script src=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet.js\"></script>\r\n" +
+                $"<link rel=\"stylesheet\" href=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.css\" type=\"text/css\">\r\n" +
+                $"<script src=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.js\"></script>\r\n" +
+                $"<script src=\"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-spatial-common.js\"></script>";
         }
     }
 }

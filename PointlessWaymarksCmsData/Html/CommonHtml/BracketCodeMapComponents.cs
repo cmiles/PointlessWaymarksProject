@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HtmlTags;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html.MapComponentData;
 
 namespace PointlessWaymarksCmsData.Html.CommonHtml
 {
@@ -63,13 +61,7 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
                 progress?.Report($"Adding mapComponent {dbContent.Title} from Code");
 
-                var divScriptGuidConnector = Guid.NewGuid();
-
-                var tag = $"<div id=\"MapComponent-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
-
-                var script = $"<script>lazyInit(document.querySelector(\"#MapComponent-{divScriptGuidConnector}\"), () => mapComponentInit(document.querySelector(\"#MapComponent-{divScriptGuidConnector}\"), \"{dbContent.ContentId}\"));</script>";
-
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText, tag + script);
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, MapParts.MapDivAndScript(dbContent));
             }
 
             return toProcess;

@@ -117,7 +117,11 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             contentCommonList.AddRange(
                 await RelatedContentReferencesFromOtherContent(db, toCheckFor, generationVersion));
             contentCommonList.AddRange(BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(
+                BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodeGeoJson.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(
+                BracketCodeGeoJsonLink.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));

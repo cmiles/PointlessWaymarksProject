@@ -23,7 +23,6 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 {
     public class PointListWithActionsContext : INotifyPropertyChanged
     {
-        private Command _pointLinkBracketCodesToClipboardForSelectedCommand;
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _emailHtmlToClipboardCommand;
@@ -32,28 +31,18 @@ namespace PointlessWaymarksCmsWpfControls.PointList
         private PointListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
+        private Command _pointBracketCodesToClipboardForSelectedCommand;
         private Command _pointCodesToClipboardForSelectedCommand;
+        private Command _pointLinkBracketCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
-        private Command _pointBracketCodesToClipboardForSelectedCommand;
 
         public PointListWithActionsContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
-        }
-
-        public Command PointLinkBracketCodesToClipboardForSelectedCommand
-        {
-            get => _pointLinkBracketCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _pointLinkBracketCodesToClipboardForSelectedCommand)) return;
-                _pointLinkBracketCodesToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
         }
 
         public Command DeleteSelectedCommand
@@ -146,6 +135,28 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             }
         }
 
+        public Command PointBracketCodesToClipboardForSelectedCommand
+        {
+            get => _pointBracketCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _pointBracketCodesToClipboardForSelectedCommand)) return;
+                _pointBracketCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command PointLinkBracketCodesToClipboardForSelectedCommand
+        {
+            get => _pointLinkBracketCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _pointLinkBracketCodesToClipboardForSelectedCommand)) return;
+                _pointLinkBracketCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command RefreshDataCommand
         {
             get => _refreshDataCommand;
@@ -182,49 +193,6 @@ namespace PointlessWaymarksCmsWpfControls.PointList
         public Command ViewHistoryCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-
-        private async Task PointBracketCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
-                (current, loopSelected) =>
-                    current + @$"{BracketCodePoints.PointLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
-
-        private async Task PointLinkBracketCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
-                (current, loopSelected) =>
-                    current + @$"{BracketCodePointLinks.PointLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
 
         private async Task Delete()
         {
@@ -384,17 +352,6 @@ namespace PointlessWaymarksCmsWpfControls.PointList
                     StatusContext));
         }
 
-        public Command PointBracketCodesToClipboardForSelectedCommand
-        {
-            get => _pointBracketCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _pointBracketCodesToClipboardForSelectedCommand)) return;
-                _pointBracketCodesToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         private async Task NewContent()
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -429,6 +386,50 @@ namespace PointlessWaymarksCmsWpfControls.PointList
                 var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
                 Process.Start(ps);
             }
+        }
+
+
+        private async Task PointBracketCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + @$"{BracketCodePoints.PointBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        private async Task PointLinkBracketCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current +
+                    @$"{BracketCodePointLinks.PointLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         public static async Task SelectedToExcel(List<Guid> selected, StatusControlContext statusContext)
