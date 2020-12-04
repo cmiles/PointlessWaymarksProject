@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.Geometries.Implementation;
 
 namespace PointlessWaymarksCmsData.Spatial
 {
@@ -35,12 +34,11 @@ namespace PointlessWaymarksCmsData.Spatial
         /// <returns></returns>
         public static T RoundLatLongElevation<T>(T toProcess)
         {
-            var positionPropertyNames = new List<string> {"Latitude", "Longitude", "Elevation" };
+            var positionPropertyNames = new List<string> {"Latitude", "Longitude", "Elevation"};
 
             var positionProperties = typeof(T).GetProperties().Where(x =>
-                    x.PropertyType == typeof(double) && x.GetSetMethod() != null &&
-                    positionPropertyNames.Any(y => x.Name.EndsWith(y)))
-                .ToList();
+                x.PropertyType == typeof(double) && x.GetSetMethod() != null &&
+                positionPropertyNames.Any(y => x.Name.EndsWith(y))).ToList();
 
             foreach (var loopProperty in positionProperties)
             {
@@ -66,8 +64,7 @@ namespace PointlessWaymarksCmsData.Spatial
 
         public static GeometryFactory Wgs84GeometryFactory()
         {
-            return NtsGeometryServices.Instance.CreateGeometryFactory(new PrecisionModel(), 4326,
-                DotSpatialAffineCoordinateSequenceFactory.Instance);
+            return NtsGeometryServices.Instance.CreateGeometryFactory(new PrecisionModel(), 4326);
         }
 
         public static Point Wgs84Point(double x, double y, double z)

@@ -11,8 +11,6 @@ namespace PointlessWaymarksCmsData.Spatial
 {
     public static class SpatialConverters
     {
-        public static GeometryFactory DefaultGeometryFactory => new GeometryFactory(new PrecisionModel(), 4326);
-
         public static List<Geometry> GeoJsonContentToGeometries(GeoJsonContent content)
         {
             var serializer = GeoJsonSerializer.Create();
@@ -21,7 +19,8 @@ namespace PointlessWaymarksCmsData.Spatial
             using var jsonReader = new JsonTextReader(stringReader);
             var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
 
-            return featureCollection.Select(x => DefaultGeometryFactory.CreateGeometry(x.Geometry)).ToList();
+            return featureCollection.Select(x => SpatialHelpers.Wgs84GeometryFactory().CreateGeometry(x.Geometry))
+                .ToList();
         }
 
         public static Envelope GeometryBoundingBox(LineContent content, Envelope envelope = null)
@@ -58,7 +57,8 @@ namespace PointlessWaymarksCmsData.Spatial
             using var jsonReader = new JsonTextReader(stringReader);
             var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
 
-            return featureCollection.Select(x => DefaultGeometryFactory.CreateGeometry(x.Geometry)).ToList();
+            return featureCollection.Select(x => SpatialHelpers.Wgs84GeometryFactory().CreateGeometry(x.Geometry))
+                .ToList();
         }
 
         public static Envelope PointBoundingBox(List<PointContent> content, Envelope envelope = null)
@@ -77,8 +77,8 @@ namespace PointlessWaymarksCmsData.Spatial
 
         public static Point PointContentToPoint(PointContent content)
         {
-            return DefaultGeometryFactory.CreatePoint(new CoordinateZ(content.Longitude, content.Latitude,
-                content.Elevation ?? 0));
+            return SpatialHelpers.Wgs84GeometryFactory()
+                .CreatePoint(new CoordinateZ(content.Longitude, content.Latitude, content.Elevation ?? 0));
         }
     }
 }

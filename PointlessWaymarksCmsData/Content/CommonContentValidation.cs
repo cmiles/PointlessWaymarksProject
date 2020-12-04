@@ -148,13 +148,13 @@ namespace PointlessWaymarksCmsData.Content
         {
             if (elevation == null) return (true, "Null Elevation is Valid");
 
-            if (elevation > 29029)
+            if (elevation > 8850)
                 return (false,
-                    $"Elevations are limited to the elevation of Mount Everest at 29,092 ft above sea level - {elevation} was input...");
+                    $"Elevations are limited to the elevation of Mount Everest - 29,092' above sea level - {elevation} was input...");
 
-            if (elevation < -50000)
+            if (elevation < -15240)
                 return (false,
-                    $"This is very unlikely to be a valid elevation, this exceeds the depth of the Mariana Trench and known Extended-Reach Drilling (as of 2020) - elevations under -50,000 are not considered valid - {elevation} was input...");
+                    $"This is very unlikely to be a valid elevation, this exceeds the depth of the Mariana Trench and known Extended-Reach Drilling (as of 2020) - elevations under -50,000' are not considered valid - {elevation} was input...");
 
             return (true, "Elevation is Valid");
         }

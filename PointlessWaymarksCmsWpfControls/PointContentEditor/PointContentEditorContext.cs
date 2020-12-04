@@ -376,7 +376,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
 
                 if (elevationResult != null)
                 {
-                    ElevationEntry.UserText = elevationResult.MetersToFeet().ToString("F0");
+                    ElevationEntry.UserText = elevationResult?.ToString("F2");
 
                     StatusContext.ToastSuccess(
                         $"Set elevation of {ElevationEntry.UserValue} from Open Topo Data - www.opentopodata.org - NED data set");
@@ -404,7 +404,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                     return;
                 }
 
-                ElevationEntry.UserText = elevationResult.MetersToFeet().ToString("F0");
+                ElevationEntry.UserText = elevationResult?.ToString("F2");
 
                 StatusContext.ToastSuccess(
                     $"Set elevation of {ElevationEntry.UserValue} from Open Topo Data - www.opentopodata.org - Mapzen data set");
@@ -455,7 +455,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
             ElevationEntry.Title = "Elevation";
             ElevationEntry.HelpText = "Elevation in Feet";
             ElevationEntry.ReferenceValue = DbEntry.Elevation;
-            ElevationEntry.UserText = DbEntry.Elevation?.ToString("F0") ?? string.Empty;
+            ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
 
             LatitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
             LatitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;

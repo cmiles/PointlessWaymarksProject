@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
@@ -317,10 +318,13 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
 
             var choiceList = new List<(string description, GpxTrack track)>();
 
+            var trackCounter = 1;
+
             foreach (var loopTracks in parsedGpx.Tracks)
             {
-                var descriptionElements = new List<string> {loopTracks.Comment, loopTracks.Description, loopTracks.Name}
-                    .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                var descriptionElements =
+                    new List<string> {$"{trackCounter++}", loopTracks.Comment, loopTracks.Description, loopTracks.Name}
+                        .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
 
                 var extensions = loopTracks.Extensions;
 
@@ -341,7 +345,38 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
                 }
             }
 
-            //Todo: get the final choice, measure, replace elevation, get details, create GeoJson
+            GpxTrack importTrack;
+
+            if (choiceList.Count > 1)
+            {
+                var importTrackName = await StatusContext.ShowMessage("Choose Track",
+                    "The GPX file contains more than 1 track - choose the track to import:",
+                    choiceList.Select(x => x.description).ToList());
+
+                var possibleSelectedTrack = choiceList.Where(x => x.description == importTrackName).ToList();
+
+                if (possibleSelectedTrack.Count == 1)
+                {
+                    importTrack = possibleSelectedTrack.Single().track;
+                }
+                else
+                {
+                    StatusContext.ToastError("Track not found?");
+                    return;
+                }
+            }
+            else
+            {
+                importTrack = choiceList.First().track;
+            }
+
+            var pointList = new List<CoordinateZ>();
+
+            foreach (var loopSegments in importTrack.Segments)
+                pointList.AddRange(loopSegments.Waypoints.Select(x =>
+                    new CoordinateZ(x.Longitude.Value, x.Longitude.Value, x.ElevationInMeters ?? 0)));
+
+            //Todo - optional Elevation replacement - need Elevation Service Call to help with lists of coordinates
         }
 
         public async Task LoadData(LineContent toLoad)
