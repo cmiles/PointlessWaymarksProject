@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
+using NetTopologySuite.IO;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
@@ -273,6 +279,69 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
             return newEntry;
+        }
+
+        public async Task ImportFromGpx()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            StatusContext.Progress("Starting image load.");
+
+            var dialog = new VistaOpenFileDialog();
+
+            if (!(dialog.ShowDialog() ?? false)) return;
+
+            var newFile = new FileInfo(dialog.FileName);
+
+            if (!newFile.Exists)
+            {
+                StatusContext.ToastError("File doesn't exist?");
+                return;
+            }
+
+            GpxFile parsedGpx;
+
+            try
+            {
+                parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(newFile.FullName),
+                    new GpxReaderSettings
+                    {
+                        IgnoreUnexpectedChildrenOfTopLevelElement = true, IgnoreVersionAttribute = true
+                    });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            var choiceList = new List<(string description, GpxTrack track)>();
+
+            foreach (var loopTracks in parsedGpx.Tracks)
+            {
+                var descriptionElements = new List<string> {loopTracks.Comment, loopTracks.Description, loopTracks.Name}
+                    .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+
+                var extensions = loopTracks.Extensions;
+
+                if (extensions is ImmutableXElementContainer extensionsContainer)
+                {
+                    var timeString = extensionsContainer.FirstOrDefault(x => x.Name.LocalName.ToLower() == "time")
+                        ?.Value;
+
+                    if (!string.IsNullOrWhiteSpace(timeString) && DateTime.TryParse(timeString, out var resultDateTime))
+                        descriptionElements.Add(DateTime.SpecifyKind(resultDateTime, DateTimeKind.Utc).ToLocalTime()
+                            .ToString(CultureInfo.InvariantCulture));
+
+                    var possibleLabelString = extensionsContainer
+                        .FirstOrDefault(x => x.Name.LocalName.ToLower() == "label")?.Value;
+
+                    if (!string.IsNullOrWhiteSpace(possibleLabelString)) descriptionElements.Add(possibleLabelString);
+                    choiceList.Add((string.Join(", ", descriptionElements), loopTracks));
+                }
+            }
+
+            //Todo: get the final choice, measure, replace elevation, get details, create GeoJson
         }
 
         public async Task LoadData(LineContent toLoad)
