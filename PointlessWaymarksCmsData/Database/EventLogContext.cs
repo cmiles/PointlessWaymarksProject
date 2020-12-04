@@ -33,7 +33,7 @@ namespace PointlessWaymarksCmsData.Database
             await TryWriteMessageToLog("Diagnostic", message, sender);
         }
 
-        public static async Task TryWriteExceptionToLog(Exception ex, string sender, string additionLogInfo)
+        public static async Task<Exception> TryWriteExceptionToLog(Exception ex, string sender, string additionLogInfo)
         {
             try
             {
@@ -81,6 +81,8 @@ namespace PointlessWaymarksCmsData.Database
             {
                 Console.WriteLine(e);
             }
+
+            return ex;
         }
 
         public static void TryWriteExceptionToLogBlocking(Exception ex, string sender, string additionLogInfo)
