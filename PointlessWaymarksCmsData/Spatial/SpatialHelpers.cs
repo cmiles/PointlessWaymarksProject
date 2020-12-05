@@ -1,8 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using NetTopologySuite;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using Newtonsoft.Json;
+using PointlessWaymarksCmsData.Spatial.Elevation;
 
 namespace PointlessWaymarksCmsData.Spatial
 {
@@ -70,6 +78,84 @@ namespace PointlessWaymarksCmsData.Spatial
         public static Point Wgs84Point(double x, double y, double z)
         {
             return Wgs84GeometryFactory().CreatePoint(new CoordinateZ(x, y, z));
+        }
+
+        public static async Task<string> GeoJsonWithLineStringFromCoordinateList(List<CoordinateZ> pointList,
+            bool replaceElevations, IProgress<string> progress)
+        {
+            if (replaceElevations)
+                await ElevationService.OpenTopoMapZenElevation(new HttpClient(), pointList, progress);
+
+            // ReSharper disable once CoVariantArrayConversion It appears from testing that a linestring will reflect CoordinateZ
+            var newLineString = new LineString(pointList.ToArray());
+            var newFeature = new Feature(newLineString, new AttributesTable());
+            var featureCollection = new FeatureCollection {newFeature};
+
+            var serializer = GeoJsonSerializer.Create();
+            await using var stringWriter = new StringWriter();
+            using var jsonWriter = new JsonTextWriter(stringWriter);
+            serializer.Serialize(jsonWriter, featureCollection);
+            return stringWriter.ToString();
+        }
+
+        public static async Task<List<(string description, List<CoordinateZ> track)>> TracksFromGpxFile(
+            FileInfo gpxFile, IProgress<string> progress)
+        {
+            var returnList = new List<(string description, List<CoordinateZ>)>();
+
+            if (gpxFile == null || !gpxFile.Exists) return returnList;
+
+            GpxFile parsedGpx;
+
+            try
+            {
+                parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName),
+                    new GpxReaderSettings
+                    {
+                        IgnoreUnexpectedChildrenOfTopLevelElement = true, IgnoreVersionAttribute = true
+                    });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            var trackCounter = 1;
+
+            foreach (var loopTracks in parsedGpx.Tracks)
+            {
+                var descriptionElements =
+                    new List<string> {$"{trackCounter++}", loopTracks.Comment, loopTracks.Description, loopTracks.Name}
+                        .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+
+                var extensions = loopTracks.Extensions;
+
+                if (extensions is ImmutableXElementContainer extensionsContainer)
+                {
+                    var timeString = extensionsContainer.FirstOrDefault(x => x.Name.LocalName.ToLower() == "time")
+                        ?.Value;
+
+                    if (!string.IsNullOrWhiteSpace(timeString) && DateTime.TryParse(timeString, out var resultDateTime))
+                        descriptionElements.Add(DateTime.SpecifyKind(resultDateTime, DateTimeKind.Utc).ToLocalTime()
+                            .ToString(CultureInfo.InvariantCulture));
+
+                    var possibleLabelString = extensionsContainer
+                        .FirstOrDefault(x => x.Name.LocalName.ToLower() == "label")?.Value;
+
+                    if (!string.IsNullOrWhiteSpace(possibleLabelString)) descriptionElements.Add(possibleLabelString);
+                }
+
+                var pointList = new List<CoordinateZ>();
+
+                foreach (var loopSegments in loopTracks.Segments)
+                    pointList.AddRange(loopSegments.Waypoints.Select(x =>
+                        new CoordinateZ(x.Longitude.Value, x.Longitude.Value, x.ElevationInMeters ?? 0)));
+
+                returnList.Add((string.Join(", ", descriptionElements), pointList));
+            }
+
+            return returnList;
         }
     }
 }

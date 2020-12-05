@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -10,11 +9,11 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Spatial;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
@@ -38,6 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private LineContent _dbEntry;
         private Command _extractNewLinksCommand;
+        private string _geoJson;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
@@ -117,6 +117,17 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             {
                 if (Equals(value, _extractNewLinksCommand)) return;
                 _extractNewLinksCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string GeoJson
+        {
+            get => _geoJson;
+            set
+            {
+                if (value == _geoJson) return;
+                _geoJson = value;
                 OnPropertyChanged();
             }
         }
@@ -282,7 +293,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             return newEntry;
         }
 
-        public async Task ImportFromGpx()
+        public async Task ImportFromGpx(bool replaceElevations)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -300,64 +311,21 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
                 return;
             }
 
-            GpxFile parsedGpx;
+            var tracksList = await SpatialHelpers.TracksFromGpxFile(newFile, StatusContext.ProgressTracker());
 
-            try
-            {
-                parsedGpx = GpxFile.Parse(await File.ReadAllTextAsync(newFile.FullName),
-                    new GpxReaderSettings
-                    {
-                        IgnoreUnexpectedChildrenOfTopLevelElement = true, IgnoreVersionAttribute = true
-                    });
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            List<CoordinateZ> importTrackPoints;
 
-            var choiceList = new List<(string description, GpxTrack track)>();
-
-            var trackCounter = 1;
-
-            foreach (var loopTracks in parsedGpx.Tracks)
-            {
-                var descriptionElements =
-                    new List<string> {$"{trackCounter++}", loopTracks.Comment, loopTracks.Description, loopTracks.Name}
-                        .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-
-                var extensions = loopTracks.Extensions;
-
-                if (extensions is ImmutableXElementContainer extensionsContainer)
-                {
-                    var timeString = extensionsContainer.FirstOrDefault(x => x.Name.LocalName.ToLower() == "time")
-                        ?.Value;
-
-                    if (!string.IsNullOrWhiteSpace(timeString) && DateTime.TryParse(timeString, out var resultDateTime))
-                        descriptionElements.Add(DateTime.SpecifyKind(resultDateTime, DateTimeKind.Utc).ToLocalTime()
-                            .ToString(CultureInfo.InvariantCulture));
-
-                    var possibleLabelString = extensionsContainer
-                        .FirstOrDefault(x => x.Name.LocalName.ToLower() == "label")?.Value;
-
-                    if (!string.IsNullOrWhiteSpace(possibleLabelString)) descriptionElements.Add(possibleLabelString);
-                    choiceList.Add((string.Join(", ", descriptionElements), loopTracks));
-                }
-            }
-
-            GpxTrack importTrack;
-
-            if (choiceList.Count > 1)
+            if (tracksList.Count > 1)
             {
                 var importTrackName = await StatusContext.ShowMessage("Choose Track",
                     "The GPX file contains more than 1 track - choose the track to import:",
-                    choiceList.Select(x => x.description).ToList());
+                    tracksList.Select(x => x.description).ToList());
 
-                var possibleSelectedTrack = choiceList.Where(x => x.description == importTrackName).ToList();
+                var possibleSelectedTrack = tracksList.Where(x => x.description == importTrackName).ToList();
 
                 if (possibleSelectedTrack.Count == 1)
                 {
-                    importTrack = possibleSelectedTrack.Single().track;
+                    importTrackPoints = possibleSelectedTrack.Single().track;
                 }
                 else
                 {
@@ -367,16 +335,11 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             }
             else
             {
-                importTrack = choiceList.First().track;
+                importTrackPoints = tracksList.First().track;
             }
 
-            var pointList = new List<CoordinateZ>();
-
-            foreach (var loopSegments in importTrack.Segments)
-                pointList.AddRange(loopSegments.Waypoints.Select(x =>
-                    new CoordinateZ(x.Longitude.Value, x.Longitude.Value, x.ElevationInMeters ?? 0)));
-
-            //Todo - optional Elevation replacement - need Elevation Service Call to help with lists of coordinates
+            GeoJson = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(importTrackPoints, replaceElevations,
+                StatusContext.ProgressTracker());
         }
 
         public async Task LoadData(LineContent toLoad)
