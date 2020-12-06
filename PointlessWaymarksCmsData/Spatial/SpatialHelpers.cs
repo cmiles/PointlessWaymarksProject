@@ -30,7 +30,7 @@ namespace PointlessWaymarksCmsData.Spatial
             if (initialValue != null && value == null) return true;
             if (initialValue == null /*&& value != null*/) return true;
             // ReSharper disable PossibleInvalidOperationException Checked above
-            return !initialValue.Value.IsApproximatelyEqualTo(value.Value, .000001);
+            return !initialValue.Value.IsApproximatelyEqualTo(value.Value, maximumDifferenceAllowed);
             // ReSharper restore PossibleInvalidOperationException
         }
 
@@ -50,6 +50,7 @@ namespace PointlessWaymarksCmsData.Spatial
 
             foreach (var loopProperty in positionProperties)
             {
+                // ReSharper disable once PossibleNullReferenceException The query above is for a type of double so I don't believe this check is needed
                 var current = (double) loopProperty.GetValue(toProcess);
                 loopProperty.SetValue(toProcess, Math.Round(current, 6));
             }
@@ -91,12 +92,81 @@ namespace PointlessWaymarksCmsData.Spatial
             var newFeature = new Feature(newLineString, new AttributesTable());
             var featureCollection = new FeatureCollection {newFeature};
 
-            var serializer = GeoJsonSerializer.Create();
+            var serializer = GeoJsonSerializer.Create(Wgs84GeometryFactory(), 3);
             await using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonTextWriter(stringWriter);
             serializer.Serialize(jsonWriter, featureCollection);
             return stringWriter.ToString();
         }
+
+        public static List<CoordinateZ> CoordinateListFromGeoJsonFeatureCollectionWithLinestring(string geoJson)
+        {
+            if (string.IsNullOrWhiteSpace(geoJson)) return new List<CoordinateZ>();
+
+            var serializer = GeoJsonSerializer.Create(Wgs84GeometryFactory(), 3);
+
+            using var stringReader = new StringReader(geoJson);
+            using var jsonReader = new JsonTextReader(stringReader);
+            var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+            if (featureCollection == null || featureCollection.Count < 1) return new List<CoordinateZ>();
+
+            var possibleLine = featureCollection.FirstOrDefault(x => x.Geometry is LineString);
+
+            if (possibleLine == null) return new List<CoordinateZ>();
+
+            var geoLine = (LineString) possibleLine.Geometry;
+
+            return geoLine.Coordinates.Select(x => new CoordinateZ(x.X, x.Y, x.Z)).ToList();
+        }
+
+        public static LineStatsInImperial LineStatsInImperialFromCoordinateList(List<CoordinateZ> line)
+        {
+            return LineStatsInImperialFromMetricStats(LineStatsInMetricFromCoordinateList(line));
+        }
+
+        public static LineStatsInMeters LineStatsInMetricFromCoordinateList(List<CoordinateZ> line)
+        {
+            double climb = 0;
+            double descent = 0;
+            double length = 0;
+            double maxElevation = 0;
+            double minElevation = 0;
+
+            if (line == null || line.Count < 2)
+                return new LineStatsInMeters(length, climb, descent, maxElevation, minElevation);
+
+            var previousPoint = line[0];
+            maxElevation = previousPoint.Z;
+            minElevation = previousPoint.Z;
+
+            foreach (var loopPoint in line.Skip(1))
+            {
+                length += DistanceHelpers.GetDistanceInMeters(previousPoint.X, previousPoint.Y, previousPoint.Z,
+                    loopPoint.X, loopPoint.Y, loopPoint.Z);
+                if (previousPoint.Z < loopPoint.Z) climb += loopPoint.Z - previousPoint.Z;
+                else descent += previousPoint.Z - loopPoint.Z;
+
+                maxElevation = Math.Max(loopPoint.Z, maxElevation);
+                minElevation = Math.Min(loopPoint.Z, minElevation);
+
+                previousPoint = loopPoint;
+            }
+
+            return new LineStatsInMeters(length, climb, descent, maxElevation, minElevation);
+        }
+
+        public static LineStatsInImperial LineStatsInImperialFromMetricStats(LineStatsInMeters metricStats)
+        {
+            return new(metricStats.Length.MetersToMiles(), metricStats.ElevationClimb.MetersToFeet(),
+                metricStats.ElevationDescent.MetersToFeet(), metricStats.MaximumElevation.MetersToFeet(),
+                metricStats.MinimumElevation.MetersToFeet());
+        }
+
+        public record LineStatsInMeters(double Length, double ElevationClimb, double ElevationDescent,
+            double MaximumElevation, double MinimumElevation);
+
+        public record LineStatsInImperial(double Length, double ElevationClimb, double ElevationDescent,
+            double MaximumElevation, double MinimumElevation);
 
         public static async Task<List<(string description, List<CoordinateZ> track)>> TracksFromGpxFile(
             FileInfo gpxFile, IProgress<string> progress)
@@ -150,7 +220,7 @@ namespace PointlessWaymarksCmsData.Spatial
 
                 foreach (var loopSegments in loopTracks.Segments)
                     pointList.AddRange(loopSegments.Waypoints.Select(x =>
-                        new CoordinateZ(x.Longitude.Value, x.Longitude.Value, x.ElevationInMeters ?? 0)));
+                        new CoordinateZ(x.Longitude.Value, x.Latitude.Value, x.ElevationInMeters ?? 0)));
 
                 returnList.Add((string.Join(", ", descriptionElements), pointList));
             }

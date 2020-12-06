@@ -10,6 +10,7 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.LineHtml;
 using PointlessWaymarksCmsData.Json;
+using PointlessWaymarksCmsData.Spatial;
 
 namespace PointlessWaymarksCmsData.Content
 {
@@ -63,7 +64,7 @@ namespace PointlessWaymarksCmsData.Content
 
             try
             {
-                var serializer = GeoJsonSerializer.Create();
+                var serializer = GeoJsonSerializer.Create(SpatialHelpers.Wgs84GeometryFactory(), 3);
 
                 using var stringReader = new StringReader(lineContent.Line);
                 using var jsonReader = new JsonTextReader(stringReader);

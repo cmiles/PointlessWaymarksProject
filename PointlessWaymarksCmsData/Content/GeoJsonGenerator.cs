@@ -68,7 +68,7 @@ namespace PointlessWaymarksCmsData.Content
                 using var stringReader = new StringReader(geoJsonContent.GeoJson);
                 using var jsonReader = new JsonTextReader(stringReader);
                 var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-                if (featureCollection.Count < 1)
+                if (featureCollection == null || featureCollection.Count < 1)
                     return await GenerationReturn.Error("The GeoJson appears to have an empty Feature Collection?",
                         geoJsonContent.ContentId);
             }

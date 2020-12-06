@@ -51,7 +51,7 @@ namespace PointlessWaymarksCmsData.Spatial
 
         public static List<Geometry> LineContentToGeometries(LineContent content)
         {
-            var serializer = GeoJsonSerializer.Create();
+            var serializer = GeoJsonSerializer.Create(SpatialHelpers.Wgs84GeometryFactory(), 3);
 
             using var stringReader = new StringReader(content.Line);
             using var jsonReader = new JsonTextReader(stringReader);

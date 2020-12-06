@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.GeoJsonHtml;
+using PointlessWaymarksCmsData.Spatial;
 
 namespace PointlessWaymarksCmsData.Html.LineHtml
 {
@@ -13,7 +14,7 @@ namespace PointlessWaymarksCmsData.Html.LineHtml
     {
         public static async Task WriteLocalJsonData(LineContent geoJsonContent)
         {
-            var serializer = GeoJsonSerializer.Create();
+            var serializer = GeoJsonSerializer.Create(SpatialHelpers.Wgs84GeometryFactory(), 3);
 
             using var stringReader = new StringReader(geoJsonContent.Line);
             using var jsonReader = new JsonTextReader(stringReader);
