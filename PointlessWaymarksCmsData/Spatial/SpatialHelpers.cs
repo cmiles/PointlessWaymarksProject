@@ -41,32 +41,47 @@ namespace PointlessWaymarksCmsData.Spatial
         /// <typeparam name="T"></typeparam>
         /// <param name="toProcess"></param>
         /// <returns></returns>
-        public static T RoundLatLongElevation<T>(T toProcess)
+        public static T RoundSpatialValues<T>(T toProcess)
         {
-            var positionPropertyNames = new List<string> {"Latitude", "Longitude", "Elevation"};
+            if (toProcess == null) return toProcess;
+            
+            var positionPropertyNames = new List<string> {"Latitude", "Longitude" };
 
             var positionProperties = typeof(T).GetProperties().Where(x =>
-                x.PropertyType == typeof(double) && x.GetSetMethod() != null &&
+                (x.PropertyType == typeof(double) || x.PropertyType == typeof(double?)) && x.GetSetMethod() != null &&
                 positionPropertyNames.Any(y => x.Name.EndsWith(y))).ToList();
 
             foreach (var loopProperty in positionProperties)
             {
-                // ReSharper disable once PossibleNullReferenceException The query above is for a type of double so I don't believe this check is needed
+                if(loopProperty.GetValue(toProcess) == null) continue;
                 var current = (double) loopProperty.GetValue(toProcess);
                 loopProperty.SetValue(toProcess, Math.Round(current, 6));
             }
 
-            var elevationPropertyNames = new List<string> {"Elevation"};
+            var distancePropertyNames = new List<string> { "Distance" };
+
+            var distanceProperties = typeof(T).GetProperties().Where(x =>
+                (x.PropertyType == typeof(double) || x.PropertyType == typeof(double?)) && x.GetSetMethod() != null &&
+                distancePropertyNames.Any(y => x.Name.EndsWith(y))).ToList();
+
+            foreach (var loopProperty in distanceProperties)
+            {
+                if(loopProperty.GetValue(toProcess) == null) continue;
+                var current = (double)loopProperty.GetValue(toProcess);
+                loopProperty.SetValue(toProcess, Math.Round(current, 2));
+            }
+
+            var elevationPropertyNames = new List<string> { "Elevation"};
 
             var elevationProperties = typeof(T).GetProperties().Where(x =>
-                x.PropertyType == typeof(double?) && x.GetSetMethod() != null &&
-                elevationPropertyNames.Contains(x.Name)).ToList();
+                (x.PropertyType == typeof(double) || x.PropertyType == typeof(double?)) && x.GetSetMethod() != null &&
+                elevationPropertyNames.Any(y => x.Name.EndsWith(y))).ToList();
 
             foreach (var loopProperty in elevationProperties)
             {
-                var current = (double?) loopProperty.GetValue(toProcess);
-                if (current == null) continue;
-                loopProperty.SetValue(toProcess, Math.Round(current.Value, 0));
+                if (loopProperty.GetValue(toProcess) == null) continue;
+                var current = (double)loopProperty.GetValue(toProcess);
+                loopProperty.SetValue(toProcess, Math.Round(current, 0));
             }
 
             return toProcess;

@@ -183,6 +183,54 @@ namespace PointlessWaymarksTests
         }
 
         [Test]
+        public async Task L01_HorseshoeMesaLineContent()
+        {
+            var testFile = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "TestMedia",
+                "GrandCanyonHorseShoeMesaEastSideLoop.gpx"));
+            Assert.True(testFile.Exists, "GPX Test File Found");
+
+            var lineTest = new LineContent
+            {
+                ContentId = Guid.NewGuid(),
+                BodyContent = "Horseshoe Mesa East Side Loop",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CreatedOn = DateTime.Now,
+                CreatedBy = "GPX Import Test",
+                Folder = "GrandCanyon",
+                Title = "Horseshoe Mesa East Side Loop",
+                Slug = "horseshoe-mesa-east-side-loop",
+                ShowInMainSiteFeed = true,
+                Summary = "Horseshoe Mesa East Side Loop",
+                Tags = "grand-canyon, horse-shoe-mesa",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+            };
+
+            var track = (await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker()))
+                .First();
+
+            var stats = SpatialHelpers.LineStatsInMetricFromCoordinateList(track.track);
+
+            lineTest.ClimbElevation = stats.ElevationClimb;
+            lineTest.DescentElevation = stats.ElevationDescent;
+            lineTest.MinimumElevation = stats.MinimumElevation;
+            lineTest.MaximumElevation = stats.MaximumElevation;
+            lineTest.LineDistance = stats.Length;
+
+            lineTest.Line =
+                await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(track.track, false,
+                    DebugTrackers.DebugProgressTracker());
+
+            var validationResult = await LineGenerator.Validate(lineTest);
+
+            Assert.IsFalse(validationResult.HasError);
+
+            var saveResult =
+                await LineGenerator.SaveAndGenerateHtml(lineTest, null, DebugTrackers.DebugProgressTracker());
+
+            Assert.IsFalse(saveResult.generationReturn.HasError);
+        }
+
+        [Test]
         public async Task M01_GenerateMap()
         {
             var newMap = new MapComponent
@@ -210,7 +258,19 @@ namespace PointlessWaymarksTests
                     ShowDetailsDefault = false,
                     IncludeInDefaultView = true,
                     MapComponentContentId = newMap.ContentId,
+                    IsFeaturedElement = true
                 });
+
+            var lineElement = await db.LineContents.FirstAsync();
+
+            pointElements.Add(new MapElement
+            {
+                ElementContentId = lineElement.ContentId,
+                ShowDetailsDefault = false,
+                IncludeInDefaultView = true,
+                MapComponentContentId = newMap.ContentId,
+                IsFeaturedElement = true
+            });
 
             var grandCanyonFireGeoJson = await db.GeoJsonContents.FirstAsync();
 
@@ -220,6 +280,7 @@ namespace PointlessWaymarksTests
                 ShowDetailsDefault = false,
                 IncludeInDefaultView = true,
                 MapComponentContentId = newMap.ContentId,
+                IsFeaturedElement = true
             });
 
 
@@ -242,8 +303,9 @@ namespace PointlessWaymarksTests
         {
             var db = await Db.Context();
 
-            var mapItem = db.MapComponents.First();
-            var geoJsonItem = db.GeoJsonContents.First();
+            var mapItem = await db.MapComponents.FirstAsync();
+            var geoJsonItem = await db.GeoJsonContents.FirstAsync();
+            var lineItem = await db.LineContents.FirstAsync();
 
             var post = new PostContent
             {
@@ -252,8 +314,15 @@ namespace PointlessWaymarksTests
                 BodyContent =
                     $@"This post should have a map below this test showing points near Piute Point in the Grand Canyon.
 {{{{mapcomponent {mapItem.ContentId}; Piute Point Map}}}}
+
+
 And then we should have a GeoJson bracket code creating just the fire map:
-{{{{geojson {geoJsonItem.ContentId}; GC Fire Info}}}}",
+{{{{geojson {geoJsonItem.ContentId}; GC Fire Info}}}}
+
+
+And what about a line...
+{{{{line {lineItem.ContentId}; Horseshoe}}}}
+",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 ContentId = Guid.NewGuid(),
                 CreatedBy = "Map Tester",

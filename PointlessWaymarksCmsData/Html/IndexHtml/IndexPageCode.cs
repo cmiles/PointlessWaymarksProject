@@ -14,6 +14,7 @@ using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Html.FileHtml;
 using PointlessWaymarksCmsData.Html.GeoJsonHtml;
 using PointlessWaymarksCmsData.Html.ImageHtml;
+using PointlessWaymarksCmsData.Html.LineHtml;
 using PointlessWaymarksCmsData.Html.NoteHtml;
 using PointlessWaymarksCmsData.Html.PhotoHtml;
 using PointlessWaymarksCmsData.Html.PointHtml;
@@ -135,6 +136,15 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
                 if (loopPosts.GetType() == typeof(GeoJsonContent))
                 {
                     var post = new SingleGeoJsonDiv(loopPosts);
+                    var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
+                    indexPostContentDiv.Encoded(false).Text(post.TransformText());
+                    indexBodyContainer.Children.Add(indexPostContentDiv);
+                    indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+                }
+
+                if (loopPosts.GetType() == typeof(LineContent))
+                {
+                    var post = new SingleLineDiv(loopPosts);
                     var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
                     indexPostContentDiv.Encoded(false).Text(post.TransformText());
                     indexBodyContainer.Children.Add(indexPostContentDiv);

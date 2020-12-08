@@ -41,6 +41,12 @@ namespace PointlessWaymarksCmsData.Spatial
             return GeometryBoundingBox(geometryList, envelope);
         }
 
+        public static Envelope GeometryBoundingBox(List<LineContent> content, Envelope envelope = null)
+        {
+            var geometryList = content.SelectMany(LineContentToGeometries).ToList();
+            return GeometryBoundingBox(geometryList, envelope);
+        }
+
         public static Envelope GeometryBoundingBox(List<Geometry> geometries, Envelope boundingBox = null)
         {
             boundingBox ??= new Envelope();

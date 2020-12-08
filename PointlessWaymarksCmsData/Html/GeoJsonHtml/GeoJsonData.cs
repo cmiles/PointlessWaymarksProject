@@ -20,8 +20,8 @@ namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
 
             var jsonDto = new GeoJsonSiteJsonData(
                 UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent),
-                new SpatialBounds(geoJsonContent.InitialViewBoundsMaxX, geoJsonContent.InitialViewBoundsMaxY,
-                    geoJsonContent.InitialViewBoundsMinX, geoJsonContent.InitialViewBoundsMinY),
+                new SpatialBounds(geoJsonContent.InitialViewBoundsMaxLongitude, geoJsonContent.InitialViewBoundsMaxLatitude,
+                    geoJsonContent.InitialViewBoundsMinLongitude, geoJsonContent.InitialViewBoundsMinLatitude),
                 contentFeatureCollection);
 
             var dataFileInfo = new FileInfo(Path.Combine(

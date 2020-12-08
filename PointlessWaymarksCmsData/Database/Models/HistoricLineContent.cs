@@ -6,25 +6,25 @@ namespace PointlessWaymarksCmsData.Database.Models
     {
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
+        public double ClimbElevation { get; set; }
         public Guid ContentId { get; set; }
         public DateTime ContentVersion { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
-        public double ElevationClimb { get; set; }
-        public double ElevationDescent { get; set; }
-        public double ElevationMaximum { get; set; }
-        public double ElevationMinimum { get; set; }
+        public double DescentElevation { get; set; }
         public string Folder { get; set; }
         public int Id { get; set; }
-        public double InitialViewBoundsMaxX { get; set; }
-        public double InitialViewBoundsMaxY { get; set; }
-        public double InitialViewBoundsMinX { get; set; }
-        public double InitialViewBoundsMinY { get; set; }
+        public double InitialViewBoundsMaxLatitude { get; set; }
+        public double InitialViewBoundsMaxLongitude { get; set; }
+        public double InitialViewBoundsMinLatitude { get; set; }
+        public double InitialViewBoundsMinLongitude { get; set; }
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
-        public double Length { get; set; }
         public string Line { get; set; }
+        public double LineDistance { get; set; }
         public Guid? MainPicture { get; set; }
+        public double MaximumElevation { get; set; }
+        public double MinimumElevation { get; set; }
         public bool ShowInMainSiteFeed { get; set; }
         public string Slug { get; set; }
         public string Summary { get; set; }

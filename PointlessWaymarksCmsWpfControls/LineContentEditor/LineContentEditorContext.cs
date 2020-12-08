@@ -368,7 +368,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
                 StatusContext.ToastError("No Tracks in GPX File?");
                 return;
             }
-            
+
             List<CoordinateZ> importTrackPoints;
 
             if (tracksList.Count > 1)

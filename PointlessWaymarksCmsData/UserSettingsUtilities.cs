@@ -530,7 +530,7 @@ namespace PointlessWaymarksCmsData
 
         public static DirectoryInfo LocalSiteLineDataDirectory(this UserSettings settings)
         {
-            var directory = new DirectoryInfo(Path.Combine(LocalSiteLineDirectory(settings).FullName, "Lines"));
+            var directory = new DirectoryInfo(Path.Combine(LocalSiteLineDirectory(settings).FullName, "Data"));
             if (!directory.Exists) directory.Create();
 
             directory.Refresh();

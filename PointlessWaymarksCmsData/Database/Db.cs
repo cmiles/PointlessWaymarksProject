@@ -158,8 +158,8 @@ namespace PointlessWaymarksCmsData.Database
         }
 
         /// <summary>
-        ///     Uses reflection to Trim and Convert Nulls to Empty on all string properties and to truncate DateTimes to the
-        ///     second.
+        ///     Uses reflection to Trim and Convert Nulls to Empty on all string properties, truncate DateTimes to the
+        ///     second and round Spatial values to an appropriately.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="toProcess"></param>
@@ -167,7 +167,7 @@ namespace PointlessWaymarksCmsData.Database
         {
             StringHelpers.TrimNullToEmptyAllStringProperties(toProcess);
             DateTimeHelpers.TrimDateTimesToSeconds(toProcess);
-            SpatialHelpers.RoundLatLongElevation(toProcess);
+            SpatialHelpers.RoundSpatialValues(toProcess);
         }
 
         public static async Task<List<HistoricFileContent>> DeletedFileContent()
@@ -1044,10 +1044,10 @@ namespace PointlessWaymarksCmsData.Database
 
             var boundingBox = SpatialConverters.GeometryBoundingBox(toSave);
 
-            toSave.InitialViewBoundsMaxY = boundingBox.MaxY;
-            toSave.InitialViewBoundsMaxX = boundingBox.MaxX;
-            toSave.InitialViewBoundsMinY = boundingBox.MinY;
-            toSave.InitialViewBoundsMinX = boundingBox.MinX;
+            toSave.InitialViewBoundsMaxLatitude = boundingBox.MaxY;
+            toSave.InitialViewBoundsMaxLongitude = boundingBox.MaxX;
+            toSave.InitialViewBoundsMinLatitude = boundingBox.MinY;
+            toSave.InitialViewBoundsMinLongitude = boundingBox.MinX;
             DefaultPropertyCleanup(toSave);
 
             await context.GeoJsonContents.AddAsync(toSave);
@@ -1129,13 +1129,15 @@ namespace PointlessWaymarksCmsData.Database
 
             var boundingBox = SpatialConverters.GeometryBoundingBox(toSave);
 
-            toSave.InitialViewBoundsMaxY = boundingBox.MaxY;
-            toSave.InitialViewBoundsMaxX = boundingBox.MaxX;
-            toSave.InitialViewBoundsMinY = boundingBox.MinY;
-            toSave.InitialViewBoundsMinX = boundingBox.MinX;
+            toSave.InitialViewBoundsMaxLatitude = boundingBox.MaxY;
+            toSave.InitialViewBoundsMaxLongitude = boundingBox.MaxX;
+            toSave.InitialViewBoundsMinLatitude = boundingBox.MinY;
+            toSave.InitialViewBoundsMinLongitude = boundingBox.MinX;
             DefaultPropertyCleanup(toSave);
 
             await context.LineContents.AddAsync(toSave);
+
+            await context.SaveChangesAsync(true);
 
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Line,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
@@ -1240,20 +1242,22 @@ namespace PointlessWaymarksCmsData.Database
 
             await context.SaveChangesAsync();
 
-            //TODO: Need to calculate on all Types
-
             var points = await context.PointContents.Where(x => newElementsContentIds.Contains(x.ContentId))
                 .ToListAsync();
             var boundingBox = SpatialConverters.PointBoundingBox(points);
+
+            var geoJsonLines = await context.LineContents.Where(x => newElementsContentIds.Contains(x.ContentId))
+                .ToListAsync();
+            boundingBox = SpatialConverters.GeometryBoundingBox(geoJsonLines, boundingBox);
 
             var geoJson = await context.GeoJsonContents.Where(x => newElementsContentIds.Contains(x.ContentId))
                 .ToListAsync();
             boundingBox = SpatialConverters.GeometryBoundingBox(geoJson, boundingBox);
 
-            toSaveDto.Map.InitialViewBoundsMaxY = boundingBox.MaxY;
-            toSaveDto.Map.InitialViewBoundsMaxX = boundingBox.MaxX;
-            toSaveDto.Map.InitialViewBoundsMinY = boundingBox.MinY;
-            toSaveDto.Map.InitialViewBoundsMinX = boundingBox.MinX;
+            toSaveDto.Map.InitialViewBoundsMaxLatitude = boundingBox.MaxY;
+            toSaveDto.Map.InitialViewBoundsMaxLongitude = boundingBox.MaxX;
+            toSaveDto.Map.InitialViewBoundsMinLatitude = boundingBox.MinY;
+            toSaveDto.Map.InitialViewBoundsMinLongitude = boundingBox.MinX;
             DefaultPropertyCleanup(toSaveDto.Map);
 
             await context.SaveChangesAsync();

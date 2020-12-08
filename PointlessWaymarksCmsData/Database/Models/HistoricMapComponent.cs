@@ -9,10 +9,10 @@ namespace PointlessWaymarksCmsData.Database.Models
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public int Id { get; set; }
-        public double InitialViewBoundsMaxX { get; set; }
-        public double InitialViewBoundsMaxY { get; set; }
-        public double InitialViewBoundsMinX { get; set; }
-        public double InitialViewBoundsMinY { get; set; }
+        public double InitialViewBoundsMaxLatitude { get; set; }
+        public double InitialViewBoundsMaxLongitude { get; set; }
+        public double InitialViewBoundsMinLatitude { get; set; }
+        public double InitialViewBoundsMinLongitude { get; set; }
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
         public string Summary { get; set; }
