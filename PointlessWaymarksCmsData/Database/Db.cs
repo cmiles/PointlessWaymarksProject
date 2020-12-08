@@ -1219,6 +1219,7 @@ namespace PointlessWaymarksCmsData.Database
                     ElementContentId = loopElements.ElementContentId,
                     ShowDetailsDefault = loopElements.ShowDetailsDefault,
                     IncludeInDefaultView = loopElements.IncludeInDefaultView,
+                    IsFeaturedElement = loopElements.IsFeaturedElement,
                     LastUpdateOn = groupLastUpdateOn,
                     HistoricGroupId = updateGroup,
                     MapComponentContentId = loopElements.MapComponentContentId

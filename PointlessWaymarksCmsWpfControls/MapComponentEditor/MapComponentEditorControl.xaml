@@ -33,6 +33,7 @@
                                 Margin="4"
                                 VerticalAlignment="Top"
                                 Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
                             </StackPanel>
@@ -56,6 +57,7 @@
                                 Margin="4"
                                 VerticalAlignment="Top"
                                 Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
                             </StackPanel>
@@ -79,6 +81,7 @@
                                 Margin="4"
                                 VerticalAlignment="Top"
                                 Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
                             </StackPanel>

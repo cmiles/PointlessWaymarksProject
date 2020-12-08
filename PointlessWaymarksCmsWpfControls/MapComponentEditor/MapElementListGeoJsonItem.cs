@@ -11,6 +11,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
     {
         private GeoJsonContent? _dbEntry;
         private bool _inInitialView;
+        private bool _isFeaturedElement;
         private bool _showInitialDetails = true;
         private string _smallImageUrl = string.Empty;
 
@@ -32,6 +33,17 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             {
                 if (value == _inInitialView) return;
                 _inInitialView = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsFeaturedElement
+        {
+            get => _isFeaturedElement;
+            set
+            {
+                if (value == _isFeaturedElement) return;
+                _isFeaturedElement = value;
                 OnPropertyChanged();
             }
         }

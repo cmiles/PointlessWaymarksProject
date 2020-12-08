@@ -335,6 +335,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             {
                 MapComponentContentId = newEntry.ContentId,
                 ElementContentId = x.ContentId() ?? Guid.Empty,
+                IsFeaturedElement = x.IsFeaturedElement,
                 IncludeInDefaultView = x.InInitialView,
                 ShowDetailsDefault = x.ShowInitialDetails
             }).ToList();
@@ -440,7 +441,6 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
                 CheckForChangesAndValidationIssues();
         }
-
 
         public async Task SaveAndGenerateHtml(bool closeAfterSave)
         {

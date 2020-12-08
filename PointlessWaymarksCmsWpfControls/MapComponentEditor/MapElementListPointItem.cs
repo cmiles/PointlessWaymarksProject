@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsWpfControls.Utility;
 
 namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 {
@@ -12,6 +11,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
     {
         private PointContentDto? _dbEntry;
         private bool _inInitialView;
+        private bool _isFeaturedElement;
         private bool _showInitialDetails;
         private string _smallImageUrl = string.Empty;
 
@@ -33,6 +33,17 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             {
                 if (value == _inInitialView) return;
                 _inInitialView = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsFeaturedElement
+        {
+            get => _isFeaturedElement;
+            set
+            {
+                if (value == _isFeaturedElement) return;
+                _isFeaturedElement = value;
                 OnPropertyChanged();
             }
         }
