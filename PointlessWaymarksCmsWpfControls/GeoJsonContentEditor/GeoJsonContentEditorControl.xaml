@@ -50,9 +50,22 @@
                 </Grid>
             </TabItem>
             <TabItem Header="GeoJson">
-                <Grid>
-                    <bodyContentEditor:BodyContentEditorControl DataContext="{Binding BodyContent}" />
-                </Grid>
+                <TabItem Header="Line">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+                            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                <Button
+                                    Command="{Binding ImportGeoJsonFileCommand}"
+                                    Content="Load File"
+                                    Style="{StaticResource ActionPanelButton}" />
+                            </WrapPanel>
+                        </Border>
+                    </Grid>
+                </TabItem>
             </TabItem>
             <TabItem Header="Update Notes">
                 <Grid>

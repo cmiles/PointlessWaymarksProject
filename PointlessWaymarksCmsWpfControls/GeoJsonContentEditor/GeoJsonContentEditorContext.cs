@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
@@ -37,6 +39,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
+        private Command _importGeoJsonFileCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
         private BoolDataEntryContext _showInSiteFeed;
@@ -44,7 +47,6 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
         private Command _viewOnSiteCommand;
-
         public EventHandler RequestContentEditorWindowClose;
 
         private GeoJsonContentEditorContext(StatusControlContext statusContext)
@@ -60,6 +62,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
+            ImportGeoJsonFileCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFile);
         }
 
         public BodyContentEditorContext BodyContent
@@ -158,6 +161,17 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
             {
                 if (Equals(value, _helpContext)) return;
                 _helpContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportGeoJsonFileCommand
+        {
+            get => _importGeoJsonFileCommand;
+            set
+            {
+                if (Equals(value, _importGeoJsonFileCommand)) return;
+                _importGeoJsonFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -288,6 +302,37 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
             newEntry.GeoJson = GeoJsonText.UserValue;
 
             return newEntry;
+        }
+
+        public async Task ImportGeoJsonFile()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            StatusContext.Progress("Starting image load.");
+
+            var dialog = new VistaOpenFileDialog();
+
+            if (!(dialog.ShowDialog() ?? false)) return;
+
+            var newFile = new FileInfo(dialog.FileName);
+
+            if (!newFile.Exists)
+            {
+                StatusContext.ToastError("File doesn't exist?");
+                return;
+            }
+
+            var geoJson = await File.ReadAllTextAsync(newFile.FullName);
+
+            var geoJsonCheck = CommonContentValidation.GeoJsonValidation(geoJson);
+
+            if (!geoJsonCheck.isValid)
+            {
+                await StatusContext.ShowMessageWithOkButton("Error with GeoJson Import", geoJsonCheck.explanation);
+                return;
+            }
+
+            GeoJsonText.UserValue = geoJson;
         }
 
         public async Task LoadData(GeoJsonContent toLoad)

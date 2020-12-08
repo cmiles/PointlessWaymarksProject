@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
-using NetTopologySuite.Features;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.GeoJsonHtml;
@@ -61,23 +57,9 @@ namespace PointlessWaymarksCmsData.Content
             if (!updateFormatCheck.isValid)
                 return await GenerationReturn.Error(updateFormatCheck.explanation, geoJsonContent.ContentId);
 
-            try
-            {
-                var serializer = GeoJsonSerializer.Create();
-
-                using var stringReader = new StringReader(geoJsonContent.GeoJson);
-                using var jsonReader = new JsonTextReader(stringReader);
-                var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-                if (featureCollection == null || featureCollection.Count < 1)
-                    return await GenerationReturn.Error("The GeoJson appears to have an empty Feature Collection?",
-                        geoJsonContent.ContentId);
-            }
-            catch (Exception e)
-            {
-                return await GenerationReturn.Error(
-                    $"Error parsing a Feature Collection from the GeoJson, this CMS needs even single GeoJson types to be wrapped into a FeatureCollection... {e.Message}",
-                    geoJsonContent.ContentId);
-            }
+            var geoJsonCheck = CommonContentValidation.GeoJsonValidation(geoJsonContent.GeoJson);
+            if (!geoJsonCheck.isValid)
+                return await GenerationReturn.Error(geoJsonCheck.explanation, geoJsonContent.ContentId);
 
             return await GenerationReturn.Success("GeoJson Content Validation Successful");
         }

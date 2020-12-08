@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using NetTopologySuite;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -117,6 +118,16 @@ namespace PointlessWaymarksCmsData.Spatial
             var geoLine = (LineString) possibleLine.Geometry;
 
             return geoLine.Coordinates.Select(x => new CoordinateZ(x.X, x.Y, x.Z)).ToList();
+        }
+
+        public static async Task<string> ReplaceElevationsInGeoJsonWithLineString(string geoJson,
+            [CanBeNull] IProgress<string> progress)
+        {
+            if (string.IsNullOrWhiteSpace(geoJson)) return string.Empty;
+
+            var coordinateList = CoordinateListFromGeoJsonFeatureCollectionWithLinestring(geoJson);
+
+            return await GeoJsonWithLineStringFromCoordinateList(coordinateList, true, progress);
         }
 
         public static LineStatsInImperial LineStatsInImperialFromCoordinateList(List<CoordinateZ> line)

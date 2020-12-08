@@ -4,6 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Features;
+using NetTopologySuite.IO;
+using Newtonsoft.Json;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html;
@@ -176,6 +179,27 @@ namespace PointlessWaymarksCmsData.Content
                 return (false, "This filename already exists in the database - file names must be unique.");
 
             return (true, "File is Valid");
+        }
+
+        public static (bool isValid, string explanation) GeoJsonValidation(string geoJsonString)
+        {
+            try
+            {
+                var serializer = GeoJsonSerializer.Create();
+
+                using var stringReader = new StringReader(geoJsonString);
+                using var jsonReader = new JsonTextReader(stringReader);
+                var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+                if (featureCollection == null || featureCollection.Count < 1)
+                    return (false, "The GeoJson appears to have an empty Feature Collection?");
+            }
+            catch (Exception e)
+            {
+                return (false,
+                    $"Error parsing a Feature Collection from the GeoJson, this CMS needs even single GeoJson types to be wrapped into a FeatureCollection... {e.Message}");
+            }
+
+            return (true, string.Empty);
         }
 
         public static async Task<(bool isValid, string explanation)> ImageFileValidation(FileInfo imageFile,

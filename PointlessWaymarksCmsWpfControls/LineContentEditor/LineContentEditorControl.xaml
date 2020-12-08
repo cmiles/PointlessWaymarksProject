@@ -35,13 +35,40 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
-                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}"
+                                                                Style="{StaticResource DataEntryBoolStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Line">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+                        <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <Button
+                                Command="{Binding ImportFromGpxCommand}"
+                                Content="Load File"
+                                Style="{StaticResource ActionPanelButton}" />
+                            <CheckBox IsChecked="{Binding ReplaceElevationOnImport}">Replace Elevation when Importing</CheckBox>
+                            <Button
+                                Command="{Binding ReplaceElevationsCommand}"
+                                Content="Replace Elevations"
+                                Style="{StaticResource ActionPanelButton}" />
+                        </WrapPanel>
+                    </Border>
                 </Grid>
             </TabItem>
             <TabItem Header="Body">

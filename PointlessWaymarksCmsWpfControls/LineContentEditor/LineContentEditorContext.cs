@@ -41,9 +41,13 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
+        private Command _importFromGpxCommand;
+        private bool _replaceElevationOnImport;
+        private Command _replaceElevationsCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
         private BoolDataEntryContext _showInSiteFeed;
+        private StatusControlContext _statusContext;
         private TagsEditorContext _tagEdit;
         private TitleSummarySlugEditorContext _titleSummarySlugFolder;
         private UpdateNotesEditorContext _updateNotes;
@@ -64,7 +68,11 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
+            ImportFromGpxCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ImportFromGpx(ReplaceElevationOnImport));
+            ReplaceElevationsCommand = StatusContext.RunBlockingTaskCommand(async () => await ReplaceElevations());
         }
+
 
         public BodyContentEditorContext BodyContent
         {
@@ -166,6 +174,39 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             }
         }
 
+        public Command ImportFromGpxCommand
+        {
+            get => _importFromGpxCommand;
+            set
+            {
+                if (Equals(value, _importFromGpxCommand)) return;
+                _importFromGpxCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ReplaceElevationOnImport
+        {
+            get => _replaceElevationOnImport;
+            set
+            {
+                if (value == _replaceElevationOnImport) return;
+                _replaceElevationOnImport = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ReplaceElevationsCommand
+        {
+            get => _replaceElevationsCommand;
+            set
+            {
+                if (Equals(value, _replaceElevationsCommand)) return;
+                _replaceElevationsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command SaveAndCloseCommand
         {
             get => _saveAndCloseCommand;
@@ -199,7 +240,16 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             }
         }
 
-        public StatusControlContext StatusContext { get; set; }
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
 
         public TagsEditorContext TagEdit
         {
@@ -313,6 +363,12 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
 
             var tracksList = await SpatialHelpers.TracksFromGpxFile(newFile, StatusContext.ProgressTracker());
 
+            if (tracksList.Count < 1)
+            {
+                StatusContext.ToastError("No Tracks in GPX File?");
+                return;
+            }
+            
             List<CoordinateZ> importTrackPoints;
 
             if (tracksList.Count > 1)
@@ -373,6 +429,20 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
                 CheckForChangesAndValidationIssues();
+        }
+
+        public async Task ReplaceElevations()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(GeoJson))
+            {
+                StatusContext.ToastError("There is no line data?");
+                return;
+            }
+
+            GeoJson = await SpatialHelpers.ReplaceElevationsInGeoJsonWithLineString(GeoJson,
+                StatusContext.ProgressTracker());
         }
 
         public async Task SaveAndGenerateHtml(bool closeAfterSave)
