@@ -21,9 +21,8 @@ namespace PointlessWaymarksCmsData.Html.LineHtml
             var contentFeatureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
 
             var jsonDto = new LineSiteJsonData(UserSettingsSingleton.CurrentSettings().LinePageUrl(geoJsonContent),
-                new GeoJsonData.SpatialBounds(geoJsonContent.InitialViewBoundsMaxLongitude,
-                    geoJsonContent.InitialViewBoundsMaxLatitude, geoJsonContent.InitialViewBoundsMinLongitude,
-                    geoJsonContent.InitialViewBoundsMinLatitude), contentFeatureCollection);
+                new GeoJsonData.SpatialBounds(geoJsonContent.InitialViewBoundsMaxLatitude, geoJsonContent.InitialViewBoundsMaxLongitude,
+                    geoJsonContent.InitialViewBoundsMinLatitude, geoJsonContent.InitialViewBoundsMinLongitude), contentFeatureCollection);
 
             var dataFileInfo = new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSiteLineDataDirectory().FullName,

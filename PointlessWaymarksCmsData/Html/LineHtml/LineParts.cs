@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsData.Html.LineHtml
                 $"<div id=\"Line-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
 
             var script =
-                $"<script>lazyInit(document.querySelector(\"#Line-{divScriptGuidConnector}\"), () => singleGeoJsonMapInit(document.querySelector(\"#Line-{divScriptGuidConnector}\"), \"{content.ContentId}\"))</script>";
+                $"<script>lazyInit(document.querySelector(\"#Line-{divScriptGuidConnector}\"), () => singleLineMapInit(document.querySelector(\"#Line-{divScriptGuidConnector}\"), \"{content.ContentId}\"))</script>";
 
             return tag + script;
         }

@@ -43,11 +43,38 @@ async function singleGeoJsonMapInit(mapElement, contentId) {
         });
 
     map.fitBounds([
-        [geoJsonData.Bounds.InitialViewBoundsMinY, geoJsonData.Bounds.InitialViewBoundsMinX],
-        [geoJsonData.Bounds.InitialViewBoundsMaxY, geoJsonData.Bounds.InitialViewBoundsMaxX]
+        [geoJsonData.Bounds.InitialViewBoundsMinLatitude, geoJsonData.Bounds.InitialViewBoundsMinLongitude],
+        [geoJsonData.Bounds.InitialViewBoundsMaxLatitude, geoJsonData.Bounds.InitialViewBoundsMaxLongitude]
     ]);
 
     let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
+        onEachFeature: onEachMapGeoJsonFeature
+    });
+
+    newMapLayer.addTo(map);
+}
+
+async function singleLineMapInit(mapElement, contentId) {
+
+    let lineDataResponse = await fetch(`/Lines/Data/Line-${contentId}.json`);
+    if (!lineDataResponse.ok)
+        throw new Error(lineDataResponse.statusText);
+
+    let lineData = await lineDataResponse.json();
+
+    let map = L.map(mapElement,
+        {
+            layers: [openTopoMapLayer()],
+            doubleClickZoom: false,
+            gestureHandling: true
+        });
+
+    map.fitBounds([
+        [lineData.Bounds.InitialViewBoundsMinLatitude, lineData.Bounds.InitialViewBoundsMinLongitude],
+        [lineData.Bounds.InitialViewBoundsMaxLatitude, lineData.Bounds.InitialViewBoundsMaxLongitude]
+    ]);
+
+    let newMapLayer = new L.geoJSON(lineData.GeoJson, {
         onEachFeature: onEachMapGeoJsonFeature
     });
 
@@ -70,8 +97,8 @@ async function mapComponentInit(mapElement, contentId) {
         });
 
     map.fitBounds([
-        [mapComponent.MapComponent.InitialViewBoundsMinY, mapComponent.MapComponent.InitialViewBoundsMinX],
-        [mapComponent.MapComponent.InitialViewBoundsMaxY, mapComponent.MapComponent.InitialViewBoundsMaxX]
+        [mapComponent.MapComponent.InitialViewBoundsMinLatitude, mapComponent.MapComponent.InitialViewBoundsMinLongitude],
+        [mapComponent.MapComponent.InitialViewBoundsMaxLatitude, mapComponent.MapComponent.InitialViewBoundsMaxLongitude]
     ]);
 
     if (mapComponent.PointGuids?.length) {
@@ -105,6 +132,25 @@ async function mapComponentInit(mapElement, contentId) {
         for (let loopGeoJson of mapComponent.GeoJsonGuids) {
 
             let response = await fetch(`/GeoJson/Data/GeoJson-${loopGeoJson}.json`);
+
+            if (!response.ok)
+                throw new Error(response.statusText);
+
+            let geoJsonData = await response.json();
+
+            let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
+                onEachFeature: onEachMapGeoJsonFeature
+            });
+
+            newMapLayer.addTo(map);
+        };
+    }
+
+    if (mapComponent.LineGuids?.length) {
+
+        for (let loopGeoJson of mapComponent.LineGuids) {
+
+            let response = await fetch(`/Lines/Data/Line-${loopGeoJson}.json`);
 
             if (!response.ok)
                 throw new Error(response.statusText);
