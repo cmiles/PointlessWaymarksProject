@@ -13,6 +13,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html.LineHtml;
 using PointlessWaymarksCmsData.Spatial;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.BoolDataEntry;
@@ -26,6 +27,7 @@ using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsWpfControls.LineContentEditor
 {
@@ -42,6 +44,9 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private Command _importFromGpxCommand;
+        private string _lineJsonDto;
+        private string _previewHtml;
+        private Command _refreshLineMapCommand;
         private bool _replaceElevationOnImport;
         private Command _replaceElevationsCommand;
         private Command _saveAndCloseCommand;
@@ -71,8 +76,12 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             ImportFromGpxCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ImportFromGpx(ReplaceElevationOnImport));
             ReplaceElevationsCommand = StatusContext.RunBlockingTaskCommand(async () => await ReplaceElevations());
-        }
+            RefreshLineMapCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
 
+            PreviewHtml = WpfHtmlDocument.ToHtmlLeafletLineDocument("Line",
+                UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+                UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+        }
 
         public BodyContentEditorContext BodyContent
         {
@@ -162,7 +171,6 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             }
         }
 
-
         public HelpDisplayContext HelpContext
         {
             get => _helpContext;
@@ -181,6 +189,39 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             {
                 if (Equals(value, _importFromGpxCommand)) return;
                 _importFromGpxCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string LineJsonDto
+        {
+            get => _lineJsonDto;
+            set
+            {
+                if (Equals(value, _lineJsonDto)) return;
+                _lineJsonDto = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string PreviewHtml
+        {
+            get => _previewHtml;
+            set
+            {
+                if (value == _previewHtml) return;
+                _previewHtml = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command RefreshLineMapCommand
+        {
+            get => _refreshLineMapCommand;
+            set
+            {
+                if (Equals(value, _refreshLineMapCommand)) return;
+                _refreshLineMapCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -339,6 +380,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
+            newEntry.Line = GeoJson;
 
             return newEntry;
         }
@@ -416,6 +458,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+            GeoJson = toLoad?.Line ?? string.Empty;
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
@@ -429,6 +472,22 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
                 CheckForChangesAndValidationIssues();
+
+            if (propertyName == "GeoJson") StatusContext.RunNonBlockingTask(RefreshMapPreview);
+        }
+
+        public async Task RefreshMapPreview()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(GeoJson))
+            {
+                StatusContext.ToastError("Nothing to preview?");
+                return;
+            }
+
+            //Using the new Guid as the page URL forces a changed value into the LineJsonDto
+            LineJsonDto = await LineData.GenerateLineJson(GeoJson, Guid.NewGuid().ToString());
         }
 
         public async Task ReplaceElevations()
@@ -467,7 +526,6 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
                 RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
         }
-
 
         private async Task ViewOnSite()
         {

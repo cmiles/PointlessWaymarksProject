@@ -7,14 +7,13 @@ using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.WpfHtml
 {
     public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
     {
-        private List<FileInfo> _previousFiles = new();
+        private readonly List<FileInfo> _previousFiles = new();
 
         public static readonly DependencyProperty HtmlStringProperty = DependencyProperty.Register("HtmlString",
             typeof(string), typeof(WebViewHtmlStringBindingBehavior),

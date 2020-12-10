@@ -8,7 +8,7 @@
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     Title="LineContentEditorWindow"
     Width="800"
-    Height="450"
+    Height="600"
     d:DataContext="{d:DesignInstance local:LineContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>

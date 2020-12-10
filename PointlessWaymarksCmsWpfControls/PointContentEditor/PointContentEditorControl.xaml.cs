@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Controls;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 
@@ -12,7 +10,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
     /// <summary>
     ///     Interaction logic for PointContentEditorControl.xaml
     /// </summary>
-    public partial class PointContentEditorControl : UserControl
+    public partial class PointContentEditorControl
     {
         private readonly TaskQueue _webViewWorkQueue;
 
@@ -31,7 +29,7 @@ namespace PointlessWaymarksCmsWpfControls.PointContentEditor
                 {
                     await ThreadSwitcher.ResumeForegroundAsync();
 
-                    PointContentWebView.NavigateToString(WpfHtmlDocument.ToHtmlLeafletDocument("Point Map",
+                    PointContentWebView.NavigateToString(WpfHtmlDocument.ToHtmlLeafletPointDocument("Point Map",
                         pointContext.LatitudeEntry.UserValue, pointContext.LongitudeEntry.UserValue, string.Empty));
                 });
 

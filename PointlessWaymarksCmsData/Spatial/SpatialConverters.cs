@@ -13,9 +13,14 @@ namespace PointlessWaymarksCmsData.Spatial
     {
         public static List<Geometry> GeoJsonContentToGeometries(GeoJsonContent content)
         {
+            return GeoJsonToGeometries(content.GeoJson);
+        }
+
+        public static List<Geometry> GeoJsonToGeometries(string geoJson)
+        {
             var serializer = GeoJsonSerializer.Create();
 
-            using var stringReader = new StringReader(content.GeoJson);
+            using var stringReader = new StringReader(geoJson);
             using var jsonReader = new JsonTextReader(stringReader);
             var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
 
