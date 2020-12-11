@@ -10,7 +10,8 @@
     Title="GeoJsonContentEditorWindow"
     Width="800"
     Height="600"
-    mc:Ignorable="d" d:DataContext="{d:DesignInstance local:GeoJsonContentEditorWindow}">
+    d:DataContext="{d:DesignInstance local:GeoJsonContentEditorWindow}"
+    mc:Ignorable="d">
     <Grid>
         <local:GeoJsonContentEditorControl DataContext="{Binding GeoJsonContent}" />
         <status:StatusControl

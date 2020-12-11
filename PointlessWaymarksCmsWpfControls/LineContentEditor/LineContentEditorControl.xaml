@@ -97,7 +97,8 @@
                 <TextBox
                     Style="{StaticResource ReadOnlyTextBox}"
                     Text="{Binding LineGeoJson}"
-                    TextWrapping="Wrap" />
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Visible" />
             </TabItem>
             <TabItem Header="Help">
                 <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
