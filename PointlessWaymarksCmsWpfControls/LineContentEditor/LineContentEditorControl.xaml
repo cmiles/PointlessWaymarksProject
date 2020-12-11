@@ -67,7 +67,7 @@
                                 Content="Replace Elevations"
                                 Style="{StaticResource ActionPanelButton}" />
                             <Button
-                                Command="{Binding RefreshLineMapCommand}"
+                                Command="{Binding RefreshMapPreviewCommand}"
                                 Content="Refresh Map"
                                 Style="{StaticResource ActionPanelButton}" />
                         </WrapPanel>
@@ -78,7 +78,7 @@
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
                             <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
-                            <wpfHtml:WebViewPostJsonOnChange JsonData="{Binding LineJsonDto}" />
+                            <wpfHtml:WebViewPostJsonOnChange JsonData="{Binding PreviewLineJsonDto}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </Grid>
@@ -96,7 +96,7 @@
             <TabItem Header="Raw GeoJson">
                 <TextBox
                     Style="{StaticResource ReadOnlyTextBox}"
-                    Text="{Binding GeoJson}"
+                    Text="{Binding LineGeoJson}"
                     TextWrapping="Wrap" />
             </TabItem>
             <TabItem Header="Help">

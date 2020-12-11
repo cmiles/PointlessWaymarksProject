@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -11,19 +10,20 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsData.Html.GeoJsonHtml;
 using PointlessWaymarksCmsWpfControls.BodyContentEditor;
 using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.HelpDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.TagsEditor;
 using PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
 {
@@ -35,11 +35,14 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private GeoJsonContent _dbEntry;
         private Command _extractNewLinksCommand;
-        private StringDataEntryContext _geoJsonText;
+        private string _geoJsonText;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private Command _importGeoJsonFileCommand;
+        private string _previewGeoJsonDto;
+        private string _previewHtml;
+        private Command _refreshMapPreviewCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
         private BoolDataEntryContext _showInSiteFeed;
@@ -63,6 +66,11 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
             ImportGeoJsonFileCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFile);
+            RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
+
+            PreviewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
+                UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+                UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
         }
 
         public BodyContentEditorContext BodyContent
@@ -120,7 +128,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
             }
         }
 
-        public StringDataEntryContext GeoJsonText
+        public string GeoJsonText
         {
             get => _geoJsonText;
             set
@@ -172,6 +180,39 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
             {
                 if (Equals(value, _importGeoJsonFileCommand)) return;
                 _importGeoJsonFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string PreviewGeoJsonDto
+        {
+            get => _previewGeoJsonDto;
+            set
+            {
+                if (value == _previewGeoJsonDto) return;
+                _previewGeoJsonDto = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string PreviewHtml
+        {
+            get => _previewHtml;
+            set
+            {
+                if (value == _previewHtml) return;
+                _previewHtml = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command RefreshMapPreviewCommand
+        {
+            get => _refreshMapPreviewCommand;
+            set
+            {
+                if (Equals(value, _refreshMapPreviewCommand)) return;
+                _refreshMapPreviewCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -299,7 +340,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.GeoJson = GeoJsonText.UserValue;
+            newEntry.GeoJson = GeoJsonText;
 
             return newEntry;
         }
@@ -332,7 +373,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
                 return;
             }
 
-            GeoJsonText.UserValue = geoJson;
+            GeoJsonText = geoJson;
         }
 
         public async Task LoadData(GeoJsonContent toLoad)
@@ -353,15 +394,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
-            GeoJsonText = StringDataEntryContext.CreateInstance();
-            GeoJsonText.Title = "GeoJson";
-            GeoJsonText.HelpText = "GeoJson Content";
-            GeoJsonText.ReferenceValue = DbEntry?.GeoJson ?? string.Empty;
-            GeoJsonText.UserValue = StringHelpers.NullToEmptyTrim(DbEntry?.GeoJson);
-            GeoJsonText.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
-            {
-                CommonContentValidation.ValidateGeoJson
-            };
+            GeoJsonText = StringHelpers.NullToEmptyTrim(DbEntry?.GeoJson);
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
@@ -375,6 +408,22 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
                 CheckForChangesAndValidationIssues();
+
+            if (propertyName == nameof(GeoJsonText)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
+        }
+
+        public async Task RefreshMapPreview()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(GeoJsonText))
+            {
+                StatusContext.ToastError("Nothing to preview?");
+                return;
+            }
+
+            //Using the new Guid as the page URL forces a changed value into the LineJsonDto
+            PreviewGeoJsonDto = await GeoJsonData.GenerateGeoJson(GeoJsonText, Guid.NewGuid().ToString());
         }
 
         public async Task SaveAndGenerateHtml(bool closeAfterSave)

@@ -14,6 +14,10 @@
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     d:DataContext="{d:DesignInstance local:GeoJsonContentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -23,6 +27,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -67,10 +72,45 @@
                     </Grid>
                 </TabItem>
             </TabItem>
+            <TabItem Header="GeoJson">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource ActionPanelBorder}">
+                        <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <Button
+                                Command="{Binding ImportGeoJsonFileCommand}"
+                                Content="Load File"
+                                Style="{StaticResource ActionPanelButton}" />
+                            <Button
+                                Command="{Binding RefreshMapPreviewCommand}"
+                                Content="Refresh Map"
+                                Style="{StaticResource ActionPanelButton}" />
+                        </WrapPanel>
+                    </Border>
+                    <wpf:WebView2
+                        x:Name="LineContentWebView"
+                        Grid.Row="1"
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        <b:Interaction.Behaviors>
+                            <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
+                            <wpfHtml:WebViewPostJsonOnChange JsonData="{Binding PreviewGeoJsonDto}" />
+                        </b:Interaction.Behaviors>
+                    </wpf:WebView2>
+                </Grid>
+            </TabItem>
             <TabItem Header="Update Notes">
                 <Grid>
                     <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
+            </TabItem>
+            <TabItem Header="Raw GeoJson">
+                <TextBox
+                    Style="{StaticResource ReadOnlyTextBox}"
+                    Text="{Binding GeoJsonText}"
+                    TextWrapping="Wrap" />
             </TabItem>
             <TabItem Header="Help">
                 <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />

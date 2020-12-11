@@ -9,10 +9,10 @@
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     Title="GeoJsonContentEditorWindow"
     Width="800"
-    Height="450"
-    mc:Ignorable="d">
+    Height="600"
+    mc:Ignorable="d" d:DataContext="{d:DesignInstance local:GeoJsonContentEditorWindow}">
     <Grid>
-        <postContentEditor:PostContentEditorControl DataContext="{Binding PostContent}" />
+        <local:GeoJsonContentEditorControl DataContext="{Binding GeoJsonContent}" />
         <status:StatusControl
             Grid.Column="0"
             d:IsHidden="true"

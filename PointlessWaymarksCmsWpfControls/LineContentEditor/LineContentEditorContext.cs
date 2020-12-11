@@ -39,14 +39,14 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private LineContent _dbEntry;
         private Command _extractNewLinksCommand;
-        private string _geoJson;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private Command _importFromGpxCommand;
-        private string _lineJsonDto;
+        private string _lineGeoJson;
         private string _previewHtml;
-        private Command _refreshLineMapCommand;
+        private string _previewLineJsonDto;
+        private Command _refreshMapPreviewCommand;
         private bool _replaceElevationOnImport;
         private Command _replaceElevationsCommand;
         private Command _saveAndCloseCommand;
@@ -76,7 +76,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             ImportFromGpxCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ImportFromGpx(ReplaceElevationOnImport));
             ReplaceElevationsCommand = StatusContext.RunBlockingTaskCommand(async () => await ReplaceElevations());
-            RefreshLineMapCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
+            RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
 
             PreviewHtml = WpfHtmlDocument.ToHtmlLeafletLineDocument("Line",
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,
@@ -138,17 +138,6 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             }
         }
 
-        public string GeoJson
-        {
-            get => _geoJson;
-            set
-            {
-                if (value == _geoJson) return;
-                _geoJson = value;
-                OnPropertyChanged();
-            }
-        }
-
         public bool HasChanges
         {
             get => _hasChanges;
@@ -193,13 +182,13 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             }
         }
 
-        public string LineJsonDto
+        public string LineGeoJson
         {
-            get => _lineJsonDto;
+            get => _lineGeoJson;
             set
             {
-                if (Equals(value, _lineJsonDto)) return;
-                _lineJsonDto = value;
+                if (value == _lineGeoJson) return;
+                _lineGeoJson = value;
                 OnPropertyChanged();
             }
         }
@@ -215,13 +204,24 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             }
         }
 
-        public Command RefreshLineMapCommand
+        public string PreviewLineJsonDto
         {
-            get => _refreshLineMapCommand;
+            get => _previewLineJsonDto;
             set
             {
-                if (Equals(value, _refreshLineMapCommand)) return;
-                _refreshLineMapCommand = value;
+                if (Equals(value, _previewLineJsonDto)) return;
+                _previewLineJsonDto = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command RefreshMapPreviewCommand
+        {
+            get => _refreshMapPreviewCommand;
+            set
+            {
+                if (Equals(value, _refreshMapPreviewCommand)) return;
+                _refreshMapPreviewCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -380,7 +380,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
             newEntry.BodyContent = BodyContent.BodyContent.TrimNullToEmpty();
             newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-            newEntry.Line = GeoJson;
+            newEntry.Line = LineGeoJson;
 
             return newEntry;
         }
@@ -436,8 +436,8 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
                 importTrackPoints = tracksList.First().track;
             }
 
-            GeoJson = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(importTrackPoints, replaceElevations,
-                StatusContext.ProgressTracker());
+            LineGeoJson = await SpatialHelpers.GeoJsonWithLineStringFromCoordinateList(importTrackPoints,
+                replaceElevations, StatusContext.ProgressTracker());
         }
 
         public async Task LoadData(LineContent toLoad)
@@ -458,7 +458,7 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
-            GeoJson = toLoad?.Line ?? string.Empty;
+            LineGeoJson = toLoad?.Line ?? string.Empty;
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
@@ -473,34 +473,34 @@ namespace PointlessWaymarksCmsWpfControls.LineContentEditor
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
                 CheckForChangesAndValidationIssues();
 
-            if (propertyName == "GeoJson") StatusContext.RunNonBlockingTask(RefreshMapPreview);
+            if (propertyName == nameof(LineGeoJson)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
         }
 
         public async Task RefreshMapPreview()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (string.IsNullOrWhiteSpace(GeoJson))
+            if (string.IsNullOrWhiteSpace(LineGeoJson))
             {
                 StatusContext.ToastError("Nothing to preview?");
                 return;
             }
 
             //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-            LineJsonDto = await LineData.GenerateLineJson(GeoJson, Guid.NewGuid().ToString());
+            PreviewLineJsonDto = await LineData.GenerateLineJson(LineGeoJson, Guid.NewGuid().ToString());
         }
 
         public async Task ReplaceElevations()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (string.IsNullOrWhiteSpace(GeoJson))
+            if (string.IsNullOrWhiteSpace(LineGeoJson))
             {
                 StatusContext.ToastError("There is no line data?");
                 return;
             }
 
-            GeoJson = await SpatialHelpers.ReplaceElevationsInGeoJsonWithLineString(GeoJson,
+            LineGeoJson = await SpatialHelpers.ReplaceElevationsInGeoJsonWithLineString(LineGeoJson,
                 StatusContext.ProgressTracker());
         }
 
