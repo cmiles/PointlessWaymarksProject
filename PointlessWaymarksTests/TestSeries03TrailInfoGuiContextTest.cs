@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Omu.ValueInjecter;
@@ -11,7 +10,6 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksTests
@@ -336,10 +334,8 @@ namespace PointlessWaymarksTests
             Assert.True(validationResult.HasError);
 
 
-
             //Body Text
-            newFileContext.BodyContent.BodyContent =
-                "UI Context Testing File";
+            newFileContext.BodyContent.BodyContent = "UI Context Testing File";
             Assert.True(newFileContext.BodyContent.HasChanges);
 
             validationResult = await FileGenerator.Validate(newFileContext.CurrentStateToFileContent(),
@@ -347,8 +343,7 @@ namespace PointlessWaymarksTests
             Assert.True(validationResult.HasError);
 
             //Update Text
-            newFileContext.UpdateNotes.UpdateNotes =
-                "UI Context Testing File Update";
+            newFileContext.UpdateNotes.UpdateNotes = "UI Context Testing File Update";
             Assert.True(newFileContext.UpdateNotes.HasChanges);
 
             validationResult = await FileGenerator.Validate(newFileContext.CurrentStateToFileContent(),

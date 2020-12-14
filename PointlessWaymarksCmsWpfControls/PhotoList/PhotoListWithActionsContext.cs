@@ -712,7 +712,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
                 (current, loopSelected) =>
-                    current + (BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine));
+                    current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -733,7 +733,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
                 (current, loopSelected) =>
-                    current + (BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine));
+                    current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

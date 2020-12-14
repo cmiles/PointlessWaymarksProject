@@ -322,7 +322,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
 
             _lastSortColumn = sortColumn;
 
-            var collectionView = ((CollectionView) CollectionViewSource.GetDefaultView(Items));
+            var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;

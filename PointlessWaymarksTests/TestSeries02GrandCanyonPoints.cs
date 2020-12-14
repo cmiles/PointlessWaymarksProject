@@ -202,7 +202,7 @@ namespace PointlessWaymarksTests
                 ShowInMainSiteFeed = true,
                 Summary = "Horseshoe Mesa East Side Loop",
                 Tags = "grand-canyon, horse-shoe-mesa",
-                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
             var track = (await SpatialHelpers.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker()))
@@ -240,7 +240,7 @@ namespace PointlessWaymarksTests
                 CreatedOn = DateTime.Now,
                 Title = "Grand Canyon Map",
                 Summary = "Grand Canyon Test Grouping",
-                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
             var db = await Db.Context();
@@ -331,7 +331,7 @@ And what about a line...
                 ShowInMainSiteFeed = true,
                 Summary = "A basic map of points around Piute Point",
                 Tags = "grand canyon, piute point, map",
-                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
             await IronwoodPostInfo.PostTest(post);

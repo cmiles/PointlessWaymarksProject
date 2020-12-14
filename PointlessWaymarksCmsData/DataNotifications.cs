@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsData
         private static readonly TinyMessageBus DataNotificationTransmissionChannel =
             new("PointlessWaymarksDataNotificationChannel");
 
-        private static readonly WorkQueue<string> SendMessageQueue = new WorkQueue<string>
+        private static readonly WorkQueue<string> SendMessageQueue = new()
         {
             Processor = async x => await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(x))
         };
@@ -79,8 +79,8 @@ namespace PointlessWaymarksCmsData
                 return new InterProcessDataNotification
                 {
                     Sender = parsedString[0],
-                    ContentType = (DataNotificationContentType) (int.Parse(parsedString[1])),
-                    UpdateType = (DataNotificationUpdateType) (int.Parse(parsedString[2])),
+                    ContentType = (DataNotificationContentType) int.Parse(parsedString[1]),
+                    UpdateType = (DataNotificationUpdateType) int.Parse(parsedString[2]),
                     ContentIds = parsedString[3].Split(",", StringSplitOptions.RemoveEmptyEntries)
                         .Select(x => Guid.Parse(x)).ToList()
                 };

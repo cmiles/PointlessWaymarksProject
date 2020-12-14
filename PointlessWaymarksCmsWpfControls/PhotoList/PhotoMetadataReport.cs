@@ -9,7 +9,6 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 

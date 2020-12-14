@@ -11,7 +11,6 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
@@ -129,8 +128,6 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public void CheckForChangesAndValidationIssues()
         {
             UpdateNotesHasChanges = !StringHelpers.AreEqual((DbEntry?.UpdateNotes).TrimNullToEmpty(), UpdateNotes);
@@ -138,6 +135,8 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             HasChanges = UpdateNotesHasChanges || PropertyScanners.ChildPropertiesHaveChanges(this);
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<UpdateNotesEditorContext> CreateInstance(StatusControlContext statusContext,
             IUpdateNotes dbEntry)

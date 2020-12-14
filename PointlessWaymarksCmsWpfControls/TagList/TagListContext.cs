@@ -485,7 +485,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
                 return;
             }
 
-            var tagsProjection = SelectedItems.Select(x => new {x.TagName, x.ContentCount,}).Cast<object>().ToList();
+            var tagsProjection = SelectedItems.Select(x => new {x.TagName, x.ContentCount}).Cast<object>().ToList();
 
             if (!tagsProjection.Any())
             {
@@ -502,7 +502,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var collectionView = ((CollectionView) CollectionViewSource.GetDefaultView(Items));
+            var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;
@@ -551,7 +551,7 @@ namespace PointlessWaymarksCmsWpfControls.TagList
                 return;
             }
 
-            var tagsProjection = Items.Where(ListFilter).Select(x => new {x.TagName, x.ContentCount,}).Cast<object>()
+            var tagsProjection = Items.Where(ListFilter).Select(x => new {x.TagName, x.ContentCount}).Cast<object>()
                 .ToList();
 
             if (!tagsProjection.Any())

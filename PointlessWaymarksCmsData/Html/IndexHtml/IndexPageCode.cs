@@ -25,7 +25,7 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
 {
     public partial class IndexPage
     {
-        private int _numberOfContentItemsToDisplay = 4;
+        private readonly int _numberOfContentItemsToDisplay = 4;
 
         public IndexPage()
         {

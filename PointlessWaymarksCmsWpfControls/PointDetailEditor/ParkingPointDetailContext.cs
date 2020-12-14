@@ -12,7 +12,6 @@ using PointlessWaymarksCmsWpfControls.BoolDataEntry;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 

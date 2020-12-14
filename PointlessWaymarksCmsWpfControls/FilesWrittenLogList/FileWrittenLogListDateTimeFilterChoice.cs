@@ -7,19 +7,8 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 {
     public class FileWrittenLogListDateTimeFilterChoice : INotifyPropertyChanged
     {
-        private DateTime? _filterDateTimeUtc;
         private string _displayText = string.Empty;
-
-        public DateTime? FilterDateTimeUtc
-        {
-            get => _filterDateTimeUtc;
-            set
-            {
-                if (Nullable.Equals(value, _filterDateTimeUtc)) return;
-                _filterDateTimeUtc = value;
-                OnPropertyChanged();
-            }
-        }
+        private DateTime? _filterDateTimeUtc;
 
         public string DisplayText
         {
@@ -28,6 +17,17 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             {
                 if (value == _displayText) return;
                 _displayText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime? FilterDateTimeUtc
+        {
+            get => _filterDateTimeUtc;
+            set
+            {
+                if (Nullable.Equals(value, _filterDateTimeUtc)) return;
+                _filterDateTimeUtc = value;
                 OnPropertyChanged();
             }
         }

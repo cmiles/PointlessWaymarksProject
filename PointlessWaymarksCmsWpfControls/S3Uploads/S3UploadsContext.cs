@@ -61,7 +61,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             _toClipboardSelectedItemsCommand =
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(SelectedItems.ToList()));
         }
-        
+
         public Command ClearUploadedCommand
         {
             get => _clearUploadedCommand;

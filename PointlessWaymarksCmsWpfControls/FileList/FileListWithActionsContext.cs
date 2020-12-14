@@ -396,8 +396,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 return;
             }
 
-            await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, selected.Select(x => x.DbEntry).ToList(),
-                1);
+            await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, selected.Select(x => x.DbEntry).ToList(), 1);
         }
 
 

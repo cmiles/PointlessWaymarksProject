@@ -10,8 +10,8 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
 {
     public static class DailyPhotoPageGenerators
     {
-        public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(List<DateTime> datesToCreate, DateTime? generationVersion,
-            IProgress<string> progress)
+        public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(List<DateTime> datesToCreate,
+            DateTime? generationVersion, IProgress<string> progress)
         {
             var db = await Db.Context();
 
@@ -47,7 +47,8 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
             return returnList;
         }
 
-        public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(DateTime? generationVersion, IProgress<string> progress)
+        public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(DateTime? generationVersion,
+            IProgress<string> progress)
         {
             var db = await Db.Context();
 
@@ -82,7 +83,8 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
             return returnList;
         }
 
-        public static async Task<DailyPhotosPage> DailyPhotoGallery(DateTime dateTimeForPictures, DateTime? generationVersion)
+        public static async Task<DailyPhotosPage> DailyPhotoGallery(DateTime dateTimeForPictures,
+            DateTime? generationVersion)
         {
             var db = await Db.Context();
 
@@ -114,7 +116,8 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
                 PhotoPageDate = startsAfterOrOn,
                 SiteName = UserSettingsSingleton.CurrentSettings().SiteName,
                 PhotoTags =
-                    datePhotos.SelectMany(Db.TagListParseToSlugsAndIsExcluded).Distinct().OrderBy(x => x.TagSlug).ToList(),
+                    datePhotos.SelectMany(Db.TagListParseToSlugsAndIsExcluded).Distinct().OrderBy(x => x.TagSlug)
+                        .ToList(),
                 PageUrl = UserSettingsSingleton.CurrentSettings().DailyPhotoGalleryUrl(startsAfterOrOn),
                 GenerationVersion = generationVersion
             };

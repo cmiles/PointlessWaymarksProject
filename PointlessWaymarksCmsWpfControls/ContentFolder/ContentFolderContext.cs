@@ -11,7 +11,6 @@ using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using TinyIpc.Messaging;
@@ -32,8 +31,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentFolder
         private string _title;
         private string _userValue;
 
-        private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions =
-            new();
+        private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions = new();
 
         private string _validationMessage;
 

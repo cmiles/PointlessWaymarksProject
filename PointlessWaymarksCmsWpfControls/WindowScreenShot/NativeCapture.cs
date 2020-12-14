@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
@@ -113,11 +112,6 @@ namespace PointlessWaymarksCmsWpfControls.ScreenShot
             return await TryCopyBitmapSourceToClipboard(CaptureActiveWindow());
         }
 
-        public static async Task<bool> TryWindowScreenShotToClipboardAsync(Window x)
-        {
-            return await TryCopyBitmapSourceToClipboard(CaptureWindow(x));
-        }
-
         private static async Task<bool> TryCopyBitmapSourceToClipboard(Bitmap bmpCopied)
         {
             return await TryCopyBitmapSourceToClipboard(BitmapSourceFromSystemDrawingBitmap(bmpCopied));
@@ -141,6 +135,11 @@ namespace PointlessWaymarksCmsWpfControls.ScreenShot
                 }
 
             return false;
+        }
+
+        public static async Task<bool> TryWindowScreenShotToClipboardAsync(Window x)
+        {
+            return await TryCopyBitmapSourceToClipboard(CaptureWindow(x));
         }
     }
 }

@@ -58,7 +58,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 
             if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().CalTopoApiKey))
             {
-                layers.Add(new("calTopoTopoLayer", "CalTopo Topo", $@"
+                layers.Add(new LayerEntry("calTopoTopoLayer", "CalTopo Topo", $@"
                  var calTopoTopoLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/t/{{z}}/{{x}}/{{y}}.png', {{
             attribution: 'CalTopo',
             maxZoom: 16,
@@ -66,7 +66,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             accessToken: '{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}'
         }});"));
 
-                layers.Add(new("calTopoFsLayer", "CalTopo FS", $@"
+                layers.Add(new LayerEntry("calTopoFsLayer", "CalTopo FS", $@"
                  var calTopoFsLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/f16a/{{z}}/{{x}}/{{y}}.png', {{
             attribution: 'CalTopo',
             maxZoom: 16,
@@ -77,13 +77,13 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 
             if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().BingApiKey))
             {
-                layers.Add(new("bingAerialTileLayer", "Bing Aerial", $@"
+                layers.Add(new LayerEntry("bingAerialTileLayer", "Bing Aerial", $@"
                           var bingAerialTileLayer = L.tileLayer.bing({{
             bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
             imagerySet: 'AerialWithLabels',
         }});"));
 
-                layers.Add(new("bingRoadTileLayer", "Bing Roads", $@"
+                layers.Add(new LayerEntry("bingRoadTileLayer", "Bing Roads", $@"
                           var bingRoadTileLayer = L.tileLayer.bing({{
             bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
             imagerySet: 'RoadOnDemand',

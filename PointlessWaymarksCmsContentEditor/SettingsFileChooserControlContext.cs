@@ -13,7 +13,6 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsContentEditor

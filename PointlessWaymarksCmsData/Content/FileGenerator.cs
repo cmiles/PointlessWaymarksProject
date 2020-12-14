@@ -23,7 +23,8 @@ namespace PointlessWaymarksCmsData.Content
 
 
         public static async Task<(GenerationReturn generationReturn, FileContent fileContent)> SaveAndGenerateHtml(
-            FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion, IProgress<string> progress)
+            FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
+            IProgress<string> progress)
         {
             var validationReturn = await Validate(toSave, selectedFile);
 
@@ -98,10 +99,7 @@ namespace PointlessWaymarksCmsData.Content
                 targetFile.Refresh();
             }
 
-            if (!targetFile.Exists)
-            {
-                sourceFile.CopyToAndLog(targetFile.FullName);
-            }
+            if (!targetFile.Exists) sourceFile.CopyToAndLog(targetFile.FullName);
         }
     }
 }

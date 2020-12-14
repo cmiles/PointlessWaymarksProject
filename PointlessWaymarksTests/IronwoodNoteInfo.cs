@@ -17,7 +17,7 @@ namespace PointlessWaymarksTests
     public static class IronwoodNoteInfo
     {
         public static NoteContent LinkNoteContent01 =>
-            new NoteContent
+            new()
             {
                 BodyContent = @"Some useful links for Ironwood Forest National Monument:
 * [Ironwood Forest National Monument | Bureau of Land Management](https://www.blm.gov/visit/ironwood)

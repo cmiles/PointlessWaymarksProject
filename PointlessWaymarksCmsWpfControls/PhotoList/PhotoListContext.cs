@@ -16,7 +16,6 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using TinyIpc.Messaging;
 
@@ -538,7 +537,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
         public PhotoListListItem ListItemFromDbItem(PhotoContent content)
         {
-            return new PhotoListListItem {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
+            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }
 
         public async Task LoadData()
@@ -654,7 +653,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             _lastSortColumn = sortColumn;
 
-            var collectionView = ((CollectionView) CollectionViewSource.GetDefaultView(Items));
+            var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;

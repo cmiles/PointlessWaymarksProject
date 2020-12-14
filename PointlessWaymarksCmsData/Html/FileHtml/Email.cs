@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
@@ -24,9 +22,8 @@ namespace PointlessWaymarksCmsData.Html.FileHtml
             var possibleDownloadLink = FileParts.DownloadLinkTag(content);
             possibleDownloadLink.Style("text-align", "center");
 
-            var innerContent =
-                HtmlEmail.ChildrenIntoTableCells(
-                    $"{await HtmlEmail.EmailSimpleTitle(content)}{bodyHtmlString}{possibleDownloadLink}{tags}{createdUpdated}{HtmlEmail.EmailSimpleFooter()}");
+            var innerContent = HtmlEmail.ChildrenIntoTableCells(
+                $"{await HtmlEmail.EmailSimpleTitle(content)}{bodyHtmlString}{possibleDownloadLink}{tags}{createdUpdated}{HtmlEmail.EmailSimpleFooter()}");
 
             var emailHtml = HtmlEmail.WrapInNestedCenteringTable(innerContent);
 

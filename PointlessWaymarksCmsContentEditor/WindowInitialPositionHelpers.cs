@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
-using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using WpfScreenHelper;
 using Point = System.Drawing.Point;
@@ -23,7 +22,7 @@ namespace PointlessWaymarksCmsContentEditor
         {
             Effective = 0,
             Angular = 1,
-            Raw = 2,
+            Raw = 2
         }
 
         public static void EnsureWindowIsVisible(Window window)

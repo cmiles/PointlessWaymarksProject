@@ -233,7 +233,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
         public PostListListItem ListItemFromDbItem(PostContent content)
         {
-            return new PostListListItem {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
+            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }
 
         public async Task LoadData()
@@ -364,7 +364,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             _lastSortColumn = sortColumn;
 
-            var collectionView = ((CollectionView) CollectionViewSource.GetDefaultView(Items));
+            var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;

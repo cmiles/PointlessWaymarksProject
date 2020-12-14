@@ -60,7 +60,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
                 var ssml = @"<speak version='1.0' " +
                            $"xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='{localCode}'>" +
-                           $"<prosody pitch='{pitchProsody}' rate='1.0'>{SecurityElement.Escape(text)}</prosody> " + "</speak>";
+                           $"<prosody pitch='{pitchProsody}' rate='1.0'>{SecurityElement.Escape(text)}</prosody> " +
+                           "</speak>";
 
                 var tcs = new TaskCompletionSource<object>();
                 var handler = new TypedEventHandler<MediaPlayer, object>((sender, args) => tcs.TrySetResult(null));

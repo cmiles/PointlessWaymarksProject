@@ -13,7 +13,6 @@ using PointlessWaymarksCmsData.Database.PointDetailDataModels;
 using PointlessWaymarksCmsWpfControls.ContentFormat;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
@@ -175,7 +174,7 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad ?? new PointDetail {DataType = ((dynamic) DetailData).DataTypeIdentifier,};
+            DbEntry = toLoad ?? new PointDetail {DataType = ((dynamic) DetailData).DataTypeIdentifier};
 
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
                 DetailData = JsonSerializer.Deserialize<Feature>(DbEntry.StructuredDataAsJson);

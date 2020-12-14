@@ -19,7 +19,7 @@ namespace PointlessWaymarksTests
     public static class IronwoodImageInfo
     {
         public static ImageContent MapContent01 =>
-            new ImageContent
+            new()
             {
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 BodyContent = "Cover page from A map of Ironwood Forest National Monument",

@@ -476,7 +476,8 @@ namespace PointlessWaymarksCmsData.Content
             var dbFolders = db.GeoJsonContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelGeoJsonDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteGeoJsonDirectory();
-            var folderDirectories = siteTopLevelGeoJsonDirectory.GetDirectories().Where(x => x.Name != "Data").OrderBy(x => x.Name).ToList();
+            var folderDirectories = siteTopLevelGeoJsonDirectory.GetDirectories().Where(x => x.Name != "Data")
+                .OrderBy(x => x.Name).ToList();
 
             progress?.Report(
                 $"Found {folderDirectories.Count} Existing GeoJson Directories to Check against {dbFolders.Count} GeoJson Folders in the Database");
@@ -599,7 +600,8 @@ namespace PointlessWaymarksCmsData.Content
             var dbFolders = db.LineContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelLineDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteLineDirectory();
-            var folderDirectories = siteTopLevelLineDirectory.GetDirectories().Where(x => x.Name != "Data").OrderBy(x => x.Name).ToList();
+            var folderDirectories = siteTopLevelLineDirectory.GetDirectories().Where(x => x.Name != "Data")
+                .OrderBy(x => x.Name).ToList();
 
             progress?.Report(
                 $"Found {folderDirectories.Count} Existing Line Directories to Check against {dbFolders.Count} Line Folders in the Database");
@@ -815,7 +817,8 @@ namespace PointlessWaymarksCmsData.Content
             var dbFolders = db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
             var siteTopLevelPointDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePointDirectory();
-            var folderDirectories = siteTopLevelPointDirectory.GetDirectories().Where(x => x.Name != "Data").OrderBy(x => x.Name).ToList();
+            var folderDirectories = siteTopLevelPointDirectory.GetDirectories().Where(x => x.Name != "Data")
+                .OrderBy(x => x.Name).ToList();
 
             progress?.Report(
                 $"Found {folderDirectories.Count} Existing Point Directories to Check against {dbFolders.Count} Point Folders in the Database");
@@ -943,7 +946,7 @@ namespace PointlessWaymarksCmsData.Content
         /// <returns></returns>
         public static List<GenerationReturn> VerifyOrCreateLocalTopLevelSiteFolders(this UserSettings settings)
         {
-            return new List<GenerationReturn>
+            return new()
             {
                 settings.LocalSiteDirectory().CreateIfItDoesNotExist(),
                 settings.LocalSiteFileDirectory().CreateIfItDoesNotExist(),
@@ -974,7 +977,7 @@ namespace PointlessWaymarksCmsData.Content
         /// <returns></returns>
         public static List<GenerationReturn> VerifyOrCreateMediaArchiveFolders(this UserSettings settings)
         {
-            return new List<GenerationReturn>
+            return new()
             {
                 settings.LocalSiteMediaArchiveDirectory().CreateIfItDoesNotExist(),
                 settings.LocalMediaArchivePhotoDirectory().CreateIfItDoesNotExist(),

@@ -11,7 +11,8 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
 {
     public static class CameraRollGalleryPageGenerator
     {
-        public static async Task<CameraRollGalleryPage> CameraRoll(DateTime? generationVersion, IProgress<string> progress)
+        public static async Task<CameraRollGalleryPage> CameraRoll(DateTime? generationVersion,
+            IProgress<string> progress)
         {
             var db = await Db.Context();
 
@@ -23,7 +24,6 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
             progress?.Report($"Found {allDates.Count} Dates with Photos for Camera Roll");
 
             if (allDates.Count == 0)
-            {
                 return new CameraRollGalleryPage
                 {
                     CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
@@ -34,7 +34,6 @@ namespace PointlessWaymarksCmsData.Html.PhotoGalleryHtml
                     MainImage = null,
                     GenerationVersion = generationVersion
                 };
-            }
 
             var loopGoal = allDates.Count;
 

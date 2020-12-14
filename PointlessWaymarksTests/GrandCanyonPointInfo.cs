@@ -15,9 +15,8 @@ namespace PointlessWaymarksTests
 {
     public static class GrandCanyonPointInfo
     {
-        public static Guid YumaPointContentId => Guid.Parse("6a32fa16-bdff-4690-ada9-0da017e99d0e");
         public static PointContentDto YumaPointContent01 =>
-            new PointContentDto
+            new()
             {
                 Title = "Yuma Point",
                 Slug = "yuma-point",
@@ -35,7 +34,7 @@ namespace PointlessWaymarksTests
                 Longitude = -112.229061,
                 PointDetails = new List<PointDetail>
                 {
-                    new PointDetail
+                    new()
                     {
                         ContentId = Guid.NewGuid(),
                         PointContentId = YumaPointContentId,
@@ -48,7 +47,7 @@ namespace PointlessWaymarksTests
             };
 
         public static PointContentDto YumaPointContent02 =>
-            new PointContentDto
+            new()
             {
                 Title = "Yuma Point",
                 Slug = "yuma-point",
@@ -69,7 +68,7 @@ namespace PointlessWaymarksTests
                 LastUpdatedOn = new DateTime(2020, 9, 21, 8, 20, 16),
                 PointDetails = new List<PointDetail>
                 {
-                    new PointDetail
+                    new()
                     {
                         ContentId = Guid.NewGuid(),
                         CreatedOn = new DateTime(2020, 9, 18, 7, 16, 16),
@@ -81,6 +80,8 @@ namespace PointlessWaymarksTests
                     }
                 }
             };
+
+        public static Guid YumaPointContentId => Guid.Parse("6a32fa16-bdff-4690-ada9-0da017e99d0e");
 
         public static async Task CheckForExpectedFilesAfterHtmlGeneration(PointContentDto newContent)
         {
@@ -145,7 +146,7 @@ namespace PointlessWaymarksTests
 
             var pointCompareResult = compareLogic.Compare(reference, toCompare);
 
-            if (!pointCompareResult.AreEqual || (!reference.PointDetails.Any() && !toCompare.PointDetails.Any()))
+            if (!pointCompareResult.AreEqual || !reference.PointDetails.Any() && !toCompare.PointDetails.Any())
                 return (pointCompareResult.AreEqual, pointCompareResult.DifferencesString);
 
             var referenceDetailDataTypeList = reference.PointDetails.Select(x => x.DataType).OrderBy(x => x).ToList();

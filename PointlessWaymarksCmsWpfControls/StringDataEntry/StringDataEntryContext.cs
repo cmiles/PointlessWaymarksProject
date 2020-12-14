@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database.Models;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 
 namespace PointlessWaymarksCmsWpfControls.StringDataEntry
@@ -21,8 +20,7 @@ namespace PointlessWaymarksCmsWpfControls.StringDataEntry
         private string _title;
         private string _userValue;
 
-        private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions =
-            new();
+        private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions = new();
 
         private string _validationMessage;
 

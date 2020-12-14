@@ -17,7 +17,7 @@ namespace PointlessWaymarksTests
     public static class IronwoodPostInfo
     {
         public static PostContent WikiQuotePostContent01 =>
-            new PostContent
+            new()
             {
                 Title = "First Post",
                 Slug = "first-post",
@@ -34,7 +34,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
                 ShowInMainSiteFeed = true,
                 Summary = "Basic information for Ironwood Forest National Monument",
                 Tags = "ironwood forest national monument, excluded tag",
-                UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
         public static async Task CheckForExpectedFilesAfterHtmlGeneration(PostContent newContent)

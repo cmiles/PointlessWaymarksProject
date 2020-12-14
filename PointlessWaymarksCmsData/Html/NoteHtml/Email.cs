@@ -19,9 +19,8 @@ namespace PointlessWaymarksCmsData.Html.NoteHtml
 
             var createdUpdated = $"<p style=\"text-align: center;\">{Tags.CreatedByAndUpdatedOnString(content)}</p>";
 
-            var innerContent =
-                HtmlEmail.ChildrenIntoTableCells(
-                    $"{await HtmlEmail.EmailSimpleTitle(content)}{bodyHtmlString}{tags}{createdUpdated}{HtmlEmail.EmailSimpleFooter()}");
+            var innerContent = HtmlEmail.ChildrenIntoTableCells(
+                $"{await HtmlEmail.EmailSimpleTitle(content)}{bodyHtmlString}{tags}{createdUpdated}{HtmlEmail.EmailSimpleFooter()}");
 
             var emailHtml = HtmlEmail.WrapInNestedCenteringTable(innerContent);
 

@@ -1,6 +1,4 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarksCmsWpfControls.HelpDisplay
+﻿namespace PointlessWaymarksCmsWpfControls.HelpDisplay
 {
     /// <summary>
     ///     Interaction logic for HelpDisplayControl.xaml

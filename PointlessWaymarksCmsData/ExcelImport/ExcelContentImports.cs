@@ -433,26 +433,25 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     .Where(x => x.Count() > 1).Select(x => x.Key).Cast<Guid>().ToList();
 
                 if (internalContentIdDuplicates.Any())
-                {
                     return new ExcelContentTableImportResults
                     {
                         HasError = true,
-                        ErrorNotes = $"Content Ids can only appear once in an update list - {string.Join(", ", internalContentIdDuplicates)}",
+                        ErrorNotes =
+                            $"Content Ids can only appear once in an update list - {string.Join(", ", internalContentIdDuplicates)}",
                         ToUpdate = updateList
                     };
-                }
 
-                var internalSlugDuplicates = updateList.Select(x => x.ToUpdate).Where(x => !(x is LinkContent)).GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key).Cast<string>().ToList();
+                var internalSlugDuplicates = updateList.Select(x => x.ToUpdate).Where(x => !(x is LinkContent))
+                    .GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key).Cast<string>().ToList();
 
                 if (internalSlugDuplicates.Any())
-                {
                     return new ExcelContentTableImportResults
                     {
                         HasError = true,
-                        ErrorNotes = $"This import appears to create duplicate slugs - {string.Join(", ", internalSlugDuplicates)}",
+                        ErrorNotes =
+                            $"This import appears to create duplicate slugs - {string.Join(", ", internalSlugDuplicates)}",
                         ToUpdate = updateList
                     };
-                }
             }
 
             return new ExcelContentTableImportResults
@@ -544,7 +543,8 @@ namespace PointlessWaymarksCmsData.ExcelImport
                     }
                     case PointContentDto point:
                     {
-                        generationResult = (await PointGenerator.SaveAndGenerateHtml(point, null, progress)).generationReturn;
+                        generationResult = (await PointGenerator.SaveAndGenerateHtml(point, null, progress))
+                            .generationReturn;
                         break;
                     }
                     case PostContent post:
@@ -726,10 +726,11 @@ namespace PointlessWaymarksCmsData.ExcelImport
             {
                 var excelResult = GetPointDetails(headerInfo, toProcess);
 
-                if (excelResult.Any(x =>
-                    x.ValueParsed == null) || excelResult.Any(x => !x.ValueParsed.Value) ||
+                if (excelResult.Any(x => x.ValueParsed == null) || excelResult.Any(x => !x.ValueParsed.Value) ||
                     excelResult.Any(x => x.ParsedValue == null))
+                {
                     returnString.Add($"Row {toProcess.RowNumber()} - could not process Point Details");
+                }
                 else
                 {
                     pointDto.PointDetails = excelResult.Select(x => x.ParsedValue).ToList();

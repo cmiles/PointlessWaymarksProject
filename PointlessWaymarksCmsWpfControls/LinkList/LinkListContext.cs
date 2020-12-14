@@ -19,7 +19,6 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 using TinyIpc.Messaging;
@@ -32,8 +31,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
         private ObservableCollection<LinkListListItem> _items;
         private string _lastSortColumn;
 
-        private ObservableCollection<CommandBinding> _listBoxAppCommandBindings =
-            new();
+        private ObservableCollection<CommandBinding> _listBoxAppCommandBindings = new();
 
         private Command _listSelectedLinksNotOnPinboardCommand;
         private Command<string> _openUrlCommand;
@@ -238,10 +236,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
                 {
                     await ThreadSwitcher.ResumeForegroundAsync();
 
-                    foreach (var loopDelete in existingItems.Skip(1).ToList())
-                    {
-                        Items.Remove(loopDelete);
-                    }
+                    foreach (var loopDelete in existingItems.Skip(1).ToList()) Items.Remove(loopDelete);
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
                 }
@@ -334,7 +329,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
                     continue;
                 }
 
-                var matches = await pb.Posts.Get(null, null, loopSelected.DbEntry.Url, null);
+                var matches = await pb.Posts.Get(null, null, loopSelected.DbEntry.Url);
 
                 if (!matches.Posts.Any())
                 {
@@ -447,7 +442,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
 
             _lastSortColumn = sortColumn;
 
-            var collectionView = ((CollectionView) CollectionViewSource.GetDefaultView(Items));
+            var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;

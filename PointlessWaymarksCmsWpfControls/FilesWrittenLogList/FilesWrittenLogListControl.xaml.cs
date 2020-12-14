@@ -18,7 +18,9 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         {
             if (DataContext == null) return;
             var viewmodel = (FilesWrittenLogListContext) DataContext;
-            viewmodel.SelectedItems = WrittenFilesDataGrid?.SelectedItems.Cast<FilesWrittenLogListListItem>().ToList() ?? new List<FilesWrittenLogListListItem>();
+            viewmodel.SelectedItems =
+                WrittenFilesDataGrid?.SelectedItems.Cast<FilesWrittenLogListListItem>().ToList() ??
+                new List<FilesWrittenLogListListItem>();
         }
     }
 }

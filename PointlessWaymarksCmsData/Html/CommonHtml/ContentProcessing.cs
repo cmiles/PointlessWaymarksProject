@@ -8,7 +8,8 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
     {
         public static string ProcessContent(string toProcess, string contentFormat)
         {
-            return ProcessContent(toProcess, (ContentFormatEnum) Enum.Parse(typeof(ContentFormatEnum), contentFormat, true));
+            return ProcessContent(toProcess,
+                (ContentFormatEnum) Enum.Parse(typeof(ContentFormatEnum), contentFormat, true));
         }
 
         public static string ProcessContent(string toProcess, ContentFormatEnum contentFormat)

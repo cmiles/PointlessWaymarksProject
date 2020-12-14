@@ -14,8 +14,7 @@ namespace PointlessWaymarksCmsData
     public class DataNotificationsWorkQueue
     {
         //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
-        private readonly BlockingCollection<TinyMessageReceivedEventArgs> _jobs =
-            new();
+        private readonly BlockingCollection<TinyMessageReceivedEventArgs> _jobs = new();
 
         public DataNotificationsWorkQueue()
         {
@@ -40,9 +39,7 @@ namespace PointlessWaymarksCmsData
                 catch (Exception e)
                 {
                     Debug.Print(e.Message);
-                    EventLogContext.TryWriteExceptionToLogBlocking(e,
-                        $"DataNotificationsWorkQueue",
-                        string.Empty);
+                    EventLogContext.TryWriteExceptionToLogBlocking(e, "DataNotificationsWorkQueue", string.Empty);
                 }
         }
     }

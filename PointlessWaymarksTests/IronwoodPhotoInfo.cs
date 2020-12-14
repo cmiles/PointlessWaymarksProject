@@ -17,7 +17,7 @@ namespace PointlessWaymarksTests
     public static class IronwoodPhotoInfo
     {
         public static PhotoContent AguaBlancaContent =>
-            new PhotoContent
+            new()
             {
                 Aperture = "f/11.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
@@ -47,7 +47,7 @@ namespace PointlessWaymarksTests
         public static int AguaBlancaWidth => 900;
 
         public static PhotoContent DisappearingContent =>
-            new PhotoContent
+            new()
             {
                 Aperture = "f/11.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
@@ -73,7 +73,7 @@ namespace PointlessWaymarksTests
         public static int DisappearingWidth => 800;
 
         public static PhotoContent IronwoodPodContent01 =>
-            new PhotoContent
+            new()
             {
                 Aperture = "f/16.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
@@ -95,7 +95,7 @@ namespace PointlessWaymarksTests
             };
 
         public static PhotoContent IronwoodPodContent02_CamerModelLensSummary =>
-            new PhotoContent
+            new()
             {
                 Aperture = "f/16.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
@@ -122,7 +122,7 @@ namespace PointlessWaymarksTests
         public static int IronwoodPodWidth => 700;
 
         public static PhotoContent IronwoodTreeContent01 =>
-            new PhotoContent
+            new()
             {
                 Aperture = "f/16.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
@@ -144,7 +144,7 @@ namespace PointlessWaymarksTests
             };
 
         public static PhotoContent IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy =>
-            new PhotoContent
+            new()
             {
                 Aperture = "f/16.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
@@ -172,7 +172,7 @@ namespace PointlessWaymarksTests
         public static int IronwoodTreeWidth => 734;
 
         public static PhotoContent QuarryContent01 =>
-            new PhotoContent
+            new()
             {
                 Aperture = "f/9.0",
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
@@ -194,7 +194,7 @@ namespace PointlessWaymarksTests
             };
 
         public static PhotoContent QuarryContent02_BodyContentUpdateNotesTags =>
-            new PhotoContent
+            new()
             {
                 Aperture = "f/9.0",
                 BodyContent = "Mining is part of both the past and the future of the Waterman Mountains.",

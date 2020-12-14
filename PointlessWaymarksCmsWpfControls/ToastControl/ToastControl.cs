@@ -5,6 +5,9 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
 {
     public class ToastControl : Control
     {
+        private bool _isClosed;
+        private bool _isClosing;
+
         public static readonly DependencyProperty IconProperty = DependencyProperty.Register("Icon",
             typeof(FrameworkElement), typeof(ToastControl), new PropertyMetadata(default(FrameworkElement)));
 
@@ -19,9 +22,6 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
         public static readonly DependencyProperty NotificationProperty = DependencyProperty.Register("Toast",
             typeof(ToastViewModel), typeof(ToastControl),
             new PropertyMetadata(default(ToastViewModel), NotificationChanged));
-
-        private bool _isClosed;
-        private bool _isClosing;
 
         static ToastControl()
         {
@@ -78,6 +78,18 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
             notification.InvokeHideAnimation = control.InvokeHideAnimation;
         }
 
+        public event RoutedEventHandler NotificationClosed
+        {
+            add => AddHandler(NotificationClosedEvent, value);
+            remove => RemoveHandler(NotificationClosedEvent, value);
+        }
+
+        public event RoutedEventHandler NotificationClosing
+        {
+            add => AddHandler(NotificationClosingEvent, value);
+            remove => RemoveHandler(NotificationClosingEvent, value);
+        }
+
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
@@ -90,18 +102,6 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
         {
             if (GetTemplateChild("CloseButton") is Button closeButton)
                 closeButton.Click -= CloseButtonClicked;
-        }
-
-        public event RoutedEventHandler NotificationClosed
-        {
-            add => AddHandler(NotificationClosedEvent, value);
-            remove => RemoveHandler(NotificationClosedEvent, value);
-        }
-
-        public event RoutedEventHandler NotificationClosing
-        {
-            add => AddHandler(NotificationClosingEvent, value);
-            remove => RemoveHandler(NotificationClosingEvent, value);
         }
     }
 }

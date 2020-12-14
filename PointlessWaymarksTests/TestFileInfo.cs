@@ -18,7 +18,7 @@ namespace PointlessWaymarksTests
     public static class TestFileInfo
     {
         public static FileContent GrandviewContent01 =>
-            new FileContent
+            new()
             {
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 BodyContent =
@@ -38,7 +38,7 @@ namespace PointlessWaymarksTests
             };
 
         public static FileContent MapContent01 =>
-            new FileContent
+            new()
             {
                 BodyContentFormat = ContentFormatDefaults.Content.ToString(),
                 BodyContent = "A map of Ironwood Forest National Monument",

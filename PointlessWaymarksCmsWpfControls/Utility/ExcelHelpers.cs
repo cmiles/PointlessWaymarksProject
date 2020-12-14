@@ -49,7 +49,9 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
             ws.Rows().AdjustToContents();
 
-            if(limitRowHeight) foreach (var loopRow in ws.RowsUsed().Where(x => x.Height > 70)) loopRow.Height = 70;
+            if (limitRowHeight)
+                foreach (var loopRow in ws.RowsUsed().Where(x => x.Height > 70))
+                    loopRow.Height = 70;
 
             progress?.Report($"Saving Excel File {file.FullName}");
 
@@ -154,10 +156,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 //  hand in Excel' rather taking something like GNIS data and concatenating/text manipulating the data into
                 //  shape) and still ok for parsing in code
                 foreach (var loopDetail in loopContent.PointDetails)
-                {
                     detailList.Add((loopContent.ContentId,
                         $"ContentId:{loopDetail.ContentId}||{Environment.NewLine}Type:{loopDetail.DataType}||{Environment.NewLine}Data:{loopDetail.StructuredDataAsJson}"));
-                }
             }
 
             var file = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
@@ -242,7 +242,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 return;
             }
 
-            ContentToExcelFileAsTable(selected.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedItems", progress: statusContext?.ProgressTracker());
+            ContentToExcelFileAsTable(selected.Select(x => x.DbEntry).Cast<object>().ToList(), "SelectedItems",
+                progress: statusContext?.ProgressTracker());
         }
     }
 }

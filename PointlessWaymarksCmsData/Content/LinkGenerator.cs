@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AngleSharp;
-using Microsoft.EntityFrameworkCore;
 using pinboard.net;
 using pinboard.net.Models;
 using PointlessWaymarksCmsData.Database;

@@ -453,7 +453,9 @@ namespace PointlessWaymarksTests
 
             var tagFiles = UserSettingsSingleton.CurrentSettings().LocalSiteTagsDirectory().GetFiles("*.html").ToList();
 
-            var changedTags = Db.TagListParseToSlugs((await db.PostContents.SingleAsync(x => x.Title == "First Post")), false).Select(x => $"TagList-{x}").ToList();
+            var changedTags =
+                Db.TagListParseToSlugs(await db.PostContents.SingleAsync(x => x.Title == "First Post"), false)
+                    .Select(x => $"TagList-{x}").ToList();
 
             var notChanged = tagFiles.Where(x => !changedTags.Contains(Path.GetFileNameWithoutExtension(x.Name)))
                 .ToList();
@@ -486,10 +488,7 @@ namespace PointlessWaymarksTests
 
             var allPhotos = db.PhotoContents.ToList();
 
-            foreach (var loopPhotos in allPhotos)
-            {
-                wikiQuotePost.BodyContent += BracketCodePhotos.Create(loopPhotos);
-            }
+            foreach (var loopPhotos in allPhotos) wikiQuotePost.BodyContent += BracketCodePhotos.Create(loopPhotos);
 
             wikiQuotePost.LastUpdatedBy = "Changed Html Test";
             wikiQuotePost.LastUpdatedOn = DateTime.Now;
@@ -510,25 +509,29 @@ namespace PointlessWaymarksTests
             Assert.AreEqual(currentGenerationCount + 1, db.GenerationLogs.Count(),
                 $"Expected {currentGenerationCount + 1} generation logs - found {db.GenerationLogs.Count()}");
 
-            var relatedContentEntries = await db.GenerationRelatedContents.Where(x => x.GenerationVersion == currentGeneration.GenerationVersion).ToListAsync();
+            var relatedContentEntries = await db.GenerationRelatedContents
+                .Where(x => x.GenerationVersion == currentGeneration.GenerationVersion).ToListAsync();
 
             Assert.AreEqual(relatedContentEntries.Count, allPhotos.Count() + 1);
             Assert.AreEqual(relatedContentEntries.Select(x => x.ContentOne).Distinct().Count(), 2);
             Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Count(), allPhotos.Count() + 1);
-            Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count(), 1);
-            Assert.AreEqual(allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count(), 0);
+            Assert.AreEqual(
+                relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count(), 1);
+            Assert.AreEqual(
+                allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count(), 0);
 
             var photoContent = UserSettingsSingleton.CurrentSettings().LocalSitePhotoDirectory()
-                .GetFiles("*.html", SearchOption.AllDirectories).ToList().Where(x => !x.Name.Contains("Daily") && !x.Name.Contains("Roll") && !x.Name.Contains("List")).ToList();
+                .GetFiles("*.html", SearchOption.AllDirectories).ToList().Where(x =>
+                    !x.Name.Contains("Daily") && !x.Name.Contains("Roll") && !x.Name.Contains("List")).ToList();
 
             photoContent.ForEach(x =>
                 IronwoodHtmlHelpers.CheckGenerationVersionEquals(x, currentGeneration.GenerationVersion));
 
 
-
             wikiQuotePost = db.PostContents.Single(x => x.Slug == IronwoodPostInfo.WikiQuotePostContent01.Slug);
 
-            wikiQuotePost.BodyContent = wikiQuotePost.BodyContent.Replace(BracketCodePhotos.Create(allPhotos.First()), "");
+            wikiQuotePost.BodyContent =
+                wikiQuotePost.BodyContent.Replace(BracketCodePhotos.Create(allPhotos.First()), "");
 
             wikiQuotePost.LastUpdatedBy = "Changed Html Test 02";
             wikiQuotePost.LastUpdatedOn = DateTime.Now;
@@ -549,18 +552,20 @@ namespace PointlessWaymarksTests
             Assert.AreEqual(currentGenerationCount + 1, db.GenerationLogs.Count(),
                 $"Expected {currentGenerationCount + 1} generation logs - found {db.GenerationLogs.Count()}");
 
-            relatedContentEntries =
-                await db.GenerationRelatedContents.Where(
-                    x => x.GenerationVersion == currentGeneration.GenerationVersion).ToListAsync();
+            relatedContentEntries = await db.GenerationRelatedContents
+                .Where(x => x.GenerationVersion == currentGeneration.GenerationVersion).ToListAsync();
 
             Assert.AreEqual(relatedContentEntries.Count, allPhotos.Count() - 1 + 1);
             Assert.AreEqual(relatedContentEntries.Select(x => x.ContentOne).Distinct().Count(), 2);
             Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Count(), allPhotos.Count() - 1 + 1);
-            Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count(), 1);
-            Assert.AreEqual(allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count(), 1);
+            Assert.AreEqual(
+                relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count(), 1);
+            Assert.AreEqual(
+                allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count(), 1);
 
             photoContent = UserSettingsSingleton.CurrentSettings().LocalSitePhotoDirectory()
-                .GetFiles("*.html", SearchOption.AllDirectories).ToList().Where(x => !x.Name.Contains("Daily") && !x.Name.Contains("Roll") && !x.Name.Contains("List")).ToList();
+                .GetFiles("*.html", SearchOption.AllDirectories).ToList().Where(x =>
+                    !x.Name.Contains("Daily") && !x.Name.Contains("Roll") && !x.Name.Contains("List")).ToList();
 
             photoContent.ForEach(x =>
                 IronwoodHtmlHelpers.CheckGenerationVersionEquals(x, currentGeneration.GenerationVersion));
@@ -589,18 +594,18 @@ namespace PointlessWaymarksTests
             Assert.AreEqual(currentGenerationCount + 1, db.GenerationLogs.Count(),
                 $"Expected {currentGenerationCount + 1} generation logs - found {db.GenerationLogs.Count()}");
 
-            relatedContentEntries =
-                await db.GenerationRelatedContents.Where(
-                    x => x.GenerationVersion == currentGeneration.GenerationVersion).ToListAsync();
+            relatedContentEntries = await db.GenerationRelatedContents
+                .Where(x => x.GenerationVersion == currentGeneration.GenerationVersion).ToListAsync();
 
             Assert.AreEqual(relatedContentEntries.Count, allPhotos.Count() - 1 + 1);
             Assert.AreEqual(relatedContentEntries.Select(x => x.ContentOne).Distinct().Count(), 2);
             Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Count(), allPhotos.Count() - 1 + 1);
-            Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count(), 1);
-            Assert.AreEqual(allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count(), 1);
+            Assert.AreEqual(
+                relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count(), 1);
+            Assert.AreEqual(
+                allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count(), 1);
 
             //Todo: Check that the excluded photo is not regened
-            
         }
     }
 }

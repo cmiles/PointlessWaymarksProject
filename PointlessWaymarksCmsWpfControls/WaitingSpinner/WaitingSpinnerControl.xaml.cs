@@ -1,26 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PointlessWaymarksCmsWpfControls.WaitingSpinner
 {
     /// <summary>
-    /// Interaction logic for WaitingSpinnerControl.xaml - code from http://blog.trustmycode.net/?p=133 and https://github.com/ThomasSteinbinder/WPFAnimatedLoadingSpinner
+    ///     Interaction logic for WaitingSpinnerControl.xaml - code from http://blog.trustmycode.net/?p=133 and
+    ///     https://github.com/ThomasSteinbinder/WPFAnimatedLoadingSpinner
     /// </summary>
     public partial class WaitingSpinnerControl : UserControl
     {
+        public static readonly DependencyProperty DiameterProperty = DependencyProperty.Register("Diameter",
+            typeof(int), typeof(WaitingSpinnerControl), new PropertyMetadata(20, OnDiameterPropertyChanged));
+
+        public static readonly DependencyProperty RadiusProperty = DependencyProperty.Register("Radius", typeof(int),
+            typeof(WaitingSpinnerControl), new PropertyMetadata(15, null, OnCoerceRadius));
+
+        public static readonly DependencyProperty InnerRadiusProperty = DependencyProperty.Register("InnerRadius",
+            typeof(int), typeof(WaitingSpinnerControl), new PropertyMetadata(2, null, OnCoerceInnerRadius));
+
+        public static readonly DependencyProperty CenterProperty = DependencyProperty.Register("Center", typeof(Point),
+            typeof(WaitingSpinnerControl), new PropertyMetadata(new Point(15, 15), null, OnCoerceCenter));
+
+        public static readonly DependencyProperty Color1Property = DependencyProperty.Register("Color1", typeof(Color),
+            typeof(WaitingSpinnerControl), new PropertyMetadata(Colors.Green));
+
+        public static readonly DependencyProperty Color2Property = DependencyProperty.Register("Color2", typeof(Color),
+            typeof(WaitingSpinnerControl), new PropertyMetadata(Colors.Transparent));
+
         public WaitingSpinnerControl()
         {
             InitializeComponent();
+        }
+
+        public Point Center
+        {
+            get => (Point) GetValue(CenterProperty);
+            set => SetValue(CenterProperty, value);
+        }
+
+        public Color Color1
+        {
+            get => (Color) GetValue(Color1Property);
+            set => SetValue(Color1Property, value);
+        }
+
+        public Color Color2
+        {
+            get => (Color) GetValue(Color2Property);
+            set => SetValue(Color2Property, value);
         }
 
         public int Diameter
@@ -34,14 +62,10 @@ namespace PointlessWaymarksCmsWpfControls.WaitingSpinner
             }
         }
 
-        public static readonly DependencyProperty DiameterProperty = DependencyProperty.Register("Diameter",
-            typeof(int), typeof(WaitingSpinnerControl), new PropertyMetadata(20, OnDiameterPropertyChanged));
-
-        private static void OnDiameterPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public int InnerRadius
         {
-            d.CoerceValue(CenterProperty);
-            d.CoerceValue(RadiusProperty);
-            d.CoerceValue(InnerRadiusProperty);
+            get => (int) GetValue(InnerRadiusProperty);
+            set => SetValue(InnerRadiusProperty, value);
         }
 
         public int Radius
@@ -50,8 +74,19 @@ namespace PointlessWaymarksCmsWpfControls.WaitingSpinner
             set => SetValue(RadiusProperty, value);
         }
 
-        public static readonly DependencyProperty RadiusProperty = DependencyProperty.Register("Radius", typeof(int),
-            typeof(WaitingSpinnerControl), new PropertyMetadata(15, null, OnCoerceRadius));
+        private static object OnCoerceCenter(DependencyObject d, object baseValue)
+        {
+            var control = (WaitingSpinnerControl) d;
+            var newCenter = (int) control.GetValue(DiameterProperty) / 2;
+            return new Point(newCenter, newCenter);
+        }
+
+        private static object OnCoerceInnerRadius(DependencyObject d, object baseValue)
+        {
+            var control = (WaitingSpinnerControl) d;
+            var newInnerRadius = (int) control.GetValue(DiameterProperty) / 4;
+            return newInnerRadius;
+        }
 
         private static object OnCoerceRadius(DependencyObject d, object baseValue)
         {
@@ -60,54 +95,11 @@ namespace PointlessWaymarksCmsWpfControls.WaitingSpinner
             return newRadius;
         }
 
-        public int InnerRadius
+        private static void OnDiameterPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            get => (int) GetValue(InnerRadiusProperty);
-            set => SetValue(InnerRadiusProperty, value);
+            d.CoerceValue(CenterProperty);
+            d.CoerceValue(RadiusProperty);
+            d.CoerceValue(InnerRadiusProperty);
         }
-
-        public static readonly DependencyProperty InnerRadiusProperty = DependencyProperty.Register("InnerRadius",
-            typeof(int), typeof(WaitingSpinnerControl), new PropertyMetadata(2, null, OnCoerceInnerRadius));
-
-        private static object OnCoerceInnerRadius(DependencyObject d, object baseValue)
-        {
-            var control = (WaitingSpinnerControl) d;
-            var newInnerRadius = (int) (control.GetValue(DiameterProperty)) / 4;
-            return newInnerRadius;
-        }
-
-        public Point Center
-        {
-            get => (Point) GetValue(CenterProperty);
-            set => SetValue(CenterProperty, value);
-        }
-
-        public static readonly DependencyProperty CenterProperty = DependencyProperty.Register("Center", typeof(Point),
-            typeof(WaitingSpinnerControl), new PropertyMetadata(new Point(15, 15), null, OnCoerceCenter));
-
-        private static object OnCoerceCenter(DependencyObject d, object baseValue)
-        {
-            var control = (WaitingSpinnerControl) d;
-            var newCenter = (int) control.GetValue(DiameterProperty) / 2;
-            return new Point(newCenter, newCenter);
-        }
-
-        public Color Color1
-        {
-            get => (Color) GetValue(Color1Property);
-            set => SetValue(Color1Property, value);
-        }
-
-        public static readonly DependencyProperty Color1Property = DependencyProperty.Register("Color1", typeof(Color),
-            typeof(WaitingSpinnerControl), new PropertyMetadata(Colors.Green));
-
-        public Color Color2
-        {
-            get => (Color) GetValue(Color2Property);
-            set => SetValue(Color2Property, value);
-        }
-
-        public static readonly DependencyProperty Color2Property = DependencyProperty.Register("Color2", typeof(Color),
-            typeof(WaitingSpinnerControl), new PropertyMetadata(Colors.Transparent));
     }
 }

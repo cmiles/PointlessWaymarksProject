@@ -16,7 +16,7 @@ namespace PointlessWaymarksCmsData
 
         public static List<T> AsList<T>(this T item)
         {
-            return new List<T> {item};
+            return new() {item};
         }
 
         public static IEnumerable<List<T>> Partition<T>(this IList<T> source, int size)

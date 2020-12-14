@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using JetBrains.Annotations;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.Aws;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 

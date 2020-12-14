@@ -193,10 +193,9 @@ EndSelection:<<<<<<<<4";
                     fragmentStart = GetByteCount(sb);
 
                     var innerHtmlStart =
-                        bodyOpenEndIdx > -1 ? bodyOpenEndIdx : (htmlOpenEndIdx > -1 ? htmlOpenEndIdx : 0);
-                    var innerHtmlEnd = bodyCloseIdx > -1
-                        ? bodyCloseIdx
-                        : (htmlCloseIdx > -1 ? htmlCloseIdx : html.Length);
+                        bodyOpenEndIdx > -1 ? bodyOpenEndIdx : htmlOpenEndIdx > -1 ? htmlOpenEndIdx : 0;
+                    var innerHtmlEnd = bodyCloseIdx > -1 ? bodyCloseIdx :
+                        htmlCloseIdx > -1 ? htmlCloseIdx : html.Length;
                     sb.Append(html, innerHtmlStart, innerHtmlEnd - innerHtmlStart);
 
                     fragmentEnd = GetByteCount(sb);

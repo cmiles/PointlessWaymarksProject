@@ -13,6 +13,8 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
             DataContext = this;
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void Notification_OnNotificationClosed(object sender, RoutedEventArgs e)
         {
             if (!(sender is ToastControl control))
@@ -26,7 +28,5 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

@@ -23,6 +23,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
     {
         private Command _deleteAllCommand;
         private Command _deleteSelectedCommand;
+        private bool _isRunning;
         private ObservableCollection<S3DeletionsItem>? _items;
         private List<S3DeletionsItem> _selectedItems = new();
         private StatusControlContext _statusContext;
@@ -30,13 +31,15 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
         private Command _toClipboardSelectedItemsCommand;
         private Command _toExcelAllItemsCommand;
         private Command _toExcelSelectedItemsCommand;
-        private bool _isRunning;
 
         public S3DeletionsContext(StatusControlContext? statusContext)
         {
             _statusContext = statusContext ?? new StatusControlContext();
-            _deleteAllCommand = StatusContext.RunBlockingTaskWithCancellationCommand(async x => await DeleteAll(x), "Cancel Deletions");
-            _deleteSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(async x => await DeleteSelected(x), "Cancel Deletions");
+            _deleteAllCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await DeleteAll(x), "Cancel Deletions");
+            _deleteSelectedCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await DeleteSelected(x),
+                    "Cancel Deletions");
 
             _toExcelAllItemsCommand =
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
@@ -198,10 +201,11 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
 
                 try
                 {
-                    await s3Client.DeleteObjectAsync(new DeleteObjectRequest
-                    {
-                        BucketName = loopDeletionItems.BucketName, Key = loopDeletionItems.AmazonObjectKey
-                    }, cancellationToken);
+                    await s3Client.DeleteObjectAsync(
+                        new DeleteObjectRequest
+                        {
+                            BucketName = loopDeletionItems.BucketName, Key = loopDeletionItems.AmazonObjectKey
+                        }, cancellationToken);
                 }
                 catch (Exception e)
                 {
@@ -224,7 +228,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
 
         public async Task DeleteAll(CancellationToken cancellationToken)
         {
-            await Delete(Items?.ToList() ?? new List<S3DeletionsItem>(), cancellationToken, StatusContext.ProgressTracker());
+            await Delete(Items?.ToList() ?? new List<S3DeletionsItem>(), cancellationToken,
+                StatusContext.ProgressTracker());
         }
 
         public async Task DeleteSelected(CancellationToken cancellationToken)

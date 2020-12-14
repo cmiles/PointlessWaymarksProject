@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.MapComponentData;
+using PointlessWaymarksCmsData.Json;
 
 namespace PointlessWaymarksCmsData.Content
 {
@@ -29,7 +30,7 @@ namespace PointlessWaymarksCmsData.Content
 
             await GenerateData(savedComponent, progress);
 
-            await Json.Export.WriteLocalDbJson(savedComponent.Map);
+            await Export.WriteLocalDbJson(savedComponent.Map);
 
             DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {savedComponent.Map.ContentId});

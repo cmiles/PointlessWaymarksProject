@@ -330,7 +330,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             newEntry.UpdateNotes = UpdateNotes?.UpdateNotes.TrimNullToEmpty();
             newEntry.UpdateNotesFormat = UpdateNotes?.UpdateNotesFormat.SelectedContentFormatAsString ?? string.Empty;
 
-            var currentElementList = MapElements?.ToList() ?? new();
+            var currentElementList = MapElements?.ToList() ?? new List<IMapElementListItem>();
             var finalElementList = currentElementList.Select(x => new MapElement
             {
                 MapComponentContentId = newEntry.ContentId,
@@ -406,7 +406,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            MapElements ??= new();
+            MapElements ??= new ObservableCollection<IMapElementListItem>();
 
             MapElements.Clear();
 

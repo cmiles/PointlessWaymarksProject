@@ -35,6 +35,8 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void ConstructContentString()
         {
             if (DbEntry == null)
@@ -66,7 +68,5 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

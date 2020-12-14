@@ -10,7 +10,8 @@ namespace PointlessWaymarksCmsData.Content
 {
     public static class PointGenerator
     {
-        public static void GenerateHtml(PointContentDto toGenerate, DateTime? generationVersion, IProgress<string> progress)
+        public static void GenerateHtml(PointContentDto toGenerate, DateTime? generationVersion,
+            IProgress<string> progress)
         {
             progress?.Report($"Point Content - Generate HTML for {toGenerate.Title}");
 
@@ -74,7 +75,8 @@ namespace PointlessWaymarksCmsData.Content
                     return await GenerationReturn.Error("Point Detail Data must have a valid Content Id",
                         loopDetails.ContentId);
                 if (loopDetails.PointContentId != pointContent.ContentId)
-                    return await GenerationReturn.Error($"{loopDetails.DataType} Point Detail isn't assigned to the current point?",
+                    return await GenerationReturn.Error(
+                        $"{loopDetails.DataType} Point Detail isn't assigned to the current point?",
                         loopDetails.ContentId);
                 if (string.IsNullOrWhiteSpace(loopDetails.DataType))
                     return await GenerationReturn.Error("Point Detail Data Type doesn't have a value",

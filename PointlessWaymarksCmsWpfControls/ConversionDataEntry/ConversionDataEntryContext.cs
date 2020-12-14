@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarksCmsData;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 
 namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
@@ -23,8 +22,7 @@ namespace PointlessWaymarksCmsWpfControls.ConversionDataEntry
         private string _userText;
         private T _userValue;
 
-        private List<Func<T, (bool passed, string validationMessage)>> _validationFunctions =
-            new();
+        private List<Func<T, (bool passed, string validationMessage)>> _validationFunctions = new();
 
         private string _validationMessage;
 

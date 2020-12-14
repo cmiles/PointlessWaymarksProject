@@ -12,7 +12,6 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.Status;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using TinyIpc.Messaging;
 
@@ -183,10 +182,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
                 {
                     await ThreadSwitcher.ResumeForegroundAsync();
 
-                    foreach (var loopDelete in existingItems.Skip(1).ToList())
-                    {
-                        Items.Remove(loopDelete);
-                    }
+                    foreach (var loopDelete in existingItems.Skip(1).ToList()) Items.Remove(loopDelete);
 
                     await ThreadSwitcher.ResumeBackgroundAsync();
                 }
@@ -296,7 +292,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
             _lastSortColumn = sortColumn;
 
-            var collectionView = ((CollectionView) CollectionViewSource.GetDefaultView(Items));
+            var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;

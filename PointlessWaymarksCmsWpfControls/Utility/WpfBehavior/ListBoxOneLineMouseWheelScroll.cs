@@ -8,12 +8,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
     {
         private ScrollViewer _scrollViewer;
 
-        protected override void OnAttached()
-        {
-            AssociatedObject.PreviewMouseWheel += AssociatedObjectOnPreviewMouseWheel;
-            _scrollViewer = XamlHelpers.FindChild<ScrollViewer>(AssociatedObject);
-        }
-
         private void AssociatedObjectOnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             _scrollViewer ??= XamlHelpers.FindChild<ScrollViewer>(AssociatedObject);
@@ -23,7 +17,13 @@ namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
             e.Handled = true;
 
             if (e.Delta > 0) _scrollViewer.LineUp();
-            if(e.Delta < 0) _scrollViewer.LineDown();
+            if (e.Delta < 0) _scrollViewer.LineDown();
+        }
+
+        protected override void OnAttached()
+        {
+            AssociatedObject.PreviewMouseWheel += AssociatedObjectOnPreviewMouseWheel;
+            _scrollViewer = XamlHelpers.FindChild<ScrollViewer>(AssociatedObject);
         }
     }
 }

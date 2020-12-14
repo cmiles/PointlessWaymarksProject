@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 
 namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
@@ -18,12 +17,9 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
         private string _title;
         private bool? _userValue;
 
-        private List<Func<bool?, (bool passed, string validationMessage)>> _validationFunctions =
-            new();
+        private List<Func<bool?, (bool passed, string validationMessage)>> _validationFunctions = new();
 
         private string _validationMessage;
-
-        public bool UserValueIsNullable => true;
 
         private BoolNullableDataEntryContext()
         {
@@ -94,6 +90,8 @@ namespace PointlessWaymarksCmsWpfControls.BoolDataEntry
                 OnPropertyChanged();
             }
         }
+
+        public bool UserValueIsNullable => true;
 
         public List<Func<bool?, (bool passed, string validationMessage)>> ValidationFunctions
         {
