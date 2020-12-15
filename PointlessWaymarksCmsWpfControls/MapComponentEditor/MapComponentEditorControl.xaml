@@ -13,6 +13,9 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     d:DataContext="{d:DesignInstance local:MapComponentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -22,6 +25,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <DataTemplate x:Key="MapElementGeoJsonTemplate" DataType="local:MapElementListGeoJsonItem">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
@@ -164,10 +168,50 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
+            <TabItem Header="Map">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource ActionPanelBorder}">
+                        <Grid dd:DragDrop.DropHandler="{Binding}"
+                              dd:DragDrop.IsDropTarget="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock dd:DragDrop.DropHandler="{Binding}"
+                                       dd:DragDrop.IsDropTarget="True" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center"> Drag Point, Line or GeoJson Content from the Item Lists here to add to the map.</TextBlock>
+                            <Button
+                                Grid.Column="1"
+                                Command="{Binding RefreshMapPreviewCommand}"
+                                Content="Refresh Map"
+                                Style="{StaticResource ActionPanelButton}" />
+                        </Grid>
+                    </Border>
+                    <wpf:WebView2
+                        x:Name="GeoJsonContentWebView"
+                        Grid.Row="1"
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        <b:Interaction.Behaviors>
+                            <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
+                            <wpfHtml:WebViewPostJsonOnChange JsonData="{Binding PreviewMapJsonDto}" />
+                        </b:Interaction.Behaviors>
+                    </wpf:WebView2>
+                </Grid>
+            </TabItem>
             <TabItem Header="Update Notes">
                 <Grid>
                     <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />
                 </Grid>
+            </TabItem>
+            <TabItem Header="Raw GeoJson">
+                <TextBox
+                    Style="{StaticResource ReadOnlyTextBox}"
+                    Text="{Binding PreviewMapJsonDto}"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Visible" />
             </TabItem>
         </TabControl>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">

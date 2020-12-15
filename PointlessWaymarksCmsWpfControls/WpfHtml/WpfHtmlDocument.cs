@@ -142,6 +142,72 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             return htmlDoc;
         }
 
+        public static string ToHtmlLeafletMapDocument(string title, double initialLatitude, double initialLongitude,
+    string styleBlock)
+        {
+            var layers = LeafletLayerList();
+
+            var htmlDoc = $@"
+{LeafletDocumentOpening(title, styleBlock)}
+<body>
+     <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
+        style=""height: 92vh;""></div>
+    <script>
+        {string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}
+
+        var map = L.map('mainMap', {{
+            center: {{ lat: {initialLatitude}, lng: {initialLongitude} }},
+            zoom: 13,
+            layers: [{string.Join(", ", layers.Select(x => x.LayerVariableName))}],
+            doubleClickZoom: false
+        }});
+
+        var baseMaps = {{
+            {string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}
+        }};
+
+        L.control.layers(baseMaps).addTo(map);
+
+        window.chrome.webview.addEventListener('message', postGeoJsonDataHandler);
+
+        function onEachMapGeoJsonFeature(feature, layer) {{
+            if (feature.properties && feature.properties.PopupContent) {{
+                layer.bindPopup(feature.properties.PopupContent);
+            }}
+            if (feature.properties && feature.properties.popupContent) {{
+                layer.bindPopup(feature.properties.PopupContent);
+            }}
+        }}
+
+        var geoMapLayer;
+
+        function postGeoJsonDataHandler(e) {{
+            if(geoMapLayer != null) map.eachLayer(function (layer) {{ map.removeLayer(layer); }});
+
+            let mapData = e.data;
+
+            if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
+
+            map.flyToBounds([
+                [mapData.Bounds.InitialViewBoundsMinLatitude, mapData.Bounds.InitialViewBoundsMinLongitude],
+                [mapData.Bounds.InitialViewBoundsMaxLatitude, mapData.Bounds.InitialViewBoundsMaxLongitude]
+            ]);
+
+            mapData.GeoJsonLayers.forEach(item => 
+                map.addLayer(new L.geoJSON(item, {{
+                    onEachFeature: onEachMapGeoJsonFeature}}))
+                );
+        }};
+
+        window.chrome.webview.postMessage('script_finished');
+
+    </script>
+</body>
+</html>";
+
+            return htmlDoc;
+        }
+
         public static string ToHtmlLeafletGeoJsonDocument(string title, double initialLatitude, double initialLongitude,
             string styleBlock)
         {

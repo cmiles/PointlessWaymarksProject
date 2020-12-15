@@ -35,6 +35,28 @@ namespace PointlessWaymarksCmsData.Spatial
             // ReSharper restore PossibleInvalidOperationException
         }
 
+        public static async Task<string> SerializeFeatureCollection(FeatureCollection featureCollection)
+        {
+            var serializer = GeoJsonSerializer.Create(Wgs84GeometryFactory(), 3);
+
+            await using var stringWriter = new StringWriter();
+            using var jsonWriter = new JsonTextWriter(stringWriter);
+            serializer.Serialize(jsonWriter, featureCollection);
+
+            return stringWriter.ToString();
+        }
+
+        public static async Task<string> SerializeAsGeoJson(object toSerialize)
+        {
+            var serializer = GeoJsonSerializer.Create(Wgs84GeometryFactory(), 3);
+
+            await using var stringWriter = new StringWriter();
+            using var jsonWriter = new JsonTextWriter(stringWriter);
+            serializer.Serialize(jsonWriter, toSerialize);
+
+            return stringWriter.ToString();
+        }
+
         /// <summary>
         ///     Uses reflection to look for Latitude, Longitude and Elevation properties on an object and rounds them to 6 digits.
         /// </summary>

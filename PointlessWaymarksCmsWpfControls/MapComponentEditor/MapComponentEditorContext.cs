@@ -12,11 +12,14 @@ using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
+using NetTopologySuite.Features;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Content;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsData.Html.GeoJsonHtml;
+using PointlessWaymarksCmsData.Spatial;
 using PointlessWaymarksCmsWpfControls.ContentIdViewer;
 using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
@@ -25,6 +28,8 @@ using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarksCmsWpfControls.WpfHtml;
+using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 {
@@ -38,6 +43,9 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private ObservableCollection<IMapElementListItem>? _mapElements;
+        private string _previewHtml;
+        private string _previewMapJsonJsonDto = string.Empty;
+        private Command _refreshMapPreviewCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
 
@@ -57,6 +65,12 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             _userGeoContentIdInputToMapCommand = StatusContext.RunBlockingTaskCommand(UserGeoContentIdInputToMap);
             _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
             _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
+            _refreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
+
+
+            _previewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
+                UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+                UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
         }
 
         public ContentIdViewerControlContext? ContentId
@@ -110,6 +124,39 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             {
                 if (Equals(value, _mapElements)) return;
                 _mapElements = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string PreviewHtml
+        {
+            get => _previewHtml;
+            set
+            {
+                if (value == _previewHtml) return;
+                _previewHtml = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string PreviewMapJsonDto
+        {
+            get => _previewMapJsonJsonDto;
+            set
+            {
+                if (Equals(value, _previewMapJsonJsonDto)) return;
+                _previewMapJsonJsonDto = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command RefreshMapPreviewCommand
+        {
+            get => _refreshMapPreviewCommand;
+            set
+            {
+                if (Equals(value, _refreshMapPreviewCommand)) return;
+                _refreshMapPreviewCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -257,35 +304,8 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private async Task TryAddSpatialType(Guid toAdd)
-        {
-            var db = await Db.Context();
-
-            if (db.PointContents.Any(x => x.ContentId == toAdd))
-            {
-                await AddPoint(await Db.PointAndPointDetails(toAdd), guiNotificationWhenAdded: true);
-                return;
-            }
-
-            if (db.GeoJsonContents.Any(x => x.ContentId == toAdd))
-            {
-                await AddGeoJson(await db.GeoJsonContents.SingleAsync(x => x.ContentId == toAdd),
-                    guiNotificationWhenAdded: true);
-                return;
-            }
-
-            if (db.LineContents.Any(x => x.ContentId == toAdd))
-            {
-                await AddLine(await db.LineContents.SingleAsync(x => x.ContentId == toAdd),
-                    guiNotificationWhenAdded: true);
-                return;
-            }
-
-            StatusContext.ToastError("Item isn't a spatial type or isn't in the db?");
-        }
-
         private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null,
-            bool guiNotificationWhenAdded = false)
+            bool guiNotificationAndMapRefreshWhenAdded = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -307,11 +327,15 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
 
-            if (guiNotificationWhenAdded) StatusContext.ToastSuccess($"Added Point - {possibleGeoJson.Title}");
+            if (guiNotificationAndMapRefreshWhenAdded)
+            {
+                StatusContext.ToastSuccess($"Added Point - {possibleGeoJson.Title}");
+                await RefreshMapPreview();
+            }
         }
 
         private async Task AddLine(LineContent possibleLine, MapElement? loopContent = null,
-            bool guiNotificationWhenAdded = false)
+            bool guiNotificationAndMapRefreshWhenAdded = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -333,11 +357,15 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
 
-            if (guiNotificationWhenAdded) StatusContext.ToastSuccess($"Added Point - {possibleLine.Title}");
+            if (guiNotificationAndMapRefreshWhenAdded)
+            {
+                StatusContext.ToastSuccess($"Added Point - {possibleLine.Title}");
+                await RefreshMapPreview();
+            }
         }
 
         private async Task AddPoint(PointContentDto possiblePoint, MapElement? loopContent = null,
-            bool guiNotificationWhenAdded = false)
+            bool guiNotificationAndMapRefreshWhenAdded = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -359,7 +387,11 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
 
-            if (guiNotificationWhenAdded) StatusContext.ToastSuccess($"Added Point - {possiblePoint.Title}");
+            if (guiNotificationAndMapRefreshWhenAdded)
+            {
+                StatusContext.ToastSuccess($"Added Point - {possiblePoint.Title}");
+                await RefreshMapPreview();
+            }
         }
 
         public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -493,6 +525,8 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                         break;
                 }
             }
+
+            if (MapElements.Any()) await RefreshMapPreview();
         }
 
         [NotifyPropertyChangedInvocator]
@@ -504,6 +538,66 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
             if (!propertyName.Contains("HasChanges") && !propertyName.Contains("Validation"))
                 CheckForChangesAndValidationIssues();
+        }
+
+        public async Task RefreshMapPreview()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (MapElements == null || !MapElements.Any())
+            {
+            }
+
+            var geoJsonList = new List<FeatureCollection>();
+
+            var boundsKeeper = new List<Point>();
+
+            foreach (var loopElements in MapElements)
+            {
+                if (loopElements is MapElementListGeoJsonItem mapGeoJson)
+                    if (mapGeoJson.DbEntry?.GeoJson != null)
+                    {
+                        geoJsonList.Add(SpatialConverters.GeoJsonToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
+                        boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
+                            mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
+                        boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
+                            mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
+                    }
+
+                if (loopElements is MapElementListLineItem mapLine)
+                    if (mapLine.DbEntry?.Line != null)
+                    {
+                        geoJsonList.Add(SpatialConverters.GeoJsonToFeatureCollection(mapLine.DbEntry.Line));
+                        boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
+                            mapLine.DbEntry.InitialViewBoundsMaxLatitude));
+                        boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
+                            mapLine.DbEntry.InitialViewBoundsMinLatitude));
+                    }
+            }
+
+            if (MapElements.Any(x => x is MapElementListPointItem))
+            {
+                var featureCollection = new FeatureCollection();
+
+                foreach (var loopElements in MapElements.Where(x => x is MapElementListPointItem)
+                    .Cast<MapElementListPointItem>().Where(x => x.DbEntry != null).ToList())
+                {
+                    featureCollection.Add(new Feature(
+                        SpatialHelpers.Wgs84Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude,
+                            loopElements.DbEntry.Elevation ?? 0), new AttributesTable()));
+                    boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude));
+                }
+
+                geoJsonList.Add(featureCollection);
+            }
+
+            var bounds = SpatialConverters.PointBoundingBox(boundsKeeper);
+
+            var dto = new MapJsonDto(Guid.NewGuid(),
+                new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), geoJsonList);
+
+            //Using the new Guid as the page URL forces a changed value into the LineJsonDto
+            PreviewMapJsonDto = await SpatialHelpers.SerializeAsGeoJson(dto);
         }
 
         public async Task SaveAndGenerateHtml(bool closeAfterSave)
@@ -528,6 +622,33 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 await ThreadSwitcher.ResumeForegroundAsync();
                 RequestContentEditorWindowClose?.Invoke(this, new EventArgs());
             }
+        }
+
+        private async Task TryAddSpatialType(Guid toAdd)
+        {
+            var db = await Db.Context();
+
+            if (db.PointContents.Any(x => x.ContentId == toAdd))
+            {
+                await AddPoint(await Db.PointAndPointDetails(toAdd), guiNotificationAndMapRefreshWhenAdded: true);
+                return;
+            }
+
+            if (db.GeoJsonContents.Any(x => x.ContentId == toAdd))
+            {
+                await AddGeoJson(await db.GeoJsonContents.SingleAsync(x => x.ContentId == toAdd),
+                    guiNotificationAndMapRefreshWhenAdded: true);
+                return;
+            }
+
+            if (db.LineContents.Any(x => x.ContentId == toAdd))
+            {
+                await AddLine(await db.LineContents.SingleAsync(x => x.ContentId == toAdd),
+                    guiNotificationAndMapRefreshWhenAdded: true);
+                return;
+            }
+
+            StatusContext.ToastError("Item isn't a spatial type or isn't in the db?");
         }
 
         public async Task UserGeoContentIdInputToMap()
@@ -593,5 +714,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
             UserGeoContentInput = string.Empty;
         }
+
+        public record MapJsonDto(Guid Identifier, GeoJsonData.SpatialBounds Bounds, List<FeatureCollection> GeoJsonLayers);
     }
 }
