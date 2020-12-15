@@ -6,6 +6,7 @@
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarksCmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dd="urn:gong-wpf-dragdrop"
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.MapComponentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.StringDataEntry"
@@ -131,7 +132,9 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBox
-                                Height="90"
+                                Height="60"
+                                dd:DragDrop.DropHandler="{Binding}"
+                                dd:DragDrop.IsDropTarget="True"
                                 AcceptsReturn="True"
                                 Text="{Binding UserGeoContentInput, UpdateSourceTrigger=PropertyChanged}" />
                             <Button
@@ -144,9 +147,13 @@
                     </GroupBox>
                     <GroupBox
                         Grid.Row="1"
+                        dd:DragDrop.DropHandler="{Binding}"
+                        dd:DragDrop.IsDropTarget="True"
                         Header="Map Elements"
                         Style="{StaticResource UiComponentGroupBoxStyle}">
                         <ListBox
+                            dd:DragDrop.DropHandler="{Binding}"
+                            dd:DragDrop.IsDropTarget="True"
                             ItemTemplateSelector="{StaticResource MapElementSelector}"
                             ItemsSource="{Binding MapElements}"
                             Style="{StaticResource ContentListListBoxStyle}">

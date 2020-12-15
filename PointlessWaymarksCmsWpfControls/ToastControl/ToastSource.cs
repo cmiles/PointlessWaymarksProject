@@ -10,12 +10,12 @@ namespace PointlessWaymarksCmsWpfControls.ToastControl
 {
     public class ToastSource : INotifyPropertyChanged
     {
-        private bool _isOpen;
-
-        private readonly DispatcherTimer _timer;
         public const int UnlimitedNotifications = -1;
 
         public static readonly TimeSpan NeverEndingNotification = TimeSpan.MaxValue;
+
+        private readonly DispatcherTimer _timer;
+        private bool _isOpen;
 
         public ToastSource(Dispatcher dispatcher)
         {

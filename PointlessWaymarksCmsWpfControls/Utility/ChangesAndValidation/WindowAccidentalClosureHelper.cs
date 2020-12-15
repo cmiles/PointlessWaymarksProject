@@ -8,9 +8,9 @@ namespace PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation
 {
     public class WindowAccidentalClosureHelper
     {
-        private bool _closeConfirmed;
         private readonly IHasChanges _hasChangesToCheck;
         private readonly Window _toClose;
+        private bool _closeConfirmed;
 
         public WindowAccidentalClosureHelper(Window toClose, StatusControlContext context, IHasChanges toCheck)
         {

@@ -7,6 +7,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
+using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
@@ -20,13 +22,14 @@ using PointlessWaymarksCmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.StringDataEntry;
 using PointlessWaymarksCmsWpfControls.UpdateNotesEditor;
+using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 
 namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 {
     public class MapComponentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-        ICheckForChangesAndValidation
+        ICheckForChangesAndValidation, IDropTarget
     {
         private ContentIdViewerControlContext? _contentId;
         private CreatedAndUpdatedByAndOnDisplayContext? _createdUpdatedDisplay;
@@ -96,28 +99,6 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
                 OnPropertyChanged();
             }
         }
@@ -227,9 +208,84 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
 
+        public void DragOver(IDropInfo dropInfo)
+        {
+            dropInfo.Effects = DragDropEffects.Copy;
+        }
+
+        public async void Drop(IDropInfo dropInfo)
+        {
+            var data = dropInfo.Data;
+
+            if (data is DataObject dataObject)
+            {
+                var dataFormat = DataFormats.GetDataFormat(DataFormats.Serializable);
+                data = dataObject.GetDataPresent(dataFormat.Name) ? dataObject.GetData(dataFormat.Name) : data;
+            }
+
+            var wrapper = data as SerializableContentCommonIdList;
+            if (wrapper?.ContentIdList == null || !wrapper.ContentIdList.Any())
+            {
+                StatusContext.ToastWarning("Couldn't add - no items?");
+                return;
+            }
+
+            foreach (var loopGuids in wrapper.ContentIdList) await TryAddSpatialType(loopGuids);
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null)
+        private async Task TryAddSpatialType(Guid toAdd)
+        {
+            var db = await Db.Context();
+
+            if (db.PointContents.Any(x => x.ContentId == toAdd))
+            {
+                await AddPoint(await Db.PointAndPointDetails(toAdd), guiNotificationWhenAdded: true);
+                return;
+            }
+
+            if (db.GeoJsonContents.Any(x => x.ContentId == toAdd))
+            {
+                await AddGeoJson(await db.GeoJsonContents.SingleAsync(x => x.ContentId == toAdd),
+                    guiNotificationWhenAdded: true);
+                return;
+            }
+
+            if (db.LineContents.Any(x => x.ContentId == toAdd))
+            {
+                await AddLine(await db.LineContents.SingleAsync(x => x.ContentId == toAdd),
+                    guiNotificationWhenAdded: true);
+                return;
+            }
+
+            StatusContext.ToastError("Item isn't a spatial type or isn't in the db?");
+        }
+
+        private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null,
+            bool guiNotificationWhenAdded = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -250,9 +306,12 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 InInitialView = loopContent?.IncludeInDefaultView ?? true,
                 ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
+
+            if (guiNotificationWhenAdded) StatusContext.ToastSuccess($"Added Point - {possibleGeoJson.Title}");
         }
 
-        private async Task AddLine(LineContent possibleLine, MapElement? loopContent = null)
+        private async Task AddLine(LineContent possibleLine, MapElement? loopContent = null,
+            bool guiNotificationWhenAdded = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -273,9 +332,12 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 InInitialView = loopContent?.IncludeInDefaultView ?? true,
                 ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
+
+            if (guiNotificationWhenAdded) StatusContext.ToastSuccess($"Added Point - {possibleLine.Title}");
         }
 
-        private async Task AddPoint(PointContentDto possiblePoint, MapElement? loopContent = null)
+        private async Task AddPoint(PointContentDto possiblePoint, MapElement? loopContent = null,
+            bool guiNotificationWhenAdded = false)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -296,6 +358,8 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 InInitialView = loopContent?.IncludeInDefaultView ?? true,
                 ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
+
+            if (guiNotificationWhenAdded) StatusContext.ToastSuccess($"Added Point - {possiblePoint.Title}");
         }
 
         public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext statusContext,

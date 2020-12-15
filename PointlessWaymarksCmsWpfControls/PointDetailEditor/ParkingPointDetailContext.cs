@@ -33,17 +33,6 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             StatusContext = statusContext ?? new StatusControlContext();
         }
 
-        public PointDetail DbEntry
-        {
-            get => _dbEntry;
-            set
-            {
-                if (Equals(value, _dbEntry)) return;
-                _dbEntry = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Parking DetailData
         {
             get => _detailData;
@@ -62,28 +51,6 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             {
                 if (Equals(value, _feeEditor)) return;
                 _feeEditor = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
                 OnPropertyChanged();
             }
         }
@@ -117,6 +84,39 @@ namespace PointlessWaymarksCmsWpfControls.PointDetailEditor
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PointDetail DbEntry
+        {
+            get => _dbEntry;
+            set
+            {
+                if (Equals(value, _dbEntry)) return;
+                _dbEntry = value;
                 OnPropertyChanged();
             }
         }

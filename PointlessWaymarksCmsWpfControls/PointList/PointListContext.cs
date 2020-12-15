@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
+using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
@@ -13,12 +16,13 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarksCmsWpfControls.PointList
 {
-    public class PointListContext : INotifyPropertyChanged
+    public class PointListContext : INotifyPropertyChanged, IDragSource
     {
         private ObservableCollection<PointListListItem> _items;
         private string _lastSortColumn;
@@ -128,6 +132,48 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
             }
+        }
+
+        public void StartDrag(IDragInfo dragInfo)
+        {
+            var items = dragInfo.SourceItems.OfType<PointListListItem>().Where(x => x.ContentId() != null).ToList();
+
+            if (!items.Any())
+            {
+                dragInfo.Effects = DragDropEffects.None;
+                return;
+            }
+
+            var wrapper = new SerializableContentCommonIdList
+            {
+                ContentIdList = items.Where(x => x.ContentId() != null).Select(x => x.ContentId().Value).ToList()
+            };
+
+            dragInfo.Data = wrapper;
+            dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.Serializable);
+            dragInfo.Effects = dragInfo.Data != null ? DragDropEffects.Copy : DragDropEffects.None;
+        }
+
+        public bool CanStartDrag(IDragInfo dragInfo)
+        {
+            return true;
+        }
+
+        public void Dropped(IDropInfo dropInfo)
+        {
+        }
+
+        public void DragDropOperationFinished(DragDropEffects operationResult, IDragInfo dragInfo)
+        {
+        }
+
+        public void DragCancelled()
+        {
+        }
+
+        public bool TryCatchOccurredException(Exception exception)
+        {
+            return false;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

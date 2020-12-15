@@ -13,11 +13,11 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 {
     public class WebViewHtmlStringBindingBehavior : Behavior<WebView2>
     {
-        private readonly List<FileInfo> _previousFiles = new();
-
         public static readonly DependencyProperty HtmlStringProperty = DependencyProperty.Register("HtmlString",
             typeof(string), typeof(WebViewHtmlStringBindingBehavior),
             new PropertyMetadata(default(string), OnHtmlChanged));
+
+        private readonly List<FileInfo> _previousFiles = new();
 
         public string CachedHtml { get; set; }
 

@@ -147,8 +147,6 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
             }
         }
 
-        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
-
         public Command LinkToClipboardCommand
         {
             get => _linkToClipboardCommand;
@@ -381,6 +379,8 @@ namespace PointlessWaymarksCmsWpfControls.ImageContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public bool HasChanges => PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

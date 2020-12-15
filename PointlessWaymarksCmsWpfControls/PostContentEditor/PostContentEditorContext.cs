@@ -114,28 +114,6 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             }
         }
 
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
-                OnPropertyChanged();
-            }
-        }
-
 
         public HelpDisplayContext HelpContext
         {
@@ -231,6 +209,28 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
         {
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

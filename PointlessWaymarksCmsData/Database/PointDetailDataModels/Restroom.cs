@@ -4,9 +4,9 @@ namespace PointlessWaymarksCmsData.Database.PointDetailDataModels
 {
     public class Restroom : IPointDetailData
     {
-        public string DataTypeIdentifier => "Restroom";
         public string Notes { get; set; }
         public string NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
+        public string DataTypeIdentifier => "Restroom";
 
         public (bool isValid, string validationMessage) Validate()
         {

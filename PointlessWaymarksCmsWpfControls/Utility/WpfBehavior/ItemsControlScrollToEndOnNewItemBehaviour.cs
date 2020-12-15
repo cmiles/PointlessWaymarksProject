@@ -10,11 +10,11 @@ namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
 {
     public class ItemsControlScrollToEndOnNewItemBehaviour : Behavior<ItemsControl>
     {
-        private INotifyCollectionChanged _cachedItemsSource;
-
         public static readonly DependencyProperty ItemsControlScrollViewerProperty =
             DependencyProperty.Register("ItemsControlScrollViewer", typeof(ScrollViewer),
                 typeof(ItemsControlScrollToEndOnNewItemBehaviour), new PropertyMetadata(default(ScrollViewer)));
+
+        private INotifyCollectionChanged _cachedItemsSource;
 
         public ScrollViewer ItemsControlScrollViewer
         {

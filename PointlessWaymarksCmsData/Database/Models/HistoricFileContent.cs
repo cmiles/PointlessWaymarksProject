@@ -4,6 +4,8 @@ namespace PointlessWaymarksCmsData.Database.Models
 {
     public class HistoricFileContent : IUpdateNotes, IContentCommon
     {
+        public string OriginalFileName { get; set; }
+        public bool PublicDownloadLink { get; set; }
         public string BodyContent { get; set; }
         public string BodyContentFormat { get; set; }
         public Guid ContentId { get; set; }
@@ -15,8 +17,6 @@ namespace PointlessWaymarksCmsData.Database.Models
         public string LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
         public Guid? MainPicture { get; set; }
-        public string OriginalFileName { get; set; }
-        public bool PublicDownloadLink { get; set; }
         public bool ShowInMainSiteFeed { get; set; }
         public string Slug { get; set; }
         public string Summary { get; set; }
