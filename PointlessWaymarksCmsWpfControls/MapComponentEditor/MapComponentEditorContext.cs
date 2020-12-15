@@ -117,6 +117,28 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<IMapElementListItem>? MapElements
         {
             get => _mapElements;
@@ -278,28 +300,6 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
 
             foreach (var loopGuids in wrapper.ContentIdList) await TryAddSpatialType(loopGuids);
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
-                OnPropertyChanged();
-            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -715,6 +715,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             UserGeoContentInput = string.Empty;
         }
 
-        public record MapJsonDto(Guid Identifier, GeoJsonData.SpatialBounds Bounds, List<FeatureCollection> GeoJsonLayers);
+        public record MapJsonDto(Guid Identifier, GeoJsonData.SpatialBounds Bounds,
+            List<FeatureCollection> GeoJsonLayers);
     }
 }

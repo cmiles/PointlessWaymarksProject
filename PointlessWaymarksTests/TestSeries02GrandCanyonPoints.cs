@@ -21,12 +21,12 @@ namespace PointlessWaymarksTests
 {
     public class TestSeries02GrandCanyonPoints
     {
-        public const string TestSiteName = "Grand Canyon Rim Notes";
         public const string TestDefaultCreatedBy = "GC Ghost Writer";
         public const string TestSiteAuthors = "Pointless Waymarks Grand Canyon 'Testers'";
         public const string TestSiteEmailTo = "Grand@Canyon.Fake";
 
         public const string TestSiteKeywords = "grand canyon, points, places";
+        public const string TestSiteName = "Grand Canyon Rim Notes";
 
         public const string TestSummary = "'Testing' in the beautiful Grand Canyon";
 

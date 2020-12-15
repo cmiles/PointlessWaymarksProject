@@ -45,6 +45,28 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
             }
         }
 
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command RefreshPreviewCommand
         {
             get => _refreshPreviewCommand;
@@ -112,28 +134,6 @@ namespace PointlessWaymarksCmsWpfControls.UpdateNotesEditor
 
             HasChanges = UpdateNotesHasChanges || PropertyScanners.ChildPropertiesHaveChanges(this);
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
-                OnPropertyChanged();
-            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

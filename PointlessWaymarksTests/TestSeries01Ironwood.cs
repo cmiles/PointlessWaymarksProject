@@ -23,16 +23,7 @@ namespace PointlessWaymarksTests
 {
     public class TestSeries01Ironwood
     {
-        public const string UrlProclamationPdf = "https://www.blm.gov/sites/blm.gov/files/documents/ironwood_proc.pdf";
-        public const string UrlBlmSite = "https://www.blm.gov/visit/ironwood";
-
-        public const string UrlBlmMapPdf =
-            "https://www.blm.gov/sites/blm.gov/files/documents/AZ_IronwoodForest_NM_map.pdf";
-
-        public const string UrlFriendsOfIronwood = "https://ironwoodforest.org/";
         public const string ContributorOneName = "Ironwood Enthusiast";
-
-        public const string TestSiteName = "Ironwood Forest's Test Site";
         public const string TestDefaultCreatedBy = "Ironwood Ghost Writer";
         public const string TestSiteAuthors = "Pointless Waymarks Ironwood 'Testers'";
         public const string TestSiteEmailTo = "Ironwood@Forest.Fake";
@@ -40,7 +31,17 @@ namespace PointlessWaymarksTests
         public const string TestSiteKeywords =
             "ironwood forest national monument, samaniego hills, waterman mountains, test'ing";
 
+        public const string TestSiteName = "Ironwood Forest's Test Site";
+
         public const string TestSummary = "'Testing' in the beautiful Sonoran Desert";
+
+        public const string UrlBlmMapPdf =
+            "https://www.blm.gov/sites/blm.gov/files/documents/AZ_IronwoodForest_NM_map.pdf";
+
+        public const string UrlBlmSite = "https://www.blm.gov/visit/ironwood";
+
+        public const string UrlFriendsOfIronwood = "https://ironwoodforest.org/";
+        public const string UrlProclamationPdf = "https://www.blm.gov/sites/blm.gov/files/documents/ironwood_proc.pdf";
 
         public static UserSettings TestSiteSettings;
 

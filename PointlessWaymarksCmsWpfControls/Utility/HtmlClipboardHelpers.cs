@@ -15,6 +15,11 @@ namespace PointlessWaymarksCmsWpfControls.Utility
     public static class HtmlClipboardHelpers
     {
         /// <summary>
+        ///     html comment to point the end of html  fragment
+        /// </summary>
+        public const string EndFragment = @"<!--EndFragment-->";
+
+        /// <summary>
         ///     The string contains index references to  other spots in the string, so we need placeholders so we can compute the
         ///     offsets. <br />
         ///     The  <![CDATA[<<<<<<<]]>_ strings are just placeholders.  We'll back-patch them actual values afterwards. <br />
@@ -34,11 +39,6 @@ EndSelection:<<<<<<<<4";
         ///     html comment to point the beginning of  html fragment
         /// </summary>
         public const string StartFragment = "<!--StartFragment-->";
-
-        /// <summary>
-        ///     html comment to point the end of html  fragment
-        /// </summary>
-        public const string EndFragment = @"<!--EndFragment-->";
 
         /// <summary>
         ///     Used to calculate characters byte count  in UTF-8

@@ -44,6 +44,28 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
             }
         }
 
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string HelpText
         {
             get => _helpText;
@@ -99,28 +121,6 @@ namespace PointlessWaymarksCmsWpfControls.TagsEditor
 
             HasValidationIssues = !tagValidation.isValid;
             TagsValidationMessage = tagValidation.explanation;
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
-                OnPropertyChanged();
-            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

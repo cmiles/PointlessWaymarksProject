@@ -28,6 +28,7 @@ namespace PointlessWaymarksCmsWpfControls.WaitingSpinner
         public static readonly DependencyProperty Color2Property = DependencyProperty.Register("Color2", typeof(Color),
             typeof(WaitingSpinnerControl), new PropertyMetadata(Colors.Transparent));
 
+
         public WaitingSpinnerControl()
         {
             InitializeComponent();

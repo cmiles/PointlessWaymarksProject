@@ -142,6 +142,28 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
             }
         }
 
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public HelpDisplayContext HelpContext
         {
             get => _helpContext;
@@ -353,28 +375,6 @@ namespace PointlessWaymarksCmsWpfControls.FileContentEditor
                          BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.BodyContent);
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                                   SelectedFileHasValidationIssues;
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
-                OnPropertyChanged();
-            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

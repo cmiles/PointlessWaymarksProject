@@ -53,6 +53,29 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             }
         }
 
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StringDataEntryContext SlugEntry
         {
             get => _slugEntry;
@@ -113,29 +136,6 @@ namespace PointlessWaymarksCmsWpfControls.TitleSummarySlugFolderEditor
             HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
 
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
-                OnPropertyChanged();
-            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -16,12 +16,12 @@ namespace PointlessWaymarksTests
 {
     public class TestSeries03TrailInfoGuiContextTest
     {
-        public const string TestSiteName = "Trail Notes";
         public const string TestDefaultCreatedBy = "Trail Notes Ghost Writer";
         public const string TestSiteAuthors = "Pointless Waymarks Trail Notes 'Testers'";
         public const string TestSiteEmailTo = "Trail@Notes.Fake";
 
         public const string TestSiteKeywords = "trails, notes";
+        public const string TestSiteName = "Trail Notes";
 
         public const string TestSummary = "'Testing' on foot";
 

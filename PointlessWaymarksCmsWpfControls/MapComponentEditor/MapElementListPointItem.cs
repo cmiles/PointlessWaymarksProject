@@ -26,17 +26,6 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             }
         }
 
-        public string SmallImageUrl
-        {
-            get => _smallImageUrl;
-            set
-            {
-                if (value == _smallImageUrl) return;
-                _smallImageUrl = value;
-                OnPropertyChanged();
-            }
-        }
-
         public bool InInitialView
         {
             get => _inInitialView;
@@ -66,6 +55,17 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             {
                 if (value == _showInitialDetails) return;
                 _showInitialDetails = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SmallImageUrl
+        {
+            get => _smallImageUrl;
+            set
+            {
+                if (value == _smallImageUrl) return;
+                _smallImageUrl = value;
                 OnPropertyChanged();
             }
         }

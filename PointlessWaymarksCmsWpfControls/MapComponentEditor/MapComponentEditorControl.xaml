@@ -12,10 +12,10 @@
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.StringDataEntry"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UpdateNotesEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-    xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
     d:DataContext="{d:DesignInstance local:MapComponentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -175,14 +175,19 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" Style="{StaticResource ActionPanelBorder}">
-                        <Grid dd:DragDrop.DropHandler="{Binding}"
-                              dd:DragDrop.IsDropTarget="True">
+                        <Grid dd:DragDrop.DropHandler="{Binding}" dd:DragDrop.IsDropTarget="True">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock dd:DragDrop.DropHandler="{Binding}"
-                                       dd:DragDrop.IsDropTarget="True" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center"> Drag Point, Line or GeoJson Content from the Item Lists here to add to the map.</TextBlock>
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                dd:DragDrop.DropHandler="{Binding}"
+                                dd:DragDrop.IsDropTarget="True"
+                                TextWrapping="Wrap">
+                                Drag Point, Line or GeoJson Content from the Item Lists here to add to the map.
+                            </TextBlock>
                             <Button
                                 Grid.Column="1"
                                 Command="{Binding RefreshMapPreviewCommand}"

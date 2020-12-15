@@ -45,17 +45,6 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             }
         }
 
-        public bool SelectedContentFormatHasChanges
-        {
-            get => _selectedContentFormatHasChanges;
-            set
-            {
-                if (value == _selectedContentFormatHasChanges) return;
-                _selectedContentFormatHasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
         public bool HasChanges
         {
             get => _hasChanges;
@@ -63,6 +52,17 @@ namespace PointlessWaymarksCmsWpfControls.ContentFormat
             {
                 if (value == _hasChanges) return;
                 _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SelectedContentFormatHasChanges
+        {
+            get => _selectedContentFormatHasChanges;
+            set
+            {
+                if (value == _selectedContentFormatHasChanges) return;
+                _selectedContentFormatHasChanges = value;
                 OnPropertyChanged();
             }
         }

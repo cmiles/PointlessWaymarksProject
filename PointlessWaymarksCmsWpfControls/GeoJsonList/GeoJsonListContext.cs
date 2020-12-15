@@ -147,6 +147,25 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
             }
         }
 
+        public bool CanStartDrag(IDragInfo dragInfo)
+        {
+            return true;
+        }
+
+        public void DragCancelled()
+        {
+        }
+
+        public void DragDropOperationFinished(DragDropEffects operationResult, IDragInfo dragInfo)
+        {
+        }
+
+        public void Dropped(IDropInfo dropInfo)
+        {
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public void StartDrag(IDragInfo dragInfo)
         {
             var items = dragInfo.SourceItems.OfType<GeoJsonListListItem>().Where(x => x.ContentId() != null).ToList();
@@ -167,29 +186,10 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
             dragInfo.Effects = dragInfo.Data != null ? DragDropEffects.Copy : DragDropEffects.None;
         }
 
-        public bool CanStartDrag(IDragInfo dragInfo)
-        {
-            return true;
-        }
-
-        public void Dropped(IDropInfo dropInfo)
-        {
-        }
-
-        public void DragDropOperationFinished(DragDropEffects operationResult, IDragInfo dragInfo)
-        {
-        }
-
-        public void DragCancelled()
-        {
-        }
-
         public bool TryCatchOccurredException(Exception exception)
         {
             return false;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
         {
