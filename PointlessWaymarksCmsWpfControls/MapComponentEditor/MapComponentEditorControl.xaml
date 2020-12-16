@@ -16,6 +16,7 @@
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarksCmsWpfControls.WpfHtml"
+    x:Name="MapComponentEditorControlXaml"
     d:DataContext="{d:DesignInstance local:MapComponentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -41,6 +42,9 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
                             </StackPanel>
                         </Border>
                         <ContentControl
@@ -65,6 +69,9 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
                             </StackPanel>
                         </Border>
                         <ContentControl
@@ -89,6 +96,9 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
                             </StackPanel>
                         </Border>
                         <ContentControl
@@ -115,7 +125,7 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding TitleEntry}" />
+                            <stringDataEntry:StringDataEntryControl DataContext="{Binding TitleEntry}" />
                             <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SummaryEntry}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />

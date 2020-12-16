@@ -313,10 +313,14 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             }}
         }}
 
-        var geoMapLayer;
+        var mapLayers = [];
 
         function postGeoJsonDataHandler(e) {{
-            if(geoMapLayer != null) map.eachLayer(function (layer) {{ map.removeLayer(layer); }});
+            if(Object.keys(mapLayers).length > 0) {{ 
+                mapLayers.forEach(item => map.removeLayer(item));
+            }}
+
+            mapLayers = [];
 
             let mapData = e.data;
 
@@ -327,10 +331,10 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
                 [mapData.Bounds.InitialViewBoundsMaxLatitude, mapData.Bounds.InitialViewBoundsMaxLongitude]
             ]);
 
-            mapData.GeoJsonLayers.forEach(item => 
-                map.addLayer(new L.geoJSON(item, {{
-                    onEachFeature: onEachMapGeoJsonFeature}}))
-                );
+            mapData.GeoJsonLayers.forEach(item => {{
+                let newLayer = new L.geoJSON(item, {{onEachFeature: onEachMapGeoJsonFeature}});
+                mapLayers.push(newLayer);
+                map.addLayer(newLayer); }});
         }};
 
         window.chrome.webview.postMessage('script_finished');

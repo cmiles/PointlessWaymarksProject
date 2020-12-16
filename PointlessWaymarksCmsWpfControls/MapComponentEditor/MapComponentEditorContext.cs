@@ -46,6 +46,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
         private string _previewHtml;
         private string _previewMapJsonJsonDto = string.Empty;
         private Command _refreshMapPreviewCommand;
+        private Command<IMapElementListItem> _removeItemCommand;
         private Command _saveAndCloseCommand;
         private Command _saveCommand;
 
@@ -66,7 +67,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             _saveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
             _saveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             _refreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
-
+            _removeItemCommand = StatusContext.RunBlockingTaskCommand<IMapElementListItem>(RemoveItem);
 
             _previewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,
@@ -179,6 +180,17 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             {
                 if (Equals(value, _refreshMapPreviewCommand)) return;
                 _refreshMapPreviewCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<IMapElementListItem> RemoveItemCommand
+        {
+            get => _removeItemCommand;
+            set
+            {
+                if (Equals(value, _removeItemCommand)) return;
+                _removeItemCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -459,11 +471,11 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             return smallImageUrl;
         }
 
-        public async Task LoadData(MapComponent toLoad)
+        public async Task LoadData(MapComponent? toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            DbEntry = toLoad;
+            DbEntry = toLoad ?? new MapComponent();
 
             if (DbEntry.Id > 0)
             {
@@ -546,6 +558,9 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
             if (MapElements == null || !MapElements.Any())
             {
+                PreviewMapJsonDto = await SpatialHelpers.SerializeAsGeoJson(new MapJsonDto(Guid.NewGuid(),
+                    new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
+                return;
             }
 
             var geoJsonList = new List<FeatureCollection>();
@@ -600,6 +615,24 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             PreviewMapJsonDto = await SpatialHelpers.SerializeAsGeoJson(dto);
         }
 
+        private async Task RemoveItem(IMapElementListItem toRemove)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            try
+            {
+                MapElements?.Remove(toRemove);
+            }
+            catch (Exception e)
+            {
+                StatusContext.ToastError($"Trouble Removing Map Element - {e.Message}");
+            }
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            await RefreshMapPreview();
+        }
+
         public async Task SaveAndGenerateHtml(bool closeAfterSave)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -626,25 +659,28 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
 
         private async Task TryAddSpatialType(Guid toAdd)
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             var db = await Db.Context();
 
             if (db.PointContents.Any(x => x.ContentId == toAdd))
             {
-                await AddPoint(await Db.PointAndPointDetails(toAdd), guiNotificationAndMapRefreshWhenAdded: true);
+                await AddPoint(await Db.PointAndPointDetails(toAdd), guiNotificationAndMapRefreshWhenAdded: true)
+                    .ConfigureAwait(false);
                 return;
             }
 
             if (db.GeoJsonContents.Any(x => x.ContentId == toAdd))
             {
                 await AddGeoJson(await db.GeoJsonContents.SingleAsync(x => x.ContentId == toAdd),
-                    guiNotificationAndMapRefreshWhenAdded: true);
+                    guiNotificationAndMapRefreshWhenAdded: true).ConfigureAwait(false);
                 return;
             }
 
             if (db.LineContents.Any(x => x.ContentId == toAdd))
             {
                 await AddLine(await db.LineContents.SingleAsync(x => x.ContentId == toAdd),
-                    guiNotificationAndMapRefreshWhenAdded: true);
+                    guiNotificationAndMapRefreshWhenAdded: true).ConfigureAwait(false);
                 return;
             }
 
