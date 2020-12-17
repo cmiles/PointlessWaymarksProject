@@ -891,7 +891,7 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 var htmlModel = new SingleGeoJsonPage(loopItem) {GenerationVersion = generationVersion};
-                htmlModel.WriteLocalHtml();
+                await htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
                 loopCount++;
@@ -1005,6 +1005,9 @@ namespace PointlessWaymarksCmsData.Html
             var totalCount = allItems.Count;
 
             progress?.Report($"Found {totalCount} Points to Generate");
+
+            if(allItems.Count > 0) 
+                await GenerateAllPointHtml(generationVersion, progress);
 
             foreach (var loopItem in allItems)
             {

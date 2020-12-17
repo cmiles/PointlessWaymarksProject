@@ -200,7 +200,7 @@
                                 <Button Command="{Binding GenerateHtmlForAllImageContentCommand}">Images</Button>
                                 <Button Command="{Binding GenerateHtmlForAllLineContentCommand}">Lines</Button>
                                 <Button Command="{Binding GenerateHtmlForAllNoteContentCommand}">Notes</Button>
-                                <Button Command="{Binding GenerateHtmlForAllNoteContentCommand}">Points</Button>
+                                <Button Command="{Binding GenerateHtmlForAllPointContentCommand}">Points</Button>
                                 <Button Command="{Binding GenerateHtmlForAllPhotoContentCommand}">Photos</Button>
                                 <Button Command="{Binding GenerateHtmlForAllPostContentCommand}">Posts</Button>
                                 <Button Command="{Binding GenerateSiteResourcesCommand}">Site Resources</Button>

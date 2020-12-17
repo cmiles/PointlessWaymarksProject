@@ -375,7 +375,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
         map.on('dblclick', function (e) {{
             console.log(e);
             pointContentMarker.setLatLng(e.latlng);
-            window.external.notify(e.latlng.lat + "";"" + e.latlng.lng);
+            window.chrome.webview.postMessage(e.latlng.lat + "";"" + e.latlng.lng);
 
         }});
 
