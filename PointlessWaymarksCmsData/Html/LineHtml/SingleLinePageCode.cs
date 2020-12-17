@@ -34,7 +34,7 @@ namespace PointlessWaymarksCmsData.Html.LineHtml
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            await LineData.WriteLocalJsonData(DbEntry);
+            await LineData.WriteJsonData(DbEntry);
 
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());

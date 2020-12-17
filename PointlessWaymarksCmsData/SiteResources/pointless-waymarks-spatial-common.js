@@ -118,12 +118,12 @@ async function mapComponentInit(mapElement, contentId) {
                     autoPan: true
                 }).addTo(map);
 
-            const pointPopup = L.popup().setContent(`${pagePoint.Title} (${pagePoint.DetailTypeString})`);
+            const pointPopup = L.popup().setContent(`${pagePoint.Title}`);
             pointPopup.autoClose = false;
 
             pointContentMarker.bindPopup(pointPopup);
 
-            //if (mapComponent.ShowDetailsGuid.includes(pagePoint)) pointPopup.openPopup();
+            if (mapComponent.ShowDetailsGuid.includes(pagePoint)) pointPopup.openPopup();
         };
     }
 

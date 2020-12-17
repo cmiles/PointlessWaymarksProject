@@ -11,7 +11,7 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
 {
     public static class PointData
     {
-        public static async Task WriteLocalJsonData()
+        public static async Task WriteJsonData()
         {
             var db = await Db.Context();
             var allPointIds = await db.PointContents.Select(x => x.ContentId).ToListAsync();

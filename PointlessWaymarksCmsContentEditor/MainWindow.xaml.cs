@@ -138,6 +138,9 @@ namespace PointlessWaymarksCmsContentEditor
             GenerateHtmlForAllImageContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await HtmlGenerationGroups.GenerateAllImageHtml(null, StatusContext.ProgressTracker()));
 
+            GenerateHtmlForAllMapContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await HtmlGenerationGroups.GenerateAllMapData(null, StatusContext.ProgressTracker()));
+
             GenerateHtmlForAllNoteContentCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await HtmlGenerationGroups.GenerateAllNoteHtml(null, StatusContext.ProgressTracker()));
 
@@ -227,6 +230,8 @@ namespace PointlessWaymarksCmsContentEditor
         public Command GenerateHtmlForAllImageContentCommand { get; set; }
 
         public Command GenerateHtmlForAllLineContentCommand { get; set; }
+
+        public Command GenerateHtmlForAllMapContentCommand { get; set; }
 
         public Command GenerateHtmlForAllNoteContentCommand { get; set; }
 

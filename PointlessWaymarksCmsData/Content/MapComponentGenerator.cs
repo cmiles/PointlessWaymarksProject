@@ -14,7 +14,7 @@ namespace PointlessWaymarksCmsData.Content
         {
             progress?.Report($"Map Component - Generate Data for {toGenerate.Map.ContentId}, {toGenerate.Map.Title}");
 
-            await MapData.WriteLocalJsonData(toGenerate);
+            await MapData.WriteJsonData(toGenerate);
         }
 
         public static async Task<(GenerationReturn generationReturn, MapComponentDto mapDto)> SaveAndGenerateData(

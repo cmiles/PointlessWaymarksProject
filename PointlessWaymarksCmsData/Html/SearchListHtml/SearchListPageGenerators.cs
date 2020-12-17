@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using PointlessWaymarksCmsData.Content;
@@ -209,17 +210,17 @@ namespace PointlessWaymarksCmsData.Html.SearchListHtml
 
             var loopCount = 0;
 
-            foreach (var loopTags in pageTags)
+            Parallel.ForEach(pageTags, loopTags =>
             {
-                loopCount++;
+                //loopCount++;
 
-                if (loopCount % 30 == 0)
-                    progress?.Report($"Generating Tag Page {loopTags.tag} - {loopCount} of {tags.Count}");
+                //if (loopCount % 30 == 0)
+                progress?.Report($"Generating Tag Page {loopTags.tag} - {loopCount} of {tags.Count}");
 
                 WriteSearchListHtml(() => loopTags.contentObjects,
                     UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(loopTags.tag),
                     $"Tag - {loopTags.tag}", string.Empty, generationVersion, progress);
-            }
+            });
         }
 
         public static void WriteTagPage(string tag, List<dynamic> content, DateTime? generationVersion,

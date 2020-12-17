@@ -15,6 +15,7 @@ using PointlessWaymarksCmsData.Html.ImageHtml;
 using PointlessWaymarksCmsData.Html.IndexHtml;
 using PointlessWaymarksCmsData.Html.LineHtml;
 using PointlessWaymarksCmsData.Html.LinkListHtml;
+using PointlessWaymarksCmsData.Html.MapComponentData;
 using PointlessWaymarksCmsData.Html.NoteHtml;
 using PointlessWaymarksCmsData.Html.PhotoGalleryHtml;
 using PointlessWaymarksCmsData.Html.PhotoHtml;
@@ -174,7 +175,7 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 var htmlModel = new SingleGeoJsonPage(loopItem) {GenerationVersion = generationVersion};
-                htmlModel.WriteLocalHtml();
+                await htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
                 loopCount++;
@@ -195,18 +196,31 @@ namespace PointlessWaymarksCmsData.Html
 
             await GenerateAllPhotoHtml(generationVersion, progress);
             await GenerateAllImageHtml(generationVersion, progress);
-            await GenerateAllFileHtml(generationVersion, progress);
-            await GenerateAllNoteHtml(generationVersion, progress);
-            await GenerateAllPostHtml(generationVersion, progress);
-            await GenerateAllPointHtml(generationVersion, progress);
-            await GenerateAllLineHtml(generationVersion, progress);
-            await GenerateAllGeoJsonHtml(generationVersion, progress);
-            await GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress);
-            await GenerateCameraRollHtml(generationVersion, progress);
-            GenerateAllTagHtml(generationVersion, progress);
-            GenerateAllListHtml(generationVersion, progress);
-            GenerateAllUtilityJson(progress);
-            GenerateIndex(generationVersion, progress);
+
+            var generationTasks = new List<Task>
+            {
+                GenerateAllFileHtml(generationVersion, progress),
+                GenerateAllMapData(generationVersion, progress),
+                GenerateAllNoteHtml(generationVersion, progress),
+                GenerateAllPostHtml(generationVersion, progress),
+                GenerateAllPointHtml(generationVersion, progress),
+                GenerateAllLineHtml(generationVersion, progress),
+                GenerateAllGeoJsonHtml(generationVersion, progress),
+                GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress),
+                GenerateCameraRollHtml(generationVersion, progress)
+            };
+
+            await Task.WhenAll(generationTasks);
+
+            var tagAndListTasks = new List<Task>
+            {
+                Task.Run(() => GenerateAllTagHtml(generationVersion, progress)),
+                Task.Run(() => GenerateAllListHtml(generationVersion, progress)),
+                Task.Run(() => GenerateAllUtilityJson(progress)),
+                Task.Run(() => GenerateIndex(generationVersion, progress))
+            };
+
+            await Task.WhenAll(tagAndListTasks);
 
             progress?.Report(
                 $"Generation Complete - Writing Generation Date Time of UTC {generationVersion} in Db Generation log as Last Generation");
@@ -256,7 +270,7 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 var htmlModel = new SingleLinePage(loopItem) {GenerationVersion = generationVersion};
-                htmlModel.WriteLocalHtml();
+                await htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
                 loopCount++;
@@ -277,6 +291,30 @@ namespace PointlessWaymarksCmsData.Html
             linkListPage.WriteLocalHtmlRssAndJson();
             progress?.Report("Creating Link List Json");
             Export.WriteLinkListJson();
+        }
+
+        public static async Task GenerateAllMapData(DateTime? generationVersion, IProgress<string> progress)
+        {
+            await PointData.WriteJsonData();
+
+            var db = await Db.Context();
+
+            var allItems = await db.MapComponents.ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            progress?.Report($"Found {totalCount} Map Components to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                progress?.Report($"Writing Data for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                await MapData.WriteJsonData(loopItem.ContentId);
+                await Export.WriteLocalDbJson(loopItem);
+
+                loopCount++;
+            }
         }
 
         public static async Task GenerateAllNoteHtml(DateTime? generationVersion, IProgress<string> progress)
@@ -327,7 +365,7 @@ namespace PointlessWaymarksCmsData.Html
 
         public static async Task GenerateAllPointHtml(DateTime? generationVersion, IProgress<string> progress)
         {
-            await PointData.WriteLocalJsonData();
+            await PointData.WriteJsonData();
 
             var db = await Db.Context();
 
@@ -424,6 +462,10 @@ namespace PointlessWaymarksCmsData.Html
                 .ToListAsync();
             progress?.Report($"Found {links.Count} Link Content Entries Changed After {contentAfter}");
 
+            var maps = await db.MapComponents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
+                .ToListAsync();
+            progress?.Report($"Found {maps.Count} Map Components Changed After {contentAfter}");
+
             var notes = await db.NoteContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
                 .ToListAsync();
             progress?.Report($"Found {notes.Count} Note Content Entries Changed After {contentAfter}");
@@ -441,6 +483,7 @@ namespace PointlessWaymarksCmsData.Html
             progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
 
             var contentChanges = files.Concat(geoJson).Concat(images).Concat(lines).Concat(links).Concat(notes)
+                .Concat(maps)
                 .Concat(photos).Concat(points).Concat(posts).ToList();
 
             progress?.Report("Gathering deleted and new content with related content...");
@@ -806,12 +849,19 @@ namespace PointlessWaymarksCmsData.Html
 
             await GenerateChangeFilteredPhotoHtml(generationVersion, progress);
             await GenerateChangeFilteredImageHtml(generationVersion, progress);
-            await GenerateChangeFilteredFileHtml(generationVersion, progress);
-            await GenerateChangeFilteredNoteHtml(generationVersion, progress);
-            await GenerateChangeFilteredPostHtml(generationVersion, progress);
-            await GenerateChangeFilteredPointHtml(generationVersion, progress);
-            await GenerateChangeFilteredLineHtml(generationVersion, progress);
-            await GenerateChangeFilteredGeoJsonHtml(generationVersion, progress);
+
+            var changedPartsList = new List<Task>
+            {
+                GenerateChangeFilteredFileHtml(generationVersion, progress),
+                GenerateChangeFilteredGeoJsonHtml(generationVersion, progress),
+                GenerateChangeFilteredLineHtml(generationVersion, progress),
+                GenerateChangeFilteredMapData(generationVersion, progress),
+                GenerateChangeFilteredNoteHtml(generationVersion, progress),
+                GenerateChangeFilteredPointHtml(generationVersion, progress),
+                GenerateChangeFilteredPostHtml(generationVersion, progress)
+            };
+
+            await Task.WhenAll(changedPartsList);
 
             await GenerateMainFeedContent(generationVersion, progress);
 
@@ -832,10 +882,15 @@ namespace PointlessWaymarksCmsData.Html
                 await GenerateCameraRollHtml(generationVersion, progress);
             else progress?.Report("No changes to Photo content - skipping Photo Gallery generation.");
 
-            await GenerateChangedTagHtml(generationVersion, progress);
-            await GenerateChangedListHtml(lastGenerationDateTime, generationVersion, progress);
-            GenerateAllUtilityJson(progress);
-            GenerateIndex(generationVersion, progress);
+            var tagAndListTasks = new List<Task>
+            {
+                GenerateChangedTagHtml(generationVersion, progress),
+                GenerateChangedListHtml(lastGenerationDateTime, generationVersion, progress),
+                Task.Run(() => GenerateAllUtilityJson(progress)),
+                Task.Run(() => GenerateIndex(generationVersion, progress))
+            };
+
+            await Task.WhenAll(tagAndListTasks);
 
             progress?.Report(
                 $"Generation Complete - writing {generationVersion} as Last Generation UTC into db Generation Log");
@@ -939,7 +994,30 @@ namespace PointlessWaymarksCmsData.Html
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 var htmlModel = new SingleLinePage(loopItem) {GenerationVersion = generationVersion};
-                htmlModel.WriteLocalHtml();
+                await htmlModel.WriteLocalHtml();
+                await Export.WriteLocalDbJson(loopItem);
+
+                loopCount++;
+            }
+        }
+
+        public static async Task GenerateChangeFilteredMapData(DateTime generationVersion, IProgress<string> progress)
+        {
+            var db = await Db.Context();
+
+            var allItems = await db.MapComponents
+                .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync();
+
+            var loopCount = 1;
+            var totalCount = allItems.Count;
+
+            progress?.Report($"Found {totalCount} Map Components to Generate");
+
+            foreach (var loopItem in allItems)
+            {
+                progress?.Report($"Writing Data for {loopItem.Title} - {loopCount} of {totalCount}");
+
+                await MapData.WriteJsonData(loopItem.ContentId);
                 await Export.WriteLocalDbJson(loopItem);
 
                 loopCount++;
@@ -1006,7 +1084,7 @@ namespace PointlessWaymarksCmsData.Html
 
             progress?.Report($"Found {totalCount} Points to Generate");
 
-            if(allItems.Count > 0) 
+            if (allItems.Count > 0)
                 await GenerateAllPointHtml(generationVersion, progress);
 
             foreach (var loopItem in allItems)
@@ -1056,8 +1134,14 @@ namespace PointlessWaymarksCmsData.Html
                 case FileContent file:
                     FileGenerator.GenerateHtml(file, generationVersion, progress);
                     break;
+                case GeoJsonContent geoJson:
+                    await GeoJsonGenerator.GenerateHtml(geoJson, generationVersion, progress);
+                    break;
                 case ImageContent image:
                     ImageGenerator.GenerateHtml(image, generationVersion, progress);
+                    break;
+                case LineContent line:
+                    await LineGenerator.GenerateHtml(line, generationVersion, progress);
                     break;
                 case NoteContent note:
                     NoteGenerator.GenerateHtml(note, generationVersion, progress);
@@ -1065,12 +1149,12 @@ namespace PointlessWaymarksCmsData.Html
                 case PhotoContent photo:
                     PhotoGenerator.GenerateHtml(photo, generationVersion, progress);
                     break;
-                case PostContent post:
-                    PostGenerator.GenerateHtml(post, generationVersion, progress);
-                    break;
                 case PointContent point:
                     var dto = await Db.PointAndPointDetails(point.ContentId);
                     PointGenerator.GenerateHtml(dto, generationVersion, progress);
+                    break;
+                case PostContent post:
+                    PostGenerator.GenerateHtml(post, generationVersion, progress);
                     break;
                 case PointContentDto pointDto:
                     PointGenerator.GenerateHtml(pointDto, generationVersion, progress);

@@ -292,7 +292,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
                 StatusContext.Progress(
                     $"Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
 
-                await MapData.WriteLocalJsonData(loopSelected.DbEntry.ContentId);
+                await MapData.WriteJsonData(loopSelected.DbEntry.ContentId);
 
                 StatusContext.ToastSuccess("Generated Map Data");
 

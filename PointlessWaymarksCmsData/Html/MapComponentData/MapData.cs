@@ -13,14 +13,12 @@ namespace PointlessWaymarksCmsData.Html.MapComponentData
 {
     public static class MapData
     {
-        public static async Task WriteLocalJsonData(Guid mapComponentGuid)
+        public static async Task WriteJsonData(Guid mapComponentGuid)
         {
-            var db = await Db.Context();
-
-            await WriteLocalJsonData(await Db.MapComponentDtoFromContentId(mapComponentGuid));
+            await WriteJsonData(await Db.MapComponentDtoFromContentId(mapComponentGuid));
         }
 
-        public static async Task WriteLocalJsonData(MapComponentDto dto)
+        public static async Task WriteJsonData(MapComponentDto dto)
         {
             var dtoElementGuids = dto.Elements.Select(x => x.ElementContentId).ToList();
 
@@ -31,7 +29,7 @@ namespace PointlessWaymarksCmsData.Html.MapComponentData
                 .Select(x => x.ContentId).ToListAsync();
             var geoJsonGuids = await db.GeoJsonContents.Where(x => dtoElementGuids.Contains(x.ContentId))
                 .Select(x => x.ContentId).ToListAsync();
-            var showDetailsGuid = dto.Elements.Where(x => x.ShowDetailsDefault).Select(x => x.MapComponentContentId)
+            var showDetailsGuid = dto.Elements.Where(x => x.ShowDetailsDefault).Select(x => x.ElementContentId)
                 .Distinct().ToList();
 
             var mapDtoJson = new MapSiteJsonData(dto.Map, geoJsonGuids, lineGuids, pointGuids, showDetailsGuid);

@@ -51,6 +51,10 @@
                     Command="{Binding GenerateSelectedHtmlCommand}"
                     Content="_Generate Html"
                     Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding MapComponentCodesToClipboardForSelectedCommand}"
+                    Content="Code to Clipboard"
+                    Style="{StaticResource ActionPanelButton}" />
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
                 <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButton}">View History</Button>
                 <Button Command="{Binding ExtractNewLinksInSelectedCommand}" Style="{StaticResource ActionPanelButton}">Extract Links</Button>

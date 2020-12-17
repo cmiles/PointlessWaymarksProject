@@ -33,7 +33,7 @@ namespace PointlessWaymarksCmsData.Html.LineHtml
             return stringWriter.ToString();
         }
 
-        public static async Task WriteLocalJsonData(LineContent geoJsonContent)
+        public static async Task WriteJsonData(LineContent geoJsonContent)
         {
             var dataFileInfo = new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSiteLineDataDirectory().FullName,
