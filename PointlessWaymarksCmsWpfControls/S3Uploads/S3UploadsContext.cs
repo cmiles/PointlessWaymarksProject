@@ -258,7 +258,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
             var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
-                new S3UploadFileRecord(x.FileToUpload.FullName, x.AmazonObjectKey, x.BucketName, x.Note)));
+                new S3UploadFileRecord(x.FileToUpload.FullName, x.AmazonObjectKey, x.BucketName, x.BucketRegion,
+                    x.Note)));
 
             var file = new FileInfo(fileName);
 
@@ -316,7 +317,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 
             if (!uploadList.Any()) return;
 
-            var newItemsList = uploadList.Select(x => new S3UploadsItem(x.ToUpload, x.S3Key, x.BucketName, x.Note))
+            var newItemsList = uploadList
+                .Select(x => new S3UploadsItem(x.ToUpload, x.S3Key, x.BucketName, x.Region, x.Note))
                 .OrderByDescending(x => x.FileToUpload.FullName.Count(y => y == '\\'))
                 .ThenBy(x => x.FileToUpload.FullName).ToList();
 

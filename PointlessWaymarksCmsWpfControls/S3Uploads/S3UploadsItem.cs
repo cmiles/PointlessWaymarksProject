@@ -2,8 +2,10 @@
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Amazon;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using JetBrains.Annotations;
@@ -16,6 +18,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
     {
         private string _amazonObjectKey;
         private string _bucketName;
+        private string _bucketRegion;
         private bool _completed;
         private string _errorMessage = string.Empty;
         private bool _fileNoLongerExistsOnDisk;
@@ -26,12 +29,13 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         private bool _queued;
         private string _status = string.Empty;
 
-        public S3UploadsItem(FileInfo fileToUpload, string amazonObjectKey, string bucket, string note)
+        public S3UploadsItem(FileInfo fileToUpload, string amazonObjectKey, string bucket, string region, string note)
         {
             _fileToUpload = fileToUpload;
             _amazonObjectKey = amazonObjectKey;
             _bucketName = bucket;
             _note = note;
+            _bucketRegion = region;
         }
 
         public string AmazonObjectKey
@@ -52,6 +56,17 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             {
                 if (value == _bucketName) return;
                 _bucketName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string BucketRegion
+        {
+            get => _bucketRegion;
+            set
+            {
+                if (value == _bucketRegion) return;
+                _bucketRegion = value;
                 OnPropertyChanged();
             }
         }
@@ -188,6 +203,22 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(BucketRegion))
+            {
+                HasError = true;
+                ErrorMessage = "Amazon Region is blank?";
+                return;
+            }
+
+            var region = RegionEndpoint.EnumerableAllRegions.SingleOrDefault(x => x.SystemName == BucketRegion);
+
+            if (region == null)
+            {
+                HasError = true;
+                ErrorMessage = "Amazon Region is null?";
+                return;
+            }
+
             FileToUpload.Refresh();
 
             if (!FileToUpload.Exists)
@@ -209,7 +240,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
 
             try
             {
-                var s3Client = new AmazonS3Client(accessKey, secret);
+                var s3Client = new AmazonS3Client(accessKey, secret, region);
 
                 var uploadRequest = new TransferUtilityUploadRequest
                 {

@@ -35,6 +35,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility.Aws
             }
 
             var bucket = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
+            var region = UserSettingsSingleton.CurrentSettings().SiteS3BucketRegion;
 
             progress?.Report("Getting list of all generated files");
 
@@ -111,14 +112,14 @@ namespace PointlessWaymarksCmsWpfControls.Utility.Aws
                 else if (matches.Count == 1)
                 {
                     if (loopFile.Length != matches.First().Size)
-                        returnReport.FileSizeMismatches.Add(new S3Upload(loopFile, matches.First().Key, bucket,
+                        returnReport.FileSizeMismatches.Add(new S3Upload(loopFile, matches.First().Key, bucket, region,
                             "S3 File Size Mismatch"));
                     matches.ForEach(x => awsObjects.Remove(x));
                 }
                 else
                 {
                     returnReport.MissingFiles.Add(new S3Upload(loopFile, FileInfoInGeneratedSiteToS3Key(loopFile),
-                        bucket, "File Missing on S3"));
+                        bucket, region, "File Missing on S3"));
                 }
             }
 

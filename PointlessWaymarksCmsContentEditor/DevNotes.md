@@ -53,6 +53,12 @@
  
 ## Notes
 
+12/18/2020
+
+Moved development computer and suspect that on my previous computer the use of the aws cli probably filled in configuration information that was picked up by the S3 code here - added a region setting and added that in code to compensate. Also fixed a presentation bug in the uploader that kept the controls from coming back after the upload finished or was canceled.
+
+First public publish of any content with spatial content - I would say this is basically a minimum viable implementation but rather than really try to crunch out a bunch of changes I want to use it for a bit and see what comes up. The good news is that entering content for Dos Titos and some nearby points basically felt really 'right' to collect content this way...
+
 11/27/2020
 
 Found that the Mapcomponent was picking up post p styling in the popup and tooltip bindings causing the usual quite nice autosizing of those to break. For now just went to the simplest possible text only popup.

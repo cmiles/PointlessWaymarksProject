@@ -170,6 +170,15 @@
                         Text="{Binding EditorSettings.SiteS3Bucket, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketRegionComboBox}">
+                        S3 Bucket Region
+                    </Label>
+                    <ComboBox
+                        Name="S3BucketRegionComboBox"
+                        ItemsSource="{Binding RegionChoices}"
+                        SelectedValue="{Binding EditorSettings.SiteS3BucketRegion, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

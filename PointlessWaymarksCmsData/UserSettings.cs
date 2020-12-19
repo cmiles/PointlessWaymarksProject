@@ -23,6 +23,7 @@ namespace PointlessWaymarksCmsData
         private string _siteKeywords;
         private string _siteName;
         private string _siteS3Bucket;
+        private string _siteS3BucketRegion;
         private string _siteSummary;
         private string _siteUrl;
 
@@ -198,6 +199,17 @@ namespace PointlessWaymarksCmsData
             {
                 if (value == _siteS3Bucket) return;
                 _siteS3Bucket = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SiteS3BucketRegion
+        {
+            get => _siteS3BucketRegion;
+            set
+            {
+                if (value == _siteS3BucketRegion) return;
+                _siteS3BucketRegion = value;
                 OnPropertyChanged();
             }
         }

@@ -53,6 +53,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private Command? _siteMissingFilesReportCommand;
         private StatusControlContext _statusContext;
         private string _userBucketName = string.Empty;
+        private string _userBucketRegion;
         private string _userScriptPrefix = "aws s3 cp";
 
         public FilesWrittenLogListContext(StatusControlContext? statusContext, bool loadInBackground)
@@ -363,6 +364,17 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             }
         }
 
+        public string UserBucketRegion
+        {
+            get => _userBucketRegion;
+            set
+            {
+                if (value == _userBucketRegion) return;
+                _userBucketRegion = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string UserScriptPrefix
         {
             get => _userScriptPrefix;
@@ -581,7 +593,8 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         {
             return items.Where(x => x.IsInGenerationDirectory).Select(x => new S3Upload(new FileInfo(x.WrittenFile),
                 AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key(
-                    new FileInfo(x.WrittenFile)), UserBucketName, $"From Files Written Log - {x.WrittenOn}")).ToList();
+                    new FileInfo(x.WrittenFile)), UserBucketName, UserBucketRegion,
+                $"From Files Written Log - {x.WrittenOn}")).ToList();
         }
 
         private async Task FilesToClipboard(List<FilesWrittenLogListListItem> items)
@@ -670,6 +683,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             UserBucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
+            UserBucketRegion = UserSettingsSingleton.CurrentSettings().SiteS3BucketRegion;
 
             await LoadDateTimeFilterChoices();
         }
@@ -797,7 +811,8 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 var newUploaderWindow = new S3UploadsWindow(items
-                    .Select(x => new S3Upload(new FileInfo(x.fileFullName), x.S3Key, x.BucketName, x.Note)).ToList());
+                    .Select(x => new S3Upload(new FileInfo(x.fileFullName), x.S3Key, x.BucketName, x.Region, x.Note))
+                    .ToList());
                 newUploaderWindow.Show();
             }
             catch (Exception e)
@@ -809,7 +824,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private async Task S3UploaderItemsToS3UploaderJsonFile(List<S3Upload> items, string fileName)
         {
             var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
-                new S3UploadFileRecord(x.ToUpload.FullName, x.S3Key, x.BucketName, x.Note)));
+                new S3UploadFileRecord(x.ToUpload.FullName, x.S3Key, x.BucketName, x.Region, x.Note)));
 
             var file = new FileInfo(fileName);
 

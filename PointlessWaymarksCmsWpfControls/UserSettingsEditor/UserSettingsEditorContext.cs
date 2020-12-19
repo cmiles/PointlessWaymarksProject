@@ -1,9 +1,12 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
@@ -19,6 +22,7 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
         private Command _deleteAwsCredentials;
         private UserSettings _editorSettings;
         private Command _enterAwsCredentials;
+        private List<string> _regionChoices;
         private Command _saveSettingsCommand;
         private StatusControlContext _statusContext;
 
@@ -70,6 +74,17 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
             "Once installed the setting above should be the folder where pdftocairo.exe is located - " +
             "for example C:\\MiKTeX 2.9\\miktex\\bin";
 
+        public List<string> RegionChoices
+        {
+            get => _regionChoices;
+            set
+            {
+                if (Equals(value, _regionChoices)) return;
+                _regionChoices = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command SaveSettingsCommand
         {
             get => _saveSettingsCommand;
@@ -97,6 +112,8 @@ namespace PointlessWaymarksCmsWpfControls.UserSettingsEditor
         private async Task LoadData(UserSettings toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
+
+            RegionChoices = RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName).ToList();
 
             SaveSettingsCommand = StatusContext.RunBlockingTaskCommand(SaveSettings);
             EnterAwsCredentials = StatusContext.RunBlockingTaskCommand(UserAwsKeyAndSecretEntry);

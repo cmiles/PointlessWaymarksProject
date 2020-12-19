@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     Name="S3UploadsControlXaml"
     d:DataContext="{d:DesignInstance local:S3UploadsContext}"
     d:DesignHeight="450"
@@ -19,6 +20,8 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <utility:BooleanToHiddenConverter x:Key="BooleanToHidden" />
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToHidden" />
             <utility:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -127,7 +130,7 @@
             Grid.Row="1"
             Header="Actions"
             Style="{StaticResource UiComponentGroupBoxStyle}"
-            Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=False}">
+            Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanNotToHidden}, FallbackValue=Visible, TargetNullValue=Visible}">
             <WrapPanel HorizontalAlignment="Center">
                 <WrapPanel.Resources>
                     <Style TargetType="Button">
