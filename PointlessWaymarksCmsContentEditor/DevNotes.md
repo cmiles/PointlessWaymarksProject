@@ -1,6 +1,4 @@
 ﻿## Todos
- - Points: With data structure change review JSON saving
- - Why is the top leaflet map popups getting the maxwidth in the GC Test Site? Load order? Delay loading until some initialized event?
  - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
  - The GUI Context tests are breaking - longer waits needed for the background events to run? Something else?
  - Look again and Main Feed/Before/After for content - currently the entire main feed is regenerated - could this be done selectively and/or does other content need before/after help?
@@ -12,10 +10,6 @@
  - Revisit AvalonEdit for the BodyContent Editor for performance reasons - probably 'as a service' since for perf AvalonEdit doesn't expose a bound Text property (maybe look at https://github.com/martinkirsche/AsYouTypeSpellChecker for spell checking)
  - Could Tag List javascript be abstracted to site resources easily?
  - Better loading indication on the search lists site pages
- - Spatial:
-  - Bracket Codes - Points, GeoJson, Lines
-  - GeoJson
-  - Lines
  - Text to Speech:
    - Cancellation
    - in Update Notes
