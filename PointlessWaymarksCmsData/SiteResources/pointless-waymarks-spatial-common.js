@@ -93,7 +93,8 @@ async function mapComponentInit(mapElement, contentId) {
         {
             layers: [openTopoMapLayer()],
             doubleClickZoom: false,
-            gestureHandling: true
+            gestureHandling: true,
+            closePopupOnClick: false
         });
 
     map.fitBounds([
@@ -118,9 +119,8 @@ async function mapComponentInit(mapElement, contentId) {
                     autoPan: true
                 }).addTo(map);
 
-            const pointPopup = L.popup().setContent(`<a href="https:${pagePoint.PointPageUrl}">${pagePoint.Title}</a>`);
-            pointPopup.autoClose = false;
-
+            const pointPopup = L.popup({ autoClose: false })
+                .setContent(`<a href="https:${pagePoint.PointPageUrl}">${pagePoint.Title}</a>`);
             let boundPopup = pointContentMarker.bindPopup(pointPopup);
 
             if (mapComponent.ShowDetailsGuid.includes(pagePoint.ContentId)) {
@@ -184,7 +184,8 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
             zoom: 13,
             layers: [openTopoMapLayer()],
             doubleClickZoom: false,
-            gestureHandling: true
+            gestureHandling: true,
+            closePopupOnClick: false
         });
 
     let pointContentMarker = new L.marker([pagePoint.Latitude, pagePoint.Longitude],
@@ -193,17 +194,24 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
             autoPan: true
         }).addTo(map);
 
-    pointContentMarker
-        .bindPopup(
-            `<p style="margin-top: .5rem; margin-bottom: 0;">${pagePoint.Title}</p><p style="margin-left: .5rem; margin-top: .1rem;">${pagePoint.DetailTypeString}</p>`).openPopup();
+    const pointPopup = L.popup({ autoClose: false })
+        .setContent(`<a href="https:${pagePoint.PointPageUrl}">${pagePoint.Title}</a>`);
+    const boundPopup = pointContentMarker.bindPopup(pointPopup);
+
+    boundPopup.openPopup();
 
     for (let circlePoint of pointData) {
         if (circlePoint.Slug == displayedPointSlug) continue;
         let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude],
             60,
             { color: 'gray', fillColor: 'gray', fillOpacity: .5 });
-        toAdd.bindTooltip(
-            `${circlePoint.Title}(${circlePoint.DetailTypeString})`);
-        toAdd.addTo(map).on("click", (e) => window.location.href = circlePoint.PointPageUrl);
+
+        const circlePopup = L.popup({ autoClose: false, autoPan: false })
+            .setContent(`<a href="https:${circlePoint.PointPageUrl}">${circlePoint.Title}</a>`);
+        const boundCirclePopup = toAdd.bindPopup(circlePopup);
+
+        toAdd.addTo(map);
+
+        boundCirclePopup.openPopup();
     };
 }
