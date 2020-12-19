@@ -53,6 +53,16 @@
  
 ## Notes
 
+12/19/2020
+
+Added ToEmail bracket code processing for the map bracket codes - it could be an interesting feature someday to take the map information and build a static image (both for email and maybe even as an option for the web - I like the leaflet maps but they are not as durable as the rest of the site...) at this point I am not actively working on that so for email the map codes are just removed.
+
+Added Link Bracket Codes to the spatial lists and found a few missing Property Change notifications and other clean ups in the lists.
+
+Checked the Dos Titos Pointless Waymarks post and it seems reasonable on both desktop and mobile - minimum viable good anyway!
+
+Corrected some Value Converter namespacing that had been missed when they were moved to a folder.
+
 12/18/2020
 
 Moved development computer and suspect that on my previous computer the use of the aws cli probably filled in configuration information that was picked up by the S3 code here - added a region setting and added that in code to compensate. Also fixed a presentation bug in the uploader that kept the controls from coming back after the upload finished or was canceled.

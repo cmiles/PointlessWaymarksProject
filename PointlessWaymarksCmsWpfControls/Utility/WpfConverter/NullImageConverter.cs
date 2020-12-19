@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.WpfConverter
 {
     //https://stackoverflow.com/questions/5399601/imagesourceconverter-error-for-source-null
     public class NullImageConverter : IValueConverter

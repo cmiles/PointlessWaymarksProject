@@ -5,11 +5,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Html.LineHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.LineContentEditor;
@@ -23,16 +25,18 @@ namespace PointlessWaymarksCmsWpfControls.LineList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
-        private Command _emailHtmlToClipboardCommand;
+        private Command _extractNewLinksInSelectedCommand;
         private Command _generateSelectedHtmlCommand;
         private Command _importFromExcelCommand;
-        private Command _lineCodesToClipboardForSelectedCommand;
+        private Command _lineLinkCodesToClipboardForSelectedCommand;
+        private Command _lineMapCodesToClipboardForSelectedCommand;
         private LineListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
         private Command _refreshDataCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
+        private Command _viewHistoryCommand;
 
         public LineListWithActionsContext(StatusControlContext statusContext)
         {
@@ -63,18 +67,16 @@ namespace PointlessWaymarksCmsWpfControls.LineList
             }
         }
 
-        public Command EmailHtmlToClipboardCommand
+        public Command ExtractNewLinksInSelectedCommand
         {
-            get => _emailHtmlToClipboardCommand;
+            get => _extractNewLinksInSelectedCommand;
             set
             {
-                if (Equals(value, _emailHtmlToClipboardCommand)) return;
-                _emailHtmlToClipboardCommand = value;
+                if (Equals(value, _extractNewLinksInSelectedCommand)) return;
+                _extractNewLinksInSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
-
-        public Command ExtractNewLinksInSelectedCommand { get; set; }
 
         public Command GenerateSelectedHtmlCommand
         {
@@ -98,13 +100,24 @@ namespace PointlessWaymarksCmsWpfControls.LineList
             }
         }
 
-        public Command LineCodesToClipboardForSelectedCommand
+        public Command LineLinkCodesToClipboardForSelectedCommand
         {
-            get => _lineCodesToClipboardForSelectedCommand;
+            get => _lineLinkCodesToClipboardForSelectedCommand;
             set
             {
-                if (Equals(value, _lineCodesToClipboardForSelectedCommand)) return;
-                _lineCodesToClipboardForSelectedCommand = value;
+                if (Equals(value, _lineLinkCodesToClipboardForSelectedCommand)) return;
+                _lineLinkCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command LineMapCodesToClipboardForSelectedCommand
+        {
+            get => _lineMapCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _lineMapCodesToClipboardForSelectedCommand)) return;
+                _lineMapCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -175,7 +188,16 @@ namespace PointlessWaymarksCmsWpfControls.LineList
             }
         }
 
-        public Command ViewHistoryCommand { get; set; }
+        public Command ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -301,12 +323,33 @@ namespace PointlessWaymarksCmsWpfControls.LineList
 
                 var htmlContext = new SingleLinePage(loopSelected.DbEntry);
 
-                htmlContext.WriteLocalHtml();
+                await htmlContext.WriteLocalHtml();
 
                 StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
 
                 loopCount++;
             }
+        }
+
+        private async Task LinkBracketCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + @$"{BracketCodeLines.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         private async Task LoadData()
@@ -317,8 +360,10 @@ namespace PointlessWaymarksCmsWpfControls.LineList
 
             GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
             EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
-            //LineCodesToClipboardForSelectedCommand =
-            //    StatusContext.RunBlockingTaskCommand(BracketCodesToClipboardForSelected);
+            LineLinkCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
+            LineMapCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(MapBracketCodesToClipboardForSelected);
             OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
             NewContentCommand = StatusContext.RunBlockingTaskCommand(NewContent);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
@@ -330,6 +375,27 @@ namespace PointlessWaymarksCmsWpfControls.LineList
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
+        }
+
+        private async Task MapBracketCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + @$"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         private async Task NewContent()
@@ -367,27 +433,6 @@ namespace PointlessWaymarksCmsWpfControls.LineList
                 Process.Start(ps);
             }
         }
-
-        //private async Task BracketCodesToClipboardForSelected()
-        //{
-        //    await ThreadSwitcher.ResumeBackgroundAsync();
-
-        //    if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-        //    {
-        //        StatusContext.ToastError("Nothing Selected?");
-        //        return;
-        //    }
-
-        //    var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
-        //        (current, loopSelected) =>
-        //            current + @$"{BracketCodeLines.LineLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
-
-        //    await ThreadSwitcher.ResumeForegroundAsync();
-
-        //    Clipboard.SetText(finalString);
-
-        //    StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        //}
 
         private async Task ViewHistory()
         {

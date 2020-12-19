@@ -30,6 +30,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
         private Command _refreshDataCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
+        private Command _viewHistoryCommand;
 
         public LinkListWithActionsContext(StatusControlContext statusContext)
         {
@@ -137,7 +138,16 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             }
         }
 
-        public Command ViewHistoryCommand { get; set; }
+        public Command ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

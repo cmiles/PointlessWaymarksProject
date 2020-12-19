@@ -29,6 +29,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _emailHtmlToClipboardCommand;
+        private Command _extractNewLinksInSelectedCommand;
         private Command _generateSelectedHtmlCommand;
         private Command _imageBracketCodesToClipboardForSelectedCommand;
         private Command _imageBracketLinkCodesToClipboardForSelectedCommand;
@@ -37,7 +38,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         private Command _newContentFromFilesCommand;
         private Command _openUrlForSelectedCommand;
         private Command _refreshDataCommand;
+        private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
+        private Command _viewHistoryCommand;
 
         public ImageListWithActionsContext(StatusControlContext statusContext)
         {
@@ -80,7 +83,16 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         }
 
 
-        public Command ExtractNewLinksInSelectedCommand { get; set; }
+        public Command ExtractNewLinksInSelectedCommand
+        {
+            get => _extractNewLinksInSelectedCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksInSelectedCommand)) return;
+                _extractNewLinksInSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command GenerateSelectedHtmlCommand
         {
@@ -172,7 +184,16 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
-        public Command SelectedToExcelCommand { get; set; }
+        public Command SelectedToExcelCommand
+        {
+            get => _selectedToExcelCommand;
+            set
+            {
+                if (Equals(value, _selectedToExcelCommand)) return;
+                _selectedToExcelCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public StatusControlContext StatusContext
         {
@@ -185,7 +206,16 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             }
         }
 
-        public Command ViewHistoryCommand { get; set; }
+        public Command ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -25,6 +25,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _emailHtmlToClipboardCommand;
+        private Command _extractNewLinksInSelectedCommand;
         private Command _generateSelectedHtmlCommand;
         private Command _importFromExcelCommand;
         private NoteListContext _listContext;
@@ -34,6 +35,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
         private Command _refreshDataCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
+        private Command _viewHistoryCommand;
 
         public NoteListWithActionsContext(StatusControlContext statusContext)
         {
@@ -76,7 +78,16 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
         }
 
 
-        public Command ExtractNewLinksInSelectedCommand { get; set; }
+        public Command ExtractNewLinksInSelectedCommand
+        {
+            get => _extractNewLinksInSelectedCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksInSelectedCommand)) return;
+                _extractNewLinksInSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command GenerateSelectedHtmlCommand
         {
@@ -177,7 +188,16 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             }
         }
 
-        public Command ViewHistoryCommand { get; set; }
+        public Command ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

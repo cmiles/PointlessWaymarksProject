@@ -5,11 +5,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
+using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsData.Html.GeoJsonHtml;
 using PointlessWaymarksCmsWpfControls.ContentHistoryView;
 using PointlessWaymarksCmsWpfControls.GeoJsonContentEditor;
@@ -23,9 +25,10 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
-        private Command _emailHtmlToClipboardCommand;
+        private Command _extractNewLinksInSelectedCommand;
         private Command _generateSelectedHtmlCommand;
-        private Command _geoJsonCodesToClipboardForSelectedCommand;
+        private Command _geoJsonLinkCodesToClipboardForSelectedCommand;
+        private Command _geoJsonMapCodesToClipboardForSelectedCommand;
         private Command _importFromExcelCommand;
         private GeoJsonListContext _listContext;
         private Command _newContentCommand;
@@ -33,6 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
         private Command _refreshDataCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
+        private Command _viewHistoryCommand;
 
         public GeoJsonListWithActionsContext(StatusControlContext statusContext)
         {
@@ -63,18 +67,16 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
             }
         }
 
-        public Command EmailHtmlToClipboardCommand
+        public Command ExtractNewLinksInSelectedCommand
         {
-            get => _emailHtmlToClipboardCommand;
+            get => _extractNewLinksInSelectedCommand;
             set
             {
-                if (Equals(value, _emailHtmlToClipboardCommand)) return;
-                _emailHtmlToClipboardCommand = value;
+                if (Equals(value, _extractNewLinksInSelectedCommand)) return;
+                _extractNewLinksInSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
-
-        public Command ExtractNewLinksInSelectedCommand { get; set; }
 
         public Command GenerateSelectedHtmlCommand
         {
@@ -87,13 +89,24 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
             }
         }
 
-        public Command GeoJsonCodesToClipboardForSelectedCommand
+        public Command GeoJsonLinkCodesToClipboardForSelectedCommand
         {
-            get => _geoJsonCodesToClipboardForSelectedCommand;
+            get => _geoJsonLinkCodesToClipboardForSelectedCommand;
             set
             {
-                if (Equals(value, _geoJsonCodesToClipboardForSelectedCommand)) return;
-                _geoJsonCodesToClipboardForSelectedCommand = value;
+                if (Equals(value, _geoJsonLinkCodesToClipboardForSelectedCommand)) return;
+                _geoJsonLinkCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command GeoJsonMapCodesToClipboardForSelectedCommand
+        {
+            get => _geoJsonMapCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _geoJsonMapCodesToClipboardForSelectedCommand)) return;
+                _geoJsonMapCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -175,7 +188,16 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
             }
         }
 
-        public Command ViewHistoryCommand { get; set; }
+        public Command ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -301,12 +323,33 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
 
                 var htmlContext = new SingleGeoJsonPage(loopSelected.DbEntry);
 
-                htmlContext.WriteLocalHtml();
+                await htmlContext.WriteLocalHtml();
 
                 StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
 
                 loopCount++;
             }
+        }
+
+        private async Task LinkBracketCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + @$"{BracketCodeGeoJsonLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         private async Task LoadData()
@@ -317,8 +360,10 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
 
             GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
             EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
-            //GeoJsonCodesToClipboardForSelectedCommand =
-            //    StatusContext.RunBlockingTaskCommand(BracketCodesToClipboardForSelected);
+            GeoJsonMapCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(MapBracketCodesToClipboardForSelected);
+            GeoJsonLinkCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(LinkBracketCodesToClipboardForSelected);
             OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
             NewContentCommand = StatusContext.RunBlockingTaskCommand(NewContent);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
@@ -330,6 +375,27 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
+        }
+
+        private async Task MapBracketCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+                (current, loopSelected) =>
+                    current + @$"{BracketCodeGeoJson.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         private async Task NewContent()
@@ -367,27 +433,6 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
                 Process.Start(ps);
             }
         }
-
-        //private async Task BracketCodesToClipboardForSelected()
-        //{
-        //    await ThreadSwitcher.ResumeBackgroundAsync();
-
-        //    if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-        //    {
-        //        StatusContext.ToastError("Nothing Selected?");
-        //        return;
-        //    }
-
-        //    var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
-        //        (current, loopSelected) =>
-        //            current + @$"{BracketCodeGeoJsons.GeoJsonLinkBracketCode(loopSelected.DbEntry)}{Environment.NewLine}");
-
-        //    await ThreadSwitcher.ResumeForegroundAsync();
-
-        //    Clipboard.SetText(finalString);
-
-        //    StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        //}
 
         private async Task ViewHistory()
         {

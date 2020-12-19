@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     d:DataContext="{d:DesignInstance local:S3DeletionsContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -17,8 +18,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <utility:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
+            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <wpfConverter:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>

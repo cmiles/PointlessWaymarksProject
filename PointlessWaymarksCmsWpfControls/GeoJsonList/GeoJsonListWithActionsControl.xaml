@@ -28,9 +28,6 @@
                 <MenuItem Command="{Binding SelectedToExcelCommand}" Header="Selected To Excel" />
                 <MenuItem Command="{Binding ImportFromExcelCommand}" Header="Import From Excel" />
             </MenuItem>
-            <MenuItem Header="Email">
-                <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
-            </MenuItem>
         </Menu>
         <local:GeoJsonListControl
             Grid.Row="1"
@@ -55,12 +52,12 @@
                     Content="_Generate Html"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
-                    Command="{Binding GeoJsonCodesToClipboardForSelectedCommand}"
-                    Content="_Code to Clipboard"
+                    Command="{Binding GeoJsonLinkCodesToClipboardForSelectedCommand}"
+                    Content="Link _Code to Clipboard"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
-                    Command="{Binding EmailHtmlToClipboardCommand}"
-                    Content="Email to Clipboard"
+                    Command="{Binding GeoJsonMapCodesToClipboardForSelectedCommand}"
+                    Content="Map Code to Clipboard"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
                     Command="{Binding OpenUrlForSelectedCommand}"

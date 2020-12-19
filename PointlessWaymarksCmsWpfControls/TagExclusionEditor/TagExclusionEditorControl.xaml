@@ -10,6 +10,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     Name="TagExclusionEditorControlXaml"
     d:DataContext="{d:DesignInstance local:TagExclusionEditorContext}"
     d:DesignHeight="450"
@@ -21,7 +22,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BooleanToHiddenConverter x:Key="BooleanToHidden" />
+            <wpfConverter:BooleanToHiddenConverter x:Key="BooleanToHidden" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">

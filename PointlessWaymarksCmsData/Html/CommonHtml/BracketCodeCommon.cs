@@ -126,9 +126,16 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
             input = BracketCodeNotes.Process(input, progress);
             input = BracketCodePhotos.ProcessForEmail(input, progress);
             input = BracketCodePhotoLinks.Process(input, progress);
-            input = BracketCodePosts.Process(input, progress);
             input = BracketCodePointLinks.Process(input, progress);
+            input = BracketCodePosts.Process(input, progress);
             input = BracketCodeSpecialPages.Process(input, progress);
+
+            // 2020/12/19 These Codes produce maps on the site but aren't going to work
+            // in email, the ProcessForEmail will just remove this content
+            input = BracketCodeGeoJson.ProcessForEmail(input, progress);
+            input = BracketCodeLines.ProcessForEmail(input, progress);
+            input = BracketCodeMapComponents.ProcessForEmail(input, progress);
+            input = BracketCodePoints.ProcessForEmail(input, progress);
 
             return input;
         }

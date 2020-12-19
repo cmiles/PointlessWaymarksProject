@@ -28,6 +28,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _emailHtmlToClipboardCommand;
+        private Command _extractNewLinksInSelectedCommand;
         private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
         private Command _filePageLinkCodesToClipboardForSelectedCommand;
         private Command _firstPagePreviewFromPdfToCairoCommand;
@@ -39,6 +40,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         private Command _openUrlForSelectedCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
+        private Command _viewHistoryCommand;
 
         public FileListWithActionsContext(StatusControlContext statusContext)
         {
@@ -81,7 +83,16 @@ namespace PointlessWaymarksCmsWpfControls.FileList
         }
 
 
-        public Command ExtractNewLinksInSelectedCommand { get; set; }
+        public Command ExtractNewLinksInSelectedCommand
+        {
+            get => _extractNewLinksInSelectedCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksInSelectedCommand)) return;
+                _extractNewLinksInSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command FileDownloadLinkCodesToClipboardForSelectedCommand
         {
@@ -207,7 +218,16 @@ namespace PointlessWaymarksCmsWpfControls.FileList
             }
         }
 
-        public Command ViewHistoryCommand { get; set; }
+        public Command ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -24,6 +24,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
+        private Command _extractNewLinksInSelectedCommand;
         private Command _generateSelectedHtmlCommand;
         private Command _importFromExcelCommand;
         private MapComponentListContext _listContext;
@@ -32,6 +33,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
         private Command _refreshDataCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
+        private Command _viewHistoryCommand;
 
         public MapComponentListWithActionsContext(StatusControlContext statusContext)
         {
@@ -62,7 +64,16 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
             }
         }
 
-        public Command ExtractNewLinksInSelectedCommand { get; set; }
+        public Command ExtractNewLinksInSelectedCommand
+        {
+            get => _extractNewLinksInSelectedCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksInSelectedCommand)) return;
+                _extractNewLinksInSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command GenerateSelectedHtmlCommand
         {
@@ -152,7 +163,16 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
             }
         }
 
-        public Command ViewHistoryCommand { get; set; }
+        public Command ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -197,7 +217,6 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
                     return;
 
             var selectedItems = selected.ToList();
-            var settings = UserSettingsSingleton.CurrentSettings();
 
             foreach (var loopSelected in selectedItems)
             {

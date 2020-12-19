@@ -19,10 +19,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <utility:BooleanToHiddenConverter x:Key="BooleanToHidden" />
+            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <wpfConverter:BooleanToHiddenConverter x:Key="BooleanToHidden" />
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToHidden" />
-            <utility:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
+            <wpfConverter:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">

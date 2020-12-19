@@ -10,7 +10,8 @@
     xmlns:pointList="clr-namespace:PointlessWaymarksCmsWpfControls.PointList"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.TagsEditor"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior">
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter">
     <Style x:Key="ActionPanelButton" TargetType="Button">
         <Setter Property="Margin" Value="4" />
         <Setter Property="Height" Value="24" />
@@ -95,7 +96,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
-    <utility:ImageCacheConverter x:Key="ImageCache" />
+    <wpfConverter:ImageCacheConverter x:Key="ImageCache" />
     <DataTemplate x:Key="PointListItemTemplate" DataType="pointList:PointListListItem">
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>

@@ -20,9 +20,9 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:ImageCacheConverter x:Key="ImageCache" />
+            <wpfConverter:ImageCacheConverter x:Key="ImageCache" />
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
-            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>

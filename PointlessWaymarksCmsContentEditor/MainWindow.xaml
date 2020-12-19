@@ -24,6 +24,7 @@
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarksCmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility;assembly=PointlessWaymarksCmsWpfControls"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter;assembly=PointlessWaymarksCmsWpfControls"
     Name="MainWindowXaml"
     Title="{Binding InfoTitle}"
     Width="900"
@@ -36,7 +37,7 @@
                 <ResourceDictionary Source="pack://application:,,,/PointlessWaymarksCmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/PointlessWaymarksCmsWpfControls;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <Style TargetType="Button">
                 <Setter Property="Margin" Value="4" />
                 <Setter Property="Height" Value="40" />

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace PointlessWaymarksCmsWpfControls.Utility
+namespace PointlessWaymarksCmsWpfControls.Utility.WpfConverter
 {
     public class NullOrWhiteSpaceStringToDefaultConverter : IValueConverter
     {

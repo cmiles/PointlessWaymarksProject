@@ -34,6 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
         private Command _emailHtmlToClipboardCommand;
+        private Command _extractNewLinksInSelectedCommand;
         private Command _forcedResizeCommand;
         private Command _generatePhotoListCommand;
         private Command _generateSelectedHtmlCommand;
@@ -56,6 +57,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _reportTitleAndTakenDoNotMatchCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
+        private Command _viewHistoryCommand;
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
         {
@@ -113,7 +115,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public Command ExtractNewLinksInSelectedCommand { get; set; }
+        public Command ExtractNewLinksInSelectedCommand
+        {
+            get => _extractNewLinksInSelectedCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksInSelectedCommand)) return;
+                _extractNewLinksInSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Command ForcedResizeCommand
         {
@@ -357,7 +368,16 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             }
         }
 
-        public Command ViewHistoryCommand { get; set; }
+        public Command ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

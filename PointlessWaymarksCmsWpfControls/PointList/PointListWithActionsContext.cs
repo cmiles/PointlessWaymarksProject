@@ -25,17 +25,18 @@ namespace PointlessWaymarksCmsWpfControls.PointList
     {
         private Command _deleteSelectedCommand;
         private Command _editSelectedContentCommand;
-        private Command _emailHtmlToClipboardCommand;
+        private Command _extractNewLinksInSelectedCommand;
         private Command _generateSelectedHtmlCommand;
         private Command _importFromExcelCommand;
         private PointListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
-        private Command _pointBracketCodesToClipboardForSelectedCommand;
         private Command _pointLinkBracketCodesToClipboardForSelectedCommand;
+        private Command _pointMapBracketCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
+        private Command _viewHistoryCommand;
 
         public PointListWithActionsContext(StatusControlContext statusContext)
         {
@@ -66,18 +67,16 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             }
         }
 
-        public Command EmailHtmlToClipboardCommand
+        public Command ExtractNewLinksInSelectedCommand
         {
-            get => _emailHtmlToClipboardCommand;
+            get => _extractNewLinksInSelectedCommand;
             set
             {
-                if (Equals(value, _emailHtmlToClipboardCommand)) return;
-                _emailHtmlToClipboardCommand = value;
+                if (Equals(value, _extractNewLinksInSelectedCommand)) return;
+                _extractNewLinksInSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
-
-        public Command ExtractNewLinksInSelectedCommand { get; set; }
 
         public Command GenerateSelectedHtmlCommand
         {
@@ -134,17 +133,6 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             }
         }
 
-        public Command PointBracketCodesToClipboardForSelectedCommand
-        {
-            get => _pointBracketCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _pointBracketCodesToClipboardForSelectedCommand)) return;
-                _pointBracketCodesToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Command PointLinkBracketCodesToClipboardForSelectedCommand
         {
             get => _pointLinkBracketCodesToClipboardForSelectedCommand;
@@ -152,6 +140,17 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             {
                 if (Equals(value, _pointLinkBracketCodesToClipboardForSelectedCommand)) return;
                 _pointLinkBracketCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command PointMapBracketCodesToClipboardForSelectedCommand
+        {
+            get => _pointMapBracketCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _pointMapBracketCodesToClipboardForSelectedCommand)) return;
+                _pointMapBracketCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -189,7 +188,16 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             }
         }
 
-        public Command ViewHistoryCommand { get; set; }
+        public Command ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -341,7 +349,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
             PointLinkBracketCodesToClipboardForSelectedCommand =
                 StatusContext.RunNonBlockingTaskCommand(PointLinkBracketCodesToClipboardForSelected);
-            PointBracketCodesToClipboardForSelectedCommand =
+            PointMapBracketCodesToClipboardForSelectedCommand =
                 StatusContext.RunNonBlockingTaskCommand(PointBracketCodesToClipboardForSelected);
 
             ImportFromExcelCommand =

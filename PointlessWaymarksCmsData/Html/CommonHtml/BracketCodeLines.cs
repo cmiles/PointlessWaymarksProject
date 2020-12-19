@@ -68,5 +68,25 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             return toProcess;
         }
+
+        public static string ProcessForEmail(string toProcess, IProgress<string> progress)
+        {
+            if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+            progress?.Report("Searching for Line Codes...");
+
+            var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
+
+            if (!resultList.Any()) return toProcess;
+
+            foreach (var loopMatch in resultList)
+            {
+                progress?.Report($"Removing Line Code {loopMatch} for Email");
+
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, string.Empty);
+            }
+
+            return toProcess;
+        }
     }
 }

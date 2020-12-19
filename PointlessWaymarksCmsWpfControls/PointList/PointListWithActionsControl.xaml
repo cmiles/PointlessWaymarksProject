@@ -56,7 +56,11 @@
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
                     Command="{Binding PointLinkBracketCodesToClipboardForSelectedCommand}"
-                    Content="_Code to Clipboard"
+                    Content="Link _Code to Clipboard"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding PointLinkBracketCodesToClipboardForSelectedCommand}"
+                    Content="Map Code to Clipboard"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
                     Command="{Binding OpenUrlForSelectedCommand}"

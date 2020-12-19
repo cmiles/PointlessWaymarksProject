@@ -20,9 +20,9 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <utility:ImageCacheConverter x:Key="ImageCache" />
+            <wpfConverter:ImageCacheConverter x:Key="ImageCache" />
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
-            <utility:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <photoList:PhotoLoadAllRecentNextActionTextMessageConverter x:Key="PhotoLoadAllRecentNextActionTextMessage" />
             <photoList:PhotoLoadAllowsAllRecentChoiceVisibilityConverter x:Key="PhotoLoadAllowsAllRecentChoiceVisibility" />
         </ResourceDictionary>
@@ -113,7 +113,7 @@
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
                 <ListBox.Resources>
-                    <utility:NullOrWhiteSpaceStringToDefaultConverter x:Key="StringDefault" />
+                    <wpfConverter:NullOrWhiteSpaceStringToDefaultConverter x:Key="StringDefault" />
                 </ListBox.Resources>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="photoList:PhotoListListItem">
