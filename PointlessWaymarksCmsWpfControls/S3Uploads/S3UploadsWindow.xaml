@@ -6,6 +6,7 @@
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.S3Uploads"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
     Title="S3 Uploads"
     Width="800"
     Height="700"
@@ -14,6 +15,10 @@
     mc:Ignorable="d">
     <Grid>
         <local:S3UploadsControl DataContext="{Binding UploadContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            Grid.Column="0"
+            HorizontalContentAlignment="Right"
+            VerticalContentAlignment="Bottom" />
         <status:StatusControl
             Grid.Column="0"
             d:IsHidden="true"
