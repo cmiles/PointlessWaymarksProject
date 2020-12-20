@@ -2,71 +2,84 @@
 
 This project is not currently intended for general use - it is made public under an MIT license to share with friends, colleagues and anyone who finds the code interesting or useful.
 
-Pointless Waymarks CMS is a .NET Core 5 Windows WPF GUI for generating a static website based on database information and a settings file. It is not intended as an 'all purpose static site generation solution' and only supports the creation of a limited set of content types with a focus on long-lasting free content about landscape, place, photography, nature, history...
+Pointless Waymarks CMS is a .NET Core 5 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution' - the focus is a limited set of content types to support creating long-lasting free content about the landscape, place, photography, nature, history...
 
-[Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of the output and intent. The inspiration for this code is the deep joy that creating content about the landscape (in the broadest sense) has added to my life. The direction of the project is guided by my appreciation of authentic content and informed by many years spent learning the incredible value of being able to create personal content with love and dedication to the subject matter without needing to meet any specific SEO/first page search result/engagement/advertising/tracking goals (creating personal content has brought significant happiness to my life, first page search results have not...).
+[Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent. The inspiration for this code is the joy that creating content about the landscape has added to my life. The direction of the project is guided by my appreciation of authentic content and the incredible value of creating personal content for love rather than for SEO/first page search result/engagement/advertising/tracking. In my personal life creating content has brought me significant happiness, first page search results have not...
 
-Details behind this software:
+Some details:
  - A static site because it is currently one of the lowest cost, lowest maintenance, most durable ways to put content online.
  - Database driven to offer flexibility in creating and updating content and to potentially support the generation of multiple output formats.
- - Custom software rather than a generic cms/web framework so that the limited content types I want to create can be specifically and well supported - with a limited scope I believe that creating this project will be a better overall approach than trying to customize existing software.
+ - Custom software rather than a generic cms/web framework to optimize support for a limited set of content types - with a limited scope I believe creating custom software is likely to produce better results than adapting existing software.
  - Desktop creation software because it is an excellent way to create zero cost software. WPF because I largely work in Windows, it is my favorite Windows GUI technology atm and because the experimentation/learning/coding I do here flows back into my day job where I help to create and maintain an Inventory Management and Reporting system that has a WPF Front End.
- - A focus on 'content' with a simple and beautiful presentation
+ - A focus on 'content' and simple functional presentation
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](PointlessWaymarksCmsContentEditor/DevNotes.md).
 
 If you have questions or comments please contact me at PointlessWaymarks@gmail.com
 
 
-### Application Screen Shots
+## Application Screen Shots
 
-Launch screen with quick and easy options to launch recent projects or create a new project.
+### Launch Screen
+
+Options to launch recent projects or create a new project.
 
 
 ![Launch Screen](PointlessWaymarksCmsScreenShots/LaunchScreen.jpg "Launch Screen")
 
 
-Each Content Type has a list interface - these are all similar with sorting, filtering and access to Excel Export/Import. The ability to export to Excel, edit and import the changes is provided for all content types and most fields - many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
+### Content Lists
+
+Each Content Type has a list interface - these are all similar with sorting, filtering and access to Excel Export/Import. The ability to export to Excel, edit and import the changes is provided for all content types and most fields. Many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
 
 
 ![Posts List](PointlessWaymarksCmsScreenShots/PostsList.jpg "Posts List")
 
 
-The Photo List items have buttons to quickly find other photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. Not shown but available in the Photo List under the Reports menu are reports on photos with potential problems such as No Tags or Blank License and an option to export all of a photo's 'raw' metadata to an html file.
-From the Photo List you can import photos in bulk - where possible the program will use the Photo's Metadata to generate an entry and in many cases can create and save Photo Content without any additional data entry.
+The Photo List items have buttons to quickly find other similiar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. Not shown but available in the Photo List under the Reports menu are reports on photos with potential problems such as No Tags or Blank License and an option to export all of a photo's 'raw' metadata to an html file.
+From the Photo List you can import photos in bulk - where possible the program will use the Photo's Metadata to generate an entry and in many cases it can create and save Photo Content without any additional data entry.
 
 
 ![Photos List](PointlessWaymarksCmsScreenShots/PhotoList.jpg "Photos List")
 
 
-The content editors are intended to be simple, helpful and functional. Change and validation indicators, previews and help with common editing actions are provided.
+### Content Editors
+
+The content editors are intended to be simple, helpful and functional. Change and validation indicators, previews and help with common editing actions are provided. Spatial types - Points, Lines and GeoJson have leaflet based previews.
 
 
 ![Post Content Editor](PointlessWaymarksCmsScreenShots/PostEditorWithPreview.jpg "Post Content Editor")
 ![Photo Content Editor](PointlessWaymarksCmsScreenShots/PhotoEditor-ShowingFileAndPhotoMetadata.jpg "Photo Content Editor")
-![Image Content Editor](PointlessWaymarksCmsScreenShots/ImageEditor.jpg "Image Content Editor")
-![File Content Editor](PointlessWaymarksCmsScreenShots/FileEditorShowingValidationAndChangeIndicators.jpg "File Content Editor")
+![Point Content Editor](PointlessWaymarksCmsScreenShots/PointEditor.jpg "Point Content Editor")
+![GeoJson Content Editor](PointlessWaymarksCmsScreenShots/GeoJsonContentEditor.jpg "GeoJson Content Editor")
 
 
-Tags are a valuable way to search and categorize content and the Tag Screen provides search and display of Tags and Content. Rather than try to provide in-editor actions for bulk edits the interface relies on the Excel export/import process - while it is occasionally cumbersome using Excel to bulk edit tags the advantage is that you are not limited in what you can do...
+### Tags
+
+Tags are a primary way of connecting content - a Tag Editor along with Excel Export/Import provide support for organizing/correcting/updating tags.
 
 
-![Posts List](PointlessWaymarksCmsScreenShots/TagList.jpg "File Content Editor")
+![Tag List](PointlessWaymarksCmsScreenShots/TagList.jpg "Tag List")
 
 
-Content is the focus of the project and admin/widget/header/menu options are kept as minimal as possible - but some options are still needed such as a very simple menu editor [Pointless Waymarks](https://PointlessWaymarks.com).
+### Menu Links
+
+Content is the focus of the project and admin/widget/header/menu options are kept as minimal as possible - but some options are needed such as a very simple menu editor [Pointless Waymarks](https://PointlessWaymarks.com).
 
 
-![Posts List](PointlessWaymarksCmsScreenShots/MenuLinksEditor.jpg "Menu Links Editor")
+![Menu Links](PointlessWaymarksCmsScreenShots/MenuLinksEditor.jpg "Menu Links Editor")
 
 
-Because this is a static site deploying is simply writing/syncing content from the generated local site and can be done with many existing tools. The program tracks written files to help in cases where you want to simply push the latest files with a script or generate a list to submit to another program. The user interface includes a screen where you can filter, sort, lightly modify and export data. By default the interface helps you generate a PowerShell script file of Amazon AWS Cli S3 cp statements.
+### File Change Tracking
+
+Deploying the site is simply a matter of syncing the content from the generated local site to its destination. To help with that process the program tracks written files and has options to export the files, create very basic S3 cli scripts or use the simple built in S3 uploader.
 
 
-![Posts List](PointlessWaymarksCmsScreenShots/WrittenFilesList.jpg "Written Files List")
+![Written Files List](PointlessWaymarksCmsScreenShots/WrittenFilesList.jpg "Written Files List")
+![Written Files List](PointlessWaymarksCmsScreenShots/S3Uploader.jpg "Written Files List")
 
 
-### Software Used By and In Building Pointless Waymarks CMS
+## Software Used By and In Building Pointless Waymarks CMS
 
 I am incredibly grateful to the all the people and companies who have created the software that allows me to create projects like Pointless Waymarks CMS. Below is a mostly-up-to-date-and-largely-comprehensive list of tools/packages/libraries/... that I am using for this project:
 
@@ -108,4 +121,4 @@ Packages/Libraries/Services:
  - [NetTopologySuite/NetTopologySuite: A .NET GIS solution](https://github.com/NetTopologySuite/NetTopologySuite). [NetTopologySuite License](https://github.com/NetTopologySuite/NetTopologySuite/blob/develop/License.md) - Nuget Package listed as BSD-3-Clause.
  - [NetTopologySuite/NetTopologySuite.IO.GPX: GPX I/O for NetTopologySuite](https://github.com/NetTopologySuite/NetTopologySuite.IO.GPX). BSD-3-Clause License.
  - [NetTopologySuite/NetTopologySuite.IO.GeoJSON: GeoJSON IO module for NTS.](https://github.com/NetTopologySuite/NetTopologySuite.IO.GeoJSON)
- - [punker76/gong-wpf-dragdrop: The GongSolutions.WPF.DragDrop library is a drag'n'drop framework for WPF](https://github.com/punker76/gong-wpf-dragdrop. BSD-3-Clause License.
+ - [punker76/gong-wpf-dragdrop: The GongSolutions.WPF.DragDrop library is a drag'n'drop framework for WPF](https://github.com/punker76/gong-wpf-dragdrop). BSD-3-Clause License.
