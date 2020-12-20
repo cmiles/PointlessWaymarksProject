@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Amazon;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarksCmsData.Content;
@@ -1120,6 +1121,14 @@ namespace PointlessWaymarksCmsData
         public static string RssIndexFeedUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/RssIndexFeed.xml";
+        }
+
+        public static RegionEndpoint SiteS3BucketEndpoint(this UserSettings settings)
+        {
+            if (string.IsNullOrWhiteSpace(settings.SiteS3BucketRegion)) return null;
+
+            return RegionEndpoint.EnumerableAllRegions.SingleOrDefault(x =>
+                x.SystemName == settings.SiteS3BucketRegion);
         }
 
         public static string SearchListJavascriptUrl(this UserSettings settings)

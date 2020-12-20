@@ -298,8 +298,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
                     UploadedSize += loopSelected.FileToUpload.Length;
                 }
 
-                CompletedSizePercent = (UploadedSize + ErrorSize) / (decimal) TotalUploadSize;
-                CompletedItemPercent = (UploadedItemCount + ErrorItemCount) / (decimal) TotalItemCount;
+                if(TotalUploadSize > 0) CompletedSizePercent = (UploadedSize + ErrorSize) / (decimal) TotalUploadSize;
+                if(TotalItemCount > 0) CompletedItemPercent = (UploadedItemCount + ErrorItemCount) / (decimal) TotalItemCount;
             }
 
             Uploading = false;

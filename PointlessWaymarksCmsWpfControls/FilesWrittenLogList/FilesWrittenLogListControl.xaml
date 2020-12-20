@@ -26,11 +26,11 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="S3 ">
-                <MenuItem Command="{Binding SiteMissingFilesReportCommand}" Header="Missing and Changed Files on Site" />
-                <MenuItem Command="{Binding SiteDeletedFilesReportCommand}" Header="Deleted Files on Site" />
+                <MenuItem Command="{Binding SiteMissingFilesReportCommand}" Header="S3 - Missing and Changed Files on Site" />
+                <MenuItem Command="{Binding SiteDeletedFilesReportCommand}" Header="S3 - Deleted Files on Site" />
                 <Separator />
-                <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}" Header="Selected to Uploader" />
-                <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}" Header="All to Uploader" />
+                <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}" Header="S3 - Selected to Uploader" />
+                <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}" Header="S3 - All to Uploader" />
                 <Separator />
                 <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderJsonFileCommand}" Header="Selected to Uploader Json File" />
                 <MenuItem Command="{Binding AllWrittenFilesToS3UploaderJsonFileCommand}" Header="All to Uploader Json File" />

@@ -591,7 +591,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
         private List<S3Upload> FileItemsToUploaderItems(List<FilesWrittenLogListListItem> items)
         {
-            return items.Where(x => x.IsInGenerationDirectory).Select(x => new S3Upload(new FileInfo(x.WrittenFile),
+            return items.Where(x => x.IsInGenerationDirectory && File.Exists(x.WrittenFile)).Select(x => new S3Upload(new FileInfo(x.WrittenFile),
                 AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key(
                     new FileInfo(x.WrittenFile)), UserBucketName, UserBucketRegion,
                 $"From Files Written Log - {x.WrittenOn}")).ToList();
