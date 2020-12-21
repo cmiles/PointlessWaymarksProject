@@ -184,7 +184,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
 
             progress.Report("Getting Amazon Client");
 
-            var s3Client = new AmazonS3Client(accessKey, secret, UserSettingsSingleton.CurrentSettings().SiteS3BucketEndpoint());
+            var s3Client = new AmazonS3Client(accessKey, secret,
+                UserSettingsSingleton.CurrentSettings().SiteS3BucketEndpoint());
 
             var loopCount = 0;
             var totalCount = itemsToDelete.Count;

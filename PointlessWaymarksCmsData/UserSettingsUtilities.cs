@@ -1123,14 +1123,6 @@ namespace PointlessWaymarksCmsData
             return $"//{settings.SiteUrl}/RssIndexFeed.xml";
         }
 
-        public static RegionEndpoint SiteS3BucketEndpoint(this UserSettings settings)
-        {
-            if (string.IsNullOrWhiteSpace(settings.SiteS3BucketRegion)) return null;
-
-            return RegionEndpoint.EnumerableAllRegions.SingleOrDefault(x =>
-                x.SystemName == settings.SiteS3BucketRegion);
-        }
-
         public static string SearchListJavascriptUrl(this UserSettings settings)
         {
             return
@@ -1217,6 +1209,14 @@ namespace PointlessWaymarksCmsData
         public static string SiteResourcesUrl(this UserSettings settings)
         {
             return $"//{settings.SiteUrl}/SiteResources/";
+        }
+
+        public static RegionEndpoint SiteS3BucketEndpoint(this UserSettings settings)
+        {
+            if (string.IsNullOrWhiteSpace(settings.SiteS3BucketRegion)) return null;
+
+            return RegionEndpoint.EnumerableAllRegions.SingleOrDefault(x =>
+                x.SystemName == settings.SiteS3BucketRegion);
         }
 
         public static DirectoryInfo StorageDirectory()

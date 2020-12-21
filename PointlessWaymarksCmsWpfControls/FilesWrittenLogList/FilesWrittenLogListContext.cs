@@ -53,7 +53,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         private Command? _siteMissingFilesReportCommand;
         private StatusControlContext _statusContext;
         private string _userBucketName = string.Empty;
-        private string _userBucketRegion;
+        private string _userBucketRegion = string.Empty;
         private string _userScriptPrefix = "aws s3 cp";
 
         public FilesWrittenLogListContext(StatusControlContext? statusContext, bool loadInBackground)
@@ -591,10 +591,11 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
         private List<S3Upload> FileItemsToUploaderItems(List<FilesWrittenLogListListItem> items)
         {
-            return items.Where(x => x.IsInGenerationDirectory && File.Exists(x.WrittenFile)).Select(x => new S3Upload(new FileInfo(x.WrittenFile),
-                AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key(
-                    new FileInfo(x.WrittenFile)), UserBucketName, UserBucketRegion,
-                $"From Files Written Log - {x.WrittenOn}")).ToList();
+            return items.Where(x => x.IsInGenerationDirectory && File.Exists(x.WrittenFile)).Select(x =>
+                new S3Upload(new FileInfo(x.WrittenFile),
+                    AwsS3GeneratedSiteComparisonForAdditionsAndChanges.FileInfoInGeneratedSiteToS3Key(
+                        new FileInfo(x.WrittenFile)), UserBucketName, UserBucketRegion,
+                    $"From Files Written Log - {x.WrittenOn}")).ToList();
         }
 
         private async Task FilesToClipboard(List<FilesWrittenLogListListItem> items)

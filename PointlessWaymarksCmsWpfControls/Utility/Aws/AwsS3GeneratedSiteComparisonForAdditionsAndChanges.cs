@@ -112,7 +112,8 @@ namespace PointlessWaymarksCmsWpfControls.Utility.Aws
                 else if (matches.Count == 1)
                 {
                     if (loopFile.Length != matches.First().Size)
-                        returnReport.FileSizeMismatches.Add(new S3Upload(loopFile, matches.First().Key, bucket, region.SystemName,
+                        returnReport.FileSizeMismatches.Add(new S3Upload(loopFile, matches.First().Key, bucket,
+                            region.SystemName,
                             "S3 File Size Mismatch"));
                     matches.ForEach(x => awsObjects.Remove(x));
                 }
