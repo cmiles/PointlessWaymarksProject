@@ -55,6 +55,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarksCmsData\PointlessWaymarksCmsData.csproj" />
+    <ProjectReference Include="..\PressSharper\PressSharper\PressSharper.csproj" />
   </ItemGroup>
 
   <ItemGroup>

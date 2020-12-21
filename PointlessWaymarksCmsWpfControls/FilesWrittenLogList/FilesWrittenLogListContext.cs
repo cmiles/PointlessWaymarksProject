@@ -785,7 +785,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            StatusContext.Progress("Starting photo load.");
+            StatusContext.Progress("Starting Uploader Json File load.");
 
             var dialog = new VistaOpenFileDialog
             {

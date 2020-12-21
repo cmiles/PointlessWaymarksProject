@@ -1,0 +1,83 @@
+﻿<UserControl
+    x:Class="PointlessWaymarksCmsWpfControls.WordPressXmlImport.WordPressXmlImportControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.WordPressXmlImport"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
+    d:DataContext="{d:DesignInstance local:WordPressXmlImportContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+            <Button Command="{Binding LoadWordPressXmlFileCommand}">Load File</Button>
+        </Border>
+        <Border Grid.Row="1" Style="{StaticResource ContentListOuterBorderStyle}">
+            <ListBox
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding Items}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="local:WordPressXmlImportListItem">
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBox
+                                    Margin="2"
+                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="To: {0} - {1} - {2}">
+                                            <Binding Path="Title" />
+                                            <Binding Path="CreatedOn" />
+                                            <Binding Path="CreatedBy" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                    <b:Interaction.Behaviors>
+                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                                <TextBox
+                                    Grid.Row="1"
+                                    Margin="2"
+                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="Folder: {0} - Tags: {1}">
+                                            <Binding Path="Folder" />
+                                            <Binding Path="Tags" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                    <b:Interaction.Behaviors>
+                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+    </Grid>
+</UserControl>
