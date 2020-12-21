@@ -23,6 +23,7 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         private Command _clearUploadedCommand;
         private ObservableCollection<S3UploadsItem>? _items;
         private Command<S3UploadsItem> _openLocalFileInExplorerCommand;
+        private Command _removeSelectedItemsCommand;
         private Command _saveAllToUploadJsonFileCommand;
         private Command _saveNotUploadedToUploadJsonFileCommand;
         private Command _saveSelectedToUploadJsonFileCommand;
@@ -60,6 +61,8 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
             _toClipboardSelectedItemsCommand =
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(SelectedItems.ToList()));
+
+            _removeSelectedItemsCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedItems);
         }
 
         public Command ClearUploadedCommand
@@ -91,6 +94,17 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             {
                 if (Equals(value, _openLocalFileInExplorerCommand)) return;
                 _openLocalFileInExplorerCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command RemoveSelectedItemsCommand
+        {
+            get => _removeSelectedItemsCommand;
+            set
+            {
+                if (Equals(value, _removeSelectedItemsCommand)) return;
+                _removeSelectedItemsCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -286,6 +300,10 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Clipboard.SetText(itemsForClipboard);
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.ToastSuccess("Items added to the Clipboard");
         }
 
         public async Task ItemsToExcel(List<S3UploadsItem>? items)
@@ -345,6 +363,35 @@ namespace PointlessWaymarksCmsWpfControls.S3Uploads
         {
             await ThreadSwitcher.ResumeForegroundAsync();
             await ProcessHelpers.OpenExplorerWindowForFile(toOpen.FileToUpload.FullName);
+        }
+
+        public async Task RemoveSelectedItems()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (Items == null)
+            {
+                StatusContext.ToastError("Nothing to delete?");
+                return;
+            }
+
+            var frozenSelected = SelectedItems;
+
+            var canDelete = SelectedItems.Where(x => !x.Queued && !x.IsUploading).ToList();
+
+            if (canDelete.Count == 0)
+            {
+                StatusContext.ToastError("Everything selected is queued or uploading - can't delete anything...");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            foreach (var loopDeletes in canDelete) Items.Remove(loopDeletes);
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.ToastSuccess($"{canDelete.Count} Items Removed");
         }
 
         public async Task SaveAllToUploadJsonFile()

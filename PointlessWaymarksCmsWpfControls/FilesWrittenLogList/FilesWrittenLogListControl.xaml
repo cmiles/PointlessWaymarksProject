@@ -43,6 +43,10 @@
                 <MenuItem Command="{Binding AllScriptStringsToPowerShellScriptCommand}" Header="All to PowerShell Ps1 File" />
                 <MenuItem Command="{Binding AllScriptStringsToClipboardCommand}" Header="All to Clipboard" />
             </MenuItem>
+            <MenuItem Header="File Names">
+                <MenuItem Command="{Binding SelectedWrittenFilesToClipboardCommand}" Header="Selected to Clipboard" />
+                <MenuItem Command="{Binding AllWrittenFilesToClipboardCommand}" Header="All to Clipboard" />
+            </MenuItem>
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding SelectedFilesToExcelCommand}" Header="Selected to Excel" />
                 <MenuItem Command="{Binding AllFilesToExcelCommand}" Header="All to Excel" />

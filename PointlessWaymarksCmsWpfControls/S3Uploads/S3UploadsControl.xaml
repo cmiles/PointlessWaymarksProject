@@ -6,7 +6,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarksCmsWpfControls.S3Uploads"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
     Name="S3UploadsControlXaml"
@@ -20,7 +19,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <wpfConverter:BooleanToHiddenConverter x:Key="BooleanToHidden" />
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToHidden" />
             <wpfConverter:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
         </ResourceDictionary>
@@ -157,6 +155,9 @@
                 <b:Interaction.Behaviors>
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
+                <ListBox.InputBindings>
+                    <KeyBinding Key="Delete" Command="{Binding Path=RemoveSelectedItemsCommand}" />
+                </ListBox.InputBindings>
             </ListBox>
         </GroupBox>
         <GroupBox
@@ -188,24 +189,24 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         FontWeight="Bold"
-                        Text="{Binding UploadBatch.Status}" />
+                        Text="{Binding UploadBatch.Status, FallbackValue=''}" />
                     <TextBlock Grid.Row="0" Grid.Column="1">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0:P1} - Total Upload Count: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
-                                <Binding Path="UploadBatch.CompletedItemPercent" />
-                                <Binding Path="UploadBatch.UploadedItemCount" />
-                                <Binding Path="UploadBatch.ErrorItemCount" />
-                                <Binding Path="UploadBatch.TotalItemCount" />
+                                <Binding FallbackValue="" Path="UploadBatch.CompletedItemPercent" />
+                                <Binding FallbackValue="" Path="UploadBatch.UploadedItemCount" />
+                                <Binding FallbackValue="" Path="UploadBatch.ErrorItemCount" />
+                                <Binding FallbackValue="" Path="UploadBatch.TotalItemCount" />
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
                     <TextBlock Grid.Row="1" Grid.Column="1">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0:P1} - Total Upload Size: {3:N0} - {1:N0} Uploaded, {2:N0} Errors">
-                                <Binding Path="UploadBatch.CompletedSizePercent" />
-                                <Binding Path="UploadBatch.UploadedSize" />
-                                <Binding Path="UploadBatch.ErrorSize" />
-                                <Binding Path=" UploadBatch.TotalUploadSize" />
+                                <Binding FallbackValue="" Path="UploadBatch.CompletedSizePercent" />
+                                <Binding FallbackValue="" Path="UploadBatch.UploadedSize" />
+                                <Binding FallbackValue="" Path="UploadBatch.ErrorSize" />
+                                <Binding FallbackValue="" Path=" UploadBatch.TotalUploadSize" />
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
@@ -213,8 +214,8 @@
                 <Button
                     Grid.Row="3"
                     Margin="4"
-                    Command="{Binding UploadBatch.CancelCommand}"
-                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}">
+                    Command="{Binding UploadBatch.CancelCommand, FallbackValue=''}"
+                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=''}">
                     Cancel
                 </Button>
                 <ScrollViewer
@@ -223,8 +224,8 @@
                     Margin="4"
                     HorizontalScrollBarVisibility="Disabled"
                     VerticalScrollBarVisibility="Visible"
-                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}}">
-                    <ContentControl Content="{Binding UploadBatch.CurrentUpload}" ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
+                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=''}">
+                    <ContentControl Content="{Binding UploadBatch.CurrentUpload, FallbackValue=''}" ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
                 </ScrollViewer>
             </Grid>
         </GroupBox>

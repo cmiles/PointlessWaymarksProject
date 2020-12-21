@@ -416,6 +416,10 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Clipboard.SetText(scriptString);
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.ToastSuccess("Items added to Clipboard");
         }
 
         public async Task AllScriptStringsToPowerShellScript()
@@ -600,11 +604,17 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
 
         private async Task FilesToClipboard(List<FilesWrittenLogListListItem> items)
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             var scriptString = string.Join(Environment.NewLine, items.Select(x => x.WrittenFile).Distinct().ToList());
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Clipboard.SetText(scriptString);
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.ToastSuccess("Items added to Clipboard");
         }
 
         private void FilesToExcel(List<FilesWrittenLogListListItem> items)
