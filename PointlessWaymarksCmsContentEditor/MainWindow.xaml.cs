@@ -38,7 +38,6 @@ using PointlessWaymarksCmsWpfControls.TagExclusionEditor;
 using PointlessWaymarksCmsWpfControls.TagList;
 using PointlessWaymarksCmsWpfControls.UserSettingsEditor;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
-using PointlessWaymarksCmsWpfControls.WordPressXmlImport;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 
 namespace PointlessWaymarksCmsContentEditor
@@ -125,9 +124,6 @@ namespace PointlessWaymarksCmsContentEditor
                 StatusContext.RunNonBlockingTaskCommand(Reports.DiagnosticEventsExcelReport);
             AllEventsHtmlReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsHtmlReport);
             AllEventsExcelReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsExcelReport);
-
-            //Todo: Find a home for this...
-            WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
 
             //Main Parts
             GenerateSiteResourcesCommand = StatusContext.RunBlockingTaskCommand(async () =>
@@ -491,8 +487,6 @@ namespace PointlessWaymarksCmsContentEditor
 
         public Command ToggleDiagnosticLoggingCommand { get; set; }
 
-        public Command WordPressImportWindowCommand { get; set; }
-
         public Command WriteStyleCssFileCommand { get; set; }
 
         public Command WvTwoExperimentCommand { get; set; }
@@ -845,13 +839,6 @@ namespace PointlessWaymarksCmsContentEditor
         {
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(async () =>
                 await SettingsFileChooserOnSettingsFileUpdated(e));
-        }
-
-        private async Task WordPressImportWindow()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            new WordPressXmlImportWindow().Show();
         }
     }
 }

@@ -31,6 +31,9 @@
             <MenuItem Header="Email">
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
             </MenuItem>
+            <MenuItem Header="Import">
+                <MenuItem Command="{Binding WordPressImportWindowCommand}" Header="WordPress XML Import Helper" />
+            </MenuItem>
         </Menu>
         <local:PostListControl
             Grid.Row="1"

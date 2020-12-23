@@ -218,15 +218,19 @@
                     Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=''}">
                     Cancel
                 </Button>
-                <ScrollViewer
+                <GroupBox
                     Grid.Row="4"
-                    Height="160"
-                    Margin="4"
-                    HorizontalScrollBarVisibility="Disabled"
-                    VerticalScrollBarVisibility="Visible"
-                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=''}">
-                    <ContentControl Content="{Binding UploadBatch.CurrentUpload, FallbackValue=''}" ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
-                </ScrollViewer>
+                    Header="Current Item"
+                    Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <ScrollViewer
+                        Height="160"
+                        Margin="4"
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Visible"
+                        Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=''}">
+                        <ContentControl Content="{Binding UploadBatch.CurrentUpload, FallbackValue=''}" ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
+                    </ScrollViewer>
+                </GroupBox>
             </Grid>
         </GroupBox>
     </Grid>

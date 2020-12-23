@@ -18,6 +18,7 @@ using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarksCmsWpfControls.WordPressXmlImport;
 
 namespace PointlessWaymarksCmsWpfControls.PostList
 {
@@ -37,6 +38,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
         private Command _viewHistoryCommand;
+        private Command _wordPressImportWindowCommand;
 
         public PostListWithActionsContext(StatusControlContext statusContext)
         {
@@ -195,6 +197,17 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             {
                 if (Equals(value, _viewHistoryCommand)) return;
                 _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command WordPressImportWindowCommand
+        {
+            get => _wordPressImportWindowCommand;
+            set
+            {
+                if (Equals(value, _wordPressImportWindowCommand)) return;
+                _wordPressImportWindowCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -397,6 +410,8 @@ namespace PointlessWaymarksCmsWpfControls.PostList
             ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
 
+            WordPressImportWindowCommand = StatusContext.RunNonBlockingTaskCommand(WordPressImportWindow);
+
             ImportFromExcelCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -486,6 +501,13 @@ namespace PointlessWaymarksCmsWpfControls.PostList
                     .Select(ObjectDumper.Dump).ToList());
 
             historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
+        }
+
+        private async Task WordPressImportWindow()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            new WordPressXmlImportWindow().Show();
         }
     }
 }

@@ -236,7 +236,6 @@
                                     </Style>
                                 </WrapPanel.Resources>
                                 <Button Command="{Binding ImportJsonFromDirectoryCommand}">Import Json</Button>
-                                <Button Command="{Binding WordPressImportWindowCommand}">WordPress Import Helper</Button>
                             </WrapPanel>
                         </Grid>
                     </GroupBox>

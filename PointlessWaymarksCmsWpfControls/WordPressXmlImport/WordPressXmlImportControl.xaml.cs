@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Controls;
 
 namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
 {
@@ -10,6 +12,16 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
         public WordPressXmlImportControl()
         {
             InitializeComponent();
+        }
+
+
+        private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DataContext == null) return;
+            var viewmodel = (WordPressXmlImportContext) DataContext;
+            viewmodel.SelectedItems =
+                ItemsListBox?.SelectedItems.Cast<WordPressXmlImportListItem>().ToList() ??
+                new List<WordPressXmlImportListItem>();
         }
     }
 }

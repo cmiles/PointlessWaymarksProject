@@ -7,9 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarksCmsWpfControls.Status"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarksCmsWpfControls.WindowScreenShot"
-    Title="WordPressXmlImportWindow"
+    Title="WordPress XML Import Helper"
     Width="800"
-    Height="450"
+    Height="700"
     d:DataContext="{d:DesignInstance local:WordPressXmlImportWindow}"
     mc:Ignorable="d">
     <Grid>
