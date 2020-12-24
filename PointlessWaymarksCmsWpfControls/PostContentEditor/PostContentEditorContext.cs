@@ -251,6 +251,7 @@ namespace PointlessWaymarksCmsWpfControls.PostContentEditor
             {
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
+                if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
             }
             else
             {

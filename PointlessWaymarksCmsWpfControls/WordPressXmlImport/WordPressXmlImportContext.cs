@@ -14,6 +14,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
@@ -31,6 +32,7 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
         private ObservableCollection<WordPressXmlImportListItem>? _items;
         private Command _loadWordPressXmlFileCommand;
         private List<WordPressXmlImportListItem> _selectedItems = new();
+        private Command _selectedToFileContentEditorCommand;
         private Command _selectedToPostContentEditorCommand;
         private StatusControlContext _statusContext;
         private Blog? _wordPressData;
@@ -41,6 +43,7 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
 
             _loadWordPressXmlFileCommand = StatusContext.RunBlockingTaskCommand(LoadWordPressXmlFile);
             _selectedToPostContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToPostContentEditor);
+            _selectedToFileContentEditorCommand = StatusContext.RunBlockingTaskCommand(SelectedToFileContentEditor);
         }
 
         public bool FilterOutExistingPostUrls
@@ -131,6 +134,17 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
             }
         }
 
+        public Command SelectedToFileContentEditorCommand
+        {
+            get => _selectedToFileContentEditorCommand;
+            set
+            {
+                if (Equals(value, _selectedToFileContentEditorCommand)) return;
+                _selectedToFileContentEditorCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command SelectedToPostContentEditorCommand
         {
             get => _selectedToPostContentEditorCommand;
@@ -196,7 +210,10 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
 
             var processedContent = new List<WordPressXmlImportListItem>();
 
-            var existingUrls = await (await Db.Context()).PostContents.Select(x => x.Slug).ToListAsync();
+            var existingPostUrls = await (await Db.Context()).PostContents.Select(x => x.Slug).ToListAsync();
+            var existingFileUrls = await (await Db.Context()).FileContents.Select(x => x.Slug).ToListAsync();
+
+            var existingUrls = existingFileUrls.Concat(existingPostUrls).ToList();
 
             if (ImportPosts)
             {
@@ -277,6 +294,40 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public async Task SelectedToFileContentEditor()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (!SelectedItems.Any())
+            {
+                StatusContext.ToastWarning("No Items Selected?");
+                return;
+            }
+
+            foreach (var loopItems in SelectedItems)
+            {
+                var newContent = new FileContent
+                {
+                    BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                    UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                    ShowInMainSiteFeed = true,
+                    BodyContent = loopItems.Content,
+                    CreatedBy = loopItems.CreatedBy,
+                    CreatedOn = loopItems.CreatedOn,
+                    Folder =
+                        FolderFromYear ? loopItems.CreatedOn.Year.ToString() : loopItems.Category.Replace(" ", "-"),
+                    Slug = loopItems.Slug,
+                    Tags = loopItems.Tags,
+                    Title = loopItems.Title
+                };
+
+
+                await ThreadSwitcher.ResumeForegroundAsync();
+                new FileContentEditorWindow(newContent).Show();
+                await ThreadSwitcher.ResumeBackgroundAsync();
+            }
         }
 
         public async Task SelectedToPostContentEditor()

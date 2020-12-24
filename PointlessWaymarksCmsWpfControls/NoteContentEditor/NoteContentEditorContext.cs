@@ -247,7 +247,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteContentEditor
             {
                 newEntry.ContentId = Guid.NewGuid();
                 newEntry.Slug = NoteGenerator.UniqueNoteSlug().Result;
-                newEntry.CreatedOn = DateTime.Now;
+                newEntry.CreatedOn = DbEntry?.CreatedOn ?? DateTime.Now;
+                if (newEntry.CreatedOn == DateTime.MinValue) newEntry.CreatedOn = DateTime.Now;
             }
             else
             {
