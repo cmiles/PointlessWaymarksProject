@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HtmlTags;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.LineHtml;
@@ -63,7 +64,8 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
                 progress?.Report($"Adding Line {dbContent.Title} from Code");
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText, LineParts.LineDivAndScript(dbContent));
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText,
+                    LineParts.LineDivAndScriptWithCaption(dbContent));
             }
 
             return toProcess;
@@ -79,11 +81,23 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
+            var context = Db.Context().Result;
+
             foreach (var loopMatch in resultList)
             {
-                progress?.Report($"Removing Line Code {loopMatch} for Email");
+                var dbContent = context.LineContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                if (dbContent == null) continue;
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText, string.Empty);
+                progress?.Report($"For Email Subbing Line Map for Link {dbContent.Title} from Code");
+
+                var linkTag =
+                    new LinkTag(
+                        string.IsNullOrWhiteSpace(loopMatch.displayText)
+                            ? dbContent.Title
+                            : loopMatch.displayText.Trim(),
+                        UserSettingsSingleton.CurrentSettings().LinePageUrl(dbContent), "line-page-link");
+
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, linkTag.ToString());
             }
 
             return toProcess;

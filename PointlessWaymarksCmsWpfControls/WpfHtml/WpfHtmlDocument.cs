@@ -170,14 +170,25 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
 
         window.chrome.webview.addEventListener('message', postGeoJsonDataHandler);
 
+        function geoJsonLayerStyle(feature) {{
+
+            var newStyle = {{}};
+
+            if (feature.properties.hasOwnProperty('stroke')) newStyle.color = feature.properties['stroke'];
+            if (feature.properties.hasOwnProperty('stroke-width')) newStyle.weight = feature.properties['stroke-width'];
+            if (feature.properties.hasOwnProperty('stroke-opacity')) newStyle.opacity = feature.properties['stroke-opacity'];
+            if (feature.properties.hasOwnProperty('fill')) newStyle.fillColor = feature.properties['fill'];
+            if (feature.properties.hasOwnProperty('fill-opacity')) newStyle.fillOpacity = feature.properties['fill-opacity'];
+
+            return newStyle;
+        }}
+
         function onEachMapGeoJsonFeature(feature, layer) {{
-            if (feature.properties && feature.properties.PopupContent) {{
-                layer.bindPopup(feature.properties.PopupContent);
-            }}
-            if (feature.properties && feature.properties.popupContent) {{
-                layer.bindPopup(feature.properties.PopupContent);
+            if (feature.properties && feature.properties.title) {{
+                layer.bindPopup(feature.properties.title);
             }}
         }}
+
 
         var geoMapLayer;
 
@@ -194,7 +205,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             ]);
 
             geoMapLayer = new L.geoJSON(geoJsonData.GeoJson, {{
-                onEachFeature: onEachMapGeoJsonFeature
+                onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
             }});
 
             map.addLayer(geoMapLayer);

@@ -17,5 +17,12 @@ namespace PointlessWaymarksCmsData.Html.LineHtml
 
             return tag + script;
         }
+
+        public static string LineDivAndScriptWithCaption(LineContent content)
+        {
+            var titleCaption = $"<a class=\"map-figure-title-caption\" href=\"{UserSettingsSingleton.CurrentSettings().LinePageUrl(content)}\">{content.Title}</a>";
+
+            return $"<figure class=\"map-figure\">{LineDivAndScript(content)}{titleCaption}</figure>";
+        }
     }
 }

@@ -18,12 +18,22 @@ function openTopoMapLayer() {
         });
 }
 
+function geoJsonLayerStyle(feature) {
+
+    var newStyle = {};
+
+    if (feature.properties.hasOwnProperty('stroke')) newStyle.color = feature.properties['stroke'];
+    if (feature.properties.hasOwnProperty('stroke-width')) newStyle.weight = feature.properties['stroke-width'];
+    if (feature.properties.hasOwnProperty('stroke-opacity')) newStyle.opacity = feature.properties['stroke-opacity'];
+    if (feature.properties.hasOwnProperty('fill')) newStyle.fillColor = feature.properties['fill'];
+    if (feature.properties.hasOwnProperty('fill-opacity')) newStyle.fillOpacity = feature.properties['fill-opacity'];
+
+    return newStyle;
+}
+
 function onEachMapGeoJsonFeature(feature, layer) {
-    if (feature.properties && feature.properties.PopupContent) {
-        layer.bindPopup(feature.properties.PopupContent);
-    }
-    if (feature.properties && feature.properties.popupContent) {
-        layer.bindPopup(feature.properties.PopupContent);
+    if (feature.properties && feature.properties.title) {
+        layer.bindPopup(feature.properties.title);
     }
 }
 
@@ -48,7 +58,7 @@ async function singleGeoJsonMapInit(mapElement, contentId) {
     ]);
 
     let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
-        onEachFeature: onEachMapGeoJsonFeature
+        onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
     });
 
     newMapLayer.addTo(map);
@@ -75,7 +85,7 @@ async function singleLineMapInit(mapElement, contentId) {
     ]);
 
     let newMapLayer = new L.geoJSON(lineData.GeoJson, {
-        onEachFeature: onEachMapGeoJsonFeature
+        onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
     });
 
     newMapLayer.addTo(map);
@@ -141,7 +151,7 @@ async function mapComponentInit(mapElement, contentId) {
             let geoJsonData = await response.json();
 
             let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
-                onEachFeature: onEachMapGeoJsonFeature
+                onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
             });
 
             newMapLayer.addTo(map);
@@ -160,7 +170,7 @@ async function mapComponentInit(mapElement, contentId) {
             let geoJsonData = await response.json();
 
             let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
-                onEachFeature: onEachMapGeoJsonFeature
+                onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
             });
 
             newMapLayer.addTo(map);

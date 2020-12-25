@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HtmlTags;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.PointHtml;
@@ -79,11 +80,23 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
+            var context = Db.Context().Result;
+
             foreach (var loopMatch in resultList)
             {
-                progress?.Report($"Removing Point Code {loopMatch} for Email");
+                var dbContent = context.PointContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                if (dbContent == null) continue;
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText, string.Empty);
+                progress?.Report($"For Email Subbing Point Map for Link {dbContent.Title} from Code");
+
+                var linkTag =
+                    new LinkTag(
+                        string.IsNullOrWhiteSpace(loopMatch.displayText)
+                            ? dbContent.Title
+                            : loopMatch.displayText.Trim(),
+                        UserSettingsSingleton.CurrentSettings().PointPageUrl(dbContent), "point-page-link");
+
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText, linkTag.ToString());
             }
 
             return toProcess;

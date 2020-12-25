@@ -37,6 +37,12 @@ body {
     color: rgb(180, 180, 180);
 }
 
+.map-figure-title-caption {
+    text-align: center;
+    margin-top: .2rem;
+    display: block;
+}
+
 .single-image-body {
     font-family: Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
     color: rgb(180, 180, 180);
