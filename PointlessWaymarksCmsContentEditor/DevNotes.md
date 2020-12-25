@@ -47,6 +47,18 @@
  
 ## Notes
 
+12/25/2020
+
+Merry Christmas! 
+
+Did a small San Pedro Riparian NCA access map for PointlessWaymarks. As per usual 'actual' use triggered some changes:
+ - JS is changed to use the MapBox https://github.com/mapbox/simplestyle-spec to style the GeoJson based on properties - I looked first at https://github.com/rowanwins/leaflet-simplestyle but since I don't want to change the overall style or use the MapBox maki icons https://github.com/mapbox/maki it seemed nicer to just write a little bit of code. (maki could be a revisit for sure - I am not sure how well covered outdoor interested are though - with maki in the mix leaflet-simplestyle may make more sense)
+ - I am still a bit puzzled about a smooth/efficient/pleasing way to create GeoJson like this - I like working in QGIS for all the power it has but I wonder...
+ - Added a title caption under the GeoJSon and Line maps - this is in large part to provide a link to the content page.
+ - Changed the email scheme for GeoJson/Point/Line maps from complete removal to linking. The link looks far from perfect atm sitting left aligned and alone but I think it is better than complete omission for now anyway.
+
+Wordpress - there is now a simple window to give very basic help importing from WordPress. Used code from https://github.com/bcwood/PressSharper which is forked from the defunct https://github.com/dreadwail/press_sharp pulling the code directly into the project. I know that at least with WordPress to WordPress imports the import helps pull in the referenced media library contents - I didn't do that here because I have tried to keep media out of Wordpress so don't have that particular problem (I remain happy with that decision - while putting media in WordPress lets WordPress do optimizations with the originals I still think that if media is your primary concern that you are going to want to curate, use and control that content seperately...). This may seem toy level simple but it is what I am using as I start working on converting HikeLemmon.com over to this software.
+
 12/19/2020
 
 Added ToEmail bracket code processing for the map bracket codes - it could be an interesting feature someday to take the map information and build a static image (both for email and maybe even as an option for the web - I like the leaflet maps but they are not as durable as the rest of the site...) at this point I am not actively working on that so for email the map codes are just removed.
