@@ -235,6 +235,7 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
                         Tags = string.Join(",", loopPosts.Tags.Select(x => x.Name)),
                         Title = loopPosts.Title,
                         Slug = loopPosts.Slug,
+                        Summary = loopPosts.Excerpt,
                         Content = loopPosts.Body,
                         WordPressType = "Post"
                     });

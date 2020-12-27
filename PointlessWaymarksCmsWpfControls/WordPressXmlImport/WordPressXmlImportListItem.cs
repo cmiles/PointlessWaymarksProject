@@ -13,6 +13,7 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
         private string _createdBy = string.Empty;
         private DateTime _createdOn = DateTime.Now;
         private string _slug = string.Empty;
+        private string _summary = string.Empty;
         private string _tags = string.Empty;
         private string _title = string.Empty;
         private string _wordPressType = string.Empty;
@@ -68,6 +69,17 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
             {
                 if (value == _slug) return;
                 _slug = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Summary
+        {
+            get => _summary;
+            set
+            {
+                if (value == _summary) return;
+                _summary = value;
                 OnPropertyChanged();
             }
         }

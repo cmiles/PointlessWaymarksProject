@@ -41,8 +41,8 @@
                     </Style>
                 </WrapPanel.Resources>
                 <Button Command="{Binding LoadWordPressXmlFileCommand}">Load File</Button>
-                <CheckBox Width="120" IsChecked="{Binding ImportPosts}">Filter Import Posts</CheckBox>
-                <CheckBox Width="120" IsChecked="{Binding ImportPages}">Filter Import Pages</CheckBox>
+                <CheckBox Width="120" IsChecked="{Binding ImportPosts}">Import Posts</CheckBox>
+                <CheckBox Width="120" IsChecked="{Binding ImportPages}">Import Pages</CheckBox>
                 <CheckBox Width="180" IsChecked="{Binding FilterOutExistingPostUrls}">Filter Out Existing URLs</CheckBox>
             </WrapPanel>
         </GroupBox>
