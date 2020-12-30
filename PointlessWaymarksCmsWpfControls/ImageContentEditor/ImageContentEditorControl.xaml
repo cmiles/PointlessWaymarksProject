@@ -110,7 +110,7 @@
                     </WrapPanel.Resources>
                     <Button Command="{Binding RotateImageLeftCommand}">Rotate Left</Button>
                     <Button Command="{Binding RotateImageRightCommand}">Rotate Right</Button>
-                    <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
+                    <Button Command="{Binding ViewSelectedFileCommand}">View Image</Button>
                     <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
                 </WrapPanel>
             </Grid>

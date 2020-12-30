@@ -35,7 +35,10 @@ namespace PointlessWaymarksCmsData.Html.CommonHtml
         {
             var codeMatches = new List<string>
             {
-                $"{{{{{BracketCodePoints.BracketCodeToken}", $"{{{{{BracketCodeMapComponents.BracketCodeToken}"
+                $"{{{{{BracketCodePoints.BracketCodeToken}", 
+                $"{{{{{BracketCodeGeoJson.BracketCodeToken}",
+                $"{{{{{BracketCodeLines.BracketCodeToken}",
+                $"{{{{{BracketCodeMapComponents.BracketCodeToken}"
             };
 
             return codeMatches.Any(toProcess.Contains);

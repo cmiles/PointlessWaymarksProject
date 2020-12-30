@@ -161,7 +161,10 @@ namespace PointlessWaymarksCmsData.Html.IndexHtml
 
             foreach (var loopPosts in IndexContent.Take(_numberOfContentItemsToDisplay))
                 if (BracketCodeCommon.ContainsSpatialBracketCodes(loopPosts) ||
-                    loopPosts.GetType() == typeof(PointContentDto))
+                    loopPosts.GetType() == typeof(PointContentDto) ||
+                    loopPosts.GetType() == typeof(GeoJsonContent) ||
+                    loopPosts.GetType() == typeof(LineContent)
+                )
                     IncludeSpatialScripts = true;
 
             var parser = new HtmlParser();
