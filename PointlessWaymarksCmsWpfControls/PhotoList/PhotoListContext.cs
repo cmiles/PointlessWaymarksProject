@@ -589,9 +589,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             StatusContext.Progress("Loading Display List of Photos");
 
             Items = new ObservableCollection<PhotoListListItem>(listItems);
-
             await SortList(_lastSortColumn);
-
             await FilterList();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;

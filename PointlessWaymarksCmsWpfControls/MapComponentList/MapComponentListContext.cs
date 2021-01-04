@@ -247,6 +247,9 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
 
             SortDescending = true;
             await SortList("CreatedOn");
+            await FilterList();
+
+            DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         private async Task MapComponentDataNotificationReceived(InterProcessDataNotification translatedMessage)

@@ -44,6 +44,8 @@
                 <CheckBox Width="120" IsChecked="{Binding ImportPosts}">Import Posts</CheckBox>
                 <CheckBox Width="120" IsChecked="{Binding ImportPages}">Import Pages</CheckBox>
                 <CheckBox Width="180" IsChecked="{Binding FilterOutExistingPostUrls}">Filter Out Existing URLs</CheckBox>
+                <Label>Filter Title/Slug/Category/Tags For:</Label>
+                <TextBox Text="{Binding UserFilterText, Delay=500, UpdateSourceTrigger=PropertyChanged}" Width="200" VerticalAlignment="Center"></TextBox>
             </WrapPanel>
         </GroupBox>
         <GroupBox

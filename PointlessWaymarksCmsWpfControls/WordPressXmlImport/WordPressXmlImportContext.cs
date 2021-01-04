@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
@@ -35,6 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
         private Command _selectedToFileContentEditorCommand;
         private Command _selectedToPostContentEditorCommand;
         private StatusControlContext _statusContext;
+        private string _userFilterText;
         private Blog? _wordPressData;
 
         public WordPressXmlImportContext(StatusControlContext? statusContext)
@@ -167,7 +169,41 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
             }
         }
 
+        public string UserFilterText
+        {
+            get => _userFilterText;
+            set
+            {
+                if (value == _userFilterText) return;
+                _userFilterText = value;
+                OnPropertyChanged();
+
+                StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        private async Task FilterList()
+        {
+            if (Items == null || !Items.Any()) return;
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            ((CollectionView) CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+            {
+                if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
+
+                var loweredString = UserFilterText.ToLower();
+
+                if (!(o is WordPressXmlImportListItem pi)) return false;
+                if (pi.Category.ToLower().Contains(loweredString)) return true;
+                if (pi.Slug.ToLower().Contains(loweredString)) return true;
+                if (pi.Title.ToLower().Contains(loweredString)) return true;
+                if (pi.Tags.ToLower().Contains(loweredString)) return true;
+                return false;
+            };
+        }
 
         public async Task LoadWordPressXmlFile()
         {
@@ -285,10 +321,10 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
             StatusContext.Progress("Setting up UI");
 
             Items ??= new ObservableCollection<WordPressXmlImportListItem>();
-
             Items.Clear();
-
             processedContent.ForEach(x => Items.Add(x));
+
+            await FilterList();
         }
 
         [NotifyPropertyChangedInvocator]

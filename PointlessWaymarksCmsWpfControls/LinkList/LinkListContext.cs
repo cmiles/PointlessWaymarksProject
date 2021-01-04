@@ -407,6 +407,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             SortDescending = true;
 
             await SortList("CreatedOn");
+            await FilterList();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }

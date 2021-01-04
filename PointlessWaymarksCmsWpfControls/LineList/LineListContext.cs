@@ -375,6 +375,9 @@ namespace PointlessWaymarksCmsWpfControls.LineList
 
             SortDescending = true;
             await SortList("CreatedOn");
+            await FilterList();
+
+            DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
