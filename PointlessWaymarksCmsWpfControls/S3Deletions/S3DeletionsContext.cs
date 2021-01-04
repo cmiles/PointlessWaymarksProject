@@ -24,7 +24,6 @@ namespace PointlessWaymarksCmsWpfControls.S3Deletions
     {
         private Command _deleteAllCommand;
         private Command _deleteSelectedCommand;
-        private bool _isRunning;
         private ObservableCollection<S3DeletionsItem>? _items;
         private List<S3DeletionsItem> _selectedItems = new();
         private StatusControlContext _statusContext;

@@ -18,7 +18,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
 
         private void ItemsSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems?[0] != null)
                 try
                 {
                     Application.Current?.Dispatcher?.BeginInvoke((Action) (() =>
@@ -29,6 +29,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex);
                 }
         }
 

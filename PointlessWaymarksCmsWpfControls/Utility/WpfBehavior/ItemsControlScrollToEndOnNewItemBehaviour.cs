@@ -37,6 +37,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility.WpfBehavior
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex);
                 }
         }
 

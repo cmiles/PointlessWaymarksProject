@@ -22,7 +22,7 @@ namespace PointlessWaymarksCmsWpfControls.WpfHtml
             set => SetValue(JsonDataProperty, value);
         }
 
-        private async void CoreWebView2OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private async void CoreWebView2OnWebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(CachedData))
             {

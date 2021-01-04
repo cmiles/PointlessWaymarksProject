@@ -452,7 +452,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
             return new MapComponentDto(newEntry, finalElementList);
         }
 
-        public string GetSmallImageUrl(IMainImage content)
+        public static string GetSmallImageUrl(IMainImage content)
         {
             if (content.MainPicture == null) return string.Empty;
 
@@ -598,6 +598,8 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentEditor
                 foreach (var loopElements in MapElements.Where(x => x is MapElementListPointItem)
                     .Cast<MapElementListPointItem>().Where(x => x.DbEntry != null).ToList())
                 {
+                    if (loopElements.DbEntry == null) continue;
+
                     featureCollection.Add(new Feature(
                         SpatialHelpers.Wgs84Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude,
                             loopElements.DbEntry.Elevation ?? 0), new AttributesTable()));
