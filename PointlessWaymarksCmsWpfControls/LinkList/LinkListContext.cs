@@ -273,7 +273,9 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
 
                 var loweredString = UserFilterText.ToLower();
 
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(o is LinkListListItem pi)) return false;
+#pragma warning restore IDE0083 // Use pattern matching
                 if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Comments ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
@@ -286,8 +288,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             };
         }
 
-
-        public LinkListListItem ListItemFromDbItem(LinkContent content)
+        public static LinkListListItem ListItemFromDbItem(LinkContent content)
         {
             var newItem = new LinkListListItem {DbEntry = content};
 

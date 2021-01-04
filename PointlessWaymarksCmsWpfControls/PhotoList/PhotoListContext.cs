@@ -68,7 +68,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             LensSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await LensSearch(x), $"Lens - {x.Lens}"));
             CameraMakeSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await CamerMakeSearch(x), $"Camera Make - {x.CameraMake}"));
+                await RunReport(async () => await CameraMakeSearch(x), $"Camera Make - {x.CameraMake}"));
             CameraModelSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await CameraModelSearch(x), $"Camera Model - {x.CameraModel}"));
             FocalLengthSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
@@ -341,7 +341,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private async Task<List<PhotoContent>> ApertureSearch(PhotoContent content)
+        private static async Task<List<PhotoContent>> ApertureSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -350,22 +350,22 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             return await db.PhotoContents.Where(x => x.Aperture == content.Aperture).ToListAsync();
         }
 
-        private async Task<List<PhotoContent>> CameraModelSearch(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            return await db.PhotoContents.Where(x => x.CameraModel == content.CameraModel).ToListAsync();
-        }
-
-        private async Task<List<PhotoContent>> CamerMakeSearch(PhotoContent content)
+        private static async Task<List<PhotoContent>> CameraMakeSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var db = await Db.Context();
 
             return await db.PhotoContents.Where(x => x.CameraMake == content.CameraMake).ToListAsync();
+        }
+
+        private static async Task<List<PhotoContent>> CameraModelSearch(PhotoContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var db = await Db.Context();
+
+            return await db.PhotoContents.Where(x => x.CameraModel == content.CameraModel).ToListAsync();
         }
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -475,7 +475,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
                 var loweredString = UserFilterText.ToLower();
 
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(o is PhotoListListItem pi)) return false;
+#pragma warning restore IDE0083 // Use pattern matching
                 if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
@@ -490,7 +492,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             };
         }
 
-        private async Task<List<PhotoContent>> FocalLengthSearch(PhotoContent content)
+        private static async Task<List<PhotoContent>> FocalLengthSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -499,7 +501,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             return await db.PhotoContents.Where(x => x.FocalLength == content.FocalLength).ToListAsync();
         }
 
-        public string GetSmallImageUrl(PhotoContent content)
+        public static string GetSmallImageUrl(PhotoContent content)
         {
             if (content == null) return null;
 
@@ -517,7 +519,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             return smallImageUrl;
         }
 
-        private async Task<List<PhotoContent>> IsoSearch(PhotoContent content)
+        private static async Task<List<PhotoContent>> IsoSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -526,7 +528,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             return await db.PhotoContents.Where(x => x.Iso == content.Iso).ToListAsync();
         }
 
-        private async Task<List<PhotoContent>> LensSearch(PhotoContent content)
+        private static async Task<List<PhotoContent>> LensSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -535,7 +537,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             return await db.PhotoContents.Where(x => x.Lens == content.Lens).ToListAsync();
         }
 
-        public PhotoListListItem ListItemFromDbItem(PhotoContent content)
+        public static PhotoListListItem ListItemFromDbItem(PhotoContent content)
         {
             return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }
@@ -552,22 +554,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             StatusContext.Progress("Getting Photo Db Entries");
 
-            List<PhotoContent> dbItems;
-
-            switch (LoadMode)
+            var dbItems = LoadMode switch
             {
-                case PhotoListLoadMode.Recent:
-                    dbItems = db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).Take(20).ToList();
-                    break;
-                case PhotoListLoadMode.All:
-                    dbItems = db.PhotoContents.ToList();
-                    break;
-                case PhotoListLoadMode.ReportQuery:
-                    dbItems = ReportGenerator == null ? new List<PhotoContent>() : await ReportGenerator();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                PhotoListLoadMode.Recent => db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .Take(20)
+                    .ToList(),
+                PhotoListLoadMode.All => db.PhotoContents.ToList(),
+                PhotoListLoadMode.ReportQuery => ReportGenerator == null
+                    ? new List<PhotoContent>()
+                    : await ReportGenerator(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
             var listItems = new List<PhotoListListItem>();
 
@@ -607,7 +604,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private async Task<List<PhotoContent>> PhotoTakenOnSearch(PhotoContent content)
+        private static async Task<List<PhotoContent>> PhotoTakenOnSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -623,7 +620,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         }
 
 
-        private async Task RunReport(Func<Task<List<PhotoContent>>> toRun, string title)
+        private static async Task RunReport(Func<Task<List<PhotoContent>>> toRun, string title)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -636,7 +633,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             newWindow.Show();
         }
 
-        private async Task<List<PhotoContent>> ShutterSpeedSearch(PhotoContent content)
+        private static async Task<List<PhotoContent>> ShutterSpeedSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 

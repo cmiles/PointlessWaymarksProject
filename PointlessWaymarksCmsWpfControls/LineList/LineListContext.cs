@@ -248,7 +248,9 @@ namespace PointlessWaymarksCmsWpfControls.LineList
 
                 var loweredString = UserFilterText.ToLower();
 
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(o is LineListListItem pi)) return false;
+#pragma warning restore IDE0083 // Use pattern matching
                 if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
@@ -258,7 +260,7 @@ namespace PointlessWaymarksCmsWpfControls.LineList
             };
         }
 
-        public string GetSmallImageUrl(LineContent content)
+        public static string GetSmallImageUrl(LineContent content)
         {
             if (content?.MainPicture == null) return null;
 
@@ -335,7 +337,7 @@ namespace PointlessWaymarksCmsWpfControls.LineList
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
-        public LineListListItem ListItemFromDbItem(LineContent content)
+        public static LineListListItem ListItemFromDbItem(LineContent content)
         {
             return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }

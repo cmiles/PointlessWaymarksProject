@@ -366,11 +366,11 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonContentEditor
 
             var geoJson = await File.ReadAllTextAsync(newFile.FullName);
 
-            var geoJsonCheck = CommonContentValidation.GeoJsonValidation(geoJson);
+            var (isValid, explanation) = CommonContentValidation.GeoJsonValidation(geoJson);
 
-            if (!geoJsonCheck.isValid)
+            if (!isValid)
             {
-                await StatusContext.ShowMessageWithOkButton("Error with GeoJson Import", geoJsonCheck.explanation);
+                await StatusContext.ShowMessageWithOkButton("Error with GeoJson Import", explanation);
                 return;
             }
 

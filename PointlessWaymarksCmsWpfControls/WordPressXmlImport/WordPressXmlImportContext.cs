@@ -36,7 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
         private Command _selectedToFileContentEditorCommand;
         private Command _selectedToPostContentEditorCommand;
         private StatusControlContext _statusContext;
-        private string _userFilterText;
+        private string _userFilterText = string.Empty;
         private Blog? _wordPressData;
 
         public WordPressXmlImportContext(StatusControlContext? statusContext)
@@ -196,7 +196,9 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
 
                 var loweredString = UserFilterText.ToLower();
 
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(o is WordPressXmlImportListItem pi)) return false;
+#pragma warning restore IDE0083 // Use pattern matching
                 if (pi.Category.ToLower().Contains(loweredString)) return true;
                 if (pi.Slug.ToLower().Contains(loweredString)) return true;
                 if (pi.Title.ToLower().Contains(loweredString)) return true;

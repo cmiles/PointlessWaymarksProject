@@ -212,7 +212,9 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 
                 var loweredString = UserFilterText.ToLower();
 
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(o is PointListListItem pi)) return false;
+#pragma warning restore IDE0083 // Use pattern matching
                 if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
@@ -222,7 +224,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             };
         }
 
-        public string GetSmallImageUrl(PointContent content)
+        public static string GetSmallImageUrl(PointContent content)
         {
             if (content?.MainPicture == null) return null;
 
@@ -241,7 +243,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             return smallImageUrl;
         }
 
-        public PointListListItem ListItemFromDbItem(PointContent content)
+        public static PointListListItem ListItemFromDbItem(PointContent content)
         {
             return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }

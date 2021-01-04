@@ -198,7 +198,9 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
 
                 var loweredString = UserFilterText.ToLower();
 
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(o is MapComponentListListItem pi)) return false;
+#pragma warning restore IDE0083 // Use pattern matching
                 if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.CreatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
@@ -207,7 +209,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
             };
         }
 
-        public MapComponentListListItem ListItemFromDbItem(MapComponent content)
+        public static MapComponentListListItem ListItemFromDbItem(MapComponent content)
         {
             return new() {DbEntry = content};
         }

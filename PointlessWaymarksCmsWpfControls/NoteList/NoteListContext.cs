@@ -219,7 +219,9 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
                 var loweredString = UserFilterText.ToLower();
 
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(o is NoteListListItem pi)) return false;
+#pragma warning restore IDE0083 // Use pattern matching
                 if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.CreatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
@@ -229,7 +231,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
         }
 
 
-        public NoteListListItem ListItemFromDbItem(NoteContent content)
+        public static NoteListListItem ListItemFromDbItem(NoteContent content)
         {
             var newItem = new NoteListListItem {DbEntry = content};
 

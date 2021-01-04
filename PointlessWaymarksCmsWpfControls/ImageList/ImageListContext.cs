@@ -257,7 +257,9 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
 
                 var loweredString = UserFilterText.ToLower();
 
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(o is ImageListListItem pi)) return false;
+#pragma warning restore IDE0083 // Use pattern matching
                 if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
@@ -267,7 +269,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
             };
         }
 
-        public string GetSmallImageUrl(ImageContent content)
+        public static string GetSmallImageUrl(ImageContent content)
         {
             if (content == null) return null;
 
@@ -286,7 +288,7 @@ namespace PointlessWaymarksCmsWpfControls.ImageList
         }
 
 
-        public ImageListListItem ListItemFromDbItem(ImageContent content)
+        public static ImageListListItem ListItemFromDbItem(ImageContent content)
         {
             return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }

@@ -248,7 +248,9 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
 
                 var loweredString = UserFilterText.ToLower();
 
+#pragma warning disable IDE0083 // Use pattern matching
                 if (!(o is GeoJsonListListItem pi)) return false;
+#pragma warning restore IDE0083 // Use pattern matching
                 if ((pi.DbEntry.Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((pi.DbEntry.Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;
@@ -316,7 +318,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
-        public string GetSmallImageUrl(GeoJsonContent content)
+        public static string GetSmallImageUrl(GeoJsonContent content)
         {
             if (content?.MainPicture == null) return null;
 
@@ -335,7 +337,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
             return smallImageUrl;
         }
 
-        public GeoJsonListListItem ListItemFromDbItem(GeoJsonContent content)
+        public static GeoJsonListListItem ListItemFromDbItem(GeoJsonContent content)
         {
             return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }
