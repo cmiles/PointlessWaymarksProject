@@ -20,7 +20,8 @@ namespace PointlessWaymarksCmsData.Html.GeoJsonHtml
 
         public static string GeoJsonDivAndScriptWithCaption(GeoJsonContent content)
         {
-            var titleCaption = $"<a class=\"map-figure-title-caption\" href=\"{UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(content)}\">{content.Title}</a>";
+            var titleCaption =
+                $"<a class=\"map-figure-title-caption\" href=\"{UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(content)}\">{content.Title}</a>";
 
             return $"<figure class=\"map-figure\">{GeoJsonDivAndScript(content)}{titleCaption}</figure>";
         }
