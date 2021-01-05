@@ -273,7 +273,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
                 var newContentWindow = new NoteContentEditorWindow(refreshedData);
 
-                newContentWindow.Show();
+                newContentWindow.PositionWindowAndShow();
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
@@ -390,7 +390,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
 
             var newContentWindow = new NoteContentEditorWindow(null);
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
         }
 
         private async Task NoteCodesToClipboardForSelected()

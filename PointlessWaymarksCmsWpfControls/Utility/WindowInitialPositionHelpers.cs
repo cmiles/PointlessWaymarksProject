@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -6,7 +7,7 @@ using PointlessWaymarksCmsData.Database;
 using WpfScreenHelper;
 using Point = System.Drawing.Point;
 
-namespace PointlessWaymarksCmsContentEditor
+namespace PointlessWaymarksCmsWpfControls.Utility
 {
     public static class WindowInitialPositionHelpers
     {
@@ -68,6 +69,23 @@ namespace PointlessWaymarksCmsContentEditor
             }
         }
 
+        public static void PositionWindowAndShow(this Window toPosition)
+        {
+            if (toPosition == null) return;
+
+            var positionReference = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ?? Application.Current.Windows.OfType<Window>().FirstOrDefault();
+
+            if (positionReference != null)
+            {
+                toPosition.Left = positionReference.Left + 10;
+                toPosition.Top = positionReference.Top + 24;
+            }
+
+            EnsureWindowIsVisible(toPosition);
+
+            toPosition.Show();
+        }
+
         public static uint GetDpi(IntPtr hwnd, DpiType dpiType)
         {
             var screen = Screen.FromHandle(hwnd);
@@ -82,8 +100,8 @@ namespace PointlessWaymarksCmsContentEditor
             }
             catch (Exception ex)
             {
-                EventLogContext.TryWriteExceptionToLogBlocking(ex, "MainWindow.xaml.cs",
-                    "Failed to Get Dpi from Shcore.dll private static extern IntPtr GetDpiForMonitor");
+                EventLogContext.TryWriteExceptionToLogBlocking(ex, "WindowInitialPositionHelpers",
+                    "GetDpi failed in GetDpiForMonitor");
             }
 
             return dpiX;

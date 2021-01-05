@@ -452,7 +452,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
                 var newContentWindow = new PhotoContentEditorWindow(refreshedData);
 
-                newContentWindow.Show();
+                newContentWindow.PositionWindowAndShow();
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
@@ -579,7 +579,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var newContentWindow = new PhotoContentEditorWindow();
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
         }
 
         private async Task NewContentFromFiles(bool autoSaveAndClose, CancellationToken cancellationToken)
@@ -643,7 +643,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                         await ThreadSwitcher.ResumeForegroundAsync();
 
                         var editor = new PhotoContentEditorWindow(loopFile);
-                        editor.Show();
+                        editor.PositionWindowAndShow();
 #pragma warning disable 4014
                         //Allow execution to continue so Automation can continue
                         editor.StatusContext.ShowMessageWithOkButton("Problem Extracting Metadata",
@@ -660,7 +660,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                         await ThreadSwitcher.ResumeForegroundAsync();
 
                         var editor = new PhotoContentEditorWindow(loopFile);
-                        editor.Show();
+                        editor.PositionWindowAndShow();
 #pragma warning disable 4014
                         //Allow execution to continue so Automation can continue
                         editor.StatusContext.ShowMessageWithOkButton("Problem Saving",
@@ -674,7 +674,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
                     await ThreadSwitcher.ResumeForegroundAsync();
 
                     var editor = new PhotoContentEditorWindow(loopFile);
-                    editor.Show();
+                    editor.PositionWindowAndShow();
                 }
 
                 StatusContext.Progress($"New Photo Editor - {loopFile.FullName} ");
@@ -894,7 +894,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             return returnList;
         }
 
-        private async Task RunReport(Func<Task<List<PhotoContent>>> toRun, string title)
+        private static async Task RunReport(Func<Task<List<PhotoContent>>> toRun, string title)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -904,7 +904,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var newWindow = new PhotoListWindow {PhotoListContext = context, WindowTitle = title};
 
-            newWindow.Show();
+            newWindow.PositionWindowAndShow();
         }
 
         private void SetupCommands()

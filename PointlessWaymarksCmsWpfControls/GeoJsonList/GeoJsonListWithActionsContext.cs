@@ -272,7 +272,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
 
                 var newContentWindow = new GeoJsonContentEditorWindow(refreshedData);
 
-                newContentWindow.Show();
+                newContentWindow.PositionWindowAndShow();
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
@@ -404,7 +404,7 @@ namespace PointlessWaymarksCmsWpfControls.GeoJsonList
 
             var newContentWindow = new GeoJsonContentEditorWindow(null);
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
         }
 
         [NotifyPropertyChangedInvocator]

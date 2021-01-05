@@ -18,6 +18,7 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.FileContentEditor;
 using PointlessWaymarksCmsWpfControls.PostContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using PressSharper;
 
@@ -364,7 +365,7 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
 
 
                 await ThreadSwitcher.ResumeForegroundAsync();
-                new FileContentEditorWindow(newContent).Show();
+                new FileContentEditorWindow(newContent).PositionWindowAndShow();
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
         }
@@ -398,7 +399,7 @@ namespace PointlessWaymarksCmsWpfControls.WordPressXmlImport
 
 
                 await ThreadSwitcher.ResumeForegroundAsync();
-                new PostContentEditorWindow(newPost).Show();
+                new PostContentEditorWindow(newPost).PositionWindowAndShow();
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
         }

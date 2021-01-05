@@ -11,7 +11,9 @@ using MvvmHelpers.Commands;
 using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
+using PointlessWaymarksCmsWpfControls.NoteContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using TinyIpc.Messaging;
 
@@ -20,6 +22,7 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
     public class NoteListContext : INotifyPropertyChanged
     {
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
+        private Command<NoteContent> _editContentCommand;
         private ObservableCollection<NoteListListItem> _items;
         private string _lastSortColumn;
         private List<NoteListListItem> _selectedItems;
@@ -34,6 +37,8 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             StatusContext = statusContext ?? new StatusControlContext();
 
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+
+            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(EditContent);
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -52,6 +57,17 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             {
                 if (Equals(value, _dataNotificationsProcessor)) return;
                 _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<NoteContent> EditContentCommand
+        {
+            get => _editContentCommand;
+            set
+            {
+                if (Equals(value, _editContentCommand)) return;
+                _editContentCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -205,6 +221,29 @@ namespace PointlessWaymarksCmsWpfControls.NoteList
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+        }
+
+        private async Task EditContent(NoteContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null) return;
+
+            var context = await Db.Context();
+
+            var refreshedData = context.NoteContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null)
+                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
+                                         "look for a historic version...");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new NoteContentEditorWindow(refreshedData);
+
+            newContentWindow.PositionWindowAndShow();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
         private async Task FilterList()

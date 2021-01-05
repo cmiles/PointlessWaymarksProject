@@ -10,7 +10,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
-    Name="LineListControlXaml"
+    Name="UserControlXaml"
     d:DataContext="{d:DesignInstance local:LineListContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"

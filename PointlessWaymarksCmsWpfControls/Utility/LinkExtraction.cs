@@ -74,7 +74,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                         ShowInLinkRss = false
                     }, true);
 
-                newWindow.Show();
+                newWindow.PositionWindowAndShow();
             }
         }
     }

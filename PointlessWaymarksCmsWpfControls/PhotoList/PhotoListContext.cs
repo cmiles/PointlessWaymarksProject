@@ -16,6 +16,7 @@ using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
 using PointlessWaymarksCmsWpfControls.PhotoContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using TinyIpc.Messaging;
 
@@ -458,7 +459,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var newContentWindow = new PhotoContentEditorWindow(refreshedData);
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
@@ -630,7 +631,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var newWindow = new PhotoListWindow {PhotoListContext = context, WindowTitle = title};
 
-            newWindow.Show();
+            newWindow.PositionWindowAndShow();
         }
 
         private static async Task<List<PhotoContent>> ShutterSpeedSearch(PhotoContent content)

@@ -174,7 +174,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 newImage.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
 
                 var editor = new ImageContentEditorWindow(newImage, updatedDestination);
-                editor.Show();
+                editor.PositionWindowAndShow();
 
                 await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
             }

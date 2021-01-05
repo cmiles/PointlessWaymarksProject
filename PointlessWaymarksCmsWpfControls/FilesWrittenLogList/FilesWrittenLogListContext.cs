@@ -520,7 +520,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newUploadWindow = new S3UploadsWindow(toTransfer);
-            newUploadWindow.Show();
+            newUploadWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -824,7 +824,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                 var newUploaderWindow = new S3UploadsWindow(items
                     .Select(x => new S3Upload(new FileInfo(x.fileFullName), x.S3Key, x.BucketName, x.Region, x.Note))
                     .ToList());
-                newUploaderWindow.Show();
+                newUploaderWindow.PositionWindowAndShow();
             }
             catch (Exception e)
             {
@@ -971,7 +971,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
                     AmazonObjectKey = x, BucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket
                 }).ToList());
 
-            newUploadWindow.Show();
+            newUploadWindow.PositionWindowAndShow();
         }
 
         public async Task SiteMissingAndChangedFilesReport()
@@ -1009,7 +1009,7 @@ namespace PointlessWaymarksCmsWpfControls.FilesWrittenLogList
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newUploadWindow = new S3UploadsWindow(toUpload);
-            newUploadWindow.Show();
+            newUploadWindow.PositionWindowAndShow();
         }
 
         public string ToTransformedFileString(string fileBase)

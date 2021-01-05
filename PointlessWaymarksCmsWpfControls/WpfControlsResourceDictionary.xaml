@@ -182,7 +182,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ElementName=userControlXaml, Path=DataContext.EditContentCommand}"
+                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>
@@ -263,7 +263,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ElementName=userControlXaml, Path=DataContext.EditContentCommand}"
+                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>

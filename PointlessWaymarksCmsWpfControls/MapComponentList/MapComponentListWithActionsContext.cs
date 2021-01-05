@@ -262,7 +262,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
 
                 var newContentWindow = new MapComponentEditorWindow(refreshedData);
 
-                newContentWindow.Show();
+                newContentWindow.PositionWindowAndShow();
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
@@ -347,7 +347,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
 
             var newContentWindow = new MapComponentEditorWindow(null);
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
         }
 
         [NotifyPropertyChangedInvocator]

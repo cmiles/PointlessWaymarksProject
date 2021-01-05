@@ -11,7 +11,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
-    Name="GeoJsonListControlXaml"
+    Name="UserControlXaml"
     d:DataContext="{d:DesignInstance local:PostListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -22,7 +22,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="../Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <wpfConverter:ImageCacheConverter x:Key="ImageCache" />
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>

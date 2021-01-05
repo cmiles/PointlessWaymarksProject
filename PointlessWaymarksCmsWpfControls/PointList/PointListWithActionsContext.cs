@@ -272,7 +272,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 
                 var newContentWindow = new PointContentEditorWindow(refreshedData);
 
-                newContentWindow.Show();
+                newContentWindow.PositionWindowAndShow();
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
@@ -365,7 +365,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 
             var newContentWindow = new PointContentEditorWindow(null);
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
         }
 
         [NotifyPropertyChangedInvocator]

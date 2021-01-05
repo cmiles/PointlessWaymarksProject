@@ -302,7 +302,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
                 var newContentWindow = new FileContentEditorWindow(refreshedData);
 
-                newContentWindow.Show();
+                newContentWindow.PositionWindowAndShow();
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
@@ -489,7 +489,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
 
             var newContentWindow = new FileContentEditorWindow();
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
         }
 
         private async Task NewContentFromFiles(CancellationToken cancellationToken)
@@ -531,7 +531,7 @@ namespace PointlessWaymarksCmsWpfControls.FileList
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 var editor = new FileContentEditorWindow(loopFile);
-                editor.Show();
+                editor.PositionWindowAndShow();
 
                 StatusContext.Progress($"New File Editor - {loopFile.FullName} ");
 

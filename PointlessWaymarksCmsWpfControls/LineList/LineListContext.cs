@@ -231,7 +231,7 @@ namespace PointlessWaymarksCmsWpfControls.LineList
 
             var newContentWindow = new LineContentEditorWindow(refreshedData);
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }

@@ -306,7 +306,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
                 var newContentWindow = new PostContentEditorWindow(refreshedData);
 
-                newContentWindow.Show();
+                newContentWindow.PositionWindowAndShow();
 
                 await ThreadSwitcher.ResumeBackgroundAsync();
             }
@@ -424,7 +424,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
 
             var newContentWindow = new PostContentEditorWindow(null);
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
         }
 
         [NotifyPropertyChangedInvocator]
@@ -507,7 +507,7 @@ namespace PointlessWaymarksCmsWpfControls.PostList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            new WordPressXmlImportWindow().Show();
+            new WordPressXmlImportWindow().PositionWindowAndShow();
         }
     }
 }

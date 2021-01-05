@@ -18,7 +18,9 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.HtmlViewer;
+using PointlessWaymarksCmsWpfControls.LinkContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarksCmsWpfControls.WpfHtml;
 using TinyIpc.Messaging;
@@ -28,6 +30,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
     public class LinkListContext : INotifyPropertyChanged
     {
         private Command<string> _copyUrlCommand;
+        private Command<LinkContent> _editContentCommand;
         private ObservableCollection<LinkListListItem> _items;
         private string _lastSortColumn;
 
@@ -47,6 +50,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             StatusContext = statusContext ?? new StatusControlContext();
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
+            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(EditContent);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
@@ -74,6 +78,17 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             {
                 if (Equals(value, _copyUrlCommand)) return;
                 _copyUrlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<LinkContent> EditContentCommand
+        {
+            get => _editContentCommand;
+            set
+            {
+                if (Equals(value, _editContentCommand)) return;
+                _editContentCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -261,6 +276,29 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
+        private async Task EditContent(LinkContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null) return;
+
+            var context = await Db.Context();
+
+            var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null)
+                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
+                                         "look for a historic version...");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new LinkContentEditorWindow(refreshedData);
+
+            newContentWindow.PositionWindowAndShow();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+        }
+
         private async Task FilterList()
         {
             if (Items == null || !Items.Any()) return;
@@ -369,7 +407,7 @@ namespace PointlessWaymarksCmsWpfControls.LinkList
             var htmlReportWindow =
                 new HtmlViewerWindow(
                     projectedNotFound.ToHtmlDocumentWithPureCss("Links Not In Pinboard", string.Empty));
-            htmlReportWindow.Show();
+            htmlReportWindow.PositionWindowAndShow();
         }
 
         public async Task LoadData()

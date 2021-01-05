@@ -36,7 +36,7 @@ namespace PointlessWaymarksCmsWpfControls.Diagnostics
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var reportWindow = new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Events Report", string.Empty));
-            reportWindow.Show();
+            reportWindow.PositionWindowAndShow();
         }
 
         public static async Task DiagnosticEventsExcelReport()
@@ -65,7 +65,7 @@ namespace PointlessWaymarksCmsWpfControls.Diagnostics
 
             var reportWindow =
                 new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Diagnostic Events Report", string.Empty));
-            reportWindow.Show();
+            reportWindow.PositionWindowAndShow();
         }
 
         public static async Task ExceptionEventsExcelReport()
@@ -94,7 +94,7 @@ namespace PointlessWaymarksCmsWpfControls.Diagnostics
 
             var reportWindow =
                 new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Exception Events Report", string.Empty));
-            reportWindow.Show();
+            reportWindow.PositionWindowAndShow();
         }
 
         public static async Task GenerationListHtmlReport(List<GenerationReturn> generationReturns, string title,
@@ -108,7 +108,7 @@ namespace PointlessWaymarksCmsWpfControls.Diagnostics
 
             var reportWindow =
                 new HtmlViewerWindow(bodyBuilder.ToString().ToHtmlDocumentWithPureCss(title, string.Empty));
-            reportWindow.Show();
+            reportWindow.PositionWindowAndShow();
         }
 
         public static async Task InvalidBracketCodeContentIdsHtmlReport(List<GenerationReturn> generationReturns)

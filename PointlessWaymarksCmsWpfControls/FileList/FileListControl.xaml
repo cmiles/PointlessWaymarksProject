@@ -9,7 +9,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
-    Name="ImageListControlXaml"
+    Name="FileListControlXaml"
     d:DataContext="{d:DesignInstance local:FileListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -108,7 +108,7 @@
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Border.InputBindings>
                                 <MouseBinding
-                                    Command="{Binding ElementName=userControlXaml, Path=DataContext.EditContentCommand}"
+                                    Command="{Binding ElementName=FileListControlXaml, Path=DataContext.EditContentCommand}"
                                     CommandParameter="{Binding DbEntry}"
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
@@ -170,7 +170,7 @@
                                             Width="180"
                                             Height="30"
                                             HorizontalAlignment="Left"
-                                            Command="{Binding DataContext.OpenFileCommand, ElementName=ImageListControlXaml}"
+                                            Command="{Binding DataContext.OpenFileCommand, ElementName=FileListControlXaml}"
                                             CommandParameter="{Binding .}">
                                             Open File
                                         </Button>

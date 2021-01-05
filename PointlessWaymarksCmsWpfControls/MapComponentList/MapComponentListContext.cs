@@ -13,6 +13,7 @@ using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsWpfControls.MapComponentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
+using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
 using TinyIpc.Messaging;
 
@@ -181,7 +182,7 @@ namespace PointlessWaymarksCmsWpfControls.MapComponentList
 
             var newContentWindow = new MapComponentEditorWindow(refreshedData);
 
-            newContentWindow.Show();
+            newContentWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }

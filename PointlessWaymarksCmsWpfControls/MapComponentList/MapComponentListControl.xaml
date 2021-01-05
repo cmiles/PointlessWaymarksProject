@@ -9,7 +9,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
-    x:Name="userControlXaml"
+    x:Name="UserControlXaml"
     d:DataContext="{d:DesignInstance local:MapComponentListContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"

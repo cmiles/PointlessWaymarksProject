@@ -358,22 +358,22 @@ namespace PointlessWaymarksCmsWpfControls.TagList
             switch (content)
             {
                 case FileContent c:
-                    new FileContentEditorWindow(c).Show();
+                    new FileContentEditorWindow(c).PositionWindowAndShow();
                     break;
                 case ImageContent c:
-                    new ImageContentEditorWindow(c).Show();
+                    new ImageContentEditorWindow(c).PositionWindowAndShow();
                     break;
                 case NoteContent c:
-                    new NoteContentEditorWindow(c).Show();
+                    new NoteContentEditorWindow(c).PositionWindowAndShow();
                     break;
                 case PhotoContent c:
-                    new PhotoContentEditorWindow(c).Show();
+                    new PhotoContentEditorWindow(c).PositionWindowAndShow();
                     break;
                 case PostContent c:
-                    new PostContentEditorWindow(c).Show();
+                    new PostContentEditorWindow(c).PositionWindowAndShow();
                     break;
                 case LinkContent c:
-                    new LinkContentEditorWindow(c).Show();
+                    new LinkContentEditorWindow(c).PositionWindowAndShow();
                     break;
                 default:
                     StatusContext.ToastError("Content Type is Unknown?");

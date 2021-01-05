@@ -15,6 +15,7 @@ using PointlessWaymarksCmsData;
 using PointlessWaymarksCmsData.Database;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsWpfControls.PointContentEditor;
 using PointlessWaymarksCmsWpfControls.Status;
 using PointlessWaymarksCmsWpfControls.Utility;
 using PointlessWaymarksCmsWpfControls.Utility.ThreadSwitcher;
@@ -24,6 +25,7 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 {
     public class PointListContext : INotifyPropertyChanged, IDragSource
     {
+        private Command<PointContent> _editContentCommand;
         private ObservableCollection<PointListListItem> _items;
         private string _lastSortColumn;
         private List<PointListListItem> _selectedItems;
@@ -39,8 +41,9 @@ namespace PointlessWaymarksCmsWpfControls.PointList
 
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
-            SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
+            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(EditContent);
 
+            SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
@@ -52,7 +55,19 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
+
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
+
+        public Command<PointContent> EditContentCommand
+        {
+            get => _editContentCommand;
+            set
+            {
+                if (Equals(value, _editContentCommand)) return;
+                _editContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
 
         public ObservableCollection<PointListListItem> Items
@@ -198,6 +213,29 @@ namespace PointlessWaymarksCmsWpfControls.PointList
             if (translatedMessage.ContentType != DataNotificationContentType.Point)
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
                     await PossibleMainImageUpdateDataNotificationReceived(translatedMessage));
+        }
+
+        private async Task EditContent(PointContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null) return;
+
+            var context = await Db.Context();
+
+            var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null)
+                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
+                                         "look for a historic version...");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PointContentEditorWindow(refreshedData);
+
+            newContentWindow.PositionWindowAndShow();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
         private async Task FilterList()

@@ -9,7 +9,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
-    Name="LineListControlXaml"
+    Name="ImageListControlXaml"
     d:DataContext="{d:DesignInstance local:ImageListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -101,7 +101,7 @@
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Border.InputBindings>
                                 <MouseBinding
-                                    Command="{Binding ElementName=userControlXaml, Path=DataContext.EditContentCommand}"
+                                    Command="{Binding ElementName=ImageListControlXaml, Path=DataContext.EditContentCommand}"
                                     CommandParameter="{Binding DbEntry}"
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
@@ -117,11 +117,11 @@
                                         ToolTip="Double Click to View, Shift Double Click to Edit">
                                         <Image.InputBindings>
                                             <MouseBinding
-                                                Command="{Binding DataContext.ViewImageCommand, ElementName=LineListControlXaml}"
+                                                Command="{Binding DataContext.ViewImageCommand, ElementName=ImageListControlXaml}"
                                                 CommandParameter="{Binding DbEntry}"
                                                 MouseAction="LeftDoubleClick" />
                                             <MouseBinding
-                                                Command="{Binding DataContext.EditContentCommand, ElementName=LineListControlXaml}"
+                                                Command="{Binding DataContext.EditContentCommand, ElementName=ImageListControlXaml}"
                                                 CommandParameter="{Binding DbEntry}"
                                                 Gesture="Shift+LeftDoubleClick" />
                                         </Image.InputBindings>
@@ -130,7 +130,7 @@
                                         Height="24"
                                         Margin="0,0,8,8"
                                         HorizontalAlignment="Center"
-                                        Command="{Binding DataContext.OpenFileCommand, ElementName=LineListControlXaml}"
+                                        Command="{Binding DataContext.OpenFileCommand, ElementName=ImageListControlXaml}"
                                         CommandParameter="{Binding .}"
                                         Opacity=".5">
                                         view image

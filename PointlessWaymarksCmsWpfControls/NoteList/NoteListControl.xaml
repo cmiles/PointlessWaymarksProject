@@ -9,6 +9,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarksCmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfConverter"
+    Name="NoteListControlXaml"
     d:DataContext="{d:DesignInstance local:NoteListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -106,7 +107,7 @@
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Border.InputBindings>
                                 <MouseBinding
-                                    Command="{Binding ElementName=userControlXaml, Path=DataContext.EditContentCommand}"
+                                    Command="{Binding ElementName=NoteListControlXaml, Path=DataContext.EditContentCommand}"
                                     CommandParameter="{Binding DbEntry}"
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
