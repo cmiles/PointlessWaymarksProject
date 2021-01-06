@@ -36,7 +36,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _emailHtmlToClipboardCommand;
         private Command _extractNewLinksInSelectedCommand;
         private Command _forcedResizeCommand;
-        private Command _generatePhotoListCommand;
         private Command _generateSelectedHtmlCommand;
         private Command _importFromExcelCommand;
         private PhotoListContext _listContext;
@@ -48,6 +47,7 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private Command _photoCodesToClipboardForSelectedCommand;
         private Command _photoLinkCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
+        private Command _regenerateHtmlAndReprocessPhotoForSelectedCommand;
         private Command _reportAllPhotosCommand;
         private Command _reportBlankLicenseCommand;
         private Command _reportMultiSpacesInTitleCommand;
@@ -133,17 +133,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (Equals(value, _forcedResizeCommand)) return;
                 _forcedResizeCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command GeneratePhotoListCommand
-        {
-            get => _generatePhotoListCommand;
-            set
-            {
-                if (Equals(value, _generatePhotoListCommand)) return;
-                _generatePhotoListCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -265,6 +254,17 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             {
                 if (Equals(value, _refreshDataCommand)) return;
                 _refreshDataCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command RegenerateHtmlAndReprocessPhotoForSelectedCommand
+        {
+            get => _regenerateHtmlAndReprocessPhotoForSelectedCommand;
+            set
+            {
+                if (Equals(value, _regenerateHtmlAndReprocessPhotoForSelectedCommand)) return;
+                _regenerateHtmlAndReprocessPhotoForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -689,16 +689,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private async Task OpenUrlForPhotoList()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var url = $@"http://{UserSettingsSingleton.CurrentSettings().PhotoListUrl()}";
-
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
-        }
-
         private async Task OpenUrlForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -760,6 +750,72 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
             Clipboard.SetText(finalString);
 
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        private async Task RegenerateHtmlAndReprocessPhotoForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var loopCount = 0;
+            var totalCount = ListContext.SelectedItems.Count;
+
+            var db = await Db.Context();
+
+            var errorList = new List<string>();
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+            {
+                loopCount++;
+
+                if (loopSelected.DbEntry == null)
+                {
+                    StatusContext.Progress(
+                        $"Re-processing Photo and Generating Html for {loopCount} of {totalCount} failed - no DB Entry?");
+                    errorList.Add("There was a list item without a DB entry? This should never happen...");
+                    continue;
+                }
+
+                var currentVersion =
+                    db.PhotoContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
+
+                if (currentVersion == null)
+                {
+                    StatusContext.Progress(
+                        $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title} failed - not found in DB, {loopCount} of {totalCount}");
+                    errorList.Add($"Photo Titled {loopSelected.DbEntry.Title} was not found in the database?");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(currentVersion.LastUpdatedBy))
+                    currentVersion.LastUpdatedBy = currentVersion.CreatedBy;
+                currentVersion.LastUpdatedOn = DateTime.Now;
+
+                StatusContext.Progress(
+                    $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
+
+                var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(currentVersion,
+                    UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(currentVersion), true,
+                    null, StatusContext.ProgressTracker());
+
+                if (generationReturn.HasError)
+                {
+                    StatusContext.Progress(
+                        $"Re-processing Photo and Generating Html for {loopSelected.DbEntry.Title} Error {generationReturn.GenerationNote}, {generationReturn.Exception}, {loopCount} of {totalCount}");
+                    errorList.Add($"Error processing Photo Titled {loopSelected.DbEntry.Title}...");
+                }
+            }
+
+            if (errorList.Any())
+            {
+                errorList.Reverse();
+                errorList.ForEach(x => StatusContext.ToastError(x));
+            }
         }
 
         private async Task<List<PhotoContent>> ReportAllPhotosGenerator()
@@ -910,13 +966,14 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
         private void SetupCommands()
         {
             GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
+            RegenerateHtmlAndReprocessPhotoForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(RegenerateHtmlAndReprocessPhotoForSelected);
             EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
             PhotoCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
             PhotoLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
             OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
-            OpenUrlForPhotoListCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForPhotoList);
             NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             NewContentFromFilesCommand =
                 StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewContentFromFiles(false, x),

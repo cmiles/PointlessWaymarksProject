@@ -400,7 +400,9 @@ namespace PointlessWaymarksCmsWpfControls.PhotoList
 
             var dbItems =
                 (await context.PhotoContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem);
+                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+
+            if (!dbItems.Any()) return;
 
             var listItems = Items.Where(x => translatedMessage.ContentIds.Contains(x.DbEntry.ContentId)).ToList();
 

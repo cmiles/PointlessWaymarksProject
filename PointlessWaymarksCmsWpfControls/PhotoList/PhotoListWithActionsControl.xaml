@@ -40,6 +40,18 @@
             <MenuItem Header="Email">
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
             </MenuItem>
+            <MenuItem Header="On the Web">
+                <MenuItem Command="{Binding OpenUrlForSelectedCommand}" Header="Open Selected on Public Site In Browser" />
+            </MenuItem>
+            <MenuItem Header="History">
+                <MenuItem Command="{Binding ViewHistoryCommand}" Header="View History" />
+            </MenuItem>
+            <MenuItem Header="Processing">
+                <MenuItem Command="{Binding ExtractNewLinksInSelectedCommand}" Header="Extract Links" />
+                <MenuItem Command="{Binding GenerateSelectedHtmlCommand}" Header="Generate Html" />
+                <MenuItem Command="{Binding ForcedResizeCommand}" Header="Reprocess Photo" />
+                <MenuItem Command="{Binding RegenerateHtmlAndReprocessPhotoForSelectedCommand}" Header="Reprocess Photo and Generate Html" />
+            </MenuItem>
         </Menu>
         <local:PhotoListControl
             Grid.Row="1"
@@ -71,10 +83,6 @@
                     Content="New - Blank"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
-                    Command="{Binding GenerateSelectedHtmlCommand}"
-                    Content="_Generate Html"
-                    Style="{StaticResource ActionPanelButton}" />
-                <Button
                     Command="{Binding PhotoCodesToClipboardForSelectedCommand}"
                     Content="_Code to Clipboard"
                     Style="{StaticResource ActionPanelButton}" />
@@ -82,16 +90,7 @@
                     Command="{Binding PhotoLinkCodesToClipboardForSelectedCommand}"
                     Content="Link Code to Clipboard"
                     Style="{StaticResource ActionPanelButton}" />
-                <Button
-                    Command="{Binding OpenUrlForSelectedCommand}"
-                    Content="_Open Selected In Browser"
-                    Style="{StaticResource ActionPanelButton}" />
-                <Button Command="{Binding GeneratePhotoListCommand}" Style="{StaticResource ActionPanelButton}">Generate Photo List</Button>
-                <Button Command="{Binding OpenUrlForPhotoListCommand}" Style="{StaticResource ActionPanelButton}">Open List in Browser</Button>
-                <Button Command="{Binding ForcedResizeCommand}" Style="{StaticResource ActionPanelButton}">Clean and Resize</Button>
                 <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
-                <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButton}">View History</Button>
-                <Button Command="{Binding ExtractNewLinksInSelectedCommand}" Style="{StaticResource ActionPanelButton}">Extract Links</Button>
             </WrapPanel>
         </Border>
         <status:StatusControl

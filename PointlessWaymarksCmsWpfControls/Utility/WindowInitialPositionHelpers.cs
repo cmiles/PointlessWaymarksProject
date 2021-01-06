@@ -69,23 +69,6 @@ namespace PointlessWaymarksCmsWpfControls.Utility
             }
         }
 
-        public static void PositionWindowAndShow(this Window toPosition)
-        {
-            if (toPosition == null) return;
-
-            var positionReference = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ?? Application.Current.Windows.OfType<Window>().FirstOrDefault();
-
-            if (positionReference != null)
-            {
-                toPosition.Left = positionReference.Left + 10;
-                toPosition.Top = positionReference.Top + 24;
-            }
-
-            EnsureWindowIsVisible(toPosition);
-
-            toPosition.Show();
-        }
-
         public static uint GetDpi(IntPtr hwnd, DpiType dpiType)
         {
             var screen = Screen.FromHandle(hwnd);
@@ -124,6 +107,24 @@ namespace PointlessWaymarksCmsWpfControls.Utility
         //https://msdn.microsoft.com/en-us/library/windows/desktop/dd145062(v=vs.85).aspx
         [DllImport("User32.dll")]
         private static extern IntPtr MonitorFromPoint([In] Point pt, [In] uint dwFlags);
+
+        public static void PositionWindowAndShow(this Window toPosition)
+        {
+            if (toPosition == null) return;
+
+            var positionReference = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ??
+                                    Application.Current.Windows.OfType<Window>().FirstOrDefault();
+
+            if (positionReference != null)
+            {
+                toPosition.Left = positionReference.Left + 10;
+                toPosition.Top = positionReference.Top + 24;
+            }
+
+            EnsureWindowIsVisible(toPosition);
+
+            toPosition.Show();
+        }
 
         public static IntPtr WindowToHwnd(Window window)
         {
