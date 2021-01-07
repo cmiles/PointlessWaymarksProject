@@ -6,7 +6,7 @@ namespace PressSharper.UnitTests
     [TestFixture]
     public class BlogTests
     {
-        private const string WORDPRESS_XML =
+        private const string WordPressXml =
             @"<?xml version=""1.0"" encoding=""UTF-8"" ?>
                 <rss version=""2.0""
 	                xmlns:excerpt=""http://wordpress.org/export/1.2/excerpt/""
@@ -91,7 +91,7 @@ namespace PressSharper.UnitTests
         [Test]
         public void Can_Parse_Blog_Title()
         {
-            var blog = new Blog(WORDPRESS_XML);
+            var blog = new Blog(WordPressXml);
 
             Assert.AreEqual("foo title", blog.Title);
         }
@@ -99,7 +99,7 @@ namespace PressSharper.UnitTests
         [Test]
         public void Can_Parse_Blog_Description()
         {
-            var blog = new Blog(WORDPRESS_XML);
+            var blog = new Blog(WordPressXml);
 
             Assert.AreEqual("foo description", blog.Description);
         }
@@ -107,7 +107,7 @@ namespace PressSharper.UnitTests
         [Test]
         public void Can_Parse_Authors()
         {
-            var blog = new Blog(WORDPRESS_XML);
+            var blog = new Blog(WordPressXml);
             var authors = blog.Authors.ToList();
 
             Assert.AreEqual(2, authors.Count);
@@ -124,7 +124,7 @@ namespace PressSharper.UnitTests
         [Test]
         public void Can_Parse_Attachments()
         {
-            var blog = new Blog(WORDPRESS_XML);
+            var blog = new Blog(WordPressXml);
             var attachments = blog.Attachments.ToList();
 
             Assert.AreEqual(1, attachments.Count);
@@ -137,7 +137,7 @@ namespace PressSharper.UnitTests
         [Test]
         public void Can_Parse_Posts()
         {
-            var blog = new Blog(WORDPRESS_XML);
+            var blog = new Blog(WordPressXml);
             var posts = blog.GetPosts().ToList();
 
             Assert.AreEqual(2, posts.Count);
@@ -185,7 +185,7 @@ namespace PressSharper.UnitTests
         [Test]
         public void Can_Parse_Pages()
         {
-            var blog = new Blog(WORDPRESS_XML);
+            var blog = new Blog(WordPressXml);
             var pages = blog.GetPages().ToList();
 
             Assert.AreEqual(2, pages.Count);

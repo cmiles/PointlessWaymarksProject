@@ -51,7 +51,7 @@ namespace PressSharper
         private string GetBasicProperty(string elementName)
         {
             var element = _channelElement.Element(elementName);
-            if (element == null) throw new XmlException(string.Format("Missing {0}.", elementName));
+            if (element == null) throw new XmlException($"Missing {elementName}.");
 
             return element.Value;
         }
@@ -81,7 +81,7 @@ namespace PressSharper
         private void InitializeAttachments()
         {
             Attachments = _channelElement.Elements("item")
-                .Where(e => IsAttachmentItem(e))
+                .Where(IsAttachmentItem)
                 .Select(ParseAttachmentElement);
         }
 
@@ -237,7 +237,7 @@ namespace PressSharper
             {
                 var domainAttribute = wpCategory.Attribute("domain");
                 if (domainAttribute == null)
-                    throw new XmlException("Unable to parse malformed wordpress categorization.");
+                    throw new XmlException("Unable to parse malformed WordPress categorization.");
 
                 if (domainAttribute.Value == "category")
                     post.Categories.Add(new Category
