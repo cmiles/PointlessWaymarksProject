@@ -78,6 +78,11 @@ body {
     text-align: center;
 }
 
+.point-text-info-container {
+    display: flex;
+    justify-content: center;
+}
+
 .point-content-map {
     height: 90vh;
 }

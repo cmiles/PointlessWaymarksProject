@@ -5,11 +5,32 @@ using HtmlTags;
 using PointlessWaymarksCmsData.Database.Models;
 using PointlessWaymarksCmsData.Database.PointDetailDataModels;
 using PointlessWaymarksCmsData.Html.CommonHtml;
+using PointlessWaymarksCmsData.Spatial;
 
 namespace PointlessWaymarksCmsData.Html.PointHtml
 {
     public static class PointParts
     {
+        public static HtmlTag GoogleMapsLatLongLink(PointContentDto point)
+        {
+            return new LinkTag("Google Maps", GoogleMapsLatLongUrl(point), "point-map-external-link");
+        }
+
+        public static string GoogleMapsLatLongUrl(PointContentDto point)
+        {
+            return $"https://www.google.com/maps/search/?api=1&query={point.Latitude},{point.Longitude}";
+        }
+
+        public static HtmlTag OsmCycleMapLatLongLink(PointContentDto point)
+        {
+            return new LinkTag("OSM Cycle Maps", OsmCycleMapsLatLongUrl(point), "point-map-external-link");
+        }
+
+        public static string OsmCycleMapsLatLongUrl(PointContentDto point)
+        {
+            return $"http://www.openstreetmap.org/?lat={point.Latitude}&lon={point.Longitude}&zoom=13&layers=C";
+        }
+
         public static HtmlTag PointDetailsDiv(PointContentDto dbEntry)
         {
             if (dbEntry?.PointDetails == null && !dbEntry.PointDetails.Any()) return HtmlTag.Empty();
@@ -181,6 +202,19 @@ namespace PointlessWaymarksCmsData.Html.PointHtml
                 $"<script>lazyInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), () => singlePointMapInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), \"{pointSlug}\"))</script>";
 
             return tag + script;
+        }
+
+        public static HtmlTag PointTextInfoDiv(PointContentDto point)
+        {
+            var container = new DivTag().AddClass("point-text-info-container");
+            var pTag = new HtmlTag("p")
+                .Text(
+                    $"Lat: {point.Latitude}, Long: {point.Longitude}{(point.Elevation == null ? string.Empty : $", Elevation: {point.Elevation.MetersToFeet()}")}, {OsmCycleMapLatLongLink(point)}, {GoogleMapsLatLongLink(point)}")
+                .AddClass("point-location-text").Encoded(false);
+
+            container.Children.Add(pTag);
+
+            return container;
         }
     }
 }

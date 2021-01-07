@@ -222,6 +222,6 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
 
         toAdd.addTo(map);
 
-        boundCirclePopup.openPopup();
+        //boundCirclePopup.openPopup();
     };
 }

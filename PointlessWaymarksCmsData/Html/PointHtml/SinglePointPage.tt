@@ -45,6 +45,7 @@
     <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= PointParts.PointDivAndScript(DbEntry.Slug) #>
+    <#= PointParts.PointTextInfoDiv(DbEntry) #>
     <#= Tags.PostBodyDiv(DbEntry).ToString() #>
     <#= PointParts.PointDetailsDiv(DbEntry).ToString() #>
     <#= HorizontalRule.StandardRule() #>
