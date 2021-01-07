@@ -3,17 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29230.61
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarksCmsContentEditor", "PointlessWaymarksCmsContentEditor\PointlessWaymarksCmsContentEditor.csproj", "{1FC8E8BF-621B-4753-A835-5E6FE0DFB4FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsContentEditor", "PointlessWaymarks.CmsContentEditor\PointlessWaymarks.CmsContentEditor.csproj", "{1FC8E8BF-621B-4753-A835-5E6FE0DFB4FD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarksCmsWpfControls", "PointlessWaymarksCmsWpfControls\PointlessWaymarksCmsWpfControls.csproj", "{2BC402E1-A1FB-4C85-98AC-41BAD165C14E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsWpfControls", "PointlessWaymarks.CmsWpfControls\PointlessWaymarks.CmsWpfControls.csproj", "{2BC402E1-A1FB-4C85-98AC-41BAD165C14E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarksCmsData", "PointlessWaymarksCmsData\PointlessWaymarksCmsData.csproj", "{95AD6B7B-0764-4707-A778-B8D3AC070D10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsData", "PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj", "{95AD6B7B-0764-4707-A778-B8D3AC070D10}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarksTests", "PointlessWaymarksTests\PointlessWaymarksTests.csproj", "{3C9709B9-F0FF-452B-9E4A-2A125B1806AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsTests", "PointlessWaymarks.CmsTests\PointlessWaymarks.CmsTests.csproj", "{3C9709B9-F0FF-452B-9E4A-2A125B1806AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PressSharper", "PressSharper\PressSharper\PressSharper.csproj", "{7E1D736B-F2B5-4E13-8D96-C972FC9344E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PressSharper", "PointlessWaymarks.PressSharper\PressSharper\PointlessWaymarks.PressSharper.csproj", "{7E1D736B-F2B5-4E13-8D96-C972FC9344E1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PressSharper.UnitTests", "PressSharper\PressSharper.UnitTests\PressSharper.UnitTests.csproj", "{A9BB501C-E170-460C-A815-EEF0C5AB632F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PressSharper.UnitTests", "PointlessWaymarks.PressSharper.UnitTests\PointlessWaymarks.PressSharper.UnitTests.csproj", "{A9BB501C-E170-460C-A815-EEF0C5AB632F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.WpfCommon", "PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj", "{510C25C0-8FA8-4323-9B5D-042C637A382F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +99,18 @@ Global
 		{A9BB501C-E170-460C-A815-EEF0C5AB632F}.Release|x64.Build.0 = Release|Any CPU
 		{A9BB501C-E170-460C-A815-EEF0C5AB632F}.Release|x86.ActiveCfg = Release|Any CPU
 		{A9BB501C-E170-460C-A815-EEF0C5AB632F}.Release|x86.Build.0 = Release|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Debug|x64.Build.0 = Debug|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Debug|x86.Build.0 = Debug|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Release|x64.ActiveCfg = Release|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Release|x64.Build.0 = Release|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Release|x86.ActiveCfg = Release|Any CPU
+		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

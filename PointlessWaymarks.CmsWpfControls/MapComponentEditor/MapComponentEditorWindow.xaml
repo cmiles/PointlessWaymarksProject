@@ -1,0 +1,21 @@
+﻿<Window
+    x:Class="PointlessWaymarks.CmsWpfControls.MapComponentEditor.MapComponentEditorWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mapComponentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentEditor"
+    xmlns:status="clr-namespace:PointlessWaymarks.CmsWpfControls.Status"
+    Title="Map Component Editor"
+    Width="800"
+    Height="600"
+    d:DataContext="{d:DesignInstance local:MapComponentEditorWindow}"
+    mc:Ignorable="d">
+    <Grid>
+        <mapComponentEditor:MapComponentEditorControl DataContext="{Binding MapComponentContent}" />
+        <status:StatusControl
+            Grid.Column="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+    </Grid>
+</Window>

@@ -1,0 +1,251 @@
+﻿<UserControl
+    x:Class="PointlessWaymarks.CmsWpfControls.MapComponentEditor.MapComponentEditorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dd="urn:gong-wpf-dragdrop"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfConverter"
+    xmlns:mapComponentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentEditor"
+    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
+    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
+    xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHtml"
+    xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.CmsWpfControls.WindowScreenShot"
+    x:Name="MapComponentEditorControlXaml"
+    d:DataContext="{d:DesignInstance local:MapComponentEditorContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <DataTemplate x:Key="MapElementGeoJsonTemplate" DataType="local:MapElementListGeoJsonItem">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource GeoJsonListItemTemplate}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="MapElementLineTemplate" DataType="local:MapElementListLineItem">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource LineListItemTemplate}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="MapElementPointTemplate" DataType="local:MapElementListPointItem">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource PointListItemTemplate}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <mapComponentEditor:MapElementDataTemplateSelector
+                x:Key="MapElementSelector"
+                GeoJsonTemplate="{StaticResource MapElementGeoJsonTemplate}"
+                LineTemplate="{StaticResource MapElementLineTemplate}"
+                PointTemplate="{StaticResource MapElementPointTemplate}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TabControl>
+            <TabItem Header="Summary">
+                <Grid>
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="4" CanHorizontallyScroll="False">
+                            <stringDataEntry:StringDataEntryControl DataContext="{Binding TitleEntry}" />
+                            <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SummaryEntry}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Map Elements">
+                <Grid Margin="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="Add Content Ids/Bracket Codes" Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Height="60"
+                                dd:DragDrop.DropHandler="{Binding}"
+                                dd:DragDrop.IsDropTarget="True"
+                                AcceptsReturn="True"
+                                Text="{Binding UserGeoContentInput, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button
+                                Grid.Column="1"
+                                Width="90"
+                                Command="{Binding UserGeoContentIdInputToMapCommand}">
+                                Add from Text
+                            </Button>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox
+                        Grid.Row="1"
+                        dd:DragDrop.DropHandler="{Binding}"
+                        dd:DragDrop.IsDropTarget="True"
+                        Header="Map Elements"
+                        Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <ListBox
+                            dd:DragDrop.DropHandler="{Binding}"
+                            dd:DragDrop.IsDropTarget="True"
+                            ItemTemplateSelector="{StaticResource MapElementSelector}"
+                            ItemsSource="{Binding MapElements}"
+                            Style="{StaticResource ContentListListBoxStyle}">
+                            <b:Interaction.Behaviors>
+                                <wpfBehavior:ListBoxOneLineMouseWheelScroll />
+                            </b:Interaction.Behaviors>
+                        </ListBox>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Map">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource ActionPanelBorder}">
+                        <Grid dd:DragDrop.DropHandler="{Binding}" dd:DragDrop.IsDropTarget="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                dd:DragDrop.DropHandler="{Binding}"
+                                dd:DragDrop.IsDropTarget="True"
+                                TextWrapping="Wrap">
+                                Drag Point, Line or GeoJson Content from the Item Lists here to add to the map.
+                            </TextBlock>
+                            <Button
+                                Grid.Column="1"
+                                Command="{Binding RefreshMapPreviewCommand}"
+                                Content="Refresh Map"
+                                Style="{StaticResource ActionPanelButton}" />
+                        </Grid>
+                    </Border>
+                    <wpf:WebView2
+                        x:Name="GeoJsonContentWebView"
+                        Grid.Row="1"
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        <b:Interaction.Behaviors>
+                            <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
+                            <wpfHtml:WebViewPostJsonOnChange JsonData="{Binding PreviewMapJsonDto}" />
+                        </b:Interaction.Behaviors>
+                    </wpf:WebView2>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Update Notes">
+                <Grid>
+                    <updateNotesEditor:UpdateNotesEditorVerticalControl DataContext="{Binding UpdateNotes}" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Raw GeoJson">
+                <TextBox
+                    Style="{StaticResource ReadOnlyTextBox}"
+                    Text="{Binding PreviewMapJsonDto}"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Visible" />
+            </TabItem>
+        </TabControl>
+        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button
+                    Command="{Binding SaveCommand}"
+                    Content="_Save"
+                    Style="{StaticResource ActionPanelButton}" />
+                <Button
+                    Command="{Binding SaveAndCloseCommand}"
+                    Content="Save and Close"
+                    Style="{StaticResource ActionPanelButton}" />
+            </WrapPanel>
+        </Border>
+        <windowScreenShot:WindowScreenShotControl
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            HorizontalContentAlignment="Right"
+            VerticalContentAlignment="Bottom" />
+    </Grid>
+</UserControl>

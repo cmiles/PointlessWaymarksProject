@@ -1,0 +1,50 @@
+﻿<UserControl
+    x:Class="PointlessWaymarks.CmsWpfControls.TagsEditor.TagsEditorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
+    d:DataContext="{d:DesignInstance tagsEditor:TagsEditorContext}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <Label
+                    Content="Tags (Comma,Separated)"
+                    Style="{StaticResource DataEntryLabelStyle}"
+                    Target="{Binding ElementName=TagsTextBox}"
+                    ToolTip="{Binding HelpText}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding DbEntry.Tags, StringFormat='Original Value: {0}', FallbackValue='Previously blank'}"
+                    IconBrush="Black"
+                    IconPathGeometry="{StaticResource IconDataInfo}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                <utility:IndicatorIcon
+                    VerticalAlignment="Center"
+                    HoverText="{Binding TagsValidationMessage}"
+                    IconBrush="Red"
+                    IconPathGeometry="{StaticResource IconDataError}"
+                    IconSize="{StaticResource SmallIconSize}"
+                    Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
+            </StackPanel>
+            <TextBox
+                Name="TagsTextBox"
+                Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+                Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

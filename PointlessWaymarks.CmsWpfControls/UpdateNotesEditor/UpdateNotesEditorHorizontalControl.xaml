@@ -1,0 +1,113 @@
+﻿<UserControl
+    x:Class="PointlessWaymarks.CmsWpfControls.UpdateNotesEditor.UpdateNotesEditorHorizontalControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfConverter"
+    xmlns:contentFormat="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFormat"
+    xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfBehavior"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHtml"
+    d:DataContext="{d:DesignInstance updateNotesEditor:UpdateNotesEditorContext}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Row="0" Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <Label Style="{StaticResource DataEntryLabelStyle}">Format</Label>
+                </GroupBox.Header>
+                <contentFormat:ContentFormatChooserControl DataContext="{Binding UpdateNotesFormat}" />
+            </GroupBox>
+            <Grid Grid.Row="1" Margin="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UpdateNotesContentTextBox}">
+                                Content
+                            </Label>
+                            <utility:IndicatorIcon
+                                VerticalAlignment="Center"
+                                HoverText="Content Has Changes"
+                                IconBrush="Black"
+                                IconPathGeometry="{StaticResource IconDataInfo}"
+                                IconSize="{StaticResource SmallIconSize}"
+                                Visibility="{Binding UpdateNotesHasChanges, Converter={StaticResource BooleanToVisibility}}" />
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <TextBox
+                        Name="UpdateNotesContentTextBox"
+                        AcceptsReturn="True"
+                        BorderThickness="0"
+                        SpellCheck.IsEnabled="True"
+                        Text="{Binding UpdateNotes, UpdateSourceTrigger=PropertyChanged}"
+                        TextWrapping="Wrap"
+                        VerticalScrollBarVisibility="Visible">
+                        <b:Interaction.Behaviors>
+                            <wpfBehavior:TextBoxDoubleClickLauncher />
+                        </b:Interaction.Behaviors>
+                    </TextBox>
+                </GroupBox>
+                <GridSplitter
+                    Grid.Row="1"
+                    Height="6"
+                    Margin="0,6,0,6"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Background="#EEEEEE"
+                    ShowsPreview="True" />
+                <GroupBox Grid.Row="2" Style="{StaticResource UiComponentGroupBoxStyle}">
+                    <GroupBox.Header>
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=UpdateNotesPreviewWebView}">
+                            Preview
+                        </Label>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Button
+                            Height="24"
+                            Margin="0,0,0,4"
+                            Command="{Binding RefreshPreviewCommand}">
+                            Refresh Preview
+                        </Button>
+                        <wpf:WebView2
+                            Name="UpdateNotesPreviewWebView"
+                            Grid.Row="1"
+                            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                            <b:Interaction.Behaviors>
+                                <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding UpdateNotesHtmlOutput}" />
+                                <wpfHtml:WebViewRedirectLinksToBrowser />
+                            </b:Interaction.Behaviors>
+                        </wpf:WebView2>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

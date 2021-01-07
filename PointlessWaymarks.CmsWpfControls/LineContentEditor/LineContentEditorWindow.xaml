@@ -1,0 +1,21 @@
+﻿<Window
+    x:Class="PointlessWaymarks.CmsWpfControls.LineContentEditor.LineContentEditorWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:lineContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.LineContentEditor"
+    xmlns:status="clr-namespace:PointlessWaymarks.CmsWpfControls.Status"
+    Title="LineContentEditorWindow"
+    Width="800"
+    Height="600"
+    d:DataContext="{d:DesignInstance local:LineContentEditorWindow}"
+    mc:Ignorable="d">
+    <Grid>
+        <lineContentEditor:LineContentEditorControl DataContext="{Binding LineContent}" />
+        <status:StatusControl
+            Grid.Column="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+    </Grid>
+</Window>

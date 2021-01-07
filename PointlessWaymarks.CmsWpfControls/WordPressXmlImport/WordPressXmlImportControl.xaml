@@ -1,0 +1,168 @@
+﻿<UserControl
+    x:Class="PointlessWaymarks.CmsWpfControls.WordPressXmlImport.WordPressXmlImportControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfBehavior"
+    d:DataContext="{d:DesignInstance local:WordPressXmlImportContext}"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="../Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Actions" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <WrapPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Margin" Value="2" />
+                        <Setter Property="Width" Value="180" />
+                    </Style>
+                    <Style TargetType="CheckBox">
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="2" />
+                    </Style>
+                    <Style TargetType="RadioButton">
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="2" />
+                        <Setter Property="Width" Value="180" />
+                    </Style>
+                </WrapPanel.Resources>
+                <Button Command="{Binding LoadWordPressXmlFileCommand}">Load File</Button>
+                <CheckBox Width="120" IsChecked="{Binding ImportPosts}">Import Posts</CheckBox>
+                <CheckBox Width="120" IsChecked="{Binding ImportPages}">Import Pages</CheckBox>
+                <CheckBox Width="180" IsChecked="{Binding FilterOutExistingPostUrls}">Filter Out Existing URLs</CheckBox>
+                <Label>Filter Title/Slug/Category/Tags For:</Label>
+                <TextBox
+                    Width="200"
+                    VerticalAlignment="Center"
+                    Text="{Binding UserFilterText, Delay=500, UpdateSourceTrigger=PropertyChanged}" />
+            </WrapPanel>
+        </GroupBox>
+        <GroupBox
+            Grid.Row="1"
+            Header="WordPress XML Items"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <ListBox
+                x:Name="ItemsListBox"
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding Items}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                SelectionChanged="Selector_OnSelectionChanged"
+                SelectionMode="Extended">
+                <b:Interaction.Behaviors>
+                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
+                </b:Interaction.Behaviors>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="local:WordPressXmlImportListItem">
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBox
+                                    Margin="2"
+                                    FontWeight="Bold"
+                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="{}{0} - {1}">
+                                            <Binding Path="Title" />
+                                            <Binding Path="CreatedOn" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                    <b:Interaction.Behaviors>
+                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                                <TextBox
+                                    Grid.Row="1"
+                                    Margin="4,2,2,2"
+                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="{}{0} by {1}">
+                                            <Binding Path="WordPressType" />
+                                            <Binding Path="CreatedBy" />
+                                        </MultiBinding>
+
+                                    </TextBox.Text>
+                                    <b:Interaction.Behaviors>
+                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                                <TextBox
+                                    Grid.Row="2"
+                                    Margin="4,2,2,2"
+                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    TextWrapping="Wrap">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="Category: {0} - Tags: {1}">
+                                            <Binding Path="Category" />
+                                            <Binding Path="Tags" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                    <b:Interaction.Behaviors>
+                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                                <TextBox
+                                    Grid.Row="3"
+                                    Height="56"
+                                    Margin="4"
+                                    BorderBrush="LightGray"
+                                    BorderThickness="1"
+                                    HorizontalScrollBarVisibility="Disabled"
+                                    IsReadOnly="True"
+                                    Text="{Binding Content}"
+                                    TextWrapping="Wrap"
+                                    VerticalScrollBarVisibility="Auto">
+                                    <b:Interaction.Behaviors>
+                                        <wpfBehavior:ListBoxItemControlIgnoreMouseWheelBehavior />
+                                        <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                    </b:Interaction.Behaviors>
+                                </TextBox>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
+        <GroupBox
+            Grid.Row="2"
+            Header="Load WordPress XML"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <WrapPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Margin" Value="2" />
+                        <Setter Property="Width" Value="180" />
+                    </Style>
+                    <Style TargetType="RadioButton">
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="2" />
+                        <Setter Property="Width" Value="180" />
+                    </Style>
+                </WrapPanel.Resources>
+                <RadioButton GroupName="FolderSource" IsChecked="{Binding FolderFromYear}">Folder From Created Year</RadioButton>
+                <RadioButton GroupName="FolderSource" IsChecked="{Binding FolderFromCategory}">Folder From Category</RadioButton>
+                <Button Command="{Binding SelectedToPostContentEditorCommand}">Selected To Post Editor</Button>
+                <Button Command="{Binding SelectedToFileContentEditorCommand}">Selected To File Editor</Button>
+            </WrapPanel>
+        </GroupBox>
+    </Grid>
+</UserControl>
