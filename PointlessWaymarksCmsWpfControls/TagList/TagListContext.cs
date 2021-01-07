@@ -426,16 +426,16 @@ namespace PointlessWaymarksCmsWpfControls.TagList
 
             var listItems = new List<TagListListItem>();
 
-            foreach (var loopAllTags in allTags)
+            foreach (var (tag, contentObjects) in allTags)
             {
                 var toAdd = new TagListListItem
                 {
-                    TagName = loopAllTags.tag, ContentCount = loopAllTags.contentObjects.Count
+                    TagName = tag, ContentCount = contentObjects.Count
                 };
 
                 var contentDetails = new List<TagItemContentInformation>();
 
-                foreach (var loopContent in loopAllTags.contentObjects)
+                foreach (var loopContent in contentObjects)
                 {
                     var detailToAdd = new TagItemContentInformation {ContentId = loopContent.ContentId};
 

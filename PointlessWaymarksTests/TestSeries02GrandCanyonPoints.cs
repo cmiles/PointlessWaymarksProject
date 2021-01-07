@@ -30,7 +30,7 @@ namespace PointlessWaymarksTests
 
         public const string TestSummary = "'Testing' in the beautiful Grand Canyon";
 
-        public static UserSettings TestSiteSettings;
+        public UserSettings TestSiteSettings;
 
         [OneTimeSetUp]
         public async Task A00_CreateTestSite()
@@ -112,11 +112,10 @@ namespace PointlessWaymarksTests
                 await ExcelContentImports.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
             Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
 
-            var updateSaveResult =
-                await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult,
-                    DebugTrackers.DebugProgressTracker());
+            var (hasError, _) = await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult,
+                DebugTrackers.DebugProgressTracker());
 
-            Assert.False(updateSaveResult.hasError);
+            Assert.False(hasError);
 
             var pointCountAfterImport = db.PointContents.Count();
 
@@ -176,10 +175,9 @@ namespace PointlessWaymarksTests
                 GeoJson = await File.ReadAllTextAsync(testFile.FullName)
             };
 
-            var result =
-                await GeoJsonGenerator.SaveAndGenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
+            var (generationReturn, _) = await GeoJsonGenerator.SaveAndGenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
 
-            Assert.IsFalse(result.generationReturn.HasError);
+            Assert.IsFalse(generationReturn.HasError);
         }
 
         [Test]
@@ -224,10 +222,9 @@ namespace PointlessWaymarksTests
 
             Assert.IsFalse(validationResult.HasError);
 
-            var saveResult =
-                await LineGenerator.SaveAndGenerateHtml(lineTest, null, DebugTrackers.DebugProgressTracker());
+            var (generationReturn, _) = await LineGenerator.SaveAndGenerateHtml(lineTest, null, DebugTrackers.DebugProgressTracker());
 
-            Assert.IsFalse(saveResult.generationReturn.HasError);
+            Assert.IsFalse(generationReturn.HasError);
         }
 
         [Test]
@@ -292,10 +289,9 @@ namespace PointlessWaymarksTests
 
             Assert.IsFalse(validationResult.HasError);
 
-            var saveResult =
-                await MapComponentGenerator.SaveAndGenerateData(newMapDto, null, DebugTrackers.DebugProgressTracker());
+            var (generationReturn, _) = await MapComponentGenerator.SaveAndGenerateData(newMapDto, null, DebugTrackers.DebugProgressTracker());
 
-            Assert.IsFalse(saveResult.generationReturn.HasError);
+            Assert.IsFalse(generationReturn.HasError);
         }
 
         [Test]

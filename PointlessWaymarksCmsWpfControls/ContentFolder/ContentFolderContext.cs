@@ -184,11 +184,11 @@ namespace PointlessWaymarksCmsWpfControls.ContentFolder
             if (ValidationFunctions != null && ValidationFunctions.Any())
                 foreach (var loopValidations in ValidationFunctions)
                 {
-                    var validationResult = loopValidations(UserValue);
-                    if (!validationResult.passed)
+                    var (passed, validationMessage) = loopValidations(UserValue);
+                    if (!passed)
                     {
                         HasValidationIssues = true;
-                        ValidationMessage = validationResult.validationMessage;
+                        ValidationMessage = validationMessage;
                         return;
                     }
                 }

@@ -16,7 +16,7 @@ namespace PointlessWaymarksCmsContentEditor
     /// </summary>
     public partial class App : Application
     {
-        public static Tracker Tracker;
+        private static Tracker Tracker;
 
         public App()
         {
@@ -60,8 +60,7 @@ namespace PointlessWaymarksCmsContentEditor
                 MessageBoxImage.Error, MessageBoxResult.Yes);
 
 
-            if (res.HasFlag(MessageBoxResult.No)) return false;
-            return true;
+            return res != MessageBoxResult.No;
         }
     }
 }

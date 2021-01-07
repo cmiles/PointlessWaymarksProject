@@ -858,22 +858,6 @@ namespace PointlessWaymarksCmsWpfControls.PhotoContentEditor
             }
         }
 
-        private async Task SaveToDbWithValidation()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var (generationReturn, newContent) = await PhotoGenerator.SaveToDb(CurrentStateToPhotoContent(),
-                SelectedFile, StatusContext.ProgressTracker());
-
-            if (generationReturn.HasError || newContent == null)
-            {
-                await StatusContext.ShowMessageWithOkButton("Problem Saving", generationReturn.GenerationNote);
-                return;
-            }
-
-            await LoadData(newContent);
-        }
-
         private async Task SelectedFileChanged()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();

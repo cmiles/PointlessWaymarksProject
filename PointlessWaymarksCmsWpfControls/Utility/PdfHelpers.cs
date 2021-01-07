@@ -85,18 +85,18 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 return;
             }
 
-            foreach (var loopSelected in toProcess)
+            foreach (var (targetFile, destinationFile, content) in toProcess)
             {
-                if (loopSelected.destinationFile.Directory == null)
+                if (destinationFile.Directory == null)
                 {
                     statusContext.ToastError(
-                        $"Problem with {loopSelected.destinationFile.FullName} - Directory is Null?");
+                        $"Problem with {destinationFile.FullName} - Directory is Null?");
                     continue;
                 }
 
                 var executionParameters = pageNumber == 1
-                    ? $"-jpeg -singlefile \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\""
-                    : $"-jpeg -f {pageNumber} -l {pageNumber} \"{loopSelected.targetFile.FullName}\" \"{Path.Combine(loopSelected.destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(loopSelected.destinationFile.FullName))}\"";
+                    ? $"-jpeg -singlefile \"{targetFile.FullName}\" \"{Path.Combine(destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(destinationFile.FullName))}\""
+                    : $"-jpeg -f {pageNumber} -l {pageNumber} \"{targetFile.FullName}\" \"{Path.Combine(destinationFile.Directory.FullName, Path.GetFileNameWithoutExtension(destinationFile.FullName))}\"";
 
                 var (success, _, errorOutput) = ProcessHelpers.ExecuteProcess(pdfToCairoExe.FullName,
                     executionParameters, statusContext.ProgressTracker());
@@ -104,7 +104,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 if (!success)
                 {
                     if (await statusContext.ShowMessage("PDF Generation Problem",
-                        $"Execution Failed for {loopSelected.content.Title} - Continue??{Environment.NewLine}{errorOutput}",
+                        $"Execution Failed for {content.Title} - Continue??{Environment.NewLine}{errorOutput}",
                         new List<string> {"Yes", "No"}) == "No")
                         return;
 
@@ -116,15 +116,15 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 if (pageNumber == 1)
                 {
                     //With the singlefile option pdftocairo uses your filename directly
-                    loopSelected.destinationFile.Refresh();
-                    updatedDestination = loopSelected.destinationFile;
+                    destinationFile.Refresh();
+                    updatedDestination = destinationFile;
                 }
                 else
                 {
-                    var directoryToSearch = loopSelected.destinationFile.Directory;
+                    var directoryToSearch = destinationFile.Directory;
 
                     var possibleFiles = directoryToSearch
-                        .EnumerateFiles($"{Path.GetFileNameWithoutExtension(loopSelected.destinationFile.Name)}-*.jpg")
+                        .EnumerateFiles($"{Path.GetFileNameWithoutExtension(destinationFile.Name)}-*.jpg")
                         .ToList();
 
                     foreach (var loopFiles in possibleFiles)
@@ -143,7 +143,7 @@ namespace PointlessWaymarksCmsWpfControls.Utility
                 if (updatedDestination == null || !updatedDestination.Exists)
                 {
                     if (await statusContext.ShowMessage("PDF Generation Problem",
-                        $"Execution Failed for {loopSelected.content.Title} - Continue??{Environment.NewLine}{errorOutput}",
+                        $"Execution Failed for {content.Title} - Continue??{Environment.NewLine}{errorOutput}",
                         new List<string> {"Yes", "No"}) == "No")
                         return;
 
@@ -156,21 +156,21 @@ namespace PointlessWaymarksCmsWpfControls.Utility
 
                 if (pageNumber == 1)
                 {
-                    newImage.Title = $"{loopSelected.content.Title} Cover Page";
-                    newImage.Summary = $"Cover Page from {loopSelected.content.Title}.";
+                    newImage.Title = $"{content.Title} Cover Page";
+                    newImage.Summary = $"Cover Page from {content.Title}.";
                 }
                 else
                 {
-                    newImage.Title = $"{loopSelected.content.Title} - Page {pageNumber}";
-                    newImage.Summary = $"Page {pageNumber} from {loopSelected.content.Title}.";
+                    newImage.Title = $"{content.Title} - Page {pageNumber}";
+                    newImage.Summary = $"Page {pageNumber} from {content.Title}.";
                 }
 
                 newImage.ShowInSearch = false;
-                newImage.Folder = loopSelected.content.Folder;
-                newImage.Tags = loopSelected.content.Tags;
+                newImage.Folder = content.Folder;
+                newImage.Tags = content.Tags;
                 newImage.Slug = SlugUtility.Create(true, newImage.Title);
                 newImage.BodyContentFormat = ContentFormatDefaults.Content.ToString();
-                newImage.BodyContent = $"Generated by pdftocairo from {BracketCodeFiles.Create(loopSelected.content)}.";
+                newImage.BodyContent = $"Generated by pdftocairo from {BracketCodeFiles.Create(content)}.";
                 newImage.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
 
                 var editor = new ImageContentEditorWindow(newImage, updatedDestination);

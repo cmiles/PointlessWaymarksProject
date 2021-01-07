@@ -109,27 +109,27 @@ namespace PressSharper
             Title = GetBasicProperty("title");
         }
 
-        private bool IsAttachmentItem(XElement itemElement)
+        private static bool IsAttachmentItem(XElement itemElement)
         {
             return itemElement?.Element(WordPressNamespace + "post_type")?.Value == "attachment";
         }
 
-        private bool IsPageItem(XElement itemElement)
+        private static bool IsPageItem(XElement itemElement)
         {
             return itemElement?.Element(WordPressNamespace + "post_type")?.Value == "page";
         }
 
-        private bool IsPostItem(XElement itemElement)
+        private static bool IsPostItem(XElement itemElement)
         {
             return itemElement?.Element(WordPressNamespace + "post_type")?.Value == "post";
         }
 
-        private bool IsPublished(XElement itemElement)
+        private static bool IsPublished(XElement itemElement)
         {
             return itemElement?.Element(WordPressNamespace + "status")?.Value == "publish";
         }
 
-        private Attachment ParseAttachmentElement(XElement attachmentElement)
+        private static Attachment ParseAttachmentElement(XElement attachmentElement)
         {
             var attachmentIdElement = attachmentElement.Element(WordPressNamespace + "post_id");
             var attachmentTitleElement = attachmentElement.Element("title");
