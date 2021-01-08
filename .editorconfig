@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# IDE0083: Use pattern matching
+dotnet_diagnostic.IDE0083.severity = silent

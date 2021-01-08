@@ -72,6 +72,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.CmsWpfControls\PointlessWaymarks.CmsWpfControls.csproj" />
   </ItemGroup>

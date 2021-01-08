@@ -72,7 +72,7 @@ namespace PointlessWaymarks.CmsContentEditor
         private TagExclusionEditorContext _tabTagExclusionContext;
         private TagListContext _tabTagListContext;
 
-        public static readonly Tracker Tracker = new Tracker();
+        public static readonly Tracker Tracker = new();
 
         public MainWindow()
         {
