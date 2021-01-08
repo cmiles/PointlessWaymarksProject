@@ -73,7 +73,7 @@
     <None Update="ContentHistoryView\ContentViewHistoryPage.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ContentViewHistoryPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarksCmsWpfControls.ContentHistoryView</CustomToolNamespace>
+      <CustomToolNamespace>PointlessWaymarks.CmsWpfControls.ContentHistoryView</CustomToolNamespace>
     </None>
   </ItemGroup>
 

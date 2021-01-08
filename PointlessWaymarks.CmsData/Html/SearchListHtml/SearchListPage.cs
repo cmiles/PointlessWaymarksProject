@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsData.Html.SearchListHtml
     using System.Text;
     using System.Collections.Generic;
     using System.Web;
-    using PointlessWaymarksCmsData.Html.CommonHtml;
+    using PointlessWaymarks.CmsData.Html.CommonHtml;
     using System;
     
     /// <summary>

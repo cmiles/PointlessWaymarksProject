@@ -9,10 +9,10 @@
 // ------------------------------------------------------------------------------
 namespace PointlessWaymarks.CmsData.Html.IndexHtml
 {
-    using PointlessWaymarksCmsData.Html.CommonHtml;
+    using PointlessWaymarks.CmsData.Html.CommonHtml;
     using System.Linq;
     using System.Collections.Generic;
-    using PointlessWaymarksCmsData.Database.Models;
+    using PointlessWaymarks.CmsData.Database.Models;
     using System;
     
     /// <summary>

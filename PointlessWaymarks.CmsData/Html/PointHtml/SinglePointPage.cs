@@ -10,7 +10,7 @@
 namespace PointlessWaymarks.CmsData.Html.PointHtml
 {
     using CommonHtml;
-    using PointlessWaymarksCmsData.Database;
+    using PointlessWaymarks.CmsData.Database;
     using System.Linq;
     using System.Text.Json;
     using System;

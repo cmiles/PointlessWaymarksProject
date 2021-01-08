@@ -2,7 +2,7 @@
     x:Class="PointlessWaymarks.CmsWpfControls.LinkContentEditor.LinkContentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:boolDataEntry="clr-namespace:PointlessWaymarksCmsWpfControls.BoolDataEntry"
+    xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"

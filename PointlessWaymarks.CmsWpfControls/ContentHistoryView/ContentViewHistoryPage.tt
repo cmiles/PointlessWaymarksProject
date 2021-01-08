@@ -4,8 +4,8 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="AngleSharp.Text" #>
-<#@ import namespace="PointlessWaymarksCmsData.Html.CommonHtml" #>
-<#@ import namespace="PointlessWaymarksCmsData" #>
+<#@ import namespace="PointlessWaymarks.CmsData.Html.CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CmsData" #>
 <!DOCTYPE html>
 <html lang="en">
 <head>

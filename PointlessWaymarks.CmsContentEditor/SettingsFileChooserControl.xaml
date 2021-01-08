@@ -5,9 +5,10 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarksCmsWpfControls.Utility.WpfBehavior;assembly=PointlessWaymarksCmsWpfControls"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfBehavior;assembly=PointlessWaymarks.CmsWpfControls"
+    xmlns:cmsContentEditor="clr-namespace:PointlessWaymarks.CmsContentEditor"
     Name="SettingsFileChooserControlXaml"
-    d:DataContext="{d:DesignInstance local:SettingsFileChooserControlContext}"
+    d:DataContext="{d:DesignInstance cmsContentEditor:SettingsFileChooserControlContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">

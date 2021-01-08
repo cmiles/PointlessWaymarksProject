@@ -48,8 +48,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentHistoryView
         {
             var possibleFileName = FolderFileUtility.TryMakeFilenameValid(ContentTitle);
 
-            var possibleFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
-                $"HistoricEntries-{possibleFileName}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
+            var possibleFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName, $"HistoricEntries-{possibleFileName}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             progress?.Report($"Writing File - {possibleFile.FullName}");
 

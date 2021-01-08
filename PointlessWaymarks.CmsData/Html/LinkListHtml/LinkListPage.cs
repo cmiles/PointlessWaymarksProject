@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 namespace PointlessWaymarks.CmsData.Html.LinkListHtml
 {
-    using PointlessWaymarksCmsData.Html.CommonHtml;
+    using PointlessWaymarks.CmsData.Html.CommonHtml;
     using System;
     
     /// <summary>

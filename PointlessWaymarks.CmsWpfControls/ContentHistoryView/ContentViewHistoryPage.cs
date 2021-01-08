@@ -7,21 +7,21 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace PointlessWaymarksCmsWpfControls.ContentHistoryView
+namespace PointlessWaymarks.CmsWpfControls.ContentHistoryView
 {
     using System.Linq;
     using System.Text;
     using System.Collections.Generic;
     using AngleSharp.Text;
-    using PointlessWaymarksCmsData.Html.CommonHtml;
-    using PointlessWaymarksCmsData;
+    using PointlessWaymarks.CmsData.Html.CommonHtml;
+    using PointlessWaymarks.CmsData;
     using System;
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class ContentViewHistoryPage : ContentViewHistoryPageBase
     {
@@ -34,7 +34,7 @@ namespace PointlessWaymarksCmsWpfControls.ContentHistoryView
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta http-equiv=\"X-UA-Compatible\"" +
                     " content=\"IE=edge\" />\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
-            #line 14 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
+            #line 14 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageTitle.HtmlEncode()));
             
             #line default
@@ -62,14 +62,14 @@ namespace PointlessWaymarksCmsWpfControls.ContentHistoryView
 <body>
     ");
             
-            #line 35 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
+            #line 35 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv(ContentTitle).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"item-list\">\r\n        ");
             
-            #line 37 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
+            #line 37 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
 
     foreach (var loopItem in Items)
     {
@@ -80,14 +80,14 @@ namespace PointlessWaymarksCmsWpfControls.ContentHistoryView
             this.Write("       <div class=\"item-list-container\">\r\n            <div class=\"item-list-conte" +
                     "nt\">\r\n                ");
             
-            #line 43 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(loopItem));
             
             #line default
             #line hidden
             this.Write("\r\n            </div>\r\n       </div>\r\n       ");
             
-            #line 46 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
+            #line 46 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsWpfControls\ContentHistoryView\ContentViewHistoryPage.tt"
 
     } 
             

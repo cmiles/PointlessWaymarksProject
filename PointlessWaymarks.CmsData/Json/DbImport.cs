@@ -1,11 +1,12 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarks.CmsData.Json
+namespace PointlessWaymarksCmsData.Json
 {
     public static class DbImport
     {

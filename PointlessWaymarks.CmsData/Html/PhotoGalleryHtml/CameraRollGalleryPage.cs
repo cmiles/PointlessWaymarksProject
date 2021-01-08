@@ -12,9 +12,9 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
     using System.Linq;
     using System.Text;
     using System.Collections.Generic;
-    using PointlessWaymarksCmsData.Html.CommonHtml;
-    using PointlessWaymarksCmsData.Html;
-    using PointlessWaymarksCmsData.Database.Models;
+    using PointlessWaymarks.CmsData.Html.CommonHtml;
+    using PointlessWaymarks.CmsData.Html;
+    using PointlessWaymarks.CmsData.Database.Models;
     using System;
     
     /// <summary>
