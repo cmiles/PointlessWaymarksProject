@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using HtmlTableHelper;
 using JetBrains.Annotations;
+using Jot;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
@@ -71,11 +72,13 @@ namespace PointlessWaymarks.CmsContentEditor
         private TagExclusionEditorContext _tabTagExclusionContext;
         private TagListContext _tabTagListContext;
 
+        public static readonly Tracker Tracker = new Tracker();
+
         public MainWindow()
         {
             InitializeComponent();
 
-            App.Tracker.Track(this);
+            Tracker.Track(this);
 
             WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 

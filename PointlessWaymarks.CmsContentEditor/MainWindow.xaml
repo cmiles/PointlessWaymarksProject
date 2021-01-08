@@ -33,8 +33,8 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/PointlessWaymarksCmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/PointlessWaymarksCmsWpfControls;component/Utility/Icons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/PointlessWaymarks.CmsWpfControls;component/WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/PointlessWaymarks.CmsWpfControls;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <Style TargetType="Button">
