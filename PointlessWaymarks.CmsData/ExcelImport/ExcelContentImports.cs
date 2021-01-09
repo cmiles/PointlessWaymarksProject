@@ -9,6 +9,7 @@ using KellermanSoftware.CompareNetObjects.Reports;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using Serilog;
 
 namespace PointlessWaymarks.CmsData.ExcelImport
 {
@@ -164,7 +165,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                 }
                 else
                 {
-                    var contentIdString = splitList[0].Substring(10, splitList[0].Length - 10).TrimNullToEmpty();
+                    var contentIdString = splitList[0][10..].TrimNullToEmpty();
 
                     if (!Guid.TryParse(contentIdString, out var contentId))
                     {
@@ -198,7 +199,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                     continue;
                 }
 
-                var dataTypeString = splitList[1].Substring(5, splitList[1].Length - 5).TrimNullToEmpty();
+                var dataTypeString = splitList[1][5..].TrimNullToEmpty();
 
                 if (!Db.PointDetailDataTypeIsValid(dataTypeString))
                 {
@@ -223,11 +224,11 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 
                 try
                 {
-                    var jsonString = splitList[2].Substring(5, splitList[2].Length - 5);
+                    var jsonString = splitList[2][5..];
                     var detailData = Db.PointDetailDataFromIdentifierAndJson(dataTypeString, jsonString);
-                    var validationResult = detailData.Validate();
+                    var (isValid, _) = detailData.Validate();
 
-                    if (!validationResult.isValid)
+                    if (!isValid)
                     {
                         toAdd.ParsedValue = null;
                         toAdd.ValueParsed = false;
@@ -336,9 +337,9 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                 }
                 catch
                 {
-                    await EventLogContext.TryWriteDiagnosticMessageToLog(
-                        $"Excel Row {loopRow.RowNumber()} - Excel Import via dynamics - Tags threw an error on ContentId {importResult.processContent.ContentId ?? "New Entry"} - property probably not present",
-                        "Excel Import");
+                    Log.Warning(
+                        "Excel Import - Excel Row {0} - Excel Import via dynamics - Tags threw an error on ContentId {1} - property probably not present",
+                        loopRow.RowNumber(), importResult.processContent.ContentId ?? "New Entry");
                     continue;
                 }
 
@@ -375,39 +376,20 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                     differenceString = "New Entry";
                 }
 
-                GenerationReturn validationResult;
-
-                switch (importResult.processContent)
+                var validationResult = importResult.processContent switch
                 {
-                    case PhotoContent p:
-                        validationResult = await PhotoGenerator.Validate(p,
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(p));
-                        break;
-                    case FileContent f:
-                        validationResult = await FileGenerator.Validate(f,
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(f));
-                        break;
-                    case ImageContent i:
-                        validationResult = await ImageGenerator.Validate(i,
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i));
-                        break;
-                    case PointContentDto pc:
-                        validationResult = await PointGenerator.Validate(pc);
-                        break;
-                    case PostContent pc:
-                        validationResult = await PostGenerator.Validate(pc);
-                        break;
-                    case LinkContent l:
-                        validationResult = await LinkGenerator.Validate(l);
-                        break;
-                    case NoteContent n:
-                        validationResult = await NoteGenerator.Validate(n);
-                        break;
-                    default:
-                        validationResult =
-                            await GenerationReturn.Error("Excel Import - No Content Type Generator found?");
-                        break;
-                }
+                    PhotoContent p => await PhotoGenerator.Validate(p,
+                        UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(p)),
+                    FileContent f => await FileGenerator.Validate(f,
+                        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(f)),
+                    ImageContent i => await ImageGenerator.Validate(i,
+                        UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i)),
+                    PointContentDto pc => await PointGenerator.Validate(pc),
+                    PostContent pc => await PostGenerator.Validate(pc),
+                    LinkContent l => await LinkGenerator.Validate(l),
+                    NoteContent n => await NoteGenerator.Validate(n),
+                    _ => await GenerationReturn.Error("Excel Import - No Content Type Generator found?")
+                };
 
                 if (validationResult.HasError)
                 {
@@ -482,25 +464,17 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 
         private static dynamic NewContentTypeToImportDbType(string newContentTypeString)
         {
-            switch (newContentTypeString.ToLower())
+            return newContentTypeString.ToLower() switch
             {
-                case "file":
-                    return new FileContent();
-                case "image":
-                    return new ImageContent();
-                case "link":
-                    return new LinkContent();
-                case "note":
-                    return new NoteContent();
-                case "photo":
-                    return new PhotoContent();
-                case "point":
-                    return new PointContentDto();
-                case "post":
-                    return new PostContent();
-                default:
-                    return null;
-            }
+                "file" => new FileContent(),
+                "image" => new ImageContent(),
+                "link" => new LinkContent(),
+                "note" => new NoteContent(),
+                "photo" => new PhotoContent(),
+                "point" => new PointContentDto(),
+                "post" => new PostContent(),
+                _ => null
+            };
         }
 
         public static async Task<(bool hasError, string errorMessage)> SaveAndGenerateHtmlFromExcelImport(

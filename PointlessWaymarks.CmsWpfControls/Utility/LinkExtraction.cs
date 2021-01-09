@@ -7,6 +7,8 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility
 {
@@ -15,7 +17,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
         public static async Task ExtractNewAndShowLinkContentEditors(string toExtractFrom,
             IProgress<string> progressTracker, List<string> excludedUrls = null)
         {
-            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
             excludedUrls ??= new List<string>();
             excludedUrls = excludedUrls.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim().ToLower())
@@ -58,7 +60,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
                 }
             }
 
-            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+            await ThreadSwitcher.ResumeForegroundAsync();
 
             foreach (var loopLinks in linksToShow)
             {

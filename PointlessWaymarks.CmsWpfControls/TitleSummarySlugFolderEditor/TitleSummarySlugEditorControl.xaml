@@ -3,10 +3,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:contentFolder="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFolder"
+    xmlns:contentFolder1="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFolder"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
-    xmlns:contentFolder1="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFolder"
     d:DataContext="{d:DesignInstance titleSummarySlugFolderEditor:TitleSummarySlugEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -15,7 +15,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                <ResourceDictionary Source="../Utility/Icons.xaml" />
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>

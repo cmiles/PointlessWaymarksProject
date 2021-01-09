@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using PointlessWaymarks.CmsData.Database;
+using Serilog;
 
 namespace PointlessWaymarks.CmsData
 {
@@ -43,7 +43,7 @@ namespace PointlessWaymarks.CmsData
                 catch (Exception e)
                 {
                     Debug.Print(e.Message);
-                    EventLogContext.TryWriteExceptionToLogBlocking(e, "WorkQueue", string.Empty);
+                    Log.Error(e, "WorkQueue Error");
                 }
         }
 
@@ -86,7 +86,7 @@ namespace PointlessWaymarks.CmsData
                 catch (Exception e)
                 {
                     Debug.Print(e.Message);
-                    EventLogContext.TryWriteExceptionToLogBlocking(e, "WorkQueue", string.Empty);
+                    Log.Error(e, "WorkQueue Error");
                 }
         }
 

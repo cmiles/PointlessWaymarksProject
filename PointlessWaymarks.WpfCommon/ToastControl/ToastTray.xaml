@@ -9,10 +9,6 @@
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-
             <Canvas
                 x:Key="CloseIcon"
                 Width="76"

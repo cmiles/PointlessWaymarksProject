@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:photoContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PhotoContentEditor"
-    xmlns:status="clr-namespace:PointlessWaymarks.CmsWpfControls.Status"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     Title="Photo Editor"
     Width="900"
     Height="650"

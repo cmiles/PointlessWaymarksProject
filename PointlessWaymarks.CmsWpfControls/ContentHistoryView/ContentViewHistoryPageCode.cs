@@ -36,7 +36,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentHistoryView
         {
             progress?.Report($"Generating HTML - {PageTitle} - {ContentTitle}");
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
@@ -48,7 +48,8 @@ namespace PointlessWaymarks.CmsWpfControls.ContentHistoryView
         {
             var possibleFileName = FolderFileUtility.TryMakeFilenameValid(ContentTitle);
 
-            var possibleFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName, $"HistoricEntries-{possibleFileName}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
+            var possibleFile = new FileInfo(Path.Combine(UserSettingsUtilities.TempStorageDirectory().FullName,
+                $"HistoricEntries-{possibleFileName}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
 
             progress?.Report($"Writing File - {possibleFile.FullName}");
 

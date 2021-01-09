@@ -5,11 +5,11 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfConverter"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfBehavior"
-    xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
-    xmlns:status="clr-namespace:PointlessWaymarks.CmsWpfControls.Status"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     Name="TagExclusionEditorControlXaml"
     d:DataContext="{d:DesignInstance local:TagExclusionEditorContext}"
     d:DesignHeight="450"
@@ -19,7 +19,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                <ResourceDictionary Source="../Utility/Icons.xaml" />
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanToHiddenConverter x:Key="BooleanToHidden" />
         </ResourceDictionary>

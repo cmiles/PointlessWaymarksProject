@@ -2,7 +2,8 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
-using PointlessWaymarks.CmsWpfControls.Status;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation
 {
@@ -34,12 +35,12 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation
 
         private async Task WindowClosing()
         {
-            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
             if (!_hasChangesToCheck.HasChanges)
             {
                 _closeConfirmed = true;
-                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ResumeForegroundAsync();
                 _toClose.Close();
             }
 
@@ -48,7 +49,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation
                 new List<string> {"Yes - Close Window", "No"}) == "Yes - Close Window")
             {
                 _closeConfirmed = true;
-                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ResumeForegroundAsync();
                 _toClose.Close();
             }
         }

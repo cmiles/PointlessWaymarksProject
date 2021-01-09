@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using Serilog;
 
 namespace PointlessWaymarks.CmsData.Content
 {
@@ -62,7 +63,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return await GenerationReturn.Error(
                     "Null File Content was submitted to the Check of File in the Media and Content Directories");
 
-            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders(progress);
+            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders();
 
             if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
                 return await GenerationReturn.Error($"File {dbContent.Title} does not have an Original File assigned",
@@ -81,7 +82,6 @@ namespace PointlessWaymarks.CmsData.Content
                     $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
                     $"there appears to be a file missing for File Title {dbContent.Title} " + $"slug {dbContent.Slug}",
                     dbContent.ContentId);
-
 
             if (archiveFile.Exists && !contentFile.Exists) await archiveFile.CopyToAndLogAsync(contentFile.FullName);
 
@@ -109,7 +109,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return await GenerationReturn.Error(
                     "Null Image Content was submitted to the Check of File in the Media and Content Directories");
 
-            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders(progress);
+            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders();
 
             if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
                 return await GenerationReturn.Error($"Image {dbContent.Title} does not have an Original File assigned",
@@ -157,7 +157,7 @@ namespace PointlessWaymarks.CmsData.Content
                 return await GenerationReturn.Error(
                     "Null Photo Content was submitted to the Check of File in the Media and Content Directories");
 
-            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders(progress);
+            UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders();
 
             if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
                 return await GenerationReturn.Error($"Photo {dbContent.Title} does not have an Original File assigned",
@@ -267,8 +267,7 @@ namespace PointlessWaymarks.CmsData.Content
                 }
                 catch (Exception e)
                 {
-                    await EventLogContext.TryWriteExceptionToLog(e, "FileManagement.CleanUpTemporaryFiles",
-                        $"Could not delete temporary file - {e}");
+                    Log.Error(e, "FileManagement.CleanUpTemporaryFiles - could not delete temporary file.");
                 }
         }
 
@@ -292,8 +291,7 @@ namespace PointlessWaymarks.CmsData.Content
                 }
                 catch (Exception e)
                 {
-                    await EventLogContext.TryWriteExceptionToLog(e, "FileManagement.CleanUpTemporaryFiles",
-                        $"Could not delete temporary file - {e}");
+                    Log.Error(e, "FileManagement.CleanUpTemporaryFiles - could not delete temporary file.");
                 }
         }
 
@@ -323,7 +321,7 @@ namespace PointlessWaymarks.CmsData.Content
             return returnList;
         }
 
-        public static FileInfo CopyToAndLog(this FileInfo fileInfo, string destinationFileName, bool overwrite = false)
+        public static FileInfo CopyToAndLog(this FileInfo fileInfo, string destinationFileName)
         {
             var returnValue = fileInfo.CopyTo(destinationFileName);
 
@@ -332,8 +330,7 @@ namespace PointlessWaymarks.CmsData.Content
             return returnValue;
         }
 
-        public static async Task<FileInfo> CopyToAndLogAsync(this FileInfo fileInfo, string destinationFileName,
-            bool overwrite = false)
+        public static async Task<FileInfo> CopyToAndLogAsync(this FileInfo fileInfo, string destinationFileName)
         {
             var returnValue = fileInfo.CopyTo(destinationFileName);
 
@@ -918,7 +915,7 @@ namespace PointlessWaymarks.CmsData.Content
             foreach (var loopFiles in tagFiles)
             {
                 var fileName = Path.GetFileNameWithoutExtension(loopFiles.Name);
-                var fileTag = fileName.Substring(8, fileName.Length - 8);
+                var fileTag = fileName[8..];
 
                 if (!tags.Contains(fileTag)) loopFiles.Delete();
             }
@@ -931,8 +928,7 @@ namespace PointlessWaymarks.CmsData.Content
         /// <param name="settings"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static List<GenerationReturn> VerifyOrCreateAllTopLevelFolders(this UserSettings settings,
-            IProgress<string> progress)
+        public static List<GenerationReturn> VerifyOrCreateAllTopLevelFolders(this UserSettings settings)
         {
             var mediaFolders = settings.VerifyOrCreateMediaArchiveFolders();
             var topLevelSite = settings.VerifyOrCreateLocalTopLevelSiteFolders();
@@ -982,7 +978,8 @@ namespace PointlessWaymarks.CmsData.Content
                 settings.LocalSiteMediaArchiveDirectory().CreateIfItDoesNotExist(),
                 settings.LocalMediaArchivePhotoDirectory().CreateIfItDoesNotExist(),
                 settings.LocalMediaArchiveImageDirectory().CreateIfItDoesNotExist(),
-                settings.LocalMediaArchiveFileDirectory().CreateIfItDoesNotExist()
+                settings.LocalMediaArchiveFileDirectory().CreateIfItDoesNotExist(),
+                settings.LocalMediaArchiveLogsDirectory().CreateIfItDoesNotExist()
             };
         }
 
@@ -1154,9 +1151,9 @@ namespace PointlessWaymarks.CmsData.Content
                 string filePathStyleName;
 
                 if (loopSiteResources.Name.StartsWith("SiteResources.images."))
-                    filePathStyleName = $"SiteResources\\images\\{loopSiteResources.Name.Substring(21)}";
+                    filePathStyleName = $"SiteResources\\images\\{loopSiteResources.Name[21..]}";
                 else if (loopSiteResources.Name.StartsWith("SiteResources."))
-                    filePathStyleName = $"SiteResources\\{loopSiteResources.Name.Substring(14)}";
+                    filePathStyleName = $"SiteResources\\{loopSiteResources.Name[14..]}";
                 else
                     filePathStyleName = loopSiteResources.Name;
 

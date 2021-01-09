@@ -4,8 +4,8 @@ using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
-using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 {
@@ -66,8 +66,7 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
                 }
                 catch (Exception ex)
                 {
-                    EventLogContext.TryWriteExceptionToLogBlocking(ex, "WebViewHtmlStringBindingBehavior",
-                        string.Empty);
+                    Log.Error(ex, "PostNewJson Error");
                 }
             }
             else

@@ -8,9 +8,9 @@ using HtmlTableHelper;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Xmp;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsWpfControls.Status;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList
 {

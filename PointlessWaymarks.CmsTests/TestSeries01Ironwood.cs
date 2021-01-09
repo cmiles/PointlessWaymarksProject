@@ -17,7 +17,8 @@ using PointlessWaymarks.CmsData.Html;
 using PointlessWaymarks.CmsData.Html.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using Serilog;
 
 namespace PointlessWaymarks.CmsTests
 {
@@ -62,6 +63,19 @@ namespace PointlessWaymarks.CmsTests
             await TestSiteSettings.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
             await TestSiteSettings.WriteSettings();
             UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
+
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.WithProcessId()
+                .Enrich.WithProcessName()
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
+                .Enrich.WithMachineName()
+                .Enrich.WithEnvironmentUserName()
+                .WriteTo.Console()
+                .WriteTo.File(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
+                    "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true)
+                .CreateLogger();
         }
 
         [Test]
@@ -77,10 +91,11 @@ namespace PointlessWaymarks.CmsTests
         [Test]
         public async Task A09_TagExclusionAddTests()
         {
-            var validSave = await TagExclusionGenerator.Save(new TagExclusion {Tag = "manville road"});
+            var (generationReturn, returnContent) =
+                await TagExclusionGenerator.Save(new TagExclusion {Tag = "manville road"});
 
-            Assert.IsFalse(validSave.generationReturn.HasError);
-            Assert.Greater(validSave.returnContent.Id, 0);
+            Assert.IsFalse(generationReturn.HasError);
+            Assert.Greater(returnContent.Id, 0);
 
             var duplicateTagValidationFailureResult =
                 await TagExclusionGenerator.Validate(new TagExclusion {Tag = "manville road"});
@@ -148,10 +163,10 @@ namespace PointlessWaymarks.CmsTests
 
             await newContext.SaveAndGenerateHtml(true);
 
-            var comparison =
-                IronwoodPhotoInfo.CompareContent(IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags,
-                    newContext.DbEntry);
-            Assert.True(comparison.areEqual, comparison.comparisonNotes);
+            var (areEqual, comparisonNotes) = IronwoodPhotoInfo.CompareContent(
+                IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags,
+                newContext.DbEntry);
+            Assert.True(areEqual, comparisonNotes);
         }
 
         [Test]
@@ -238,11 +253,10 @@ namespace PointlessWaymarks.CmsTests
             Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
             Assert.AreEqual(2, importResult.ToUpdate.Count, "Unexpected number of rows to update");
 
-            var updateSaveResult =
-                await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult,
-                    DebugTrackers.DebugProgressTracker());
+            var (hasError, _) = await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult,
+                DebugTrackers.DebugProgressTracker());
 
-            Assert.False(updateSaveResult.hasError);
+            Assert.False(hasError);
 
             var updatedPodPhoto = db.PhotoContents.Single(x =>
                 x.Title == IronwoodPhotoInfo.IronwoodPodContent02_CamerModelLensSummary.Title);
@@ -252,16 +266,16 @@ namespace PointlessWaymarks.CmsTests
             var podReference = IronwoodPhotoInfo.IronwoodPodContent02_CamerModelLensSummary;
             podReference.LastUpdatedOn = updatedPodPhoto.LastUpdatedOn;
 
-            var updatedPodComparison = IronwoodPhotoInfo.CompareContent(podReference, updatedPodPhoto);
-            Assert.True(updatedPodComparison.areEqual,
-                $"Excel Pod Picture Update Issues: {updatedPodComparison.comparisonNotes}");
+            var (areEqual, comparisonNotes) = IronwoodPhotoInfo.CompareContent(podReference, updatedPodPhoto);
+            Assert.True(areEqual,
+                $"Excel Pod Picture Update Issues: {comparisonNotes}");
 
             var treeReference = IronwoodPhotoInfo.IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy;
             treeReference.LastUpdatedOn = updatedTreePhoto.LastUpdatedOn;
 
             var updatedTreeComparison = IronwoodPhotoInfo.CompareContent(treeReference, updatedTreePhoto);
             Assert.True(updatedTreeComparison.areEqual,
-                $"Excel Tree Picture Update Issues: {updatedPodComparison.comparisonNotes}");
+                $"Excel Tree Picture Update Issues: {comparisonNotes}");
         }
 
         [Test]
@@ -299,12 +313,12 @@ namespace PointlessWaymarks.CmsTests
             Assert.AreEqual(latestHistoricEntry.Id, latestHistoricEntry.Id,
                 "Deleted Item doesn't match the Id of the last historic entry?");
 
-            var saveAgainResult = await PhotoGenerator.SaveAndGenerateHtml(treePhoto,
+            var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(treePhoto,
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(treePhoto), true, null,
                 DebugTrackers.DebugProgressTracker());
 
-            Assert.IsFalse(saveAgainResult.generationReturn.HasError,
-                $"Error Saving after Deleting? {saveAgainResult.generationReturn.GenerationNote}");
+            Assert.IsFalse(generationReturn.HasError,
+                $"Error Saving after Deleting? {generationReturn.GenerationNote}");
         }
 
         [Test]
@@ -335,11 +349,11 @@ namespace PointlessWaymarks.CmsTests
             mapFile.LastUpdatedBy = "Test B21";
             mapFile.LastUpdatedOn = DateTime.Now;
 
-            var bodyUpdateReturn = await FileGenerator.SaveAndGenerateHtml(mapFile,
+            var (generationReturn, _) = await FileGenerator.SaveAndGenerateHtml(mapFile,
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(mapFile), false, null,
                 DebugTrackers.DebugProgressTracker());
 
-            Assert.False(bodyUpdateReturn.generationReturn.HasError, bodyUpdateReturn.generationReturn.GenerationNote);
+            Assert.False(generationReturn.HasError, generationReturn.GenerationNote);
 
             var mapFileRefresh = db.FileContents.Single(x => x.Title == TestFileInfo.MapContent01.Title);
 
@@ -513,9 +527,9 @@ namespace PointlessWaymarks.CmsTests
             var relatedContentEntries = await db.GenerationRelatedContents
                 .Where(x => x.GenerationVersion == currentGeneration.GenerationVersion).ToListAsync();
 
-            Assert.AreEqual(relatedContentEntries.Count, allPhotos.Count() + 1);
+            Assert.AreEqual(relatedContentEntries.Count, allPhotos.Count + 1);
             Assert.AreEqual(relatedContentEntries.Select(x => x.ContentOne).Distinct().Count(), 2);
-            Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Count(), allPhotos.Count() + 1);
+            Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Count(), allPhotos.Count + 1);
             Assert.AreEqual(
                 relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count(), 1);
             Assert.AreEqual(
@@ -556,9 +570,9 @@ namespace PointlessWaymarks.CmsTests
             relatedContentEntries = await db.GenerationRelatedContents
                 .Where(x => x.GenerationVersion == currentGeneration.GenerationVersion).ToListAsync();
 
-            Assert.AreEqual(relatedContentEntries.Count, allPhotos.Count() - 1 + 1);
+            Assert.AreEqual(relatedContentEntries.Count, allPhotos.Count - 1 + 1);
             Assert.AreEqual(relatedContentEntries.Select(x => x.ContentOne).Distinct().Count(), 2);
-            Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Count(), allPhotos.Count() - 1 + 1);
+            Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Count(), allPhotos.Count - 1 + 1);
             Assert.AreEqual(
                 relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count(), 1);
             Assert.AreEqual(
@@ -598,9 +612,9 @@ namespace PointlessWaymarks.CmsTests
             relatedContentEntries = await db.GenerationRelatedContents
                 .Where(x => x.GenerationVersion == currentGeneration.GenerationVersion).ToListAsync();
 
-            Assert.AreEqual(relatedContentEntries.Count, allPhotos.Count() - 1 + 1);
+            Assert.AreEqual(relatedContentEntries.Count, allPhotos.Count - 1 + 1);
             Assert.AreEqual(relatedContentEntries.Select(x => x.ContentOne).Distinct().Count(), 2);
-            Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Count(), allPhotos.Count() - 1 + 1);
+            Assert.AreEqual(relatedContentEntries.Select(x => x.ContentTwo).Count(), allPhotos.Count - 1 + 1);
             Assert.AreEqual(
                 relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count(), 1);
             Assert.AreEqual(

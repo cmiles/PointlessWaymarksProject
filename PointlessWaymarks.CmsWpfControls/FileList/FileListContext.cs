@@ -14,9 +14,10 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Html.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
-using PointlessWaymarks.CmsWpfControls.Status;
-using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList
@@ -176,9 +177,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             if (translatedMessage.HasError)
             {
-                await EventLogContext.TryWriteDiagnosticMessageToLog(
-                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
-                    StatusContext.StatusControlContextId.ToString());
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
+                    translatedMessage.ErrorNote, StatusContext.StatusControlContextId);
                 return;
             }
 

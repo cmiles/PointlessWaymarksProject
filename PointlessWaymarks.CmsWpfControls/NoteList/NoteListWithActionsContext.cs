@@ -14,9 +14,10 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Html.NoteHtml;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
-using PointlessWaymarks.CmsWpfControls.Status;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList
 {

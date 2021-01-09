@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using PointlessWaymarks.CmsData.Database;
+using Serilog;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsData
@@ -39,7 +39,7 @@ namespace PointlessWaymarks.CmsData
                 catch (Exception e)
                 {
                     Debug.Print(e.Message);
-                    EventLogContext.TryWriteExceptionToLogBlocking(e, "DataNotificationsWorkQueue", string.Empty);
+                    Log.Error(e, "DataNotificationsWorkQueue OnStart Error");
                 }
         }
     }

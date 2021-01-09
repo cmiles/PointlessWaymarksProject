@@ -168,7 +168,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
                     IncludeSpatialScripts = true;
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

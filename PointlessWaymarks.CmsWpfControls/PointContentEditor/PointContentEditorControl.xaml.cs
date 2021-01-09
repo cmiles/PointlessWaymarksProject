@@ -2,8 +2,8 @@
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 {

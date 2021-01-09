@@ -16,6 +16,7 @@ using PointlessWaymarks.CmsData.ExcelImport;
 using PointlessWaymarks.CmsData.Html;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
+using Serilog;
 
 namespace PointlessWaymarks.CmsTests
 {
@@ -48,6 +49,19 @@ namespace PointlessWaymarks.CmsTests
             await TestSiteSettings.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
             await TestSiteSettings.WriteSettings();
             UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
+
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.WithProcessId()
+                .Enrich.WithProcessName()
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
+                .Enrich.WithMachineName()
+                .Enrich.WithEnvironmentUserName()
+                .WriteTo.Console()
+                .WriteTo.File(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
+                    "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true)
+                .CreateLogger();
         }
 
         [Test]
@@ -175,7 +189,8 @@ namespace PointlessWaymarks.CmsTests
                 GeoJson = await File.ReadAllTextAsync(testFile.FullName)
             };
 
-            var (generationReturn, _) = await GeoJsonGenerator.SaveAndGenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
+            var (generationReturn, _) =
+                await GeoJsonGenerator.SaveAndGenerateHtml(geoJsonTest, null, DebugTrackers.DebugProgressTracker());
 
             Assert.IsFalse(generationReturn.HasError);
         }
@@ -222,7 +237,8 @@ namespace PointlessWaymarks.CmsTests
 
             Assert.IsFalse(validationResult.HasError);
 
-            var (generationReturn, _) = await LineGenerator.SaveAndGenerateHtml(lineTest, null, DebugTrackers.DebugProgressTracker());
+            var (generationReturn, _) =
+                await LineGenerator.SaveAndGenerateHtml(lineTest, null, DebugTrackers.DebugProgressTracker());
 
             Assert.IsFalse(generationReturn.HasError);
         }
@@ -289,7 +305,8 @@ namespace PointlessWaymarks.CmsTests
 
             Assert.IsFalse(validationResult.HasError);
 
-            var (generationReturn, _) = await MapComponentGenerator.SaveAndGenerateData(newMapDto, null, DebugTrackers.DebugProgressTracker());
+            var (generationReturn, _) =
+                await MapComponentGenerator.SaveAndGenerateData(newMapDto, null, DebugTrackers.DebugProgressTracker());
 
             Assert.IsFalse(generationReturn.HasError);
         }

@@ -11,9 +11,9 @@ using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsWpfControls.Status;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor
 {

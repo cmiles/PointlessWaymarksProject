@@ -37,7 +37,7 @@ namespace PointlessWaymarks.CmsData.Html.GeoJsonHtml
             await GeoJsonData.WriteJsonData(DbEntry);
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

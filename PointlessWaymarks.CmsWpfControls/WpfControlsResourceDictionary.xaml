@@ -4,14 +4,14 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
     xmlns:boolDataEntry1="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
-    xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
-    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfConverter"
-    xmlns:pointList="clr-namespace:PointlessWaymarks.CmsWpfControls.PointList"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility.WpfBehavior"
+    xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:geoJsonList="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoJsonList"
-    xmlns:lineList="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList">
+    xmlns:lineList="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList"
+    xmlns:pointList="clr-namespace:PointlessWaymarks.CmsWpfControls.PointList"
+    xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon">
     <Style x:Key="ActionPanelButton" TargetType="Button">
         <Setter Property="Margin" Value="4" />
         <Setter Property="Height" Value="24" />

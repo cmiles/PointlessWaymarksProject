@@ -21,13 +21,14 @@ using PointlessWaymarks.CmsWpfControls.ConversionDataEntry;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PointDetailEditor;
-using PointlessWaymarks.CmsWpfControls.Status;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 {
@@ -147,28 +148,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             {
                 if (Equals(value, _getElevationCommand)) return;
                 _getElevationCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
                 OnPropertyChanged();
             }
         }
@@ -302,6 +281,28 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         }
 
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -387,8 +388,8 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             }
             catch (Exception e)
             {
-                await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(),
-                    $"Open Topo Data NED Request for {LatitudeEntry.UserValue}, {LongitudeEntry.UserValue}");
+                Log.Error(e, "GetElevation Error - Open Topo Data NED Request for {0}, {1}", LatitudeEntry.UserValue,
+                    LongitudeEntry.UserValue);
             }
 
             try
@@ -398,9 +399,8 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 
                 if (elevationResult == null)
                 {
-                    await EventLogContext.TryWriteDiagnosticMessageToLog(
-                        "Unexpected Null return from an Open Topo Data Mapzen Request to {LatitudeEntry.UserValue}, {LongitudeEntry.UserValue}",
-                        StatusContext.StatusControlContextId.ToString());
+                    Log.Error("Unexpected Null return from an Open Topo Data Mapzen Request to {0}, {1}",
+                        LatitudeEntry.UserValue, LongitudeEntry.UserValue);
                     StatusContext.ToastError("Elevation Exception - unexpected Null return...");
                     return;
                 }
@@ -412,8 +412,8 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             }
             catch (Exception e)
             {
-                await EventLogContext.TryWriteExceptionToLog(e, StatusContext.StatusControlContextId.ToString(),
-                    $"Open Topo Data Mapzen Request for {LatitudeEntry.UserValue}, {LongitudeEntry.UserValue}");
+                Log.Error(e, "Open Topo Data Mapzen Request for {0}, {1}", LatitudeEntry.UserValue,
+                    LongitudeEntry.UserValue);
                 StatusContext.ToastError($"Elevation Exception - {e.Message}");
             }
         }

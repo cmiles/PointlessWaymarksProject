@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using JetBrains.Annotations;
-using PointlessWaymarks.CmsWpfControls.Status;
+using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
 {

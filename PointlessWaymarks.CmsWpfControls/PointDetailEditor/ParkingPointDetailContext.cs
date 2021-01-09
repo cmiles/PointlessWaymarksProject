@@ -10,10 +10,10 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsWpfControls.BoolDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
-using PointlessWaymarks.CmsWpfControls.Status;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
 {
@@ -31,17 +31,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
         private ParkingPointDetailContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-        }
-
-        public PointDetail DbEntry
-        {
-            get => _dbEntry;
-            set
-            {
-                if (Equals(value, _dbEntry)) return;
-                _dbEntry = value;
-                OnPropertyChanged();
-            }
         }
 
         public Parking DetailData
@@ -62,28 +51,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
             {
                 if (Equals(value, _feeEditor)) return;
                 _feeEditor = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
                 OnPropertyChanged();
             }
         }
@@ -121,6 +88,30 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
             }
         }
 
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public PointDetail CurrentPointDetail()
         {
             var newEntry = new PointDetail();
@@ -153,7 +144,16 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
             return newEntry;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public PointDetail DbEntry
+        {
+            get => _dbEntry;
+            set
+            {
+                if (Equals(value, _dbEntry)) return;
+                _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
 
         public void CheckForChangesAndValidationIssues()
         {

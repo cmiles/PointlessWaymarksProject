@@ -165,7 +165,7 @@ namespace PointlessWaymarks.CmsData.Html.SearchListHtml
             progress?.Report($"Cleaning up Search List HTML and writing to {fileInfo.FullName}");
 
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) htmlTransform);
+            var htmlDoc = parser.ParseDocument(htmlTransform);
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());

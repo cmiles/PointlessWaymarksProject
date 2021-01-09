@@ -4,7 +4,7 @@ using System.Windows.Media.Imaging;
 using PhotoSauce.MagicScaler;
 using PixelFormats = System.Windows.Media.PixelFormats;
 
-namespace PointlessWaymarks.CmsWpfControls.Utility
+namespace PointlessWaymarks.WpfCommon.Utility
 {
     public static class ImageHelpers
     {

@@ -10,9 +10,10 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.Status;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using Serilog;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentFolder
@@ -72,28 +73,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFolder
             {
                 if (Equals(value, _existingFolderChoices)) return;
                 _existingFolderChoices = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool HasValidationIssues
-        {
-            get => _hasValidationIssues;
-            set
-            {
-                if (value == _hasValidationIssues) return;
-                _hasValidationIssues = value;
                 OnPropertyChanged();
             }
         }
@@ -175,6 +154,28 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFolder
             }
         }
 
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasValidationIssues
+        {
+            get => _hasValidationIssues;
+            set
+            {
+                if (value == _hasValidationIssues) return;
+                _hasValidationIssues = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void CheckForChangesAndValidate()
@@ -220,9 +221,9 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFolder
 
             if (translatedMessage.HasError)
             {
-                await EventLogContext.TryWriteDiagnosticMessageToLog(
-                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
-                    StatusContext.StatusControlContextId.ToString());
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
+                    translatedMessage.ErrorNote, StatusContext.StatusControlContextId);
+
                 return;
             }
 

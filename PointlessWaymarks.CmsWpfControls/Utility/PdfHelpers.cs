@@ -9,7 +9,9 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Html;
 using PointlessWaymarks.CmsData.Html.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
-using PointlessWaymarks.CmsWpfControls.Status;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility
 {
@@ -18,7 +20,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
         public static async Task PdfPageToImageWithPdfToCairo(StatusControlContext statusContext,
             List<FileContent> selected, int pageNumber)
         {
-            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
 
             var pdfToCairoDirectoryString = UserSettingsSingleton.CurrentSettings().PdfToCairoExeDirectory;
@@ -150,7 +152,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
                     continue;
                 }
 
-                await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
+                await ThreadSwitcher.ResumeForegroundAsync();
 
                 var newImage = new ImageContent {ContentId = Guid.NewGuid()};
 
@@ -176,7 +178,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
                 var editor = new ImageContentEditorWindow(newImage, updatedDestination);
                 editor.PositionWindowAndShow();
 
-                await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+                await ThreadSwitcher.ResumeBackgroundAsync();
             }
         }
     }

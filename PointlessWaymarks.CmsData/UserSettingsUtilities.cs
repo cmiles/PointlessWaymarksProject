@@ -132,10 +132,6 @@ namespace PointlessWaymarks.CmsData
             //}
 
             progress?.Report("Checking for database files...");
-            var log = Db.Log().Result;
-            await log.Database.EnsureCreatedAsync();
-            await EventLogContext.TryWriteStartupMessageToLog(
-                $"Ensure Db Is Present - Settings File {SettingsFileName}", "User Settings Utilities");
 
             var db = Db.Context().Result;
             await db.Database.EnsureCreatedAsync();
@@ -263,6 +259,17 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalMediaArchiveImageDirectory(this UserSettings settings)
         {
             var directory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Images"));
+
+            if (!directory.Exists) directory.Create();
+
+            directory.Refresh();
+
+            return directory;
+        }
+
+        public static DirectoryInfo LocalMediaArchiveLogsDirectory(this UserSettings settings)
+        {
+            var directory = new DirectoryInfo(Path.Combine(settings.LocalMediaArchive, "Logs"));
 
             if (!directory.Exists) directory.Create();
 
@@ -1196,7 +1203,7 @@ namespace PointlessWaymarks.CmsData
 
             progress?.Report("Setting up directory structure.");
 
-            newSettings.VerifyOrCreateAllTopLevelFolders(progress);
+            newSettings.VerifyOrCreateAllTopLevelFolders();
             await newSettings.EnsureDbIsPresent(progress);
 
             await FileManagement.WriteFavIconToGeneratedSite(progress);

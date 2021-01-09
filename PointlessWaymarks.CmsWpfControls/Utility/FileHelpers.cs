@@ -3,8 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsWpfControls.Status;
+using PointlessWaymarks.WpfCommon.Status;
+using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility
 {
@@ -71,8 +71,8 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
             }
             catch (Exception e)
             {
-                await EventLogContext.TryWriteExceptionToLog(e, statusContext.StatusControlContextId.ToString(),
-                    "Exception while trying to rename file.");
+                Log.Error(e, "Exception while trying to rename file. Status Control Context Id {0}",
+                    statusContext.StatusControlContextId);
                 statusContext.ToastError($"Error Copying File: {e.Message}");
                 return;
             }

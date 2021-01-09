@@ -8,9 +8,9 @@ using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsWpfControls.Status;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentFormat
 {
@@ -45,17 +45,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFormat
             }
         }
 
-        public bool HasChanges
-        {
-            get => _hasChanges;
-            set
-            {
-                if (value == _hasChanges) return;
-                _hasChanges = value;
-                OnPropertyChanged();
-            }
-        }
-
         public bool SelectedContentFormatHasChanges
         {
             get => _selectedContentFormatHasChanges;
@@ -63,6 +52,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFormat
             {
                 if (value == _selectedContentFormatHasChanges) return;
                 _selectedContentFormatHasChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasChanges
+        {
+            get => _hasChanges;
+            set
+            {
+                if (value == _hasChanges) return;
+                _hasChanges = value;
                 OnPropertyChanged();
             }
         }

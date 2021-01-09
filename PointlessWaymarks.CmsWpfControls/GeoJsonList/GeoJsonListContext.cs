@@ -16,9 +16,11 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Html.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
-using PointlessWaymarks.CmsWpfControls.Status;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
@@ -164,8 +166,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public void StartDrag(IDragInfo dragInfo)
         {
             var items = dragInfo.SourceItems.OfType<GeoJsonListListItem>().Where(x => x.ContentId() != null).ToList();
@@ -191,6 +191,8 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             return false;
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -199,9 +201,8 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 
             if (translatedMessage.HasError)
             {
-                await EventLogContext.TryWriteDiagnosticMessageToLog(
-                    $"Data Notification Failure in GeoJsonListContext - {translatedMessage.ErrorNote}",
-                    StatusContext.StatusControlContextId.ToString());
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
+                    translatedMessage.ErrorNote, StatusContext.StatusControlContextId);
                 return;
             }
 

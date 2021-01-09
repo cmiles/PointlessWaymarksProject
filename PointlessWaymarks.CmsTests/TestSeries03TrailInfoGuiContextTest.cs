@@ -10,7 +10,8 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using Serilog;
 
 namespace PointlessWaymarks.CmsTests
 {
@@ -44,6 +45,19 @@ namespace PointlessWaymarks.CmsTests
             await TestSiteSettings.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
             await TestSiteSettings.WriteSettings();
             UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
+
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.WithProcessId()
+                .Enrich.WithProcessName()
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
+                .Enrich.WithMachineName()
+                .Enrich.WithEnvironmentUserName()
+                .WriteTo.Console()
+                .WriteTo.File(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
+                    "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true)
+                .CreateLogger();
         }
 
         [Test]
@@ -350,10 +364,11 @@ namespace PointlessWaymarks.CmsTests
                 newFileContext.SelectedFile);
             Assert.False(validationResult.HasError);
 
-            var saveResult = await FileGenerator.SaveAndGenerateHtml(newFileContext.CurrentStateToFileContent(),
+            var (generationReturn, _) = await FileGenerator.SaveAndGenerateHtml(
+                newFileContext.CurrentStateToFileContent(),
                 newFileContext.SelectedFile, false, null, DebugTrackers.DebugProgressTracker());
 
-            Assert.IsFalse(saveResult.generationReturn.HasError);
+            Assert.IsFalse(generationReturn.HasError);
 
             var db = await Db.Context();
 

@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using PointlessWaymarks.WpfCommon.ToastControl;
 using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 
 namespace PointlessWaymarks.WpfCommon.Status
 {
@@ -241,8 +242,8 @@ namespace PointlessWaymarks.WpfCommon.Status
             if (obj.IsFaulted)
             {
                 ToastError($"Error: {obj.Exception?.Message}");
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
-                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(() => Log.Error(obj.Exception, "BlockTaskCompleted Exception - Status Context Id: {10}",
+                    StatusControlContextId));
             }
         }
 
@@ -270,8 +271,8 @@ namespace PointlessWaymarks.WpfCommon.Status
             if (obj.IsFaulted)
             {
                 ToastError($"Error: {obj.Exception?.Message}");
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
-                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(() => Log.Error(obj.Exception, "BlockTaskCompleted Exception - Status Context Id: {10}",
+                    StatusControlContextId));
             }
         }
 
@@ -298,8 +299,9 @@ namespace PointlessWaymarks.WpfCommon.Status
                 await ShowMessage("Error", obj.Exception?.ToString() ?? "Error with no information?!?!",
                     new List<string> {"Ok"});
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
-                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(() => Log.Error(obj.Exception,
+                    "FireAndForgetBlockingTaskWithUiMessageReturnCompleted Exception - Status Context Id: {10}",
+                    StatusControlContextId));
             }
         }
 
@@ -313,8 +315,9 @@ namespace PointlessWaymarks.WpfCommon.Status
             {
                 ToastError($"Error: {obj.Exception?.Message}");
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
-                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(() => Log.Error(obj.Exception,
+                    "FireAndForgetTaskWithToastErrorReturnCompleted Exception - Status Context Id: {10}",
+                    StatusControlContextId));
             }
         }
 
@@ -358,8 +361,8 @@ namespace PointlessWaymarks.WpfCommon.Status
             {
                 ToastError($"Error: {obj.Exception?.Message}");
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(obj.Exception,
-                    StatusControlContextId.ToString(), await GetStatusLogEntriesString(10)));
+                Task.Run(() => Log.Error(obj.Exception, "NonBlockTaskCompleted Exception - Status Context Id: {10}",
+                    StatusControlContextId));
             }
         }
 
@@ -377,9 +380,7 @@ namespace PointlessWaymarks.WpfCommon.Status
 
                 if (StatusLog.Count > 100) StatusLog.Remove(StatusLog.First());
 
-                if (UserSettingsSingleton.LogDiagnosticEvents)
-                    Task.Run(() =>
-                        EventLogContext.TryWriteDiagnosticMessageToLog(e, StatusControlContextId.ToString()));
+                Task.Run(() => Log.Information("Frogress: {0} - Status Context Id: {1}", e, StatusControlContextId));
             });
         }
 
@@ -468,8 +469,9 @@ namespace PointlessWaymarks.WpfCommon.Status
                 ShowMessage("Error", e.ToString(), new List<string> {"Ok"}).Wait();
                 DecrementBlockingTasks();
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(),
-                    await GetStatusLogEntriesString(10)));
+                Task.Run(() => Log.Error(e,
+                    "RunFireAndForgetBlockingTaskWithUiMessageReturn Exception - Status Context Id: {10}",
+                    StatusControlContextId));
             }
         }
 
@@ -485,8 +487,9 @@ namespace PointlessWaymarks.WpfCommon.Status
                 DecrementNonBlockingTasks();
                 ToastError($"Error: {e.Message}");
 
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(),
-                    await GetStatusLogEntriesString(10)));
+                Task.Run(() => Log.Error(e,
+                    "RunFireAndForgetTaskWithUiToastErrorReturn Exception - Status Context Id: {10}",
+                    StatusControlContextId));
             }
         }
 
@@ -578,9 +581,9 @@ namespace PointlessWaymarks.WpfCommon.Status
             }
             catch (Exception e)
             {
-                if (!(e is OperationCanceledException)) Progress($"ShowMessage Exception {e.Message}");
-                Task.Run(async () => await EventLogContext.TryWriteExceptionToLog(e, StatusControlContextId.ToString(),
-                    await GetStatusLogEntriesString(10)));
+                if (!(e is OperationCanceledException)) Progress($"ShowStringEntry Exception {e.Message}");
+                Task.Run(() => Log.Error(e, "NonBlockTaskCompleted Exception - Status Context Id: {10}",
+                    StatusControlContextId));
             }
             finally
             {
@@ -611,28 +614,21 @@ namespace PointlessWaymarks.WpfCommon.Status
         public void ToastError(string toastText)
         {
             ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Error));
-            if (UserSettingsSingleton.LogDiagnosticEvents)
-                Task.Run(() =>
-                    EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}",
-                        StatusControlContextId.ToString()));
+            Task.Run(() => Log.Error("Toast Error: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
         }
 
         public void ToastSuccess(string toastText)
         {
             ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Success));
-            if (UserSettingsSingleton.LogDiagnosticEvents)
-                Task.Run(() =>
-                    EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}",
-                        StatusControlContextId.ToString()));
+            Task.Run(() =>
+                Log.Information("Toast Success: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
         }
 
         public void ToastWarning(string toastText)
         {
             ContextDispatcher?.InvokeAsync(() => Toast.Show(toastText, ToastType.Warning));
-            if (UserSettingsSingleton.LogDiagnosticEvents)
-                Task.Run(() =>
-                    EventLogContext.TryWriteDiagnosticMessageToLog($"Toast Error - {toastText}",
-                        StatusControlContextId.ToString()));
+            Task.Run(
+                () => Log.Warning("Toast Warning: {0} - Status Context Id: {1}", toastText, StatusControlContextId));
         }
 
         private void UserMessageBoxResponse(string responseString)

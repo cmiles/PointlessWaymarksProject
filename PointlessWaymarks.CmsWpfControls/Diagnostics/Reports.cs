@@ -5,98 +5,15 @@ using System.Threading.Tasks;
 using System.Web;
 using HtmlTableHelper;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
-using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.Diagnostics
 {
     public static class Reports
     {
-        public static async Task AllEventsExcelReport()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var log = await Db.Log();
-
-            var htmlTable = log.EventLogs.OrderByDescending(x => x.RecordedOn).Cast<object>().ToList();
-
-            ExcelHelpers.ContentToExcelFileAsTable(htmlTable, "AllEventsReport");
-        }
-
-        public static async Task AllEventsHtmlReport()
-        {
-            var log = await Db.Log();
-
-            var htmlTable = log.EventLogs.Take(5000).OrderByDescending(x => x.RecordedOn).ToList()
-                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var reportWindow = new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Events Report", string.Empty));
-            reportWindow.PositionWindowAndShow();
-        }
-
-        public static async Task DiagnosticEventsExcelReport()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var log = await Db.Log();
-
-            var htmlTable = log.EventLogs.Where(x => x.Category == "Diagnostic" || x.Category == "Startup")
-                .OrderByDescending(x => x.RecordedOn).Cast<object>().ToList();
-
-            ExcelHelpers.ContentToExcelFileAsTable(htmlTable, "DiagnosticEventsReport");
-        }
-
-        public static async Task DiagnosticEventsHtmlReport()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var log = await Db.Log();
-
-            var htmlTable = log.EventLogs.Where(x => x.Category == "Diagnostic" || x.Category == "Startup").Take(5000)
-                .OrderByDescending(x => x.RecordedOn).ToList()
-                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var reportWindow =
-                new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Diagnostic Events Report", string.Empty));
-            reportWindow.PositionWindowAndShow();
-        }
-
-        public static async Task ExceptionEventsExcelReport()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var log = await Db.Log();
-
-            var htmlTable = log.EventLogs.Where(x => x.Category == "Exception" || x.Category == "Startup")
-                .OrderByDescending(x => x.RecordedOn).Cast<object>().ToList();
-
-            ExcelHelpers.ContentToExcelFileAsTable(htmlTable, "ExceptionEventsReport");
-        }
-
-        public static async Task ExceptionEventsHtmlReport()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var log = await Db.Log();
-
-            var htmlTable = log.EventLogs.Where(x => x.Category == "Exception" || x.Category == "Startup").Take(1000)
-                .OrderByDescending(x => x.RecordedOn).ToList()
-                .ToHtmlTable(new {@class = "pure-table pure-table-striped"});
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var reportWindow =
-                new HtmlViewerWindow(htmlTable.ToHtmlDocumentWithPureCss("Exception Events Report", string.Empty));
-            reportWindow.PositionWindowAndShow();
-        }
-
         public static async Task GenerationListHtmlReport(List<GenerationReturn> generationReturns, string title,
             string intro)
         {

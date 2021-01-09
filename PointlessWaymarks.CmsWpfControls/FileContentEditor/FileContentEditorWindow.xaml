@@ -3,13 +3,13 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:fileContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.FileContentEditor"
-    xmlns:status="clr-namespace:PointlessWaymarks.CmsWpfControls.Status"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     Title="File Content Editor"
     Width="800"
     Height="600"
-    d:DataContext="{d:DesignInstance local:FileContentEditorWindow}"
+    d:DataContext="{d:DesignInstance fileContentEditor:FileContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
         <fileContentEditor:FileContentEditorControl DataContext="{Binding FileContent}" />

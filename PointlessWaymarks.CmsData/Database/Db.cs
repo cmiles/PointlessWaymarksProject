@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -648,16 +647,6 @@ namespace PointlessWaymarks.CmsData.Database
         {
             return await db.HistoricPointDetails.Where(x => x.PointContentId == pointContentId).Take(entriesToReturn)
                 .ToListAsync();
-        }
-
-#pragma warning disable 1998
-        public static async Task<EventLogContext> Log()
-#pragma warning restore 1998
-        {
-            var optionsBuilder = new DbContextOptionsBuilder<EventLogContext>();
-            var dbPath = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalMediaArchive,
-                "PointlessWaymarksCms-EventLog.db");
-            return new EventLogContext(optionsBuilder.UseSqlite($"Data Source={dbPath}").Options);
         }
 
         public static async Task<List<IContentCommon>> MainFeedCommonContent()

@@ -4,10 +4,10 @@ namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
 {
     public class Feature : IPointDetailData
     {
-        public string DataTypeIdentifier => "Feature";
         public string Notes { get; set; }
         public string NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
         public string Type { get; set; }
+        public string DataTypeIdentifier => "Feature";
 
         public (bool isValid, string validationMessage) Validate()
         {

@@ -34,13 +34,14 @@ using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
-using PointlessWaymarks.CmsWpfControls.Status;
 using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
-using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 
 namespace PointlessWaymarks.CmsContentEditor
 {
@@ -49,6 +50,7 @@ namespace PointlessWaymarks.CmsContentEditor
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
+        public static readonly Tracker Tracker = new();
         private FilesWrittenLogListContext _filesWrittenContext;
         private string _infoTitle;
         private string _recentSettingsFilesNames;
@@ -71,8 +73,6 @@ namespace PointlessWaymarks.CmsContentEditor
         private PostListWithActionsContext _tabPostListContext;
         private TagExclusionEditorContext _tabTagExclusionContext;
         private TagListContext _tabTagListContext;
-
-        public static readonly Tracker Tracker = new();
 
         public MainWindow()
         {
@@ -113,21 +113,6 @@ namespace PointlessWaymarks.CmsContentEditor
                 StatusContext.RunBlockingTaskCommand(ConfirmOrGenerateAllPhotosImagesFiles);
 
             DeleteAndResizePicturesCommand = StatusContext.RunBlockingTaskCommand(CleanAndResizePictures);
-
-            //Diagnostics
-            ToggleDiagnosticLoggingCommand = new Command(() =>
-                UserSettingsSingleton.LogDiagnosticEvents = !UserSettingsSingleton.LogDiagnosticEvents);
-
-            ExceptionEventsHtmlReportCommand =
-                StatusContext.RunNonBlockingTaskCommand(Reports.ExceptionEventsHtmlReport);
-            DiagnosticEventsHtmlReportCommand =
-                StatusContext.RunNonBlockingTaskCommand(Reports.DiagnosticEventsHtmlReport);
-            ExceptionEventsExcelReportCommand =
-                StatusContext.RunNonBlockingTaskCommand(Reports.ExceptionEventsExcelReport);
-            DiagnosticEventsExcelReportCommand =
-                StatusContext.RunNonBlockingTaskCommand(Reports.DiagnosticEventsExcelReport);
-            AllEventsHtmlReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsHtmlReport);
-            AllEventsExcelReportCommand = StatusContext.RunNonBlockingTaskCommand(Reports.AllEventsExcelReport);
 
             //Main Parts
             GenerateSiteResourcesCommand = StatusContext.RunBlockingTaskCommand(async () =>
@@ -195,14 +180,6 @@ namespace PointlessWaymarks.CmsContentEditor
         public Command ConfirmOrGenerateAllPhotosImagesFilesCommand { get; set; }
 
         public Command DeleteAndResizePicturesCommand { get; set; }
-
-        public Command DiagnosticEventsExcelReportCommand { get; set; }
-
-        public Command DiagnosticEventsHtmlReportCommand { get; set; }
-
-        public Command ExceptionEventsExcelReportCommand { get; set; }
-
-        public Command ExceptionEventsHtmlReportCommand { get; set; }
 
         public FilesWrittenLogListContext FilesWrittenContext
         {
@@ -489,8 +466,6 @@ namespace PointlessWaymarks.CmsContentEditor
             }
         }
 
-        public Command ToggleDiagnosticLoggingCommand { get; set; }
-
         public Command WriteStyleCssFileCommand { get; set; }
 
         public Command WvTwoExperimentCommand { get; set; }
@@ -736,9 +711,24 @@ namespace PointlessWaymarks.CmsContentEditor
             ShowSettingsFileChooser = false;
 
             var settings = await UserSettingsUtilities.ReadSettings(StatusContext.ProgressTracker());
-            settings.VerifyOrCreateAllTopLevelFolders(StatusContext.ProgressTracker());
+            settings.VerifyOrCreateAllTopLevelFolders();
 
             await settings.EnsureDbIsPresent(StatusContext.ProgressTracker());
+
+            Log.CloseAndFlush();
+
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.WithProcessId()
+                .Enrich.WithProcessName()
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
+                .Enrich.WithMachineName()
+                .Enrich.WithEnvironmentUserName()
+                .WriteTo.Console()
+                .WriteTo.File(Path.Combine(
+                    UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
+                    "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true)
+                .CreateLogger();
 
             StatusContext.Progress("Setting up UI Controls");
 
@@ -751,9 +741,6 @@ namespace PointlessWaymarks.CmsContentEditor
             await ThreadSwitcher.ResumeForegroundAsync();
 
             MainTabControl.SelectedIndex = 0;
-
-            StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(async () =>
-                await EventLogContext.DeleteLogEntriesMoreThanMonthsOld(3));
         }
 
         private void LoadSelectedTabAsNeeded()

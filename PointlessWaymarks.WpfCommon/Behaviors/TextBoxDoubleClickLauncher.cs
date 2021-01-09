@@ -137,7 +137,6 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex);
-
                     }
                 }));
             }

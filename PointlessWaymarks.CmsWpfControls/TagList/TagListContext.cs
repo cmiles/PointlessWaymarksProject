@@ -19,9 +19,11 @@ using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
-using PointlessWaymarks.CmsWpfControls.Status;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.Utility.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.TagList
@@ -222,9 +224,8 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
             if (contentTypeString == string.Empty)
             {
+                Log.Error(new DataException("The Content Object was of Unknown Type"), "TagListContext Error");
                 StatusContext.ToastError("Unknown Content Type - Unusual Error...");
-                EventLogContext.TryWriteExceptionToLogBlocking(
-                    new DataException("The Content Object was of Unknown Type"), "TagListContent Load", "");
                 return "Unknown";
             }
 
@@ -239,9 +240,8 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
             if (translatedMessage.HasError)
             {
-                await EventLogContext.TryWriteDiagnosticMessageToLog(
-                    $"Data Notification Failure in PostListContext - {translatedMessage.ErrorNote}",
-                    StatusContext.StatusControlContextId.ToString());
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
+                    translatedMessage.ErrorNote, StatusContext.StatusControlContextId);
                 return;
             }
 

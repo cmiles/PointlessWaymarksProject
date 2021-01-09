@@ -12,7 +12,8 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.ExcelImport;
-using PointlessWaymarks.CmsWpfControls.Status;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility
 {
@@ -70,7 +71,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
 
         public static async Task ImportFromExcel(StatusControlContext statusContext)
         {
-            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
             statusContext.Progress("Starting excel load.");
 
@@ -234,7 +235,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
 
         public static async Task SelectedToExcel(List<dynamic> selected, StatusControlContext statusContext)
         {
-            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
+            await ThreadSwitcher.ResumeBackgroundAsync();
 
             if (selected == null || !selected.Any())
             {

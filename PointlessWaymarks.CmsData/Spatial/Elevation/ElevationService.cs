@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
-using PointlessWaymarks.CmsData.Database;
+using Serilog;
 
 namespace PointlessWaymarks.CmsData.Spatial.Elevation
 {
@@ -38,9 +38,8 @@ namespace PointlessWaymarks.CmsData.Spatial.Elevation
                 var elevationParsed = JsonSerializer.Deserialize<ElevationResponse>(elevationReturn);
 
                 if (elevationParsed == null)
-                    throw await EventLogContext.TryWriteExceptionToLog(
-                        new Exception("Could not parse information from the Elevation Service"), "Elevation Service",
-                        "requestUri: {requestUri}");
+                    Log.Error("Elevation Service - Could not parse information from the Elevation Service - Uri {0}",
+                        requestUri);
 
                 resultList.AddRange(elevationParsed.Elevations);
             }

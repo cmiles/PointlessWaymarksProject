@@ -28,7 +28,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
         public void WriteLocalHtml()
         {
             var parser = new HtmlParser();
-            var htmlDoc = parser.ParseDocument((string) TransformText());
+            var htmlDoc = parser.ParseDocument(TransformText());
 
             var stringWriter = new StringWriter();
             htmlDoc.ToHtml(stringWriter, new PrettyMarkupFormatter());
