@@ -27,48 +27,48 @@ If you have questions or comments please contact me at PointlessWaymarks@gmail.c
 
 Options to launch recent projects or create a new project.
 
-![Launch Screen](PointlessWaymarksCmsScreenShots/LaunchScreen.jpg "Launch Screen")
+![Launch Screen](PointlessWaymarksCms.ScreenShots/LaunchScreen.jpg "Launch Screen")
 
 ### Content Lists
 
 Each Content Type has a list interface - these are all similar with sorting, filtering and access to Excel Export/Import. The ability to export to Excel, edit and import the changes is provided for all content types and most fields. Many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
 
-![Posts List](PointlessWaymarksCmsScreenShots/PostsList.jpg "Posts List")
+![Posts List](PointlessWaymarksCms.ScreenShots/PostsList.jpg "Posts List")
 
 From the Photo List you can import photos in bulk - where possible the program will use the Photo's Metadata to generate an entry and in many cases it can create and save Photo Content without any additional data entry.
 
 The Photo List items have buttons to quickly find other similar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. Not shown but available in the Photo List under the Reports menu are reports on photos with potential problems such as 'No Tags' or 'Blank License' and an option to export all of a photo's 'raw' metadata to an html file.
 
-![Photos List](PointlessWaymarksCmsScreenShots/PhotoList.jpg "Photos List")
+![Photos List](PointlessWaymarksCms.ScreenShots/PhotoList.jpg "Photos List")
 
 ### Content Editors
 
 The content editors are intended to be simple, helpful and functional. Change and validation indicators, previews and help with common editing actions are provided. Spatial types - Points, Lines and GeoJson have [Leaflet - a JavaScript library for interactive maps](https://leafletjs.com/) based previews.
 
-![Post Content Editor](PointlessWaymarksCmsScreenShots/PostEditorWithPreview.jpg "Post Content Editor")
-![Photo Content Editor](PointlessWaymarksCmsScreenShots/PhotoEditor-ShowingFileAndPhotoMetadata.jpg "Photo Content Editor")
-![Point Content Editor](PointlessWaymarksCmsScreenShots/PointEditor.jpg "Point Content Editor")
-![GeoJson Content Editor](PointlessWaymarksCmsScreenShots/GeoJsonContentEditor.jpg "GeoJson Content Editor")
+![Post Content Editor](PointlessWaymarksCms.ScreenShots/PostEditorWithPreview.jpg "Post Content Editor")
+![Photo Content Editor](PointlessWaymarksCms.ScreenShots/PhotoEditor-ShowingFileAndPhotoMetadata.jpg "Photo Content Editor")
+![Point Content Editor](PointlessWaymarksCms.ScreenShots/PointEditor.jpg "Point Content Editor")
+![GeoJson Content Editor](PointlessWaymarksCms.ScreenShots/GeoJsonContentEditor.jpg "GeoJson Content Editor")
 
 ### Tags
 
 Tags are a primary way of connecting and organizing content - a Tag Editor along with Excel Export/Import provide support for organizing/correcting/updating tags.
 
-![Tag List](PointlessWaymarksCmsScreenShots/TagList.jpg "Tag List")
+![Tag List](PointlessWaymarksCms.ScreenShots/TagList.jpg "Tag List")
 
 ### Menu Links
 
 Content is the focus of the project and admin/widget/header/menu options are kept as minimal as possible - but some options are needed such as a very simple menu editor. 
 
-![Menu Links](PointlessWaymarksCmsScreenShots/MenuLinksEditor.jpg "Menu Links Editor")
+![Menu Links](PointlessWaymarksCms.ScreenShots/MenuLinksEditor.jpg "Menu Links Editor")
 
 ### File Change Tracking
 
 Deploying the site is simply a matter of syncing the content from the generated local site to its destination. To help with that process the program tracks written files and has options to export the files, create very basic S3 cli scripts or use the simple built in S3 uploader.
 
 
-![Written Files List](PointlessWaymarksCmsScreenShots/WrittenFilesList.jpg "Written Files List")
-![Written Files List](PointlessWaymarksCmsScreenShots/S3Uploader.jpg "Written Files List")
+![Written Files List](PointlessWaymarksCms.ScreenShots/WrittenFilesList.jpg "Written Files List")
+![Written Files List](PointlessWaymarksCms.ScreenShots/S3Uploader.jpg "Written Files List")
 
 ## Software Used By and In Building Pointless Waymarks CMS
 
