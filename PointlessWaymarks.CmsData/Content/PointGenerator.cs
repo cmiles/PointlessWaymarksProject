@@ -37,7 +37,7 @@ namespace PointlessWaymarks.CmsData.Content
             DataNotifications.PublishDataNotification("Point Generator", DataNotificationContentType.Point,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {savedPoint.ContentId});
 
-            return (await GenerationReturn.Success($"Saved and Generated Content And Html for {savedPoint.Title}"),
+            return (GenerationReturn.Success($"Saved and Generated Content And Html for {savedPoint.Title}"),
                 savedPoint);
         }
 
@@ -45,65 +45,65 @@ namespace PointlessWaymarks.CmsData.Content
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
-            if (!rootDirectoryCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
+            if (!rootDirectoryCheck.Valid)
+                return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     pointContent.ContentId);
 
             var commonContentCheck = await CommonContentValidation.ValidateContentCommon(pointContent);
-            if (!commonContentCheck.valid)
-                return await GenerationReturn.Error(commonContentCheck.explanation, pointContent.ContentId);
+            if (!commonContentCheck.Valid)
+                return GenerationReturn.Error(commonContentCheck.Explanation, pointContent.ContentId);
 
             var latitudeCheck = CommonContentValidation.LatitudeValidation(pointContent.Latitude);
-            if (!latitudeCheck.isValid)
-                return await GenerationReturn.Error(latitudeCheck.explanation, pointContent.ContentId);
+            if (!latitudeCheck.Valid)
+                return GenerationReturn.Error(latitudeCheck.Explanation, pointContent.ContentId);
 
             var longitudeCheck = CommonContentValidation.LongitudeValidation(pointContent.Longitude);
-            if (!longitudeCheck.isValid)
-                return await GenerationReturn.Error(longitudeCheck.explanation, pointContent.ContentId);
+            if (!longitudeCheck.Valid)
+                return GenerationReturn.Error(longitudeCheck.Explanation, pointContent.ContentId);
 
             var elevationCheck = CommonContentValidation.ElevationValidation(pointContent.Elevation);
-            if (!elevationCheck.isValid)
-                return await GenerationReturn.Error(elevationCheck.explanation, pointContent.ContentId);
+            if (!elevationCheck.Valid)
+                return GenerationReturn.Error(elevationCheck.Explanation, pointContent.ContentId);
 
             var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(pointContent.UpdateNotesFormat);
-            if (!updateFormatCheck.isValid)
-                return await GenerationReturn.Error(updateFormatCheck.explanation, pointContent.ContentId);
+            if (!updateFormatCheck.Valid)
+                return GenerationReturn.Error(updateFormatCheck.Explanation, pointContent.ContentId);
 
             foreach (var loopDetails in pointContent.PointDetails)
             {
                 if (loopDetails.ContentId == Guid.Empty)
-                    return await GenerationReturn.Error("Point Detail Data must have a valid Content Id",
+                    return GenerationReturn.Error("Point Detail Data must have a valid Content Id",
                         loopDetails.ContentId);
                 if (loopDetails.PointContentId != pointContent.ContentId)
-                    return await GenerationReturn.Error(
+                    return GenerationReturn.Error(
                         $"{loopDetails.DataType} Point Detail isn't assigned to the current point?",
                         loopDetails.ContentId);
                 if (string.IsNullOrWhiteSpace(loopDetails.DataType))
-                    return await GenerationReturn.Error("Point Detail Data Type doesn't have a value",
+                    return GenerationReturn.Error("Point Detail Data Type doesn't have a value",
                         loopDetails.ContentId);
                 if (string.IsNullOrWhiteSpace(loopDetails.StructuredDataAsJson))
-                    return await GenerationReturn.Error($"{loopDetails.DataType} Point Detail doesn't have any data?",
+                    return GenerationReturn.Error($"{loopDetails.DataType} Point Detail doesn't have any data?",
                         loopDetails.ContentId);
                 try
                 {
                     var content =
                         Db.PointDetailDataFromIdentifierAndJson(loopDetails.DataType, loopDetails.StructuredDataAsJson);
-                    var contentValidation = content.Validate();
+                    var (isValid, validationMessage) = content.Validate();
 
-                    if (!contentValidation.isValid)
-                        return await GenerationReturn.Error(
-                            $"{loopDetails.DataType} Point Detail: {contentValidation.validationMessage}",
+                    if (!isValid)
+                        return GenerationReturn.Error(
+                            $"{loopDetails.DataType} Point Detail: {validationMessage}",
                             pointContent.ContentId);
                 }
                 catch (Exception e)
                 {
-                    return await GenerationReturn.Error(
+                    return GenerationReturn.Error(
                         $"Exception loading the Structured Data for {loopDetails.DataType} Point Detail {e.Message}",
                         pointContent.ContentId);
                 }
             }
 
-            return await GenerationReturn.Success("Point Content Validation Successful");
+            return GenerationReturn.Success("Point Content Validation Successful");
         }
     }
 }

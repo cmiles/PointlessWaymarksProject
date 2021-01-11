@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,52 +22,52 @@ namespace PointlessWaymarks.CmsData.Content
 
             var returnList = new List<GenerationReturn>();
 
-            returnList.AddRange(await Task.WhenAll((await db.FileContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.FileContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteFileContentDirectory(x),
-                    $"Check Content Folder for File {x.Title}"))));
+                    $"Check Content Folder for File {x.Title}")));
 
-            returnList.AddRange(await Task.WhenAll((await db.GeoJsonContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.GeoJsonContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteGeoJsonContentDirectory(x),
-                    $"Check Content Folder for GeoJson {x.Title}"))));
+                    $"Check Content Folder for GeoJson {x.Title}")));
 
-            returnList.AddRange(await Task.WhenAll((await db.ImageContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.ImageContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteImageContentDirectory(x),
-                    $"Check Content Folder for Image {x.Title}"))));
+                    $"Check Content Folder for Image {x.Title}")));
 
-            returnList.AddRange(await Task.WhenAll((await db.LineContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.LineContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteLineContentDirectory(x),
-                    $"Check Content Folder for Line {x.Title}"))));
+                    $"Check Content Folder for Line {x.Title}")));
 
-            returnList.AddRange(await Task.WhenAll((await db.NoteContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.NoteContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteNoteContentDirectory(x),
-                    $"Check Content Folder for Note {x.Title}"))));
+                    $"Check Content Folder for Note {x.Title}")));
 
-            returnList.AddRange(await Task.WhenAll((await db.PhotoContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.PhotoContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePhotoContentDirectory(x),
-                    $"Check Content Folder for Photo {x.Title}"))));
+                    $"Check Content Folder for Photo {x.Title}")));
 
-            returnList.AddRange(await Task.WhenAll((await db.PointContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.PointContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePointContentDirectory(x),
-                    $"Check Content Folder for Point {x.Title}"))));
+                    $"Check Content Folder for Point {x.Title}")));
 
-            returnList.AddRange(await Task.WhenAll((await db.PostContents.ToListAsync()).Select(x =>
+            returnList.AddRange((await db.PostContents.ToListAsync()).Select(x =>
                 GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePostContentDirectory(x),
-                    $"Check Content Folder for Post {x.Title}"))));
+                    $"Check Content Folder for Post {x.Title}")));
 
             return returnList;
         }
 
         public static async Task<GenerationReturn> CheckFileOriginalFileIsInMediaAndContentDirectories(
-            FileContent dbContent, IProgress<string> progress)
+            FileContent? dbContent)
         {
             if (dbContent == null)
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     "Null File Content was submitted to the Check of File in the Media and Content Directories");
 
             UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders();
 
             if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
-                return await GenerationReturn.Error($"File {dbContent.Title} does not have an Original File assigned",
+                return GenerationReturn.Error($"File {dbContent.Title} does not have an Original File assigned",
                     dbContent.ContentId);
 
             var archiveFile = new FileInfo(Path.Combine(
@@ -78,7 +79,7 @@ namespace PointlessWaymarks.CmsData.Content
             var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
 
             if (!archiveFile.Exists && !contentFile.Exists)
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
                     $"there appears to be a file missing for File Title {dbContent.Title} " + $"slug {dbContent.Slug}",
                     dbContent.ContentId);
@@ -93,26 +94,25 @@ namespace PointlessWaymarks.CmsData.Content
             var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
 
             if (bothFilesPresent)
-                return await GenerationReturn.Success(
+                return GenerationReturn.Success(
                     $"File {dbContent.Title} Present in both Content and Media Folders", dbContent.ContentId);
 
-            return await GenerationReturn.Error(
+            return GenerationReturn.Error(
                 $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
                 $"Content File Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
                 dbContent.ContentId);
         }
 
-        public static async Task<GenerationReturn> CheckImageFileIsInMediaAndContentDirectories(ImageContent dbContent,
-            IProgress<string> progress)
+        public static async Task<GenerationReturn> CheckImageFileIsInMediaAndContentDirectories(ImageContent? dbContent)
         {
             if (dbContent == null)
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     "Null Image Content was submitted to the Check of File in the Media and Content Directories");
 
             UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders();
 
             if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
-                return await GenerationReturn.Error($"Image {dbContent.Title} does not have an Original File assigned",
+                return GenerationReturn.Error($"Image {dbContent.Title} does not have an Original File assigned",
                     dbContent.ContentId);
 
             var archiveFile = new FileInfo(Path.Combine(
@@ -125,7 +125,7 @@ namespace PointlessWaymarks.CmsData.Content
             var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
 
             if (!archiveFile.Exists && !contentFile.Exists)
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
                     $"there appears to be a file missing for Image Title {dbContent.Title} " + $"slug {dbContent.Slug}",
                     dbContent.ContentId);
@@ -141,26 +141,25 @@ namespace PointlessWaymarks.CmsData.Content
             var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
 
             if (bothFilesPresent)
-                return await GenerationReturn.Success(
+                return GenerationReturn.Success(
                     $"Image {dbContent.Title} Present in both Content and Media Folders", dbContent.ContentId);
 
-            return await GenerationReturn.Error(
+            return GenerationReturn.Error(
                 $"There was a problem - Archive Image Present: {archiveFile.Exists}, " +
                 $"Content Image Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
                 dbContent.ContentId);
         }
 
-        public static async Task<GenerationReturn> CheckPhotoFileIsInMediaAndContentDirectories(PhotoContent dbContent,
-            IProgress<string> progress)
+        public static async Task<GenerationReturn> CheckPhotoFileIsInMediaAndContentDirectories(PhotoContent? dbContent)
         {
             if (dbContent == null)
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     "Null Photo Content was submitted to the Check of File in the Media and Content Directories");
 
             UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders();
 
             if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
-                return await GenerationReturn.Error($"Photo {dbContent.Title} does not have an Original File assigned",
+                return GenerationReturn.Error($"Photo {dbContent.Title} does not have an Original File assigned",
                     dbContent.ContentId);
 
             var archiveFile = new FileInfo(Path.Combine(
@@ -173,7 +172,7 @@ namespace PointlessWaymarks.CmsData.Content
             var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
 
             if (!archiveFile.Exists && !contentFile.Exists)
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
                     $"there appears to be a file missing for Photo Title {dbContent.Title} " + $"slug {dbContent.Slug}",
                     dbContent.ContentId);
@@ -188,10 +187,10 @@ namespace PointlessWaymarks.CmsData.Content
             var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
 
             if (bothFilesPresent)
-                return await GenerationReturn.Success(
+                return GenerationReturn.Success(
                     $"Photo {dbContent.Title} Present in both Content and Media Folders", dbContent.ContentId);
 
-            return await GenerationReturn.Error(
+            return GenerationReturn.Error(
                 $"There was a problem - Archive Photo Present: {archiveFile.Exists}, " +
                 $"Content Photo Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
                 dbContent.ContentId);
@@ -247,7 +246,7 @@ namespace PointlessWaymarks.CmsData.Content
             return returnList;
         }
 
-        public static async Task CleanUpTemporaryFiles()
+        public static void CleanUpTemporaryFiles()
         {
             var temporaryDirectory = UserSettingsUtilities.TempStorageDirectory();
 
@@ -271,7 +270,7 @@ namespace PointlessWaymarks.CmsData.Content
                 }
         }
 
-        public static async Task CleanupTemporaryHtmlFiles()
+        public static void CleanupTemporaryHtmlFiles()
         {
             var temporaryDirectory = UserSettingsUtilities.TempStorageHtmlDirectory();
 
@@ -313,7 +312,7 @@ namespace PointlessWaymarks.CmsData.Content
             {
                 progress.Report($"File Check for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                returnList.Add(await CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem, progress));
+                returnList.Add(await CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem));
 
                 loopCount++;
             }
@@ -390,7 +389,7 @@ namespace PointlessWaymarks.CmsData.Content
             await RemoveTagContentFilesNotInCurrentDatabase(progress);
         }
 
-        public static async Task RemoveFileDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemoveFileDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
@@ -438,7 +437,7 @@ namespace PointlessWaymarks.CmsData.Content
             progress?.Report("Ending File Directory Cleanup");
         }
 
-        public static async Task RemoveFileMediaArchiveFilesNotInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemoveFileMediaArchiveFilesNotInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting File Media Archive Cleanup");
 
@@ -465,7 +464,7 @@ namespace PointlessWaymarks.CmsData.Content
             }
         }
 
-        public static async Task RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
@@ -514,7 +513,7 @@ namespace PointlessWaymarks.CmsData.Content
             progress?.Report("Ending GeoJson Directory Cleanup");
         }
 
-        public static async Task RemoveImageDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemoveImageDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
@@ -562,7 +561,7 @@ namespace PointlessWaymarks.CmsData.Content
             progress?.Report("Ending Image Directory Cleanup");
         }
 
-        public static async Task RemoveImageMediaArchiveFilesNotInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemoveImageMediaArchiveFilesNotInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Image Media Archive Cleanup");
 
@@ -589,7 +588,7 @@ namespace PointlessWaymarks.CmsData.Content
             }
         }
 
-        public static async Task RemoveLineDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemoveLineDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
@@ -638,14 +637,14 @@ namespace PointlessWaymarks.CmsData.Content
             progress?.Report("Ending Line Directory Cleanup");
         }
 
-        public static async Task RemoveMediaArchiveFilesNotInDatabase(IProgress<string> progress)
+        public static async Task RemoveMediaArchiveFilesNotInDatabase(IProgress<string>? progress)
         {
             await RemoveFileMediaArchiveFilesNotInCurrentDatabase(progress);
             await RemoveImageMediaArchiveFilesNotInCurrentDatabase(progress);
             await RemovePhotoMediaArchiveFilesNotInCurrentDatabase(progress);
         }
 
-        public static async Task RemoveNoteDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemoveNoteDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
@@ -698,7 +697,7 @@ namespace PointlessWaymarks.CmsData.Content
             progress?.Report("Ending Note Directory Cleanup");
         }
 
-        public static async Task RemovePhotoDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemovePhotoDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
@@ -763,8 +762,8 @@ namespace PointlessWaymarks.CmsData.Content
 
             foreach (var loopGalleryFiles in dailyGalleryFiles)
             {
-                var dateTimeForFile = UserSettingsSingleton.CurrentSettings()
-                    .LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(loopGalleryFiles);
+                var dateTimeForFile =
+                    UserSettingsUtilities.LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(loopGalleryFiles);
 
                 if (dateTimeForFile == null || !allPhotoDays.Contains(dateTimeForFile.Value))
                 {
@@ -779,7 +778,7 @@ namespace PointlessWaymarks.CmsData.Content
             progress?.Report("Ending Daily Photo Content Cleanup");
         }
 
-        public static async Task RemovePhotoMediaArchiveFilesNotInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemovePhotoMediaArchiveFilesNotInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Photo Media Archive Cleanup");
 
@@ -806,7 +805,7 @@ namespace PointlessWaymarks.CmsData.Content
             }
         }
 
-        public static async Task RemovePointDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemovePointDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
@@ -855,7 +854,7 @@ namespace PointlessWaymarks.CmsData.Content
             progress?.Report("Ending Point Directory Cleanup");
         }
 
-        public static async Task RemovePostDirectoriesNotFoundInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemovePostDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Directory Cleanup");
 
@@ -903,7 +902,7 @@ namespace PointlessWaymarks.CmsData.Content
             progress?.Report("Ending Post Directory Cleanup");
         }
 
-        public static async Task RemoveTagContentFilesNotInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemoveTagContentFilesNotInCurrentDatabase(IProgress<string>? progress)
         {
             progress?.Report("Starting Tag Directory Cleanup");
 
@@ -926,7 +925,6 @@ namespace PointlessWaymarks.CmsData.Content
         ///     the top level folders for the generated site.
         /// </summary>
         /// <param name="settings"></param>
-        /// <param name="progress"></param>
         /// <returns></returns>
         public static List<GenerationReturn> VerifyOrCreateAllTopLevelFolders(this UserSettings settings)
         {
@@ -1011,7 +1009,7 @@ namespace PointlessWaymarks.CmsData.Content
             await LogFileWriteAsync(path);
         }
 
-        public static async Task WriteFavIconToGeneratedSite(IProgress<string> progress)
+        public static async Task WriteFavIconToGeneratedSite(IProgress<string>? progress)
         {
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
@@ -1059,7 +1057,7 @@ namespace PointlessWaymarks.CmsData.Content
             var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
                 selectedFile.Name);
             if (destinationFileName == selectedFile.FullName && !replaceExisting)
-                return await GenerationReturn.Success("File is already in Media Archive");
+                return GenerationReturn.Success("File is already in Media Archive");
 
             var destinationFile = new FileInfo(destinationFileName);
 
@@ -1067,7 +1065,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             await selectedFile.CopyToAndLogAsync(destinationFileName);
 
-            return await GenerationReturn.Success("File is copied to Media Archive");
+            return GenerationReturn.Success("File is copied to Media Archive");
         }
 
         public static void WriteSelectedImageContentFileToMediaArchive(FileInfo selectedFile)
@@ -1093,7 +1091,7 @@ namespace PointlessWaymarks.CmsData.Content
             var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveImageDirectory().FullName,
                 selectedFile.Name);
             if (destinationFileName == selectedFile.FullName && !replaceExisting)
-                return await GenerationReturn.Success("Image is already in Media Archive");
+                return GenerationReturn.Success("Image is already in Media Archive");
 
             var destinationFile = new FileInfo(destinationFileName);
 
@@ -1101,7 +1099,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             await selectedFile.CopyToAndLogAsync(destinationFileName);
 
-            return await GenerationReturn.Success("Image is copied to Media Archive");
+            return GenerationReturn.Success("Image is copied to Media Archive");
         }
 
         public static void WriteSelectedPhotoContentFileToMediaArchive(FileInfo selectedFile)
@@ -1127,7 +1125,7 @@ namespace PointlessWaymarks.CmsData.Content
             var destinationFileName = Path.Combine(userSettings.LocalMediaArchivePhotoDirectory().FullName,
                 selectedFile.Name);
             if (destinationFileName == selectedFile.FullName && !replaceExisting)
-                return await GenerationReturn.Success("Photo is already in Media Archive");
+                return GenerationReturn.Success("Photo is already in Media Archive");
 
             var destinationFile = new FileInfo(destinationFileName);
 
@@ -1135,7 +1133,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             await selectedFile.CopyToAndLogAsync(destinationFileName);
 
-            return await GenerationReturn.Success("Photo is copied to Media Archive");
+            return GenerationReturn.Success("Photo is copied to Media Archive");
         }
 
         public static async Task WriteSiteResourcesToGeneratedSite(IProgress<string> progress)
@@ -1175,7 +1173,7 @@ namespace PointlessWaymarks.CmsData.Content
             }
         }
 
-        public static async Task WriteStylesCssToGeneratedSite(IProgress<string> progress)
+        public static async Task WriteStylesCssToGeneratedSite(IProgress<string>? progress)
         {
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 

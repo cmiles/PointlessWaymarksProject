@@ -4,7 +4,7 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Web" #>
-<#@ import namespace="PointlessWaymarksCmsData.Html.CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CmsData.Html.CommonHtml" #>
 <!DOCTYPE html>
 <html lang="en">
 <head data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
@@ -26,7 +26,7 @@
 
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
-    <script src="<#= UserSettingsSingleton.CurrentSettings().SearchListJavascriptUrl() #>"></script>
+    <script src="<#= UserSettingsUtilities.SearchListJavascriptUrl() #>"></script>
 </head>
 
 <body>

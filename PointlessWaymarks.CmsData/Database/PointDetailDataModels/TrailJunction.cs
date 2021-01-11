@@ -9,12 +9,12 @@ namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
         public bool? Sign { get; set; }
         public string DataTypeIdentifier => "Trail Junction";
 
-        public (bool isValid, string validationMessage) Validate()
+        public IsValid Validate()
         {
             var formatValidation = CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
-            if (!formatValidation.isValid) return (false, formatValidation.explanation);
+            if (!formatValidation.Valid) return new IsValid(false, formatValidation.Explanation);
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
     }
 }

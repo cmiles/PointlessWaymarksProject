@@ -3,9 +3,8 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
-<#@ import namespace="PointlessWaymarksCmsData.Html.CommonHtml" #>
-<#@ import namespace="PointlessWaymarksCmsData" #>
-<#@ import namespace="PointlessWaymarksCmsData.Database.Models" #>
+<#@ import namespace="PointlessWaymarks.CmsData.Html.CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CmsData.Database.Models" #>
 <!DOCTYPE html>
 <html lang="en">
 <head data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">

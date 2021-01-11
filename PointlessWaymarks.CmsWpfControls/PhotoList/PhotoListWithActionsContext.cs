@@ -637,7 +637,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 if (autoSaveAndClose)
                 {
                     var (metaGenerationReturn, metaContent) =
-                        await PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, StatusContext.ProgressTracker());
+                        PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, StatusContext.ProgressTracker());
 
                     if (metaGenerationReturn.HasError)
                     {

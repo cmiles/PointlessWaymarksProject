@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsData.Html.TagListHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\TagListHtml\TagListPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class TagListPage : TagListPageBase
     {
@@ -28,7 +28,7 @@ namespace PointlessWaymarks.CmsData.Html.TagListHtml
         {
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
-            #line 6 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+            #line 6 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
@@ -36,28 +36,28 @@ namespace PointlessWaymarks.CmsData.Html.TagListHtml
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>Tag List</title>\r\n\r\n    <meta name=\"vi" +
                     "ewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
             
-            #line 12 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+            #line 12 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 13 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+            #line 13 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n<body>\r\n    ");
             
-            #line 16 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 17 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+            #line 17 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
@@ -66,21 +66,21 @@ namespace PointlessWaymarks.CmsData.Html.TagListHtml
                     "rch-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Search Tag" +
                     "s...\">\r\n    </div>\r\n    ");
             
-            #line 21 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+            #line 21 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(TagList()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 22 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+            #line 22 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 23 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\TagListHtml\TagListPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

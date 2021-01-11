@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using MetadataExtractor;
 
 namespace PointlessWaymarks.CmsData.Content

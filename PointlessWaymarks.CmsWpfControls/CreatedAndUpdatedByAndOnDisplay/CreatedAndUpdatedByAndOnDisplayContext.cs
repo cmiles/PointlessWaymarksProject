@@ -191,7 +191,7 @@ namespace PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay
             else if (((IContentId) DbEntry).Id < 1) IsNewEntry = true;
 
             CreatedByEntry = StringDataEntryContext.CreateInstance();
-            CreatedByEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            CreatedByEntry.ValidationFunctions = new List<Func<string, IsValid>>
             {
                 CommonContentValidation.ValidateCreatedBy
             };
@@ -207,7 +207,7 @@ namespace PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay
 
             UpdatedByEntry = StringDataEntryContext.CreateInstance();
             UpdatedByEntry.ValidationFunctions =
-                new List<Func<string, (bool passed, string validationMessage)>> {ValidateUpdatedBy};
+                new List<Func<string, IsValid>> {ValidateUpdatedBy};
             UpdatedByEntry.Title = "Updated By";
             UpdatedByEntry.HelpText = "Last Updated By Name";
             UpdatedByEntry.ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty;
@@ -269,12 +269,12 @@ namespace PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay
         }
 
 
-        public (bool passed, string validationMessage) ValidateUpdatedBy(string updatedBy)
+        public IsValid ValidateUpdatedBy(string updatedBy)
         {
             if (!IsNewEntry && string.IsNullOrWhiteSpace(updatedBy))
-                return (false, "Updated by can not be blank when updating an entry");
+                return new IsValid(false, "Updated by can not be blank when updating an entry");
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
     }
 }

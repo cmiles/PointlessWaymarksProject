@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using HtmlTableHelper;
 using JetBrains.Annotations;
-using Jot;
 using Microsoft.EntityFrameworkCore;
 using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
@@ -41,8 +40,6 @@ using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
-using Serilog;
-using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsContentEditor
 {
@@ -51,7 +48,6 @@ namespace PointlessWaymarks.CmsContentEditor
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        public static readonly Tracker Tracker = new();
         private FilesWrittenLogListContext _filesWrittenContext;
         private string _infoTitle;
         private string _recentSettingsFilesNames;
@@ -79,7 +75,9 @@ namespace PointlessWaymarks.CmsContentEditor
         {
             InitializeComponent();
 
-            Tracker.Track(this);
+            JotServices.Tracker.Configure<MainWindow>().Properties(x => new {x.RecentSettingsFilesNames});
+
+            JotServices.Tracker.Track(this);
 
             WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
@@ -561,8 +559,8 @@ namespace PointlessWaymarks.CmsContentEditor
         private async Task CleanupTemporaryFiles()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-            await FileManagement.CleanUpTemporaryFiles();
-            await FileManagement.CleanupTemporaryHtmlFiles();
+            FileManagement.CleanUpTemporaryFiles();
+            FileManagement.CleanupTemporaryHtmlFiles();
         }
 
         private async Task ConfirmAllFileContent()
@@ -613,8 +611,7 @@ namespace PointlessWaymarks.CmsContentEditor
             {
                 StatusContext.Progress($"Confirming Image Content for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                PictureAssetProcessing.ConfirmOrGenerateImageDirectoryAndPictures(loopItem,
-                    StatusContext.ProgressTracker());
+                PictureAssetProcessing.ConfirmOrGenerateImageDirectoryAndPictures(loopItem);
 
                 loopCount++;
             }
@@ -637,8 +634,7 @@ namespace PointlessWaymarks.CmsContentEditor
             {
                 StatusContext.Progress($"Confirming Photos for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                PictureAssetProcessing.ConfirmOrGeneratePhotoDirectoryAndPictures(loopItem,
-                    StatusContext.ProgressTracker());
+                PictureAssetProcessing.ConfirmOrGeneratePhotoDirectoryAndPictures(loopItem);
 
                 loopCount++;
             }
@@ -714,7 +710,7 @@ namespace PointlessWaymarks.CmsContentEditor
             var settings = await UserSettingsUtilities.ReadSettings(StatusContext.ProgressTracker());
             settings.VerifyOrCreateAllTopLevelFolders();
 
-            await settings.EnsureDbIsPresent(StatusContext.ProgressTracker());
+            await UserSettingsUtilities.EnsureDbIsPresent(StatusContext.ProgressTracker());
 
             LogConfiguration.InitializeStaticLoggerAsEventLogger();
 

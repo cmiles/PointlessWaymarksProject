@@ -36,7 +36,7 @@ namespace PointlessWaymarks.CmsData.Content
                 DataNotificationUpdateType.LocalContent, new List<Guid> {savedComponent.Map.ContentId});
 
             return (
-                await GenerationReturn.Success(
+                GenerationReturn.Success(
                     $"Saved and Generated Map Component {savedComponent.Map.ContentId} - {savedComponent.Map.Title}"),
                 savedComponent);
         }
@@ -45,20 +45,20 @@ namespace PointlessWaymarks.CmsData.Content
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
-            if (!rootDirectoryCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
+            if (!rootDirectoryCheck.Valid)
+                return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     mapComponent.Map.ContentId);
 
             var commonContentCheck = await CommonContentValidation.ValidateMapComponent(mapComponent);
-            if (!commonContentCheck.valid)
-                return await GenerationReturn.Error(commonContentCheck.explanation, mapComponent.Map.ContentId);
+            if (!commonContentCheck.Valid)
+                return GenerationReturn.Error(commonContentCheck.Explanation, mapComponent.Map.ContentId);
 
             var updateFormatCheck =
                 CommonContentValidation.ValidateUpdateContentFormat(mapComponent.Map.UpdateNotesFormat);
-            if (!updateFormatCheck.isValid)
-                return await GenerationReturn.Error(updateFormatCheck.explanation, mapComponent.Map.ContentId);
+            if (!updateFormatCheck.Valid)
+                return GenerationReturn.Error(updateFormatCheck.Explanation, mapComponent.Map.ContentId);
 
-            return await GenerationReturn.Success("GeoJson Content Validation Successful");
+            return GenerationReturn.Success("GeoJson Content Validation Successful");
         }
     }
 }

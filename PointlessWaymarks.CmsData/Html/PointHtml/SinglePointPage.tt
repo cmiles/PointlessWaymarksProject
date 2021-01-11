@@ -1,6 +1,5 @@
 ﻿<#@ template language="C#" debug="true"#>
 <#@ import namespace="CommonHtml" #>
-<#@ import namespace="PointlessWaymarksCmsData.Database" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text.Json" #>
 <!DOCTYPE html>

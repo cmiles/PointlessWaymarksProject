@@ -39,7 +39,7 @@ namespace PointlessWaymarks.CmsData.Content
             DataNotifications.PublishDataNotification("Note Generator", DataNotificationContentType.Note,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
-            return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
+            return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
         public static async Task<string> UniqueNoteSlug()
@@ -80,15 +80,15 @@ namespace PointlessWaymarks.CmsData.Content
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
-            if (!rootDirectoryCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
+            if (!rootDirectoryCheck.Valid)
+                return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     noteContent.ContentId);
 
             var commonContentCheck = await CommonContentValidation.ValidateContentCommon(noteContent);
-            if (!commonContentCheck.valid)
-                return await GenerationReturn.Error(commonContentCheck.explanation, noteContent.ContentId);
+            if (!commonContentCheck.Valid)
+                return GenerationReturn.Error(commonContentCheck.Explanation, noteContent.ContentId);
 
-            return await GenerationReturn.Success("Note Content Validation Successful");
+            return GenerationReturn.Success("Note Content Validation Successful");
         }
     }
 }

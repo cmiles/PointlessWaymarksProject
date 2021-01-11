@@ -32,7 +32,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFolder
         private string _title;
         private string _userValue;
 
-        private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions = new();
+        private List<Func<string, IsValid>> _validationFunctions = new();
 
         private string _validationMessage;
 
@@ -132,7 +132,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFolder
             }
         }
 
-        public List<Func<string, (bool passed, string validationMessage)>> ValidationFunctions
+        public List<Func<string, IsValid>> ValidationFunctions
         {
             get => _validationFunctions;
             set
@@ -204,7 +204,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFolder
             var newControl = new ContentFolderContext(statusContext)
             {
                 ValidationFunctions =
-                    new List<Func<string, (bool passed, string validationMessage)>>
+                    new List<Func<string, IsValid>>
                     {
                         CommonContentValidation.ValidateFolder
                     }

@@ -9,10 +9,10 @@ namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
         public string Type { get; set; }
         public string DataTypeIdentifier => "Feature";
 
-        public (bool isValid, string validationMessage) Validate()
+        public IsValid Validate()
         {
             var formatValidation = CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
-            if (!formatValidation.isValid) return (false, formatValidation.explanation);
+            if (!formatValidation.Valid) return new IsValid(false, formatValidation.Explanation);
 
             return CommonContentValidation.ValidateFeatureType(Type);
         }

@@ -569,7 +569,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             if (!loadMetadata) return;
 
             var (generationReturn, metadata) =
-                await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+                PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError)
             {
@@ -674,8 +674,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(DbEntry,
-                    StatusContext.ProgressTracker());
+                await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(DbEntry);
 
                 var archiveFile = new FileInfo(Path.Combine(
                     UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
@@ -773,7 +772,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
                 ResizeSelectedFile = true;
                 _initialPhoto = null;
                 var (generationReturn, metadataReturn) =
-                    await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
+                    PhotoGenerator.PhotoMetadataFromFile(SelectedFile, StatusContext.ProgressTracker());
                 if (!generationReturn.HasError) PhotoMetadataToCurrentContent(metadataReturn);
             }
 

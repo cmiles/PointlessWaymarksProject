@@ -350,7 +350,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
             LinkUrlEntry.Title = "URL";
             LinkUrlEntry.HelpText = "Link address";
             LinkUrlEntry.ValidationFunctions =
-                new List<Func<string, (bool passed, string validationMessage)>> {ValidateUrl};
+                new List<Func<string, IsValid>> {ValidateUrl};
             LinkUrlEntry.ReferenceValue = DbEntry.Url.TrimNullToEmpty();
             LinkUrlEntry.UserValue = DbEntry.Url.TrimNullToEmpty();
 
@@ -365,7 +365,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
             TitleEntry.HelpText = "Title Text";
             TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
             TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-            TitleEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            TitleEntry.ValidationFunctions = new List<Func<string, IsValid>>
             {
                 CommonContentValidation.ValidateTitle
             };
@@ -445,7 +445,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
             }
         }
 
-        public (bool passed, string validationMessage) ValidateUrl(string linkUrl)
+        public IsValid ValidateUrl(string linkUrl)
         {
             return CommonContentValidation.ValidateLinkContentLinkUrl(linkUrl, DbEntry?.ContentId).Result;
         }

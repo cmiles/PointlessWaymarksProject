@@ -10,9 +10,9 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 {
     public static class PictureAssetProcessing
     {
-        public static void ConfirmOrGenerateImageDirectoryAndPictures(ImageContent dbEntry, IProgress<string> progress)
+        public static void ConfirmOrGenerateImageDirectoryAndPictures(ImageContent dbEntry)
         {
-            FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress).Wait();
+            FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry).Wait();
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
@@ -21,9 +21,9 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, null);
         }
 
-        public static void ConfirmOrGeneratePhotoDirectoryAndPictures(PhotoContent dbEntry, IProgress<string> progress)
+        public static void ConfirmOrGeneratePhotoDirectoryAndPictures(PhotoContent dbEntry)
         {
-            FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress).Wait();
+            FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry).Wait();
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 

@@ -525,8 +525,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
 
             if (!skipMediaDirectoryCheck && toLoad != null && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName))
             {
-                await FileManagement.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry,
-                    StatusContext.ProgressTracker());
+                await FileManagement.CheckFileOriginalFileIsInMediaAndContentDirectories(DbEntry);
 
                 var archiveFile = new FileInfo(Path.Combine(
                     UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileDirectory().FullName,
@@ -633,17 +632,18 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
                 return;
             }
 
-            var saveResult = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(), SelectedFile, true,
+            var (generationReturn, fileContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
+                SelectedFile, true,
                 null, StatusContext.ProgressTracker());
 
-            if (saveResult.generationReturn.HasError)
+            if (generationReturn.HasError)
             {
                 await StatusContext.ShowMessageWithOkButton("Trouble Saving",
-                    $"Trouble saving - you must be able to save before extracting a page - {saveResult.generationReturn.GenerationNote}");
+                    $"Trouble saving - you must be able to save before extracting a page - {generationReturn.GenerationNote}");
                 return;
             }
 
-            await LoadData(saveResult.fileContent);
+            await LoadData(fileContent);
 
             await PdfHelpers.PdfPageToImageWithPdfToCairo(StatusContext, new List<FileContent> {DbEntry}, pageNumber);
         }

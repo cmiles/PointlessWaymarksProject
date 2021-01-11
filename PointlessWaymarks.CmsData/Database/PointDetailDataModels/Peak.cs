@@ -8,12 +8,12 @@ namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
         public string NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
         public string DataTypeIdentifier => "Peak";
 
-        public (bool isValid, string validationMessage) Validate()
+        public IsValid Validate()
         {
             var formatValidation = CommonContentValidation.ValidateBodyContentFormat(NotesContentFormat);
-            if (!formatValidation.isValid) return (false, formatValidation.explanation);
+            if (!formatValidation.Valid) return new IsValid(false, formatValidation.Explanation);
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
     }
 }

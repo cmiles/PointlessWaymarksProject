@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsData.Html.LinkListHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class LinkListPage : LinkListPageBase
     {
@@ -28,14 +28,14 @@ namespace PointlessWaymarks.CmsData.Html.LinkListHtml
         {
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
-            #line 6 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 6 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
-            #line 8 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 8 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle.HtmlEncode()));
             
             #line default
@@ -44,49 +44,49 @@ namespace PointlessWaymarks.CmsData.Html.LinkListHtml
                     "1.0\">\r\n    \r\n    <link rel=\"alternate\" type=\"application/rss+xml\" \r\n      title=" +
                     "\"");
             
-            #line 13 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 13 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - {ListTitle}".HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\"     \r\n      href=\"https:");
             
-            #line 15 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 15 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RssUrl));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\r\n    ");
             
-            #line 17 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 17 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 18 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 18 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 22 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 22 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 23 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <h1 class=\"index-title-content\">");
             
-            #line 24 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 24 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"{ListTitle}"));
             
             #line default
@@ -95,21 +95,21 @@ namespace PointlessWaymarks.CmsData.Html.LinkListHtml
                     "=\"search-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Searc" +
                     "h ");
             
-            #line 26 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 26 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ListTitle));
             
             #line default
             #line hidden
             this.Write("...\">\r\n    </div>\r\n    ");
             
-            #line 28 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 28 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(LinkTableTag()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 29 "C:\Code\PointlessWaymarksCms01\PointlessWaymarksCmsData\Html\LinkListHtml\LinkListPage.tt"
+            #line 29 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\Html\LinkListHtml\LinkListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

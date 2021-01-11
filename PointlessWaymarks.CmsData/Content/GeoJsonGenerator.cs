@@ -37,31 +37,30 @@ namespace PointlessWaymarks.CmsData.Content
             DataNotifications.PublishDataNotification("GeoJson Generator", DataNotificationContentType.GeoJson,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
-            return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
+            return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
         public static async Task<GenerationReturn> Validate(GeoJsonContent geoJsonContent)
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
-            if (!rootDirectoryCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
+            if (!rootDirectoryCheck.Valid)
+                return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     geoJsonContent.ContentId);
 
             var commonContentCheck = await CommonContentValidation.ValidateContentCommon(geoJsonContent);
-            if (!commonContentCheck.valid)
-                return await GenerationReturn.Error(commonContentCheck.explanation, geoJsonContent.ContentId);
+            if (!commonContentCheck.Valid)
+                return GenerationReturn.Error(commonContentCheck.Explanation, geoJsonContent.ContentId);
 
-            var updateFormatCheck =
-                CommonContentValidation.ValidateUpdateContentFormat(geoJsonContent.UpdateNotesFormat);
-            if (!updateFormatCheck.isValid)
-                return await GenerationReturn.Error(updateFormatCheck.explanation, geoJsonContent.ContentId);
+            var (b, s) = CommonContentValidation.ValidateUpdateContentFormat(geoJsonContent.UpdateNotesFormat);
+            if (!b)
+                return GenerationReturn.Error(s, geoJsonContent.ContentId);
 
-            var geoJsonCheck = CommonContentValidation.GeoJsonValidation(geoJsonContent.GeoJson);
-            if (!geoJsonCheck.isValid)
-                return await GenerationReturn.Error(geoJsonCheck.explanation, geoJsonContent.ContentId);
+            var (isValid, explanation) = CommonContentValidation.GeoJsonValidation(geoJsonContent.GeoJson);
+            if (!isValid)
+                return GenerationReturn.Error(explanation, geoJsonContent.ContentId);
 
-            return await GenerationReturn.Success("GeoJson Content Validation Successful");
+            return GenerationReturn.Success("GeoJson Content Validation Successful");
         }
     }
 }

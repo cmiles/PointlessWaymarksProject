@@ -31,14 +31,14 @@ namespace PointlessWaymarks.CmsData.Content
             htmlContext.WriteLocalHtml();
         }
 
-        public static async Task<(GenerationReturn generationReturn, PhotoMetadata metadata)> PhotoMetadataFromFile(
+        public static (GenerationReturn generationReturn, PhotoMetadata metadata) PhotoMetadataFromFile(
             FileInfo selectedFile, IProgress<string> progress)
         {
             progress?.Report("Starting Metadata Processing");
 
             selectedFile.Refresh();
 
-            if (!selectedFile.Exists) return (await GenerationReturn.Error("File Does Not Exist?"), null);
+            if (!selectedFile.Exists) return (GenerationReturn.Error("File Does Not Exist?"), null);
 
             var toReturn = new PhotoMetadata();
 
@@ -106,9 +106,9 @@ namespace PointlessWaymarks.CmsData.Content
 
                 if (toReturn.Lens.StartsWith("Adobe ("))
                 {
-                    toReturn.Lens = toReturn.Lens.Substring(7, toReturn.Lens.Length - 7);
+                    toReturn.Lens = toReturn.Lens[7..];
                     if (toReturn.Lens.EndsWith(")"))
-                        toReturn.Lens = toReturn.Lens.Substring(0, toReturn.Lens.Length - 1);
+                        toReturn.Lens = toReturn.Lens[..^1];
                 }
             }
 
@@ -165,9 +165,9 @@ namespace PointlessWaymarks.CmsData.Content
                             int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
                         toReturn.Summary =
-                            $"{toReturn.Title.Substring(possibleTitleDate.Length, toReturn.Title.Length - possibleTitleDate.Length)}";
+                            $"{toReturn.Title[possibleTitleDate.Length..]}";
                         toReturn.Title =
-                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(possibleTitleDate.Length, toReturn.Title.Length - possibleTitleDate.Length)}";
+                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[possibleTitleDate.Length..]}";
 
                         progress?.Report("Title updated based on 2yyy MM start pattern for file name");
                     }
@@ -190,9 +190,9 @@ namespace PointlessWaymarks.CmsData.Content
                             ? new DateTime(2000 + year, month, 1)
                             : new DateTime(1900 + year, month, 1);
 
-                        toReturn.Summary = $"{toReturn.Title.Substring(5, toReturn.Title.Length - 5)}";
+                        toReturn.Summary = $"{toReturn.Title[5..]}";
                         toReturn.Title =
-                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(5, toReturn.Title.Length - 5)}";
+                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[5..]}";
 
                         progress?.Report("Title updated based on YYMM start pattern for file name");
                     }
@@ -213,9 +213,9 @@ namespace PointlessWaymarks.CmsData.Content
                         ? new DateTime(2000 + year, month, 1)
                         : new DateTime(1900 + year, month, 1);
 
-                    toReturn.Summary = $"{toReturn.Title.Substring(0, toReturn.Title.Length - 5)}";
+                    toReturn.Summary = $"{toReturn.Title[..^5]}";
                     toReturn.Title =
-                        $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(0, toReturn.Title.Length - 5)}";
+                        $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^5]}";
 
                     progress?.Report("Title updated based on YYMM end pattern for file name");
                 }
@@ -305,24 +305,24 @@ namespace PointlessWaymarks.CmsData.Content
             if (!string.IsNullOrWhiteSpace(toReturn.Tags))
                 toReturn.Tags = Db.TagListJoin(Db.TagListParse(toReturn.Tags));
 
-            return (await GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"),
+            return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"),
                 toReturn);
         }
 
-        public static async Task<(GenerationReturn, PhotoContent)> PhotoMetadataToNewPhotoContent(FileInfo selectedFile,
+        public static (GenerationReturn, PhotoContent) PhotoMetadataToNewPhotoContent(FileInfo selectedFile,
             IProgress<string> progress, string photoContentCreatedBy = null)
         {
             selectedFile.Refresh();
 
-            if (!selectedFile.Exists) return (await GenerationReturn.Error("File Does Not Exist?"), null);
+            if (!selectedFile.Exists) return (GenerationReturn.Error("File Does Not Exist?"), null);
 
-            var metadataReturn = await PhotoMetadataFromFile(selectedFile, progress);
+            var (generationReturn, metadata) = PhotoMetadataFromFile(selectedFile, progress);
 
-            if (metadataReturn.generationReturn.HasError) return (metadataReturn.generationReturn, null);
+            if (generationReturn.HasError) return (generationReturn, null);
 
             var toReturn = new PhotoContent();
 
-            toReturn.InjectFrom(metadataReturn.metadata);
+            toReturn.InjectFrom(metadata);
 
             toReturn.OriginalFileName = selectedFile.Name;
             toReturn.ContentId = Guid.NewGuid();
@@ -346,7 +346,7 @@ namespace PointlessWaymarks.CmsData.Content
             if (string.IsNullOrWhiteSpace(toReturn.Folder))
                 toReturn.Folder = toReturn.PhotoCreatedOn.Year.ToString("F0");
 
-            return (await GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"),
+            return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"),
                 toReturn);
         }
 
@@ -371,11 +371,11 @@ namespace PointlessWaymarks.CmsData.Content
             DataNotifications.PublishDataNotification("Photo Generator", DataNotificationContentType.Photo,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
-            return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
+            return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
         public static async Task<(GenerationReturn generationReturn, PhotoContent photoContent)> SaveToDb(
-            PhotoContent toSave, FileInfo selectedFile, IProgress<string> progress)
+            PhotoContent toSave, FileInfo selectedFile)
         {
             var validationReturn = await Validate(toSave, selectedFile);
 
@@ -384,39 +384,39 @@ namespace PointlessWaymarks.CmsData.Content
             FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
 
-            return (await GenerationReturn.Success($"Saved {toSave.Title}"), toSave);
+            return (GenerationReturn.Success($"Saved {toSave.Title}"), toSave);
         }
 
         public static async Task<GenerationReturn> Validate(PhotoContent photoContent, FileInfo selectedFile)
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
-            if (!rootDirectoryCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
+            if (!rootDirectoryCheck.Valid)
+                return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     photoContent.ContentId);
 
             var mediaArchiveCheck = UserSettingsUtilities.ValidateLocalMediaArchive();
-            if (!mediaArchiveCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Item2}",
+            if (!mediaArchiveCheck.Valid)
+                return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
                     photoContent.ContentId);
 
             var commonContentCheck = await CommonContentValidation.ValidateContentCommon(photoContent);
-            if (!commonContentCheck.valid)
-                return await GenerationReturn.Error(commonContentCheck.explanation, photoContent.ContentId);
+            if (!commonContentCheck.Valid)
+                return GenerationReturn.Error(commonContentCheck.Explanation, photoContent.ContentId);
 
             var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(photoContent.UpdateNotesFormat);
-            if (!updateFormatCheck.isValid)
-                return await GenerationReturn.Error(updateFormatCheck.explanation, photoContent.ContentId);
+            if (!updateFormatCheck.Valid)
+                return GenerationReturn.Error(updateFormatCheck.Explanation, photoContent.ContentId);
 
             selectedFile.Refresh();
 
             var photoFileValidation =
                 await CommonContentValidation.PhotoFileValidation(selectedFile, photoContent?.ContentId);
 
-            if (!photoFileValidation.isValid)
-                return await GenerationReturn.Error(photoFileValidation.explanation, photoContent.ContentId);
+            if (!photoFileValidation.Valid)
+                return GenerationReturn.Error(photoFileValidation.Explanation, photoContent.ContentId);
 
-            return await GenerationReturn.Success("Photo Content Validation Successful");
+            return GenerationReturn.Success("Photo Content Validation Successful");
         }
 
         public static async Task WritePhotoFromMediaArchiveToLocalSite(PhotoContent photoContent,

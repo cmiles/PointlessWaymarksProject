@@ -25,7 +25,7 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<(GenerationReturn generationReturn, LinkMetadata metadata)> LinkMetadataFromUrl(
             string url, IProgress<string> progress)
         {
-            if (string.IsNullOrWhiteSpace(url)) return (await GenerationReturn.Error("No URL?"), null);
+            if (string.IsNullOrWhiteSpace(url)) return (GenerationReturn.Error("No URL?"), null);
 
             progress?.Report("Setting up and Downloading Site");
 
@@ -154,7 +154,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             progress?.Report($"Looking for Description - Found {toReturn.Description}");
 
-            return (await GenerationReturn.Success($"Parsed URL Metadata for {url} without error"), toReturn);
+            return (GenerationReturn.Success($"Parsed URL Metadata for {url} without error"), toReturn);
         }
 
         public static async Task<(GenerationReturn generationReturn, LinkContent linkContent)> SaveAndGenerateHtml(
@@ -175,14 +175,14 @@ namespace PointlessWaymarks.CmsData.Content
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
             return (
-                await GenerationReturn.Success($"Saved and Generated Content And Html for Links to Add {toSave.Title}"),
+                GenerationReturn.Success($"Saved and Generated Content And Html for Links to Add {toSave.Title}"),
                 toSave);
         }
 
         public static async Task<GenerationReturn> SaveLinkToPinboard(LinkContent toSave, IProgress<string> progress)
         {
             if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
-                return await GenerationReturn.Success("No PinboardApiToken - skipping save to Pinboard",
+                return GenerationReturn.Success("No PinboardApiToken - skipping save to Pinboard",
                     toSave.ContentId);
 
             var descriptionFragments = new List<string>();
@@ -219,37 +219,37 @@ namespace PointlessWaymarks.CmsData.Content
             }
             catch (Exception e)
             {
-                return await GenerationReturn.Error("Trouble Saving to Pinboard", toSave.ContentId, e);
+                return GenerationReturn.Error("Trouble Saving to Pinboard", toSave.ContentId, e);
             }
 
             progress?.Report("Pinboard Bookmark Complete");
 
-            return await GenerationReturn.Success("Saved to Pinboard", toSave.ContentId);
+            return GenerationReturn.Success("Saved to Pinboard", toSave.ContentId);
         }
 
         public static async Task<GenerationReturn> Validate(LinkContent linkContent)
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
-            if (!rootDirectoryCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
+            if (!rootDirectoryCheck.Valid)
+                return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     linkContent.ContentId);
 
-            if (linkContent == null) return await GenerationReturn.Error("Link Content is Null?");
+            if (linkContent == null) return GenerationReturn.Error("Link Content is Null?");
 
             var (createdUpdatedValid, createdUpdatedValidationMessage) =
                 CommonContentValidation.ValidateCreatedAndUpdatedBy(linkContent, linkContent.Id < 1);
 
             if (!createdUpdatedValid)
-                return await GenerationReturn.Error(createdUpdatedValidationMessage, linkContent.ContentId);
+                return GenerationReturn.Error(createdUpdatedValidationMessage, linkContent.ContentId);
 
             var urlValidation =
                 await CommonContentValidation.ValidateLinkContentLinkUrl(linkContent.Url, linkContent.ContentId);
 
-            if (!urlValidation.isValid)
-                return await GenerationReturn.Error(urlValidation.explanation, linkContent.ContentId);
+            if (!urlValidation.Valid)
+                return GenerationReturn.Error(urlValidation.Explanation, linkContent.ContentId);
 
-            return await GenerationReturn.Success("Link Content Validation Successful");
+            return GenerationReturn.Success("Link Content Validation Successful");
         }
 
         public class LinkMetadata

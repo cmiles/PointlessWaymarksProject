@@ -22,7 +22,7 @@ namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
         private string _userText;
         private T _userValue;
 
-        private List<Func<T, (bool passed, string validationMessage)>> _validationFunctions = new();
+        private List<Func<T, IsValid>> _validationFunctions = new();
 
         private string _validationMessage;
 
@@ -108,7 +108,7 @@ namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
             }
         }
 
-        public List<Func<T, (bool passed, string validationMessage)>> ValidationFunctions
+        public List<Func<T, IsValid>> ValidationFunctions
         {
             get => _validationFunctions;
             set
@@ -162,10 +162,10 @@ namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
                 foreach (var loopValidations in ValidationFunctions)
                 {
                     var validationResult = loopValidations(UserValue);
-                    if (!validationResult.passed)
+                    if (!validationResult.Valid)
                     {
                         HasValidationIssues = true;
-                        ValidationMessage = validationResult.validationMessage;
+                        ValidationMessage = validationResult.Explanation;
                         return;
                     }
                 }

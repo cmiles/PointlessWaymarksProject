@@ -388,7 +388,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                     PostContent pc => await PostGenerator.Validate(pc),
                     LinkContent l => await LinkGenerator.Validate(l),
                     NoteContent n => await NoteGenerator.Validate(n),
-                    _ => await GenerationReturn.Error("Excel Import - No Content Type Generator found?")
+                    _ => GenerationReturn.Error("Excel Import - No Content Type Generator found?")
                 };
 
                 if (validationResult.HasError)
@@ -541,7 +541,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                     }
                     default:
                         generationResult =
-                            await GenerationReturn.Error("Excel Import - No Content Type Generator found?");
+                            GenerationReturn.Error("Excel Import - No Content Type Generator found?");
                         break;
                 }
 

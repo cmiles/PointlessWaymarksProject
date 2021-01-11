@@ -38,7 +38,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var sourceFileReference =
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(dbEntry);
-            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference, progress);
+            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference);
 
             if (currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
                 deleteAll)
@@ -72,7 +72,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var sourceFileReference =
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(dbEntry);
-            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference, progress);
+            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference);
 
             if (currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
                 deleteAll)
@@ -83,16 +83,16 @@ namespace PointlessWaymarks.CmsData.Content
             IProgress<string> progress)
         {
             if (dbEntry == null)
-                return await GenerationReturn.Error("Null Image Content submitted to Copy Clean and Resize");
+                return GenerationReturn.Error("Null Image Content submitted to Copy Clean and Resize");
 
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
-                return await GenerationReturn.Error($"Image {dbEntry.Title} has no Original File", dbEntry.ContentId);
+                return GenerationReturn.Error($"Image {dbEntry.Title} has no Original File", dbEntry.ContentId);
 
             var imageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
-            var syncCopyResults = await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
+            var syncCopyResults = await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry);
 
             if (!syncCopyResults.HasError) return syncCopyResults;
 
@@ -101,7 +101,7 @@ namespace PointlessWaymarks.CmsData.Content
             ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(imageDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);
 
-            return await GenerationReturn.Success($"{dbEntry.Title} Copied, Cleaned, Resized", dbEntry.ContentId);
+            return GenerationReturn.Success($"{dbEntry.Title} Copied, Cleaned, Resized", dbEntry.ContentId);
         }
 
         /// <summary>
@@ -113,16 +113,16 @@ namespace PointlessWaymarks.CmsData.Content
             IProgress<string> progress)
         {
             if (dbEntry == null)
-                return await GenerationReturn.Error("Null Photo Content submitted to Copy Clean and Resize");
+                return GenerationReturn.Error("Null Photo Content submitted to Copy Clean and Resize");
 
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
-                return await GenerationReturn.Error($"Photo {dbEntry.Title} has no Original File", dbEntry.ContentId);
+                return GenerationReturn.Error($"Photo {dbEntry.Title} has no Original File", dbEntry.ContentId);
 
             var photoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
-            var syncCopyResults = await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
+            var syncCopyResults = await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry);
 
             if (!syncCopyResults.HasError) return syncCopyResults;
 
@@ -131,7 +131,7 @@ namespace PointlessWaymarks.CmsData.Content
             ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(photoDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);
 
-            return await GenerationReturn.Success($"{dbEntry.Title} Copied, Cleaned, Resized", dbEntry.ContentId);
+            return GenerationReturn.Success($"{dbEntry.Title} Copied, Cleaned, Resized", dbEntry.ContentId);
         }
 
         /// <summary>
@@ -197,11 +197,11 @@ namespace PointlessWaymarks.CmsData.Content
             fileVariants.ForEach(x => x.Delete());
         }
 
-        public static int DisplayPictureWidth(FileInfo fileToProcess, IProgress<string> progress)
+        public static int DisplayPictureWidth(FileInfo fileToProcess)
         {
             var imageInfo = ImageFileInfo.Load(fileToProcess.FullNameWithLongFilePrefix());
 
-            var originalWidth = imageInfo.Frames.First().Width;
+            var originalWidth = imageInfo.Frames[0].Width;
 
             if (originalWidth > 1200) return 1200;
 
@@ -215,7 +215,7 @@ namespace PointlessWaymarks.CmsData.Content
         public static FileInfo ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
             IProgress<string> progress)
         {
-            var displayWidth = DisplayPictureWidth(fileToProcess, progress);
+            var displayWidth = DisplayPictureWidth(fileToProcess);
 
             progress?.Report($"Resize For Display: {displayWidth}, 82");
 
@@ -225,7 +225,7 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(PhotoContent dbEntry,
             bool overwriteExistingFiles, IProgress<string> progress)
         {
-            await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry, progress);
+            await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
@@ -237,7 +237,7 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(ImageContent dbEntry,
             bool overwriteExistingFiles, IProgress<string> progress)
         {
-            await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry, progress);
+            await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
@@ -266,18 +266,18 @@ namespace PointlessWaymarks.CmsData.Content
 
             var imageInfo = ImageFileInfo.Load(fileToProcess.FullNameWithLongFilePrefix());
 
-            var originalWidth = imageInfo.Frames.First().Width;
+            var originalWidth = imageInfo.Frames[0].Width;
 
             var returnList = new List<FileInfo>();
 
             var smallestSrcSetSize = sizeQualityList.Min(x => x.size);
 
-            foreach (var loopSizeQuality in sizeQualityList)
-                if (originalWidth >= loopSizeQuality.size || loopSizeQuality.size == smallestSrcSetSize)
+            foreach (var (size, quality) in sizeQualityList)
+                if (originalWidth >= size || size == smallestSrcSetSize)
                 {
-                    progress?.Report($"Resize: {loopSizeQuality.size}, {loopSizeQuality.quality}");
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fileToProcess, loopSizeQuality.size,
-                        loopSizeQuality.quality, overwriteExistingFiles, progress));
+                    progress?.Report($"Resize: {size}, {quality}");
+                    returnList.Add(ResizeWithWidthAndHeightFileName(fileToProcess, size,
+                        quality, overwriteExistingFiles, progress));
                 }
 
             return returnList;

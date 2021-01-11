@@ -43,48 +43,48 @@ namespace PointlessWaymarks.CmsData.Content
             DataNotifications.PublishDataNotification("Image Generator", DataNotificationContentType.Image,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
-            return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
+            return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
         public static async Task<GenerationReturn> Validate(ImageContent imageContent, FileInfo selectedFile)
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
-            if (!rootDirectoryCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
+            if (!rootDirectoryCheck.Valid)
+                return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     imageContent.ContentId);
 
             var mediaArchiveCheck = UserSettingsUtilities.ValidateLocalMediaArchive();
-            if (!mediaArchiveCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Item2}",
+            if (!mediaArchiveCheck.Valid)
+                return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
                     imageContent.ContentId);
 
             var commonContentCheck = await CommonContentValidation.ValidateContentCommon(imageContent);
-            if (!commonContentCheck.valid)
-                return await GenerationReturn.Error(commonContentCheck.explanation, imageContent.ContentId);
+            if (!commonContentCheck.Valid)
+                return GenerationReturn.Error(commonContentCheck.Explanation, imageContent.ContentId);
 
             var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(imageContent.UpdateNotesFormat);
-            if (!updateFormatCheck.isValid)
-                return await GenerationReturn.Error(updateFormatCheck.explanation, imageContent.ContentId);
+            if (!updateFormatCheck.Valid)
+                return GenerationReturn.Error(updateFormatCheck.Explanation, imageContent.ContentId);
 
             selectedFile.Refresh();
 
             if (!selectedFile.Exists)
-                return await GenerationReturn.Error("Selected File doesn't exist?", imageContent.ContentId);
+                return GenerationReturn.Error("Selected File doesn't exist?", imageContent.ContentId);
 
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
-                return await GenerationReturn.Error("Limit File Names to A-Z a-z - . _", imageContent.ContentId);
+                return GenerationReturn.Error("Limit File Names to A-Z a-z - . _", imageContent.ContentId);
 
             if (!FolderFileUtility.PictureFileTypeIsSupported(selectedFile))
-                return await GenerationReturn.Error("The file doesn't appear to be a supported file type.",
+                return GenerationReturn.Error("The file doesn't appear to be a supported file type.",
                     imageContent.ContentId);
 
             if (await (await Db.Context()).ImageFilenameExistsInDatabase(selectedFile.Name, imageContent.ContentId))
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     "This filename already exists in the database - image file names must be unique.",
                     imageContent.ContentId);
 
-            return await GenerationReturn.Success("Image Content Validation Successful");
+            return GenerationReturn.Success("Image Content Validation Successful");
         }
 
         public static async Task WriteImageFromMediaArchiveToLocalSite(ImageContent imageContent,

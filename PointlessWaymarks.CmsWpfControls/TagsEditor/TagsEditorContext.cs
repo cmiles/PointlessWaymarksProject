@@ -97,8 +97,8 @@ namespace PointlessWaymarks.CmsWpfControls.TagsEditor
 
             var tagValidation = CommonContentValidation.ValidateTags(Tags);
 
-            HasValidationIssues = !tagValidation.isValid;
-            TagsValidationMessage = tagValidation.explanation;
+            HasValidationIssues = !tagValidation.Valid;
+            TagsValidationMessage = tagValidation.Explanation;
         }
 
         public bool HasChanges

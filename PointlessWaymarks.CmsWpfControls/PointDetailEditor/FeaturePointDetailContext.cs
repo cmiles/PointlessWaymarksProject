@@ -193,7 +193,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
             await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
 
             TypeEditor = StringDataEntryContext.CreateInstance();
-            TypeEditor.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            TypeEditor.ValidationFunctions = new List<Func<string, IsValid>>
             {
                 CommonContentValidation.ValidateFeatureType
             };

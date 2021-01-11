@@ -20,7 +20,7 @@ namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
         private string _title;
         private string _userValue;
 
-        private List<Func<string, (bool passed, string validationMessage)>> _validationFunctions = new();
+        private List<Func<string, IsValid>> _validationFunctions = new();
 
         private string _validationMessage;
 
@@ -72,7 +72,7 @@ namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
             }
         }
 
-        public List<Func<string, (bool passed, string validationMessage)>> ValidationFunctions
+        public List<Func<string, IsValid>> ValidationFunctions
         {
             get => _validationFunctions;
             set
@@ -126,10 +126,10 @@ namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
                 foreach (var loopValidations in ValidationFunctions)
                 {
                     var validationResult = loopValidations(UserValue);
-                    if (!validationResult.passed)
+                    if (!validationResult.Valid)
                     {
                         HasValidationIssues = true;
-                        ValidationMessage = validationResult.validationMessage;
+                        ValidationMessage = validationResult.Explanation;
                         return;
                     }
                 }
@@ -151,7 +151,7 @@ namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
                 HelpText = "This will be the Folder and File Name used in URLs - limited to a-z 0-9 _ -",
                 ReferenceValue = dbEntry?.Slug ?? string.Empty,
                 UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Slug),
-                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                ValidationFunctions = new List<Func<string, IsValid>>
                 {
                     CommonContentValidation.ValidateSlugLocal
                 }
@@ -170,7 +170,7 @@ namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
                 HelpText = "A short text entry that will show in Search and short references to the content",
                 ReferenceValue = dbEntry?.Summary ?? string.Empty,
                 UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Summary),
-                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                ValidationFunctions = new List<Func<string, IsValid>>
                 {
                     CommonContentValidation.ValidateSummary
                 }
@@ -189,7 +189,7 @@ namespace PointlessWaymarks.CmsWpfControls.StringDataEntry
                 HelpText = "Title Text",
                 ReferenceValue = dbEntry?.Title ?? string.Empty,
                 UserValue = StringHelpers.NullToEmptyTrim(dbEntry?.Title),
-                ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+                ValidationFunctions = new List<Func<string, IsValid>>
                 {
                     CommonContentValidation.ValidateTitle
                 }

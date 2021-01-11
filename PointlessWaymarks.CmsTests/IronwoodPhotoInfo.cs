@@ -357,19 +357,19 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(originalFile.Exists, "Test File Found");
 
             var (metadataGenerationReturn, newContent) =
-                await PhotoGenerator.PhotoMetadataToNewPhotoContent(originalFile, DebugTrackers.DebugProgressTracker());
+                PhotoGenerator.PhotoMetadataToNewPhotoContent(originalFile, DebugTrackers.DebugProgressTracker());
             Assert.False(metadataGenerationReturn.HasError, metadataGenerationReturn.GenerationNote);
 
-            var contentComparison = CompareContent(contentReference, newContent);
-            Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
+            var (areEqual, comparisonNotes) = CompareContent(contentReference, newContent);
+            Assert.True(areEqual, comparisonNotes);
 
             var validationReturn = await PhotoGenerator.Validate(newContent, originalFile);
             Assert.False(validationReturn.HasError, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
-            var saveReturn = await PhotoGenerator.SaveAndGenerateHtml(newContent, originalFile, true, null,
+            var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(newContent, originalFile, true, null,
                 DebugTrackers.DebugProgressTracker());
-            Assert.False(saveReturn.generationReturn.HasError,
-                $"Unexpected Save Error - {saveReturn.generationReturn.GenerationNote}");
+            Assert.False(generationReturn.HasError,
+                $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
             Assert.IsTrue(newContent.MainPicture == newContent.ContentId,
                 $"Main Picture - {newContent.MainPicture} - Should be set to Content Id {newContent.ContentId}");

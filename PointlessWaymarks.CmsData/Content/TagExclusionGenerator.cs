@@ -24,7 +24,7 @@ namespace PointlessWaymarks.CmsData.Content
 
                 await db.AddAsync(toSave);
                 await db.SaveChangesAsync(true);
-                return (await GenerationReturn.Success("Tag Exclusion Saved"), toSave);
+                return (GenerationReturn.Success("Tag Exclusion Saved"), toSave);
             }
 
             var toModify = await db.TagExclusions.SingleAsync(x => x.Id == toSave.Id);
@@ -34,27 +34,27 @@ namespace PointlessWaymarks.CmsData.Content
 
             await db.SaveChangesAsync(true);
 
-            return (await GenerationReturn.Success("Tag Exclusion Saved"), toModify);
+            return (GenerationReturn.Success("Tag Exclusion Saved"), toModify);
         }
 
         public static async Task<GenerationReturn> Validate(TagExclusion toValidate)
         {
-            if (toValidate == null) return await GenerationReturn.Error("Excluded Tag can not be empty");
+            if (toValidate == null) return GenerationReturn.Error("Excluded Tag can not be empty");
 
             if (string.IsNullOrWhiteSpace(toValidate.Tag))
-                return await GenerationReturn.Error("Excluded Tag can not be blank");
+                return GenerationReturn.Error("Excluded Tag can not be blank");
 
             var validationResult = CommonContentValidation.ValidateTags(toValidate.Tag.TrimNullToEmpty());
-            if (!validationResult.isValid) return await GenerationReturn.Error(validationResult.explanation);
+            if (!validationResult.Valid) return GenerationReturn.Error(validationResult.Explanation);
 
             var cleanedTag = Db.TagListItemCleanup(toValidate.Tag);
 
             var db = await Db.Context();
             if (db.TagExclusions.Any(x => x.Id != toValidate.Id && x.Tag == cleanedTag))
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     $"It appears that the tag '{cleanedTag}' is already in the Exclusion List?");
 
-            return await GenerationReturn.Success("Tag Exclusion is Valid");
+            return GenerationReturn.Success("Tag Exclusion is Valid");
         }
     }
 }

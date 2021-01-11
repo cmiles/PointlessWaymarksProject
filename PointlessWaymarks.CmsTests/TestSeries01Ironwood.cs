@@ -18,8 +18,6 @@ using PointlessWaymarks.CmsData.Html.CommonHtml;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using Serilog;
-using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsTests
 {
@@ -61,7 +59,7 @@ namespace PointlessWaymarks.CmsTests
             TestSiteSettings.SiteKeywords = TestSiteKeywords;
             TestSiteSettings.SiteSummary = TestSummary;
             TestSiteSettings.SiteUrl = "localhost";
-            await TestSiteSettings.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
+            await UserSettingsUtilities.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
             await TestSiteSettings.WriteSettings();
             UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
 

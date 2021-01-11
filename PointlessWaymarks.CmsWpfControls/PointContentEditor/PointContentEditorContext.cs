@@ -449,7 +449,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 
             ElevationEntry = ConversionDataEntryContext<double?>.CreateInstance();
             ElevationEntry.Converter = ConversionDataEntryHelpers.DoubleNullableConversion;
-            ElevationEntry.ValidationFunctions = new List<Func<double?, (bool passed, string validationMessage)>>
+            ElevationEntry.ValidationFunctions = new List<Func<double?, IsValid>>
             {
                 CommonContentValidation.ElevationValidation
             };
@@ -460,7 +460,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 
             LatitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
             LatitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
-            LatitudeEntry.ValidationFunctions = new List<Func<double, (bool passed, string validationMessage)>>
+            LatitudeEntry.ValidationFunctions = new List<Func<double, IsValid>>
             {
                 CommonContentValidation.LatitudeValidation
             };
@@ -477,7 +477,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 
             LongitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
             LongitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
-            LongitudeEntry.ValidationFunctions = new List<Func<double, (bool passed, string validationMessage)>>
+            LongitudeEntry.ValidationFunctions = new List<Func<double, IsValid>>
             {
                 CommonContentValidation.LongitudeValidation
             };

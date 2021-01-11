@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             var returnList = new List<GenerationReturn>();
 
-            if (content == null || !content.Any()) return returnList;
+            if (!content.Any()) return returnList;
 
             foreach (var loopContent in content)
                 returnList.Add(await CheckForBadContentReferences(loopContent, db, progress));
@@ -57,7 +58,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<GenerationReturn> CheckForBadContentReferences(IContentCommon content,
-            PointlessWaymarksContext db, IProgress<string> progress)
+            PointlessWaymarksContext db, IProgress<string>? progress)
         {
             progress?.Report($"Checking ContentIds for {content.Title}");
 
@@ -79,13 +80,13 @@ namespace PointlessWaymarks.CmsData.Content
                 (await Db.PointDetailsForPoint(point.ContentId, db)).ForEach(x => toSearch += x.StructuredDataAsJson);
 
             if (string.IsNullOrWhiteSpace(toSearch) && !extracted.Any())
-                return await GenerationReturn.Success(
+                return GenerationReturn.Success(
                     $"{Db.ContentTypeString(content)} {content.Title} - No Content Ids Found", content.ContentId);
 
             extracted.AddRange(BracketCodeCommon.BracketCodeContentIds(toSearch));
 
             if (!extracted.Any())
-                return await GenerationReturn.Success(
+                return GenerationReturn.Success(
                     $"{Db.ContentTypeString(content)} {content.Title} - No Content Ids Found", content.ContentId);
 
             progress?.Report($"Found {extracted.Count} ContentIds to check for {content.Title}");
@@ -104,26 +105,26 @@ namespace PointlessWaymarks.CmsData.Content
             }
 
             if (notFoundList.Any())
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     $"{Db.ContentTypeString(content)} {content.Title} has " +
                     $"Invalid ContentIds in Bracket Codes - {string.Join(", ", notFoundList)}", content.ContentId);
 
-            return await GenerationReturn.Success(
+            return GenerationReturn.Success(
                 $"{Db.ContentTypeString(content)} {content.Title} - No Invalid Content Ids Found");
         }
 
         public static async Task<GenerationReturn> CheckStringForBadContentReferences(string toSearch,
-            PointlessWaymarksContext db, IProgress<string> progress)
+            PointlessWaymarksContext db, IProgress<string>? progress)
         {
             var extracted = new List<Guid>();
 
             if (string.IsNullOrWhiteSpace(toSearch))
-                return await GenerationReturn.Success("No Content Ids Found");
+                return GenerationReturn.Success("No Content Ids Found");
 
             extracted.AddRange(BracketCodeCommon.BracketCodeContentIds(toSearch));
 
             if (!extracted.Any())
-                return await GenerationReturn.Success("No Content Ids Found");
+                return GenerationReturn.Success("No Content Ids Found");
 
             progress?.Report($"Found {extracted.Count} ContentIds to check for");
 
@@ -141,47 +142,45 @@ namespace PointlessWaymarks.CmsData.Content
             }
 
             if (notFoundList.Any())
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     $"Invalid ContentIds in Bracket Codes - {string.Join(", ", notFoundList)}");
 
-            return await GenerationReturn.Success("No Invalid Content Ids Found");
+            return GenerationReturn.Success("No Invalid Content Ids Found");
         }
 
-        public static (bool isValid, string explanation) ElevationValidation(double? elevation)
+        public static IsValid ElevationValidation(double? elevation)
         {
-            if (elevation == null) return (true, "Null Elevation is Valid");
+            if (elevation == null) return new IsValid(true, "Null Elevation is Valid");
 
             if (elevation > 8850)
-                return (false,
+                return new IsValid(false,
                     $"Elevations are limited to the elevation of Mount Everest - 29,092' above sea level - {elevation} was input...");
 
             if (elevation < -15240)
-                return (false,
+                return new IsValid(false,
                     $"This is very unlikely to be a valid elevation, this exceeds the depth of the Mariana Trench and known Extended-Reach Drilling (as of 2020) - elevations under -50,000' are not considered valid - {elevation} was input...");
 
-            return (true, "Elevation is Valid");
+            return new IsValid(true, "Elevation is Valid");
         }
 
 
-        public static async Task<(bool isValid, string explanation)> FileContentFileValidation(FileInfo fileContentFile,
+        public static async Task<IsValid> FileContentFileValidation(FileInfo fileContentFile,
             Guid? currentContentId)
         {
-            if (fileContentFile == null) return (false, "Please choose a file");
-
             fileContentFile.Refresh();
 
-            if (!fileContentFile.Exists) return (false, "File does not Exist?");
+            if (!fileContentFile.Exists) return new IsValid(false, "File does not Exist?");
 
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name)))
-                return (false, "Limit File Names to A-Z a-z 0-9 - . _");
+                return new IsValid(false, "Limit File Names to A-Z a-z 0-9 - . _");
 
             if (await (await Db.Context()).ImageFilenameExistsInDatabase(fileContentFile.Name, currentContentId))
-                return (false, "This filename already exists in the database - file names must be unique.");
+                return new IsValid(false, "This filename already exists in the database - file names must be unique.");
 
-            return (true, "File is Valid");
+            return new IsValid(true, "File is Valid");
         }
 
-        public static (bool isValid, string explanation) GeoJsonValidation(string geoJsonString)
+        public static IsValid GeoJsonValidation(string geoJsonString)
         {
             try
             {
@@ -191,85 +190,86 @@ namespace PointlessWaymarks.CmsData.Content
                 using var jsonReader = new JsonTextReader(stringReader);
                 var featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
                 if (featureCollection == null || featureCollection.Count < 1)
-                    return (false, "The GeoJson appears to have an empty Feature Collection?");
+                    return new IsValid(false, "The GeoJson appears to have an empty Feature Collection?");
             }
             catch (Exception e)
             {
-                return (false,
+                return new IsValid(false,
                     $"Error parsing a Feature Collection from the GeoJson, this CMS needs even single GeoJson types to be wrapped into a FeatureCollection... {e.Message}");
             }
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static async Task<(bool isValid, string explanation)> ImageFileValidation(FileInfo imageFile,
+        public static async Task<IsValid> ImageFileValidation(FileInfo imageFile,
             Guid? currentContentId)
         {
             imageFile.Refresh();
 
-            if (!imageFile.Exists) return (false, "File does not Exist?");
+            if (!imageFile.Exists) return new IsValid(false, "File does not Exist?");
 
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(imageFile.Name)))
-                return (false, "Limit File Names to A-Z a-z 0-9 - . _");
+                return new IsValid(false, "Limit File Names to A-Z a-z 0-9 - . _");
 
             if (!FolderFileUtility.PictureFileTypeIsSupported(imageFile))
-                return (false, "The file doesn't appear to be a supported file type.");
+                return new IsValid(false, "The file doesn't appear to be a supported file type.");
 
             if (await (await Db.Context()).ImageFilenameExistsInDatabase(imageFile.Name, currentContentId))
-                return (false, "This filename already exists in the database - image file names must be unique.");
+                return new IsValid(false,
+                    "This filename already exists in the database - image file names must be unique.");
 
-            return (true, "File is Valid");
+            return new IsValid(true, "File is Valid");
         }
 
-        public static (bool isValid, string explanation) LatitudeValidation(double latitude)
+        public static IsValid LatitudeValidation(double latitude)
         {
             if (latitude > 90 || latitude < -90)
-                return (false, $"Latitude on Earth must be between -90 and 90 - {latitude} is not valid.");
+                return new IsValid(false, $"Latitude on Earth must be between -90 and 90 - {latitude} is not valid.");
 
-            return (true, "Latitude is Valid");
+            return new IsValid(true, "Latitude is Valid");
         }
 
-        public static (bool isValid, string explanation) LongitudeValidation(double longitude)
+        public static IsValid LongitudeValidation(double longitude)
         {
             if (longitude > 180 || longitude < -180)
-                return (false, $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid.");
+                return new IsValid(false,
+                    $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid.");
 
-            return (true, "Longitude is Valid");
+            return new IsValid(true, "Longitude is Valid");
         }
 
-        public static async Task<(bool isValid, string explanation)> PhotoFileValidation(FileInfo photoFile,
+        public static async Task<IsValid> PhotoFileValidation(FileInfo photoFile,
             Guid? currentContentId)
         {
             photoFile.Refresh();
 
-            if (!photoFile.Exists) return (false, "File does not Exist?");
+            if (!photoFile.Exists) return new IsValid(false, "File does not Exist?");
 
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(photoFile.Name)))
-                return (false, "Limit File Names to A-Z a-z 0-9 - . _");
+                return new IsValid(false, "Limit File Names to A-Z a-z 0-9 - . _");
 
             if (!FolderFileUtility.PictureFileTypeIsSupported(photoFile))
-                return (false, "The file doesn't appear to be a supported file type.");
+                return new IsValid(false, "The file doesn't appear to be a supported file type.");
 
             if (await (await Db.Context()).PhotoFilenameExistsInDatabase(photoFile.Name, currentContentId))
-                return (false, "This filename already exists in the database - photo file names must be unique.");
+                return new IsValid(false,
+                    "This filename already exists in the database - photo file names must be unique.");
 
-            return (true, "File is Valid");
+            return new IsValid(true, "File is Valid");
         }
 
-        public static (bool isValid, string explanation) ValidateBodyContentFormat(string contentFormat)
+        public static IsValid ValidateBodyContentFormat(string contentFormat)
         {
-            if (string.IsNullOrWhiteSpace(contentFormat)) return (false, "Body Content Format must be set");
+            if (string.IsNullOrWhiteSpace(contentFormat)) return new IsValid(false, "Body Content Format must be set");
 
             if (Enum.TryParse(typeof(ContentFormatEnum), contentFormat, true, out _))
-                return (true, string.Empty);
+                return new IsValid(true, string.Empty);
 
-            return (false, $"Could not parse {contentFormat} into a known Content Format");
+            return new IsValid(false, $"Could not parse {contentFormat} into a known Content Format");
         }
 
-        public static async Task<(bool valid, string explanation)> ValidateContentCommon(IContentCommon toValidate)
+        public static async Task<IsValid> ValidateContentCommon(IContentCommon toValidate)
         {
-            if (toValidate == null) return (false, "Null Content to Validate");
-
             var isNewEntry = toValidate.Id < 1;
 
             var isValid = true;
@@ -283,18 +283,18 @@ namespace PointlessWaymarks.CmsData.Content
 
             var titleValidation = ValidateTitle(toValidate.Title);
 
-            if (!titleValidation.isValid)
+            if (!titleValidation.Valid)
             {
                 isValid = false;
-                errorMessage.Add(titleValidation.explanation);
+                errorMessage.Add(titleValidation.Explanation);
             }
 
             var summaryValidation = ValidateSummary(toValidate.Summary);
 
-            if (!summaryValidation.isValid)
+            if (!summaryValidation.Valid)
             {
                 isValid = false;
-                errorMessage.Add(summaryValidation.explanation);
+                errorMessage.Add(summaryValidation.Explanation);
             }
 
             var (createdUpdatedIsValid, createdUpdatedExplanation) =
@@ -308,34 +308,34 @@ namespace PointlessWaymarks.CmsData.Content
 
             var slugValidation = await ValidateSlugLocalAndDb(toValidate.Slug, toValidate.ContentId);
 
-            if (!slugValidation.isValid)
+            if (!slugValidation.Valid)
             {
                 isValid = false;
-                errorMessage.Add(slugValidation.explanation);
+                errorMessage.Add(slugValidation.Explanation);
             }
 
             var folderValidation = ValidateFolder(toValidate.Folder);
 
-            if (!folderValidation.isValid)
+            if (!folderValidation.Valid)
             {
                 isValid = false;
-                errorMessage.Add(folderValidation.explanation);
+                errorMessage.Add(folderValidation.Explanation);
             }
 
             var tagValidation = ValidateTags(toValidate.Tags);
 
-            if (!tagValidation.isValid)
+            if (!tagValidation.Valid)
             {
                 isValid = false;
-                errorMessage.Add(tagValidation.explanation);
+                errorMessage.Add(tagValidation.Explanation);
             }
 
             var bodyContentFormatValidation = ValidateBodyContentFormat(toValidate.BodyContentFormat);
 
-            if (!bodyContentFormatValidation.isValid)
+            if (!bodyContentFormatValidation.Valid)
             {
                 isValid = false;
-                errorMessage.Add(bodyContentFormatValidation.explanation);
+                errorMessage.Add(bodyContentFormatValidation.Explanation);
             }
 
             var contentIdCheck = await CheckForBadContentReferences(toValidate, await Db.Context(), null);
@@ -346,10 +346,10 @@ namespace PointlessWaymarks.CmsData.Content
                 errorMessage.Add(contentIdCheck.GenerationNote);
             }
 
-            return (isValid, string.Join(Environment.NewLine, errorMessage));
+            return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
         }
 
-        public static (bool valid, string explanation) ValidateCreatedAndUpdatedBy(
+        public static IsValid ValidateCreatedAndUpdatedBy(
             ICreatedAndLastUpdateOnAndBy toValidate, bool isNewEntry)
         {
             var isValid = true;
@@ -361,12 +361,12 @@ namespace PointlessWaymarks.CmsData.Content
                 errorMessage.Add($"Created on of {toValidate.CreatedOn} is not valid.");
             }
 
-            var createdByValidation = ValidateCreatedBy(toValidate.CreatedBy);
+            var (valid, explanation) = ValidateCreatedBy(toValidate.CreatedBy);
 
-            if (!createdByValidation.valid)
+            if (!valid)
             {
                 isValid = false;
-                errorMessage.Add(createdByValidation.explanation);
+                errorMessage.Add(explanation);
             }
 
             if (!isNewEntry && string.IsNullOrWhiteSpace(toValidate.LastUpdatedBy))
@@ -381,49 +381,53 @@ namespace PointlessWaymarks.CmsData.Content
                 errorMessage.Add("Last Updated On can not be blank/empty when updating an entry");
             }
 
-            return (isValid, string.Join(Environment.NewLine, errorMessage));
+            return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
         }
 
-        public static (bool valid, string explanation) ValidateCreatedBy(string createdBy)
+        public static IsValid ValidateCreatedBy(string createdBy)
         {
-            if (string.IsNullOrWhiteSpace(createdBy.TrimNullToEmpty())) return (false, "Created by can not be blank.");
+            if (string.IsNullOrWhiteSpace(createdBy.TrimNullToEmpty()))
+                return new IsValid(false, "Created by can not be blank.");
 
-            return (true, "Created By is Ok");
+            return new IsValid(true, "Created By is Ok");
         }
 
-        public static (bool isValid, string explanation) ValidateFeatureType(string title)
+        public static IsValid ValidateFeatureType(string title)
         {
-            if (string.IsNullOrWhiteSpace(title)) return (false, "Type can not be blank");
+            if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "Type can not be blank");
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static (bool isValid, string explanation) ValidateFolder(string folder)
+        public static IsValid ValidateFolder(string folder)
         {
-            if (string.IsNullOrWhiteSpace(folder)) return (false, "Folder can't be blank or only whitespace.");
+            if (string.IsNullOrWhiteSpace(folder))
+                return new IsValid(false, "Folder can't be blank or only whitespace.");
 
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(folder))
-                return (false, "Limit folder names to a-z A-Z 0-9 _ -");
+                return new IsValid(false, "Limit folder names to a-z A-Z 0-9 _ -");
 
             if (folder.ToLower() == "data")
-                return (false, "Folders can not be named 'Data' - this folder is reserved for use by the CMS");
+                return new IsValid(false,
+                    "Folders can not be named 'Data' - this folder is reserved for use by the CMS");
             if (folder.ToLower() == "galleries")
-                return (false, "Folders can not be named 'Galleries' - this folder is reserved for use by the CMS");
+                return new IsValid(false,
+                    "Folders can not be named 'Galleries' - this folder is reserved for use by the CMS");
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static (bool isValid, string explanation) ValidateGeoJson(string title)
+        public static IsValid ValidateGeoJson(string title)
         {
-            if (string.IsNullOrWhiteSpace(title)) return (false, "GeoJson can not be blank");
+            if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "GeoJson can not be blank");
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static async Task<(bool isValid, string explanation)> ValidateLinkContentLinkUrl(string url,
+        public static async Task<IsValid> ValidateLinkContentLinkUrl(string url,
             Guid? contentGuid)
         {
-            if (string.IsNullOrWhiteSpace(url)) return (false, "Link URL can not be blank");
+            if (string.IsNullOrWhiteSpace(url)) return new IsValid(false, "Link URL can not be blank");
 
             var db = await Db.Context();
 
@@ -431,7 +435,7 @@ namespace PointlessWaymarks.CmsData.Content
             {
                 var duplicateUrl = await db.LinkContents.AnyAsync(x => x.Url.ToLower() == url.ToLower());
                 if (duplicateUrl)
-                    return (false,
+                    return new IsValid(false,
                         "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
             }
             else
@@ -439,14 +443,14 @@ namespace PointlessWaymarks.CmsData.Content
                 var duplicateUrl = await db.LinkContents.AnyAsync(x =>
                     x.ContentId != contentGuid.Value && x.Url.ToLower() == url.ToLower());
                 if (duplicateUrl)
-                    return (false,
+                    return new IsValid(false,
                         "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
             }
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static async Task<(bool valid, string explanation)> ValidateMapComponent(MapComponentDto mapComponent)
+        public static async Task<IsValid> ValidateMapComponent(MapComponentDto mapComponent)
         {
             var isNewEntry = mapComponent.Map.Id < 1;
 
@@ -461,18 +465,18 @@ namespace PointlessWaymarks.CmsData.Content
 
             var titleValidation = ValidateTitle(mapComponent.Map.Title);
 
-            if (!titleValidation.isValid)
+            if (!titleValidation.Valid)
             {
                 isValid = false;
-                errorMessage.Add(titleValidation.explanation);
+                errorMessage.Add(titleValidation.Explanation);
             }
 
             var summaryValidation = ValidateSummary(mapComponent.Map.Summary);
 
-            if (!summaryValidation.isValid)
+            if (!summaryValidation.Valid)
             {
                 isValid = false;
-                errorMessage.Add(summaryValidation.explanation);
+                errorMessage.Add(summaryValidation.Explanation);
             }
 
             var (createdUpdatedIsValid, createdUpdatedExplanation) =
@@ -490,7 +494,7 @@ namespace PointlessWaymarks.CmsData.Content
                 errorMessage.Add("A map must have at least one element");
             }
 
-            if (!isValid) return (false, string.Join(Environment.NewLine, errorMessage));
+            if (!isValid) return new IsValid(false, string.Join(Environment.NewLine, errorMessage));
 
             if (mapComponent.Elements.Any(x => x.ElementContentId == Guid.Empty))
             {
@@ -504,7 +508,7 @@ namespace PointlessWaymarks.CmsData.Content
                 errorMessage.Add("Not all map elements are correctly associated with the map.");
             }
 
-            if (!isValid) return (false, string.Join(Environment.NewLine, errorMessage));
+            if (!isValid) return new IsValid(false, string.Join(Environment.NewLine, errorMessage));
 
             foreach (var loopElements in mapComponent.Elements)
             {
@@ -515,67 +519,68 @@ namespace PointlessWaymarks.CmsData.Content
                 break;
             }
 
-            return (isValid, string.Join(Environment.NewLine, errorMessage));
+            return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
         }
 
-        public static (bool isValid, string explanation) ValidateSlugLocal(string slug)
+        public static IsValid ValidateSlugLocal(string slug)
         {
-            if (string.IsNullOrWhiteSpace(slug)) return (false, "Slug can't be blank or only whitespace.");
+            if (string.IsNullOrWhiteSpace(slug)) return new IsValid(false, "Slug can't be blank or only whitespace.");
 
             if (!FolderFileUtility.IsNoUrlEncodingNeededLowerCase(slug))
-                return (false, "Slug should only contain a-z 0-9 _ -");
+                return new IsValid(false, "Slug should only contain a-z 0-9 _ -");
 
-            if (slug.Length > 100) return (false, "Limit slugs to 100 characters.");
+            if (slug.Length > 100) return new IsValid(false, "Limit slugs to 100 characters.");
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static async Task<(bool isValid, string explanation)> ValidateSlugLocalAndDb(string slug, Guid contentId)
+        public static async Task<IsValid> ValidateSlugLocalAndDb(string slug, Guid contentId)
         {
             var localValidation = ValidateSlugLocal(slug);
 
-            if (!localValidation.isValid) return localValidation;
+            if (!localValidation.Valid) return localValidation;
 
             if (await (await Db.Context()).SlugExistsInDatabase(slug, contentId))
-                return (false, "This slug already exists in the database - slugs must be unique.");
+                return new IsValid(false, "This slug already exists in the database - slugs must be unique.");
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static (bool isValid, string explanation) ValidateSummary(string summary)
+        public static IsValid ValidateSummary(string summary)
         {
-            if (string.IsNullOrWhiteSpace(summary)) return (false, "Summary can not be blank");
+            if (string.IsNullOrWhiteSpace(summary)) return new IsValid(false, "Summary can not be blank");
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static (bool isValid, string explanation) ValidateTags(string tags)
+        public static IsValid ValidateTags(string tags)
         {
-            if (string.IsNullOrWhiteSpace(tags)) return (false, "At least one tag must be included.");
+            if (string.IsNullOrWhiteSpace(tags)) return new IsValid(false, "At least one tag must be included.");
 
             var tagList = Db.TagListParse(tags);
 
             if (tagList.Any(x => !FolderFileUtility.IsNoUrlEncodingNeededLowerCaseSpacesOk(x) || x.Length > 200))
-                return (false, "Limit tags to a-z 0-9 _ - [space] and less than 200 characters per tag.");
+                return new IsValid(false, "Limit tags to a-z 0-9 _ - [space] and less than 200 characters per tag.");
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static (bool isValid, string explanation) ValidateTitle(string title)
+        public static IsValid ValidateTitle(string title)
         {
-            if (string.IsNullOrWhiteSpace(title)) return (false, "Title can not be blank");
+            if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "Title can not be blank");
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static (bool isValid, string explanation) ValidateUpdateContentFormat(string contentFormat)
+        public static IsValid ValidateUpdateContentFormat(string contentFormat)
         {
-            if (string.IsNullOrWhiteSpace(contentFormat)) return (false, "Update Content Format must be set");
+            if (string.IsNullOrWhiteSpace(contentFormat))
+                return new IsValid(false, "Update Content Format must be set");
 
             if (Enum.TryParse(typeof(ContentFormatEnum), contentFormat, true, out _))
-                return (true, string.Empty);
+                return new IsValid(true, string.Empty);
 
-            return (false, $"Could not parse {contentFormat} into a known Content Format");
+            return new IsValid(false, $"Could not parse {contentFormat} into a known Content Format");
         }
     }
 }

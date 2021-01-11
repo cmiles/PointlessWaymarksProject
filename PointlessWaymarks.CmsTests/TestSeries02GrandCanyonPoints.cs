@@ -16,8 +16,6 @@ using PointlessWaymarks.CmsData.ExcelImport;
 using PointlessWaymarks.CmsData.Html;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
-using Serilog;
-using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsTests
 {
@@ -47,7 +45,7 @@ namespace PointlessWaymarks.CmsTests
             TestSiteSettings.SiteKeywords = TestSiteKeywords;
             TestSiteSettings.SiteSummary = TestSummary;
             TestSiteSettings.SiteUrl = "localhost";
-            await TestSiteSettings.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
+            await UserSettingsUtilities.EnsureDbIsPresent(DebugTrackers.DebugProgressTracker());
             await TestSiteSettings.WriteSettings();
             UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
 

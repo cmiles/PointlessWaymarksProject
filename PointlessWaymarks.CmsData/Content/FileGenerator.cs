@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
 
-        public static async Task<(GenerationReturn generationReturn, FileContent fileContent)> SaveAndGenerateHtml(
+        public static async Task<(GenerationReturn generationReturn, FileContent? fileContent)> SaveAndGenerateHtml(
             FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
             IProgress<string> progress)
         {
@@ -36,54 +37,53 @@ namespace PointlessWaymarks.CmsData.Content
             toSave.OriginalFileName = selectedFile.Name;
             FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile);
             await Db.SaveFileContent(toSave);
-            WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
+            WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles);
             GenerateHtml(toSave, generationVersion, progress);
             await Export.WriteLocalDbJson(toSave, progress);
 
             DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
-            return (await GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
+            return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
         public static async Task<GenerationReturn> Validate(FileContent fileContent, FileInfo selectedFile)
         {
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
-            if (!rootDirectoryCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Item2}",
+            if (!rootDirectoryCheck.Valid)
+                return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     fileContent.ContentId);
 
             var mediaArchiveCheck = UserSettingsUtilities.ValidateLocalMediaArchive();
-            if (!mediaArchiveCheck.Item1)
-                return await GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Item2}",
+            if (!mediaArchiveCheck.Valid)
+                return GenerationReturn.Error($"Problem with Media Archive: {mediaArchiveCheck.Explanation}",
                     fileContent.ContentId);
 
-            var commonContentCheck = await CommonContentValidation.ValidateContentCommon(fileContent);
-            if (!commonContentCheck.Item1)
-                return await GenerationReturn.Error(commonContentCheck.Item2, fileContent.ContentId);
+            var (valid, explanation) = await CommonContentValidation.ValidateContentCommon(fileContent);
+            if (!valid)
+                return GenerationReturn.Error(explanation, fileContent.ContentId);
 
-            var updateFormatCheck = CommonContentValidation.ValidateUpdateContentFormat(fileContent.UpdateNotesFormat);
-            if (!updateFormatCheck.isValid)
-                return await GenerationReturn.Error(updateFormatCheck.explanation, fileContent.ContentId);
+            var (isValid, s) = CommonContentValidation.ValidateUpdateContentFormat(fileContent.UpdateNotesFormat);
+            if (!isValid)
+                return GenerationReturn.Error(s, fileContent.ContentId);
 
             selectedFile.Refresh();
 
             if (!selectedFile.Exists)
-                return await GenerationReturn.Error("Selected File doesn't exist?", fileContent.ContentId);
+                return GenerationReturn.Error("Selected File doesn't exist?", fileContent.ContentId);
 
             if (!FolderFileUtility.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(selectedFile.Name)))
-                return await GenerationReturn.Error("Limit File Names to A-Z a-z - . _", fileContent.ContentId);
+                return GenerationReturn.Error("Limit File Names to A-Z a-z - . _", fileContent.ContentId);
 
             if (await (await Db.Context()).FileFilenameExistsInDatabase(selectedFile.Name, fileContent.ContentId))
-                return await GenerationReturn.Error(
+                return GenerationReturn.Error(
                     "This filename already exists in the database - file names must be unique.", fileContent.ContentId);
 
-            return await GenerationReturn.Success("File Content Validation Successful");
+            return GenerationReturn.Success("File Content Validation Successful");
         }
 
-        public static void WriteFileFromMediaArchiveToLocalSite(FileContent fileContent, bool overwriteExisting,
-            IProgress<string> progress)
+        public static void WriteFileFromMediaArchiveToLocalSite(FileContent fileContent, bool overwriteExisting)
         {
             var userSettings = UserSettingsSingleton.CurrentSettings();
 

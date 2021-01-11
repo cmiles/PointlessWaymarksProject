@@ -79,8 +79,7 @@ namespace PointlessWaymarks.CmsData
         public static GenerationReturn CreateIfItDoesNotExist(this DirectoryInfo directoryInfo)
         {
             if (directoryInfo.Exists)
-                return GenerationReturn.Success($"Create If Does Not Exists - {directoryInfo.FullName} Already Exists")
-                    .Result;
+                return GenerationReturn.Success($"Create If Does Not Exists - {directoryInfo.FullName} Already Exists");
 
             try
             {
@@ -89,11 +88,10 @@ namespace PointlessWaymarks.CmsData
             catch (Exception e)
             {
                 GenerationReturn
-                    .Error($"Trying to create Directory {directoryInfo.FullName}  resulted in an Exception.", null, e)
-                    .Wait();
+                    .Error($"Trying to create Directory {directoryInfo.FullName}  resulted in an Exception.", null, e);
             }
 
-            return GenerationReturn.Success($"Created {directoryInfo.FullName}").Result;
+            return GenerationReturn.Success($"Created {directoryInfo.FullName}");
         }
 
         public static string CssMainStyleFileUrl(this UserSettings settings)
@@ -111,7 +109,7 @@ namespace PointlessWaymarks.CmsData
             return Enum.GetNames(typeof(ContentFormatEnum)).First();
         }
 
-        public static async Task EnsureDbIsPresent(this UserSettings settings, IProgress<string> progress)
+        public static async Task EnsureDbIsPresent(IProgress<string> progress)
         {
             //TODO: Re-enable migrations if any to apply
             //
@@ -339,7 +337,7 @@ namespace PointlessWaymarks.CmsData
             return new FileInfo($"{Path.Combine(directory.FullName, $"DailyPhotos-{galleryDate:yyyy-MM-dd}")}.html");
         }
 
-        public static DateTime? LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(this UserSettings settings,
+        public static DateTime? LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(
             FileInfo toParse)
         {
             if (toParse == null) return null;
@@ -1130,7 +1128,7 @@ namespace PointlessWaymarks.CmsData
             return $"//{settings.SiteUrl}/RssIndexFeed.xml";
         }
 
-        public static string SearchListJavascriptUrl(this UserSettings settings)
+        public static string SearchListJavascriptUrl()
         {
             return
                 $"{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-content-list-search.js";
@@ -1204,7 +1202,7 @@ namespace PointlessWaymarks.CmsData
             progress?.Report("Setting up directory structure.");
 
             newSettings.VerifyOrCreateAllTopLevelFolders();
-            await newSettings.EnsureDbIsPresent(progress);
+            await EnsureDbIsPresent(progress);
 
             await FileManagement.WriteFavIconToGeneratedSite(progress);
             await FileManagement.WriteStylesCssToGeneratedSite(progress);
@@ -1282,12 +1280,12 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static (bool, string) ValidateLocalMediaArchive()
+        public static IsValid ValidateLocalMediaArchive()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
             if (string.IsNullOrWhiteSpace(settings.LocalMediaArchive))
-                return (false, "No Local File Root User Setting Found");
+                return new IsValid(false, "No Local File Root User Setting Found");
 
             try
             {
@@ -1297,18 +1295,18 @@ namespace PointlessWaymarks.CmsData
             }
             catch (Exception e)
             {
-                return (false, $"Trouble with Local Media Archive Directory - {e.Message}");
+                return new IsValid(false, $"Trouble with Local Media Archive Directory - {e.Message}");
             }
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
-        public static (bool, string) ValidateLocalSiteRootDirectory()
+        public static IsValid ValidateLocalSiteRootDirectory()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
             if (string.IsNullOrWhiteSpace(settings.LocalSiteRootDirectory))
-                return (false, "No Local File Root User Setting Found");
+                return new IsValid(false, "No Local File Root User Setting Found");
 
             try
             {
@@ -1318,10 +1316,10 @@ namespace PointlessWaymarks.CmsData
             }
             catch (Exception e)
             {
-                return (false, $"Trouble with Local File Root Directory - {e.Message}");
+                return new IsValid(false, $"Trouble with Local File Root Directory - {e.Message}");
             }
 
-            return (true, string.Empty);
+            return new IsValid(true, string.Empty);
         }
 
 

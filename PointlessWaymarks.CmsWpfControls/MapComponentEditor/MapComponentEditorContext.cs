@@ -490,7 +490,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             TitleEntry.HelpText = "Title Text";
             TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
             TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-            TitleEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            TitleEntry.ValidationFunctions = new List<Func<string, IsValid>>
             {
                 CommonContentValidation.ValidateTitle
             };
@@ -500,7 +500,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             SummaryEntry.HelpText = "A short text entry that will show in Search and short references to the content";
             SummaryEntry.ReferenceValue = DbEntry.Summary ?? string.Empty;
             SummaryEntry.UserValue = StringHelpers.NullToEmptyTrim(DbEntry.Summary);
-            SummaryEntry.ValidationFunctions = new List<Func<string, (bool passed, string validationMessage)>>
+            SummaryEntry.ValidationFunctions = new List<Func<string, IsValid>>
             {
                 CommonContentValidation.ValidateSummary
             };

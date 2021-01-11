@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -38,8 +39,12 @@ namespace PointlessWaymarks.CmsData.Spatial.Elevation
                 var elevationParsed = JsonSerializer.Deserialize<ElevationResponse>(elevationReturn);
 
                 if (elevationParsed == null)
+                {
                     Log.Error("Elevation Service - Could not parse information from the Elevation Service - Uri {0}",
                         requestUri);
+                    throw new DataException(
+                        $"Elevation Service - Could not parse information from the Elevation Service - Uri {requestUri}");
+                }
 
                 resultList.AddRange(elevationParsed.Elevations);
             }
@@ -47,7 +52,10 @@ namespace PointlessWaymarks.CmsData.Spatial.Elevation
             progress?.Report("Assigning results to Coordinates");
 
             foreach (var loopResults in resultList)
+                // ReSharper disable CompareOfFloatsByEqualityOperator
+                //Expecting to get the exact Lat Long back thru the elevation query
                 coordinates.Where(x => x.X == loopResults.Location.Longitude && x.Y == loopResults.Location.Latitude)
+                    // ReSharper restore CompareOfFloatsByEqualityOperator
                     .ToList().ForEach(x => x.Z = loopResults.Elevation ?? 0);
 
             return coordinates;

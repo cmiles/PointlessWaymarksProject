@@ -3,6 +3,6 @@
     public interface IPointDetailData
     {
         string DataTypeIdentifier { get; }
-        public (bool isValid, string validationMessage) Validate();
+        public IsValid Validate();
     }
 }

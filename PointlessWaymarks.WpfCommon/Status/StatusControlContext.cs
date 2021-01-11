@@ -299,7 +299,10 @@ namespace PointlessWaymarks.WpfCommon.Status
                 await ShowMessage("Error", obj.Exception?.ToString() ?? "Error with no information?!?!",
                     new List<string> {"Ok"});
 
+#pragma warning disable 4014
+                // Intended intended as Fire and Forget
                 Task.Run(() => Log.Error(obj.Exception,
+#pragma warning restore 4014
                     "FireAndForgetBlockingTaskWithUiMessageReturnCompleted Exception - Status Context Id: {10}",
                     StatusControlContextId));
             }
@@ -319,19 +322,6 @@ namespace PointlessWaymarks.WpfCommon.Status
                     "FireAndForgetTaskWithToastErrorReturnCompleted Exception - Status Context Id: {10}",
                     StatusControlContextId));
             }
-        }
-
-        private async Task<string> GetStatusLogEntriesString(int maxLastEntries)
-        {
-            await ThreadSwitcher.ThreadSwitcher.ResumeForegroundAsync();
-
-            if (StatusLog == null || !StatusLog.Any()) return string.Empty;
-
-            var toReturn = string.Join(Environment.NewLine, StatusLog.Take(maxLastEntries));
-
-            await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
-
-            return toReturn;
         }
 
         private void IncrementBlockingTasks()
@@ -582,7 +572,10 @@ namespace PointlessWaymarks.WpfCommon.Status
             catch (Exception e)
             {
                 if (!(e is OperationCanceledException)) Progress($"ShowStringEntry Exception {e.Message}");
+#pragma warning disable 4014
+                // Intended intended as Fire and Forget
                 Task.Run(() => Log.Error(e, "NonBlockTaskCompleted Exception - Status Context Id: {10}",
+#pragma warning restore 4014
                     StatusControlContextId));
             }
             finally
