@@ -1,10 +1,14 @@
+### Contact and Donate to your Favorite Open Source Projects!
+
+Working on a zero-budget-no-commercial goals personal project like this one and having so many great libraries to build with is an incredible privilege (there is a list of projects I am using at the bottom of this page) - one of my goals for 2021 is to do a better job reaching out to, thanking and making donations when possible/appropriate to the projects that have been useful to me. Please consider doing the same!!!
+
 # Pointless Waymarks CMS
 
-This project is not currently intended for general use - it is made public under an MIT license to share with friends, colleagues and anyone who finds the code interesting or useful.
+This project is not currently intended for general use - it is made public under the MIT License to share with friends, colleagues and anyone who finds the code interesting or useful.
 
 Pointless Waymarks CMS is a .NET Core 5 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose static site generation solution' - the focus is a limited set of content types to support creating long-lasting free content about the landscape, place, photography, nature, history...
 
-[Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent. The inspiration for this code is the joy that creating content about the landscape has brought to my life - and the realization that for personal content I no longer care about search rankings or page views, just about creation.
+[Pointless Waymarks](https://PointlessWaymarks.com) is generated with the Pointless Waymarks CMS and is a good example of both the output and intent. The inspiration for this code is the joy that creating content about the landscape has brought to my life and the realization that for personal content I no longer care about search rankings or page views, just about creating and learning.
 
 Some details:
  - A static site because it is currently one of the lowest cost, lowest maintenance, most durable ways to put content online.
@@ -17,58 +21,46 @@ Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file th
 
 If you have questions or comments please contact me at PointlessWaymarks@gmail.com
 
-
 ## Application Screen Shots
 
 ### Launch Screen
 
 Options to launch recent projects or create a new project.
 
-
 ![Launch Screen](PointlessWaymarksCmsScreenShots/LaunchScreen.jpg "Launch Screen")
-
 
 ### Content Lists
 
 Each Content Type has a list interface - these are all similar with sorting, filtering and access to Excel Export/Import. The ability to export to Excel, edit and import the changes is provided for all content types and most fields. Many updates are more easily made in the program but Excel provides a powerful interface for complicated/bulk edits.
 
-
 ![Posts List](PointlessWaymarksCmsScreenShots/PostsList.jpg "Posts List")
 
-
-The Photo List items have buttons to quickly find other similiar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. Not shown but available in the Photo List under the Reports menu are reports on photos with potential problems such as No Tags or Blank License and an option to export all of a photo's 'raw' metadata to an html file.
 From the Photo List you can import photos in bulk - where possible the program will use the Photo's Metadata to generate an entry and in many cases it can create and save Photo Content without any additional data entry.
 
+The Photo List items have buttons to quickly find other similar photos based on details such as Camera Make, Lens, Aperture, Shutter Speed, etc. Not shown but available in the Photo List under the Reports menu are reports on photos with potential problems such as 'No Tags' or 'Blank License' and an option to export all of a photo's 'raw' metadata to an html file.
 
 ![Photos List](PointlessWaymarksCmsScreenShots/PhotoList.jpg "Photos List")
 
-
 ### Content Editors
 
-The content editors are intended to be simple, helpful and functional. Change and validation indicators, previews and help with common editing actions are provided. Spatial types - Points, Lines and GeoJson have leaflet based previews.
-
+The content editors are intended to be simple, helpful and functional. Change and validation indicators, previews and help with common editing actions are provided. Spatial types - Points, Lines and GeoJson have [Leaflet - a JavaScript library for interactive maps](https://leafletjs.com/) based previews.
 
 ![Post Content Editor](PointlessWaymarksCmsScreenShots/PostEditorWithPreview.jpg "Post Content Editor")
 ![Photo Content Editor](PointlessWaymarksCmsScreenShots/PhotoEditor-ShowingFileAndPhotoMetadata.jpg "Photo Content Editor")
 ![Point Content Editor](PointlessWaymarksCmsScreenShots/PointEditor.jpg "Point Content Editor")
 ![GeoJson Content Editor](PointlessWaymarksCmsScreenShots/GeoJsonContentEditor.jpg "GeoJson Content Editor")
 
-
 ### Tags
 
-Tags are a primary way of connecting content - a Tag Editor along with Excel Export/Import provide support for organizing/correcting/updating tags.
-
+Tags are a primary way of connecting and organizing content - a Tag Editor along with Excel Export/Import provide support for organizing/correcting/updating tags.
 
 ![Tag List](PointlessWaymarksCmsScreenShots/TagList.jpg "Tag List")
 
-
 ### Menu Links
 
-Content is the focus of the project and admin/widget/header/menu options are kept as minimal as possible - but some options are needed such as a very simple menu editor [Pointless Waymarks](https://PointlessWaymarks.com).
-
+Content is the focus of the project and admin/widget/header/menu options are kept as minimal as possible - but some options are needed such as a very simple menu editor. 
 
 ![Menu Links](PointlessWaymarksCmsScreenShots/MenuLinksEditor.jpg "Menu Links Editor")
-
 
 ### File Change Tracking
 
@@ -78,17 +70,18 @@ Deploying the site is simply a matter of syncing the content from the generated 
 ![Written Files List](PointlessWaymarksCmsScreenShots/WrittenFilesList.jpg "Written Files List")
 ![Written Files List](PointlessWaymarksCmsScreenShots/S3Uploader.jpg "Written Files List")
 
-
 ## Software Used By and In Building Pointless Waymarks CMS
 
-I am incredibly grateful to the all the people and companies who have created the software that allows me to create projects like Pointless Waymarks CMS. Below is a mostly-up-to-date-and-largely-comprehensive list of tools/packages/libraries/... that I am using for this project:
+I am incredibly grateful to the all the people and companies who have created the software that makes it possible to rapidly build useful software. Below is a mostly-up-to-date-and-largely-comprehensive list of tools/packages/libraries/... that I am using for this project:
 
 Tools:
  - [Visual Studio IDE](https://visualstudio.microsoft.com/), [.NET Core (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download/dotnet-core)
  - [ReSharper: The Visual Studio Extension for .NET Developers by JetBrains](https://www.jetbrains.com/resharper/)
+   - [JetBrains/ForTea](https://github.com/jetbrains/fortea/) - ReSharper support for T4 Templates.
  - [LINQPad - The .NET Programmer's Playground](https://www.linqpad.net/)
  - [DB Browser for SQLite](https://sqlitebrowser.org/)
  - [RegexBuddy: Learn, Create, Understand, Test, Use and Save Regular Expression](https://www.regexbuddy.com/)
+ - [Markdown Monster - A better Markdown Editor for Windows](https://markdownmonster.west-wind.com/)
  - [Material Design Icons](http://materialdesignicons.com/)
 
 Packages/Libraries/Services:
@@ -123,3 +116,7 @@ Packages/Libraries/Services:
  - [NetTopologySuite/NetTopologySuite.IO.GeoJSON: GeoJSON IO module for NTS.](https://github.com/NetTopologySuite/NetTopologySuite.IO.GeoJSON)
  - [punker76/gong-wpf-dragdrop: The GongSolutions.WPF.DragDrop library is a drag'n'drop framework for WPF](https://github.com/punker76/gong-wpf-dragdrop). BSD-3-Clause License.
  - [bcwood/PressSharper: A C# class library for parsing WordPress XML export data.](https://github.com/bcwood/PressSharper) - the code from PressSharper was pulled into this project, updated for .net5.0, and lightly refactored and reformatted. PressSharper was forked from forked from [dreadwail/press_sharp: A C# class library for parsing Wordpress XML export data.](https://github.com/dreadwail/press_sharp). MIT License.
+ - [serilog/serilog: Simple .NET logging with fully-structured events](https://github.com/serilog/serilog). Easy full featured logging. Apache-2.0 License.
+   - [RehanSaeed/Serilog.Exceptions: Log exception details and custom properties that are not output in Exception.ToString().](https://github.com/RehanSaeed/Serilog.Exceptions) MIT License.
+   - [serilog/serilog-formatting-compact: Compact JSON event format for Serilog](https://github.com/serilog/serilog-formatting-compact). Apache-2.0 License.
+   - [serilog/serilog-sinks-console: Write log events to System.Console as text or JSON, with ANSI theme support](https://github.com/serilog/serilog-sinks-console). Apache-2.0 License.

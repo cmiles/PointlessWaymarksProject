@@ -202,16 +202,16 @@ namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
                 return;
             }
 
-            var converted = Converter(UserText.TrimNullToEmpty());
+            var (passed, conversionMessage, result) = Converter(UserText.TrimNullToEmpty());
 
-            if (!converted.passed)
+            if (!passed)
             {
                 HasValidationIssues = true;
-                ValidationMessage = converted.conversionMessage;
+                ValidationMessage = conversionMessage;
                 return;
             }
 
-            UserValue = converted.result;
+            UserValue = result;
         }
     }
 }
