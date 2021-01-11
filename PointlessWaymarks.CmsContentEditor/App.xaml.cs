@@ -20,16 +20,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
         public App()
         {
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.WithProcessId()
-                .Enrich.WithProcessName()
-                .Enrich.WithThreadId()
-                .Enrich.WithThreadName()
-                .Enrich.WithMachineName()
-                .Enrich.WithEnvironmentUserName()
-                .WriteTo.Console()
-                .WriteTo.File("PointlessWaymarksStartupLog-.txt", rollingInterval: RollingInterval.Day, shared: true)
-                .CreateLogger();
+            LogConfiguration.InitializeStaticLoggerAsStartupLogger();
 
             Tracker = new Tracker(new JsonFileStore(UserSettingsUtilities.StorageDirectory().FullName));
 

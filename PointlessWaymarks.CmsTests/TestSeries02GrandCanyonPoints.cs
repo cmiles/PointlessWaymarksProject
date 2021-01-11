@@ -17,6 +17,7 @@ using PointlessWaymarks.CmsData.Html;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
 using Serilog;
+using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsTests
 {
@@ -50,18 +51,7 @@ namespace PointlessWaymarks.CmsTests
             await TestSiteSettings.WriteSettings();
             UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
 
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.WithProcessId()
-                .Enrich.WithProcessName()
-                .Enrich.WithThreadId()
-                .Enrich.WithThreadName()
-                .Enrich.WithMachineName()
-                .Enrich.WithEnvironmentUserName()
-                .WriteTo.Console()
-                .WriteTo.File(Path.Combine(
-                    UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
-                    "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true)
-                .CreateLogger();
+            LogConfiguration.InitializeStaticLoggerAsEventLogger();
         }
 
         [Test]

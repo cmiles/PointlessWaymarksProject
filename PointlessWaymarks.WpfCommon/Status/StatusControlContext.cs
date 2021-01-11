@@ -380,7 +380,7 @@ namespace PointlessWaymarks.WpfCommon.Status
 
                 if (StatusLog.Count > 100) StatusLog.Remove(StatusLog.First());
 
-                Task.Run(() => Log.Information("Frogress: {0} - Status Context Id: {1}", e, StatusControlContextId));
+                Task.Run(() => Log.Information("Progress: {0} - Status Context Id: {1}", e, StatusControlContextId));
             });
         }
 

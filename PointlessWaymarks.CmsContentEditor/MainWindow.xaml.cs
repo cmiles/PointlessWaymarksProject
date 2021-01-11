@@ -42,6 +42,7 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
+using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsContentEditor
 {
@@ -715,20 +716,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
             await settings.EnsureDbIsPresent(StatusContext.ProgressTracker());
 
-            Log.CloseAndFlush();
-
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.WithProcessId()
-                .Enrich.WithProcessName()
-                .Enrich.WithThreadId()
-                .Enrich.WithThreadName()
-                .Enrich.WithMachineName()
-                .Enrich.WithEnvironmentUserName()
-                .WriteTo.Console()
-                .WriteTo.File(Path.Combine(
-                    UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
-                    "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true)
-                .CreateLogger();
+            LogConfiguration.InitializeStaticLoggerAsEventLogger();
 
             StatusContext.Progress("Setting up UI Controls");
 
