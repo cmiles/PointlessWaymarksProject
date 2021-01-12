@@ -14,7 +14,8 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class NoteGenerator
     {
-        public static void GenerateHtml(NoteContent toGenerate, DateTime? generationVersion, IProgress<string>? progress = null)
+        public static void GenerateHtml(NoteContent toGenerate, DateTime? generationVersion,
+            IProgress<string>? progress = null)
         {
             progress?.Report($"Note Content - Generate HTML for {toGenerate.Title}");
 

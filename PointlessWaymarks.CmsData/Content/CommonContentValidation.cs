@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -182,7 +181,7 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static IsValid GeoJsonValidation(string? geoJsonString)
         {
-            if (string.IsNullOrWhiteSpace(geoJsonString)) return new (false, "Blank GeoJson is not Valid");
+            if (string.IsNullOrWhiteSpace(geoJsonString)) return new IsValid(false, "Blank GeoJson is not Valid");
 
             try
             {
@@ -386,7 +385,7 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
         }
 
-        public static IsValid ValidateCreatedBy(string createdBy)
+        public static IsValid ValidateCreatedBy(string? createdBy)
         {
             if (string.IsNullOrWhiteSpace(createdBy.TrimNullToEmpty()))
                 return new IsValid(false, "Created by can not be blank.");
@@ -419,9 +418,9 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, string.Empty);
         }
 
-        public static IsValid ValidateGeoJson(string? title)
+        public static IsValid ValidateGeoJson(string? geoJson)
         {
-            if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "GeoJson can not be blank");
+            if (string.IsNullOrWhiteSpace(geoJson)) return new IsValid(false, "GeoJson can not be blank");
 
             return new IsValid(true, string.Empty);
         }
@@ -435,15 +434,16 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (contentGuid == null)
             {
-                var duplicateUrl = await db.LinkContents.Where(x => x.Url != null).AnyAsync(x => x.Url!.ToLower() == url.ToLower());
+                var duplicateUrl = await db.LinkContents.Where(x => x.Url != null)
+                    .AnyAsync(x => x.Url!.ToLower() == url.ToLower());
                 if (duplicateUrl)
                     return new IsValid(false,
                         "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
             }
             else
             {
-                var duplicateUrl = await db.LinkContents.AnyAsync(x =>
-                    x.ContentId != contentGuid.Value && x.Url.ToLower() == url.ToLower());
+                var duplicateUrl = await db.LinkContents.Where(x => x.Url != null).AnyAsync(x =>
+                    x.ContentId != contentGuid.Value && x.Url!.ToLower() == url.ToLower());
                 if (duplicateUrl)
                     return new IsValid(false,
                         "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");

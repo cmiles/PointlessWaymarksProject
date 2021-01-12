@@ -13,7 +13,9 @@ namespace PointlessWaymarks.CmsData.Spatial
     {
         public static List<Geometry> GeoJsonContentToGeometries(GeoJsonContent content)
         {
-            return GeoJsonToGeometries(content.GeoJson);
+            return string.IsNullOrWhiteSpace(content.GeoJson)
+                ? new List<Geometry>()
+                : GeoJsonToGeometries(content.GeoJson);
         }
 
         public static FeatureCollection GeoJsonToFeatureCollection(string geoJson)
@@ -37,31 +39,31 @@ namespace PointlessWaymarks.CmsData.Spatial
                 .ToList();
         }
 
-        public static Envelope GeometryBoundingBox(LineContent content, Envelope envelope = null)
+        public static Envelope GeometryBoundingBox(LineContent content, Envelope? envelope = null)
         {
             var geometryList = LineContentToGeometries(content);
             return GeometryBoundingBox(geometryList, envelope);
         }
 
-        public static Envelope GeometryBoundingBox(GeoJsonContent content, Envelope envelope = null)
+        public static Envelope GeometryBoundingBox(GeoJsonContent content, Envelope? envelope = null)
         {
             var geometryList = GeoJsonContentToGeometries(content);
             return GeometryBoundingBox(geometryList, envelope);
         }
 
-        public static Envelope GeometryBoundingBox(List<GeoJsonContent> content, Envelope envelope = null)
+        public static Envelope GeometryBoundingBox(List<GeoJsonContent> content, Envelope? envelope = null)
         {
             var geometryList = content.SelectMany(GeoJsonContentToGeometries).ToList();
             return GeometryBoundingBox(geometryList, envelope);
         }
 
-        public static Envelope GeometryBoundingBox(List<LineContent> content, Envelope envelope = null)
+        public static Envelope GeometryBoundingBox(List<LineContent> content, Envelope? envelope = null)
         {
             var geometryList = content.SelectMany(LineContentToGeometries).ToList();
             return GeometryBoundingBox(geometryList, envelope);
         }
 
-        public static Envelope GeometryBoundingBox(List<Geometry> geometries, Envelope boundingBox = null)
+        public static Envelope GeometryBoundingBox(List<Geometry> geometries, Envelope? boundingBox = null)
         {
             boundingBox ??= new Envelope();
             foreach (var feature in geometries) boundingBox.ExpandToInclude(feature.EnvelopeInternal);
@@ -71,6 +73,8 @@ namespace PointlessWaymarks.CmsData.Spatial
 
         public static List<Geometry> LineContentToGeometries(LineContent content)
         {
+            if (string.IsNullOrWhiteSpace(content.Line)) return new List<Geometry>();
+
             var serializer = GeoJsonSerializer.Create(SpatialHelpers.Wgs84GeometryFactory(), 3);
 
             using var stringReader = new StringReader(content.Line);
@@ -81,13 +85,13 @@ namespace PointlessWaymarks.CmsData.Spatial
                 .ToList();
         }
 
-        public static Envelope PointBoundingBox(List<PointContent> content, Envelope envelope = null)
+        public static Envelope PointBoundingBox(List<PointContent> content, Envelope? envelope = null)
         {
             var pointList = content.Select(PointContentToPoint).ToList();
             return PointBoundingBox(pointList, envelope);
         }
 
-        public static Envelope PointBoundingBox(List<Point> points, Envelope boundingBox = null)
+        public static Envelope PointBoundingBox(List<Point> points, Envelope? boundingBox = null)
         {
             boundingBox ??= new Envelope();
             foreach (var feature in points) boundingBox.ExpandToInclude(feature.EnvelopeInternal);

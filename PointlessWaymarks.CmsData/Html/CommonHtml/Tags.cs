@@ -248,8 +248,9 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
                 imageTag.Attr("alt", emailSize.AltText);
 
             if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(emailSize.AltText)
-                && pictureDirectoryInfo.DbEntry != null
-                && !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
+                                        && pictureDirectoryInfo.DbEntry != null
+                                        && !string.IsNullOrWhiteSpace(
+                                            ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
                 imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;
@@ -270,9 +271,10 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
 
-            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText) 
-                && pictureDirectoryInfo.DbEntry != null
-                && !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
+            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText)
+                                        && pictureDirectoryInfo.DbEntry != null
+                                        && !string.IsNullOrWhiteSpace(
+                                            ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
                 imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;
@@ -546,7 +548,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 
             var updateNotesHtml = ContentProcessing.ProcessContent(
-                BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes, null), dbEntry.UpdateNotesFormat);
+                BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes), dbEntry.UpdateNotesFormat);
 
             updateNotesContentContainer.Encoded(false).Text(updateNotesHtml);
 

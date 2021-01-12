@@ -59,7 +59,7 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
                         if (!string.IsNullOrEmpty(pointDetails.Notes))
                         {
                             var noteText = ContentProcessing.ProcessContent(
-                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes, null),
+                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes),
                                 pointDetails.NotesContentFormat);
 
                             infoList.Children.Add(new HtmlTag("li").Encoded(false).Text(noteText));
@@ -83,7 +83,7 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
                         if (!string.IsNullOrEmpty(pointDetails.Notes))
                         {
                             var noteText = ContentProcessing.ProcessContent(
-                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes, null),
+                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes),
                                 pointDetails.NotesContentFormat);
 
                             infoList.Children.Add(new HtmlTag("li").Encoded(false).Text(noteText));
@@ -106,7 +106,7 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
                         if (!string.IsNullOrEmpty(pointDetails.Notes))
                         {
                             var noteText = ContentProcessing.ProcessContent(
-                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes, null),
+                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes),
                                 pointDetails.NotesContentFormat);
 
                             infoList.Children.Add(new HtmlTag("li").Encoded(false).Text(noteText));
@@ -127,7 +127,7 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
                         if (!string.IsNullOrEmpty(pointDetails.Notes))
                         {
                             var noteText = ContentProcessing.ProcessContent(
-                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes, null),
+                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes),
                                 pointDetails.NotesContentFormat);
 
                             infoList.Children.Add(new HtmlTag("li").Encoded(false).Text(noteText));
@@ -148,7 +148,7 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
                         if (!string.IsNullOrEmpty(pointDetails.Notes))
                         {
                             var noteText = ContentProcessing.ProcessContent(
-                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes, null),
+                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes),
                                 pointDetails.NotesContentFormat);
 
                             infoList.Children.Add(new HtmlTag("li").Encoded(false).Text(noteText));
@@ -173,7 +173,7 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
                         if (!string.IsNullOrEmpty(pointDetails.Notes))
                         {
                             var noteText = ContentProcessing.ProcessContent(
-                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes, null),
+                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes),
                                 pointDetails.NotesContentFormat);
 
                             infoList.Children.Add(new HtmlTag("li").Encoded(false).Text(noteText));

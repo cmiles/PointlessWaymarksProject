@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -13,7 +12,8 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class FileGenerator
     {
-        public static void GenerateHtml(FileContent toGenerate, DateTime? generationVersion, IProgress<string>? progress = null)
+        public static void GenerateHtml(FileContent toGenerate, DateTime? generationVersion,
+            IProgress<string>? progress = null)
         {
             progress?.Report($"File Content - Generate HTML for {toGenerate.Title}");
 

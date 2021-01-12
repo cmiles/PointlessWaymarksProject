@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -376,7 +375,8 @@ namespace PointlessWaymarks.CmsData.Content
             await LogFileWriteAsync(destinationFile);
         }
 
-        public static async Task RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(IProgress<string>? progress = null)
+        public static async Task RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(
+            IProgress<string>? progress = null)
         {
             await RemoveFileDirectoriesNotFoundInCurrentDatabase(progress);
             await RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(progress);
@@ -670,8 +670,9 @@ namespace PointlessWaymarks.CmsData.Content
                 progress?.Report($"Staring Note Content Directory Check for {loopExistingDirectories.FullName}");
 
                 var existingFiles = loopExistingDirectories.GetFiles().ToList();
-                var dbContentSlugs = db.NoteContents.Where(x => x.Folder == loopExistingDirectories.Name)
-                    .Select(x => x.Slug).OrderBy(x => x).ToList();
+                var dbContentSlugs = db.NoteContents.Where(x =>
+                        x.Folder == loopExistingDirectories.Name && !string.IsNullOrWhiteSpace(x.Slug))
+                    .Select(x => x.Slug!).OrderBy(x => x).ToList();
                 var dbContentIds = db.NoteContents.Where(x => x.Folder == loopExistingDirectories.Name)
                     .Select(x => x.ContentId.ToString()).ToList();
 

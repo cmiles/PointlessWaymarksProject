@@ -6,6 +6,6 @@ namespace PointlessWaymarks.CmsData.Database.Models
     {
         public DateTime ContentVersion { get; set; }
         public int Id { get; set; }
-        public string Tag { get; set; }
+        public string? Tag { get; set; }
     }
 }

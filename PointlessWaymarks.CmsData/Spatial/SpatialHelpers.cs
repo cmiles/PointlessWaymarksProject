@@ -31,7 +31,7 @@ namespace PointlessWaymarks.CmsData.Spatial
             if (initialValue != null && value == null) return true;
             if (initialValue == null /*&& value != null*/) return true;
             // ReSharper disable PossibleInvalidOperationException Checked above
-            return !initialValue.Value.IsApproximatelyEqualTo(value.Value, maximumDifferenceAllowed);
+            return !initialValue.Value.IsApproximatelyEqualTo(value!.Value, maximumDifferenceAllowed);
             // ReSharper restore PossibleInvalidOperationException
         }
 
@@ -76,7 +76,7 @@ namespace PointlessWaymarks.CmsData.Spatial
             foreach (var loopProperty in positionProperties)
             {
                 if (loopProperty.GetValue(toProcess) == null) continue;
-                var current = (double) loopProperty.GetValue(toProcess);
+                var current = (double) loopProperty.GetValue(toProcess)!;
                 loopProperty.SetValue(toProcess, Math.Round(current, 6));
             }
 
@@ -89,7 +89,7 @@ namespace PointlessWaymarks.CmsData.Spatial
             foreach (var loopProperty in distanceProperties)
             {
                 if (loopProperty.GetValue(toProcess) == null) continue;
-                var current = (double) loopProperty.GetValue(toProcess);
+                var current = (double) loopProperty.GetValue(toProcess)!;
                 loopProperty.SetValue(toProcess, Math.Round(current, 2));
             }
 
@@ -102,7 +102,7 @@ namespace PointlessWaymarks.CmsData.Spatial
             foreach (var loopProperty in elevationProperties)
             {
                 if (loopProperty.GetValue(toProcess) == null) continue;
-                var current = (double) loopProperty.GetValue(toProcess);
+                var current = (double) loopProperty.GetValue(toProcess)!;
                 loopProperty.SetValue(toProcess, Math.Round(current, 0));
             }
 

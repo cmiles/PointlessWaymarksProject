@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using NetTopologySuite.Features;
 using NetTopologySuite.IO;
@@ -41,6 +42,16 @@ namespace PointlessWaymarks.CmsData.Html.GeoJsonHtml
             {
                 dataFileInfo.Delete();
                 dataFileInfo.Refresh();
+            }
+
+            if (string.IsNullOrWhiteSpace(geoJsonContent.GeoJson))
+            {
+                var toThrow = new ArgumentException(
+                    $"GeoJson Content with Blank GeoJson Submitted to WriteJsonData, ContentId {geoJsonContent.ContentId}, Title {geoJsonContent.Title}");
+                toThrow.Data.Add("ContentId", geoJsonContent.ContentId);
+                toThrow.Data.Add("Title", geoJsonContent.Title);
+
+                throw toThrow;
             }
 
             await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,

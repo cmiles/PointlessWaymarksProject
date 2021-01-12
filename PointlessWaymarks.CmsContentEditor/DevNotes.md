@@ -47,6 +47,16 @@
  
 ## Notes
 
+1/12/2021
+
+Recent Change Notes:
+
+Serilog: I have been using and appreciating Serilog at work with https://datalust.co/seq. I do think that Serilog is at its best with a site/service like Seq to monitor/filter/view/report but with a little experimentation with formatting the file output is quite good and the overall approach with the simple static logger instance is more or less as simple as you can get which I love. Ripped out the older custom logging put in seq.
+
+Nullable: After several attempts at this I enabled Nullable for the data project. I have done some individual files and tried this before, but this is the first time on for an entire project has made it to git. Probably the main realization over time has been that with the warnings and intent of nullable it felt like I should 'fix' everything and make it non-null, that might be a good pattern or goal but actually ending up with many ?s on reference types is a good outcome in the sense that from there the compiler will help you handle those correctly! This changed my perspective a little and also helped me think a bit about situations and data sources that may never be cleanly non-null. This is a work in progress - many warnings still...
+
+Project Structure Refactor: Initially I had tried to keep the project as simple as possible - as it has grown and I think about reusing some of the code the structure has to change to accomodate that. As usual the most painful refactoring was in the Xaml - my experience is that with namespace errors the compiler often does a poor job of guiding you to the 'root cause' of the Xaml compilation problem. XAML for me has been a much more durable and productive pattern than the Winforms designer but after many years I think I am seeing what the advantage of building in C# code would be (and also can see even with fluent libraries how awkward it looks at times).
+
 12/25/2020
 
 Merry Christmas! 

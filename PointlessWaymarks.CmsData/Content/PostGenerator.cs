@@ -10,7 +10,8 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class PostGenerator
     {
-        public static void GenerateHtml(PostContent toGenerate, DateTime? generationVersion, IProgress<string>? progress = null)
+        public static void GenerateHtml(PostContent toGenerate, DateTime? generationVersion,
+            IProgress<string>? progress = null)
         {
             progress?.Report($"Post Content - Generate HTML for {toGenerate.Title}");
 

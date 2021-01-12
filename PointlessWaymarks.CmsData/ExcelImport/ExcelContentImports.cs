@@ -349,7 +349,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                     Log.Warning(
                         "Excel Import - Excel Row {0} - Excel Import via dynamics - Tags threw an error on ContentId {1} - property probably not present",
                         loopRow.RowNumber(), importResult.processContent.ContentId ?? "New Entry");
-                        errorNotes.Add($"Excel Row {loopRow.RowNumber()} - Tags could not be processed");
+                    errorNotes.Add($"Excel Row {loopRow.RowNumber()} - Tags could not be processed");
                     continue;
                 }
 

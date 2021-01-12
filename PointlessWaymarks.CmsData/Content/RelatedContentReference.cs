@@ -65,7 +65,8 @@ namespace PointlessWaymarks.CmsData.Content
             await db.GenerationRelatedContents.AddRangeAsync(dbEntries);
         }
 
-        public static async Task GenerateRelatedContentDbTable(DateTime generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateRelatedContentDbTable(DateTime generationVersion,
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 

@@ -382,6 +382,16 @@ namespace PointlessWaymarks.CmsData.Html
 
                 var dto = await Db.PointAndPointDetails(loopItem.ContentId, db);
 
+                if (dto == null)
+                {
+                    var toThrow = new ArgumentException(
+                        $"Tried to retrieve Point Content DTO for {loopItem.ContentId} and found nothing in the database?");
+                    toThrow.Data.Add("ContentId", loopItem.ContentId);
+                    toThrow.Data.Add("Title", loopItem.Title);
+
+                    throw toThrow;
+                }
+
                 var htmlModel = new SinglePointPage(dto) {GenerationVersion = generationVersion};
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
@@ -720,7 +730,8 @@ namespace PointlessWaymarks.CmsData.Html
 
             //Evaluate each Tag - the tags list is a standard search list showing summary and main image in addition to changes to the linked content also check for changes
             //to the linked content contents...
-            var allCurrentTags = db.GenerationTagLogs.Where(x => x.GenerationVersion == generationVersion).Where(x => x.TagSlug != null)
+            var allCurrentTags = db.GenerationTagLogs.Where(x => x.GenerationVersion == generationVersion)
+                .Where(x => x.TagSlug != null)
                 .Select(x => x.TagSlug!).Distinct().OrderBy(x => x).ToList();
 
             var tagCompareLogic = new CompareLogic();
@@ -904,7 +915,8 @@ namespace PointlessWaymarks.CmsData.Html
             return await CommonContentValidation.CheckForBadContentReferences(allChangedContent, db, progress);
         }
 
-        public static async Task GenerateChangeFilteredFileHtml(DateTime generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateChangeFilteredFileHtml(DateTime generationVersion,
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -953,7 +965,8 @@ namespace PointlessWaymarks.CmsData.Html
             }
         }
 
-        public static async Task GenerateChangeFilteredImageHtml(DateTime generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateChangeFilteredImageHtml(DateTime generationVersion,
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -977,7 +990,8 @@ namespace PointlessWaymarks.CmsData.Html
             }
         }
 
-        public static async Task GenerateChangeFilteredLineHtml(DateTime generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateChangeFilteredLineHtml(DateTime generationVersion,
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -1001,7 +1015,8 @@ namespace PointlessWaymarks.CmsData.Html
             }
         }
 
-        public static async Task GenerateChangeFilteredMapData(DateTime generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateChangeFilteredMapData(DateTime generationVersion,
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -1024,7 +1039,8 @@ namespace PointlessWaymarks.CmsData.Html
             }
         }
 
-        public static async Task GenerateChangeFilteredNoteHtml(DateTime generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateChangeFilteredNoteHtml(DateTime generationVersion,
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -1048,7 +1064,8 @@ namespace PointlessWaymarks.CmsData.Html
             }
         }
 
-        public static async Task GenerateChangeFilteredPhotoHtml(DateTime generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateChangeFilteredPhotoHtml(DateTime generationVersion,
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -1072,7 +1089,8 @@ namespace PointlessWaymarks.CmsData.Html
             }
         }
 
-        public static async Task GenerateChangeFilteredPointHtml(DateTime generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateChangeFilteredPointHtml(DateTime generationVersion,
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -1101,7 +1119,8 @@ namespace PointlessWaymarks.CmsData.Html
             }
         }
 
-        public static async Task GenerateChangeFilteredPostHtml(DateTime generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateChangeFilteredPostHtml(DateTime generationVersion,
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -1225,7 +1244,8 @@ namespace PointlessWaymarks.CmsData.Html
         }
 
 
-        public static async Task SetupTagGenerationDbData(DateTime currentGenerationVersion, IProgress<string>? progress = null)
+        public static async Task SetupTagGenerationDbData(DateTime currentGenerationVersion,
+            IProgress<string>? progress = null)
         {
             var tagData = await Db.TagSlugsAndContentList(true, false, progress);
 

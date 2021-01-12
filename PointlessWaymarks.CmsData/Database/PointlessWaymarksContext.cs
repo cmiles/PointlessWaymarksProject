@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database.Models;
+
 #pragma warning disable 8618
 
 namespace PointlessWaymarks.CmsData.Database

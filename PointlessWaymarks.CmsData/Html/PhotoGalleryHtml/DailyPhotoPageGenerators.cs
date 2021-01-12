@@ -83,7 +83,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
             return returnList;
         }
 
-        public static async Task<DailyPhotosPage> DailyPhotoGallery(DateTime dateTimeForPictures,
+        public static async Task<DailyPhotosPage?> DailyPhotoGallery(DateTime dateTimeForPictures,
             DateTime? generationVersion)
         {
             var db = await Db.Context();
@@ -101,9 +101,9 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
                 .Select(x => x.PhotoCreatedBy).Distinct().ToList();
             var createdByList = datePhotos.Select(x => x.CreatedBy).Distinct().ToList();
 
-            var photographersString = photographersList.ToList().JoinListOfStringsToCommonUsageListWithAnd();
+            var photographersString = photographersList.ToList().JoinListOfNullableStringsToListWithAnd();
             var photographersAndCreatedByString = photographersList.Concat(createdByList).Distinct().ToList()
-                .JoinListOfStringsToCommonUsageListWithAnd();
+                .JoinListOfNullableStringsToListWithAnd();
 
             var photoPage = new DailyPhotosPage
             {

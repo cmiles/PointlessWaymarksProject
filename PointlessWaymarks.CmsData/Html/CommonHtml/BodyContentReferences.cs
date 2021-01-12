@@ -51,11 +51,14 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         {
             if (generationVersion == null)
             {
-                var posts = await toQuery.PostContents.Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
+                var posts = await toQuery.PostContents
+                    .Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
                     .Cast<IContentCommon>().ToListAsync();
-                var notes = await toQuery.NoteContents.Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
+                var notes = await toQuery.NoteContents
+                    .Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
                     .Cast<IContentCommon>().ToListAsync();
-                var files = await toQuery.FileContents.Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
+                var files = await toQuery.FileContents
+                    .Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
                     .Cast<IContentCommon>().ToListAsync();
 
                 return posts.Concat(notes).Concat(files).OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)

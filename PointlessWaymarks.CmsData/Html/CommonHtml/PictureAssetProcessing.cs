@@ -33,7 +33,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
             var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
 
-            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, null);
+            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false);
         }
 
         public static PictureAsset? ProcessImageDirectory(Guid photoOrImageContentId)

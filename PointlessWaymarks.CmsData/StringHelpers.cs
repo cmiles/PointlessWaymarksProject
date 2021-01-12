@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Web;
 
@@ -36,6 +37,11 @@ namespace PointlessWaymarks.CmsData
             return string.Compare(a, b, StringComparison.InvariantCulture) == 0;
         }
 
+        public static string GetMethodName(this object type, [CallerMemberName] string? caller = null)
+        {
+            return type.GetType().FullName + "." + caller.TrimNullToEmpty();
+        }
+
         /// <summary>
         ///     Html Encode that transforms null or whitespace only strings into string.Empty
         /// </summary>
@@ -46,20 +52,38 @@ namespace PointlessWaymarks.CmsData
             return string.IsNullOrWhiteSpace(toEncode) ? string.Empty : HttpUtility.HtmlEncode(toEncode);
         }
 
+        public static string JoinListOfNullableStringsToListWithAnd(this List<string?> toJoin)
+        {
+            //https://stackoverflow.com/questions/17560201/join-liststring-together-with-commas-plus-and-for-last-element
+
+            var cleanedList = toJoin.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.TrimNullToEmpty())
+                .ToList();
+
+            if (!cleanedList.Any()) return string.Empty;
+
+            if (cleanedList.Count == 1) return cleanedList.First();
+
+            return string.Join(", ", toJoin.Take(toJoin.Count - 1)) + " and " + toJoin.Last();
+        }
+
         /// <summary>
         ///     Given a List of String "Joe", "Jorge" and "Jeff" joins to "Joe, Jorge and Jeff" - performs as expected with single
         ///     items lists remaining single items.
         /// </summary>
         /// <param name="toJoin"></param>
         /// <returns></returns>
-        public static string JoinListOfStringsToCommonUsageListWithAnd(this List<string> toJoin)
+        public static string JoinListOfStringsToListWithAnd(this List<string> toJoin)
         {
             //https://stackoverflow.com/questions/17560201/join-liststring-together-with-commas-plus-and-for-last-element
-            toJoin ??= new List<string>();
 
-            return toJoin.Count > 1
-                ? string.Join(", ", toJoin.Take(toJoin.Count - 1)) + " and " + toJoin.Last()
-                : toJoin.FirstOrDefault();
+            var cleanedList = toJoin.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.TrimNullToEmpty())
+                .ToList();
+
+            if (!cleanedList.Any()) return string.Empty;
+
+            if (cleanedList.Count == 1) return cleanedList.First();
+
+            return string.Join(", ", toJoin.Take(toJoin.Count - 1)) + " and " + toJoin.Last();
         }
 
         /// <summary>
@@ -111,7 +135,7 @@ namespace PointlessWaymarks.CmsData
                 .Where(x => x.PropertyType == typeof(string) && x.GetSetMethod() != null).ToList();
 
             foreach (var loopProperties in properties)
-                loopProperties.SetValue(toProcess, ((string) loopProperties.GetValue(toProcess)).TrimNullToEmpty());
+                loopProperties.SetValue(toProcess, ((string?) loopProperties.GetValue(toProcess)).TrimNullToEmpty());
 
             return toProcess;
         }

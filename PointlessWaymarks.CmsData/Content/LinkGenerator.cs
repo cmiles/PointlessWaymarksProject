@@ -179,7 +179,8 @@ namespace PointlessWaymarks.CmsData.Content
                 toSave);
         }
 
-        public static async Task<GenerationReturn> SaveLinkToPinboard(LinkContent toSave, IProgress<string>? progress = null)
+        public static async Task<GenerationReturn> SaveLinkToPinboard(LinkContent toSave,
+            IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
                 return GenerationReturn.Success("No PinboardApiToken - skipping save to Pinboard",

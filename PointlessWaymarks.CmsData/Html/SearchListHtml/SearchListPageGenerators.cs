@@ -17,7 +17,8 @@ namespace PointlessWaymarks.CmsData.Html.SearchListHtml
     {
         public const int MaxNumberOfRssEntries = 30;
 
-        public static void WriteAllContentCommonSearchListHtml(DateTime? generationVersion, IProgress<string>? progress = null)
+        public static void WriteAllContentCommonSearchListHtml(DateTime? generationVersion,
+            IProgress<string>? progress = null)
         {
             static List<object> ContentList()
             {

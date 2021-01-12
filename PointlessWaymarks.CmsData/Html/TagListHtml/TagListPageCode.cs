@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using AngleSharp.Html;
@@ -11,11 +12,14 @@ namespace PointlessWaymarks.CmsData.Html.TagListHtml
 {
     public partial class TagListPage
     {
-        public Func<List<(string tagName, List<object> tagCotentEntries)>> ContentFunction { get; set; }
+        public Func<List<(string tagName, List<object> tagCotentEntries)>>? ContentFunction { get; set; }
         public DateTime? GenerationVersion { get; set; }
 
         public HtmlTag TagList()
         {
+            if (ContentFunction == null)
+                throw new InvalidEnumArgumentException("Can not build a TagList with a null Content Function");
+
             var toProcess = ContentFunction().OrderBy(x => x.tagName);
 
             var tagListContainer = new DivTag().AddClass("tag-list");

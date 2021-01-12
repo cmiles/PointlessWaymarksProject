@@ -25,7 +25,7 @@ namespace PointlessWaymarks.CmsData
             thread.Start();
         }
 
-        public Func<T, Task> Processor { get; set; }
+        public Func<T, Task>? Processor { get; set; }
 
         public void Enqueue(T job)
         {

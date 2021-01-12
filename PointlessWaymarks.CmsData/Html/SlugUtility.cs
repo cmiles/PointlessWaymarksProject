@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,7 @@ namespace PointlessWaymarks.CmsData.Html
 {
     public static class SlugUtility
     {
-        private static string ConvertEdgeCases(char c, bool toLower)
+        private static string? ConvertEdgeCases(char c, bool toLower)
         {
             var swap = c switch
             {
@@ -124,8 +125,8 @@ namespace PointlessWaymarks.CmsData.Html
         /// <param name="value"></param>
         /// <param name="allowedBeyondAtoZ1To9"></param>
         /// <returns></returns>
-        public static string CreateRelaxedInputSpacedString(bool toLower, string value,
-            List<char> allowedBeyondAtoZ1To9 = null)
+        public static string CreateRelaxedInputSpacedString(bool toLower, string? value,
+            List<char>? allowedBeyondAtoZ1To9 = null)
         {
             if (value == null)
                 return "";
@@ -247,10 +248,13 @@ namespace PointlessWaymarks.CmsData.Html
 
             if (exceptInThisContent == null)
                 imageCheck =
-                    await context.FileContents.AnyAsync(x => x.OriginalFileName.ToLower() == filename.ToLower());
+                    await context.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
+                        .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower());
             else
-                imageCheck = await context.FileContents.AnyAsync(x =>
-                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
+                imageCheck = await context.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
+                    .AnyAsync(x =>
+                        x.OriginalFileName!.ToLower() == filename.ToLower() &&
+                        x.ContentId != exceptInThisContent.Value);
 
             return imageCheck;
         }
@@ -263,11 +267,14 @@ namespace PointlessWaymarks.CmsData.Html
             bool imageCheck;
 
             if (exceptInThisContent == null)
-                imageCheck = await context.ImageContents.AnyAsync(x =>
-                    x.OriginalFileName.ToLower() == filename.ToLower());
+                imageCheck = await context.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
+                    .AnyAsync(x =>
+                        x.OriginalFileName!.ToLower() == filename.ToLower());
             else
-                imageCheck = await context.ImageContents.AnyAsync(x =>
-                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
+                imageCheck = await context.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
+                    .AnyAsync(x =>
+                        x.OriginalFileName!.ToLower() == filename.ToLower() &&
+                        x.ContentId != exceptInThisContent.Value);
 
             return imageCheck;
         }
@@ -280,11 +287,14 @@ namespace PointlessWaymarks.CmsData.Html
             bool photoCheck;
 
             if (exceptInThisContent == null)
-                photoCheck = await context.PhotoContents.AnyAsync(x =>
-                    x.OriginalFileName.ToLower() == filename.ToLower());
+                photoCheck = await context.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
+                    .AnyAsync(x =>
+                        x.OriginalFileName!.ToLower() == filename.ToLower());
             else
-                photoCheck = await context.PhotoContents.AnyAsync(x =>
-                    x.OriginalFileName.ToLower() == filename.ToLower() && x.ContentId != exceptInThisContent.Value);
+                photoCheck = await context.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
+                    .AnyAsync(x =>
+                        x.OriginalFileName!.ToLower() == filename.ToLower() &&
+                        x.ContentId != exceptInThisContent.Value);
 
             return photoCheck;
         }
@@ -301,7 +311,7 @@ namespace PointlessWaymarks.CmsData.Html
             return new string(stringChars);
         }
 
-        public static async Task<bool> SlugExistsInDatabase(this PointlessWaymarksContext context, string slug,
+        public static async Task<bool> SlugExistsInDatabase(this PointlessWaymarksContext context, string? slug,
             Guid? excludedContentId)
         {
             if (string.IsNullOrWhiteSpace(slug)) return false;

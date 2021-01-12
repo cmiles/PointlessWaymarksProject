@@ -629,15 +629,24 @@ namespace PointlessWaymarks.CmsData.Database
 
             return content switch
             {
-                FileContent => db.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
-                GeoJsonContent => db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
-                ImageContent => db.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
-                LineContent => db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
-                NoteContent => db.NoteContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
-                PhotoContent => db.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
-                PointContent => db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
-                PointContentDto => db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
-                PostContent => db.PostContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                FileContent => db.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                    .Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                GeoJsonContent => db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+                    .Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                ImageContent => db.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                    .Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                LineContent => db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                    .Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                NoteContent => db.NoteContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                    .Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                PhotoContent => db.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                    .Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                PointContent => db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                    .Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                PointContentDto => db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+                    .Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                PostContent => db.PostContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                    .Distinct().OrderBy(x => x).Cast<string>().ToList(),
                 _ => new List<string>()
             };
         }
@@ -820,7 +829,8 @@ namespace PointlessWaymarks.CmsData.Database
             return await PointAndPointDetails(pointContentId, db);
         }
 
-        public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId, PointlessWaymarksContext db)
+        public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId,
+            PointlessWaymarksContext db)
         {
             var point = await db.PointContents.SingleAsync(x => x.ContentId == pointContentId);
             var details = await db.PointDetails.Where(x => x.PointContentId == pointContentId).ToListAsync();

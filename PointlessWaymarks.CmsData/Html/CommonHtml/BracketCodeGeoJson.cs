@@ -17,7 +17,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static List<GeoJsonContent> DbContentFromBracketCodes(string toProcess, IProgress<string>? progress = null)
+        public static List<GeoJsonContent> DbContentFromBracketCodes(string toProcess,
+            IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<GeoJsonContent>();
 

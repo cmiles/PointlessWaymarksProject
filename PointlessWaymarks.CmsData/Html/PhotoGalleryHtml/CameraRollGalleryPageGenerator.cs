@@ -164,12 +164,12 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
 
                 var cameras = datePhotos
                     .Where(x => !string.IsNullOrWhiteSpace(x.CameraMake) && !string.IsNullOrWhiteSpace(x.CameraModel))
-                    .Select(x => $"{x.CameraMake.Trim()} {x.CameraModel.Trim()}").Distinct().OrderBy(x => x).ToList()
-                    .JoinListOfStringsToCommonUsageListWithAnd();
+                    .Select(x => $"{x.CameraMake!.Trim()} {x.CameraModel!.Trim()}").Distinct().OrderBy(x => x).ToList()
+                    .JoinListOfStringsToListWithAnd();
                 infoItem.Children.Add(new DivTag().AddClass("camera-roll-info-camera").Text(cameras));
 
-                var lenses = datePhotos.Where(x => !string.IsNullOrWhiteSpace(x.Lens)).Select(x => x.Lens.Trim())
-                    .Distinct().OrderBy(x => x).ToList().JoinListOfStringsToCommonUsageListWithAnd();
+                var lenses = datePhotos.Where(x => !string.IsNullOrWhiteSpace(x.Lens)).Select(x => x.Lens!.Trim())
+                    .Distinct().OrderBy(x => x).ToList().JoinListOfStringsToListWithAnd();
                 infoItem.Children.Add(new DivTag().AddClass("camera-roll-info-lens").Text(lenses));
 
                 cameraRollContainer.Children.Add(infoItem);
