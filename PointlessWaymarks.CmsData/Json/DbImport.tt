@@ -18,7 +18,7 @@ namespace PointlessWaymarksCmsData.Json
         new List<string> {"FileContent", "PhotoContent", "PostContent", "ImageContent", "NoteContent", "LinkContent"})
     {
 #>
-         public static void <#= loopTypeNames #>ToDb(List<<#= loopTypeNames #>> toImport, IProgress<string> progress)
+         public static void <#= loopTypeNames #>ToDb(List<<#= loopTypeNames #>> toImport, IProgress<string>? progress = null)
          {
              progress?.Report("<#= loopTypeNames #> - Starting");
 
@@ -116,7 +116,7 @@ namespace PointlessWaymarksCmsData.Json
         })
     {
 #>
-        public static void <#= loopTypeNames #>ToDb(List<<#= loopTypeNames #>> toImport, IProgress<string> progress)
+        public static void <#= loopTypeNames #>ToDb(List<<#= loopTypeNames #>> toImport, IProgress<string>? progress = null)
         {
             progress?.Report("<#= loopTypeNames #> - Starting");
 

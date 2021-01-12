@@ -22,7 +22,7 @@ namespace PointlessWaymarks.CmsData.Content
     public static class PhotoGenerator
     {
         public static void GenerateHtml(PhotoContent toGenerate, DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             progress?.Report($"Photo Content - Generate HTML for {toGenerate.Title}");
 
@@ -31,8 +31,8 @@ namespace PointlessWaymarks.CmsData.Content
             htmlContext.WriteLocalHtml();
         }
 
-        public static (GenerationReturn generationReturn, PhotoMetadata metadata) PhotoMetadataFromFile(
-            FileInfo selectedFile, IProgress<string> progress)
+        public static (GenerationReturn generationReturn, PhotoMetadata? metadata) PhotoMetadataFromFile(
+            FileInfo selectedFile, IProgress<string>? progress = null)
         {
             progress?.Report("Starting Metadata Processing");
 
@@ -80,7 +80,7 @@ namespace PointlessWaymarks.CmsData.Content
             else
             {
                 var createdOnParsed = DateTime.TryParseExact(
-                    exifSubIfDirectory.GetDescription(ExifDirectoryBase.TagDateTimeOriginal), "yyyy:MM:dd HH:mm:ss",
+                    exifSubIfDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal), "yyyy:MM:dd HH:mm:ss",
                     CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate);
 
                 toReturn.PhotoCreatedOn = createdOnParsed ? parsedDate : DateTime.Now;
@@ -309,8 +309,8 @@ namespace PointlessWaymarks.CmsData.Content
                 toReturn);
         }
 
-        public static (GenerationReturn, PhotoContent) PhotoMetadataToNewPhotoContent(FileInfo selectedFile,
-            IProgress<string> progress, string photoContentCreatedBy = null)
+        public static (GenerationReturn, PhotoContent?) PhotoMetadataToNewPhotoContent(FileInfo selectedFile,
+            IProgress<string> progress, string? photoContentCreatedBy = null)
         {
             selectedFile.Refresh();
 
@@ -335,7 +335,7 @@ namespace PointlessWaymarks.CmsData.Content
             toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
 
             var possibleTitleYear = Regex
-                .Match(toReturn.Title,
+                .Match(toReturn.Title ?? string.Empty,
                     @"\A(?<possibleYear>\d\d\d\d) (?<possibleMonth>January?|February?|March?|April?|May|June?|July?|August?|September?|October?|November?|December?) .*",
                     RegexOptions.IgnoreCase).Groups["possibleYear"].Value;
             if (!string.IsNullOrWhiteSpace(possibleTitleYear))
@@ -351,9 +351,9 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
 
-        public static async Task<(GenerationReturn generationReturn, PhotoContent photoContent)> SaveAndGenerateHtml(
+        public static async Task<(GenerationReturn generationReturn, PhotoContent? photoContent)> SaveAndGenerateHtml(
             PhotoContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave, selectedFile);
 
@@ -374,7 +374,7 @@ namespace PointlessWaymarks.CmsData.Content
             return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
-        public static async Task<(GenerationReturn generationReturn, PhotoContent photoContent)> SaveToDb(
+        public static async Task<(GenerationReturn generationReturn, PhotoContent? photoContent)> SaveToDb(
             PhotoContent toSave, FileInfo selectedFile)
         {
             var validationReturn = await Validate(toSave, selectedFile);
@@ -411,7 +411,7 @@ namespace PointlessWaymarks.CmsData.Content
             selectedFile.Refresh();
 
             var photoFileValidation =
-                await CommonContentValidation.PhotoFileValidation(selectedFile, photoContent?.ContentId);
+                await CommonContentValidation.PhotoFileValidation(selectedFile, photoContent.ContentId);
 
             if (!photoFileValidation.Valid)
                 return GenerationReturn.Error(photoFileValidation.Explanation, photoContent.ContentId);
@@ -420,8 +420,10 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task WritePhotoFromMediaArchiveToLocalSite(PhotoContent photoContent,
-            bool forcedResizeOverwriteExistingFiles, IProgress<string> progress)
+            bool forcedResizeOverwriteExistingFiles, IProgress<string>? progress = null)
         {
+            if (string.IsNullOrWhiteSpace(photoContent.OriginalFileName)) return;
+
             var userSettings = UserSettingsSingleton.CurrentSettings();
 
             var sourceFile = new FileInfo(Path.Combine(userSettings.LocalMediaArchivePhotoDirectory().FullName,

@@ -50,7 +50,7 @@ namespace PointlessWaymarks.CmsData.Html
         //     https://meta.stackexchange.com/questions/7435/non-us-ascii-characters-dropped-from-full-profile-url/7696#7696
         //     https://stackoverflow.com/questions/25259/how-do-you-include-a-webpage-title-as-part-of-a-webpage-url/25486#25486
         //     https://stackoverflow.com/questions/3769457/how-can-i-remove-accents-on-a-string
-        public static string Create(bool toLower, string value, int maxLength = 100)
+        public static string Create(bool toLower, string? value, int maxLength = 100)
         {
             if (value == null)
                 return "";

@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static List<LineContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
+        public static List<LineContent> DbContentFromBracketCodes(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<LineContent>();
 
@@ -44,7 +44,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return returnList;
         }
 
-        public static string Process(string toProcess, IProgress<string> progress)
+        public static string Process(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

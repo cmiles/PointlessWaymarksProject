@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsData.Html.ImageHtml
 {
     public static class ImageParts
     {
-        public static HtmlTag ImageSourceNotesDivTag(ImageContent dbEntry, IProgress<string> progress = null)
+        public static HtmlTag ImageSourceNotesDivTag(ImageContent dbEntry, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
 

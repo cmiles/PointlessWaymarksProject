@@ -38,7 +38,7 @@ namespace PointlessWaymarks.CmsData.Rss
             return rssBuilder.ToString();
         }
 
-        public static string RssItemString(string title, string link, string content, DateTime createdOn,
+        public static string RssItemString(string? title, string link, string? content, DateTime createdOn,
             string contentId)
         {
             var rssBuilder = new StringBuilder();
@@ -55,7 +55,7 @@ namespace PointlessWaymarks.CmsData.Rss
         }
 
         public static async void WriteContentCommonListRss(List<IContentCommon> content, FileInfo fileInfo,
-            string titleAdd, IProgress<string> progress)
+            string titleAdd, IProgress<string>? progress = null)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -67,7 +67,7 @@ namespace PointlessWaymarks.CmsData.Rss
             {
                 var contentUrl = await settings.ContentUrl(loopContent.ContentId);
 
-                string itemDescription = null;
+                string? itemDescription = null;
 
                 if (loopContent.MainPicture != null)
                 {

@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsData.Content
     public static class ImageGenerator
     {
         public static void GenerateHtml(ImageContent toGenerate, DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             progress?.Report($"Image Content - Generate HTML for {toGenerate.Title}");
 
@@ -22,9 +22,9 @@ namespace PointlessWaymarks.CmsData.Content
             htmlContext.WriteLocalHtml();
         }
 
-        public static async Task<(GenerationReturn generationReturn, ImageContent imageContent)> SaveAndGenerateHtml(
+        public static async Task<(GenerationReturn generationReturn, ImageContent? imageContent)> SaveAndGenerateHtml(
             ImageContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave, selectedFile);
 
@@ -88,8 +88,10 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task WriteImageFromMediaArchiveToLocalSite(ImageContent imageContent,
-            bool forcedResizeOverwriteExistingFiles, IProgress<string> progress)
+            bool forcedResizeOverwriteExistingFiles, IProgress<string>? progress = null)
         {
+            if (string.IsNullOrWhiteSpace(imageContent.OriginalFileName)) return;
+
             var userSettings = UserSettingsSingleton.CurrentSettings();
 
             var sourceFile = new FileInfo(Path.Combine(userSettings.LocalMediaArchiveImageDirectory().FullName,

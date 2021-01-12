@@ -23,7 +23,7 @@ namespace PointlessWaymarks.CmsData.Json
             return returnList;
         }
 
-        public static void FullImportFromRootDirectory(DirectoryInfo rootDirectory, IProgress<string> progress)
+        public static void FullImportFromRootDirectory(DirectoryInfo rootDirectory, IProgress<string>? progress = null)
         {
             if (rootDirectory == null || !rootDirectory.Exists)
             {
@@ -70,7 +70,7 @@ namespace PointlessWaymarks.CmsData.Json
             return Directory.GetFiles(rootDirectory.FullName, "*.json", SearchOption.AllDirectories).ToList();
         }
 
-        public static void MenuLinksToDb(List<MenuLink> toImport, IProgress<string> progress)
+        public static void MenuLinksToDb(List<MenuLink> toImport, IProgress<string>? progress = null)
         {
             progress?.Report("MenuLinks - Starting");
 
@@ -121,7 +121,7 @@ namespace PointlessWaymarks.CmsData.Json
             progress?.Report("MenuLinks - Finished");
         }
 
-        public static void TagExclusionsToDb(List<TagExclusion> toImport, IProgress<string> progress)
+        public static void TagExclusionsToDb(List<TagExclusion> toImport, IProgress<string>? progress = null)
         {
             progress?.Report("TagExclusions - Starting");
 

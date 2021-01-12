@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsData.Content
         /// <param name="deleteAll"></param>
         /// <param name="progress"></param>
         public static void CleanDisplayAndSrcSetFilesInImageDirectory(ImageContent dbEntry, bool deleteAll,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var currentSizes = SrcSetSizeAndQualityList().Select(x => x.size).ToList();
 
@@ -55,7 +55,7 @@ namespace PointlessWaymarks.CmsData.Content
         /// <param name="deleteAll"></param>
         /// <param name="progress"></param>
         public static void CleanDisplayAndSrcSetFilesInPhotoDirectory(PhotoContent dbEntry, bool deleteAll,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var currentSizes = SrcSetSizeAndQualityList().Select(x => x.size).ToList();
 
@@ -80,7 +80,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<GenerationReturn> CopyCleanResizeImage(ImageContent dbEntry,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             if (dbEntry == null)
                 return GenerationReturn.Error("Null Image Content submitted to Copy Clean and Resize");
@@ -110,7 +110,7 @@ namespace PointlessWaymarks.CmsData.Content
         /// <param name="progress"></param>
         /// <returns></returns>
         public static async Task<GenerationReturn> CopyCleanResizePhoto(PhotoContent dbEntry,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             if (dbEntry == null)
                 return GenerationReturn.Error("Null Photo Content submitted to Copy Clean and Resize");
@@ -142,7 +142,7 @@ namespace PointlessWaymarks.CmsData.Content
         /// <param name="dbEntry"></param>
         /// <param name="progress"></param>
         public static void DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(PhotoContent dbEntry,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
             {
@@ -174,7 +174,7 @@ namespace PointlessWaymarks.CmsData.Content
         /// <param name="dbEntry"></param>
         /// <param name="progress"></param>
         public static void DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(ImageContent dbEntry,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
             {
@@ -213,7 +213,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static FileInfo ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var displayWidth = DisplayPictureWidth(fileToProcess);
 
@@ -223,7 +223,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(PhotoContent dbEntry,
-            bool overwriteExistingFiles, IProgress<string> progress)
+            bool overwriteExistingFiles, IProgress<string>? progress = null)
         {
             await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry);
 
@@ -235,7 +235,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(ImageContent dbEntry,
-            bool overwriteExistingFiles, IProgress<string> progress)
+            bool overwriteExistingFiles, IProgress<string>? progress = null)
         {
             await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry);
 
@@ -247,7 +247,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static List<FileInfo> ResizeForDisplayAndSrcset(FileInfo originalImage, bool overwriteExistingFiles,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var fullList = new List<FileInfo>
             {
@@ -260,7 +260,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static List<FileInfo> ResizeForSrcset(FileInfo fileToProcess, bool overwriteExistingFiles,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var sizeQualityList = SrcSetSizeAndQualityList().OrderByDescending(x => x.size).ToList();
 
@@ -284,7 +284,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static FileInfo ResizeWithForDisplayFileName(FileInfo toResize, int width, int quality,
-            bool overwriteExistingFiles, IProgress<string> progress)
+            bool overwriteExistingFiles, IProgress<string>? progress = null)
         {
             if (toResize == null || !toResize.Exists || toResize.Directory == null)
             {
@@ -315,7 +315,7 @@ namespace PointlessWaymarks.CmsData.Content
 
 
         public static FileInfo ResizeWithWidthAndHeightFileName(FileInfo toResize, int width, int quality,
-            bool overwriteExistingFiles, IProgress<string> progress)
+            bool overwriteExistingFiles, IProgress<string>? progress = null)
         {
             if (toResize == null || !toResize.Exists || toResize.Directory == null)
             {

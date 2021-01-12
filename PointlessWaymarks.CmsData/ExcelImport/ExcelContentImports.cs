@@ -126,12 +126,12 @@ namespace PointlessWaymarks.CmsData.ExcelImport
             return new ExcelValueParse<int?> {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
         }
 
-        public static List<ExcelValueParse<PointDetail>> GetPointDetails(ExcelHeaderRow headerInfo,
+        public static List<ExcelValueParse<PointDetail?>> GetPointDetails(ExcelHeaderRow headerInfo,
             IXLRangeRow toProcess)
         {
             var contentColumns = headerInfo.Columns.Where(x => x.ColumnHeader.StartsWith("PointDetail"));
 
-            var returnList = new List<ExcelValueParse<PointDetail>>();
+            var returnList = new List<ExcelValueParse<PointDetail?>>();
 
             foreach (var loopColumns in contentColumns)
             {
@@ -140,9 +140,8 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 
                 if (string.IsNullOrWhiteSpace(stringValue)) continue;
 
-                var toAdd = new ExcelValueParse<PointDetail> {StringValue = stringValue};
+                var toAdd = new ExcelValueParse<PointDetail?> {StringValue = stringValue};
                 returnList.Add(toAdd);
-
 
                 var splitList = stringValue.RemoveNewLines().TrimNullToEmpty().Split("||")
                     .Select(x => x.TrimNullToEmpty()).ToList();
@@ -226,7 +225,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                 {
                     var jsonString = splitList[2][5..];
                     var detailData = Db.PointDetailDataFromIdentifierAndJson(dataTypeString, jsonString);
-                    var (isValid, _) = detailData.Validate();
+                    var (isValid, _) = detailData == null ? new IsValid(false, "Null Value") : detailData.Validate();
 
                     if (!isValid)
                     {
@@ -262,19 +261,19 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 
             return new ExcelValueParse<string>
             {
-                ParsedValue = stringValue, StringValue = stringValue, ValueParsed = true
+                ParsedValue = stringValue.TrimNullToEmpty(), StringValue = stringValue, ValueParsed = true
             };
         }
 
-        public static async Task<(bool hasError, string errorNotes, dynamic processContent)> ImportContentFromExcelRow(
+        public static async Task<(bool hasError, string errorNotes, dynamic? processContent)> ImportContentFromExcelRow(
             ExcelHeaderRow headerInfo, IXLRangeRow toProcess)
         {
             // ReSharper disable once StringLiteralTypo
             var contentId = GetGuidFromExcelRow(headerInfo, toProcess, "contentid");
 
-            dynamic dbEntry;
+            dynamic? dbEntry;
 
-            if (contentId?.ParsedValue == null)
+            if (contentId.ParsedValue == null)
             {
                 var newContentType = GetStringFromExcelRow(headerInfo, toProcess, "newcontenttype");
 
@@ -282,6 +281,10 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                     return (true, "No ContentId or NewContentId Found", null);
 
                 dbEntry = NewContentTypeToImportDbType(newContentType.ParsedValue);
+
+                if (dbEntry == null)
+                    return (true, "Content Type Not Found", null);
+
                 dbEntry.ContentId = Guid.NewGuid();
             }
             else
@@ -298,8 +301,8 @@ namespace PointlessWaymarks.CmsData.ExcelImport
             return (errors.Count > 0, string.Join(Environment.NewLine, errors), dbEntry);
         }
 
-        public static async Task<ExcelContentTableImportResults> ImportExcelContentTable(IXLRange toProcess,
-            IProgress<string> progress)
+        public static async Task<ExcelContentTableImportResults> ImportExcelContentTable(IXLRange? toProcess,
+            IProgress<string>? progress = null)
         {
             if (toProcess == null || toProcess.Rows().Count() < 2)
                 return new ExcelContentTableImportResults
@@ -330,6 +333,12 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                     continue;
                 }
 
+                if (importResult.processContent == null)
+                {
+                    errorNotes.Add($"Excel Row {loopRow.RowNumber()} - Unexpected Null");
+                    continue;
+                }
+
                 try
                 {
                     Db.DefaultPropertyCleanup(importResult.processContent);
@@ -340,6 +349,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                     Log.Warning(
                         "Excel Import - Excel Row {0} - Excel Import via dynamics - Tags threw an error on ContentId {1} - property probably not present",
                         loopRow.RowNumber(), importResult.processContent.ContentId ?? "New Entry");
+                        errorNotes.Add($"Excel Row {loopRow.RowNumber()} - Tags could not be processed");
                     continue;
                 }
 
@@ -351,6 +361,12 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                 if (contentDbId > 0)
                 {
                     var currentDbEntry = await db.ContentFromContentId(contentId);
+
+                    if (currentDbEntry == null)
+                    {
+                        errorNotes.Add($"Excel Row {loopRow.RowNumber()} - Didn't find expected DB Entry");
+                        continue;
+                    }
 
                     var compareLogic = new CompareLogic
                     {
@@ -445,7 +461,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
         }
 
         public static async Task<ExcelContentTableImportResults> ImportFromFile(string fileName,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             progress?.Report($"Opening {fileName} for Excel Import");
 
@@ -462,8 +478,10 @@ namespace PointlessWaymarks.CmsData.ExcelImport
             return await ImportExcelContentTable(tableRange, progress);
         }
 
-        private static dynamic NewContentTypeToImportDbType(string newContentTypeString)
+        private static dynamic? NewContentTypeToImportDbType(string? newContentTypeString)
         {
+            if (string.IsNullOrWhiteSpace(newContentTypeString)) return null;
+
             return newContentTypeString.ToLower() switch
             {
                 "file" => new FileContent(),
@@ -478,7 +496,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
         }
 
         public static async Task<(bool hasError, string errorMessage)> SaveAndGenerateHtmlFromExcelImport(
-            ExcelContentTableImportResults contentTableImportResult, IProgress<string> progress)
+            ExcelContentTableImportResults contentTableImportResult, IProgress<string>? progress = null)
         {
             var errorList = new List<string>();
 

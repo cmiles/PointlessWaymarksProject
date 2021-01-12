@@ -17,7 +17,7 @@ namespace PointlessWaymarks.CmsData.Content
     public static class LineGenerator
     {
         public static async Task GenerateHtml(LineContent toGenerate, DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             progress?.Report($"Line Content - Generate HTML for {toGenerate.Title}");
 
@@ -27,7 +27,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<(GenerationReturn generationReturn, LineContent lineContent)> SaveAndGenerateHtml(
-            LineContent toSave, DateTime? generationVersion, IProgress<string> progress)
+            LineContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
 

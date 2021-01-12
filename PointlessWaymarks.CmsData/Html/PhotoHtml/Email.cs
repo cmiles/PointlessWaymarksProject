@@ -10,7 +10,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoHtml
 {
     public static class Email
     {
-        public static async Task<string> ToHtmlEmail(PhotoContent content, IProgress<string> progress)
+        public static async Task<string> ToHtmlEmail(PhotoContent? content, IProgress<string>? progress = null)
         {
             if (content == null) return string.Empty;
 
@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoHtml
 
             mdBuilder.AppendLine(BracketCodePhotos.Create(content));
 
-            var detailsList = new List<string>
+            var detailsList = new List<string?>
             {
                 content.Aperture,
                 content.ShutterSpeed,

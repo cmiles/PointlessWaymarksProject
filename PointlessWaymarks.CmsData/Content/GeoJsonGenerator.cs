@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsData.Content
     public static class GeoJsonGenerator
     {
         public static async Task GenerateHtml(GeoJsonContent toGenerate, DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             progress?.Report($"GeoJson Content - Generate HTML for {toGenerate.Title}");
 
@@ -20,8 +20,8 @@ namespace PointlessWaymarks.CmsData.Content
             await htmlContext.WriteLocalHtml();
         }
 
-        public static async Task<(GenerationReturn generationReturn, GeoJsonContent geoJsonContent)>
-            SaveAndGenerateHtml(GeoJsonContent toSave, DateTime? generationVersion, IProgress<string> progress)
+        public static async Task<(GenerationReturn generationReturn, GeoJsonContent? geoJsonContent)>
+            SaveAndGenerateHtml(GeoJsonContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
 

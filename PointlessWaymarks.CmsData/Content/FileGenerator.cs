@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class FileGenerator
     {
-        public static void GenerateHtml(FileContent toGenerate, DateTime? generationVersion, IProgress<string> progress)
+        public static void GenerateHtml(FileContent toGenerate, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             progress?.Report($"File Content - Generate HTML for {toGenerate.Title}");
 
@@ -25,7 +25,7 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static async Task<(GenerationReturn generationReturn, FileContent? fileContent)> SaveAndGenerateHtml(
             FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave, selectedFile);
 

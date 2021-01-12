@@ -7,8 +7,8 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public class MagicScalerImageResizer : IPictureResizer
     {
-        public FileInfo ResizeTo(FileInfo toResize, int width, int quality, string imageTypeString, bool addSizeString,
-            IProgress<string> progress)
+        public FileInfo? ResizeTo(FileInfo toResize, int width, int quality, string imageTypeString, bool addSizeString,
+            IProgress<string>? progress = null)
         {
             if (!toResize.Exists) return null;
 
@@ -34,7 +34,7 @@ namespace PointlessWaymarks.CmsData.Content
             return newFileInfo;
         }
 
-        public FileInfo Rotate(FileInfo toRotate, Orientation orientation)
+        public FileInfo? Rotate(FileInfo toRotate, Orientation orientation)
         {
             if (!toRotate.Exists) return null;
 

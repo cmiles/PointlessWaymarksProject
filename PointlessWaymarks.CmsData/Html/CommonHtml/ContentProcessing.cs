@@ -6,13 +6,15 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 {
     public static class ContentProcessing
     {
-        public static string ProcessContent(string toProcess, string contentFormat)
+        public static string ProcessContent(string? toProcess, string? contentFormat)
         {
+            if (string.IsNullOrWhiteSpace(contentFormat)) return toProcess.TrimNullToEmpty();
+
             return ProcessContent(toProcess,
                 (ContentFormatEnum) Enum.Parse(typeof(ContentFormatEnum), contentFormat, true));
         }
 
-        public static string ProcessContent(string toProcess, ContentFormatEnum contentFormat)
+        public static string ProcessContent(string? toProcess, ContentFormatEnum contentFormat)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

@@ -10,7 +10,7 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class MapComponentGenerator
     {
-        public static async Task GenerateData(MapComponentDto toGenerate, IProgress<string> progress)
+        public static async Task GenerateData(MapComponentDto toGenerate, IProgress<string>? progress = null)
         {
             progress?.Report($"Map Component - Generate Data for {toGenerate.Map.ContentId}, {toGenerate.Map.Title}");
 
@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<(GenerationReturn generationReturn, MapComponentDto mapDto)> SaveAndGenerateData(
-            MapComponentDto toSave, DateTime? generationVersion, IProgress<string> progress)
+            MapComponentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
 

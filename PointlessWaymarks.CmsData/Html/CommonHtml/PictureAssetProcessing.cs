@@ -12,17 +12,21 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
     {
         public static void ConfirmOrGenerateImageDirectoryAndPictures(ImageContent dbEntry)
         {
+            if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName)) return;
+
             FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry).Wait();
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
             var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
 
-            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, null);
+            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false);
         }
 
         public static void ConfirmOrGeneratePhotoDirectoryAndPictures(PhotoContent dbEntry)
         {
+            if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName)) return;
+
             FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry).Wait();
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
@@ -32,11 +36,13 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false, null);
         }
 
-        public static PictureAsset ProcessImageDirectory(Guid photoOrImageContentId)
+        public static PictureAsset? ProcessImageDirectory(Guid photoOrImageContentId)
         {
             var db = Db.Context().Result;
 
             var content = db.ImageContents.SingleOrDefault(x => x.ContentId == photoOrImageContentId);
+
+            if (content == null) return null;
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -186,7 +192,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return toReturn;
         }
 
-        public static PictureAsset ProcessPictureDirectory(Guid photoOrImageContentId)
+        public static PictureAsset? ProcessPictureDirectory(Guid photoOrImageContentId)
         {
             var db = Db.Context().Result;
 

@@ -44,7 +44,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return codeMatches.Any(toProcess.Contains);
         }
 
-        public static bool ContainsSpatialBracketCodes(IContentCommon content)
+        public static bool ContainsSpatialBracketCodes(IContentCommon? content)
         {
             if (content == null) return false;
 
@@ -107,7 +107,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         /// </summary>
         /// <param name="toProcess"></param>
         /// <returns></returns>
-        public static Guid? PhotoOrImageCodeFirstIdInContent(string toProcess)
+        public static Guid? PhotoOrImageCodeFirstIdInContent(string? toProcess)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return null;
 
@@ -118,8 +118,10 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return null;
         }
 
-        public static string ProcessCodesForEmail(string input, IProgress<string> progress)
+        public static string ProcessCodesForEmail(string? input, IProgress<string>? progress = null)
         {
+            if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+
             input = BracketCodeFileDownloads.Process(input, progress);
             input = BracketCodeFiles.Process(input, progress);
             input = BracketCodeGeoJsonLinks.Process(input, progress);
@@ -143,7 +145,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return input;
         }
 
-        public static string ProcessCodesForLocalDisplay(string input, IProgress<string> progress)
+        public static string ProcessCodesForLocalDisplay(string input, IProgress<string>? progress = null)
         {
             input = BracketCodeFileDownloads.Process(input, progress);
             input = BracketCodeFiles.Process(input, progress);
@@ -164,7 +166,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return input;
         }
 
-        public static string ProcessCodesForSite(string input, IProgress<string> progress)
+        public static string ProcessCodesForSite(string input, IProgress<string>? progress = null)
         {
             input = BracketCodeFileDownloads.Process(input, progress);
             input = BracketCodeFiles.Process(input, progress);

@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class LinkGenerator
     {
-        public static void GenerateHtmlAndJson(DateTime? generationVersion, IProgress<string> progress)
+        public static void GenerateHtmlAndJson(DateTime? generationVersion, IProgress<string>? progress = null)
         {
             progress?.Report("Link Content - Generate HTML");
 
@@ -23,7 +23,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<(GenerationReturn generationReturn, LinkMetadata metadata)> LinkMetadataFromUrl(
-            string url, IProgress<string> progress)
+            string url, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(url)) return (GenerationReturn.Error("No URL?"), null);
 
@@ -157,8 +157,8 @@ namespace PointlessWaymarks.CmsData.Content
             return (GenerationReturn.Success($"Parsed URL Metadata for {url} without error"), toReturn);
         }
 
-        public static async Task<(GenerationReturn generationReturn, LinkContent linkContent)> SaveAndGenerateHtml(
-            LinkContent toSave, DateTime? generationVersion, IProgress<string> progress)
+        public static async Task<(GenerationReturn generationReturn, LinkContent? linkContent)> SaveAndGenerateHtml(
+            LinkContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
 
@@ -179,7 +179,7 @@ namespace PointlessWaymarks.CmsData.Content
                 toSave);
         }
 
-        public static async Task<GenerationReturn> SaveLinkToPinboard(LinkContent toSave, IProgress<string> progress)
+        public static async Task<GenerationReturn> SaveLinkToPinboard(LinkContent toSave, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
                 return GenerationReturn.Success("No PinboardApiToken - skipping save to Pinboard",
@@ -227,15 +227,15 @@ namespace PointlessWaymarks.CmsData.Content
             return GenerationReturn.Success("Saved to Pinboard", toSave.ContentId);
         }
 
-        public static async Task<GenerationReturn> Validate(LinkContent linkContent)
+        public static async Task<GenerationReturn> Validate(LinkContent? linkContent)
         {
+            if (linkContent == null) return GenerationReturn.Error("Link Content is Null?");
+
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
             if (!rootDirectoryCheck.Valid)
                 return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                     linkContent.ContentId);
-
-            if (linkContent == null) return GenerationReturn.Error("Link Content is Null?");
 
             var (createdUpdatedValid, createdUpdatedValidationMessage) =
                 CommonContentValidation.ValidateCreatedAndUpdatedBy(linkContent, linkContent.Id < 1);
@@ -254,12 +254,12 @@ namespace PointlessWaymarks.CmsData.Content
 
         public class LinkMetadata
         {
-            public string Author { get; set; }
+            public string? Author { get; set; }
 
-            public string Description { get; set; }
+            public string? Description { get; set; }
             public DateTime? LinkDate { get; set; }
-            public string Site { get; set; }
-            public string Title { get; set; }
+            public string? Site { get; set; }
+            public string? Title { get; set; }
         }
     }
 }

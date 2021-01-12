@@ -461,7 +461,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             try
             {
                 smallImageUrl =
-                    PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture?.File
+                    PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture?.File
                         .FullName ?? string.Empty;
             }
             catch

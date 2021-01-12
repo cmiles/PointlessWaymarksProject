@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static List<PhotoContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
+        public static List<PhotoContent> DbContentFromBracketCodes(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<PhotoContent>();
 
@@ -54,7 +54,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         /// <param name="progress"></param>
         /// <returns></returns>
         private static string Process(string toProcess, Func<SinglePhotoPage, string> pageConversion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -87,7 +87,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static string ProcessForDirectLocalAccess(string toProcess, IProgress<string> progress)
+        public static string ProcessForDirectLocalAccess(string toProcess, IProgress<string>? progress = null)
         {
             return Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString(), progress);
         }
@@ -98,7 +98,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static string ProcessForEmail(string toProcess, IProgress<string> progress)
+        public static string ProcessForEmail(string toProcess, IProgress<string>? progress = null)
         {
             return Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString(), progress);
         }
@@ -109,7 +109,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static string ProcessToFigureWithLink(string toProcess, IProgress<string> progress)
+        public static string ProcessToFigureWithLink(string toProcess, IProgress<string>? progress = null)
         {
             return Process(toProcess,
                 page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString(),

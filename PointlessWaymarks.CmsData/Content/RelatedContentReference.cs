@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsData.Content
     public static class RelatedContentReference
     {
         public static async Task ExtractAndWriteRelatedContentDbReferences(DateTime generationVersion,
-            List<IContentCommon> content, PointlessWaymarksContext db, IProgress<string> progress)
+            List<IContentCommon> content, PointlessWaymarksContext db, IProgress<string>? progress = null)
         {
             if (content == null || !content.Any()) return;
 
@@ -22,7 +22,7 @@ namespace PointlessWaymarks.CmsData.Content
 
 
         public static async Task ExtractAndWriteRelatedContentDbReferences(DateTime generationVersion,
-            IContentCommon content, PointlessWaymarksContext db, IProgress<string> progress)
+            IContentCommon content, PointlessWaymarksContext db, IProgress<string>? progress = null)
         {
             var toAdd = new List<Guid>();
 
@@ -52,7 +52,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task ExtractAndWriteRelatedContentDbReferencesFromString(Guid sourceGuid, string toSearch,
-            PointlessWaymarksContext db, IProgress<string> progress)
+            PointlessWaymarksContext db, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toSearch)) return;
 
@@ -65,7 +65,7 @@ namespace PointlessWaymarks.CmsData.Content
             await db.GenerationRelatedContents.AddRangeAsync(dbEntries);
         }
 
-        public static async Task GenerateRelatedContentDbTable(DateTime generationVersion, IProgress<string> progress)
+        public static async Task GenerateRelatedContentDbTable(DateTime generationVersion, IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 

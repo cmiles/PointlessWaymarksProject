@@ -44,7 +44,7 @@ namespace PointlessWaymarks.CmsData
         }
 
         public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
-            DataNotificationUpdateType updateType, List<Guid> contentGuidList)
+            DataNotificationUpdateType updateType, List<Guid>? contentGuidList)
         {
             if (SuspendNotifications) return;
 
@@ -56,7 +56,7 @@ namespace PointlessWaymarks.CmsData
                 $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList)}");
         }
 
-        public static InterProcessDataNotification TranslateDataNotification(byte[] received)
+        public static InterProcessDataNotification TranslateDataNotification(byte[]? received)
         {
             if (received == null || received.Length == 0)
                 return new InterProcessDataNotification {HasError = true, ErrorNote = "No Data"};
@@ -94,11 +94,11 @@ namespace PointlessWaymarks.CmsData
 
     public class InterProcessDataNotification
     {
-        public List<Guid> ContentIds { get; set; }
+        public List<Guid>? ContentIds { get; set; }
         public DataNotificationContentType ContentType { get; set; }
-        public string ErrorNote { get; set; }
+        public string? ErrorNote { get; set; }
         public bool HasError { get; set; }
-        public string Sender { get; set; }
+        public string? Sender { get; set; }
         public DataNotificationUpdateType UpdateType { get; set; }
     }
 

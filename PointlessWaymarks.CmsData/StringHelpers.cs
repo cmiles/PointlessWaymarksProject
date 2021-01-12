@@ -67,7 +67,7 @@ namespace PointlessWaymarks.CmsData
         /// </summary>
         /// <param name="toTrim"></param>
         /// <returns></returns>
-        public static string NullToEmptyTrim(string toTrim)
+        public static string NullToEmptyTrim(string? toTrim)
         {
             return string.IsNullOrWhiteSpace(toTrim) ? string.Empty : toTrim.Trim();
         }
@@ -94,7 +94,7 @@ namespace PointlessWaymarks.CmsData
         /// </summary>
         /// <param name="toTrim"></param>
         /// <returns></returns>
-        public static string TrimNullToEmpty(this string toTrim)
+        public static string TrimNullToEmpty(this string? toTrim)
         {
             return string.IsNullOrWhiteSpace(toTrim) ? string.Empty : toTrim.Trim();
         }

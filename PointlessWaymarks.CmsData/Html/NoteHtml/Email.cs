@@ -7,7 +7,7 @@ namespace PointlessWaymarks.CmsData.Html.NoteHtml
 {
     public static class Email
     {
-        public static async Task<string> ToHtmlEmail(NoteContent content, IProgress<string> progress)
+        public static async Task<string> ToHtmlEmail(NoteContent? content, IProgress<string>? progress = null)
         {
             if (content == null) return string.Empty;
 

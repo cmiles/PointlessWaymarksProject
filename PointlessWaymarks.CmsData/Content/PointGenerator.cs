@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsData.Content
     public static class PointGenerator
     {
         public static void GenerateHtml(PointContentDto toGenerate, DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             progress?.Report($"Point Content - Generate HTML for {toGenerate.Title}");
 
@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<(GenerationReturn generationReturn, PointContentDto pointContent)> SaveAndGenerateHtml(
-            PointContentDto toSave, DateTime? generationVersion, IProgress<string> progress)
+            PointContentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
 

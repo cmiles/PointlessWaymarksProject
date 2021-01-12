@@ -4,7 +4,7 @@ namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
 {
     public class Peak : IPointDetailData
     {
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
         public string NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
         public string DataTypeIdentifier => "Peak";
 

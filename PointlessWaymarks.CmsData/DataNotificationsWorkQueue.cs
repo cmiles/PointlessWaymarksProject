@@ -22,7 +22,7 @@ namespace PointlessWaymarks.CmsData
             thread.Start();
         }
 
-        public Func<TinyMessageReceivedEventArgs, Task> Processor { get; set; }
+        public Func<TinyMessageReceivedEventArgs, Task>? Processor { get; set; }
 
         public void Enqueue(TinyMessageReceivedEventArgs job)
         {

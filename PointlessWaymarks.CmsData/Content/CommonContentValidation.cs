@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsData.Content
     public static class CommonContentValidation
     {
         public static async Task<List<GenerationReturn>> CheckAllContentForBadContentReferences(
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var returnList = new List<GenerationReturn>();
 
@@ -45,7 +45,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<List<GenerationReturn>> CheckForBadContentReferences(List<IContentCommon> content,
-            PointlessWaymarksContext db, IProgress<string> progress)
+            PointlessWaymarksContext db, IProgress<string>? progress = null)
         {
             var returnList = new List<GenerationReturn>();
 
@@ -113,13 +113,13 @@ namespace PointlessWaymarks.CmsData.Content
                 $"{Db.ContentTypeString(content)} {content.Title} - No Invalid Content Ids Found");
         }
 
-        public static async Task<GenerationReturn> CheckStringForBadContentReferences(string toSearch,
+        public static async Task<GenerationReturn> CheckStringForBadContentReferences(string? toSearch,
             PointlessWaymarksContext db, IProgress<string>? progress)
         {
-            var extracted = new List<Guid>();
-
             if (string.IsNullOrWhiteSpace(toSearch))
                 return GenerationReturn.Success("No Content Ids Found");
+
+            var extracted = new List<Guid>();
 
             extracted.AddRange(BracketCodeCommon.BracketCodeContentIds(toSearch));
 
@@ -180,8 +180,10 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, "File is Valid");
         }
 
-        public static IsValid GeoJsonValidation(string geoJsonString)
+        public static IsValid GeoJsonValidation(string? geoJsonString)
         {
+            if (string.IsNullOrWhiteSpace(geoJsonString)) return new (false, "Blank GeoJson is not Valid");
+
             try
             {
                 var serializer = GeoJsonSerializer.Create();
@@ -258,7 +260,7 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, "File is Valid");
         }
 
-        public static IsValid ValidateBodyContentFormat(string contentFormat)
+        public static IsValid ValidateBodyContentFormat(string? contentFormat)
         {
             if (string.IsNullOrWhiteSpace(contentFormat)) return new IsValid(false, "Body Content Format must be set");
 
@@ -392,14 +394,14 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, "Created By is Ok");
         }
 
-        public static IsValid ValidateFeatureType(string title)
+        public static IsValid ValidateFeatureType(string? title)
         {
             if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "Type can not be blank");
 
             return new IsValid(true, string.Empty);
         }
 
-        public static IsValid ValidateFolder(string folder)
+        public static IsValid ValidateFolder(string? folder)
         {
             if (string.IsNullOrWhiteSpace(folder))
                 return new IsValid(false, "Folder can't be blank or only whitespace.");
@@ -417,14 +419,14 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, string.Empty);
         }
 
-        public static IsValid ValidateGeoJson(string title)
+        public static IsValid ValidateGeoJson(string? title)
         {
             if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "GeoJson can not be blank");
 
             return new IsValid(true, string.Empty);
         }
 
-        public static async Task<IsValid> ValidateLinkContentLinkUrl(string url,
+        public static async Task<IsValid> ValidateLinkContentLinkUrl(string? url,
             Guid? contentGuid)
         {
             if (string.IsNullOrWhiteSpace(url)) return new IsValid(false, "Link URL can not be blank");
@@ -433,7 +435,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (contentGuid == null)
             {
-                var duplicateUrl = await db.LinkContents.AnyAsync(x => x.Url.ToLower() == url.ToLower());
+                var duplicateUrl = await db.LinkContents.Where(x => x.Url != null).AnyAsync(x => x.Url!.ToLower() == url.ToLower());
                 if (duplicateUrl)
                     return new IsValid(false,
                         "URL Already exists in the database - duplicates are not allowed, try editing the existing entry to add new/updated information.");
@@ -522,7 +524,7 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
         }
 
-        public static IsValid ValidateSlugLocal(string slug)
+        public static IsValid ValidateSlugLocal(string? slug)
         {
             if (string.IsNullOrWhiteSpace(slug)) return new IsValid(false, "Slug can't be blank or only whitespace.");
 
@@ -534,7 +536,7 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, string.Empty);
         }
 
-        public static async Task<IsValid> ValidateSlugLocalAndDb(string slug, Guid contentId)
+        public static async Task<IsValid> ValidateSlugLocalAndDb(string? slug, Guid contentId)
         {
             var localValidation = ValidateSlugLocal(slug);
 
@@ -546,14 +548,14 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, string.Empty);
         }
 
-        public static IsValid ValidateSummary(string summary)
+        public static IsValid ValidateSummary(string? summary)
         {
             if (string.IsNullOrWhiteSpace(summary)) return new IsValid(false, "Summary can not be blank");
 
             return new IsValid(true, string.Empty);
         }
 
-        public static IsValid ValidateTags(string tags)
+        public static IsValid ValidateTags(string? tags)
         {
             if (string.IsNullOrWhiteSpace(tags)) return new IsValid(false, "At least one tag must be included.");
 
@@ -565,14 +567,14 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, string.Empty);
         }
 
-        public static IsValid ValidateTitle(string title)
+        public static IsValid ValidateTitle(string? title)
         {
             if (string.IsNullOrWhiteSpace(title)) return new IsValid(false, "Title can not be blank");
 
             return new IsValid(true, string.Empty);
         }
 
-        public static IsValid ValidateUpdateContentFormat(string contentFormat)
+        public static IsValid ValidateUpdateContentFormat(string? contentFormat)
         {
             if (string.IsNullOrWhiteSpace(contentFormat))
                 return new IsValid(false, "Update Content Format must be set");

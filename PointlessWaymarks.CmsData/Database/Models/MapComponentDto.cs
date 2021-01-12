@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿
 using System.Collections.Generic;
 
 namespace PointlessWaymarks.CmsData.Database.Models

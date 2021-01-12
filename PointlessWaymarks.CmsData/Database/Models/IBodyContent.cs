@@ -2,7 +2,7 @@
 {
     public interface IBodyContent
     {
-        public string BodyContent { get; }
-        public string BodyContentFormat { get; }
+        public string? BodyContent { get; }
+        public string? BodyContentFormat { get; }
     }
 }

@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 {
     public static class BodyContentReferences
     {
-        public static HtmlTag RelatedContentDiv(IContentCommon post)
+        public static HtmlTag RelatedContentDiv(IContentCommon? post)
         {
             if (post == null) return HtmlTag.Empty();
             var relatedPostContainerDiv = new DivTag().AddClass("related-post-container");
@@ -51,11 +51,11 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         {
             if (generationVersion == null)
             {
-                var posts = await toQuery.PostContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
+                var posts = await toQuery.PostContents.Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
                     .Cast<IContentCommon>().ToListAsync();
-                var notes = await toQuery.NoteContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
+                var notes = await toQuery.NoteContents.Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
                     .Cast<IContentCommon>().ToListAsync();
-                var files = await toQuery.FileContents.Where(x => x.BodyContent.Contains(toCheckFor.ToString()))
+                var files = await toQuery.FileContents.Where(x => x.BodyContent != null && x.BodyContent.Contains(toCheckFor.ToString()))
                     .Cast<IContentCommon>().ToListAsync();
 
                 return posts.Concat(notes).Concat(files).OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
@@ -96,7 +96,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         }
 
         public static async Task<HtmlTag> RelatedContentTag(IContentCommon content, DateTime? generationVersion,
-            IProgress<string> progress = null)
+            IProgress<string>? progress = null)
         {
             var toSearch = string.Empty;
 
@@ -108,7 +108,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         }
 
         public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor, string bodyContentToCheckIn,
-            DateTime? generationVersion, IProgress<string> progress = null)
+            DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var contentCommonList = new List<IContentCommon>();
 

@@ -5,12 +5,12 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 {
     public class PictureAsset
     {
-        public object DbEntry { get; set; }
-        public PictureFile DisplayPicture { get; set; }
-        public PictureFile LargePicture { get; set; }
-        public PictureFile SmallPicture { get; set; }
+        public object? DbEntry { get; set; }
+        public PictureFile? DisplayPicture { get; set; }
+        public PictureFile? LargePicture { get; set; }
+        public PictureFile? SmallPicture { get; set; }
 
-        public List<PictureFile> SrcsetImages { get; set; }
+        public List<PictureFile> SrcsetImages { get; set; } = new();
 
         public string SrcSetString()
         {

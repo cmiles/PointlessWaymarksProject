@@ -17,7 +17,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static List<PointContent> DbContentFromBracketCodes(string toProcess, IProgress<string> progress)
+        public static List<PointContent> DbContentFromBracketCodes(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<PointContent>();
 
@@ -45,7 +45,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return returnList;
         }
 
-        public static string Process(string toProcess, IProgress<string> progress)
+        public static string Process(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -60,7 +60,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             foreach (var loopMatch in resultList)
             {
                 var dbContent = context.PointContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
-                if (dbContent == null) continue;
+                if (dbContent?.Slug == null) continue;
 
                 progress?.Report($"Adding point {dbContent.Title} from Code");
 
@@ -70,7 +70,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return toProcess;
         }
 
-        public static string ProcessForEmail(string toProcess, IProgress<string> progress)
+        public static string ProcessForEmail(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 

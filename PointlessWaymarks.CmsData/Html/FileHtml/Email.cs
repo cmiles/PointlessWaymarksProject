@@ -7,7 +7,7 @@ namespace PointlessWaymarks.CmsData.Html.FileHtml
 {
     public static class Email
     {
-        public static async Task<string> ToHtmlEmail(FileContent content, IProgress<string> progress)
+        public static async Task<string> ToHtmlEmail(FileContent content, IProgress<string>? progress = null)
         {
             if (content == null) return string.Empty;
 

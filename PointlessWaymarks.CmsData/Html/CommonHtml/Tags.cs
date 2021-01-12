@@ -9,7 +9,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 {
     public static class Tags
     {
-        public static HtmlTag CoreLinksDiv(IProgress<string> progress = null)
+        public static HtmlTag CoreLinksDiv(IProgress<string>? progress = null)
         {
             var db = Db.Context().Result;
 
@@ -116,7 +116,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return figCaptionTag;
         }
 
-        public static HtmlTag InfoDivTag(string contents, string className, string dataType, string dataValue)
+        public static HtmlTag InfoDivTag(string? contents, string className, string dataType, string? dataValue)
         {
             if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();
             var divTag = new HtmlTag("div");
@@ -137,7 +137,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return string.IsNullOrWhiteSpace(toCheck.ToHtmlString());
         }
 
-        public static DateTime? LatestCreatedOnOrUpdatedOn(ICreatedAndLastUpdateOnAndBy dbEntry)
+        public static DateTime? LatestCreatedOnOrUpdatedOn(ICreatedAndLastUpdateOnAndBy? dbEntry)
         {
             if (dbEntry == null) return null;
 
@@ -153,9 +153,9 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return (previousContent, laterContent);
         }
 
-        public static string OpenGraphImageMetaTags(PictureSiteInformation mainImage)
+        public static string OpenGraphImageMetaTags(PictureSiteInformation? mainImage)
         {
-            if (mainImage?.Pictures == null) return string.Empty;
+            if (mainImage?.Pictures?.DisplayPicture == null) return string.Empty;
 
             var metaString = "";
             metaString +=
@@ -193,7 +193,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
             if (includeTitle || !summaryHasValue)
             {
-                titleSummaryString = dbEntry.Title;
+                titleSummaryString = dbEntry.Title.TrimNullToEmpty();
 
                 if (summaryHasValue)
                 {
@@ -247,8 +247,9 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             if (!string.IsNullOrWhiteSpace(emailSize.AltText))
                 imageTag.Attr("alt", emailSize.AltText);
 
-            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(emailSize.AltText) &&
-                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
+            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(emailSize.AltText)
+                && pictureDirectoryInfo.DbEntry != null
+                && !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
                 imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;
@@ -269,8 +270,9 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
 
-            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText) &&
-                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
+            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText) 
+                && pictureDirectoryInfo.DbEntry != null
+                && !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
                 imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;
@@ -328,7 +330,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return outerLink;
         }
 
-        public static HtmlTag PostBodyDiv(IBodyContent dbEntry, IProgress<string> progress = null)
+        public static HtmlTag PostBodyDiv(IBodyContent dbEntry, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
 

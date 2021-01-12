@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
     public static class CameraRollGalleryPageGenerator
     {
         public static async Task<CameraRollGalleryPage> CameraRoll(DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 

@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -196,7 +196,7 @@ namespace PointlessWaymarks.CmsData.Content
                 dbContent.ContentId);
         }
 
-        public static async Task<List<GenerationReturn>> CleanAndResizeAllImageFiles(IProgress<string> progress)
+        public static async Task<List<GenerationReturn>> CleanAndResizeAllImageFiles(IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -205,13 +205,13 @@ namespace PointlessWaymarks.CmsData.Content
             var loopCount = 1;
             var totalCount = allItems.Count;
 
-            progress.Report($"Found {totalCount} Images to Clean and Resize");
+            progress?.Report($"Found {totalCount} Images to Clean and Resize");
 
             var returnList = new List<GenerationReturn>();
 
             foreach (var loopItem in allItems)
             {
-                progress.Report($"Image Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
+                progress?.Report($"Image Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 returnList.Add(await PictureResizing.CopyCleanResizeImage(loopItem, progress));
 
@@ -221,7 +221,7 @@ namespace PointlessWaymarks.CmsData.Content
             return returnList;
         }
 
-        public static async Task<List<GenerationReturn>> CleanAndResizeAllPhotoFiles(IProgress<string> progress)
+        public static async Task<List<GenerationReturn>> CleanAndResizeAllPhotoFiles(IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -230,13 +230,13 @@ namespace PointlessWaymarks.CmsData.Content
             var loopCount = 1;
             var totalCount = allItems.Count;
 
-            progress.Report($"Found {totalCount} Photos to Clean and Resize");
+            progress?.Report($"Found {totalCount} Photos to Clean and Resize");
 
             var returnList = new List<GenerationReturn>();
 
             foreach (var loopItem in allItems)
             {
-                progress.Report($"Photo Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
+                progress?.Report($"Photo Clean and Resize for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 returnList.Add(await PictureResizing.CopyCleanResizePhoto(loopItem, progress));
 
@@ -295,7 +295,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<List<GenerationReturn>> ConfirmAllFileContentFilesArePresent(
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -304,13 +304,13 @@ namespace PointlessWaymarks.CmsData.Content
             var loopCount = 1;
             var totalCount = allItems.Count;
 
-            progress.Report($"Found {totalCount} Files to Check");
+            progress?.Report($"Found {totalCount} Files to Check");
 
             var returnList = new List<GenerationReturn>();
 
             foreach (var loopItem in allItems)
             {
-                progress.Report($"File Check for {loopItem.Title} - {loopCount} of {totalCount}");
+                progress?.Report($"File Check for {loopItem.Title} - {loopCount} of {totalCount}");
 
                 returnList.Add(await CheckFileOriginalFileIsInMediaAndContentDirectories(loopItem));
 
@@ -376,7 +376,7 @@ namespace PointlessWaymarks.CmsData.Content
             await LogFileWriteAsync(destinationFile);
         }
 
-        public static async Task RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(IProgress<string> progress)
+        public static async Task RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(IProgress<string>? progress = null)
         {
             await RemoveFileDirectoriesNotFoundInCurrentDatabase(progress);
             await RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(progress);
@@ -1136,7 +1136,7 @@ namespace PointlessWaymarks.CmsData.Content
             return GenerationReturn.Success("Photo is copied to Media Archive");
         }
 
-        public static async Task WriteSiteResourcesToGeneratedSite(IProgress<string> progress)
+        public static async Task WriteSiteResourcesToGeneratedSite(IProgress<string>? progress = null)
         {
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 

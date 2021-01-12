@@ -120,7 +120,7 @@ namespace PointlessWaymarks.CmsData.Spatial
         }
 
         public static async Task<string> GeoJsonWithLineStringFromCoordinateList(List<CoordinateZ> pointList,
-            bool replaceElevations, IProgress<string> progress)
+            bool replaceElevations, IProgress<string>? progress = null)
         {
             if (replaceElevations)
                 await ElevationService.OpenTopoMapZenElevation(new HttpClient(), pointList, progress);
@@ -158,7 +158,7 @@ namespace PointlessWaymarks.CmsData.Spatial
         }
 
         public static async Task<string> ReplaceElevationsInGeoJsonWithLineString(string geoJson,
-            [CanBeNull] IProgress<string> progress)
+            [CanBeNull] IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(geoJson)) return string.Empty;
 
@@ -217,7 +217,7 @@ namespace PointlessWaymarks.CmsData.Spatial
             double MaximumElevation, double MinimumElevation);
 
         public static async Task<List<(string description, List<CoordinateZ> track)>> TracksFromGpxFile(
-            FileInfo gpxFile, IProgress<string> progress)
+            FileInfo gpxFile, IProgress<string>? progress = null)
         {
             var returnList = new List<(string description, List<CoordinateZ>)>();
 

@@ -23,7 +23,7 @@ namespace PointlessWaymarks.CmsData.Database
         /// <param name="db"></param>
         /// <param name="contentId"></param>
         /// <returns></returns>
-        public static async Task<ContentCommonShell> ContentCommonShellFromContentId(this PointlessWaymarksContext db,
+        public static async Task<ContentCommonShell?> ContentCommonShellFromContentId(this PointlessWaymarksContext db,
             Guid contentId)
         {
             //!Content Type List!!
@@ -58,7 +58,7 @@ namespace PointlessWaymarks.CmsData.Database
             return null;
         }
 
-        public static async Task<dynamic> ContentFromContentId(this PointlessWaymarksContext db, Guid contentId)
+        public static async Task<dynamic?> ContentFromContentId(this PointlessWaymarksContext db, Guid contentId)
         {
             //!!Content Type List!!
             var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == contentId);
@@ -94,7 +94,7 @@ namespace PointlessWaymarks.CmsData.Database
         public static async Task<List<dynamic>> ContentFromContentIds(this PointlessWaymarksContext db,
             List<Guid> contentIds)
         {
-            if (contentIds == null || !contentIds.Any()) return new List<dynamic>();
+            if (!contentIds.Any()) return new List<dynamic>();
 
             var returnList = new List<dynamic>();
 
@@ -277,7 +277,7 @@ namespace PointlessWaymarks.CmsData.Database
                 .Select(x => x.OrderByDescending(y => y.ContentVersion).First()).ToList();
         }
 
-        public static async Task DeleteFileContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeleteFileContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -307,7 +307,7 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
-        public static async Task DeleteGeoJsonContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeleteGeoJsonContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -337,7 +337,7 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
-        public static async Task DeleteImageContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeleteImageContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -367,7 +367,7 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
-        public static async Task DeleteLineContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeleteLineContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -397,7 +397,7 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
-        public static async Task DeleteLinkContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeleteLinkContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -427,7 +427,7 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
-        public static async Task DeleteMapComponent(Guid contentId, IProgress<string> progress)
+        public static async Task DeleteMapComponent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -481,7 +481,7 @@ namespace PointlessWaymarks.CmsData.Database
                     DataNotificationUpdateType.Delete, elementsToDeleteContentIds);
         }
 
-        public static async Task DeleteNoteContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeleteNoteContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -511,7 +511,7 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
-        public static async Task DeletePhotoContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeletePhotoContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -541,7 +541,7 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
-        public static async Task DeletePointContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeletePointContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -593,7 +593,7 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, relatedDetails.Select(x => x.ContentId).ToList());
         }
 
-        public static async Task DeletePostContent(Guid contentId, IProgress<string> progress)
+        public static async Task DeletePostContent(Guid contentId, IProgress<string>? progress = null)
         {
             var context = await Context();
 
@@ -629,15 +629,15 @@ namespace PointlessWaymarks.CmsData.Database
 
             return content switch
             {
-                FileContent => db.FileContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList(),
-                GeoJsonContent => db.GeoJsonContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList(),
-                ImageContent => db.ImageContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList(),
-                LineContent => db.LineContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList(),
-                NoteContent => db.NoteContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList(),
-                PhotoContent => db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList(),
-                PointContent => db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList(),
-                PointContentDto => db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList(),
-                PostContent => db.PostContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList(),
+                FileContent => db.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                GeoJsonContent => db.GeoJsonContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                ImageContent => db.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                LineContent => db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                NoteContent => db.NoteContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                PhotoContent => db.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                PointContent => db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                PointContentDto => db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
+                PostContent => db.PostContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder).Distinct().OrderBy(x => x).Cast<string>().ToList(),
                 _ => new List<string>()
             };
         }
@@ -774,8 +774,8 @@ namespace PointlessWaymarks.CmsData.Database
         }
 
         public static List<(string tag, List<object> contentObjects)> ParseToTagSlugsAndContentList(
-            List<(string tag, List<object> contentObjects)> list, List<ITag> toAdd, bool removeExcludedTags,
-            IProgress<string> progress)
+            List<(string tag, List<object> contentObjects)> list, List<ITag>? toAdd, bool removeExcludedTags,
+            IProgress<string>? progress = null)
         {
             list ??= new List<(string tag, List<object> contentObjects)>();
 
@@ -794,8 +794,8 @@ namespace PointlessWaymarks.CmsData.Database
             return list;
         }
 
-        public static List<(string tag, List<object> contentObjects)> ParseToTagSlugsAndContentList(
-            List<(string tag, List<object> contentObjects)> list, ITag toAdd, bool removeExcludedTags)
+        public static List<(string tag, List<object> contentObjects)>? ParseToTagSlugsAndContentList(
+            List<(string tag, List<object> contentObjects)>? list, ITag toAdd, bool removeExcludedTags)
         {
             list ??= new List<(string tag, List<object> contentObjects)>();
 
@@ -813,14 +813,14 @@ namespace PointlessWaymarks.CmsData.Database
             return list;
         }
 
-        public static async Task<PointContentDto> PointAndPointDetails(Guid pointContentId)
+        public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId)
         {
             var db = await Context();
 
             return await PointAndPointDetails(pointContentId, db);
         }
 
-        public static async Task<PointContentDto> PointAndPointDetails(Guid pointContentId, PointlessWaymarksContext db)
+        public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId, PointlessWaymarksContext db)
         {
             var point = await db.PointContents.SingleAsync(x => x.ContentId == pointContentId);
             var details = await db.PointDetails.Where(x => x.PointContentId == pointContentId).ToListAsync();
@@ -832,7 +832,7 @@ namespace PointlessWaymarks.CmsData.Database
             return toReturn;
         }
 
-        public static async Task<List<PointContentDto>> PointAndPointDetails(List<Guid> pointContentIdList,
+        public static async Task<List<PointContentDto>> PointAndPointDetails(List<Guid>? pointContentIdList,
             PointlessWaymarksContext db)
         {
             if (pointContentIdList == null) return new List<PointContentDto>();
@@ -853,9 +853,7 @@ namespace PointlessWaymarks.CmsData.Database
         {
             var toReturn = new PointContentDto();
 
-            if (content != null) toReturn.InjectFrom(content);
-
-            details ??= new List<PointDetail>();
+            toReturn.InjectFrom(content);
 
             toReturn.PointDetails = details;
 
@@ -866,12 +864,12 @@ namespace PointlessWaymarks.CmsData.Database
             PointContentDto dto)
         {
             var toSave = (PointContent) new PointContent().InjectFrom(dto);
-            var relatedDetails = dto.PointDetails ?? new List<PointDetail>();
+            var relatedDetails = dto.PointDetails;
 
             return (toSave, relatedDetails);
         }
 
-        public static IPointDetailData PointDetailDataFromIdentifierAndJson(string dataIdentifier, string json)
+        public static IPointDetailData? PointDetailDataFromIdentifierAndJson(string dataIdentifier, string json)
         {
             return dataIdentifier switch
             {
@@ -893,7 +891,7 @@ namespace PointlessWaymarks.CmsData.Database
 
             foreach (var loopTypes in pointDetailTypes)
             {
-                var typeExample = (IPointDetailData) Activator.CreateInstance(loopTypes);
+                var typeExample = (IPointDetailData?) Activator.CreateInstance(loopTypes);
 
                 if (typeExample == null) continue;
 
@@ -937,7 +935,7 @@ namespace PointlessWaymarks.CmsData.Database
             return returnList;
         }
 
-        public static async Task SaveFileContent(FileContent toSave)
+        public static async Task SaveFileContent(FileContent? toSave)
         {
             if (toSave == null) return;
 
@@ -991,7 +989,7 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.New, new List<Guid>());
         }
 
-        public static async Task SaveGeoJsonContent(GeoJsonContent toSave)
+        public static async Task SaveGeoJsonContent(GeoJsonContent? toSave)
         {
             if (toSave == null) return;
 
@@ -1038,7 +1036,7 @@ namespace PointlessWaymarks.CmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task SaveImageContent(ImageContent toSave)
+        public static async Task SaveImageContent(ImageContent? toSave)
         {
             if (toSave == null) return;
 
@@ -1076,7 +1074,7 @@ namespace PointlessWaymarks.CmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task SaveLineContent(LineContent toSave)
+        public static async Task SaveLineContent(LineContent? toSave)
         {
             if (toSave == null) return;
 
@@ -1123,7 +1121,7 @@ namespace PointlessWaymarks.CmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task SaveLinkContent(LinkContent toSave)
+        public static async Task SaveLinkContent(LinkContent? toSave)
         {
             if (toSave == null) return;
 
@@ -1261,7 +1259,7 @@ namespace PointlessWaymarks.CmsData.Database
             return toSaveDto;
         }
 
-        public static async Task SaveNoteContent(NoteContent toSave)
+        public static async Task SaveNoteContent(NoteContent? toSave)
         {
             if (toSave == null) return;
 
@@ -1295,7 +1293,7 @@ namespace PointlessWaymarks.CmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task SavePhotoContent(PhotoContent toSave)
+        public static async Task SavePhotoContent(PhotoContent? toSave)
         {
             if (toSave == null) return;
 
@@ -1333,7 +1331,7 @@ namespace PointlessWaymarks.CmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task<PointContentDto> SavePointContent(PointContentDto toSaveDto)
+        public static async Task<PointContentDto?> SavePointContent(PointContentDto? toSaveDto)
         {
             if (toSaveDto == null) return null;
 
@@ -1377,7 +1375,7 @@ namespace PointlessWaymarks.CmsData.Database
 
         public static async Task SavePointDetailContent(List<PointDetail> toSave)
         {
-            if (toSave == null || !toSave.Any()) return;
+            if (!toSave.Any()) return;
 
             if (toSave.Select(x => x.PointContentId).Distinct().Count() > 1)
             {
@@ -1443,7 +1441,7 @@ namespace PointlessWaymarks.CmsData.Database
         /// </summary>
         /// <param name="toSave"></param>
         /// <returns></returns>
-        public static async Task SavePointDetailContent(PointDetail toSave)
+        public static async Task SavePointDetailContent(PointDetail? toSave)
         {
             if (toSave == null) return;
 
@@ -1484,7 +1482,7 @@ namespace PointlessWaymarks.CmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
-        public static async Task SavePostContent(PostContent toSave)
+        public static async Task SavePostContent(PostContent? toSave)
         {
             if (toSave == null) return;
 
@@ -1520,14 +1518,14 @@ namespace PointlessWaymarks.CmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
-        public static string TagListCleanup(string tags)
+        public static string TagListCleanup(string? tags)
         {
             return string.IsNullOrWhiteSpace(tags) ? string.Empty : TagListJoin(TagListParse(tags));
         }
 
         public static List<string> TagListCleanup(List<string> listToClean)
         {
-            if (listToClean == null || !listToClean.Any()) return new List<string>();
+            if (!listToClean.Any()) return new List<string>();
 
             return listToClean.Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
         }
@@ -1537,7 +1535,7 @@ namespace PointlessWaymarks.CmsData.Database
         /// </summary>
         /// <param name="toClean"></param>
         /// <returns></returns>
-        public static string TagListItemCleanup(string toClean)
+        public static string TagListItemCleanup(string? toClean)
         {
             if (string.IsNullOrWhiteSpace(toClean)) return string.Empty;
 
@@ -1547,7 +1545,6 @@ namespace PointlessWaymarks.CmsData.Database
 
         public static string TagListJoin(List<string> tagList)
         {
-            if (tagList == null) return string.Empty;
             if (tagList.Count < 1) return string.Empty;
 
             var cleanedList = tagList.Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()
@@ -1558,7 +1555,6 @@ namespace PointlessWaymarks.CmsData.Database
 
         public static string TagListJoinAsSlugs(List<string> tagList, bool removeExcludedTags)
         {
-            if (tagList == null) return string.Empty;
             if (tagList.Count < 1) return string.Empty;
 
             var excludedTags = new List<string>();
@@ -1576,7 +1572,7 @@ namespace PointlessWaymarks.CmsData.Database
             return string.Join(",", cleanedList);
         }
 
-        public static List<string> TagListParse(string rawTagString)
+        public static List<string> TagListParse(string? rawTagString)
         {
             if (rawTagString == null) return new List<string>();
             if (string.IsNullOrWhiteSpace(rawTagString)) return new List<string>();
@@ -1585,7 +1581,7 @@ namespace PointlessWaymarks.CmsData.Database
                 .Distinct().OrderBy(x => x).ToList();
         }
 
-        public static List<string> TagListParseToSlugs(string rawTagString, bool removeExcludedTags)
+        public static List<string> TagListParseToSlugs(string? rawTagString, bool removeExcludedTags)
         {
             if (rawTagString == null) return new List<string>();
             if (string.IsNullOrWhiteSpace(rawTagString)) return new List<string>();
@@ -1603,7 +1599,7 @@ namespace PointlessWaymarks.CmsData.Database
                 .OrderBy(x => x).ToList();
         }
 
-        public static List<string> TagListParseToSlugs(ITag tag, bool removeExcludedTags)
+        public static List<string> TagListParseToSlugs(ITag? tag, bool removeExcludedTags)
         {
             if (tag == null) return new List<string>();
             if (string.IsNullOrWhiteSpace(tag.Tags)) return new List<string>();
@@ -1611,7 +1607,7 @@ namespace PointlessWaymarks.CmsData.Database
             return TagListParseToSlugs(tag.Tags, removeExcludedTags);
         }
 
-        public static List<TagSlugAndIsExcluded> TagListParseToSlugsAndIsExcluded(ITag tag)
+        public static List<TagSlugAndIsExcluded> TagListParseToSlugsAndIsExcluded(ITag? tag)
         {
             if (tag == null) return new List<TagSlugAndIsExcluded>();
             if (string.IsNullOrWhiteSpace(tag.Tags)) return new List<TagSlugAndIsExcluded>();
@@ -1619,7 +1615,7 @@ namespace PointlessWaymarks.CmsData.Database
             return TagListParseToSlugsAndIsExcluded(tag.Tags);
         }
 
-        public static List<TagSlugAndIsExcluded> TagListParseToSlugsAndIsExcluded(string rawTagString)
+        public static List<TagSlugAndIsExcluded> TagListParseToSlugsAndIsExcluded(string? rawTagString)
         {
             if (rawTagString == null) return new List<TagSlugAndIsExcluded>();
             if (string.IsNullOrWhiteSpace(rawTagString)) return new List<TagSlugAndIsExcluded>();
@@ -1634,7 +1630,7 @@ namespace PointlessWaymarks.CmsData.Database
         }
 
         public static async Task<List<(string tag, List<dynamic> contentObjects)>> TagSlugsAndContentList(
-            bool includePagesExcludedFromSearch, bool removeExcludedTags, IProgress<string> progress)
+            bool includePagesExcludedFromSearch, bool removeExcludedTags, IProgress<string>? progress = null)
         {
             var db = await Context();
 

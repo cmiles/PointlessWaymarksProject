@@ -199,7 +199,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
                 {
                     var post = new SinglePostDiv(loopPosts);
 
-                    string content = null;
+                    string? content = null;
 
                     if (post.DbEntry.MainPicture != null)
                     {
@@ -234,7 +234,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
                 {
                     var post = new SinglePhotoDiv(loopPosts);
 
-                    string content = null;
+                    string? content = null;
 
                     if (post.DbEntry.MainPicture != null)
                     {
@@ -258,7 +258,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
                 {
                     var post = new SingleImageDiv(loopPosts);
 
-                    string content = null;
+                    string? content = null;
 
                     if (post.DbEntry.MainPicture != null)
                     {
@@ -282,7 +282,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
                 {
                     var post = new SingleFileDiv(loopPosts);
 
-                    string content = null;
+                    string? content = null;
 
                     if (post.DbEntry.MainPicture != null)
                     {
@@ -306,7 +306,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
                 {
                     var post = new SinglePointDiv(loopPosts);
 
-                    string content = null;
+                    string? content = null;
 
                     if (post.DbEntry.MainPicture != null)
                     {

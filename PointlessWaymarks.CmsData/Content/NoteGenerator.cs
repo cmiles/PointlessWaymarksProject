@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
@@ -13,7 +14,7 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class NoteGenerator
     {
-        public static void GenerateHtml(NoteContent toGenerate, DateTime? generationVersion, IProgress<string> progress)
+        public static void GenerateHtml(NoteContent toGenerate, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             progress?.Report($"Note Content - Generate HTML for {toGenerate.Title}");
 
@@ -23,7 +24,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<(GenerationReturn generationReturn, NoteContent noteContent)> SaveAndGenerateHtml(
-            NoteContent toSave, DateTime? generationVersion, IProgress<string> progress)
+            NoteContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
 
@@ -52,7 +53,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (await db.NoteContents.AnyAsync())
             {
-                var dbMaxLength = await db.NoteContents.MaxAsync(x => x.Slug.Length);
+                var dbMaxLength = await db.NoteContents.Where(x => x.Slug != null).MaxAsync(x => x.Slug!.Length);
                 currentLength = dbMaxLength > currentLength ? dbMaxLength : currentLength;
             }
 

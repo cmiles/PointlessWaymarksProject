@@ -2,6 +2,6 @@
 {
     public interface ITag
     {
-        public string Tags { get; }
+        public string? Tags { get; }
     }
 }

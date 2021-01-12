@@ -10,7 +10,7 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class PostGenerator
     {
-        public static void GenerateHtml(PostContent toGenerate, DateTime? generationVersion, IProgress<string> progress)
+        public static void GenerateHtml(PostContent toGenerate, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             progress?.Report($"Post Content - Generate HTML for {toGenerate.Title}");
 
@@ -20,7 +20,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<(GenerationReturn generationReturn, PostContent postContent)> SaveAndGenerateHtml(
-            PostContent toSave, DateTime? generationVersion, IProgress<string> progress)
+            PostContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
 

@@ -109,7 +109,7 @@ namespace PointlessWaymarks.CmsData
             return Enum.GetNames(typeof(ContentFormatEnum)).First();
         }
 
-        public static async Task EnsureDbIsPresent(IProgress<string> progress)
+        public static async Task EnsureDbIsPresent(IProgress<string>? progress = null)
         {
             //TODO: Re-enable migrations if any to apply
             //
@@ -999,7 +999,7 @@ namespace PointlessWaymarks.CmsData
             return $"//{settings.SiteUrl}/Posts/PostRss.xml";
         }
 
-        public static async Task<UserSettings> ReadSettings(IProgress<string> progress)
+        public static async Task<UserSettings> ReadSettings(IProgress<string>? progress = null)
         {
             var currentFile = SettingsFile();
 
@@ -1144,7 +1144,7 @@ namespace PointlessWaymarks.CmsData
         /// <param name="userFilename">File Name for the </param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static async Task<UserSettings> SetupNewSite(string userFilename, IProgress<string> progress)
+        public static async Task<UserSettings> SetupNewSite(string userFilename, IProgress<string>? progress = null)
         {
             if (!FolderFileUtility.IsValidWindowsFileSystemFilename(userFilename))
                 throw new InvalidDataException("New site input must be a valid filename.");

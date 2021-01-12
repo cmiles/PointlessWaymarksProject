@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
     public static class DailyPhotoPageGenerators
     {
         public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(List<DateTime> datesToCreate,
-            DateTime? generationVersion, IProgress<string> progress)
+            DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
@@ -48,7 +48,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
         }
 
         public static async Task<List<DailyPhotosPage>> DailyPhotoGalleries(DateTime? generationVersion,
-            IProgress<string> progress)
+            IProgress<string>? progress = null)
         {
             var db = await Db.Context();
 
