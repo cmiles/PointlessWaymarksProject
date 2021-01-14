@@ -33,6 +33,8 @@ namespace PointlessWaymarks.CmsData.Content
 
             toSearch += content.BodyContent + content.Summary;
 
+            if (content is GeoJsonContent geoContent) toSearch += geoContent.GeoJson;
+
             if (content is IUpdateNotes updateContent) toSearch += updateContent.UpdateNotes;
 
             if (string.IsNullOrWhiteSpace(toSearch) && !toAdd.Any()) return;

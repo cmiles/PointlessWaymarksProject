@@ -197,10 +197,12 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
             return detail.DataType switch
             {
                 "Campground" => await CampgroundPointDetailContext.CreateInstance(detail, StatusContext),
+                "Driving Directions" => await DrivingDirectionsPointDetailContext.CreateInstance(detail, StatusContext),
                 "Feature" => await FeaturePointDetailContext.CreateInstance(detail, StatusContext),
+                "Fee" => await FeePointDetailContext.CreateInstance(detail, StatusContext),
                 "Parking" => await ParkingPointDetailContext.CreateInstance(detail, StatusContext),
                 "Peak" => await PeakPointDetailContext.CreateInstance(detail, StatusContext),
-                "Restroom" => await RestRoomPointDetailContext.CreateInstance(detail, StatusContext),
+                "Restroom" => await RestroomPointDetailContext.CreateInstance(detail, StatusContext),
                 "Trail Junction" => await TrailJunctionPointDetailContext.CreateInstance(detail, StatusContext),
                 _ => null
             };

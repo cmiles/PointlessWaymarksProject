@@ -2,7 +2,7 @@
 {
     public class ExcelImportColumn
     {
-        public string ColumnHeader { get; set; }
+        public string? ColumnHeader { get; set; }
         public int ExcelSheetColumn { get; set; }
     }
 }

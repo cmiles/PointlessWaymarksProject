@@ -448,8 +448,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
             DbEntry = toLoad ?? new LineContent
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                ShowInMainSiteFeed = true
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice()
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);

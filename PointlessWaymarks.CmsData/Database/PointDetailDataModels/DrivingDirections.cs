@@ -2,12 +2,11 @@
 
 namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
 {
-    public class Parking : IPointDetailData
+    public class DrivingDirections : IPointDetailData
     {
-        public bool Fee { get; set; } = false;
         public string? Notes { get; set; }
         public string? NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
-        public string DataTypeIdentifier => "Parking";
+        public string DataTypeIdentifier => "Driving Directions";
 
         public IsValid Validate()
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.Runtime.Internal;
 using ClosedXML.Excel;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
@@ -129,7 +130,8 @@ namespace PointlessWaymarks.CmsData.ExcelImport
         public static List<ExcelValueParse<PointDetail?>> GetPointDetails(ExcelHeaderRow headerInfo,
             IXLRangeRow toProcess)
         {
-            var contentColumns = headerInfo.Columns.Where(x => x.ColumnHeader.StartsWith("PointDetail"));
+            var contentColumns =
+                headerInfo.Columns.Where(x => x.ColumnHeader != null && x.ColumnHeader.StartsWith("PointDetail"));
 
             var returnList = new List<ExcelValueParse<PointDetail?>>();
 
@@ -427,7 +429,8 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 
             if (!errorNotes.Any())
             {
-                var internalContentIdDuplicates = updateList.Select(x => x.ToUpdate).GroupBy(x => x.ContentId)
+                var internalContentIdDuplicates = updateList.Where(x => x.ToUpdate != null).Select(x => x.ToUpdate!)
+                    .GroupBy(x => x.ContentId)
                     .Where(x => x.Count() > 1).Select(x => x.Key).Cast<Guid>().ToList();
 
                 if (internalContentIdDuplicates.Any())
@@ -439,7 +442,8 @@ namespace PointlessWaymarks.CmsData.ExcelImport
                         ToUpdate = updateList
                     };
 
-                var internalSlugDuplicates = updateList.Select(x => x.ToUpdate).Where(x => !(x is LinkContent))
+                var internalSlugDuplicates = updateList.Where(x => x.ToUpdate != null).Select(x => x.ToUpdate!)
+                    .Where(x => !(x is LinkContent))
                     .GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key).Cast<string>().ToList();
 
                 if (internalSlugDuplicates.Any())
@@ -565,7 +569,7 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 
                 if (!generationResult.HasError)
                     progress?.Report(
-                        $"Updated Content Id {loopUpdates.ToUpdate.ContentId} - Title {loopUpdates.Title} - Saved");
+                        $"Updated Content Id {loopUpdates.ToUpdate?.ContentId} - Title {loopUpdates.Title} - Saved");
                 else
                     errorList.Add(
                         $"Updating Failed: Content Id {loopUpdates} - Title {loopUpdates.Title} - Failed:{Environment.NewLine}{generationResult.GenerationNote}");
@@ -718,14 +722,14 @@ namespace PointlessWaymarks.CmsData.ExcelImport
             {
                 var excelResult = GetPointDetails(headerInfo, toProcess);
 
-                if (excelResult.Any(x => x.ValueParsed == null) || excelResult.Any(x => !x.ValueParsed.Value) ||
+                if (excelResult.Any(x => x.ValueParsed == null) || excelResult.Any(x => !x.ValueParsed!.Value) ||
                     excelResult.Any(x => x.ParsedValue == null))
                 {
                     returnString.Add($"Row {toProcess.RowNumber()} - could not process Point Details");
                 }
                 else
                 {
-                    pointDto.PointDetails = excelResult.Select(x => x.ParsedValue).ToList();
+                    pointDto.PointDetails = excelResult.Select(x => x.ParsedValue!).ToList();
                     pointDto.PointDetails.ForEach(x => x.PointContentId = pointDto.ContentId);
                 }
             }
@@ -735,16 +739,18 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 
         public class ExcelContentTableImportResults
         {
-            public string ErrorNotes { get; set; }
+            public string? ErrorNotes { get; set; }
             public bool HasError { get; set; }
-            public List<ExcelImportContentUpdateSuggestion> ToUpdate { get; set; }
+
+            public List<ExcelImportContentUpdateSuggestion> ToUpdate { get; set; } =
+                new AutoConstructedList<ExcelImportContentUpdateSuggestion>();
         }
 
         public class ExcelImportContentUpdateSuggestion
         {
-            public string DifferenceNotes { get; set; }
-            public string Title { get; set; }
-            public dynamic ToUpdate { get; set; }
+            public string? DifferenceNotes { get; set; }
+            public string? Title { get; set; }
+            public dynamic? ToUpdate { get; set; }
         }
     }
 }

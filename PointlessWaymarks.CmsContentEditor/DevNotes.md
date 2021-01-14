@@ -47,6 +47,16 @@
  
 ## Notes
 
+1/14/2021
+
+Published another post on PointlessWaymarks - in working thru that:
+ - Adjusted the geo types not to by default be on the Index page - for me this is the correct default
+ - Found that the Point List 'map link' button produced was wired to the 'link' command - fixed
+ - Added GeoJson from clipboard. The scenario here is an edit in an GeoJson editor where you can copy out the GeoJson to the clipboard and now avoid saving a file. I have not opened the raw GeoJson view to edits because I want to push myself and users to do that in an appropriate program - but having that view is paying off because copying from there into a GeoJson editor has been useful.
+ - Added Additional GeoJson 'formatting' so that you can link from your feature to somewhere else - put in a [[self]] tag that allows linking to the page for that GeoJson for use when you are using an embedded map. This was slightly hard to decide on data and feature wise but I think this is a decent start.
+ - Added Fee and Driving Direction point details - this was both for the Crow Wash point but also thinking forward to HikeLemmon conversion.
+ - Continued nullable work
+
 1/12/2021
 
 Recent Change Notes:

@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pointList="clr-namespace:PointlessWaymarks.CmsWpfControls.PointList"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:PointListWithActionsContext}"
+    d:DataContext="{d:DesignInstance pointList:PointListWithActionsContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">
@@ -59,7 +59,7 @@
                     Content="Link _Code to Clipboard"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button
-                    Command="{Binding PointLinkBracketCodesToClipboardForSelectedCommand}"
+                    Command="{Binding PointMapBracketCodesToClipboardForSelectedCommand}"
                     Content="Map Code to Clipboard"
                     Style="{StaticResource ActionPanelButton}" />
                 <Button

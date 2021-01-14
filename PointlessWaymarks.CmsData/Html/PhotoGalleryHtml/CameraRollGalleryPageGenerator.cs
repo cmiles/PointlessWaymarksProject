@@ -39,7 +39,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
 
             var cameraRollContainer = new DivTag().AddClass("camera-roll-list");
 
-            PictureSiteInformation mainImage = null;
+            PictureSiteInformation? mainImage = null;
             var isFirstItem = true;
             var currentYear = -1;
             var currentMonth = -1;
@@ -193,7 +193,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
 
             var createdByEntries =
                 (await db.PhotoContents.GroupBy(x => x.PhotoCreatedBy).Select(x => x.Key).ToListAsync())
-                .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).OrderBy(x => x).ToList();
+                .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x!.Trim()).OrderBy(x => x).ToList();
 
             var toReturn = new CameraRollGalleryPage
             {

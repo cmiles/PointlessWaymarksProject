@@ -644,7 +644,8 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             StatusContext.Progress($"Filtering for Generation Directory: {FilterForFilesInCurrentGenerationDirectory}");
 
             IQueryable<GenerationFileWriteLog> searchQuery = FilterForFilesInCurrentGenerationDirectory
-                ? db.GenerationFileWriteLogs.Where(x => x.FileName.StartsWith(generationDirectory))
+                ? db.GenerationFileWriteLogs.Where(
+                    x => x.FileName != null && x.FileName.StartsWith(generationDirectory))
                 : db.GenerationFileWriteLogs;
 
             if (SelectedGenerationChoice.FilterDateTimeUtc != null)
@@ -658,10 +659,10 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             var transformedItems = new List<FilesWrittenLogListListItem>();
 
             StatusContext.Progress($"Processing {dbItems.Count} items for display");
-            foreach (var loopDbItems in dbItems)
+            foreach (var loopDbItems in dbItems.Where(x => !string.IsNullOrWhiteSpace(x.FileName)).ToList())
             {
                 var directory = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory);
-                var fileBase = loopDbItems.FileName.Replace(directory.FullName, string.Empty);
+                var fileBase = loopDbItems.FileName!.Replace(directory.FullName, string.Empty);
                 var isInGenerationDirectory = loopDbItems.FileName.StartsWith(generationDirectory);
                 var transformedFileName = ToTransformedFileString(fileBase);
 

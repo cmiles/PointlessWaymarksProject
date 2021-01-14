@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsData
 
             foreach (var loopProperty in dateTimeProperties)
             {
-                var current = (DateTime) loopProperty.GetValue(toProcess);
+                var current = (DateTime) loopProperty.GetValue(toProcess)!;
                 loopProperty.SetValue(toProcess,
                     new DateTime(current.Year, current.Month, current.Day, current.Hour, current.Minute, current.Second,
                         current.Kind));

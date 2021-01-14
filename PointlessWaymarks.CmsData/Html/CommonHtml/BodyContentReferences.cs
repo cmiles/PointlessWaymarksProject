@@ -143,7 +143,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
                 foreach (var loopContent in contentCommonList)
                 {
                     var toAdd = RelatedContentDiv(loopContent);
-                    if (toAdd != null && !toAdd.IsEmpty())
+                    if (!toAdd.IsEmpty())
                         transformedList.Add((loopContent.LastUpdatedOn ?? loopContent.CreatedOn, toAdd));
                 }
             }
@@ -179,26 +179,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return relatedPostsList;
         }
 
-        public static async Task<HtmlTag> RelatedContentTag(Guid toCheckFor, DateTime? generationVersion)
-        {
-            var db = await Db.Context();
-            var related = await db.RelatedContentReferencesFromOtherContent(toCheckFor, generationVersion);
-
-            if (related == null || !related.Any()) return HtmlTag.Empty();
-
-            var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
-
-            relatedPostsList.Children.Add(new DivTag().Text("Related:").AddClass("related-post-label-tag"));
-
-            foreach (var loopPost in related) relatedPostsList.Children.Add(RelatedContentDiv(loopPost));
-
-            return relatedPostsList;
-        }
-
         public static async Task<HtmlTag> RelatedContentTag(List<Guid> toCheckFor, DateTime? generationVersion)
         {
-            toCheckFor ??= new List<Guid>();
-
             var db = await Db.Context();
 
             var allRelated = new List<IContentCommon>();

@@ -885,6 +885,8 @@ namespace PointlessWaymarks.CmsData.Database
             {
                 "Campground" => JsonSerializer.Deserialize<Campground>(json),
                 "Feature" => JsonSerializer.Deserialize<Feature>(json),
+                "Fee" => JsonSerializer.Deserialize<Fee>(json),
+                "Driving Directions" => JsonSerializer.Deserialize<DrivingDirections>(json),
                 "Parking" => JsonSerializer.Deserialize<Parking>(json),
                 "Peak" => JsonSerializer.Deserialize<Peak>(json),
                 "Restroom" => JsonSerializer.Deserialize<Restroom>(json),
@@ -1426,7 +1428,10 @@ namespace PointlessWaymarks.CmsData.Database
                 await context.HistoricPointDetails.AddAsync(newHistoric);
             }
 
-            context.PointDetails.RemoveRange(detailsToReplace);
+            var deletedContentIds = currentEntriesFromPoint.Select(x => x.ContentId).Except(updatedDetailIds)
+                .Except(newDetailIds).ToList();
+
+            context.PointDetails.RemoveRange(currentEntriesFromPoint);
 
             await context.SaveChangesAsync();
 
@@ -1435,6 +1440,10 @@ namespace PointlessWaymarks.CmsData.Database
             await context.PointDetails.AddRangeAsync(toSave);
 
             await context.SaveChangesAsync(true);
+
+            if (deletedContentIds.Any())
+                DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
+                    DataNotificationUpdateType.Delete, updatedDetailIds);
 
             if (updatedDetailIds.Any())
                 DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,

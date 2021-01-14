@@ -6,7 +6,7 @@ namespace PointlessWaymarks.CmsData.Spatial.Elevation
     {
         [JsonPropertyName("elevation")] public double? Elevation { get; set; }
 
-        [JsonPropertyName("location")] public ElevationLocation Location { get; set; }
+        [JsonPropertyName("location")] public ElevationLocation? Location { get; set; }
 
         [JsonPropertyName("resolution")] public double Resolution { get; set; }
     }

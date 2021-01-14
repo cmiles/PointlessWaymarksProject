@@ -3,7 +3,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
@@ -35,11 +37,12 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
         private CreatedAndUpdatedByAndOnDisplayContext _createdUpdatedDisplay;
         private GeoJsonContent _dbEntry;
         private Command _extractNewLinksCommand;
-        private string _geoJsonText;
+        private string _geoJsonText = string.Empty;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private HelpDisplayContext _helpContext;
         private Command _importGeoJsonFileCommand;
+        private Command _importGeoJsonFromClipboardCommand;
         private string _previewGeoJsonDto;
         private string _previewHtml;
         private Command _refreshMapPreviewCommand;
@@ -66,6 +69,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
             ImportGeoJsonFileCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFile);
+            ImportGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
             RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
 
             PreviewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
@@ -158,6 +162,17 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             {
                 if (Equals(value, _importGeoJsonFileCommand)) return;
                 _importGeoJsonFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportGeoJsonFromClipboardCommand
+        {
+            get => _importGeoJsonFromClipboardCommand;
+            set
+            {
+                if (Equals(value, _importGeoJsonFromClipboardCommand)) return;
+                _importGeoJsonFromClipboardCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -364,7 +379,13 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
                 return;
             }
 
-            var geoJson = await File.ReadAllTextAsync(newFile.FullName);
+            string geoJson;
+
+            await using (var fs = new FileStream(newFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var sr = new StreamReader(fs, Encoding.Default))
+            {
+                geoJson = await sr.ReadToEndAsync();
+            }
 
             var (isValid, explanation) = CommonContentValidation.GeoJsonValidation(geoJson);
 
@@ -377,6 +398,33 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             GeoJsonText = geoJson;
         }
 
+        public async Task ImportGeoJsonFromClipboard()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            StatusContext.Progress("Getting GeoJson from Clipboard");
+
+            var clipboardText = Clipboard.GetText();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (string.IsNullOrWhiteSpace(clipboardText))
+            {
+                StatusContext.ToastError("Blank/Empty Clipboard?");
+                return;
+            }
+
+            var (isValid, explanation) = CommonContentValidation.GeoJsonValidation(clipboardText);
+
+            if (!isValid)
+            {
+                await StatusContext.ShowMessageWithOkButton("Error with GeoJson Import", explanation);
+                return;
+            }
+
+            GeoJsonText = clipboardText;
+        }
+
         public async Task LoadData(GeoJsonContent toLoad)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -384,8 +432,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             DbEntry = toLoad ?? new GeoJsonContent
             {
                 BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
-                ShowInMainSiteFeed = true
+                UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice()
             };
 
             TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry);

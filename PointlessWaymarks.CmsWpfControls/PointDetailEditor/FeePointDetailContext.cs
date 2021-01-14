@@ -16,23 +16,23 @@ using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
 {
-    public class RestroomPointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
+    public class FeePointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
         ICheckForChangesAndValidation
     {
         private PointDetail _dbEntry;
-        private Restroom _detailData;
+        private Fee _detailData;
         private bool _hasChanges;
         private bool _hasValidationIssues;
         private StringDataEntryContext _noteEditor;
         private ContentFormatChooserContext _noteFormatEditor;
         private StatusControlContext _statusContext;
 
-        private RestroomPointDetailContext(StatusControlContext statusContext)
+        private FeePointDetailContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
         }
 
-        public Restroom DetailData
+        public Fee DetailData
         {
             get => _detailData;
             set
@@ -125,7 +125,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
 
             newEntry.DataType = DetailData.DataTypeIdentifier;
 
-            var detailData = new Restroom
+            var detailData = new Fee
             {
                 Notes = NoteEditor.UserValue.TrimNullToEmpty(),
                 NotesContentFormat = NoteFormatEditor.SelectedContentFormatAsString
@@ -149,10 +149,10 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
             }
         }
 
-        public static async Task<RestroomPointDetailContext> CreateInstance(PointDetail detail,
+        public static async Task<FeePointDetailContext> CreateInstance(PointDetail detail,
             StatusControlContext statusContext)
         {
-            var newControl = new RestroomPointDetailContext(statusContext);
+            var newControl = new FeePointDetailContext(statusContext);
             await newControl.LoadData(detail);
             return newControl;
         }
@@ -164,9 +164,9 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
             DbEntry = toLoad ?? new PointDetail {DataType = DetailData.DataTypeIdentifier};
 
             if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
-                DetailData = JsonSerializer.Deserialize<Restroom>(DbEntry.StructuredDataAsJson);
+                DetailData = JsonSerializer.Deserialize<Fee>(DbEntry.StructuredDataAsJson);
 
-            DetailData ??= new Restroom {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
+            DetailData ??= new Fee {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
 
             NoteEditor = StringDataEntryContext.CreateInstance();
             NoteEditor.Title = "Notes";

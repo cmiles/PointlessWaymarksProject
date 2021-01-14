@@ -3,11 +3,11 @@
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
 {
     /// <summary>
-    ///     Interaction logic for RestroomPointDetailControl.xaml
+    ///     Interaction logic for FeePointDetailControl.xaml
     /// </summary>
-    public partial class RestroomPointDetailControl : UserControl
+    public partial class FeePointDetailControl : UserControl
     {
-        public RestroomPointDetailControl()
+        public FeePointDetailControl()
         {
             InitializeComponent();
         }

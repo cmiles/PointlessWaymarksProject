@@ -4,12 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bodyContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
-    xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
-    xmlns:boolDataEntry1="clr-namespace:PointlessWaymarks.CmsWpfControls.BoolDataEntry"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:geoJsonContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
@@ -19,7 +18,7 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHtml"
-    d:DataContext="{d:DesignInstance local:GeoJsonContentEditorContext}"
+    d:DataContext="{d:DesignInstance geoJsonContentEditor:GeoJsonContentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -42,7 +41,7 @@
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
-                            <boolDataEntry1:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
+                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSiteFeed}" Style="{StaticResource DataEntryBoolStyle}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
@@ -52,7 +51,7 @@
             </TabItem>
             <TabItem Header="Body">
                 <Grid>
-                    <bodyContentEditor1:BodyContentEditorControl DataContext="{Binding BodyContent}" />
+                    <bodyContentEditor:BodyContentEditorControl DataContext="{Binding BodyContent}" />
                 </Grid>
             </TabItem>
             <TabItem Header="GeoJson">
@@ -68,15 +67,16 @@
                                 Content="Load File"
                                 Style="{StaticResource ActionPanelButton}" />
                             <Button
+                                Command="{Binding ImportGeoJsonFromClipboardCommand}"
+                                Content="Load From Clipboard"
+                                Style="{StaticResource ActionPanelButton}" />
+                            <Button
                                 Command="{Binding RefreshMapPreviewCommand}"
                                 Content="Refresh Map"
                                 Style="{StaticResource ActionPanelButton}" />
                         </WrapPanel>
                     </Border>
-                    <wpf:WebView2
-                        x:Name="LineContentWebView"
-                        Grid.Row="1"
-                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                    <wpf:WebView2 Grid.Row="1" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
                             <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
                             <wpfHtml:WebViewPostJsonOnChange JsonData="{Binding PreviewGeoJsonDto}" />

@@ -6,6 +6,7 @@ using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Html.CommonHtml;
 using PointlessWaymarks.CmsData.Spatial;
 
 namespace PointlessWaymarks.CmsData.Html.GeoJsonHtml
@@ -29,7 +30,13 @@ namespace PointlessWaymarks.CmsData.Html.GeoJsonHtml
             using var jsonWriter = new JsonTextWriter(stringWriter);
             serializer.Serialize(jsonWriter, jsonDto);
 
-            return stringWriter.ToString();
+            var jsonString = stringWriter.ToString();
+
+            jsonString = jsonString.Replace("[[self]]", pageUrl);
+
+            BracketCodeCommon.ProcessCodesForSite(jsonString);
+
+            return jsonString;
         }
 
         public static async Task WriteJsonData(GeoJsonContent geoJsonContent)

@@ -163,9 +163,11 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
 
-        public static async Task<IsValid> FileContentFileValidation(FileInfo fileContentFile,
+        public static async Task<IsValid> FileContentFileValidation(FileInfo? fileContentFile,
             Guid? currentContentId)
         {
+            if (fileContentFile == null) return new IsValid(false, "No File?");
+
             fileContentFile.Refresh();
 
             if (!fileContentFile.Exists) return new IsValid(false, "File does not Exist?");

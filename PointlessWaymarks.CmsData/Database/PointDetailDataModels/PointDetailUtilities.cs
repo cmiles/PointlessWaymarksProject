@@ -11,6 +11,8 @@ namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
             return detail.DataType switch
             {
                 "Campground" => "Campground",
+                "DrivingDirections" => "Driving Directions",
+                "Fee" => "Fee",
                 "Parking" => "Parking",
                 "Peak" => "Peak",
                 "Restroom" => "Restroom",

@@ -9,7 +9,7 @@
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     Name="PointDetailListControlXaml"
-    d:DataContext="{d:DesignInstance local:PointDetailListContext}"
+    d:DataContext="{d:DesignInstance pointDetailEditor:PointDetailListContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -22,6 +22,12 @@
             <DataTemplate x:Key="CampgroundDetailTemplate">
                 <pointDetailEditor:CampgroundPointDetailControl DataContext="{Binding .}" />
             </DataTemplate>
+            <DataTemplate x:Key="DrivingDirectionsDetailTemplate">
+                <pointDetailEditor:DrivingDirectionsPointDetailControl DataContext="{Binding .}" />
+            </DataTemplate>
+            <DataTemplate x:Key="FeeDetailTemplate">
+                <pointDetailEditor:FeePointDetailControl DataContext="{Binding .}" />
+            </DataTemplate>
             <DataTemplate x:Key="FeatureDetailTemplate">
                 <pointDetailEditor:FeaturePointDetailControl DataContext="{Binding .}" />
             </DataTemplate>
@@ -31,8 +37,8 @@
             <DataTemplate x:Key="PeakDetailTemplate">
                 <pointDetailEditor:PeakPointDetailControl DataContext="{Binding .}" />
             </DataTemplate>
-            <DataTemplate x:Key="RestRoomDetailTemplate">
-                <pointDetailEditor:RestRoomPointDetailControl DataContext="{Binding .}" />
+            <DataTemplate x:Key="RestroomDetailTemplate">
+                <pointDetailEditor:RestroomPointDetailControl DataContext="{Binding .}" />
             </DataTemplate>
             <DataTemplate x:Key="TrailJunctionDetailTemplate">
                 <pointDetailEditor:TrailJunctionPointDetailControl DataContext="{Binding .}" />

@@ -7,6 +7,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Html;
 using PointlessWaymarks.CmsData.Html.FileHtml;
 using PointlessWaymarks.CmsData.Json;
+using Serilog;
 
 namespace PointlessWaymarks.CmsData.Content
 {
@@ -85,6 +86,13 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static void WriteFileFromMediaArchiveToLocalSite(FileContent fileContent, bool overwriteExisting)
         {
+            if (string.IsNullOrWhiteSpace(fileContent.OriginalFileName))
+            {
+                Log.Warning(
+                    $"FileContent with a blank {nameof(fileContent.OriginalFileName)} was submitted to WriteFileFromMediaArchiveToLocalSite");
+                return;
+            }
+
             var userSettings = UserSettingsSingleton.CurrentSettings();
 
             var sourceFile = new FileInfo(Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,

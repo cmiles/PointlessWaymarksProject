@@ -32,8 +32,16 @@ function geoJsonLayerStyle(feature) {
 }
 
 function onEachMapGeoJsonFeature(feature, layer) {
+
+    var currentUrl = window.location.href;
+
     if (feature.properties && feature.properties.title) {
-        layer.bindPopup(feature.properties.title);
+        if (feature.properties.link && feature.properties.link.length > 0
+            && feature.properties.link !== currentUrl) {
+            layer.bindPopup(`<a href="${feature.properties.link}">${feature.properties.title}</a>`);
+        } else {
+            layer.bindPopup(feature.properties.title);
+        }
     }
 }
 

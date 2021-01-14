@@ -31,9 +31,9 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
             return $"http://www.openstreetmap.org/?lat={point.Latitude}&lon={point.Longitude}&zoom=13&layers=C";
         }
 
-        public static HtmlTag PointDetailsDiv(PointContentDto dbEntry)
+        public static HtmlTag PointDetailsDiv(PointContentDto? dbEntry)
         {
-            if (dbEntry?.PointDetails == null && !dbEntry.PointDetails.Any()) return HtmlTag.Empty();
+            if (dbEntry?.PointDetails == null || !dbEntry.PointDetails.Any()) return HtmlTag.Empty();
 
             var containerDiv = new DivTag().AddClass("point-detail-list-container");
 
@@ -53,8 +53,8 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
 
                         var infoList = new HtmlTag("ul").AddClass("point-detail-info-list");
 
-                        if (pointDetails.Fee != null)
-                            infoList.Children.Add(new HtmlTag("li").Text($"Fee: {pointDetails.Fee}"));
+                        if (pointDetails.Fee)
+                            infoList.Children.Add(new HtmlTag("li").Text("There is a Fee to Camp at this location"));
 
                         if (!string.IsNullOrEmpty(pointDetails.Notes))
                         {
@@ -77,8 +77,51 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
 
                         var infoList = new HtmlTag("ul").AddClass("point-detail-info-list");
 
-                        if (pointDetails.Fee != null)
-                            infoList.Children.Add(new HtmlTag("li").Text($"Fee: {pointDetails.Fee}"));
+                        if (pointDetails.Fee)
+                            infoList.Children.Add(new HtmlTag("li").Text("Fee Area"));
+
+                        if (!string.IsNullOrEmpty(pointDetails.Notes))
+                        {
+                            var noteText = ContentProcessing.ProcessContent(
+                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes),
+                                pointDetails.NotesContentFormat);
+
+                            infoList.Children.Add(new HtmlTag("li").Encoded(false).Text(noteText));
+                        }
+
+                        outerDiv.Children.Add(infoList);
+
+                        break;
+                    }
+                    case "Fee":
+                    {
+                        var pointDetails = JsonSerializer.Deserialize<Fee>(loopDetail.StructuredDataAsJson);
+
+                        if (pointDetails == null) return outerDiv;
+
+                        var infoList = new HtmlTag("ul").AddClass("point-detail-info-list");
+
+                        if (!string.IsNullOrEmpty(pointDetails.Notes))
+                        {
+                            var noteText = ContentProcessing.ProcessContent(
+                                BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes),
+                                pointDetails.NotesContentFormat);
+
+                            infoList.Children.Add(new HtmlTag("li").Encoded(false).Text(noteText));
+                        }
+
+                        outerDiv.Children.Add(infoList);
+
+                        break;
+                    }
+                    case "Driving Directions":
+                    {
+                        var pointDetails =
+                            JsonSerializer.Deserialize<DrivingDirections>(loopDetail.StructuredDataAsJson);
+
+                        if (pointDetails == null) return outerDiv;
+
+                        var infoList = new HtmlTag("ul").AddClass("point-detail-info-list");
 
                         if (!string.IsNullOrEmpty(pointDetails.Notes))
                         {
@@ -158,7 +201,7 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
 
                         break;
                     }
-                    case "TrailJunction":
+                    case "Trail Junction":
                     {
                         var pointDetails = JsonSerializer.Deserialize<TrailJunction>(loopDetail.StructuredDataAsJson);
 

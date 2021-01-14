@@ -12,13 +12,17 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
                 {
                     case CampgroundPointDetailContext _:
                         return element.FindResource("CampgroundDetailTemplate") as DataTemplate;
+                    case DrivingDirectionsPointDetailContext _:
+                        return element.FindResource("DrivingDirectionsDetailTemplate") as DataTemplate;
                     case FeaturePointDetailContext _:
                         return element.FindResource("FeatureDetailTemplate") as DataTemplate;
+                    case FeePointDetailContext _:
+                        return element.FindResource("FeeDetailTemplate") as DataTemplate;
                     case ParkingPointDetailContext _:
                         return element.FindResource("ParkingDetailTemplate") as DataTemplate;
                     case PeakPointDetailContext _: return element.FindResource("PeakDetailTemplate") as DataTemplate;
-                    case RestRoomPointDetailContext _:
-                        return element.FindResource("RestRoomDetailTemplate") as DataTemplate;
+                    case RestroomPointDetailContext _:
+                        return element.FindResource("RestroomDetailTemplate") as DataTemplate;
                     case TrailJunctionPointDetailContext _:
                         return element.FindResource("TrailJunctionDetailTemplate") as DataTemplate;
                 }
