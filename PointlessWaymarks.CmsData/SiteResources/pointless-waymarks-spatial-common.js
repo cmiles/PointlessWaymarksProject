@@ -221,8 +221,8 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
     for (let circlePoint of pointData) {
         if (circlePoint.Slug == displayedPointSlug) continue;
         let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude],
-            60,
-            { color: 'gray', fillColor: 'gray', fillOpacity: .5 });
+            80,
+            { color: 'blue', fillColor: 'blue', fillOpacity: .5 });
 
         const circlePopup = L.popup({ autoClose: false, autoPan: false })
             .setContent(`<a href="https:${circlePoint.PointPageUrl}">${circlePoint.Title}</a>`);

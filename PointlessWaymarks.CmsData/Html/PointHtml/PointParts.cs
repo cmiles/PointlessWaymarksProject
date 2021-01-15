@@ -11,6 +11,17 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
 {
     public static class PointParts
     {
+        public static HtmlTag CalTopoMapsLatLongLink(PointContentDto point)
+        {
+            return new LinkTag("CalTopo", CalTopoMapsLatLongUrl(point), "point-map-external-link");
+        }
+
+        public static string CalTopoMapsLatLongUrl(PointContentDto point)
+        {
+            return
+                $"https://caltopo.com/map.html#ll={Math.Round(point.Latitude, 5)},{Math.Round(point.Longitude, 5)}&z=12&b=mbt&a=sma";
+        }
+
         public static HtmlTag GoogleMapsLatLongLink(PointContentDto point)
         {
             return new LinkTag("Google Maps", GoogleMapsLatLongUrl(point), "point-map-external-link");
@@ -252,7 +263,7 @@ namespace PointlessWaymarks.CmsData.Html.PointHtml
             var container = new DivTag().AddClass("point-text-info-container");
             var pTag = new HtmlTag("p")
                 .Text(
-                    $"Lat: {point.Latitude}, Long: {point.Longitude}{(point.Elevation == null ? string.Empty : $", Elevation: {point.Elevation.MetersToFeet()}")}, {OsmCycleMapLatLongLink(point)}, {GoogleMapsLatLongLink(point)}")
+                    $"Lat: {Math.Round(point.Latitude, 5)}, Long: {Math.Round(point.Longitude, 5)}{(point.Elevation == null ? string.Empty : $", Elevation: {Math.Round(point.Elevation.MetersToFeet(), 0)}'")}, {CalTopoMapsLatLongLink(point)}, {GoogleMapsLatLongLink(point)}, {OsmCycleMapLatLongLink(point)}")
                 .AddClass("point-location-text").Encoded(false);
 
             container.Children.Add(pTag);
