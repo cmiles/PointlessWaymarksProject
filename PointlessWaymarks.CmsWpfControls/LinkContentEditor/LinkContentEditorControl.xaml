@@ -11,7 +11,8 @@
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:LinkContentEditorContext}"
+    xmlns:linkContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.LinkContentEditor"
+    d:DataContext="{d:DesignInstance linkContentEditor:LinkContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">

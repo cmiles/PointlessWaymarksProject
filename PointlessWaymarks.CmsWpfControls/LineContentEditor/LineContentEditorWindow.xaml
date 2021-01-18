@@ -6,10 +6,10 @@
     xmlns:lineContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.LineContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    Title="LineContentEditorWindow"
+    Title="Line Editor"
     Width="800"
     Height="600"
-    d:DataContext="{d:DesignInstance local:LineContentEditorWindow}"
+    d:DataContext="{d:DesignInstance lineContentEditor:LineContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
         <lineContentEditor:LineContentEditorControl DataContext="{Binding LineContent}" />

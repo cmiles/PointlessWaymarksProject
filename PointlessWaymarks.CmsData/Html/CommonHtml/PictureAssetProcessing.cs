@@ -51,7 +51,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return ProcessImageDirectory(content, contentDirectory, settings.SiteUrl);
         }
 
-        public static PictureAsset ProcessImageDirectory(ImageContent dbEntry)
+        public static PictureAsset? ProcessImageDirectory(ImageContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var contentDirectory = settings.LocalSiteImageContentDirectory(dbEntry);
@@ -59,10 +59,12 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return ProcessImageDirectory(dbEntry, contentDirectory, settings.SiteUrl);
         }
 
-        public static PictureAsset ProcessImageDirectory(ImageContent dbEntry, DirectoryInfo directoryInfo,
+        public static PictureAsset? ProcessImageDirectory(ImageContent dbEntry, DirectoryInfo directoryInfo,
             string siteUrl)
         {
             var toReturn = new PictureAsset {DbEntry = dbEntry};
+
+            if (dbEntry.OriginalFileName == null) return null;
 
             var baseFileNameList = dbEntry.OriginalFileName.Split(".").ToList();
             var baseFileName = string.Join("", baseFileNameList.Take(baseFileNameList.Count - 1));
@@ -115,11 +117,13 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return toReturn;
         }
 
-        public static PictureAsset ProcessPhotoDirectory(Guid photoOrImageContentId)
+        public static PictureAsset? ProcessPhotoDirectory(Guid photoOrImageContentId)
         {
             var db = Db.Context().Result;
 
             var content = db.PhotoContents.SingleOrDefault(x => x.ContentId == photoOrImageContentId);
+
+            if (content == null) return null;
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -128,7 +132,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return ProcessPhotoDirectory(content, contentDirectory, settings.SiteUrl);
         }
 
-        public static PictureAsset ProcessPhotoDirectory(PhotoContent dbEntry)
+        public static PictureAsset? ProcessPhotoDirectory(PhotoContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var contentDirectory = settings.LocalSitePhotoContentDirectory(dbEntry);
@@ -136,10 +140,12 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return ProcessPhotoDirectory(dbEntry, contentDirectory, settings.SiteUrl);
         }
 
-        public static PictureAsset ProcessPhotoDirectory(PhotoContent dbEntry, DirectoryInfo directoryInfo,
+        public static PictureAsset? ProcessPhotoDirectory(PhotoContent dbEntry, DirectoryInfo directoryInfo,
             string siteUrl)
         {
             var toReturn = new PictureAsset {DbEntry = dbEntry};
+
+            if (dbEntry.OriginalFileName == null) return null;
 
             var baseFileNameList = dbEntry.OriginalFileName.Split(".").ToList();
             var baseFileName = string.Join("", baseFileNameList.Take(baseFileNameList.Count - 1));

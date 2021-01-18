@@ -2,6 +2,9 @@
 using System.IO;
 using HtmlTags;
 using PointlessWaymarks.CmsData.Database.Models;
+// ReSharper disable MustUseReturnValue
+// A number of methods in HtmlTags show this warning and I am not convinced it
+// is worth heeding?
 
 namespace PointlessWaymarks.CmsData.Html.CommonHtml
 {
@@ -15,12 +18,14 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             PageUrl = settings.PicturePageUrl(toLoad);
         }
 
-        public string PageUrl { get; set; }
+        public string? PageUrl { get; }
 
-        public PictureAsset Pictures { get; set; }
+        public PictureAsset? Pictures { get; }
 
         private HtmlTag EmailImageTableTag(ImageContent dbEntry)
         {
+            if(Pictures == null) return HtmlTag.Empty();
+
             var tableContainer = new TableTag();
             tableContainer.Style("margin", "20px").Style("text-align", "center");
             var pictureRow = tableContainer.AddBodyRow();
@@ -36,6 +41,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         private HtmlTag EmailPhotoTableTag(PhotoContent dbEntry)
         {
+            if(Pictures == null) return HtmlTag.Empty();
+
             var emailCenterTable = new TableTag();
             emailCenterTable.Attr("width", "94%");
             emailCenterTable.Attr("margin", "20");
@@ -100,19 +107,20 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public HtmlTag EmailPictureTableTag()
         {
-            switch (Pictures.DbEntry)
+            if (Pictures == null) return HtmlTag.Empty();
+
+            return Pictures.DbEntry switch
             {
-                case PhotoContent p:
-                    return EmailPhotoTableTag(p);
-                case ImageContent i:
-                    return EmailImageTableTag(i);
-                default:
-                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
-            }
+                PhotoContent p => EmailPhotoTableTag(p),
+                ImageContent i => EmailImageTableTag(i),
+                _ => throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry))
+            };
         }
 
-        public HtmlTag ImageFigureTag(ImageContent dbEntry, string sizes)
+        public HtmlTag ImageFigureTag(string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-image-container");
             figureTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
             return figureTag;
@@ -120,6 +128,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public HtmlTag ImageFigureWithCaptionAndLinkToPageTag(ImageContent dbEntry, string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-image-container");
             var linkTag = new LinkTag(string.Empty, PageUrl);
             linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
@@ -128,16 +138,32 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return figureTag;
         }
 
+        public HtmlTag ImageFigureWithCaptionAndLinkTag(ImageContent dbEntry, string sizes, string linkUrl)
+        {
+            if (Pictures == null) return HtmlTag.Empty();
+
+            var figureTag = new HtmlTag("figure").AddClass("single-image-container");
+            var linkTag = new LinkTag(string.Empty, linkUrl);
+            linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
+            figureTag.Children.Add(linkTag);
+            figureTag.Children.Add(Tags.ImageFigCaptionTag(dbEntry));
+            return figureTag;
+        }
+
         public HtmlTag ImageFigureWithCaptionTag(ImageContent dbEntry, string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-image-container");
             figureTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
             figureTag.Children.Add(Tags.ImageFigCaptionTag(dbEntry));
             return figureTag;
         }
 
-        public HtmlTag ImageFigureWithLinkToPageTag(ImageContent dbEntry, string sizes)
+        public HtmlTag ImageFigureWithLinkToPageTag(string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-image-container");
             var linkTag = new LinkTag(string.Empty, PageUrl);
             linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
@@ -147,6 +173,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public HtmlTag ImageFigureWithTitleCaptionTag(ImageContent dbEntry, string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-image-container");
             figureTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
             figureTag.Children.Add(Tags.ImageFigCaptionTag(dbEntry, true));
@@ -156,6 +184,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public HtmlTag LocalDisplayPhotoImageTag()
         {
+            if (Pictures?.DisplayPicture?.File == null) return HtmlTag.Empty();
+
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("src",
                     $"data:image/png;base64,{Convert.ToBase64String(File.ReadAllBytes(Pictures.DisplayPicture.File.FullName))}")
@@ -186,19 +216,20 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public HtmlTag LocalPictureFigureTag()
         {
-            switch (Pictures.DbEntry)
+            if (Pictures == null) return HtmlTag.Empty();
+
+            return Pictures.DbEntry switch
             {
-                case PhotoContent p:
-                    return LocalPhotoFigureTag(p);
-                case ImageContent i:
-                    return LocalImageFigureTag(i);
-                default:
-                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
-            }
+                PhotoContent p => LocalPhotoFigureTag(p),
+                ImageContent i => LocalImageFigureTag(i),
+                _ => throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry))
+            };
         }
 
-        public HtmlTag PhotoFigureTag(PhotoContent dbEntry, string sizes)
+        public HtmlTag PhotoFigureTag(string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
             figureTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
             return figureTag;
@@ -206,6 +237,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public HtmlTag PhotoFigureWithCaptionAndLinkToPageTag(PhotoContent dbEntry, string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
             var linkTag = new LinkTag(string.Empty, PageUrl);
             linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
@@ -214,16 +247,32 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return figureTag;
         }
 
+        public HtmlTag PhotoFigureWithCaptionAndLinkTag(PhotoContent dbEntry, string sizes, string linkUrl)
+        {
+            if (Pictures == null) return HtmlTag.Empty();
+
+            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
+            var linkTag = new LinkTag(string.Empty, linkUrl);
+            linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
+            figureTag.Children.Add(linkTag);
+            figureTag.Children.Add(Tags.PhotoFigCaptionTag(dbEntry));
+            return figureTag;
+        }
+
         public HtmlTag PhotoFigureWithCaptionTag(PhotoContent dbEntry, string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
             figureTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
             figureTag.Children.Add(Tags.PhotoFigCaptionTag(dbEntry));
             return figureTag;
         }
 
-        public HtmlTag PhotoFigureWithLinkToPageTag(PhotoContent dbEntry, string sizes)
+        public HtmlTag PhotoFigureWithLinkToPageTag(string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
             var linkTag = new LinkTag(string.Empty, PageUrl);
             linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
@@ -233,6 +282,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public HtmlTag PhotoFigureWithTitleCaptionTag(PhotoContent dbEntry, string sizes)
         {
+            if (Pictures == null) return HtmlTag.Empty();
+
             var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
             figureTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
             figureTag.Children.Add(Tags.PhotoFigCaptionTag(dbEntry, true));
@@ -241,68 +292,75 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public HtmlTag PictureFigureTag(string sizes)
         {
-            switch (Pictures.DbEntry)
+            if (Pictures == null) return HtmlTag.Empty();
+
+            return Pictures.DbEntry switch
             {
-                case PhotoContent p:
-                    return PhotoFigureTag(p, sizes);
-                case ImageContent i:
-                    return ImageFigureTag(i, sizes);
-                default:
-                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
-            }
+                PhotoContent => PhotoFigureTag(sizes),
+                ImageContent => ImageFigureTag(sizes),
+                _ => throw new ArgumentException("not a recognized picture type")
+            };
         }
 
         public HtmlTag PictureFigureWithCaptionAndLinkToPicturePageTag(string sizes)
         {
-            switch (Pictures.DbEntry)
+            if (Pictures == null) return HtmlTag.Empty();
+
+            return Pictures.DbEntry switch
             {
-                case PhotoContent p:
-                    return PhotoFigureWithCaptionAndLinkToPageTag(p, sizes);
-                case ImageContent i:
-                    return ImageFigureWithCaptionAndLinkToPageTag(i, sizes);
-                default:
-                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
-            }
+                PhotoContent p => PhotoFigureWithCaptionAndLinkToPageTag(p, sizes),
+                ImageContent i => ImageFigureWithCaptionAndLinkToPageTag(i, sizes),
+                _ => throw new ArgumentException("not a recognized picture type")
+            };
+        }
+
+        public HtmlTag PictureFigureWithCaptionAndLinkTag(string sizes, string linkUrl)
+        {
+            if (Pictures == null) return HtmlTag.Empty();
+
+            return Pictures.DbEntry switch
+            {
+                PhotoContent p => PhotoFigureWithCaptionAndLinkTag(p, sizes, linkUrl),
+                ImageContent i => ImageFigureWithCaptionAndLinkTag(i, sizes, linkUrl),
+                _ => throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry))
+            };
         }
 
 
         public HtmlTag PictureFigureWithCaptionTag(string sizes)
         {
-            switch (Pictures.DbEntry)
+            if (Pictures == null) return HtmlTag.Empty();
+
+            return Pictures.DbEntry switch
             {
-                case PhotoContent p:
-                    return PhotoFigureWithCaptionTag(p, sizes);
-                case ImageContent i:
-                    return ImageFigureWithCaptionTag(i, sizes);
-                default:
-                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
-            }
+                PhotoContent p => PhotoFigureWithCaptionTag(p, sizes),
+                ImageContent i => ImageFigureWithCaptionTag(i, sizes),
+                _ => throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry))
+            };
         }
 
         public HtmlTag PictureFigureWithLinkToPicturePageTag(string sizes)
         {
-            switch (Pictures.DbEntry)
+            if (Pictures == null) return HtmlTag.Empty();
+
+            return Pictures.DbEntry switch
             {
-                case PhotoContent p:
-                    return PhotoFigureWithLinkToPageTag(p, sizes);
-                case ImageContent i:
-                    return ImageFigureWithLinkToPageTag(i, sizes);
-                default:
-                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
-            }
+                PhotoContent => PhotoFigureWithLinkToPageTag(sizes),
+                ImageContent => ImageFigureWithLinkToPageTag(sizes),
+                _ => throw new ArgumentException("not a recognized picture type")
+            };
         }
 
         public HtmlTag PictureFigureWithTitleCaptionTag(string sizes)
         {
-            switch (Pictures.DbEntry)
+            if (Pictures == null) return HtmlTag.Empty();
+
+            return Pictures.DbEntry switch
             {
-                case PhotoContent p:
-                    return PhotoFigureWithTitleCaptionTag(p, sizes);
-                case ImageContent i:
-                    return ImageFigureWithTitleCaptionTag(i, sizes);
-                default:
-                    throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry));
-            }
+                PhotoContent p => PhotoFigureWithTitleCaptionTag(p, sizes),
+                ImageContent i => ImageFigureWithTitleCaptionTag(i, sizes),
+                _ => throw new ArgumentException("not a recognized picture type")
+            };
         }
     }
 }

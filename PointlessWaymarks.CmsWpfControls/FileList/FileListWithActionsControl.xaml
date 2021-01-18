@@ -62,6 +62,9 @@
                 <Button Command="{Binding FileDownloadLinkCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButton}">
                     Download Link Code
                 </Button>
+                <Button Command="{Binding FileImageLinkCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButton}">
+                    Image Link Code
+                </Button>
                 <Button Command="{Binding FirstPagePreviewFromPdfToCairoCommand}" Style="{StaticResource ActionPanelButton}">
                     Generate Cover Image
                 </Button>

@@ -120,6 +120,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             contentCommonList.AddRange(
                 await RelatedContentReferencesFromOtherContent(db, toCheckFor, generationVersion));
             contentCommonList.AddRange(BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(BracketCodeFileImage.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
                 BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeGeoJson.DbContentFromBracketCodes(bodyContentToCheckIn, progress));

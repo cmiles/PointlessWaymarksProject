@@ -9,7 +9,7 @@
     Title="Point Editor"
     Width="800"
     Height="600"
-    d:DataContext="{d:DesignInstance local:PointContentEditorWindow}"
+    d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
         <pointContentEditor:PointContentEditorControl DataContext="{Binding PointContent}" />

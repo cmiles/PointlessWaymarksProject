@@ -6,10 +6,10 @@
     xmlns:geoJsonContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    Title="GeoJsonContentEditorWindow"
+    Title="GeoJson Editor"
     Width="800"
     Height="600"
-    d:DataContext="{d:DesignInstance local:GeoJsonContentEditorWindow}"
+    d:DataContext="{d:DesignInstance geoJsonContentEditor:GeoJsonContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
         <geoJsonContentEditor:GeoJsonContentEditorControl DataContext="{Binding GeoJsonContent}" />

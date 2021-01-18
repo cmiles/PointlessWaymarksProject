@@ -124,6 +124,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
             input = BracketCodeFileDownloads.Process(input, progress);
             input = BracketCodeFiles.Process(input, progress);
+            input = BracketCodeFileImage.ProcessForEmail(input, progress);
             input = BracketCodeGeoJsonLinks.Process(input, progress);
             input = BracketCodeImages.ProcessForEmail(input, progress);
             input = BracketCodeImageLinks.Process(input, progress);
@@ -149,6 +150,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         {
             input = BracketCodeFileDownloads.Process(input, progress);
             input = BracketCodeFiles.Process(input, progress);
+            input = BracketCodeFileImage.ProcessForDirectLocalAccess(input, progress);
             input = BracketCodeGeoJson.Process(input, progress);
             input = BracketCodeGeoJsonLinks.Process(input, progress);
             input = BracketCodeImages.ProcessForDirectLocalAccess(input, progress);
@@ -170,6 +172,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         {
             input = BracketCodeFileDownloads.Process(input, progress);
             input = BracketCodeFiles.Process(input, progress);
+            input = BracketCodeFileImage.ProcessToFigureWithLink(input, progress);
             input = BracketCodeGeoJson.Process(input, progress);
             input = BracketCodeGeoJsonLinks.Process(input, progress);
             input = BracketCodeImages.ProcessToFigureWithLink(input, progress);

@@ -14,6 +14,7 @@ using MvvmHelpers.Commands;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsData.Html.CommonHtml;
 using PointlessWaymarks.CmsData.Html.FileHtml;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
@@ -42,6 +43,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
         private Command _viewHistoryCommand;
+        private Command _fileImageLinkCodesToClipboardForSelectedCommand;
 
         public FileListWithActionsContext(StatusControlContext statusContext)
         {
@@ -375,7 +377,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             foreach (var loopSelected in ListContext.SelectedItems)
                 finalString +=
-                    @$"{{{{filedownloadlink {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+                    @$"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -398,7 +400,35 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             foreach (var loopSelected in ListContext.SelectedItems)
                 finalString +=
-                    @$"{{{{filelink {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Title}}}}}{Environment.NewLine}";
+                    @$"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        private async Task FileImageLinkCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = string.Empty;
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+                finalString +=
+                    @$"{BracketCodeFileImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+
+            if (ListContext.SelectedItems.Any(x => x.DbEntry.MainPicture == null))
+            {
+                StatusContext.ToastWarning("Some File Image Links do not have images?");
+            }
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -461,6 +491,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
             FilePageLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(FilePageLinkCodesToClipboardForSelected);
+            FileImageLinkCodesToClipboardForSelectedCommand =
+                StatusContext.RunBlockingTaskCommand(FileImageLinkCodesToClipboardForSelected);
             FileDownloadLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
             OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
@@ -482,6 +514,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
+        }
+
+        public Command FileImageLinkCodesToClipboardForSelectedCommand
+        {
+            get => _fileImageLinkCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _fileImageLinkCodesToClipboardForSelectedCommand)) return;
+                _fileImageLinkCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         private async Task NewContent()

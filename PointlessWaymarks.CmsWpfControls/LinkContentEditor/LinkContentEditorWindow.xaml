@@ -9,7 +9,7 @@
     Title="Link Editor"
     Width="600"
     Height="660"
-    d:DataContext="{d:DesignInstance local:LinkContentEditorWindow}"
+    d:DataContext="{d:DesignInstance linkContentEditor:LinkContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
         <Grid>
