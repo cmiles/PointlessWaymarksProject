@@ -29,20 +29,21 @@ namespace PointlessWaymarks.CmsData.Content
 
             var currentFiles = PictureAssetProcessing.ProcessImageDirectory(dbEntry);
 
-            foreach (var loopFiles in currentFiles.SrcsetImages)
-                if (!currentSizes.Contains(loopFiles.Width) || deleteAll)
-                {
-                    progress?.Report($"  Deleting {loopFiles.FileName}");
-                    loopFiles.File.Delete();
-                }
+            if (currentFiles != null)
+                foreach (var loopFiles in currentFiles.SrcsetImages.Where(x => x.File != null).ToList())
+                    if (!currentSizes.Contains(loopFiles.Width) || deleteAll)
+                    {
+                        progress?.Report($"  Deleting {loopFiles.File?.FullName}");
+                        loopFiles.File?.Delete();
+                    }
 
             var sourceFileReference =
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(dbEntry);
             var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference);
 
-            if (currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
+            if (currentFiles?.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
                 deleteAll)
-                currentFiles.DisplayPicture?.File?.Delete();
+                currentFiles?.DisplayPicture?.File?.Delete();
         }
 
         /// <summary>
@@ -63,20 +64,21 @@ namespace PointlessWaymarks.CmsData.Content
 
             var currentFiles = PictureAssetProcessing.ProcessPhotoDirectory(dbEntry);
 
-            foreach (var loopFiles in currentFiles.SrcsetImages)
-                if (!currentSizes.Contains(loopFiles.Width) || deleteAll)
-                {
-                    progress?.Report($"  Deleting {loopFiles.FileName}");
-                    loopFiles.File.Delete();
-                }
+            if (currentFiles != null)
+                foreach (var loopFiles in currentFiles.SrcsetImages.Where(x => x.File != null))
+                    if (!currentSizes.Contains(loopFiles.Width) || deleteAll)
+                    {
+                        progress?.Report($"  Deleting {loopFiles.File?.FullName}");
+                        loopFiles.File?.Delete();
+                    }
 
             var sourceFileReference =
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(dbEntry);
             var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference);
 
-            if (currentFiles.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
+            if (currentFiles?.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
                 deleteAll)
-                currentFiles.DisplayPicture?.File?.Delete();
+                currentFiles?.DisplayPicture?.File?.Delete();
         }
 
         public static async Task<GenerationReturn> CopyCleanResizeImage(ImageContent dbEntry,
@@ -212,7 +214,7 @@ namespace PointlessWaymarks.CmsData.Content
             return originalWidth;
         }
 
-        public static FileInfo ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
+        public static FileInfo? ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
             IProgress<string>? progress = null)
         {
             var displayWidth = DisplayPictureWidth(fileToProcess);
@@ -225,6 +227,10 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(PhotoContent dbEntry,
             bool overwriteExistingFiles, IProgress<string>? progress = null)
         {
+            if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+                throw new ArgumentException(
+                    "ResizeForDisplayAndSrcset in PictureResizing was giving a PhotoContentDbEntry with a null or empty OriginalFileName.");
+
             await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry);
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
@@ -283,10 +289,10 @@ namespace PointlessWaymarks.CmsData.Content
             return returnList;
         }
 
-        public static FileInfo ResizeWithForDisplayFileName(FileInfo toResize, int width, int quality,
+        public static FileInfo? ResizeWithForDisplayFileName(FileInfo toResize, int width, int quality,
             bool overwriteExistingFiles, IProgress<string>? progress = null)
         {
-            if (toResize == null || !toResize.Exists || toResize.Directory == null)
+            if (!toResize.Exists || toResize.Directory == null)
             {
                 progress?.Report("No input to resize?");
                 return null;
@@ -314,10 +320,10 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
 
-        public static FileInfo ResizeWithWidthAndHeightFileName(FileInfo toResize, int width, int quality,
+        public static FileInfo? ResizeWithWidthAndHeightFileName(FileInfo toResize, int width, int quality,
             bool overwriteExistingFiles, IProgress<string>? progress = null)
         {
-            if (toResize == null || !toResize.Exists || toResize.Directory == null)
+            if (!toResize.Exists || toResize.Directory == null)
             {
                 progress?.Report("No input to resize?");
                 return null;

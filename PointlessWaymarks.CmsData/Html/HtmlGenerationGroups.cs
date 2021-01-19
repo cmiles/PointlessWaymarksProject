@@ -1111,6 +1111,8 @@ namespace PointlessWaymarks.CmsData.Html
 
                 var loopItemAndDetails = await Db.PointAndPointDetails(loopItem.ContentId);
 
+                if (loopItemAndDetails == null) continue;
+
                 var htmlModel = new SinglePointPage(loopItemAndDetails) {GenerationVersion = generationVersion};
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);

@@ -22,7 +22,7 @@ namespace PointlessWaymarks.CmsData.Content
             htmlContext.WriteLocalHtmlRssAndJson();
         }
 
-        public static async Task<(GenerationReturn generationReturn, LinkMetadata metadata)> LinkMetadataFromUrl(
+        public static async Task<(GenerationReturn generationReturn, LinkMetadata? metadata)> LinkMetadataFromUrl(
             string url, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(url)) return (GenerationReturn.Error("No URL?"), null);

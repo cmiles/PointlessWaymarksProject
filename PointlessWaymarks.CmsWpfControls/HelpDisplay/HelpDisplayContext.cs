@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -8,9 +11,14 @@ namespace PointlessWaymarks.CmsWpfControls.HelpDisplay
     {
         private string _helpMarkdownContent;
 
-        public HelpDisplayContext(string markdownHelp)
+        public HelpDisplayContext(List<string> markdownHelp)
         {
-            HelpMarkdownContent = markdownHelp ?? string.Empty;
+            if (markdownHelp == null || !markdownHelp.Any()) HelpMarkdownContent = string.Empty;
+            else
+            {
+                HelpMarkdownContent = string.Join(Environment.NewLine + Environment.NewLine,
+                    markdownHelp.Where(x => !string.IsNullOrWhiteSpace(x)));
+            }
         }
 
         public string HelpMarkdownContent

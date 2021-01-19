@@ -24,7 +24,7 @@ namespace PointlessWaymarks.CmsData.Content
             htmlContext.WriteLocalHtml();
         }
 
-        public static async Task<(GenerationReturn generationReturn, NoteContent noteContent)> SaveAndGenerateHtml(
+        public static async Task<(GenerationReturn generationReturn, NoteContent? noteContent)> SaveAndGenerateHtml(
             NoteContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);

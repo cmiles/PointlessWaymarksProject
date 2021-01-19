@@ -51,7 +51,7 @@ namespace PointlessWaymarks.CmsData.Json
 
             var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteFileContentDirectory(dbEntry).FullName,
                 $"{Names.FileContentPrefix}{dbEntry.ContentId}.json"));
@@ -85,7 +85,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(dbEntry).FullName,
                 $"{Names.PostContentPrefix}{dbEntry.ContentId}.json"));
@@ -115,7 +115,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteLineContentDirectory(dbEntry).FullName,
                 $"{Names.LineContentPrefix}{dbEntry.ContentId}.json"));
@@ -145,7 +145,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteGeoJsonContentDirectory(dbEntry).FullName,
                 $"{Names.GeoJsonContentPrefix}{dbEntry.ContentId}.json"));
@@ -176,7 +176,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteMapComponentDataDirectory().FullName,
                 $"{Names.MapComponentContentPrefix}{dbEntry.ContentId}.json"));
@@ -214,7 +214,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dbEntry).FullName,
                 $"{Names.PointContentPrefix}{dbEntry.ContentId}.json"));
@@ -273,7 +273,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(dbEntry).FullName,
                 $"{Names.NoteContentPrefix}{dbEntry.ContentId}.json"));
@@ -303,7 +303,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(dbEntry).FullName,
                 $"{Names.ImageContentPrefix}{dbEntry.ContentId}.json"));
@@ -329,12 +329,11 @@ namespace PointlessWaymarks.CmsData.Json
             await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
-
         public static async Task WriteLocalDbJson(PhotoContent dbEntry)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             var db = await Db.Context();
-            var jsonDbEntry = JsonSerializer.Serialize(dbEntry);
+            var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions {WriteIndented = true});
 
             var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(dbEntry).FullName,
                 $"{Names.PhotoContentPrefix}{dbEntry.ContentId}.json"));

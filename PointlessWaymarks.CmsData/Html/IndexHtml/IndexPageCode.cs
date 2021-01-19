@@ -25,7 +25,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
 {
     public partial class IndexPage
     {
-        private readonly int _numberOfContentItemsToDisplay = 4;
+        private const int NumberOfContentItemsToDisplay = 4;
 
         public IndexPage()
         {
@@ -44,13 +44,13 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
 
             if (mainImageGuid != null) MainImage = new PictureSiteInformation(mainImageGuid);
 
-            if (!IndexContent.Any() || IndexContent.Count <= _numberOfContentItemsToDisplay)
+            if (!IndexContent.Any() || IndexContent.Count <= NumberOfContentItemsToDisplay)
             {
                 PreviousPosts = new List<IContentCommon>();
             }
             else
             {
-                DateTime previousDate = IndexContent.Skip(_numberOfContentItemsToDisplay - 1).Max(x => x.CreatedOn);
+                DateTime previousDate = IndexContent.Skip(NumberOfContentItemsToDisplay - 1).Max(x => x.CreatedOn);
 
                 var previousLater = Tags.MainFeedPreviousAndLaterContent(6, previousDate);
 
@@ -61,7 +61,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
         public DateTime? GenerationVersion { get; set; }
         public bool IncludeSpatialScripts { get; set; }
         public List<dynamic> IndexContent { get; }
-        public PictureSiteInformation MainImage { get; }
+        public PictureSiteInformation? MainImage { get; }
         public string PageUrl { get; }
         public List<IContentCommon> PreviousPosts { get; }
         public string SiteAuthors { get; }
@@ -77,7 +77,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
             var indexBodyContainer = new DivTag().AddClass("index-posts-container");
 
             //!!Content Type List!!
-            foreach (var loopPosts in IndexContent.Take(_numberOfContentItemsToDisplay))
+            foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
             {
                 if (loopPosts.GetType() == typeof(PostContent))
                 {
@@ -159,7 +159,7 @@ namespace PointlessWaymarks.CmsData.Html.IndexHtml
         {
             WriteRss();
 
-            foreach (var loopPosts in IndexContent.Take(_numberOfContentItemsToDisplay))
+            foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
                 if (BracketCodeCommon.ContainsSpatialBracketCodes(loopPosts) ||
                     loopPosts.GetType() == typeof(PointContentDto) ||
                     loopPosts.GetType() == typeof(GeoJsonContent) ||

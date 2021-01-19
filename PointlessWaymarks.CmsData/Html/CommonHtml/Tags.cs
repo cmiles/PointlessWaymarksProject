@@ -259,14 +259,15 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes,
             bool willHaveVisibleCaption)
         {
+            if(pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
+
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("srcset", pictureDirectoryInfo.SrcSetString())
                 .Attr("src", pictureDirectoryInfo.DisplayPicture.SiteUrl)
                 .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
                 .Attr("width", pictureDirectoryInfo.DisplayPicture.Width).Attr("loading", "lazy");
 
-            if (!string.IsNullOrWhiteSpace(sizes)) imageTag.Attr("sizes", sizes);
-            else imageTag.Attr("sizes", "100vw");
+            imageTag.Attr("sizes", !string.IsNullOrWhiteSpace(sizes) ? sizes : "100vw");
 
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
@@ -282,6 +283,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public static HtmlTag PictureImgTagDisplayImageOnly(PictureAsset pictureDirectoryInfo)
         {
+            if(pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
+
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("src", $"https:{pictureDirectoryInfo.DisplayPicture.SiteUrl}")
                 .Attr("height", pictureDirectoryInfo.DisplayPicture.Height)
@@ -293,9 +296,9 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return imageTag;
         }
 
-        public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAsset pictureAsset)
+        public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAsset? pictureAsset)
         {
-            if (pictureAsset == null) return HtmlTag.Empty();
+            if (pictureAsset?.SmallPicture == null || pictureAsset.DisplayPicture == null) return HtmlTag.Empty();
 
             var imageTag = new HtmlTag("img").AddClass("thumb-photo").Attr("srcset", pictureAsset.SrcSetString())
                 .Attr("src", pictureAsset.SmallPicture.SiteUrl).Attr("height", pictureAsset.SmallPicture.Height)
@@ -306,15 +309,15 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
             imageTag.Attr("sizes", smallestGreaterThan100 == null ? "100px" : $"{smallestGreaterThan100.Width}px");
 
-            if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture.AltText))
+            if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture?.AltText))
                 imageTag.Attr("alt", pictureAsset.DisplayPicture.AltText);
 
             return imageTag;
         }
 
-        public static HtmlTag PictureImgThumbWithLink(PictureAsset pictureAsset, string linkTo)
+        public static HtmlTag PictureImgThumbWithLink(PictureAsset? pictureAsset, string linkTo)
         {
-            if (pictureAsset == null) return HtmlTag.Empty();
+            if (pictureAsset?.SmallPicture == null) return HtmlTag.Empty();
 
             var imgTag = PictureImgTagWithSmallestDefaultSrc(pictureAsset);
 
@@ -357,9 +360,6 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         public static HtmlTag PreviousAndNextPostsDiv(List<IContentCommon> previousPosts,
             List<IContentCommon> laterPosts)
         {
-            previousPosts ??= new List<IContentCommon>();
-            laterPosts ??= new List<IContentCommon>();
-
             if (!laterPosts.Any() && !previousPosts.Any()) return HtmlTag.Empty();
 
             var hasPreviousPosts = previousPosts.Any();
@@ -443,8 +443,6 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public static HtmlTag TagList(List<Db.TagSlugAndIsExcluded> tags)
         {
-            tags ??= new List<Db.TagSlugAndIsExcluded>();
-
             if (!tags.Any()) return HtmlTag.Empty();
 
             var tagsContainer = new DivTag().AddClass("tags-container");
@@ -486,8 +484,6 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public static HtmlTag TagListTextLinkList(List<string> tags)
         {
-            tags ??= new List<string>();
-
             tags = tags.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
 
             if (!tags.Any()) return HtmlTag.Empty();

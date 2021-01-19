@@ -461,7 +461,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             try
             {
                 smallImageUrl =
-                    PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture?.File
+                    PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture?.File?
                         .FullName ?? string.Empty;
             }
             catch
@@ -668,7 +668,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
 
             if (db.PointContents.Any(x => x.ContentId == toAdd))
             {
-                await AddPoint(await Db.PointAndPointDetails(toAdd), guiNotificationAndMapRefreshWhenAdded: true)
+                await AddPoint((await Db.PointAndPointDetails(toAdd))!, guiNotificationAndMapRefreshWhenAdded: true)
                     .ConfigureAwait(false);
                 return;
             }
@@ -728,7 +728,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
                 var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
                 if (possiblePoint != null)
                 {
-                    var pointDto = await Db.PointAndPointDetails(possiblePoint.ContentId, db);
+                    var pointDto = (await Db.PointAndPointDetails(possiblePoint.ContentId, db))!;
                     await AddPoint(pointDto);
                     continue;
                 }

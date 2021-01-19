@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -59,9 +60,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            HelpContext =
-                new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
-
             SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
             SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
@@ -71,6 +69,9 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             ImportGeoJsonFileCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFile);
             ImportGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
             RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
+
+            HelpContext =
+                new HelpDisplayContext(new List<string> { CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock, GeoJsonContentHelpMarkdown.HelpBlock });
 
             PreviewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,

@@ -72,7 +72,7 @@ namespace PointlessWaymarks.CmsTests
                     loopTests.Longitude, DebugTrackers.DebugProgressTracker());
 
                 Assert.NotNull(result, $"Null result from {loopTests.Name}");
-                Assert.AreEqual(loopTests.RoundedElevationInMeters, Math.Round(result.Value, 2), $"{loopTests.Name}");
+                Assert.AreEqual(loopTests.RoundedElevationInMeters, Math.Round(result.Value, 0), $"{loopTests.Name}");
             }
         }
 

@@ -690,8 +690,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            HelpContext = new HelpDisplayContext(FileContentHelpMarkdown.HelpBlock + Environment.NewLine +
-                                                 BracketCodeHelpMarkdown.HelpBlock);
+            HelpContext = new HelpDisplayContext(new List<string> {FileContentHelpMarkdown.HelpBlock,
+                                                                   BracketCodeHelpMarkdown.HelpBlock});
 
             ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());
             SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true, false));

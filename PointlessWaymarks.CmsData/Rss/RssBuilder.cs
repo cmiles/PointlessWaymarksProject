@@ -38,7 +38,7 @@ namespace PointlessWaymarks.CmsData.Rss
             return rssBuilder.ToString();
         }
 
-        public static string RssItemString(string? title, string link, string? content, DateTime createdOn,
+        public static string RssItemString(string? title, string? link, string? content, DateTime createdOn,
             string contentId)
         {
             var rssBuilder = new StringBuilder();

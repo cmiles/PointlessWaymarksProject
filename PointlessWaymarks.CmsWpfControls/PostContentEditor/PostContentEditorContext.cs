@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -48,15 +49,15 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            HelpContext =
-                new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
-
             SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
             SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand(() =>
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
+
+            HelpContext =
+                new HelpDisplayContext(new List<string> { CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock });
         }
 
         public BodyContentEditorContext BodyContent

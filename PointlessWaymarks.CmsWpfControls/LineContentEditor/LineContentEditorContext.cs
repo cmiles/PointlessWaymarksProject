@@ -64,9 +64,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            HelpContext =
-                new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
-
             SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
             SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
@@ -77,6 +74,9 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
                 StatusContext.RunBlockingTaskCommand(async () => await ImportFromGpx(ReplaceElevationOnImport));
             ReplaceElevationsCommand = StatusContext.RunBlockingTaskCommand(async () => await ReplaceElevations());
             RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
+
+            HelpContext =
+                new HelpDisplayContext(new List<string> { CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock });
 
             PreviewHtml = WpfHtmlDocument.ToHtmlLeafletLineDocument("Line",
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,

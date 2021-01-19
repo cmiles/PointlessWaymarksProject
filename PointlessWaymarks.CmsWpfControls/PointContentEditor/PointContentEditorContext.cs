@@ -63,9 +63,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            HelpContext =
-                new HelpDisplayContext(CommonFields.TitleSlugFolderSummary + BracketCodeHelpMarkdown.HelpBlock);
-
             SaveCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(false));
             SaveAndCloseCommand = StatusContext.RunBlockingTaskCommand(async () => await SaveAndGenerateHtml(true));
             ViewOnSiteCommand = StatusContext.RunBlockingTaskCommand(ViewOnSite);
@@ -73,6 +70,9 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
             GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
+
+            HelpContext =
+                new HelpDisplayContext(new List<string> { CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock });
         }
 
         public BodyContentEditorContext BodyContent

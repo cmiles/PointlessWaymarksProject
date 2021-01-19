@@ -7,7 +7,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
 {
     public static class DailyPhotosPageParts
     {
-        public static HtmlTag DailyPhotosPageRelatedContentDiv(DailyPhotosPage photoPage)
+        public static HtmlTag DailyPhotosPageRelatedContentDiv(DailyPhotosPage? photoPage)
         {
             if (photoPage == null) return HtmlTag.Empty();
 
@@ -15,8 +15,8 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
 
             var relatedPostMainPictureContentDiv = new DivTag().AddClass("related-post-image-content-container");
 
-            relatedPostMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(photoPage.MainImage.Pictures,
-                photoPage.PageUrl));
+            relatedPostMainPictureContentDiv.Children.Add(Tags.PictureImgThumbWithLink(photoPage.MainImage?.Pictures,
+                photoPage.PageUrl ?? string.Empty));
 
             relatedPostContainerDiv.Children.Add(relatedPostMainPictureContentDiv);
 
@@ -31,7 +31,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
 
             var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("related-post-text-content-date")
                 .Text(Tags.LatestCreatedOnOrUpdatedOn(
-                          (ICreatedAndLastUpdateOnAndBy) photoPage.MainImage.Pictures.DbEntry)?.ToString("M/d/yyyy") ??
+                           photoPage.MainImage?.Pictures?.DbEntry as ICreatedAndLastUpdateOnAndBy)?.ToString("M/d/yyyy") ??
                       string.Empty);
 
             relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextTitleTextDiv);

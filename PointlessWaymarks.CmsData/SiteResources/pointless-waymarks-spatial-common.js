@@ -9,10 +9,10 @@
 };
 
 function openTopoMapLayer() {
-    return L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    return L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
         {
             maxZoom: 17,
-            id: 'osmTopo',
+            id: "osmTopo",
             attribution:
                 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
         });
@@ -22,36 +22,46 @@ function geoJsonLayerStyle(feature) {
 
     var newStyle = {};
 
-    if (feature.properties.hasOwnProperty('stroke')) newStyle.color = feature.properties['stroke'];
-    if (feature.properties.hasOwnProperty('stroke-width')) newStyle.weight = feature.properties['stroke-width'];
-    if (feature.properties.hasOwnProperty('stroke-opacity')) newStyle.opacity = feature.properties['stroke-opacity'];
-    if (feature.properties.hasOwnProperty('fill')) newStyle.fillColor = feature.properties['fill'];
-    if (feature.properties.hasOwnProperty('fill-opacity')) newStyle.fillOpacity = feature.properties['fill-opacity'];
+    if (feature.properties.hasOwnProperty("stroke")) newStyle.color = feature.properties["stroke"];
+    if (feature.properties.hasOwnProperty("stroke-width")) newStyle.weight = feature.properties["stroke-width"];
+    if (feature.properties.hasOwnProperty("stroke-opacity")) newStyle.opacity = feature.properties["stroke-opacity"];
+    if (feature.properties.hasOwnProperty("fill")) newStyle.fillColor = feature.properties["fill"];
+    if (feature.properties.hasOwnProperty("fill-opacity")) newStyle.fillOpacity = feature.properties["fill-opacity"];
 
     return newStyle;
 }
 
 function onEachMapGeoJsonFeature(feature, layer) {
 
-    var currentUrl = window.location.href;
+    const currentUrl = window.location.href.replace(/https?:/i, "");
 
-    if (feature.properties && feature.properties.title) {
-        if (feature.properties.link && feature.properties.link.length > 0
-            && feature.properties.link !== currentUrl) {
-            layer.bindPopup(`<a href="${feature.properties.link}">${feature.properties.title}</a>`);
-        } else {
-            layer.bindPopup(feature.properties.title);
+    if (feature.properties && (feature.properties.title || feature.properties.description)) {
+        let popupHtml = "";
+
+        if (feature.properties.title) {
+            if (feature.properties["title-link"] && feature.properties["title-link"].length > 0
+                && feature.properties["title-link"] !== currentUrl) {
+                popupHtml += `<a href="${feature.properties["title-link"]}">${feature.properties.title}</a>`;
+            } else {
+                popupHtml += feature.properties.title;
+            }
         }
+
+        if (feature.properties.description) {
+            popupHtml += `<p>${feature.properties.description}</p>`;
+        }
+
+        if(popupHtml !== "") layer.bindPopup(popupHtml);
     }
 }
 
 async function singleGeoJsonMapInit(mapElement, contentId) {
 
-    let geoJsonDataResponse = await fetch(`/GeoJson/Data/GeoJson-${contentId}.json`);
+    const geoJsonDataResponse = await fetch(`/GeoJson/Data/GeoJson-${contentId}.json`);
     if (!geoJsonDataResponse.ok)
         throw new Error(geoJsonDataResponse.statusText);
 
-    let geoJsonData = await geoJsonDataResponse.json();
+    const geoJsonData = await geoJsonDataResponse.json();
 
     let map = L.map(mapElement,
         {
@@ -122,7 +132,7 @@ async function mapComponentInit(mapElement, contentId) {
 
     if (mapComponent.PointGuids?.length) {
 
-        let response = await fetch('/Points/Data/pointdata.json');
+        let response = await fetch("/Points/Data/pointdata.json");
         if (!response.ok)
             throw new Error(response.statusText);
 
@@ -188,7 +198,7 @@ async function mapComponentInit(mapElement, contentId) {
 
 async function singlePointMapInit(mapElement, displayedPointSlug) {
 
-    let response = await fetch('/Points/Data/pointdata.json');
+    let response = await fetch("/Points/Data/pointdata.json");
     if (!response.ok)
         throw new Error(response.statusText);
 
@@ -222,7 +232,7 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
         if (circlePoint.Slug == displayedPointSlug) continue;
         let toAdd = L.circle([circlePoint.Latitude, circlePoint.Longitude],
             80,
-            { color: 'blue', fillColor: 'blue', fillOpacity: .5 });
+            { color: "blue", fillColor: "blue", fillOpacity: .5 });
 
         const circlePopup = L.popup({ autoClose: false, autoPan: false })
             .setContent(`<a href="https:${circlePoint.PointPageUrl}">${circlePoint.Title}</a>`);

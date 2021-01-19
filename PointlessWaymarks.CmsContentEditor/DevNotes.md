@@ -57,6 +57,14 @@ Published another post on PointlessWaymarks - in working thru that:
  - Added Fee and Driving Direction point details - this was both for the Crow Wash point but also thinking forward to HikeLemmon conversion.
  - Continued nullable work
 
+1/18/2021
+
+Did additional work on the GeoJson title/title-link changing 'link' to 'title-link' to avoid accidental collisons with other GeoJson properties, added a filter to only link when it isn't the current page and changed the special [[self]] tag to {{self}} to be consistent with the other bracket codes. Added help to the GeoJson editor to document the available format properties.
+
+Did some small test fixes.
+
+More nullable work - pushed the number of warnings under 100. The variety of problems is a great learning experience - quite a bit to consider on how to take best advantage of this feature in future code.
+
 1/12/2021
 
 Recent Change Notes:

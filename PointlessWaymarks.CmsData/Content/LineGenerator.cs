@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsData.Content
             await htmlContext.WriteLocalHtml();
         }
 
-        public static async Task<(GenerationReturn generationReturn, LineContent lineContent)> SaveAndGenerateHtml(
+        public static async Task<(GenerationReturn generationReturn, LineContent? lineContent)> SaveAndGenerateHtml(
             LineContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
@@ -62,9 +62,11 @@ namespace PointlessWaymarks.CmsData.Content
             if (!updateFormatCheck.Valid)
                 return GenerationReturn.Error(updateFormatCheck.Explanation, lineContent.ContentId);
 
+            if(string.IsNullOrWhiteSpace(lineContent.Line)) return GenerationReturn.Error("LineContent Line can not be null of empty.");
+
             try
             {
-                var serializer = GeoJsonSerializer.Create(SpatialHelpers.Wgs84GeometryFactory(), 3);
+                var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented }, SpatialHelpers.Wgs84GeometryFactory(), 3);
 
                 using var stringReader = new StringReader(lineContent.Line);
                 using var jsonReader = new JsonTextReader(stringReader);

@@ -34,8 +34,8 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
                 var toAdd = await DailyPhotoGallery(loopDate, generationVersion);
 
                 var nextDate = allDates.Where(x => x > loopDate).OrderBy(x => x).FirstOrDefault();
-                if (nextDate == default) toAdd.NextDailyPhotosPage = null;
-                else toAdd.NextDailyPhotosPage = await DailyPhotoGallery(nextDate, generationVersion);
+                if (nextDate == default) toAdd!.NextDailyPhotosPage = null;
+                else toAdd!.NextDailyPhotosPage = await DailyPhotoGallery(nextDate, generationVersion);
 
                 var previousDate = allDates.Where(x => x < loopDate).OrderByDescending(x => x).FirstOrDefault();
                 if (previousDate == default) toAdd.PreviousDailyPhotosPage = null;
@@ -72,12 +72,12 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
 
                 if (i > 0)
                 {
-                    toAdd.NextDailyPhotosPage = returnList[i - 1];
+                     toAdd!.NextDailyPhotosPage = returnList[i - 1];
 
                     returnList[i - 1].PreviousDailyPhotosPage = toAdd;
                 }
 
-                returnList.Add(toAdd);
+                returnList.Add(toAdd!);
             }
 
             return returnList;

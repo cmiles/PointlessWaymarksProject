@@ -12,18 +12,18 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
 {
     public partial class DailyPhotosPage
     {
-        public string CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
         public DateTime? GenerationVersion { get; set; }
-        public List<PictureSiteInformation> ImageList { get; set; }
-        public PictureSiteInformation MainImage { get; set; }
-        [CanBeNull] public DailyPhotosPage NextDailyPhotosPage { get; set; }
-        public string PageUrl { get; set; }
+        public List<PictureSiteInformation>? ImageList { get; set; }
+        public PictureSiteInformation? MainImage { get; set; }
+        public DailyPhotosPage? NextDailyPhotosPage { get; set; }
+        public string? PageUrl { get; set; }
         public DateTime PhotoPageDate { get; set; }
-        public List<Db.TagSlugAndIsExcluded> PhotoTags { get; set; }
-        public DailyPhotosPage PreviousDailyPhotosPage { get; set; }
-        public string SiteName { get; set; }
-        public string Summary { get; set; }
-        public string Title { get; set; }
+        public List<Db.TagSlugAndIsExcluded>? PhotoTags { get; set; }
+        public DailyPhotosPage? PreviousDailyPhotosPage { get; set; }
+        public string? SiteName { get; set; }
+        public string? Summary { get; set; }
+        public string? Title { get; set; }
 
         public void WriteLocalHtml()
         {

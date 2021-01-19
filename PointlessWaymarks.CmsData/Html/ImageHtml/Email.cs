@@ -10,8 +10,6 @@ namespace PointlessWaymarks.CmsData.Html.ImageHtml
     {
         public static async Task<string> ToHtmlEmail(ImageContent content, IProgress<string>? progress = null)
         {
-            if (content == null) return string.Empty;
-
             var mdBuilder = new StringBuilder();
 
             mdBuilder.AppendLine(BracketCodeImages.Create(content));
