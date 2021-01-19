@@ -19,7 +19,7 @@ function openTopoMapLayer() {
 }
 
 function geoJsonLayerStyle(feature) {
-
+    //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
     var newStyle = {};
 
     if (feature.properties.hasOwnProperty("stroke")) newStyle.color = feature.properties["stroke"];
@@ -32,6 +32,8 @@ function geoJsonLayerStyle(feature) {
 }
 
 function onEachMapGeoJsonFeature(feature, layer) {
+
+    //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0 - title-link is site specific...
 
     const currentUrl = window.location.href.replace(/https?:/i, "");
 
