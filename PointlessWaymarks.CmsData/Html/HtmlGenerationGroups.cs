@@ -908,11 +908,11 @@ namespace PointlessWaymarks.CmsData.Html
 
             await Db.SaveGenerationLogAndRecordSettings(generationVersion);
 
-            var allChangedContent =
-                (await db.ContentFromContentIds(await db.GenerationChangedContentIds.Select(x => x.ContentId)
+            var allChangedContentCommon =
+                (await db.ContentCommonShellFromContentIds(await db.GenerationChangedContentIds.Select(x => x.ContentId)
                     .ToListAsync())).Cast<IContentCommon>().ToList();
 
-            return await CommonContentValidation.CheckForBadContentReferences(allChangedContent, db, progress);
+            return await CommonContentValidation.CheckForBadContentReferences(allChangedContentCommon, db, progress);
         }
 
         public static async Task GenerateChangeFilteredFileHtml(DateTime generationVersion,

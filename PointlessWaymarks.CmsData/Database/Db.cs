@@ -16,14 +16,31 @@ namespace PointlessWaymarks.CmsData.Database
 {
     public static class Db
     {
+        public static async Task<List<ContentCommonShell>> ContentCommonShellFromContentIds(this PointlessWaymarksContext db,
+            List<Guid>? contentIds)
+        {
+            if (contentIds == null || !contentIds.Any()) return new();
+
+            var returnList = new List<ContentCommonShell>();
+
+            foreach (var loopIds in contentIds)
+            {
+                var toAdd = await ContentCommonShellFromContentId(db, loopIds);
+
+                if(toAdd != null) returnList.Add(toAdd);
+            }
+
+            return returnList;
+        }
+
         /// <summary>
-        ///     Returns a ContentCommonShell based on the ContentId - all content that types are included but because of the
-        ///     transformation to a concrete ContentCommonShell not all data will be available.
-        /// </summary>
-        /// <param name="db"></param>
-        /// <param name="contentId"></param>
-        /// <returns></returns>
-        public static async Task<ContentCommonShell?> ContentCommonShellFromContentId(this PointlessWaymarksContext db,
+            ///     Returns a ContentCommonShell based on the ContentId - all content that types are included but because of the
+            ///     transformation to a concrete ContentCommonShell not all data will be available.
+            /// </summary>
+            /// <param name="db"></param>
+            /// <param name="contentId"></param>
+            /// <returns></returns>
+            public static async Task<ContentCommonShell?> ContentCommonShellFromContentId(this PointlessWaymarksContext db,
             Guid contentId)
         {
             //!Content Type List!!

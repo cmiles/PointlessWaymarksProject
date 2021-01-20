@@ -250,7 +250,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
             if (Items == null) return;
 
-            var toRemove = Items.Where(x => !x.HasError && !x.Completed).ToList();
+            var toRemove = Items.Where(x => !x.HasError && x.Completed).ToList();
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
