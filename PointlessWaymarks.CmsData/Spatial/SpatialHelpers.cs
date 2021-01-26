@@ -37,7 +37,8 @@ namespace PointlessWaymarks.CmsData.Spatial
 
         public static async Task<string> SerializeFeatureCollection(FeatureCollection featureCollection)
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented}, Wgs84GeometryFactory(), 3);
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+                Wgs84GeometryFactory(), 3);
 
             await using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonTextWriter(stringWriter);
@@ -48,7 +49,8 @@ namespace PointlessWaymarks.CmsData.Spatial
 
         public static async Task<string> SerializeAsGeoJson(object toSerialize)
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented}, Wgs84GeometryFactory(), 3);
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+                Wgs84GeometryFactory(), 3);
 
             await using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonTextWriter(stringWriter);
@@ -130,7 +132,8 @@ namespace PointlessWaymarks.CmsData.Spatial
             var newFeature = new Feature(newLineString, new AttributesTable());
             var featureCollection = new FeatureCollection {newFeature};
 
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented}, Wgs84GeometryFactory(), 3);
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+                Wgs84GeometryFactory(), 3);
             await using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonTextWriter(stringWriter);
             serializer.Serialize(jsonWriter, featureCollection);
@@ -141,7 +144,8 @@ namespace PointlessWaymarks.CmsData.Spatial
         {
             if (string.IsNullOrWhiteSpace(geoJson)) return new List<CoordinateZ>();
 
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented}, Wgs84GeometryFactory(), 3);
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+                Wgs84GeometryFactory(), 3);
 
             using var stringReader = new StringReader(geoJson);
             using var jsonReader = new JsonTextReader(stringReader);

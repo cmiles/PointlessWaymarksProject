@@ -20,7 +20,8 @@ namespace PointlessWaymarks.CmsData.Spatial
 
         public static FeatureCollection GeoJsonToFeatureCollection(string geoJson)
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented }, GeometryFactory.Default, 3);
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+                GeometryFactory.Default, 3);
 
             using var stringReader = new StringReader(geoJson);
             using var jsonReader = new JsonTextReader(stringReader);
@@ -29,7 +30,8 @@ namespace PointlessWaymarks.CmsData.Spatial
 
         public static List<Geometry> GeoJsonToGeometries(string geoJson)
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented }, GeometryFactory.Default, 3);
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+                GeometryFactory.Default, 3);
 
             using var stringReader = new StringReader(geoJson);
             using var jsonReader = new JsonTextReader(stringReader);
@@ -75,7 +77,8 @@ namespace PointlessWaymarks.CmsData.Spatial
         {
             if (string.IsNullOrWhiteSpace(content.Line)) return new List<Geometry>();
 
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented }, SpatialHelpers.Wgs84GeometryFactory(), 3);
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+                SpatialHelpers.Wgs84GeometryFactory(), 3);
 
             using var stringReader = new StringReader(content.Line);
             using var jsonReader = new JsonTextReader(stringReader);

@@ -51,7 +51,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         /// <param name="pageConversion"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        private static string Process(string toProcess, Func<(PictureSiteInformation pictureInfo, string linkUrl), string> pageConversion,
+        private static string Process(string toProcess,
+            Func<(PictureSiteInformation pictureInfo, string linkUrl), string> pageConversion,
             IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
@@ -71,7 +72,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
                 if (dbFile == null) continue;
                 if (dbFile.MainPicture == null)
                 {
-                    progress?.Report($"File Image Link without Main Image - converting to filelink - File: {dbFile.Title}");
+                    progress?.Report(
+                        $"File Image Link without Main Image - converting to filelink - File: {dbFile.Title}");
 
                     loopMatch.bracketCodeText.Replace("fileimagelink", "filelink",
                         StringComparison.OrdinalIgnoreCase);
@@ -85,7 +87,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
                 if (dbPicture.Pictures == null)
                 {
-                    progress?.Report($"File Image Link with Null PictureSiteInformation - converting to filelink - File: {dbFile.Title}");
+                    progress?.Report(
+                        $"File Image Link with Null PictureSiteInformation - converting to filelink - File: {dbFile.Title}");
 
                     loopMatch.bracketCodeText.Replace("fileimagelink", "filelink",
                         StringComparison.OrdinalIgnoreCase);
@@ -95,7 +98,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
                     continue;
                 }
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText, pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().FilePageUrl(dbFile))));
+                toProcess = toProcess.Replace(loopMatch.bracketCodeText,
+                    pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().FilePageUrl(dbFile))));
 
                 progress?.Report($"File Image Link {dbFile.Title} processed");
             }
@@ -112,7 +116,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         /// <returns></returns>
         public static string ProcessForDirectLocalAccess(string toProcess, IProgress<string>? progress = null)
         {
-            return Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString(), progress);
+            return Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString(),
+                progress);
         }
 
         /// <summary>
@@ -123,7 +128,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         /// <returns></returns>
         public static string ProcessForEmail(string toProcess, IProgress<string>? progress = null)
         {
-            return Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString(), progress);
+            return Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString(),
+                progress);
         }
 
         /// <summary>
@@ -135,7 +141,8 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         public static string ProcessToFigureWithLink(string toProcess, IProgress<string>? progress = null)
         {
             return Process(toProcess,
-                pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag( "100vw", pictureInfo.linkUrl).ToString(),
+                pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl)
+                    .ToString(),
                 progress);
         }
     }

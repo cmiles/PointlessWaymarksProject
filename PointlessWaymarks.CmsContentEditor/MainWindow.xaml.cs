@@ -720,7 +720,8 @@ namespace PointlessWaymarks.CmsContentEditor
 
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
-            SoftwareComponentsHelpContext = new HelpDisplayContext(new List<string> {SoftwareUsedHelpMarkdown.HelpBlock});
+            SoftwareComponentsHelpContext =
+                new HelpDisplayContext(new List<string> {SoftwareUsedHelpMarkdown.HelpBlock});
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

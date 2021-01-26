@@ -71,7 +71,11 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
 
             HelpContext =
-                new HelpDisplayContext(new List<string> { CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock, GeoJsonContentHelpMarkdown.HelpBlock });
+                new HelpDisplayContext(new List<string>
+                {
+                    CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock,
+                    GeoJsonContentHelpMarkdown.HelpBlock
+                });
 
             PreviewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,

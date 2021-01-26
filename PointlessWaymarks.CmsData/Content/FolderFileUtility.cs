@@ -11,11 +11,10 @@ namespace PointlessWaymarks.CmsData.Content
         /// </summary>
         /// <param name="forName"></param>
         /// <returns></returns>
-        public static string? FullNameWithLongFilePrefixForPossibleNull(this FileInfo? forName)
+        public static string FullNameWithLongFilePrefix(this FileInfo forName)
         {
             //See https://stackoverflow.com/questions/5188527/how-to-deal-with-files-with-a-name-longer-than-259-characters for a good summary
             //and for some library and other alternatives.
-            if (forName == null) return null;
 
             return forName.FullName.Length > 240 ? $"\\\\?\\{forName.FullName}" : forName.FullName;
         }
@@ -26,10 +25,11 @@ namespace PointlessWaymarks.CmsData.Content
         /// </summary>
         /// <param name="forName"></param>
         /// <returns></returns>
-        public static string FullNameWithLongFilePrefix(this FileInfo forName)
+        public static string? FullNameWithLongFilePrefixForPossibleNull(this FileInfo? forName)
         {
             //See https://stackoverflow.com/questions/5188527/how-to-deal-with-files-with-a-name-longer-than-259-characters for a good summary
             //and for some library and other alternatives.
+            if (forName == null) return null;
 
             return forName.FullName.Length > 240 ? $"\\\\?\\{forName.FullName}" : forName.FullName;
         }

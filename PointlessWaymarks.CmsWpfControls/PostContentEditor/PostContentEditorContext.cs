@@ -57,7 +57,8 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
 
             HelpContext =
-                new HelpDisplayContext(new List<string> { CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock });
+                new HelpDisplayContext(new List<string>
+                    {CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock});
         }
 
         public BodyContentEditorContext BodyContent

@@ -15,10 +15,8 @@ namespace PointlessWaymarks.CmsWpfControls.HelpDisplay
         {
             if (markdownHelp == null || !markdownHelp.Any()) HelpMarkdownContent = string.Empty;
             else
-            {
                 HelpMarkdownContent = string.Join(Environment.NewLine + Environment.NewLine,
                     markdownHelp.Where(x => !string.IsNullOrWhiteSpace(x)));
-            }
         }
 
         public string HelpMarkdownContent

@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsData.Json
             {
                 if (loopFiles == null) continue;
                 var deserialized = JsonSerializer.Deserialize<T>(File.ReadAllText(loopFiles));
-                if(deserialized != null) returnList.Add(deserialized);
+                if (deserialized != null) returnList.Add(deserialized);
             }
 
             return returnList;

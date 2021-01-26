@@ -32,6 +32,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private Command _emailHtmlToClipboardCommand;
         private Command _extractNewLinksInSelectedCommand;
         private Command _fileDownloadLinkCodesToClipboardForSelectedCommand;
+        private Command _fileImageLinkCodesToClipboardForSelectedCommand;
         private Command _filePageLinkCodesToClipboardForSelectedCommand;
         private Command _firstPagePreviewFromPdfToCairoCommand;
         private Command _generateSelectedHtmlCommand;
@@ -43,7 +44,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
         private Command _viewHistoryCommand;
-        private Command _fileImageLinkCodesToClipboardForSelectedCommand;
 
         public FileListWithActionsContext(StatusControlContext statusContext)
         {
@@ -104,6 +104,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             {
                 if (Equals(value, _fileDownloadLinkCodesToClipboardForSelectedCommand)) return;
                 _fileDownloadLinkCodesToClipboardForSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command FileImageLinkCodesToClipboardForSelectedCommand
+        {
+            get => _fileImageLinkCodesToClipboardForSelectedCommand;
+            set
+            {
+                if (Equals(value, _fileImageLinkCodesToClipboardForSelectedCommand)) return;
+                _fileImageLinkCodesToClipboardForSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -386,29 +397,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
-        private async Task FilePageLinkCodesToClipboardForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = string.Empty;
-
-            foreach (var loopSelected in ListContext.SelectedItems)
-                finalString +=
-                    @$"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
-
         private async Task FileImageLinkCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -426,9 +414,30 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                     @$"{BracketCodeFileImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
             if (ListContext.SelectedItems.Any(x => x.DbEntry.MainPicture == null))
-            {
                 StatusContext.ToastWarning("Some File Image Links do not have images?");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        private async Task FilePageLinkCodesToClipboardForSelected()
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
             }
+
+            var finalString = string.Empty;
+
+            foreach (var loopSelected in ListContext.SelectedItems)
+                finalString +=
+                    @$"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -514,17 +523,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
-        }
-
-        public Command FileImageLinkCodesToClipboardForSelectedCommand
-        {
-            get => _fileImageLinkCodesToClipboardForSelectedCommand;
-            set
-            {
-                if (Equals(value, _fileImageLinkCodesToClipboardForSelectedCommand)) return;
-                _fileImageLinkCodesToClipboardForSelectedCommand = value;
-                OnPropertyChanged();
-            }
         }
 
         private async Task NewContent()

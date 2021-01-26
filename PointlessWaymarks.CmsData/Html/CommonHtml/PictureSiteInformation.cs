@@ -2,6 +2,7 @@
 using System.IO;
 using HtmlTags;
 using PointlessWaymarks.CmsData.Database.Models;
+
 // ReSharper disable MustUseReturnValue
 // A number of methods in HtmlTags show this warning and I am not convinced it
 // is worth heeding?
@@ -24,7 +25,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         private HtmlTag EmailImageTableTag(ImageContent dbEntry)
         {
-            if(Pictures == null) return HtmlTag.Empty();
+            if (Pictures == null) return HtmlTag.Empty();
 
             var tableContainer = new TableTag();
             tableContainer.Style("margin", "20px").Style("text-align", "center");
@@ -41,7 +42,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         private HtmlTag EmailPhotoTableTag(PhotoContent dbEntry)
         {
-            if(Pictures == null) return HtmlTag.Empty();
+            if (Pictures == null) return HtmlTag.Empty();
 
             var emailCenterTable = new TableTag();
             emailCenterTable.Attr("width", "94%");
@@ -126,24 +127,24 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return figureTag;
         }
 
-        public HtmlTag ImageFigureWithCaptionAndLinkToPageTag(ImageContent dbEntry, string sizes)
-        {
-            if (Pictures == null) return HtmlTag.Empty();
-
-            var figureTag = new HtmlTag("figure").AddClass("single-image-container");
-            var linkTag = new LinkTag(string.Empty, PageUrl);
-            linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
-            figureTag.Children.Add(linkTag);
-            figureTag.Children.Add(Tags.ImageFigCaptionTag(dbEntry));
-            return figureTag;
-        }
-
         public HtmlTag ImageFigureWithCaptionAndLinkTag(ImageContent dbEntry, string sizes, string linkUrl)
         {
             if (Pictures == null) return HtmlTag.Empty();
 
             var figureTag = new HtmlTag("figure").AddClass("single-image-container");
             var linkTag = new LinkTag(string.Empty, linkUrl);
+            linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
+            figureTag.Children.Add(linkTag);
+            figureTag.Children.Add(Tags.ImageFigCaptionTag(dbEntry));
+            return figureTag;
+        }
+
+        public HtmlTag ImageFigureWithCaptionAndLinkToPageTag(ImageContent dbEntry, string sizes)
+        {
+            if (Pictures == null) return HtmlTag.Empty();
+
+            var figureTag = new HtmlTag("figure").AddClass("single-image-container");
+            var linkTag = new LinkTag(string.Empty, PageUrl);
             linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
             figureTag.Children.Add(linkTag);
             figureTag.Children.Add(Tags.ImageFigCaptionTag(dbEntry));
@@ -235,24 +236,24 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             return figureTag;
         }
 
-        public HtmlTag PhotoFigureWithCaptionAndLinkToPageTag(PhotoContent dbEntry, string sizes)
-        {
-            if (Pictures == null) return HtmlTag.Empty();
-
-            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
-            var linkTag = new LinkTag(string.Empty, PageUrl);
-            linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
-            figureTag.Children.Add(linkTag);
-            figureTag.Children.Add(Tags.PhotoFigCaptionTag(dbEntry));
-            return figureTag;
-        }
-
         public HtmlTag PhotoFigureWithCaptionAndLinkTag(PhotoContent dbEntry, string sizes, string linkUrl)
         {
             if (Pictures == null) return HtmlTag.Empty();
 
             var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
             var linkTag = new LinkTag(string.Empty, linkUrl);
+            linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
+            figureTag.Children.Add(linkTag);
+            figureTag.Children.Add(Tags.PhotoFigCaptionTag(dbEntry));
+            return figureTag;
+        }
+
+        public HtmlTag PhotoFigureWithCaptionAndLinkToPageTag(PhotoContent dbEntry, string sizes)
+        {
+            if (Pictures == null) return HtmlTag.Empty();
+
+            var figureTag = new HtmlTag("figure").AddClass("single-photo-container");
+            var linkTag = new LinkTag(string.Empty, PageUrl);
             linkTag.Children.Add(Tags.PictureImgTag(Pictures, sizes, true));
             figureTag.Children.Add(linkTag);
             figureTag.Children.Add(Tags.PhotoFigCaptionTag(dbEntry));
@@ -302,18 +303,6 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
             };
         }
 
-        public HtmlTag PictureFigureWithCaptionAndLinkToPicturePageTag(string sizes)
-        {
-            if (Pictures == null) return HtmlTag.Empty();
-
-            return Pictures.DbEntry switch
-            {
-                PhotoContent p => PhotoFigureWithCaptionAndLinkToPageTag(p, sizes),
-                ImageContent i => ImageFigureWithCaptionAndLinkToPageTag(i, sizes),
-                _ => throw new ArgumentException("not a recognized picture type")
-            };
-        }
-
         public HtmlTag PictureFigureWithCaptionAndLinkTag(string sizes, string linkUrl)
         {
             if (Pictures == null) return HtmlTag.Empty();
@@ -323,6 +312,18 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
                 PhotoContent p => PhotoFigureWithCaptionAndLinkTag(p, sizes, linkUrl),
                 ImageContent i => ImageFigureWithCaptionAndLinkTag(i, sizes, linkUrl),
                 _ => throw new ArgumentException("not a recognized picture type", nameof(Pictures.DbEntry))
+            };
+        }
+
+        public HtmlTag PictureFigureWithCaptionAndLinkToPicturePageTag(string sizes)
+        {
+            if (Pictures == null) return HtmlTag.Empty();
+
+            return Pictures.DbEntry switch
+            {
+                PhotoContent p => PhotoFigureWithCaptionAndLinkToPageTag(p, sizes),
+                ImageContent i => ImageFigureWithCaptionAndLinkToPageTag(i, sizes),
+                _ => throw new ArgumentException("not a recognized picture type")
             };
         }
 

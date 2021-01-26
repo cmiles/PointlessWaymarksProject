@@ -72,7 +72,7 @@ namespace PointlessWaymarks.CmsData.Html.PhotoGalleryHtml
 
                 if (i > 0)
                 {
-                     toAdd!.NextDailyPhotosPage = returnList[i - 1];
+                    toAdd!.NextDailyPhotosPage = returnList[i - 1];
 
                     returnList[i - 1].PreviousDailyPhotosPage = toAdd;
                 }

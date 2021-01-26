@@ -259,7 +259,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
         public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes,
             bool willHaveVisibleCaption)
         {
-            if(pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
+            if (pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
 
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("srcset", pictureDirectoryInfo.SrcSetString())
@@ -283,7 +283,7 @@ namespace PointlessWaymarks.CmsData.Html.CommonHtml
 
         public static HtmlTag PictureImgTagDisplayImageOnly(PictureAsset pictureDirectoryInfo)
         {
-            if(pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
+            if (pictureDirectoryInfo.DisplayPicture == null) return HtmlTag.Empty();
 
             var imageTag = new HtmlTag("img").AddClass("single-photo")
                 .Attr("src", $"https:{pictureDirectoryInfo.DisplayPicture.SiteUrl}")

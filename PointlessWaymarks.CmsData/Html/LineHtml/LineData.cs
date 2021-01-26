@@ -15,7 +15,8 @@ namespace PointlessWaymarks.CmsData.Html.LineHtml
     {
         public static async Task<string> GenerateLineJson(string geoJsonContent, string pageUrl)
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented }, SpatialHelpers.Wgs84GeometryFactory(), 3);
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+                SpatialHelpers.Wgs84GeometryFactory(), 3);
 
             using var stringReader = new StringReader(geoJsonContent);
             using var jsonReader = new JsonTextReader(stringReader);
@@ -36,7 +37,9 @@ namespace PointlessWaymarks.CmsData.Html.LineHtml
 
         public static async Task WriteJsonData(LineContent geoJsonContent)
         {
-            if (string.IsNullOrWhiteSpace(geoJsonContent.Line)) throw new ArgumentException("WriteJsonData in LineData was given a LineContent with a null/blank/empty Line");
+            if (string.IsNullOrWhiteSpace(geoJsonContent.Line))
+                throw new ArgumentException(
+                    "WriteJsonData in LineData was given a LineContent with a null/blank/empty Line");
 
             var dataFileInfo = new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalSiteLineDataDirectory().FullName,

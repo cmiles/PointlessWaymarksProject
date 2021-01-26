@@ -3,40 +3,19 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using XL = Microsoft.Office.Interop.Excel;
 
-namespace PointlessWaymarks.ExcelInteropExtensions {
-
+namespace PointlessWaymarks.ExcelInteropExtensions
+{
     /// <summary>
-    /// Extension methods for Microsoft.Office.Interop.Excel.Application.
+    ///     Extension methods for Microsoft.Office.Interop.Excel.Application.
     /// </summary>
-    public static class ApplicationExtensionMethods {
-
+    public static class ApplicationExtensionMethods
+    {
         /// <summary>
-        /// Gets an object representing the collection of all Excel instances running
-        /// in the same Windows session as the given instance.
+        ///     Brings the active window of the given Excel instance into focus.
         /// </summary>
         /// <param name="app">The application.</param>
-        public static Session Session(this XL.Application app) {
-            if (app == null) throw new ArgumentNullException(nameof(app));
-
-            using var process = app.AsProcess();
-            return new Session(process.SessionId);
-        }
-
-        /// <summary>
-        /// Determines whether this instance is currently the topmost Excel instance.
-        /// </summary>
-        /// <param name="app">The application.</param>
-        public static bool IsActive(this XL.Application app) {
-            if (app == null) throw new ArgumentNullException(nameof(app));
-
-            return Equals(app, app.Session().TopMost);
-        }
-
-        /// <summary>
-        /// Brings the active window of the given Excel instance into focus.
-        /// </summary>
-        /// <param name="app">The application.</param>
-        public static void Activate(this XL.Application app) {
+        public static void Activate(this XL.Application app)
+        {
             if (app == null) throw new ArgumentNullException(nameof(app));
 
             using var process = app.AsProcess();
@@ -44,10 +23,35 @@ namespace PointlessWaymarks.ExcelInteropExtensions {
         }
 
         /// <summary>
-        /// Determines whether this instance is visible.
+        ///     Gets the Windows Process associated with the given Excel instance.
         /// </summary>
         /// <param name="app">The application.</param>
-        public static bool IsVisible(this XL.Application app) {
+        public static Process AsProcess(this XL.Application app)
+        {
+            if (app == null) throw new ArgumentNullException(nameof(app));
+
+            var mainWindowHandle = app.Hwnd;
+            var processId = NativeMethods.ProcessIdFromWindowHandle(mainWindowHandle);
+            return Process.GetProcessById(processId);
+        }
+
+        /// <summary>
+        ///     Determines whether this instance is currently the topmost Excel instance.
+        /// </summary>
+        /// <param name="app">The application.</param>
+        public static bool IsActive(this XL.Application app)
+        {
+            if (app == null) throw new ArgumentNullException(nameof(app));
+
+            return Equals(app, app.Session().TopMost);
+        }
+
+        /// <summary>
+        ///     Determines whether this instance is visible.
+        /// </summary>
+        /// <param name="app">The application.</param>
+        public static bool IsVisible(this XL.Application app)
+        {
             if (app == null) throw new ArgumentNullException(nameof(app));
 
             try
@@ -56,8 +60,9 @@ namespace PointlessWaymarks.ExcelInteropExtensions {
                 return app.Visible && process.IsVisible();
             }
             catch (COMException x)
-            when (x.Message.StartsWith("The message filter indicated that the application is busy.")
-                || x.Message.StartsWith("Call was rejected by callee.")) {
+                when (x.Message.StartsWith("The message filter indicated that the application is busy.")
+                      || x.Message.StartsWith("Call was rejected by callee."))
+            {
                 //This means the application is in a state that does not permit COM automation.
                 //Often, this is due to a dialog window or right-click context menu being open.
                 return false;
@@ -65,15 +70,29 @@ namespace PointlessWaymarks.ExcelInteropExtensions {
         }
 
         /// <summary>
-        /// Gets a string describing the version of the given Excel instance.
+        ///     Gets an object representing the collection of all Excel instances running
+        ///     in the same Windows session as the given instance.
         /// </summary>
         /// <param name="app">The application.</param>
-        public static string VersionName(this XL.Application app) {
+        public static Session Session(this XL.Application app)
+        {
+            if (app == null) throw new ArgumentNullException(nameof(app));
+
+            using var process = app.AsProcess();
+            return new Session(process.SessionId);
+        }
+
+        /// <summary>
+        ///     Gets a string describing the version of the given Excel instance.
+        /// </summary>
+        /// <param name="app">The application.</param>
+        public static string VersionName(this XL.Application app)
+        {
             if (app == null) throw new ArgumentNullException(nameof(app));
 
             try
             {
-                var version = (int)float.Parse(app.Version);
+                var version = (int) float.Parse(app.Version);
                 return version switch
                 {
                     5 => "Excel 5",
@@ -90,21 +109,10 @@ namespace PointlessWaymarks.ExcelInteropExtensions {
                     _ => "Excel (Unknown version)"
                 };
             }
-            catch {
+            catch
+            {
                 return "Excel (Unknown version)";
             }
-        }
-
-        /// <summary>
-        /// Gets the Windows Process associated with the given Excel instance.
-        /// </summary>
-        /// <param name="app">The application.</param>
-        public static Process AsProcess(this XL.Application app) {
-            if (app == null) throw new ArgumentNullException(nameof(app));
-
-            var mainWindowHandle = app.Hwnd;
-            var processId = NativeMethods.ProcessIdFromWindowHandle(mainWindowHandle);
-            return Process.GetProcessById(processId);
         }
     }
 }

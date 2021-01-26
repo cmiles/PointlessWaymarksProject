@@ -15,7 +15,8 @@ namespace PointlessWaymarks.CmsData.Html.GeoJsonHtml
     {
         public static async Task<string> GenerateGeoJson(string geoJsonContent, string pageUrl)
         {
-            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented}, SpatialHelpers.Wgs84GeometryFactory());
+            var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings {Formatting = Formatting.Indented},
+                SpatialHelpers.Wgs84GeometryFactory());
 
             using var stringReader = new StringReader(geoJsonContent);
             using var jsonReader = new JsonTextReader(stringReader);
