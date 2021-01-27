@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net5.0-windows10.0.17763.0</TargetFramework>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
@@ -312,6 +312,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <COMReference Include="Microsoft.Office.Interop.Excel">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>9</VersionMinor>
+      <VersionMajor>1</VersionMajor>
+      <Guid>00020813-0000-0000-c000-000000000046</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="favicon.ico" />
     <EmbeddedResource Include="SiteResources\images\layers-2x.png" />
     <EmbeddedResource Include="SiteResources\images\layers.png" />
@@ -329,6 +341,10 @@
 
   <ItemGroup>
     <Folder Include="Database\Migrations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj" />
   </ItemGroup>
 
 </Project>

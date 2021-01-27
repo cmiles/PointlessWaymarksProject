@@ -69,11 +69,47 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
             return file;
         }
 
-        public static async Task ImportFromExcel(StatusControlContext statusContext)
+        public static async Task ImportFromOpenExcelInstance(StatusControlContext statusContext)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            statusContext.Progress("Starting excel load.");
+            statusContext.Progress("Starting Excel Open Instance import.");
+
+
+            ExcelContentImports.ExcelContentTableImportResults contentTableImportResult;
+
+            try
+            {
+                contentTableImportResult =
+                    await ExcelContentImports.ImportFromTopMostExcelInstance(statusContext.ProgressTracker());
+            }
+            catch (Exception e)
+            {
+                await statusContext.ShowMessageWithOkButton("Import Errors",
+                    $"Import Stopped because of an error processing the file:{Environment.NewLine}{e.Message}");
+                return;
+            }
+
+            if (contentTableImportResult.HasError)
+            {
+                await statusContext.ShowMessageWithOkButton("Import Errors",
+                    $"Import Stopped because errors were reported:{Environment.NewLine}{contentTableImportResult.ErrorNotes}");
+                return;
+            }
+
+            var shouldContinue = await statusContext.ShowMessage("Confirm Import",
+                $"Continue?{Environment.NewLine}{Environment.NewLine}{contentTableImportResult.ToUpdate.Count} updates from Excel {Environment.NewLine}" +
+                $"{string.Join(Environment.NewLine, contentTableImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
+                new List<string> { "Yes", "No" });
+
+            if (shouldContinue == "No") return;
+        }
+
+        public static async Task ImportFromExcelFile(StatusControlContext statusContext)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            statusContext.Progress("Starting Excel File import.");
 
             var dialog = new VistaOpenFileDialog();
 

@@ -62,7 +62,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             VisibleTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(VisibleTagsToExcel);
             SelectedTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedTagsToExcel);
             ImportFromExcelCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }

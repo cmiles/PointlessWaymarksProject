@@ -354,7 +354,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
                 StatusContext.RunNonBlockingTaskCommand(PointBracketCodesToClipboardForSelected);
 
             ImportFromExcelCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcel(StatusContext));
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await SelectedToExcel(ListContext.SelectedItems.Select(x => x.DbEntry.ContentId).ToList(),
                     StatusContext));

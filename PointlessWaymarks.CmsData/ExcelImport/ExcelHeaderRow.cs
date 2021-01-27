@@ -6,6 +6,25 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 {
     public class ExcelHeaderRow
     {
+        public ExcelHeaderRow(List<string> headerRow)
+        {
+            Columns = new List<ExcelImportColumn>();
+            if (!headerRow.Any()) return;
+
+            foreach (var loopCells in headerRow)
+            {
+                var columnStringValue = loopCells;
+
+                if (string.IsNullOrWhiteSpace(columnStringValue)) continue;
+
+                Columns.Add(new ExcelImportColumn
+                {
+                    ColumnHeader = columnStringValue,
+                    ExcelSheetColumn = headerRow.IndexOf(loopCells)
+                });
+            }
+        }
+
         public ExcelHeaderRow(IXLRangeRow headerRow)
         {
             Columns = new List<ExcelImportColumn>();

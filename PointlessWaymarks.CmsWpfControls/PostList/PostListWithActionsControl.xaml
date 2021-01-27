@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:postList="clr-namespace:PointlessWaymarks.CmsWpfControls.PostList"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:PostListWithActionsContext}"
+    d:DataContext="{d:DesignInstance postList:PostListWithActionsContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">
@@ -26,7 +26,8 @@
         <Menu>
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding SelectedToExcelCommand}" Header="Selected To Excel" />
-                <MenuItem Command="{Binding ImportFromExcelCommand}" Header="Import From Excel" />
+                <MenuItem Command="{Binding ImportFromExcelFileCommand}" Header="Import From Excel File" />
+                <MenuItem Command="{Binding ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
             <MenuItem Header="Email">
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
