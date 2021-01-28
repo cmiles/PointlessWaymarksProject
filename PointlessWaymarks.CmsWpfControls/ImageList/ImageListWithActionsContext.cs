@@ -34,6 +34,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         private Command _generateSelectedHtmlCommand;
         private Command _imageBracketCodesToClipboardForSelectedCommand;
         private Command _imageBracketLinkCodesToClipboardForSelectedCommand;
+        private Command _importFromOpenExcelInstanceCommand;
         private ImageListContext _listContext;
         private Command _newContentCommand;
         private Command _newContentFromFilesCommand;
@@ -128,7 +129,18 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             }
         }
 
-        public Command ImportFromExcelCommand { get; set; }
+        public Command ImportFromExcelFileCommand { get; set; }
+
+        public Command ImportFromOpenExcelInstanceCommand
+        {
+            get => _importFromOpenExcelInstanceCommand;
+            set
+            {
+                if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
+                _importFromOpenExcelInstanceCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ImageListContext ListContext
         {
@@ -446,8 +458,11 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
-            ImportFromExcelCommand =
+            ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
+            ImportFromOpenExcelInstanceCommand =
+                StatusContext.RunBlockingTaskCommand(async () =>
+                    await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
         }

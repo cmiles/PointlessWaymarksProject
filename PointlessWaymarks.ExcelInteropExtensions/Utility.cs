@@ -11,10 +11,11 @@ namespace PointlessWaymarks.ExcelInteropExtensions
             while (columnNumber > 0)
             {
                 var currentLetterNumber = (columnNumber - 1) % 26;
-                var currentLetter = (char)(currentLetterNumber + 65);
+                var currentLetter = (char) (currentLetterNumber + 65);
                 columnString = currentLetter + columnString;
                 columnNumber = (columnNumber - (currentLetterNumber + 1)) / 26;
             }
+
             return columnString;
         }
 
@@ -26,8 +27,9 @@ namespace PointlessWaymarks.ExcelInteropExtensions
             {
                 var colPiece = col[iChar];
                 var colNum = colPiece - 64;
-                retVal += colNum * (int)Math.Pow(26, col.Length - (iChar + 1));
+                retVal += colNum * (int) Math.Pow(26, col.Length - (iChar + 1));
             }
+
             return retVal;
         }
     }

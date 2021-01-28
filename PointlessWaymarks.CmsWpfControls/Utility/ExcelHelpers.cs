@@ -11,7 +11,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.ExcelImport;
+using PointlessWaymarks.CmsData.Import;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
@@ -69,42 +69,6 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
             return file;
         }
 
-        public static async Task ImportFromOpenExcelInstance(StatusControlContext statusContext)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            statusContext.Progress("Starting Excel Open Instance import.");
-
-
-            ExcelContentImports.ExcelContentTableImportResults contentTableImportResult;
-
-            try
-            {
-                contentTableImportResult =
-                    await ExcelContentImports.ImportFromTopMostExcelInstance(statusContext.ProgressTracker());
-            }
-            catch (Exception e)
-            {
-                await statusContext.ShowMessageWithOkButton("Import Errors",
-                    $"Import Stopped because of an error processing the file:{Environment.NewLine}{e.Message}");
-                return;
-            }
-
-            if (contentTableImportResult.HasError)
-            {
-                await statusContext.ShowMessageWithOkButton("Import Errors",
-                    $"Import Stopped because errors were reported:{Environment.NewLine}{contentTableImportResult.ErrorNotes}");
-                return;
-            }
-
-            var shouldContinue = await statusContext.ShowMessage("Confirm Import",
-                $"Continue?{Environment.NewLine}{Environment.NewLine}{contentTableImportResult.ToUpdate.Count} updates from Excel {Environment.NewLine}" +
-                $"{string.Join(Environment.NewLine, contentTableImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
-                new List<string> { "Yes", "No" });
-
-            if (shouldContinue == "No") return;
-        }
-
         public static async Task ImportFromExcelFile(StatusControlContext statusContext)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -123,12 +87,12 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
                 return;
             }
 
-            ExcelContentImports.ExcelContentTableImportResults contentTableImportResult;
+            ContentImport.ContentImportResults contentImportResult;
 
             try
             {
-                contentTableImportResult =
-                    await ExcelContentImports.ImportFromFile(newFile.FullName, statusContext.ProgressTracker());
+                contentImportResult =
+                    await ContentImport.ImportFromFile(newFile.FullName, statusContext.ProgressTracker());
             }
             catch (Exception e)
             {
@@ -137,22 +101,22 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
                 return;
             }
 
-            if (contentTableImportResult.HasError)
+            if (contentImportResult.HasError)
             {
                 await statusContext.ShowMessageWithOkButton("Import Errors",
-                    $"Import Stopped because errors were reported:{Environment.NewLine}{contentTableImportResult.ErrorNotes}");
+                    $"Import Stopped because errors were reported:{Environment.NewLine}{contentImportResult.ErrorNotes}");
                 return;
             }
 
             var shouldContinue = await statusContext.ShowMessage("Confirm Import",
-                $"Continue?{Environment.NewLine}{Environment.NewLine}{contentTableImportResult.ToUpdate.Count} updates from {newFile.FullName} {Environment.NewLine}" +
-                $"{string.Join(Environment.NewLine, contentTableImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
+                $"Continue?{Environment.NewLine}{Environment.NewLine}{contentImportResult.ToUpdate.Count} updates from {newFile.FullName} {Environment.NewLine}" +
+                $"{string.Join(Environment.NewLine, contentImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
                 new List<string> {"Yes", "No"});
 
             if (shouldContinue == "No") return;
 
             var saveResult =
-                await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(contentTableImportResult,
+                await ContentImport.SaveAndGenerateHtmlFromExcelImport(contentImportResult,
                     statusContext.ProgressTracker());
 
             if (saveResult.hasError)
@@ -163,7 +127,43 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
             }
 
             statusContext.ToastSuccess(
-                $"Imported {contentTableImportResult.ToUpdate.Count} items with changes from {newFile.FullName}");
+                $"Imported {contentImportResult.ToUpdate.Count} items with changes from {newFile.FullName}");
+        }
+
+        public static async Task ImportFromOpenExcelInstance(StatusControlContext statusContext)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            statusContext.Progress("Starting Excel Open Instance import.");
+
+
+            ContentImport.ContentImportResults contentImportResult;
+
+            try
+            {
+                contentImportResult =
+                    await ContentImport.ImportFromTopMostExcelInstance(statusContext.ProgressTracker());
+            }
+            catch (Exception e)
+            {
+                await statusContext.ShowMessageWithOkButton("Import Errors",
+                    $"Import Stopped because of an error processing the file:{Environment.NewLine}{e.Message}");
+                return;
+            }
+
+            if (contentImportResult.HasError)
+            {
+                await statusContext.ShowMessageWithOkButton("Import Errors",
+                    $"Import Stopped because errors were reported:{Environment.NewLine}{contentImportResult.ErrorNotes}");
+                return;
+            }
+
+            var shouldContinue = await statusContext.ShowMessage("Confirm Import",
+                $"Continue?{Environment.NewLine}{Environment.NewLine}{contentImportResult.ToUpdate.Count} updates from Excel {Environment.NewLine}" +
+                $"{string.Join(Environment.NewLine, contentImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
+                new List<string> {"Yes", "No"});
+
+            if (shouldContinue == "No") return;
         }
 
         public static async Task<FileInfo> PointContentToExcel(List<Guid> toDisplay, string fileName,
@@ -188,7 +188,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
             foreach (var loopContent in toDisplay)
             {
                 progress?.Report($"Processing {loopContent.Title} with {loopContent.PointDetails.Count} details");
-                // ! This content format is used by ExcelContentImports !
+                // ! This content format is used by ContentImport !
                 // Push the content into a compromise format that is ok for human generation (the target here is not creating 'by
                 //  hand in Excel' rather taking something like GNIS data and concatenating/text manipulating the data into
                 //  shape) and still ok for parsing in code

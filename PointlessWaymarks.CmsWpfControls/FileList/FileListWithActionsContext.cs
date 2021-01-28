@@ -36,7 +36,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private Command _filePageLinkCodesToClipboardForSelectedCommand;
         private Command _firstPagePreviewFromPdfToCairoCommand;
         private Command _generateSelectedHtmlCommand;
-        private Command _importFromExcelCommand;
+        private Command _importFromExcelFileCommand;
+        private Command _importFromOpenExcelInstanceCommand;
         private FileListContext _listContext;
         private Command _newContentCommand;
         private Command _newContentFromFilesCommand;
@@ -153,13 +154,24 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             }
         }
 
-        public Command ImportFromExcelCommand
+        public Command ImportFromExcelFileCommand
         {
-            get => _importFromExcelCommand;
+            get => _importFromExcelFileCommand;
             set
             {
-                if (Equals(value, _importFromExcelCommand)) return;
-                _importFromExcelCommand = value;
+                if (Equals(value, _importFromExcelFileCommand)) return;
+                _importFromExcelFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromOpenExcelInstanceCommand
+        {
+            get => _importFromOpenExcelInstanceCommand;
+            set
+            {
+                if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
+                _importFromOpenExcelInstanceCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -519,8 +531,11 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
-            ImportFromExcelCommand =
+            ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
+            ImportFromOpenExcelInstanceCommand =
+                StatusContext.RunBlockingTaskCommand(async () =>
+                    await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
         }

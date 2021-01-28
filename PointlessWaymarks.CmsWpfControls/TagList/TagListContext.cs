@@ -35,7 +35,8 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
         private List<TagItemContentInformation> _detailsList;
         private List<TagItemContentInformation> _detailsSelectedItems;
         private Command<Guid> _editContentCommand;
-        private Command _importFromExcelCommand;
+        private Command _importFromExcelFileCommand;
+        private Command _importFromOpenExcelInstanceCommand;
         private ObservableCollection<TagListListItem> _items;
         private Command _refreshDataCommand;
         private Command _selectedDetailItemsToExcelCommand;
@@ -61,8 +62,12 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             EditContentCommand = StatusContext.RunNonBlockingTaskCommand<Guid>(async x => await EditContent(x));
             VisibleTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(VisibleTagsToExcel);
             SelectedTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedTagsToExcel);
-            ImportFromExcelCommand =
+
+            ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
+            ImportFromOpenExcelInstanceCommand =
+                StatusContext.RunBlockingTaskCommand(async () =>
+                    await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -122,13 +127,24 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             }
         }
 
-        public Command ImportFromExcelCommand
+        public Command ImportFromExcelFileCommand
         {
-            get => _importFromExcelCommand;
+            get => _importFromExcelFileCommand;
             set
             {
-                if (Equals(value, _importFromExcelCommand)) return;
-                _importFromExcelCommand = value;
+                if (Equals(value, _importFromExcelFileCommand)) return;
+                _importFromExcelFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromOpenExcelInstanceCommand
+        {
+            get => _importFromOpenExcelInstanceCommand;
+            set
+            {
+                if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
+                _importFromOpenExcelInstanceCommand = value;
                 OnPropertyChanged();
             }
         }

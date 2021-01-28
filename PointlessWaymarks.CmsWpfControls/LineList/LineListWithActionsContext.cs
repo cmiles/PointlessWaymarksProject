@@ -28,7 +28,8 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         private Command _editSelectedContentCommand;
         private Command _extractNewLinksInSelectedCommand;
         private Command _generateSelectedHtmlCommand;
-        private Command _importFromExcelCommand;
+        private Command _importFromExcelFileCommand;
+        private Command _importFromOpenExcelInstanceCommand;
         private Command _lineLinkCodesToClipboardForSelectedCommand;
         private Command _lineMapCodesToClipboardForSelectedCommand;
         private LineListContext _listContext;
@@ -90,13 +91,24 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
             }
         }
 
-        public Command ImportFromExcelCommand
+        public Command ImportFromExcelFileCommand
         {
-            get => _importFromExcelCommand;
+            get => _importFromExcelFileCommand;
             set
             {
-                if (Equals(value, _importFromExcelCommand)) return;
-                _importFromExcelCommand = value;
+                if (Equals(value, _importFromExcelFileCommand)) return;
+                _importFromExcelFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromOpenExcelInstanceCommand
+        {
+            get => _importFromOpenExcelInstanceCommand;
+            set
+            {
+                if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
+                _importFromOpenExcelInstanceCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -372,8 +384,11 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
             ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
 
-            ImportFromExcelCommand =
+            ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
+            ImportFromOpenExcelInstanceCommand =
+                StatusContext.RunBlockingTaskCommand(async () =>
+                    await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
         }

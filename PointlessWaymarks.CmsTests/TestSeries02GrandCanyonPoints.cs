@@ -12,8 +12,8 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.ExcelImport;
 using PointlessWaymarks.CmsData.Html;
+using PointlessWaymarks.CmsData.Import;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsData.Spatial.Elevation;
 
@@ -111,10 +111,10 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(testFile.Exists, "Test File Found");
 
             var importResult =
-                await ExcelContentImports.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
+                await ContentImport.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
             Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
 
-            var (hasError, _) = await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult,
+            var (hasError, _) = await ContentImport.SaveAndGenerateHtmlFromExcelImport(importResult,
                 DebugTrackers.DebugProgressTracker());
 
             Assert.False(hasError);
@@ -135,7 +135,7 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(testFile.Exists, "Test File Found");
 
             var importResult =
-                await ExcelContentImports.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
+                await ContentImport.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
             Assert.True(importResult.HasError,
                 "Expected a validation failure due to duplicate slug but not detected...");
         }
@@ -148,7 +148,7 @@ namespace PointlessWaymarks.CmsTests
             Assert.True(testFile.Exists, "Test File Found");
 
             var importResult =
-                await ExcelContentImports.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
+                await ContentImport.ImportFromFile(testFile.FullName, DebugTrackers.DebugProgressTracker());
             Assert.True(importResult.HasError,
                 "Expected a validation failure due to duplicate slug but not detected...");
         }

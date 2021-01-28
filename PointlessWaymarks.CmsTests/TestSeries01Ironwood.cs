@@ -12,9 +12,9 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.ExcelImport;
 using PointlessWaymarks.CmsData.Html;
 using PointlessWaymarks.CmsData.Html.CommonHtml;
+using PointlessWaymarks.CmsData.Import;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -236,12 +236,12 @@ namespace PointlessWaymarks.CmsTests
             workbook.Save();
 
             var importResult =
-                await ExcelContentImports.ImportFromFile(excelFileExport.FullName,
+                await ContentImport.ImportFromFile(excelFileExport.FullName,
                     DebugTrackers.DebugProgressTracker());
             Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
             Assert.AreEqual(2, importResult.ToUpdate.Count, "Unexpected number of rows to update");
 
-            var (hasError, _) = await ExcelContentImports.SaveAndGenerateHtmlFromExcelImport(importResult,
+            var (hasError, _) = await ContentImport.SaveAndGenerateHtmlFromExcelImport(importResult,
                 DebugTrackers.DebugProgressTracker());
 
             Assert.False(hasError);

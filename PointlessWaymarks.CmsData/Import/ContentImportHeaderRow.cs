@@ -2,13 +2,13 @@
 using System.Linq;
 using ClosedXML.Excel;
 
-namespace PointlessWaymarks.CmsData.ExcelImport
+namespace PointlessWaymarks.CmsData.Import
 {
-    public class ExcelHeaderRow
+    public class ContentImportHeaderRow
     {
-        public ExcelHeaderRow(List<string> headerRow)
+        public ContentImportHeaderRow(List<string> headerRow)
         {
-            Columns = new List<ExcelImportColumn>();
+            Columns = new List<ContentImportColumn>();
             if (!headerRow.Any()) return;
 
             foreach (var loopCells in headerRow)
@@ -17,18 +17,18 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 
                 if (string.IsNullOrWhiteSpace(columnStringValue)) continue;
 
-                Columns.Add(new ExcelImportColumn
+                Columns.Add(new ContentImportColumn
                 {
                     ColumnHeader = columnStringValue,
-                    ExcelSheetColumn = headerRow.IndexOf(loopCells)
+                    ColumnNumber = headerRow.IndexOf(loopCells)
                 });
             }
         }
 
-        public ExcelHeaderRow(IXLRangeRow headerRow)
+        public ContentImportHeaderRow(IXLRangeRow headerRow)
         {
-            Columns = new List<ExcelImportColumn>();
-            if (headerRow == null || !headerRow.Cells().Any()) return;
+            Columns = new List<ContentImportColumn>();
+            if (!headerRow.Cells().Any()) return;
 
             foreach (var loopCells in headerRow.Cells())
             {
@@ -36,13 +36,13 @@ namespace PointlessWaymarks.CmsData.ExcelImport
 
                 if (string.IsNullOrWhiteSpace(columnStringValue)) continue;
 
-                Columns.Add(new ExcelImportColumn
+                Columns.Add(new ContentImportColumn
                 {
-                    ColumnHeader = columnStringValue, ExcelSheetColumn = loopCells.WorksheetColumn().ColumnNumber()
+                    ColumnHeader = columnStringValue, ColumnNumber = loopCells.WorksheetColumn().ColumnNumber()
                 });
             }
         }
 
-        public List<ExcelImportColumn> Columns { get; set; }
+        public List<ContentImportColumn> Columns { get; }
     }
 }
