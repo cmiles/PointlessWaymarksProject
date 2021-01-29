@@ -12,6 +12,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.HelpDisplay"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:pointContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PointContentEditor"
     xmlns:pointDetailEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PointDetailEditor"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
@@ -80,7 +81,7 @@
                     <wpf:WebView2
                         x:Name="PointContentWebView"
                         Grid.Row="1"
-                        CoreWebView2Ready="PointContentWebView_OnCoreWebView2Ready"
+                        CoreWebView2InitializationCompleted="PointContentWebView_OnCoreWebView2InitializationCompleted"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
                 </Grid>
             </TabItem>

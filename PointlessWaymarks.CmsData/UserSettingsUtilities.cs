@@ -9,9 +9,9 @@ using Amazon;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Html;
 using PointlessWaymarks.CmsData.Json;
 
 namespace PointlessWaymarks.CmsData

@@ -44,18 +44,15 @@
  - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site - or maybe look for other PDF generation strategies
  - How hard would it be to create a GridSplitter that would be easy to set the initial split based off of the last editor use - and/or that could completely hide content to one side with a shortcut
  
- 
 ## Notes
 
-1/14/2021
+1/28/2021
 
-Published another post on PointlessWaymarks - in working thru that:
- - Adjusted the geo types not to by default be on the Index page - for me this is the correct default
- - Found that the Point List 'map link' button produced was wired to the 'link' command - fixed
- - Added GeoJson from clipboard. The scenario here is an edit in an GeoJson editor where you can copy out the GeoJson to the clipboard and now avoid saving a file. I have not opened the raw GeoJson view to edits because I want to push myself and users to do that in an appropriate program - but having that view is paying off because copying from there into a GeoJson editor has been useful.
- - Added Additional GeoJson 'formatting' so that you can link from your feature to somewhere else - put in a [[self]] tag that allows linking to the page for that GeoJson for use when you are using an embedded map. This was slightly hard to decide on data and feature wise but I think this is a decent start.
- - Added Fee and Driving Direction point details - this was both for the Crow Wash point but also thinking forward to HikeLemmon conversion.
- - Continued nullable work
+Recently found two good articles Rick Strahl did on the WebView2 - [Taking the new Chromium WebView2 Control for a Spin in .NET - Part 1 - Rick Strahl's Web Log](https://weblog.west-wind.com/posts/2021/Jan/14/Taking-the-new-Chromium-WebView2-Control-for-a-Spin-in-NET-Part-1) and [Chromium WebView2 Control and .NET to JavaScript Interop - Part 2 - Rick Strahl's Web Log](https://weblog.west-wind.com/posts/2021/Jan/26/Chromium-WebView2-Control-and-NET-to-JavaScript-Interop-Part-2) - great info on the control.
+
+Oddly since I just found the Rick Strahl article I am now having problems with code directed towards the WebView2 control opening in the Edge browser instead - could be something with the latest preview.
+
+Refactored code so that some of the code like the Bracket Codes is easier to find - in the process broke some of the T4 templates, Resharper didn't autofix the custom namespacing in the project files...
 
 1/27/2021
 
@@ -78,6 +75,16 @@ Did additional work on the GeoJson title/title-link changing 'link' to 'title-li
 Did some small test fixes.
 
 More nullable work - pushed the number of warnings under 100. The variety of problems is a great learning experience - quite a bit to consider on how to take best advantage of this feature in future code.
+
+1/14/2021
+
+Published another post on PointlessWaymarks - in working thru that:
+ - Adjusted the geo types not to by default be on the Index page - for me this is the correct default
+ - Found that the Point List 'map link' button produced was wired to the 'link' command - fixed
+ - Added GeoJson from clipboard. The scenario here is an edit in an GeoJson editor where you can copy out the GeoJson to the clipboard and now avoid saving a file. I have not opened the raw GeoJson view to edits because I want to push myself and users to do that in an appropriate program - but having that view is paying off because copying from there into a GeoJson editor has been useful.
+ - Added Additional GeoJson 'formatting' so that you can link from your feature to somewhere else - put in a [[self]] tag that allows linking to the page for that GeoJson for use when you are using an embedded map. This was slightly hard to decide on data and feature wise but I think this is a decent start.
+ - Added Fee and Driving Direction point details - this was both for the Crow Wash point but also thinking forward to HikeLemmon conversion.
+ - Continued nullable work
 
 1/12/2021
 

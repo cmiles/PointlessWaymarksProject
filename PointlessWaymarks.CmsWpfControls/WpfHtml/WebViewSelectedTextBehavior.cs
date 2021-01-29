@@ -34,7 +34,7 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 
         protected override void OnAttached()
         {
-            AssociatedObject.CoreWebView2Ready += OnReady;
+            AssociatedObject.CoreWebView2InitializationCompleted += OnReady;
             AssociatedObject.WebMessageReceived += MessageReceived;
         }
 

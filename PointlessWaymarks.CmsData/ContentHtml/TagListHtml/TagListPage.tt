@@ -1,0 +1,49 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="CommonHtml" #>
+<!DOCTYPE html>
+<html lang="en">
+<head data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
+    <meta charset="utf-8">
+    <title>Tag List</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <#= Tags.CssStyleFileString() #>
+    <#= Tags.FavIconFileString() #>
+</head>
+<body>
+    <#= Tags.StandardHeader().ToString() #>
+    <#= HorizontalRule.StandardRule() #>
+    <div class="search-input-container">
+        <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search Tags...">
+    </div>
+    <#= TagList() #>
+    <#= HorizontalRule.StandardRule() #>
+    <#= Footer.StandardFooterDiv() #>
+
+<script>
+    function searchContent() {
+      // Declare variables
+      var input, filterText, contentDivs, loopDiv, i, divDataText;
+      input = document.getElementById('userSearchText');
+      filterText = input.value.toUpperCase();
+      contentDivs = document.getElementsByClassName('tag-list-item');
+
+      // Loop through all list items, and hide those who don't match the search query
+      for (i = 0; i < contentDivs.length; i++) {
+        loopDiv = contentDivs[i];
+	    divTagName = loopDiv.getAttribute('data-tagname').toUpperCase();
+	    divTagSlug = loopDiv.getAttribute('data-tagslug').toUpperCase();
+
+        if (divTagName.indexOf(filterText) > -1 || divTagSlug.indexOf(filterText) > -1 ) {
+		    loopDiv.style.display = "";
+        } else {
+		    loopDiv.style.display = "none";
+        }
+      }
+    }
+</script>
+
+</body>
+
+</html>

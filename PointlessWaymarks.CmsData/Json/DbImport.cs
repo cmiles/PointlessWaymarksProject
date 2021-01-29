@@ -5,7 +5,7 @@ using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarksCmsData.Json
+namespace PointlessWaymarks.CmsData.Json
 {
     public static class DbImport
     {

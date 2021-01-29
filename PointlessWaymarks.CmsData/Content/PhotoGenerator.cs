@@ -10,10 +10,10 @@ using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
 using MetadataExtractor.Formats.Xmp;
 using Omu.ValueInjecter;
+using PointlessWaymarks.CmsData.ContentHtml;
+using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Html;
-using PointlessWaymarks.CmsData.Html.PhotoHtml;
 using PointlessWaymarks.CmsData.Json;
 using XmpCore;
 

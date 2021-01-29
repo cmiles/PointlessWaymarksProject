@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using AngleSharp;
 using pinboard.net;
 using pinboard.net.Models;
+using PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Html.LinkListHtml;
 
 namespace PointlessWaymarks.CmsData.Content
 {

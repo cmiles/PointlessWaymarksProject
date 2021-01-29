@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using PointlessWaymarks.CmsData.Html.NoteHtml;
+using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 
 namespace PointlessWaymarks.CmsData.Database.Models
 {

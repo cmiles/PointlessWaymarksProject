@@ -34,7 +34,7 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
         protected override void OnAttached()
         {
             AssociatedObject.Loaded += OnLoaded;
-            AssociatedObject.CoreWebView2Ready += OnReady;
+            AssociatedObject.CoreWebView2InitializationCompleted += OnReady;
         }
 
         private static async void OnJsonDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

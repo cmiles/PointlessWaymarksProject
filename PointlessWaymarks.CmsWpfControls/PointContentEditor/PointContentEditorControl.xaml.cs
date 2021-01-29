@@ -43,7 +43,8 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             await PointContentWebView.EnsureCoreWebView2Async();
         }
 
-        private void PointContentWebView_OnCoreWebView2Ready(object sender, EventArgs e)
+        private void PointContentWebView_OnCoreWebView2InitializationCompleted(object sender,
+            CoreWebView2InitializationCompletedEventArgs e)
         {
             _webViewWorkQueue.Suspend(false);
 

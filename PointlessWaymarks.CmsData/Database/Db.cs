@@ -6,10 +6,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
+using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
-using PointlessWaymarks.CmsData.Html;
-using PointlessWaymarks.CmsData.Html.CommonHtml;
 using PointlessWaymarks.CmsData.Spatial;
 
 namespace PointlessWaymarks.CmsData.Database

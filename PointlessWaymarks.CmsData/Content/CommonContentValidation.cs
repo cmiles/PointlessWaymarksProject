@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
+using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Html;
-using PointlessWaymarks.CmsData.Html.CommonHtml;
 
 namespace PointlessWaymarks.CmsData.Content
 {

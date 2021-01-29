@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
 using PointlessWaymarks.CmsData;
@@ -30,7 +31,7 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
         protected override void OnAttached()
         {
             AssociatedObject.Loaded += OnLoaded;
-            AssociatedObject.CoreWebView2Ready += OnReady;
+            AssociatedObject.CoreWebView2InitializationCompleted += OnReady;
         }
 
         private static async void OnHtmlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -93,7 +94,9 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
-            await AssociatedObject.EnsureCoreWebView2Async();
+            var webViewEnvironment = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(
+                UserSettingsUtilities.TempStorageHtmlDirectory().FullName));
+            await AssociatedObject.EnsureCoreWebView2Async(webViewEnvironment);
         }
 
         private async void OnReady(object sender, EventArgs e)
