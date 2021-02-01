@@ -46,6 +46,12 @@
  
 ## Notes
 
+2/1/2021
+
+Fixed a WebView2 related bug where the behavior to open external links in desktop browser (used so the the pane with the content preview always stays the content preview) was caught by a change in the navigation events where IsUserInitiated now returns false when the navigation is triggered in C# code - this took a little troubleshooting and working with the preview WebView2 so far still seems worth the cost.
+
+Updated the in program preview code to be able to display a GeoJson content map. It would be nice to refactor this code - I think an obvious route forward might be using  SetVirtualHostNameToFolderMapping but getting errors from that atm...
+
 1/28/2021
 
 Recently found two good articles Rick Strahl did on the WebView2 - [Taking the new Chromium WebView2 Control for a Spin in .NET - Part 1 - Rick Strahl's Web Log](https://weblog.west-wind.com/posts/2021/Jan/14/Taking-the-new-Chromium-WebView2-Control-for-a-Spin-in-NET-Part-1) and [Chromium WebView2 Control and .NET to JavaScript Interop - Part 2 - Rick Strahl's Web Log](https://weblog.west-wind.com/posts/2021/Jan/26/Chromium-WebView2-Control-and-NET-to-JavaScript-Interop-Part-2) - great info on the control.
