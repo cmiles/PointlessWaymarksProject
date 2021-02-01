@@ -84,6 +84,27 @@ async function singleGeoJsonMapInit(mapElement, contentId) {
     newMapLayer.addTo(map);
 }
 
+async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
+
+    let map = L.map(mapElement,
+        {
+            layers: [openTopoMapLayer()],
+            doubleClickZoom: false,
+            gestureHandling: true
+        });
+
+    map.fitBounds([
+        [geoJsonData.Bounds.InitialViewBoundsMinLatitude, geoJsonData.Bounds.InitialViewBoundsMinLongitude],
+        [geoJsonData.Bounds.InitialViewBoundsMaxLatitude, geoJsonData.Bounds.InitialViewBoundsMaxLongitude]
+    ]);
+
+    let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
+        onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
+    });
+
+    newMapLayer.addTo(map);
+}
+
 async function singleLineMapInit(mapElement, contentId) {
 
     let lineDataResponse = await fetch(`/Lines/Data/Line-${contentId}.json`);

@@ -151,7 +151,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             input = BracketCodeFileDownloads.Process(input, progress);
             input = BracketCodeFiles.Process(input, progress);
             input = BracketCodeFileImage.ProcessForDirectLocalAccess(input, progress);
-            input = BracketCodeGeoJson.Process(input, progress);
+            input = BracketCodeGeoJson.ProcessForDirectLocalAccess(input, progress);
             input = BracketCodeGeoJsonLinks.Process(input, progress);
             input = BracketCodeImages.ProcessForDirectLocalAccess(input, progress);
             input = BracketCodeImageLinks.Process(input, progress);

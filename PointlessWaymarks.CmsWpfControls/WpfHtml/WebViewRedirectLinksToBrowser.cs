@@ -1,6 +1,8 @@
-﻿using Microsoft.Web.WebView2.Core;
+﻿using System;
+using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfHtml
@@ -23,6 +25,10 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
             }
 
             if (string.IsNullOrWhiteSpace(e.Uri)) return;
+
+            var localTempHtml = new Uri(UserSettingsUtilities.TempStorageHtmlDirectory().FullName).AbsoluteUri;
+
+            if (e.Uri.Contains(localTempHtml)) return;
 
             e.Cancel = true;
             ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);

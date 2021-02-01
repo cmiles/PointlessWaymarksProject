@@ -921,6 +921,20 @@ namespace PointlessWaymarks.CmsData.Content
             }
         }
 
+        public static async Task<string> SpatialScriptsAsString()
+        {
+            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+            var siteResources = embeddedProvider.GetDirectoryContents("")
+                .Single(x => x.Name.Contains("pointless-waymarks-spatial-common"));
+
+            await using var stream = siteResources.CreateReadStream();
+            using StreamReader reader = new(stream);
+            var spatialScript = await reader.ReadToEndAsync();
+
+            return spatialScript;
+        }
+
         /// <summary>
         ///     Verify or Create all top level folders for a site - includes both local only directories like the Media Archive and
         ///     the top level folders for the generated site.

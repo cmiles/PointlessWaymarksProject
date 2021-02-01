@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.Encodings.Web;
 using Microsoft.Extensions.FileProviders;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Content;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 {
@@ -95,6 +96,8 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
 
         public static string ToHtmlDocument(this string body, string title, string styleBlock)
         {
+            var spatialScript = FileManagement.SpatialScriptsAsString().Result;
+
             var htmlDoc = $@"
 <!doctype html>
 <html lang=en>
@@ -104,6 +107,15 @@ namespace PointlessWaymarks.CmsWpfControls.WpfHtml
     <meta charset=""utf-8"">
     <title>{HtmlEncoder.Default.Encode(title)}</title>
     <style>{styleBlock}</style>
+    <link rel=""stylesheet"" href=""https://unpkg.com/leaflet@1.7.1/dist/leaflet.css""
+       integrity=""sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==""
+       crossorigin=""""/>
+    <script src=""https://unpkg.com/leaflet@1.7.1/dist/leaflet.js""
+       integrity=""sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==""
+       crossorigin=""""></script>
+    <script>
+{spatialScript}
+    </script>
 </head>
 <body>
     {body}
