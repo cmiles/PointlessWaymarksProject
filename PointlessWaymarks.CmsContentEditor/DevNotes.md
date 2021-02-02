@@ -50,7 +50,7 @@
 
 Fixed a WebView2 related bug where the behavior to open external links in desktop browser (used so the the pane with the content preview always stays the content preview) was caught by a change in the navigation events where IsUserInitiated now returns false when the navigation is triggered in C# code - this took a little troubleshooting and working with the preview WebView2 so far still seems worth the cost.
 
-Updated the in program preview code to be able to display a GeoJson content map. It would be nice to refactor this code - I think an obvious route forward might be using  SetVirtualHostNameToFolderMapping but getting errors from that atm...
+Updated the in program preview code to be able to display a GeoJson, Line and Point content map and fixed an issue where multiple of the same map would cause an error in initialization because the maps had the same id - fixed in the bracket code with a new loop to uniquely identify each map. It would be nice to refactor this code - I think an obvious route forward might be using  SetVirtualHostNameToFolderMapping but getting errors from that atm...
 
 1/28/2021
 

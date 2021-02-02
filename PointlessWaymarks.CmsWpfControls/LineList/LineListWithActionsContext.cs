@@ -405,7 +405,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
 
             var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
                 (current, loopSelected) =>
-                    current + @$"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+                    current + @$"{BracketCodeLines.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

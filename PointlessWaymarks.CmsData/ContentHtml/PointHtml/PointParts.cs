@@ -258,6 +258,19 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
             return tag + script;
         }
 
+        public static string PointDivAndScriptForDirectLocalAccess(string pointSlug)
+        {
+            var divScriptGuidConnector = Guid.NewGuid();
+
+            var tag =
+                $"<div id=\"Point-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
+
+            var script =
+                $"<script>lazyInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), () => singlePointMapInitFromPointData(document.querySelector(\"#Point-{divScriptGuidConnector}\"), \"{pointSlug}\", {PointData.JsonDataToString().Result}))</script>";
+
+            return tag + script;
+        }
+
         public static HtmlTag PointTextInfoDiv(PointContentDto point)
         {
             var container = new DivTag().AddClass("point-text-info-container");

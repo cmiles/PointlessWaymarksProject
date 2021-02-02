@@ -65,23 +65,7 @@ async function singleGeoJsonMapInit(mapElement, contentId) {
 
     const geoJsonData = await geoJsonDataResponse.json();
 
-    let map = L.map(mapElement,
-        {
-            layers: [openTopoMapLayer()],
-            doubleClickZoom: false,
-            gestureHandling: true
-        });
-
-    map.fitBounds([
-        [geoJsonData.Bounds.InitialViewBoundsMinLatitude, geoJsonData.Bounds.InitialViewBoundsMinLongitude],
-        [geoJsonData.Bounds.InitialViewBoundsMaxLatitude, geoJsonData.Bounds.InitialViewBoundsMaxLongitude]
-    ]);
-
-    let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
-        onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
-    });
-
-    newMapLayer.addTo(map);
+    singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData);
 }
 
 async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
@@ -112,6 +96,11 @@ async function singleLineMapInit(mapElement, contentId) {
         throw new Error(lineDataResponse.statusText);
 
     let lineData = await lineDataResponse.json();
+
+    singleLineMapInitFromLineData(mapElement, lineData);
+}
+
+async function singleLineMapInitFromLineData(mapElement, lineData) {
 
     let map = L.map(mapElement,
         {
@@ -226,6 +215,11 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
         throw new Error(response.statusText);
 
     let pointData = await response.json();
+
+    singlePointMapInitFromPointData(mapElement, displayedPointSlug, pointData);
+};
+
+async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, pointData) {
 
     let pagePoint = pointData.filter(x => x.Slug === displayedPointSlug)[0];
 

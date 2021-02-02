@@ -64,7 +64,35 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 progress?.Report($"Adding point {dbContent.Title} from Code");
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText, PointParts.PointDivAndScript(dbContent.Slug));
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
+                    () => PointParts.PointDivAndScript(dbContent.Slug));
+            }
+
+            return toProcess;
+        }
+
+
+        public static string ProcessForDirectLocalAccess(string toProcess, IProgress<string>? progress = null)
+        {
+            if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+            progress?.Report("Searching for Point Codes...");
+
+            var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
+
+            if (!resultList.Any()) return toProcess;
+
+            var context = Db.Context().Result;
+
+            foreach (var loopMatch in resultList)
+            {
+                var dbContent = context.PointContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                if (dbContent?.Slug == null) continue;
+
+                progress?.Report($"Adding point {dbContent.Title} from Code");
+
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText, () =>
+                    PointParts.PointDivAndScriptForDirectLocalAccess(dbContent.Slug));
             }
 
             return toProcess;

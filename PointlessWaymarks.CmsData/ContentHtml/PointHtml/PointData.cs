@@ -11,14 +11,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
 {
     public static class PointData
     {
-        public static async Task WriteJsonData()
+        public static async Task<string> JsonDataToString()
         {
             var db = await Db.Context();
             var allPointIds = await db.PointContents.Select(x => x.ContentId).ToListAsync();
             var extendedPointInformation = await Db.PointAndPointDetails(allPointIds, db);
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var pointJson = JsonSerializer.Serialize(extendedPointInformation.Select(x =>
+            return JsonSerializer.Serialize(extendedPointInformation.Select(x =>
                 new
                 {
                     x.ContentId,
@@ -29,8 +29,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
                     PointPageUrl = settings.PointPageUrl(x),
                     DetailTypeString = string.Join(", ", PointDetailUtilities.PointDtoTypeList(x))
                 }).ToList());
+        }
 
-            var dataFileInfo = new FileInfo($"{settings.LocalSitePointDataFile()}");
+        public static async Task WriteJsonData()
+        {
+            var pointJson = await JsonDataToString();
+
+            var dataFileInfo = new FileInfo($"{UserSettingsSingleton.CurrentSettings().LocalSitePointDataFile()}");
 
             if (dataFileInfo.Exists)
             {

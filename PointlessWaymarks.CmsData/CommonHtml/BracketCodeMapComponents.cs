@@ -61,7 +61,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 progress?.Report($"Adding mapComponent {dbContent.Title} from Code");
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText, MapParts.MapDivAndScript(dbContent));
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText, () => MapParts.MapDivAndScript(dbContent));
             }
 
             return toProcess;

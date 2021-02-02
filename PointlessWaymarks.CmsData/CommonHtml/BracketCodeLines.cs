@@ -64,8 +64,34 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 progress?.Report($"Adding Line {dbContent.Title} from Code");
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText,
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText, () =>
                     LineParts.LineDivAndScriptWithCaption(dbContent));
+            }
+
+            return toProcess;
+        }
+
+        public static string ProcessForDirectLocalAccess(string toProcess, IProgress<string>? progress = null)
+        {
+            if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
+
+            progress?.Report("Searching for Line Codes...");
+
+            var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
+
+            if (!resultList.Any()) return toProcess;
+
+            var context = Db.Context().Result;
+
+            foreach (var loopMatch in resultList)
+            {
+                var dbContent = context.LineContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                if (dbContent == null) continue;
+
+                progress?.Report($"Adding Line {dbContent.Title} from Code");
+
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText, () =>
+                    LineParts.LineDivAndScriptWithCaptionForDirectLocalAccess(dbContent));
             }
 
             return toProcess;

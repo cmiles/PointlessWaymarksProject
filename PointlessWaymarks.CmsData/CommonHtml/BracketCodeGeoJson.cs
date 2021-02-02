@@ -65,7 +65,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 progress?.Report($"Adding GeoJson {dbContent.Title} from Code");
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText,
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText, () =>
                     GeoJsonParts.GeoJsonDivAndScriptWithCaption(dbContent));
             }
 
@@ -91,7 +91,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 progress?.Report($"Adding GeoJson {dbContent.Title} from Code");
 
-                toProcess = toProcess.Replace(loopMatch.bracketCodeText,
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText, () =>
                     GeoJsonParts.GeoJsonDivAndScriptWithCaptionForDirectLocalAccess(dbContent));
             }
 

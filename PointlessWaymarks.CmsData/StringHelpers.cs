@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Web;
+using AngleSharp.Text;
 
 namespace PointlessWaymarks.CmsData
 {
@@ -99,6 +100,21 @@ namespace PointlessWaymarks.CmsData
         public static string RemoveNewLines(this string toProcess)
         {
             return toProcess.Replace("\n", "").Replace("\r", "");
+        }
+
+        public static string ReplaceEach(this string text, string search, Func<string> replacementGenerator)
+        {
+            var returnString = text;
+            while (returnString.Contains(search))
+                returnString = StringExtensions.ReplaceFirst(returnString, search, replacementGenerator());
+
+            return returnString;
+        }
+
+        public static string ReplaceFirst(this string text, string search, string replace)
+        {
+            var length = text.IndexOf(search, StringComparison.Ordinal);
+            return length < 0 ? text : text[..length] + replace + text[(length + search.Length)..];
         }
 
         /// <summary>
