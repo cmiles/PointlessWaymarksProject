@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.5.7.11" />
+    <PackageReference Include="AWSSDK.S3" Version="3.5.7.12" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
     <PackageReference Include="CompareNETObjects" Version="4.71.0" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
