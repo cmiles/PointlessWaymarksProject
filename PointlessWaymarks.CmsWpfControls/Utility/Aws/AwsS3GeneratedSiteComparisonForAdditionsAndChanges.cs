@@ -37,6 +37,12 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.Aws
             var bucket = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
             var region = UserSettingsSingleton.CurrentSettings().SiteS3BucketEndpoint();
 
+            if (region == null)
+            {
+                returnReport.ErrorMessages.Add("Amazon S3 Bucket Endpoint (region) not filled?");
+                return returnReport;
+            }
+
             progress?.Report("Getting list of all generated files");
 
             var allGeneratedFiles = new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootDirectory)

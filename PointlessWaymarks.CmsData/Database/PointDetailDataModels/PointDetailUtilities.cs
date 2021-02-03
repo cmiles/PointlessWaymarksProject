@@ -17,7 +17,8 @@ namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
                 "Peak" => "Peak",
                 "Restroom" => "Restroom",
                 "TrailJunction" => "Trail Junction",
-                "Feature" => JsonSerializer.Deserialize<Feature>(detail.StructuredDataAsJson)?.Type ?? string.Empty,
+                "Feature" => JsonSerializer.Deserialize<Feature>(detail.StructuredDataAsJson ?? string.Empty)?.Type ??
+                             string.Empty,
                 _ => string.Empty
             };
         }

@@ -20,8 +20,9 @@ namespace PointlessWaymarks.CmsData.Content
             htmlContext.WriteLocalHtml();
         }
 
-        public static async Task<(GenerationReturn generationReturn, PointContentDto pointContent)> SaveAndGenerateHtml(
-            PointContentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
+        public static async Task<(GenerationReturn generationReturn, PointContentDto? pointContent)>
+            SaveAndGenerateHtml(
+                PointContentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
 
@@ -31,11 +32,12 @@ namespace PointlessWaymarks.CmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             var savedPoint = await Db.SavePointContent(toSave);
-            GenerateHtml(savedPoint, generationVersion, progress);
-            await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint).content);
+
+            GenerateHtml(savedPoint!, generationVersion, progress);
+            await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content);
 
             DataNotifications.PublishDataNotification("Point Generator", DataNotificationContentType.Point,
-                DataNotificationUpdateType.LocalContent, new List<Guid> {savedPoint.ContentId});
+                DataNotificationUpdateType.LocalContent, new List<Guid> {savedPoint!.ContentId});
 
             return (GenerationReturn.Success($"Saved and Generated Content And Html for {savedPoint.Title}"),
                 savedPoint);
@@ -88,6 +90,12 @@ namespace PointlessWaymarks.CmsData.Content
                 {
                     var content =
                         Db.PointDetailDataFromIdentifierAndJson(loopDetails.DataType, loopDetails.StructuredDataAsJson);
+
+                    if (content == null)
+                        return GenerationReturn.Error(
+                            $"{loopDetails.DataType} Point Detail returned null?",
+                            pointContent.ContentId);
+
                     var (isValid, validationMessage) = content.Validate();
 
                     if (!isValid)

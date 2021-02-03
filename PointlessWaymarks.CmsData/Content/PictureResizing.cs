@@ -39,7 +39,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var sourceFileReference =
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(dbEntry);
-            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference);
+            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference!);
 
             if (currentFiles?.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
                 deleteAll)
@@ -74,7 +74,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var sourceFileReference =
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(dbEntry);
-            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference);
+            var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference!);
 
             if (currentFiles?.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
                 deleteAll)

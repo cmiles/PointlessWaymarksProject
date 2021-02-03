@@ -15,7 +15,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 {
     public partial class SearchListPage
     {
-        public SearchListPage(string rssUrl, Func<List<object>> contentFunction, string listTitle, DateTime? generationVersion)
+        public SearchListPage(string rssUrl, Func<List<object>> contentFunction, string listTitle,
+            DateTime? generationVersion)
         {
             RssUrl = rssUrl;
             ContentFunction = contentFunction;

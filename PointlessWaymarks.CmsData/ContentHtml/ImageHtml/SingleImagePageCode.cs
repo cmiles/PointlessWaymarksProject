@@ -43,6 +43,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ImageHtml
 
             var htmlFileInfo = settings.LocalSiteImageHtmlFile(DbEntry);
 
+            if (htmlFileInfo == null)
+            {
+                var toThrow =
+                    new Exception("The Image DbEntry did not have valid information to determine a file for the html");
+                toThrow.Data.Add("Line DbEntry", ObjectDumper.Dump(DbEntry));
+                throw toThrow;
+            }
+
             if (htmlFileInfo.Exists)
             {
                 htmlFileInfo.Delete();

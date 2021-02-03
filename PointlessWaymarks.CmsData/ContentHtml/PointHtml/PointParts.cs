@@ -50,6 +50,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
 
             foreach (var loopDetail in dbEntry.PointDetails)
             {
+                if (string.IsNullOrWhiteSpace(loopDetail.DataType)) continue;
+                if (string.IsNullOrWhiteSpace(loopDetail.StructuredDataAsJson)) continue;
+
                 var outerDiv = new DivTag().AddClass("point-detail-container");
                 var typeLine = new HtmlTag("p").Text(loopDetail.DataType).AddClass("point-detail-type");
                 outerDiv.Children.Add(typeLine);

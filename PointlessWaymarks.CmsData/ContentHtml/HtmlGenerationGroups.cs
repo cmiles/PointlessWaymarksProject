@@ -1172,7 +1172,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                     break;
                 case PointContent point:
                     var dto = await Db.PointAndPointDetails(point.ContentId);
-                    PointGenerator.GenerateHtml(dto, generationVersion, progress);
+                    PointGenerator.GenerateHtml(dto!, generationVersion, progress);
                     break;
                 case PostContent post:
                     PostGenerator.GenerateHtml(post, generationVersion, progress);
@@ -1253,13 +1253,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             var db = await Db.Context();
 
-            foreach (var loopTags in tagData)
-            foreach (var loopContent in loopTags.contentObjects)
+            foreach (var (tag, contentObjects) in tagData)
+            foreach (var loopContent in contentObjects)
                 await db.GenerationTagLogs.AddAsync(new GenerationTagLog
                 {
                     GenerationVersion = currentGenerationVersion,
                     RelatedContentId = loopContent.ContentId,
-                    TagSlug = loopTags.tag
+                    TagSlug = tag
                 });
 
             await db.SaveChangesAsync(true);

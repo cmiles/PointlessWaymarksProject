@@ -9,7 +9,7 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class TagExclusionGenerator
     {
-        public static async Task<(GenerationReturn generationReturn, TagExclusion returnContent)> Save(
+        public static async Task<(GenerationReturn generationReturn, TagExclusion? returnContent)> Save(
             TagExclusion toSave)
         {
             var validationResult = await Validate(toSave);

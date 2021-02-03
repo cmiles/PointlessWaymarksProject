@@ -22,7 +22,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             foreach (var loopItems in items)
             {
                 var html = ContentProcessing.ProcessContent(
-                    BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag, progress),
+                    BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag ?? string.Empty, progress),
                     ContentFormatEnum.MarkdigMarkdown01);
 
                 var coreLinkContainer = new DivTag().AddClass("core-links-item").Text(html).Encoded(false);

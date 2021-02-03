@@ -42,7 +42,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             var htmlString = stringWriter.ToString();
 
             var htmlFileInfo = settings.LocalSitePhotoHtmlFile(DbEntry);
-            
+
             if (htmlFileInfo == null)
             {
                 var toThrow =

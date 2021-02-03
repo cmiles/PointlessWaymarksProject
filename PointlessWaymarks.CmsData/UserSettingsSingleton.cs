@@ -2,7 +2,7 @@
 {
     public static class UserSettingsSingleton
     {
-        private static UserSettings _userSettings;
+        private static UserSettings? _userSettings;
 
         public static UserSettings CurrentSettings()
         {
