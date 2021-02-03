@@ -20,14 +20,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
             SiteName = settings.SiteName;
             PageUrl = settings.FilePageUrl(DbEntry);
 
-            var db = Db.Context().Result;
-
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
         }
 
         public FileContent DbEntry { get; set; }
-        public DateTime? GenerationVersion { get; set; }
-        public PictureSiteInformation MainImage { get; }
+        public DateTime? GenerationVersion { get; init; }
+        public PictureSiteInformation? MainImage { get; }
         public string PageUrl { get; set; }
         public string SiteName { get; set; }
         public string SiteUrl { get; set; }
@@ -44,9 +42,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
 
             var htmlString = stringWriter.ToString();
 
-            var htmlFileInfo =
-                new FileInfo(
-                    $"{Path.Combine(settings.LocalSiteFileContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
+            var htmlFileInfo = settings.LocalSiteFileHtmlFile(DbEntry);
+
+            if (htmlFileInfo == null)
+            {
+                var toThrow =
+                    new Exception("The File DbEntry did not have valid information to determine a file for the html");
+                toThrow.Data.Add("File DbEntry", ObjectDumper.Dump(DbEntry));
+                throw toThrow;
+            }
 
             if (htmlFileInfo.Exists)
             {

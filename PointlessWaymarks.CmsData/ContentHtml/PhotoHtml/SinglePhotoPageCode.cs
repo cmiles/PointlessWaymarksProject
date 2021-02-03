@@ -41,9 +41,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
 
             var htmlString = stringWriter.ToString();
 
-            var htmlFileInfo =
-                new FileInfo(
-                    $"{Path.Combine(settings.LocalSitePhotoContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
+            var htmlFileInfo = settings.LocalSitePhotoHtmlFile(DbEntry);
+            
+            if (htmlFileInfo == null)
+            {
+                var toThrow =
+                    new Exception("The Photo DbEntry did not have valid information to determine a file for the html");
+                toThrow.Data.Add("Photo DbEntry", ObjectDumper.Dump(DbEntry));
+                throw toThrow;
+            }
 
             if (htmlFileInfo.Exists)
             {

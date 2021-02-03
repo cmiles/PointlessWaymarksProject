@@ -24,7 +24,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
 
         public PointContentDto DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }
-        public PictureSiteInformation MainImage { get; }
+        public PictureSiteInformation? MainImage { get; }
         public string PageUrl { get; }
         public string SiteName { get; }
         public string SiteUrl { get; }
@@ -41,9 +41,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
 
             var htmlString = stringWriter.ToString();
 
-            var htmlFileInfo =
-                new FileInfo(
-                    $"{Path.Combine(settings.LocalSitePointContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
+            var htmlFileInfo = settings.LocalSitePointHtmlFile(DbEntry);
+
+            if (htmlFileInfo == null)
+            {
+                var toThrow =
+                    new Exception("The Point DbEntry did not have valid information to determine a file for the html");
+                toThrow.Data.Add("Point DbEntry", ObjectDumper.Dump(DbEntry));
+                throw toThrow;
+            }
 
             if (htmlFileInfo.Exists)
             {

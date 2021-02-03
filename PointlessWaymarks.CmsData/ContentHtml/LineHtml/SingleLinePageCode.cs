@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
+using DocumentFormat.OpenXml.Wordprocessing;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -25,7 +26,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
 
         public LineContent DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }
-        public PictureSiteInformation MainImage { get; }
+        public PictureSiteInformation? MainImage { get; }
         public string PageUrl { get; }
         public string SiteName { get; }
         public string SiteUrl { get; }
@@ -44,9 +45,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
 
             var htmlString = stringWriter.ToString();
 
-            var htmlFileInfo =
-                new FileInfo(
-                    $"{Path.Combine(settings.LocalSiteLineContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
+            var htmlFileInfo = settings.LocalSiteLineHtmlFile(DbEntry);
+
+            if (htmlFileInfo == null)
+            {
+                var toThrow =
+                    new Exception("The Line DbEntry did not have valid information to determine a file for the html");
+                toThrow.Data.Add("Line DbEntry", ObjectDumper.Dump(DbEntry));
+                throw toThrow;
+            }
 
             if (htmlFileInfo.Exists)
             {

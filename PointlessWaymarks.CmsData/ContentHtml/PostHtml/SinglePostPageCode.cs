@@ -21,19 +21,17 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
             SiteName = settings.SiteName;
             PageUrl = settings.PostPageUrl(DbEntry);
 
-            var db = Db.Context().Result;
-
             if (DbEntry.MainPicture != null) MainImage = new PictureSiteInformation(DbEntry.MainPicture.Value);
 
-            var previousLater = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
-            PreviousPosts = previousLater.previousContent;
-            LaterPosts = previousLater.laterContent;
+            var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
+            PreviousPosts = previousContent;
+            LaterPosts = laterContent;
         }
 
         public PostContent DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }
         public List<IContentCommon> LaterPosts { get; }
-        public PictureSiteInformation MainImage { get; }
+        public PictureSiteInformation? MainImage { get; }
         public string PageUrl { get; }
         public List<IContentCommon> PreviousPosts { get; }
         public string SiteName { get; }
@@ -51,9 +49,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
 
             var htmlString = stringWriter.ToString();
 
-            var htmlFileInfo =
-                new FileInfo(
-                    $"{Path.Combine(settings.LocalSitePostContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
+            var htmlFileInfo = settings.LocalSitePostHtmlFile(DbEntry);
+
+            if (htmlFileInfo == null)
+            {
+                var toThrow =
+                    new Exception("The Post DbEntry did not have valid information to determine a file for the html");
+                toThrow.Data.Add("Post DbEntry", ObjectDumper.Dump(DbEntry));
+                throw toThrow;
+            }
 
             if (htmlFileInfo.Exists)
             {

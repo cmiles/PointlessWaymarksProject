@@ -9,23 +9,23 @@ namespace PointlessWaymarks.CmsData
     {
         private string _bingApiKey = string.Empty;
         private string _calTopoApiKey = string.Empty;
-        private string _databaseFile;
-        private string _defaultCreatedBy;
+        private string _databaseFile = string.Empty;
+        private string _defaultCreatedBy = string.Empty;
         private double _latitudeDefault;
-        private string _localMediaArchive;
-        private string _localSiteRootDirectory;
+        private string _localMediaArchive = string.Empty;
+        private string _localSiteRootDirectory = string.Empty;
         private double _longitudeDefault;
-        private string _pdfToCairoExeDirectory;
-        private string _pinboardApiToken;
+        private string _pdfToCairoExeDirectory = string.Empty;
+        private string _pinboardApiToken = string.Empty;
         private Guid _settingsId;
-        private string _siteAuthors;
-        private string _siteEmailTo;
-        private string _siteKeywords;
-        private string _siteName;
-        private string _siteS3Bucket;
-        private string _siteS3BucketRegion;
-        private string _siteSummary;
-        private string _siteUrl;
+        private string _siteAuthors = string.Empty;
+        private string _siteEmailTo = string.Empty;
+        private string _siteKeywords = string.Empty;
+        private string _siteName = string.Empty;
+        private string _siteS3Bucket = string.Empty;
+        private string _siteS3BucketRegion = string.Empty;
+        private string _siteSummary = string.Empty;
+        private string _siteUrl = string.Empty;
 
         public string BingApiKey
         {

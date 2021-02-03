@@ -120,8 +120,8 @@ namespace PointlessWaymarks.CmsTests
                 await NoteGenerator.SaveAndGenerateHtml(contentToSave, null, DebugTrackers.DebugProgressTracker());
             Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
-            var contentComparison = CompareContent(contentReference, newContent);
-            Assert.True(contentComparison.areEqual, contentComparison.comparisonNotes);
+            var (areEqual, comparisonNotes) = CompareContent(contentReference, newContent);
+            Assert.True(areEqual, comparisonNotes);
 
             await CheckForExpectedFilesAfterHtmlGeneration(newContent);
 

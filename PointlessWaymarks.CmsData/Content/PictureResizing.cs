@@ -247,6 +247,15 @@ namespace PointlessWaymarks.CmsData.Content
 
             var targetDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
+            if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+            {
+                var toThrow =
+                    new Exception(
+                        "The Image DbEntry did not have valid information on the Original File Name for the image");
+                toThrow.Data.Add("Post DbEntry", ObjectDumper.Dump(dbEntry));
+                throw toThrow;
+            }
+
             var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
 
             return ResizeForDisplayAndSrcset(sourceImage, overwriteExistingFiles, progress);
@@ -257,7 +266,7 @@ namespace PointlessWaymarks.CmsData.Content
         {
             var fullList = new List<FileInfo>
             {
-                originalImage, ResizeForDisplay(originalImage, overwriteExistingFiles, progress)
+                originalImage, ResizeForDisplay(originalImage, overwriteExistingFiles, progress)!
             };
 
             fullList.AddRange(ResizeForSrcset(originalImage, overwriteExistingFiles, progress));
@@ -283,7 +292,7 @@ namespace PointlessWaymarks.CmsData.Content
                 {
                     progress?.Report($"Resize: {size}, {quality}");
                     returnList.Add(ResizeWithWidthAndHeightFileName(fileToProcess, size,
-                        quality, overwriteExistingFiles, progress));
+                        quality, overwriteExistingFiles, progress)!);
                 }
 
             return returnList;

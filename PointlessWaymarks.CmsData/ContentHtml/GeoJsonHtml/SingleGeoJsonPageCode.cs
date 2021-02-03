@@ -25,7 +25,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
 
         public GeoJsonContent DbEntry { get; }
         public DateTime? GenerationVersion { get; set; }
-        public PictureSiteInformation MainImage { get; }
+        public PictureSiteInformation? MainImage { get; }
         public string PageUrl { get; }
         public string SiteName { get; }
         public string SiteUrl { get; }
@@ -44,9 +44,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
 
             var htmlString = stringWriter.ToString();
 
-            var htmlFileInfo =
-                new FileInfo(
-                    $"{Path.Combine(settings.LocalSiteGeoJsonContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
+            var htmlFileInfo = settings.LocalSiteGeoJsonHtmlFile(DbEntry);
+
+            if (htmlFileInfo == null)
+            {
+                var toThrow =
+                    new Exception("The GeoJson DbEntry did not have valid information to determine a file for the html");
+                toThrow.Data.Add("GeoJson DbEntry", ObjectDumper.Dump(DbEntry));
+                throw toThrow;
+            }
 
             if (htmlFileInfo.Exists)
             {

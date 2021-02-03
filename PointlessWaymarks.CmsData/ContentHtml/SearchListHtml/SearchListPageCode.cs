@@ -15,15 +15,18 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 {
     public partial class SearchListPage
     {
-        public SearchListPage(string rssUrl)
+        public SearchListPage(string rssUrl, Func<List<object>> contentFunction, string listTitle, DateTime? generationVersion)
         {
             RssUrl = rssUrl;
+            ContentFunction = contentFunction;
+            ListTitle = listTitle;
+            GenerationVersion = generationVersion;
         }
 
-        public Func<List<object>> ContentFunction { get; set; }
-        public DateTime? GenerationVersion { get; set; }
-        public string ListTitle { get; set; }
-        public string RssUrl { get; set; }
+        public Func<List<object>> ContentFunction { get; }
+        public DateTime? GenerationVersion { get; }
+        public string ListTitle { get; }
+        public string RssUrl { get; }
 
         public HtmlTag ContentTableTag()
         {
@@ -75,7 +78,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 
             var filterTags = allContent.Select(TypeToFilterTag).Distinct().ToList();
 
-            if (filterTags.Count() < 2) return HtmlTag.Empty();
+            if (filterTags.Count < 2) return HtmlTag.Empty();
 
             var filterContainer = new DivTag().AddClass("content-list-filter-container");
 
@@ -102,12 +105,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
         {
             return content switch
             {
-                NoteContent _ => "post",
-                PostContent _ => "post",
-                ImageContent _ => "image",
-                PhotoContent _ => "image",
-                FileContent _ => "file",
-                LinkContent _ => "link",
+                NoteContent => "post",
+                PostContent => "post",
+                ImageContent => "image",
+                PhotoContent => "image",
+                FileContent => "file",
+                LinkContent => "link",
                 _ => "other"
             };
         }

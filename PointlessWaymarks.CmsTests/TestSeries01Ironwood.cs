@@ -43,7 +43,7 @@ namespace PointlessWaymarks.CmsTests
         public const string UrlFriendsOfIronwood = "https://ironwoodforest.org/";
         public const string UrlProclamationPdf = "https://www.blm.gov/sites/blm.gov/files/documents/ironwood_proc.pdf";
 
-        public static UserSettings TestSiteSettings;
+        public static UserSettings TestSiteSettings { get; set; }
 
 
         [OneTimeSetUp]

@@ -156,10 +156,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
         {
             progress?.Report($"Setting up Search List Page for {fileInfo.FullName}");
 
-            var htmlModel = new SearchListPage(rssUrl)
-            {
-                ContentFunction = dbFunc, ListTitle = titleAdd, GenerationVersion = generationVersion
-            };
+            var htmlModel = new SearchListPage(rssUrl, dbFunc, titleAdd, generationVersion);
 
             var htmlTransform = htmlModel.TransformText();
 

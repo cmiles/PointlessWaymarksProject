@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
@@ -19,11 +21,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.NotePageUrl(DbEntry);
-            Title = DbEntry.Title;
+            Title = DbEntry.Title ?? string.Empty;
 
-            var previousLater = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
-            PreviousPosts = previousLater.previousContent;
-            LaterPosts = previousLater.laterContent;
+            var (previousContent, laterContent) = Tags.MainFeedPreviousAndLaterContent(3, DbEntry.CreatedOn);
+            PreviousPosts = previousContent;
+            LaterPosts = laterContent;
         }
 
         public NoteContent DbEntry { get; }
@@ -48,8 +50,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             var htmlString = stringWriter.ToString();
 
             var htmlFileInfo =
-                new FileInfo(
-                    $"{Path.Combine(settings.LocalSiteNoteContentDirectory(DbEntry).FullName, DbEntry.Slug)}.html");
+                settings.LocalSiteNoteHtmlFile(DbEntry);
+
+            if (htmlFileInfo == null)
+            {
+                var toThrow =
+                    new Exception("The Note DbEntry did not have valid information to determine a file for the html");
+                toThrow.Data.Add("Note DbEntry", ObjectDumper.Dump(DbEntry));
+                throw toThrow;
+            }
 
             if (htmlFileInfo.Exists)
             {

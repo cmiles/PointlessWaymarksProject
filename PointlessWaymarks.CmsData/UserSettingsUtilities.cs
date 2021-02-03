@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Amazon;
+using Amazon.S3.Model.Internal.MarshallTransformations;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Content;
@@ -18,7 +19,7 @@ namespace PointlessWaymarks.CmsData
 {
     public static class UserSettingsUtilities
     {
-        public static string SettingsFileName = "PointlessWaymarksCmsSettings.json";
+        public static string SettingsFileName { get; set; } = "PointlessWaymarksCmsSettings.json";
 
         public static string AllContentListUrl(this UserSettings settings)
         {
@@ -225,9 +226,9 @@ namespace PointlessWaymarks.CmsData
             return $"//{settings.SiteUrl}/Links/LinkRss.xml";
         }
 
-        public static FileInfo LocalMediaArchiveFileContentFile(this UserSettings settings, FileContent content)
+        public static FileInfo? LocalMediaArchiveFileContentFile(this UserSettings settings, FileContent? content)
         {
-            if (content == null) return null;
+            if (string.IsNullOrWhiteSpace(content?.OriginalFileName)) return null;
 
             var directory = settings.LocalMediaArchiveFileDirectory();
 
@@ -245,9 +246,9 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalMediaArchiveImageContentFile(this UserSettings settings, ImageContent content)
+        public static FileInfo? LocalMediaArchiveImageContentFile(this UserSettings settings, ImageContent? content)
         {
-            if (content == null) return null;
+            if (content == null || content.OriginalFileName == null) return null;
 
             var directory = settings.LocalMediaArchiveImageDirectory();
 
@@ -276,9 +277,9 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalMediaArchivePhotoContentFile(this UserSettings settings, PhotoContent content)
+        public static FileInfo? LocalMediaArchivePhotoContentFile(this UserSettings settings, PhotoContent? content)
         {
-            if (content == null) return null;
+            if (string.IsNullOrWhiteSpace(content?.OriginalFileName)) return null;
 
             var directory = settings.LocalMediaArchivePhotoDirectory();
 
@@ -338,7 +339,7 @@ namespace PointlessWaymarks.CmsData
         }
 
         public static DateTime? LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(
-            FileInfo toParse)
+            FileInfo? toParse)
         {
             if (toParse == null) return null;
             var name = toParse.Name;
@@ -367,6 +368,14 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalSiteFileContentDirectory(this UserSettings settings, FileContent content,
             bool createDirectoryIfNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(content.Folder))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSiteFileContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+            if (string.IsNullOrWhiteSpace(content.Slug))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSiteFileContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteFileDirectory().FullName, content.Folder,
                 content.Slug));
 
@@ -378,8 +387,10 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalSiteFileContentFile(this UserSettings settings, FileContent content)
+        public static FileInfo? LocalSiteFileContentFile(this UserSettings settings, FileContent? content)
         {
+            if (string.IsNullOrWhiteSpace(content?.OriginalFileName)) return null;
+
             var directory = settings.LocalSiteFileContentDirectory(content, false);
 
             return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
@@ -395,9 +406,11 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalSiteFileHtmlFile(this UserSettings settings, FileContent content)
+        public static FileInfo? LocalSiteFileHtmlFile(this UserSettings settings, FileContent? content)
         {
-            var directory = settings.LocalSiteFileContentDirectory(content, false);
+            if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
+            var directory = settings.LocalSiteFileContentDirectory(content);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
@@ -416,6 +429,14 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalSiteGeoJsonContentDirectory(this UserSettings settings, GeoJsonContent content,
             bool createDirectoryIfNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(content.Folder))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSiteGeoJsonContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+            if (string.IsNullOrWhiteSpace(content.Slug))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSiteGeoJsonContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteGeoJsonDirectory().FullName,
                 content.Folder, content.Slug));
 
@@ -447,9 +468,11 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalSiteGeoJsonHtmlFile(this UserSettings settings, GeoJsonContent content)
+        public static FileInfo? LocalSiteGeoJsonHtmlFile(this UserSettings settings, GeoJsonContent? content)
         {
-            var directory = settings.LocalSiteGeoJsonContentDirectory(content, false);
+            if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
+            var directory = settings.LocalSiteGeoJsonContentDirectory(content);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
@@ -468,6 +491,14 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalSiteImageContentDirectory(this UserSettings settings, ImageContent content,
             bool createDirectoryIfNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(content.Folder))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSiteImageContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+            if (string.IsNullOrWhiteSpace(content.Slug))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSiteImageContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteImageDirectory().FullName, content.Folder,
                 content.Slug));
 
@@ -479,8 +510,10 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalSiteImageContentFile(this UserSettings settings, ImageContent content)
+        public static FileInfo? LocalSiteImageContentFile(this UserSettings settings, ImageContent? content)
         {
+            if (string.IsNullOrWhiteSpace(content?.OriginalFileName)) return null;
+
             var directory = settings.LocalSiteImageContentDirectory(content, false);
 
             return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
@@ -496,9 +529,11 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalSiteImageHtmlFile(this UserSettings settings, ImageContent content)
+        public static FileInfo? LocalSiteImageHtmlFile(this UserSettings settings, ImageContent? content)
         {
-            var directory = settings.LocalSiteImageContentDirectory(content, false);
+            if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
+            var directory = settings.LocalSiteImageContentDirectory(content);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
@@ -523,6 +558,14 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalSiteLineContentDirectory(this UserSettings settings, LineContent content,
             bool createDirectoryIfNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(content.Folder))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSiteLineContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+            if (string.IsNullOrWhiteSpace(content.Slug))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSiteLineContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteLineDirectory().FullName, content.Folder,
                 content.Slug));
 
@@ -554,9 +597,11 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalSiteLineHtmlFile(this UserSettings settings, LineContent content)
+        public static FileInfo? LocalSiteLineHtmlFile(this UserSettings settings, LineContent? content)
         {
-            var directory = settings.LocalSiteLineContentDirectory(content, false);
+            if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
+            var directory = settings.LocalSiteLineContentDirectory(content);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
@@ -635,6 +680,10 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalSiteNoteContentDirectory(this UserSettings settings, NoteContent content,
             bool createDirectoryIfNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(content.Folder))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSiteNoteContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteNoteDirectory().FullName, content.Folder));
 
             if (directory.Exists || !createDirectoryIfNotFound) return directory;
@@ -655,9 +704,11 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalSiteNoteHtmlFile(this UserSettings settings, NoteContent content)
+        public static FileInfo? LocalSiteNoteHtmlFile(this UserSettings settings, NoteContent? content)
         {
-            var directory = settings.LocalSiteNoteContentDirectory(content, false);
+            if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
+            var directory = settings.LocalSiteNoteContentDirectory(content);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
@@ -676,6 +727,14 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalSitePhotoContentDirectory(this UserSettings settings, PhotoContent content,
             bool createDirectoryIfNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(content.Folder))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSitePhotoContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+            if (string.IsNullOrWhiteSpace(content.Slug))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSitePhotoContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSitePhotoDirectory().FullName, content.Folder,
                 content.Slug));
 
@@ -707,9 +766,10 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
-        public static FileInfo LocalSitePhotoHtmlFile(this UserSettings settings, PhotoContent content)
+        public static FileInfo? LocalSitePhotoHtmlFile(this UserSettings settings, PhotoContent? content)
         {
-            var directory = settings.LocalSitePhotoContentDirectory(content, false);
+            if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+            var directory = settings.LocalSitePhotoContentDirectory(content);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
@@ -728,6 +788,14 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalSitePointContentDirectory(this UserSettings settings, PointContent content,
             bool createDirectoryIfNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(content.Folder))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSitePointContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+            if (string.IsNullOrWhiteSpace(content.Slug))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSitePointContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSitePointDirectory().FullName, content.Folder,
                 content.Slug));
 
@@ -742,6 +810,14 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalSitePointContentDirectory(this UserSettings settings, PointContentDto content,
             bool createDirectoryIfNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(content.Folder))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSitePointContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+            if (string.IsNullOrWhiteSpace(content.Slug))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSitePointContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSitePointDirectory().FullName, content.Folder,
                 content.Slug));
 
@@ -780,17 +856,20 @@ namespace PointlessWaymarks.CmsData
         }
 
 
-        public static FileInfo LocalSitePointHtmlFile(this UserSettings settings, PointContent content)
+        public static FileInfo? LocalSitePointHtmlFile(this UserSettings settings, PointContent? content)
         {
-            var directory = settings.LocalSitePointContentDirectory(content, false);
+            if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
+            var directory = settings.LocalSitePointContentDirectory(content);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
-        public static FileInfo LocalSitePointHtmlFile(this UserSettings settings, PointContentDto content)
+        public static FileInfo? LocalSitePointHtmlFile(this UserSettings settings, PointContentDto? content)
         {
+            if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
             var directory =
-                settings.LocalSitePointContentDirectory(Db.PointContentDtoToPointContentAndDetails(content).content,
-                    false);
+                settings.LocalSitePointContentDirectory(Db.PointContentDtoToPointContentAndDetails(content).content);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
@@ -809,6 +888,14 @@ namespace PointlessWaymarks.CmsData
         public static DirectoryInfo LocalSitePostContentDirectory(this UserSettings settings, PostContent content,
             bool createDirectoryIfNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(content.Folder))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSitePostContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+            if (string.IsNullOrWhiteSpace(content.Slug))
+                throw new NullReferenceException(
+                    $"{nameof(LocalSitePostContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSitePostDirectory().FullName, content.Folder,
                 content.Slug));
 
@@ -830,9 +917,11 @@ namespace PointlessWaymarks.CmsData
             return localDirectory;
         }
 
-        public static FileInfo LocalSitePostHtmlFile(this UserSettings settings, PostContent content)
+        public static FileInfo? LocalSitePostHtmlFile(this UserSettings settings, PostContent? content)
         {
-            var directory = settings.LocalSitePostContentDirectory(content, false);
+            if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
+            var directory = settings.LocalSitePostContentDirectory(content);
             return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
         }
 
@@ -921,7 +1010,7 @@ namespace PointlessWaymarks.CmsData
                 GeoJsonContent c => settings.GeoJsonPageUrl(c),
                 ImageContent c => settings.ImagePageUrl(c),
                 LineContent c => settings.LinePageUrl(c),
-                LinkContent _ => settings.LinkListUrl(),
+                LinkContent => settings.LinkListUrl(),
                 NoteContent c => settings.NotePageUrl(c),
                 PhotoContent c => settings.PhotoPageUrl(c),
                 PointContent c => settings.PointPageUrl(c),
@@ -1015,7 +1104,7 @@ namespace PointlessWaymarks.CmsData
 
             await using (var fs = new FileStream(currentFile.FullName, FileMode.Open, FileAccess.Read))
             {
-                readResult = await JsonSerializer.DeserializeAsync<UserSettings>(fs);
+                readResult = await JsonSerializer.DeserializeAsync<UserSettings>(fs) ?? new UserSettings();
             }
 
             var timeStampForMissingValues = $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss-fff}";
@@ -1216,7 +1305,7 @@ namespace PointlessWaymarks.CmsData
             return $"//{settings.SiteUrl}/SiteResources/";
         }
 
-        public static RegionEndpoint SiteS3BucketEndpoint(this UserSettings settings)
+        public static RegionEndpoint? SiteS3BucketEndpoint(this UserSettings settings)
         {
             if (string.IsNullOrWhiteSpace(settings.SiteS3BucketRegion)) return null;
 
