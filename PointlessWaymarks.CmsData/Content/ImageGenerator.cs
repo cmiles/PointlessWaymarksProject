@@ -46,8 +46,14 @@ namespace PointlessWaymarks.CmsData.Content
             return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }
 
-        public static async Task<GenerationReturn> Validate(ImageContent imageContent, FileInfo selectedFile)
+        public static async Task<GenerationReturn> Validate(ImageContent? imageContent, FileInfo? selectedFile)
         {
+            if (imageContent == null)
+                return GenerationReturn.Error("Null Image Content submitted to Validate?");
+
+            if (selectedFile == null)
+                return GenerationReturn.Error("No Image File submitted to Validate?", imageContent.ContentId);
+
             var rootDirectoryCheck = UserSettingsUtilities.ValidateLocalSiteRootDirectory();
 
             if (!rootDirectoryCheck.Valid)

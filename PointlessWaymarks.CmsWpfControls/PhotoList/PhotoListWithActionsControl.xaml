@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:photoList="clr-namespace:PointlessWaymarks.CmsWpfControls.PhotoList"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:PhotoListWithActionsContext}"
+    d:DataContext="{d:DesignInstance photoList:PhotoListWithActionsContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">

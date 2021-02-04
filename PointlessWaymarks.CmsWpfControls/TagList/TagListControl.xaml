@@ -6,9 +6,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:tagList="clr-namespace:PointlessWaymarks.CmsWpfControls.TagList"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     Name="TagListControlXaml"
-    d:DataContext="{d:DesignInstance local:TagListContext}"
+    d:DataContext="{d:DesignInstance tagList:TagListContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -27,7 +28,8 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Excel">
-                <MenuItem Command="{Binding ImportFromExcelCommand}" Header="Import From Excel" />
+                <MenuItem Command="{Binding ImportFromExcelFileCommand}" Header="Import From Excel File" />
+                <MenuItem Command="{Binding ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
@@ -57,7 +59,7 @@
                         SelectionChanged="Selector_OnSelectionChanged"
                         SelectionMode="Extended">
                         <ListBox.ItemTemplate>
-                            <DataTemplate DataType="local:TagListListItem">
+                            <DataTemplate DataType="tagList:TagListListItem">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBox
                                         VerticalAlignment="Center"
@@ -109,7 +111,7 @@
                         SelectionChanged="Details_Selector_OnSelectionChanged">
 
                         <ListBox.ItemTemplate>
-                            <DataTemplate DataType="local:TagItemContentInformation">
+                            <DataTemplate DataType="tagList:TagItemContentInformation">
                                 <Border BorderBrush="LightGray" BorderThickness="1">
                                     <Grid>
                                         <Grid.ColumnDefinitions>

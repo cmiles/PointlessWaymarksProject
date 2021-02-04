@@ -10,7 +10,7 @@
     Title="WordPress XML Import Helper"
     Width="800"
     Height="700"
-    d:DataContext="{d:DesignInstance local:WordPressXmlImportWindow}"
+    d:DataContext="{d:DesignInstance wordPressXmlImport:WordPressXmlImportWindow}"
     mc:Ignorable="d">
     <Grid>
         <wordPressXmlImport:WordPressXmlImportControl DataContext="{Binding ImportContext}" />

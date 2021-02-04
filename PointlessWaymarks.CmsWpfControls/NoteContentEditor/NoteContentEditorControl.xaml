@@ -12,10 +12,11 @@
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:noteContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.NoteContentEditor"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:NoteContentEditorContext}"
+    d:DataContext="{d:DesignInstance noteContentEditor:NoteContentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">

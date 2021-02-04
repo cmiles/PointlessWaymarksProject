@@ -587,22 +587,55 @@ namespace PointlessWaymarks.CmsData.Import
                 {
                     case PhotoContent photo:
                     {
+                        var archiveFile = UserSettingsSingleton.CurrentSettings()
+                            .LocalMediaArchivePhotoContentFile(photo);
+
+                        if (archiveFile == null || !archiveFile.Exists)
+                        {
+                            generationResult = GenerationReturn.Error(
+                                $"Can not find media archive file for Photo Titled {photo.Title} - file: {archiveFile?.FullName}",
+                                photo.ContentId);
+                            break;
+                        }
+
                         generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo,
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(photo), false,
+                            archiveFile, false,
                             null, progress)).generationReturn;
                         break;
                     }
                     case FileContent file:
                     {
+                        var archiveFile = UserSettingsSingleton.CurrentSettings()
+                            .LocalMediaArchiveFileContentFile(file);
+
+                        if (archiveFile == null || !archiveFile.Exists)
+                        {
+                            generationResult = GenerationReturn.Error(
+                                $"Can not find media archive file for Photo Titled {file.Title} - file: {archiveFile?.FullName}",
+                                file.ContentId);
+                            break;
+                        }
+
                         generationResult = (await FileGenerator.SaveAndGenerateHtml(file,
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(file), false, null,
+                            archiveFile, false, null,
                             progress)).generationReturn;
                         break;
                     }
                     case ImageContent image:
                     {
+                        var archiveFile = UserSettingsSingleton.CurrentSettings()
+                            .LocalMediaArchiveImageContentFile(image);
+
+                        if (archiveFile == null || !archiveFile.Exists)
+                        {
+                            generationResult = GenerationReturn.Error(
+                                $"Can not find media archive file for Photo Titled {image.Title} - file: {archiveFile?.FullName}",
+                                image.ContentId);
+                            break;
+                        }
+
                         generationResult = (await ImageGenerator.SaveAndGenerateHtml(image,
-                            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(image), false,
+                            archiveFile, false,
                             null, progress)).generationReturn;
                         break;
                     }

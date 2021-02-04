@@ -5,9 +5,10 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:s3Deletions="clr-namespace:PointlessWaymarks.CmsWpfControls.S3Deletions"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:S3DeletionsContext}"
+    d:DataContext="{d:DesignInstance s3Deletions:S3DeletionsContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -65,7 +66,7 @@
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="local:S3DeletionsItem">
+                    <DataTemplate DataType="s3Deletions:S3DeletionsItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid Margin="4">
                                 <Grid.RowDefinitions>

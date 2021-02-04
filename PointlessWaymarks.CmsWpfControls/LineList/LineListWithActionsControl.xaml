@@ -6,7 +6,7 @@
     xmlns:lineList="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:LineListWithActionsContext}"
+    d:DataContext="{d:DesignInstance lineList:LineListWithActionsContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">

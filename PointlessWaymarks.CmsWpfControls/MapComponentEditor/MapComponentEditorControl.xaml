@@ -17,7 +17,7 @@
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHtml"
     x:Name="MapComponentEditorControlXaml"
-    d:DataContext="{d:DesignInstance local:MapComponentEditorContext}"
+    d:DataContext="{d:DesignInstance mapComponentEditor:MapComponentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -27,7 +27,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
-            <DataTemplate x:Key="MapElementGeoJsonTemplate" DataType="local:MapElementListGeoJsonItem">
+            <DataTemplate x:Key="MapElementGeoJsonTemplate" DataType="mapComponentEditor:MapElementListGeoJsonItem">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
@@ -54,7 +54,7 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate x:Key="MapElementLineTemplate" DataType="local:MapElementListLineItem">
+            <DataTemplate x:Key="MapElementLineTemplate" DataType="mapComponentEditor:MapElementListLineItem">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
@@ -81,7 +81,7 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate x:Key="MapElementPointTemplate" DataType="local:MapElementListPointItem">
+            <DataTemplate x:Key="MapElementPointTemplate" DataType="mapComponentEditor:MapElementListPointItem">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>

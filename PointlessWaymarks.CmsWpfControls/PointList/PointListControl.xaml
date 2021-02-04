@@ -6,10 +6,11 @@
     xmlns:dd="urn:gong-wpf-dragdrop"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:pointList="clr-namespace:PointlessWaymarks.CmsWpfControls.PointList"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     Name="UserControlXaml"
-    d:DataContext="{d:DesignInstance local:PointListContext}"
+    d:DataContext="{d:DesignInstance pointList:PointListContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">

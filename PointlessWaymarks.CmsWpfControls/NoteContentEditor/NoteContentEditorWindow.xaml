@@ -9,7 +9,7 @@
     Title="Note Editor"
     Width="800"
     Height="450"
-    d:DataContext="{d:DesignInstance local:NoteContentEditorWindow}"
+    d:DataContext="{d:DesignInstance noteContentEditor:NoteContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
         <noteContentEditor:NoteContentEditorControl DataContext="{Binding NoteContent}" />

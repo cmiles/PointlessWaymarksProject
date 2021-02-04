@@ -8,7 +8,7 @@
     Title="{Binding WindowTitle}"
     Width="800"
     Height="800"
-    d:DataContext="{d:DesignInstance local:PhotoListWindow}"
+    d:DataContext="{d:DesignInstance photoList:PhotoListWindow}"
     mc:Ignorable="d">
     <Grid>
         <photoList:PhotoListWithActionsControl x:Name="PhotoListControl" DataContext="{Binding PhotoListContext}" />

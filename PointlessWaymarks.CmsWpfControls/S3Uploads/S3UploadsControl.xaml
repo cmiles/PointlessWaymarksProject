@@ -25,7 +25,7 @@
     </UserControl.Resources>
     <Grid Margin="4">
         <Grid.Resources>
-            <DataTemplate x:Key="S3UploadsDataTemplate" DataType="local:S3UploadsItem">
+            <DataTemplate x:Key="S3UploadsDataTemplate" DataType="s3Uploads:S3UploadsItem">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.RowDefinitions>

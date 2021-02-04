@@ -5,8 +5,9 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:wordPressXmlImport="clr-namespace:PointlessWaymarks.CmsWpfControls.WordPressXmlImport"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:WordPressXmlImportContext}"
+    d:DataContext="{d:DesignInstance wordPressXmlImport:WordPressXmlImportContext}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -65,7 +66,7 @@
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="local:WordPressXmlImportListItem">
+                    <DataTemplate DataType="wordPressXmlImport:WordPressXmlImportListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Grid>
                                 <Grid.RowDefinitions>

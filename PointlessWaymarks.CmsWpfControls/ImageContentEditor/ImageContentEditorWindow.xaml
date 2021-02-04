@@ -9,7 +9,7 @@
     Title="Image Content Editor"
     Width="900"
     Height="650"
-    d:DataContext="{d:DesignInstance local:ImageContentEditorWindow}"
+    d:DataContext="{d:DesignInstance imageContentEditor:ImageContentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
         <imageContentEditor:ImageContentEditorControl DataContext="{Binding ImageEditor}" />

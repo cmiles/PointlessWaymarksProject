@@ -4,8 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringDataEntry"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:StringDataEntryContext}"
+    d:DataContext="{d:DesignInstance stringDataEntry:StringDataEntryContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">

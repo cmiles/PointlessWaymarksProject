@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:noteList="clr-namespace:PointlessWaymarks.CmsWpfControls.NoteList"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:NoteListWithActionsContext}"
+    d:DataContext="{d:DesignInstance noteList:NoteListWithActionsContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">

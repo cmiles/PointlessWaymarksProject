@@ -9,7 +9,7 @@
     Title="S3 Deletions"
     Width="800"
     Height="600"
-    d:DataContext="{d:DesignInstance local:S3DeletionsWindow}"
+    d:DataContext="{d:DesignInstance s3Deletions:S3DeletionsWindow}"
     Closing="S3DeletionsWindow_OnClosing"
     mc:Ignorable="d">
     <Grid>

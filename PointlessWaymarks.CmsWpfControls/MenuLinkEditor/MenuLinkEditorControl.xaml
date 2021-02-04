@@ -5,11 +5,12 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:menuLinkEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.MenuLinkEditor"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     Name="MenuLinkEditorControlXaml"
-    d:DataContext="{d:DesignInstance local:MenuLinkEditorContext}"
+    d:DataContext="{d:DesignInstance menuLinkEditor:MenuLinkEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -46,7 +47,7 @@
                     <wpfBehavior:ListBoxAutoScrollToNewItems />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="local:MenuLinkListItem">
+                    <DataTemplate DataType="menuLinkEditor:MenuLinkListItem">
                         <Border
                             Margin="4"
                             Background="White"

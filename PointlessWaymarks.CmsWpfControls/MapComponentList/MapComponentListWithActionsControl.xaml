@@ -6,7 +6,7 @@
     xmlns:mapComponentList="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    d:DataContext="{d:DesignInstance local:MapComponentListWithActionsContext}"
+    d:DataContext="{d:DesignInstance mapComponentList:MapComponentListWithActionsContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">

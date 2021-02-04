@@ -9,7 +9,7 @@
     Title="Map Component Editor"
     Width="800"
     Height="600"
-    d:DataContext="{d:DesignInstance local:MapComponentEditorWindow}"
+    d:DataContext="{d:DesignInstance mapComponentEditor:MapComponentEditorWindow}"
     mc:Ignorable="d">
     <Grid>
         <mapComponentEditor:MapComponentEditorControl DataContext="{Binding MapComponentContent}" />

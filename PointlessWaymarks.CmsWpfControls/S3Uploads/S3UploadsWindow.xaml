@@ -10,7 +10,7 @@
     Title="S3 Uploads"
     Width="800"
     Height="700"
-    d:DataContext="{d:DesignInstance local:S3UploadsWindow}"
+    d:DataContext="{d:DesignInstance s3Uploads:S3UploadsWindow}"
     Closing="S3UploadsWindow_OnClosing"
     mc:Ignorable="d">
     <Grid>
