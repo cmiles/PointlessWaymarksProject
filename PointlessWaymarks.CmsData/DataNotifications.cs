@@ -82,7 +82,7 @@ namespace PointlessWaymarks.CmsData
                     ContentType = (DataNotificationContentType) int.Parse(parsedString[1]),
                     UpdateType = (DataNotificationUpdateType) int.Parse(parsedString[2]),
                     ContentIds = parsedString[3].Split(",", StringSplitOptions.RemoveEmptyEntries)
-                        .Select(x => Guid.Parse(x)).ToList()
+                        .Select(Guid.Parse).ToList()
                 };
             }
             catch (Exception e)
@@ -92,14 +92,14 @@ namespace PointlessWaymarks.CmsData
         }
     }
 
-    public class InterProcessDataNotification
+    public record InterProcessDataNotification
     {
-        public List<Guid>? ContentIds { get; set; }
-        public DataNotificationContentType ContentType { get; set; }
-        public string? ErrorNote { get; set; }
-        public bool HasError { get; set; }
-        public string? Sender { get; set; }
-        public DataNotificationUpdateType UpdateType { get; set; }
+        public List<Guid>? ContentIds { get; init; }
+        public DataNotificationContentType ContentType { get; init; }
+        public string? ErrorNote { get; init; }
+        public bool HasError { get; init; }
+        public string? Sender { get; init; }
+        public DataNotificationUpdateType UpdateType { get; init; }
     }
 
     public enum DataNotificationUpdateType

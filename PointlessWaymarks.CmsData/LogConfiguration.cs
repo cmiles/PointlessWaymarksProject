@@ -54,7 +54,6 @@ namespace PointlessWaymarks.CmsData
                 .WriteTo.Console();
         }
 
-
         /// <summary>
         ///     Returns a new configured Event Logger. This should NOT be used until user settings are initialized so
         ///     this is generally unsuitable for use at application startup.
