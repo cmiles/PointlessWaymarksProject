@@ -39,7 +39,7 @@ namespace PointlessWaymarks.CmsData.Content
             await Export.WriteLocalDbJson(toSave, progress);
 
             DataNotifications.PublishDataNotification("Note Generator", DataNotificationContentType.Note,
-                DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
+                DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
 
             return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
         }

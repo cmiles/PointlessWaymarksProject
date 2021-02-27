@@ -276,7 +276,8 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
 
             DbEntry = toLoad ?? new NoteContent
             {
-                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()
+                BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+                Slug = await NoteGenerator.UniqueNoteSlug()
             };
 
             FolderEntry = await ContentFolderContext.CreateInstance(StatusContext, DbEntry);
@@ -286,6 +287,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor
             ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
+            Slug = DbEntry.Slug;
 
             PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
         }
