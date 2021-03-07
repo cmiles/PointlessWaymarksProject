@@ -518,7 +518,7 @@ namespace PointlessWaymarks.CmsData.Import
                 return await ImportContentTable(null, progress);
             }
 
-            if (tableRange.Cells.Count < 2 || tableRange.Rows.Count < 2)
+            if (tableRange.Columns.Count < 2 || tableRange.Rows.Count < 2)
             {
                 progress?.Report(
                     $"Not enough data found in Workbook {currentExcel.ActiveWorkbook.Name} - Worksheet {worksheet.Name}?");
@@ -528,7 +528,7 @@ namespace PointlessWaymarks.CmsData.Import
             progress?.Report(
                 $"Excel Open File Import - Workbook {currentExcel.ActiveWorkbook.Name} - Worksheet {worksheet.Name} - Range {tableRange.Address}");
 
-            var excelObjects = (object[,]) tableRange.Value;
+            var excelObjects = (object?[,]) tableRange.Value;
 
             var rowLength = excelObjects.GetLength(0);
             var columnLength = excelObjects.GetLength(1);
@@ -540,8 +540,7 @@ namespace PointlessWaymarks.CmsData.Import
             for (var r = 1; r <= rowLength; r++)
             {
                 var valuesToAdd = new List<string>();
-
-                for (var c = 1; c <= columnLength; c++) valuesToAdd.Add(excelObjects[r, c].ToString() ?? string.Empty);
+                for (var c = 1; c <= columnLength; c++) valuesToAdd.Add(excelObjects[r, c]?.ToString() ?? string.Empty);
 
                 translated.Add(new ContentImportRow(valuesToAdd, $"Row {excelRow}"));
 

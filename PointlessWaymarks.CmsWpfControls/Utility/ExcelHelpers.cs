@@ -136,7 +136,6 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
 
             statusContext.Progress("Starting Excel Open Instance import.");
 
-
             ContentImport.ContentImportResults contentImportResult;
 
             try
@@ -164,6 +163,20 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
                 new List<string> {"Yes", "No"});
 
             if (shouldContinue == "No") return;
+
+            var saveResult =
+                await ContentImport.SaveAndGenerateHtmlFromExcelImport(contentImportResult,
+                    statusContext.ProgressTracker());
+
+            if (saveResult.hasError)
+            {
+                await statusContext.ShowMessageWithOkButton("Excel Import Save Errors",
+                    $"There were error saving changes from the Excel Content:{Environment.NewLine}{saveResult.errorMessage}");
+                return;
+            }
+
+            statusContext.ToastSuccess(
+                $"Imported {contentImportResult.ToUpdate.Count} items with changes from Excel");
         }
 
         public static async Task<FileInfo> PointContentToExcel(List<Guid> toDisplay, string fileName,
