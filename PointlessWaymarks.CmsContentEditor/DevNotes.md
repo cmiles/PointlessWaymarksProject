@@ -46,6 +46,10 @@
  
 ## Notes
 
+3/29/2021
+
+Source Generators Experiment - Added a project and code based on the current github 'cookbook' to generate INotifyPropertyChanged, refactored the common project to use it and felt quite happy when everything was building and intellisense for generated properties was working!! But I failed to get the entire project working with the source generators in place... I tried referencing the source generator package in other projects and tried cleaning and rebuilding but didn't have any luck - checking for issues on GitHub I saw some possible troubleshooting steps but was somewhat discouraged by the wide set of associated issues so dropped this for now...
+
 2/1/2021
 
 Fixed a WebView2 related bug where the behavior to open external links in desktop browser (used so the the pane with the content preview always stays the content preview) was caught by a change in the navigation events where IsUserInitiated now returns false when the navigation is triggered in C# code - this took a little troubleshooting and working with the preview WebView2 so far still seems worth the cost.
