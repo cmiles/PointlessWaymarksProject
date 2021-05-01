@@ -36,7 +36,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
             var newName = await statusContext.ShowStringEntry("Rename File",
                 $"Rename {Path.GetFileNameWithoutExtension(selectedFile.Name)} - " +
                 "File Names must be limited to A-Z a-z 0-9 - . _  :",
-                Path.GetFileNameWithoutExtension(selectedFile.Name));
+                Path.GetFileNameWithoutExtension(selectedFile.Name.Replace(" ", "-")));
 
             if (!newName.Item1) return;
 
