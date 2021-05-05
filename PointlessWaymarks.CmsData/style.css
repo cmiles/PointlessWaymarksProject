@@ -219,6 +219,7 @@ a.index-title-content-link:active {
     text-align: center;
     margin: .8rem .4rem 0 1rem;
     font-weight: normal;
+    font-size: 1.1rem;
 }
 
 .title-link-content, .title-content {
@@ -585,15 +586,6 @@ a.tag-list-link {
 }
 
 @media screen and (min-width: 600px) {
-    .title-link-content, .title-content { 
-        font-size: 1.3rem;
-        line-height: 1.6rem;
-    }
-
-    .post-title-area-created-and-updated-content {
-        font-size: .8rem;
-    }
-
     .post-body-content p,
     .post-body-content ul,
     .post-body-content ol {
@@ -648,20 +640,6 @@ a.tag-list-link {
         margin: auto 12px;
     }
 
-    .index-title-summary-content {
-        color: rgb(180, 180, 180);
-        text-align: center;
-        margin: .8rem 1rem 0 1rem;
-        font-weight: normal;
-        font-size: 1.1rem;
-    }
-    
-    .index-title-content {
-        text-align: center;
-        font-weight: normal;
-        font-size: 2rem;
-        margin-bottom: 0;
-    }
 }
 
 @media screen and (min-width: 1200px) {
