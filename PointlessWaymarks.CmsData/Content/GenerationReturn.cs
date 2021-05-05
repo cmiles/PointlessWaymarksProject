@@ -18,8 +18,7 @@ namespace PointlessWaymarks.CmsData.Content
         public string GenerationNote { get; set; } = string.Empty;
         public bool HasError { get; set; }
 
-        public static GenerationReturn Error(string generationNote, Guid? contentGuid = null,
-            Exception? e = null)
+        public static GenerationReturn Error(string generationNote, Guid? contentGuid = null, Exception? e = null)
         {
             Log.Error(e, "Generation Return Error, Content Guid: {0}, Note: {1}", contentGuid, generationNote);
             return new GenerationReturn {HasError = true, GenerationNote = generationNote, ContentId = contentGuid};

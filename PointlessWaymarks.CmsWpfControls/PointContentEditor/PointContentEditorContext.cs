@@ -71,9 +71,10 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
             GetElevationCommand = StatusContext.RunBlockingTaskCommand(GetElevation);
 
-            HelpContext =
-                new HelpDisplayContext(new List<string>
-                    {CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock});
+            HelpContext = new HelpDisplayContext(new List<string>
+            {
+                CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+            });
         }
 
         public BodyContentEditorContext BodyContent

@@ -273,9 +273,8 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-            ImportFromOpenExcelInstanceCommand =
-                StatusContext.RunBlockingTaskCommand(async () =>
-                    await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
+            ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
 

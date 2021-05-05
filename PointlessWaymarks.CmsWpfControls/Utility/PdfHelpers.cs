@@ -91,8 +91,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
             {
                 if (destinationFile.Directory == null)
                 {
-                    statusContext.ToastError(
-                        $"Problem with {destinationFile.FullName} - Directory is Null?");
+                    statusContext.ToastError($"Problem with {destinationFile.FullName} - Directory is Null?");
                     continue;
                 }
 
@@ -126,8 +125,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
                     var directoryToSearch = destinationFile.Directory;
 
                     var possibleFiles = directoryToSearch
-                        .EnumerateFiles($"{Path.GetFileNameWithoutExtension(destinationFile.Name)}-*.jpg")
-                        .ToList();
+                        .EnumerateFiles($"{Path.GetFileNameWithoutExtension(destinationFile.Name)}-*.jpg").ToList();
 
                     foreach (var loopFiles in possibleFiles)
                     {

@@ -87,8 +87,8 @@ namespace PointlessWaymarks.CmsData
             }
             catch (Exception e)
             {
-                GenerationReturn
-                    .Error($"Trying to create Directory {directoryInfo.FullName}  resulted in an Exception.", null, e);
+                GenerationReturn.Error(
+                    $"Trying to create Directory {directoryInfo.FullName}  resulted in an Exception.", null, e);
             }
 
             return GenerationReturn.Success($"Created {directoryInfo.FullName}");
@@ -337,8 +337,7 @@ namespace PointlessWaymarks.CmsData
             return new FileInfo($"{Path.Combine(directory.FullName, $"DailyPhotos-{galleryDate:yyyy-MM-dd}")}.html");
         }
 
-        public static DateTime? LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(
-            FileInfo? toParse)
+        public static DateTime? LocalSiteDailyPhotoGalleryPhotoDateFromFileInfo(FileInfo? toParse)
         {
             if (toParse == null) return null;
             var name = toParse.Name;

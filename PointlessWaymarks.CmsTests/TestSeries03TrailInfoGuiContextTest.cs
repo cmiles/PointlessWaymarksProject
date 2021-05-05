@@ -353,8 +353,8 @@ namespace PointlessWaymarks.CmsTests
             Assert.False(validationResult.HasError);
 
             var (generationReturn, _) = await FileGenerator.SaveAndGenerateHtml(
-                newFileContext.CurrentStateToFileContent(),
-                newFileContext.SelectedFile, false, null, DebugTrackers.DebugProgressTracker());
+                newFileContext.CurrentStateToFileContent(), newFileContext.SelectedFile, false, null,
+                DebugTrackers.DebugProgressTracker());
 
             Assert.IsFalse(generationReturn.HasError);
 

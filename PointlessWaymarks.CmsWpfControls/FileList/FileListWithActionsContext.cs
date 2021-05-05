@@ -399,8 +399,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             var finalString = string.Empty;
 
             foreach (var loopSelected in ListContext.SelectedItems)
-                finalString +=
-                    @$"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+                finalString += @$"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -422,8 +421,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             var finalString = string.Empty;
 
             foreach (var loopSelected in ListContext.SelectedItems)
-                finalString +=
-                    @$"{BracketCodeFileImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+                finalString += @$"{BracketCodeFileImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
             if (ListContext.SelectedItems.Any(x => x.DbEntry.MainPicture == null))
                 StatusContext.ToastWarning("Some File Image Links do not have images?");
@@ -448,8 +446,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             var finalString = string.Empty;
 
             foreach (var loopSelected in ListContext.SelectedItems)
-                finalString +=
-                    @$"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+                finalString += @$"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -533,9 +530,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-            ImportFromOpenExcelInstanceCommand =
-                StatusContext.RunBlockingTaskCommand(async () =>
-                    await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
+            ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
         }

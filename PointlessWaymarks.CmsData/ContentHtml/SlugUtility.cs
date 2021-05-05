@@ -247,9 +247,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             bool imageCheck;
 
             if (exceptInThisContent == null)
-                imageCheck =
-                    await context.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
-                        .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower());
+                imageCheck = await context.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
+                    .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower());
             else
                 imageCheck = await context.FileContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
                     .AnyAsync(x =>
@@ -268,8 +267,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             if (exceptInThisContent == null)
                 imageCheck = await context.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
-                    .AnyAsync(x =>
-                        x.OriginalFileName!.ToLower() == filename.ToLower());
+                    .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower());
             else
                 imageCheck = await context.ImageContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
                     .AnyAsync(x =>
@@ -288,8 +286,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             if (exceptInThisContent == null)
                 photoCheck = await context.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
-                    .AnyAsync(x =>
-                        x.OriginalFileName!.ToLower() == filename.ToLower());
+                    .AnyAsync(x => x.OriginalFileName!.ToLower() == filename.ToLower());
             else
                 photoCheck = await context.PhotoContents.Where(x => !string.IsNullOrWhiteSpace(x.OriginalFileName))
                     .AnyAsync(x =>

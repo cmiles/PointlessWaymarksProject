@@ -166,9 +166,7 @@ namespace PointlessWaymarks.ExcelInteropExtensions
         {
             var z = 0;
             //Count all windows above the starting window
-            for (var h = new IntPtr(windowHandle);
-                h != IntPtr.Zero;
-                h = GetWindow(h, GwHwndprev))
+            for (var h = new IntPtr(windowHandle); h != IntPtr.Zero; h = GetWindow(h, GwHwndprev))
                 z++;
             return z;
         }

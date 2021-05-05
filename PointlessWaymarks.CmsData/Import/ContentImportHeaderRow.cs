@@ -19,8 +19,7 @@ namespace PointlessWaymarks.CmsData.Import
 
                 Columns.Add(new ContentImportColumn
                 {
-                    ColumnHeader = columnStringValue,
-                    ColumnNumber = headerRow.IndexOf(loopCells)
+                    ColumnHeader = columnStringValue, ColumnNumber = headerRow.IndexOf(loopCells)
                 });
             }
         }

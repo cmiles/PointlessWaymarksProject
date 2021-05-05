@@ -206,8 +206,7 @@ namespace PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay
 
 
             UpdatedByEntry = StringDataEntryContext.CreateInstance();
-            UpdatedByEntry.ValidationFunctions =
-                new List<Func<string, IsValid>> {ValidateUpdatedBy};
+            UpdatedByEntry.ValidationFunctions = new List<Func<string, IsValid>> {ValidateUpdatedBy};
             UpdatedByEntry.Title = "Updated By";
             UpdatedByEntry.HelpText = "Last Updated By Name";
             UpdatedByEntry.ReferenceValue = toLoad?.LastUpdatedBy ?? string.Empty;

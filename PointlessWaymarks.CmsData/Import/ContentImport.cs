@@ -19,8 +19,7 @@ namespace PointlessWaymarks.CmsData.Import
     public static class ContentImport
     {
         public static ContentImportValueParse<bool?> GetBoolFromExcelRow(ContentImportHeaderRow headerInfo,
-            ContentImportRow toProcess,
-            string columnName)
+            ContentImportRow toProcess, string columnName)
         {
             var contentIdColumn = headerInfo.Columns.Single(x => string.Equals(x.ColumnHeader,
                 columnName.TrimNullToEmpty(), StringComparison.CurrentCultureIgnoreCase));
@@ -29,18 +28,20 @@ namespace PointlessWaymarks.CmsData.Import
 
             if (string.IsNullOrWhiteSpace(stringValue))
                 return new ContentImportValueParse<bool?>
-                    {ParsedValue = null, StringValue = stringValue, ValueParsed = true};
+                {
+                    ParsedValue = null, StringValue = stringValue, ValueParsed = true
+                };
 
             if (bool.TryParse(stringValue, out var parsedValue))
                 return new ContentImportValueParse<bool?>
                 {
-                    ParsedValue = parsedValue,
-                    StringValue = stringValue,
-                    ValueParsed = true
+                    ParsedValue = parsedValue, StringValue = stringValue, ValueParsed = true
                 };
 
             return new ContentImportValueParse<bool?>
-                {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
+            {
+                ParsedValue = null, StringValue = stringValue, ValueParsed = false
+            };
         }
 
         public static ContentImportValueParse<DateTime?> GetDateTimeFromExcelRow(ContentImportHeaderRow headerInfo,
@@ -54,26 +55,23 @@ namespace PointlessWaymarks.CmsData.Import
             if (string.IsNullOrWhiteSpace(stringValue))
                 return new ContentImportValueParse<DateTime?>
                 {
-                    ParsedValue = null,
-                    StringValue = stringValue,
-                    ValueParsed = true
+                    ParsedValue = null, StringValue = stringValue, ValueParsed = true
                 };
 
             if (DateTime.TryParse(stringValue, out var parsedValue))
                 return new ContentImportValueParse<DateTime?>
                 {
-                    ParsedValue = parsedValue,
-                    StringValue = stringValue,
-                    ValueParsed = true
+                    ParsedValue = parsedValue, StringValue = stringValue, ValueParsed = true
                 };
 
             return new ContentImportValueParse<DateTime?>
-                {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
+            {
+                ParsedValue = null, StringValue = stringValue, ValueParsed = false
+            };
         }
 
         public static ContentImportValueParse<double?> GetDoubleFromExcelRow(ContentImportHeaderRow headerInfo,
-            ContentImportRow toProcess,
-            string columnName)
+            ContentImportRow toProcess, string columnName)
         {
             var contentIdColumn = headerInfo.Columns.Single(x => string.Equals(x.ColumnHeader,
                 columnName.TrimNullToEmpty(), StringComparison.CurrentCultureIgnoreCase));
@@ -82,23 +80,24 @@ namespace PointlessWaymarks.CmsData.Import
 
             if (string.IsNullOrWhiteSpace(stringValue))
                 return new ContentImportValueParse<double?>
-                    {ParsedValue = null, StringValue = stringValue, ValueParsed = true};
+                {
+                    ParsedValue = null, StringValue = stringValue, ValueParsed = true
+                };
 
             if (double.TryParse(stringValue, out var parsedValue))
                 return new ContentImportValueParse<double?>
                 {
-                    ParsedValue = parsedValue,
-                    StringValue = stringValue,
-                    ValueParsed = true
+                    ParsedValue = parsedValue, StringValue = stringValue, ValueParsed = true
                 };
 
             return new ContentImportValueParse<double?>
-                {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
+            {
+                ParsedValue = null, StringValue = stringValue, ValueParsed = false
+            };
         }
 
         public static ContentImportValueParse<Guid?> GetGuidFromExcelRow(ContentImportHeaderRow headerInfo,
-            ContentImportRow toProcess,
-            string columnName)
+            ContentImportRow toProcess, string columnName)
         {
             var contentIdColumn = headerInfo.Columns.SingleOrDefault(x => string.Equals(x.ColumnHeader,
                 columnName.TrimNullToEmpty(), StringComparison.CurrentCultureIgnoreCase));
@@ -110,23 +109,24 @@ namespace PointlessWaymarks.CmsData.Import
 
             if (string.IsNullOrWhiteSpace(stringValue))
                 return new ContentImportValueParse<Guid?>
-                    {ParsedValue = null, StringValue = string.Empty, ValueParsed = true};
+                {
+                    ParsedValue = null, StringValue = string.Empty, ValueParsed = true
+                };
 
             if (Guid.TryParse(stringValue, out var parsedValue))
                 return new ContentImportValueParse<Guid?>
                 {
-                    ParsedValue = parsedValue,
-                    StringValue = stringValue,
-                    ValueParsed = true
+                    ParsedValue = parsedValue, StringValue = stringValue, ValueParsed = true
                 };
 
             return new ContentImportValueParse<Guid?>
-                {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
+            {
+                ParsedValue = null, StringValue = stringValue, ValueParsed = false
+            };
         }
 
         public static ContentImportValueParse<int?> GetIntFromExcelRow(ContentImportHeaderRow headerInfo,
-            ContentImportRow toProcess,
-            string columnName)
+            ContentImportRow toProcess, string columnName)
         {
             var contentIdColumn = headerInfo.Columns.Single(x => string.Equals(x.ColumnHeader,
                 columnName.TrimNullToEmpty(), StringComparison.CurrentCultureIgnoreCase));
@@ -135,18 +135,20 @@ namespace PointlessWaymarks.CmsData.Import
 
             if (string.IsNullOrWhiteSpace(stringValue))
                 return new ContentImportValueParse<int?>
-                    {ParsedValue = null, StringValue = stringValue, ValueParsed = true};
+                {
+                    ParsedValue = null, StringValue = stringValue, ValueParsed = true
+                };
 
             if (int.TryParse(stringValue, out var parsedValue))
                 return new ContentImportValueParse<int?>
                 {
-                    ParsedValue = parsedValue,
-                    StringValue = stringValue,
-                    ValueParsed = true
+                    ParsedValue = parsedValue, StringValue = stringValue, ValueParsed = true
                 };
 
             return new ContentImportValueParse<int?>
-                {ParsedValue = null, StringValue = stringValue, ValueParsed = false};
+            {
+                ParsedValue = null, StringValue = stringValue, ValueParsed = false
+            };
         }
 
         public static List<ContentImportValueParse<PointDetail?>> GetPointDetails(ContentImportHeaderRow headerInfo,
@@ -274,8 +276,7 @@ namespace PointlessWaymarks.CmsData.Import
         }
 
         public static ContentImportValueParse<string> GetStringFromExcelRow(ContentImportHeaderRow headerInfo,
-            ContentImportRow toProcess,
-            string columnName)
+            ContentImportRow toProcess, string columnName)
         {
             var contentIdColumn = headerInfo.Columns.Single(x => string.Equals(x.ColumnHeader,
                 columnName.TrimNullToEmpty(), StringComparison.CurrentCultureIgnoreCase));
@@ -284,9 +285,7 @@ namespace PointlessWaymarks.CmsData.Import
 
             return new ContentImportValueParse<string>
             {
-                ParsedValue = stringValue.TrimNullToEmpty(),
-                StringValue = stringValue,
-                ValueParsed = true
+                ParsedValue = stringValue.TrimNullToEmpty(), StringValue = stringValue, ValueParsed = true
             };
         }
 
@@ -445,8 +444,7 @@ namespace PointlessWaymarks.CmsData.Import
             if (!errorNotes.Any())
             {
                 var internalContentIdDuplicates = updateList.Where(x => x.ToUpdate != null).Select(x => x.ToUpdate!)
-                    .GroupBy(x => x.ContentId)
-                    .Where(x => x.Count() > 1).Select(x => x.Key).Cast<Guid>().ToList();
+                    .GroupBy(x => x.ContentId).Where(x => x.Count() > 1).Select(x => x.Key).Cast<Guid>().ToList();
 
                 if (internalContentIdDuplicates.Any())
                     return new ContentImportResults(true,
@@ -454,8 +452,8 @@ namespace PointlessWaymarks.CmsData.Import
                         updateList);
 
                 var internalSlugDuplicates = updateList.Where(x => x.ToUpdate != null).Select(x => x.ToUpdate!)
-                    .Where(x => !(x is LinkContent))
-                    .GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key).Cast<string>().ToList();
+                    .Where(x => !(x is LinkContent)).GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key)
+                    .Cast<string>().ToList();
 
                 if (internalSlugDuplicates.Any())
                     return new ContentImportResults(true,
@@ -598,8 +596,7 @@ namespace PointlessWaymarks.CmsData.Import
                         }
 
                         generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo,
-                            archiveFile, false,
-                            null, progress)).generationReturn;
+                            archiveFile, false, null, progress)).generationReturn;
                         break;
                     }
                     case FileContent file:
@@ -616,8 +613,7 @@ namespace PointlessWaymarks.CmsData.Import
                         }
 
                         generationResult = (await FileGenerator.SaveAndGenerateHtml(file,
-                            archiveFile, false, null,
-                            progress)).generationReturn;
+                            archiveFile, false, null, progress)).generationReturn;
                         break;
                     }
                     case ImageContent image:
@@ -634,8 +630,7 @@ namespace PointlessWaymarks.CmsData.Import
                         }
 
                         generationResult = (await ImageGenerator.SaveAndGenerateHtml(image,
-                            archiveFile, false,
-                            null, progress)).generationReturn;
+                            archiveFile, false, null, progress)).generationReturn;
                         break;
                     }
                     case PointContentDto point:
@@ -663,8 +658,7 @@ namespace PointlessWaymarks.CmsData.Import
                         break;
                     }
                     default:
-                        generationResult =
-                            GenerationReturn.Error("Excel Import - No Content Type Generator found?");
+                        generationResult = GenerationReturn.Error("Excel Import - No Content Type Generator found?");
                         break;
                 }
 

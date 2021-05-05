@@ -56,9 +56,10 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
                 LinkExtraction.ExtractNewAndShowLinkContentEditors(
                     $"{BodyContent.BodyContent} {UpdateNotes.UpdateNotes}", StatusContext.ProgressTracker()));
 
-            HelpContext =
-                new HelpDisplayContext(new List<string>
-                    {CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock});
+            HelpContext = new HelpDisplayContext(new List<string>
+            {
+                CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+            });
         }
 
         public BodyContentEditorContext BodyContent

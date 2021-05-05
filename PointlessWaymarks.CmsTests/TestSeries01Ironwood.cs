@@ -152,8 +152,7 @@ namespace PointlessWaymarks.CmsTests
             await newContext.SaveAndGenerateHtml(true);
 
             var (areEqual, comparisonNotes) = IronwoodPhotoInfo.CompareContent(
-                IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags,
-                newContext.DbEntry);
+                IronwoodPhotoInfo.QuarryContent02_BodyContentUpdateNotesTags, newContext.DbEntry);
             Assert.True(areEqual, comparisonNotes);
         }
 
@@ -236,8 +235,7 @@ namespace PointlessWaymarks.CmsTests
             workbook.Save();
 
             var importResult =
-                await ContentImport.ImportFromFile(excelFileExport.FullName,
-                    DebugTrackers.DebugProgressTracker());
+                await ContentImport.ImportFromFile(excelFileExport.FullName, DebugTrackers.DebugProgressTracker());
             Assert.False(importResult.HasError, "Unexpected Excel Import Failure");
             Assert.AreEqual(2, importResult.ToUpdate.Count, "Unexpected number of rows to update");
 
@@ -255,15 +253,13 @@ namespace PointlessWaymarks.CmsTests
             podReference.LastUpdatedOn = updatedPodPhoto.LastUpdatedOn;
 
             var (areEqual, comparisonNotes) = IronwoodPhotoInfo.CompareContent(podReference, updatedPodPhoto);
-            Assert.True(areEqual,
-                $"Excel Pod Picture Update Issues: {comparisonNotes}");
+            Assert.True(areEqual, $"Excel Pod Picture Update Issues: {comparisonNotes}");
 
             var treeReference = IronwoodPhotoInfo.IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy;
             treeReference.LastUpdatedOn = updatedTreePhoto.LastUpdatedOn;
 
             var updatedTreeComparison = IronwoodPhotoInfo.CompareContent(treeReference, updatedTreePhoto);
-            Assert.True(updatedTreeComparison.areEqual,
-                $"Excel Tree Picture Update Issues: {comparisonNotes}");
+            Assert.True(updatedTreeComparison.areEqual, $"Excel Tree Picture Update Issues: {comparisonNotes}");
         }
 
         [Test]

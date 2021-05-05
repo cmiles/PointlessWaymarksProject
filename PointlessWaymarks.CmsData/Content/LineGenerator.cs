@@ -81,8 +81,8 @@ namespace PointlessWaymarks.CmsData.Content
                         "The GeoJson for the line appears to contain multiple elements? It should only contain 1 line...",
                         lineContent.ContentId);
                 if (featureCollection[0].Geometry is not LineString)
-                    return GenerationReturn.Error(
-                        "The GeoJson for the line has one element but it isn't a LineString?", lineContent.ContentId);
+                    return GenerationReturn.Error("The GeoJson for the line has one element but it isn't a LineString?",
+                        lineContent.ContentId);
                 var lineString = featureCollection[0].Geometry as LineString;
                 if (lineString == null || lineString.Count < 1 || lineString.Length == 0)
                     return GenerationReturn.Error("The LineString doesn't have any points or is zero length?",

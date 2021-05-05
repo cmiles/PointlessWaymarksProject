@@ -47,8 +47,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
 
             var htmlString = stringWriter.ToString();
 
-            var htmlFileInfo =
-                settings.LocalSiteNoteHtmlFile(DbEntry);
+            var htmlFileInfo = settings.LocalSiteNoteHtmlFile(DbEntry);
 
             if (htmlFileInfo == null)
             {

@@ -823,9 +823,8 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
                 await ThreadSwitcher.ResumeForegroundAsync();
 
-                var newUploaderWindow = new S3UploadsWindow(items
-                    .Select(x => new S3Upload(new FileInfo(x.fileFullName), x.S3Key, x.BucketName, x.Region, x.Note))
-                    .ToList());
+                var newUploaderWindow = new S3UploadsWindow(items.Select(x =>
+                    new S3Upload(new FileInfo(x.fileFullName), x.S3Key, x.BucketName, x.Region, x.Note)).ToList());
                 newUploaderWindow.PositionWindowAndShow();
             }
             catch (Exception e)

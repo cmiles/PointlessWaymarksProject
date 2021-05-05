@@ -6,9 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Data;
-using System.Windows.Input;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
@@ -16,6 +14,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -46,12 +45,10 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private ObservableCollection<PhotoListListItem> _items;
         private string _lastSortColumn = "CreatedOn";
         private Command<PhotoContent> _lensSearchCommand;
-        private ObservableCollection<CommandBinding> _listBoxAppCommandBindings;
+        private ContentListSelected<PhotoListListItem> _listSelection;
         private PhotoListLoadMode _loadMode = PhotoListLoadMode.Recent;
         private Command<PhotoContent> _photoTakenOnSearchCommand;
         private Func<Task<List<PhotoContent>>> _reportGenerator;
-        private PhotoListListItem _selected;
-        private List<PhotoListListItem> _selectedItems;
         private Command<PhotoContent> _shutterSpeedSearchCommand;
         private bool _sortDescending = true;
         private Command<string> _sortListCommand;
@@ -66,8 +63,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             StatusContext = statusContext ?? new StatusControlContext();
 
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
-
-            ListBoxAppCommandBindings = new ObservableCollection<CommandBinding>();
 
             ViewImageCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewImage);
             EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(EditContent);
@@ -109,9 +104,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                     StatusContext.RunBlockingTask(LoadData);
                 }
             });
-
-            ListBoxAppCommandBindings.Add(new CommandBinding(ApplicationCommands.Copy,
-                ExecuteListBoxItemCopy));
 
             LoadMode = photoListLoadMode;
         }
@@ -215,13 +207,13 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public ObservableCollection<CommandBinding> ListBoxAppCommandBindings
+        public ContentListSelected<PhotoListListItem> ListSelection
         {
-            get => _listBoxAppCommandBindings;
+            get => _listSelection;
             set
             {
-                if (Equals(value, _listBoxAppCommandBindings)) return;
-                _listBoxAppCommandBindings = value;
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
                 OnPropertyChanged();
             }
         }
@@ -259,27 +251,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public PhotoListListItem Selected
-        {
-            get => _selected;
-            set
-            {
-                if (Equals(value, _selected)) return;
-                _selected = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public List<PhotoListListItem> SelectedItems
-        {
-            get => _selectedItems;
-            set
-            {
-                if (Equals(value, _selectedItems)) return;
-                _selectedItems = value;
-                OnPropertyChanged();
-            }
-        }
 
         public Command<PhotoContent> ShutterSpeedSearchCommand
         {
@@ -496,11 +467,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        private void ExecuteListBoxItemCopy(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (Selected == null) return;
-            StatusContext.ContextDispatcher.Invoke(() => { Clipboard.SetText(Selected.CurrentSelectedText); });
-        }
 
         private async Task FilterList()
         {
@@ -587,6 +553,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
+            ListSelection = await ContentListSelected<PhotoListListItem>.CreateInstance(StatusContext);
+
             StatusContext.Progress("Connecting to DB");
 
             var db = await Db.Context();
@@ -596,8 +564,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             var dbItems = LoadMode switch
             {
                 PhotoListLoadMode.Recent => db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .Take(20)
-                    .ToList(),
+                    .Take(20).ToList(),
                 PhotoListLoadMode.All => db.PhotoContents.ToList(),
                 PhotoListLoadMode.ReportQuery => ReportGenerator == null
                     ? new List<PhotoContent>()

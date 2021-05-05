@@ -46,6 +46,10 @@
  
 ## Notes
 
+5/5/2021
+
+Reworked the copy changes in the Photo list in a more re-usable form and reworked the Post and Photo lists. In the process also pulled a number of the list item display controls into the resource file for better reuse.
+
 5/4/2021
 
 Pulled in code for the Commands that I was using from the MvvmHelpers - the package is amazing but with only WPF in the project it felt appropriate to pull in code rather than keep the whole library.

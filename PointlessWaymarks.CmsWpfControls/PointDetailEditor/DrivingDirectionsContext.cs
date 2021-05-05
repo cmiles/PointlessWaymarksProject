@@ -167,7 +167,9 @@ namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
                 DetailData = JsonSerializer.Deserialize<DrivingDirections>(DbEntry.StructuredDataAsJson);
 
             DetailData ??= new DrivingDirections
-                {NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()};
+            {
+                NotesContentFormat = UserSettingsUtilities.DefaultContentFormatChoice()
+            };
 
             NoteEditor = StringDataEntryContext.CreateInstance();
             NoteEditor.Title = "Notes";

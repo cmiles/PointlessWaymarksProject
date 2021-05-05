@@ -28,10 +28,8 @@ namespace PointlessWaymarks.WpfCommon.Commands
         /// <param name="canExecute">Function to call to determine if it can be executed</param>
         /// <param name="onException">Action callback when an exception occurs</param>
         /// <param name="continueOnCapturedContext">If the context should be captured on exception</param>
-        public AsyncCommand(Func<Task> execute,
-            Func<object?, bool>? canExecute = null,
-            Action<Exception>? onException = null,
-            bool continueOnCapturedContext = false)
+        public AsyncCommand(Func<Task> execute, Func<object?, bool>? canExecute = null,
+            Action<Exception>? onException = null, bool continueOnCapturedContext = false)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
@@ -103,10 +101,8 @@ namespace PointlessWaymarks.WpfCommon.Commands
         /// <param name="canExecute">Function to call to determine if it can be executed</param>
         /// <param name="onException">Action callback when an exception occurs</param>
         /// <param name="continueOnCapturedContext">If the context should be captured on exception</param>
-        public AsyncCommand(Func<T?, Task> execute,
-            Func<object?, bool>? canExecute = null,
-            Action<Exception>? onException = null,
-            bool continueOnCapturedContext = false)
+        public AsyncCommand(Func<T?, Task> execute, Func<object?, bool>? canExecute = null,
+            Action<Exception>? onException = null, bool continueOnCapturedContext = false)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;

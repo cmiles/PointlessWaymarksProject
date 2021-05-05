@@ -291,8 +291,8 @@ namespace PointlessWaymarks.CmsData.Content
                 if (originalWidth >= size || size == smallestSrcSetSize)
                 {
                     progress?.Report($"Resize: {size}, {quality}");
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fileToProcess, size,
-                        quality, overwriteExistingFiles, progress)!);
+                    returnList.Add(ResizeWithWidthAndHeightFileName(fileToProcess, size, quality,
+                        overwriteExistingFiles, progress)!);
                 }
 
             return returnList;

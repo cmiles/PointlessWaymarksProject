@@ -58,12 +58,7 @@ namespace PointlessWaymarks.ExcelInteropExtensions
             if (processes == null) throw new ArgumentNullException(nameof(processes));
 
 
-            return processes
-                .Select(p => new
-                {
-                    Process = p,
-                    Z = MainWindowZ(p)
-                })
+            return processes.Select(p => new {Process = p, Z = MainWindowZ(p)})
                 .Where(x => x.Z > 0) //Filter hidden instances
                 .OrderBy(x => x.Z) //Sort by z value
                 .Select(x => x.Process);

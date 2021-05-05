@@ -59,8 +59,7 @@ namespace PointlessWaymarks.CmsData.Database
         }
 
         public static async Task<List<ContentCommonShell>> ContentCommonShellFromContentIds(
-            this PointlessWaymarksContext db,
-            List<Guid>? contentIds)
+            this PointlessWaymarksContext db, List<Guid>? contentIds)
         {
             if (contentIds == null || !contentIds.Any()) return new List<ContentCommonShell>();
 

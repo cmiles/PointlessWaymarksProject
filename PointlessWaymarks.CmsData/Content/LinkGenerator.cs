@@ -174,8 +174,7 @@ namespace PointlessWaymarks.CmsData.Content
             DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Link,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
 
-            return (
-                GenerationReturn.Success($"Saved and Generated Content And Html for Links to Add {toSave.Title}"),
+            return (GenerationReturn.Success($"Saved and Generated Content And Html for Links to Add {toSave.Title}"),
                 toSave);
         }
 
@@ -183,8 +182,7 @@ namespace PointlessWaymarks.CmsData.Content
             IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().PinboardApiToken))
-                return GenerationReturn.Success("No PinboardApiToken - skipping save to Pinboard",
-                    toSave.ContentId);
+                return GenerationReturn.Success("No PinboardApiToken - skipping save to Pinboard", toSave.ContentId);
 
             var descriptionFragments = new List<string>();
             if (!string.IsNullOrWhiteSpace(toSave.Site)) descriptionFragments.Add($"Site: {toSave.Site}");

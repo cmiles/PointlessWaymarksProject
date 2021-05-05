@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -26,7 +27,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private Command<PostContent> _editContentCommand;
         private ObservableCollection<PostListListItem> _items;
         private string _lastSortColumn;
-        private List<PostListListItem> _selectedItems;
+        private ContentListSelected<PostListListItem> _listSelection;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
@@ -77,13 +78,13 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
-        public List<PostListListItem> SelectedItems
+        public ContentListSelected<PostListListItem> ListSelection
         {
-            get => _selectedItems;
+            get => _listSelection;
             set
             {
-                if (Equals(value, _selectedItems)) return;
-                _selectedItems = value;
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
                 OnPropertyChanged();
             }
         }
@@ -244,6 +245,8 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+            ListSelection = await ContentListSelected<PostListListItem>.CreateInstance(StatusContext);
 
             StatusContext.Progress("Connecting to DB");
 

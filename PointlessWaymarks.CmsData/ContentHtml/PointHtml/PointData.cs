@@ -18,17 +18,16 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
             var extendedPointInformation = await Db.PointAndPointDetails(allPointIds, db);
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            return JsonSerializer.Serialize(extendedPointInformation.Select(x =>
-                new
-                {
-                    x.ContentId,
-                    x.Title,
-                    x.Longitude,
-                    x.Latitude,
-                    x.Slug,
-                    PointPageUrl = settings.PointPageUrl(x),
-                    DetailTypeString = string.Join(", ", PointDetailUtilities.PointDtoTypeList(x))
-                }).ToList());
+            return JsonSerializer.Serialize(extendedPointInformation.Select(x => new
+            {
+                x.ContentId,
+                x.Title,
+                x.Longitude,
+                x.Latitude,
+                x.Slug,
+                PointPageUrl = settings.PointPageUrl(x),
+                DetailTypeString = string.Join(", ", PointDetailUtilities.PointDtoTypeList(x))
+            }).ToList());
         }
 
         public static async Task WriteJsonData()

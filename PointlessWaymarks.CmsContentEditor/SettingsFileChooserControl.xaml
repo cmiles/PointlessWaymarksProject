@@ -30,6 +30,7 @@
                 HorizontalContentAlignment="Stretch"
                 BorderThickness="0"
                 ItemsSource="{Binding Items}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectionMode="Single">
                 <b:Interaction.Behaviors>
                     <behaviors:ListBoxOneLineMouseWheelScroll />
@@ -52,7 +53,10 @@
                                     FontSize="16">
                                     Launch
                                 </Button>
-                                <StackPanel Grid.Column="1" Orientation="Vertical">
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Margin="4,0,0,0"
+                                    Orientation="Vertical">
                                     <TextBlock Text="{Binding ParsedSettings.SiteName}" />
                                     <TextBlock
                                         FontSize="12"

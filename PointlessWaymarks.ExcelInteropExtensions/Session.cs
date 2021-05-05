@@ -38,10 +38,7 @@ namespace PointlessWaymarks.ExcelInteropExtensions
         ///     running in the specified Windows session.
         /// </summary>
         private IEnumerable<XL.Application> AppsImpl =>
-            Processes
-                .Select(TryGetApp)
-                .Where(a => a != null && a.AsProcess().IsVisible())
-                .ToArray();
+            Processes.Select(TryGetApp).Where(a => a != null && a.AsProcess().IsVisible()).ToArray();
 
         /// <summary>
         ///     Gets an instance representing the current Windows session.
@@ -50,25 +47,20 @@ namespace PointlessWaymarks.ExcelInteropExtensions
 
         /// <summary>Gets a sequence of all processes in this session named "EXCEL".</summary>
         private IEnumerable<Process> Processes =>
-            Process.GetProcessesByName("EXCEL")
-                .Where(p => p.SessionId == SessionId);
+            Process.GetProcessesByName("EXCEL").Where(p => p.SessionId == SessionId);
 
         /// <summary>
         ///     Gets a sequence of process IDs for all currently running Excel
         ///     processes in the specified Windows session.
         /// </summary>
-        public IEnumerable<int> ProcessIds =>
-            Processes
-                .Select(p => p.Id)
-                .ToArray();
+        public IEnumerable<int> ProcessIds => Processes.Select(p => p.Id).ToArray();
 
         /// <summary>
         ///     Gets a sequence of process IDs for all currently running processes
         ///     in the specified Windows session named Excel, but which can currently be
         ///     converted to Application instances.
         /// </summary>
-        public IEnumerable<int> ReachableProcessIds =>
-            AppsImpl.Select(a => a.AsProcess().Id).ToArray();
+        public IEnumerable<int> ReachableProcessIds => AppsImpl.Select(a => a.AsProcess().Id).ToArray();
 
         /// <summary>
         ///     Gets the session identifier.
@@ -83,9 +75,7 @@ namespace PointlessWaymarks.ExcelInteropExtensions
         {
             get
             {
-                var dict = AppsImpl.ToDictionary(
-                    a => a.AsProcess(),
-                    a => a);
+                var dict = AppsImpl.ToDictionary(a => a.AsProcess(), a => a);
 
                 var topProcess = dict.Keys.TopMost();
 
@@ -107,10 +97,7 @@ namespace PointlessWaymarks.ExcelInteropExtensions
         ///     in the specified Windows session named Excel, but which cannot currently be
         ///     converted to Application instances.
         /// </summary>
-        public IEnumerable<int> UnreachableProcessIds =>
-            ProcessIds
-                .Except(ReachableProcessIds)
-                .ToArray();
+        public IEnumerable<int> UnreachableProcessIds => ProcessIds.Except(ReachableProcessIds).ToArray();
 
         /// <summary>
         ///     Tries to convert the given process to an Excel instance,

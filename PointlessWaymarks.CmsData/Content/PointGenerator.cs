@@ -21,8 +21,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
         public static async Task<(GenerationReturn generationReturn, PointContentDto? pointContent)>
-            SaveAndGenerateHtml(
-                PointContentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
+            SaveAndGenerateHtml(PointContentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
         {
             var validationReturn = await Validate(toSave);
 
@@ -81,8 +80,7 @@ namespace PointlessWaymarks.CmsData.Content
                         $"{loopDetails.DataType} Point Detail isn't assigned to the current point?",
                         loopDetails.ContentId);
                 if (string.IsNullOrWhiteSpace(loopDetails.DataType))
-                    return GenerationReturn.Error("Point Detail Data Type doesn't have a value",
-                        loopDetails.ContentId);
+                    return GenerationReturn.Error("Point Detail Data Type doesn't have a value", loopDetails.ContentId);
                 if (string.IsNullOrWhiteSpace(loopDetails.StructuredDataAsJson))
                     return GenerationReturn.Error($"{loopDetails.DataType} Point Detail doesn't have any data?",
                         loopDetails.ContentId);
@@ -92,15 +90,13 @@ namespace PointlessWaymarks.CmsData.Content
                         Db.PointDetailDataFromIdentifierAndJson(loopDetails.DataType, loopDetails.StructuredDataAsJson);
 
                     if (content == null)
-                        return GenerationReturn.Error(
-                            $"{loopDetails.DataType} Point Detail returned null?",
+                        return GenerationReturn.Error($"{loopDetails.DataType} Point Detail returned null?",
                             pointContent.ContentId);
 
                     var (isValid, validationMessage) = content.Validate();
 
                     if (!isValid)
-                        return GenerationReturn.Error(
-                            $"{loopDetails.DataType} Point Detail: {validationMessage}",
+                        return GenerationReturn.Error($"{loopDetails.DataType} Point Detail: {validationMessage}",
                             pointContent.ContentId);
                 }
                 catch (Exception e)

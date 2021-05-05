@@ -1,35 +1,16 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Controls;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.WpfCommon.Commands;
+using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList
 {
-    public class PhotoListListItem : INotifyPropertyChanged
+    public class PhotoListListItem : INotifyPropertyChanged, ISelectedTextTracker
     {
-        private string _currentSelectedText;
-
         private PhotoContent _dbEntry;
+        private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
-
-        public PhotoListListItem()
-        {
-            SelectedTextChangedCommand = new Command<RoutedEventArgs>(SelectedTextChanged);
-        }
-
-        public string CurrentSelectedText
-        {
-            get => _currentSelectedText;
-            set
-            {
-                if (value == _currentSelectedText) return;
-                _currentSelectedText = value;
-                OnPropertyChanged();
-            }
-        }
 
         public PhotoContent DbEntry
         {
@@ -41,8 +22,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 OnPropertyChanged();
             }
         }
-
-        public Command<RoutedEventArgs> SelectedTextChangedCommand { get; set; }
 
         public string SmallImageUrl
         {
@@ -57,16 +36,21 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public CurrentSelectedTextTracker SelectedTextTracker
+        {
+            get => _selectedTextTracker;
+            set
+            {
+                if (Equals(value, _selectedTextTracker)) return;
+                _selectedTextTracker = value;
+                OnPropertyChanged();
+            }
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void SelectedTextChanged(RoutedEventArgs obj)
-        {
-            var source = obj.Source as TextBox;
-            CurrentSelectedText = source?.SelectedText;
         }
     }
 }

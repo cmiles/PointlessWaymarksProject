@@ -59,9 +59,9 @@ namespace PointlessWaymarks.ExcelInteropExtensions
                 using var process = app.AsProcess();
                 return app.Visible && process.IsVisible();
             }
-            catch (COMException x)
-                when (x.Message.StartsWith("The message filter indicated that the application is busy.")
-                      || x.Message.StartsWith("Call was rejected by callee."))
+            catch (COMException x) when (x.Message.StartsWith(
+                                             "The message filter indicated that the application is busy.") ||
+                                         x.Message.StartsWith("Call was rejected by callee."))
             {
                 //This means the application is in a state that does not permit COM automation.
                 //Often, this is due to a dialog window or right-click context menu being open.

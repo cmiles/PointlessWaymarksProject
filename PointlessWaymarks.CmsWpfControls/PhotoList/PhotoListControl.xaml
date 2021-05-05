@@ -20,7 +20,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <wpfConverter:ImageCacheConverter x:Key="ImageCache" />
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <photoList:PhotoLoadAllRecentNextActionTextMessageConverter x:Key="PhotoLoadAllRecentNextActionTextMessage" />
@@ -106,12 +105,11 @@
             <ListBox
                 Name="PhotoListBox"
                 ItemsSource="{Binding Items}"
-                PreviewKeyDown="PhotoListBox_OnPreviewKeyDown"
-                SelectedItem="{Binding Selected}"
+                SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
-                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListBoxAppCommandBindings}" />
+                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
                 <ListBox.Resources>
@@ -132,215 +130,106 @@
                                     <ColumnDefinition Width="100" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Image
-                                    Margin="2"
-                                    Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
-                                    ToolTip="Double Click to View, Shift Double Click to Edit">
-                                    <Image.InputBindings>
-                                        <MouseBinding
-                                            Command="{Binding DataContext.ViewImageCommand, ElementName=PhotoListControlXaml}"
-                                            CommandParameter="{Binding DbEntry}"
-                                            MouseAction="LeftDoubleClick" />
-                                        <MouseBinding
-                                            Command="{Binding DataContext.EditContentCommand, ElementName=PhotoListControlXaml}"
-                                            CommandParameter="{Binding DbEntry}"
-                                            Gesture="Shift+LeftDoubleClick" />
-                                    </Image.InputBindings>
-                                </Image>
-                                <StackPanel
-                                    Grid.Column="1"
-                                    Margin="2"
-                                    Orientation="Vertical">
-                                    <TextBox
-                                        FontWeight="Bold"
-                                        Style="{StaticResource ReadOnlyTextBox}"
-                                        Text="{Binding DbEntry.Title}"
-                                        TextWrapping="Wrap">
-                                        <i:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
-                                    <TextBox
-                                        Margin="0,4,0,0"
-                                        Style="{StaticResource ReadOnlyTextBox}"
-                                        Text="{Binding DbEntry.Summary}"
-                                        TextWrapping="Wrap">
-                                        <i:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </i:Interaction.Behaviors>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="SelectionChanged">
-                                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </TextBox>
-                                    <TextBox
-                                        Margin="0,4,0,0"
-                                        Style="{StaticResource ReadOnlyTextBox}"
-                                        Text="{Binding DbEntry.Tags, StringFormat='Tags: {0}'}"
-                                        TextWrapping="Wrap">
-                                        <i:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </i:Interaction.Behaviors>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="SelectionChanged">
-                                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </TextBox>
-                                    <TextBox
-                                        Margin="0,4,0,0"
-                                        Style="{StaticResource ReadOnlyTextBox}"
-                                        Text="{Binding DbEntry.OriginalFileName, StringFormat='File: {0}'}"
-                                        TextWrapping="Wrap">
-                                        <i:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </i:Interaction.Behaviors>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="SelectionChanged">
-                                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </TextBox>
-                                    <WrapPanel Orientation="Horizontal">
-                                        <TextBox
-                                            HorizontalAlignment="Right"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="SelectionChanged">
-                                                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </TextBox>
-                                        <TextBox
-                                            Margin="8,0,0,0"
-                                            HorizontalAlignment="Right"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="SelectionChanged">
-                                                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </TextBox>
-                                    </WrapPanel>
-                                    <WrapPanel Orientation="Horizontal">
-                                        <TextBox
-                                            HorizontalAlignment="Right"
-                                            Cursor="Arrow"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo Created On: {0}'}"
-                                            TextDecorations="Underline"
-                                            TextWrapping="Wrap"
-                                            ToolTip="Photo taken on - click to search to find other photos taken on this day">
-                                            <TextBox.InputBindings>
-                                                <MouseBinding
-                                                    Command="{Binding DataContext.PhotoTakenOnSearchCommand, ElementName=PhotoListControlXaml}"
-                                                    CommandParameter="{Binding DbEntry}"
-                                                    MouseAction="LeftClick" />
-                                            </TextBox.InputBindings>
-                                        </TextBox>
-                                    </WrapPanel>
-                                    <WrapPanel Margin="0,4,0,0" Orientation="Horizontal">
-                                        <WrapPanel.Resources>
-                                            <Style TargetType="Button">
-                                                <Setter Property="Padding" Value="6,0,6,0" />
-                                                <Setter Property="Margin" Value="2,0,2,0" />
-                                            </Style>
-                                        </WrapPanel.Resources>
-                                        <Button Content="{Binding DbEntry.CameraMake, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Make)'}" ToolTip="Camera Make - click to search for other photos with this Camera Make">
-                                            <Button.InputBindings>
-                                                <MouseBinding
-                                                    Command="{Binding DataContext.CameraMakeSearchCommand, ElementName=PhotoListControlXaml}"
-                                                    CommandParameter="{Binding DbEntry}"
-                                                    MouseAction="LeftClick" />
-                                            </Button.InputBindings>
-                                        </Button>
-                                        <Button Content="{Binding DbEntry.CameraModel, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Model)'}" ToolTip="Camera Model - click to search for other photos with this Camera Model">
-                                            <Button.InputBindings>
-                                                <MouseBinding
-                                                    Command="{Binding DataContext.CameraModelSearchCommand, ElementName=PhotoListControlXaml}"
-                                                    CommandParameter="{Binding DbEntry}"
-                                                    MouseAction="LeftClick" />
-                                            </Button.InputBindings>
-                                        </Button>
-                                        <Button Content="{Binding DbEntry.Lens, Converter={StaticResource StringDefault}, ConverterParameter='(No Lens)'}" ToolTip="Lens - click to search for other photos taken with this lens">
-                                            <Button.InputBindings>
-                                                <MouseBinding
-                                                    Command="{Binding DataContext.LensSearchCommand, ElementName=PhotoListControlXaml}"
-                                                    CommandParameter="{Binding DbEntry}"
-                                                    MouseAction="LeftClick" />
-                                            </Button.InputBindings>
-                                        </Button>
-                                        <Button Content="{Binding DbEntry.FocalLength, Converter={StaticResource StringDefault}, ConverterParameter='(No Focal Length)'}" ToolTip="Focal Length - click to search for other photos with this focal length">
-                                            <Button.InputBindings>
-                                                <MouseBinding
-                                                    Command="{Binding DataContext.FocalLengthSearchCommand, ElementName=PhotoListControlXaml}"
-                                                    CommandParameter="{Binding DbEntry}"
-                                                    MouseAction="LeftClick" />
-                                            </Button.InputBindings>
-                                        </Button>
-                                        <Button Content="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture Model)'}" ToolTip="Aperture - click to search for other photos taken with this Aperture">
-                                            <Button.InputBindings>
-                                                <MouseBinding
-                                                    Command="{Binding DataContext.ApertureSearchCommand, ElementName=PhotoListControlXaml}"
-                                                    CommandParameter="{Binding DbEntry}"
-                                                    MouseAction="LeftClick" />
-                                            </Button.InputBindings>
-                                        </Button>
-                                        <Button Content="{Binding DbEntry.ShutterSpeed, Converter={StaticResource StringDefault}, ConverterParameter='(No Shutter Speed)'}" ToolTip="Shutter Speed - click to search for other photos take with this Shutter Speed">
-                                            <Button.InputBindings>
-                                                <MouseBinding
-                                                    Command="{Binding DataContext.ShutterSpeedSearchCommand, ElementName=PhotoListControlXaml}"
-                                                    CommandParameter="{Binding DbEntry}"
-                                                    MouseAction="LeftClick" />
-                                            </Button.InputBindings>
-                                        </Button>
-                                        <Button Content="{Binding DbEntry.Iso, Converter={StaticResource IsoWithDefault}}" ToolTip="ISO - click to search for other pictures taken at this ISO">
-                                            <Button.InputBindings>
-                                                <MouseBinding
-                                                    Command="{Binding DataContext.IsoSearchCommand, ElementName=PhotoListControlXaml}"
-                                                    CommandParameter="{Binding DbEntry}"
-                                                    MouseAction="LeftClick" />
-                                            </Button.InputBindings>
-                                        </Button>
+                                <ContentPresenter Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                                <Grid Grid.Column="1" Margin="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Orientation="Vertical">
+                                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListOriginalFileNameDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
+                                        <WrapPanel Orientation="Horizontal">
+                                            <TextBox
+                                                HorizontalAlignment="Right"
+                                                Cursor="Arrow"
+                                                Style="{StaticResource ReadOnlyTextBox}"
+                                                Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo Created On: {0}'}"
+                                                TextDecorations="Underline"
+                                                TextWrapping="Wrap"
+                                                ToolTip="Photo taken on - click to search to find other photos taken on this day">
+                                                <TextBox.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding DataContext.PhotoTakenOnSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        CommandParameter="{Binding DbEntry}"
+                                                        MouseAction="LeftClick" />
+                                                </TextBox.InputBindings>
+                                            </TextBox>
+                                        </WrapPanel>
+                                        <WrapPanel Margin="0,4,0,0" Orientation="Horizontal">
+                                            <WrapPanel.Resources>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Padding" Value="6,0,6,0" />
+                                                    <Setter Property="Margin" Value="2,0,2,0" />
+                                                </Style>
+                                            </WrapPanel.Resources>
+                                            <Button Content="{Binding DbEntry.CameraMake, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Make)'}" ToolTip="Camera Make - click to search for other photos with this Camera Make">
+                                                <Button.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding DataContext.CameraMakeSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        CommandParameter="{Binding DbEntry}"
+                                                        MouseAction="LeftClick" />
+                                                </Button.InputBindings>
+                                            </Button>
+                                            <Button Content="{Binding DbEntry.CameraModel, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Model)'}" ToolTip="Camera Model - click to search for other photos with this Camera Model">
+                                                <Button.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding DataContext.CameraModelSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        CommandParameter="{Binding DbEntry}"
+                                                        MouseAction="LeftClick" />
+                                                </Button.InputBindings>
+                                            </Button>
+                                            <Button Content="{Binding DbEntry.Lens, Converter={StaticResource StringDefault}, ConverterParameter='(No Lens)'}" ToolTip="Lens - click to search for other photos taken with this lens">
+                                                <Button.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding DataContext.LensSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        CommandParameter="{Binding DbEntry}"
+                                                        MouseAction="LeftClick" />
+                                                </Button.InputBindings>
+                                            </Button>
+                                            <Button Content="{Binding DbEntry.FocalLength, Converter={StaticResource StringDefault}, ConverterParameter='(No Focal Length)'}" ToolTip="Focal Length - click to search for other photos with this focal length">
+                                                <Button.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding DataContext.FocalLengthSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        CommandParameter="{Binding DbEntry}"
+                                                        MouseAction="LeftClick" />
+                                                </Button.InputBindings>
+                                            </Button>
+                                            <Button Content="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture Model)'}" ToolTip="Aperture - click to search for other photos taken with this Aperture">
+                                                <Button.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding DataContext.ApertureSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        CommandParameter="{Binding DbEntry}"
+                                                        MouseAction="LeftClick" />
+                                                </Button.InputBindings>
+                                            </Button>
+                                            <Button Content="{Binding DbEntry.ShutterSpeed, Converter={StaticResource StringDefault}, ConverterParameter='(No Shutter Speed)'}" ToolTip="Shutter Speed - click to search for other photos take with this Shutter Speed">
+                                                <Button.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding DataContext.ShutterSpeedSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        CommandParameter="{Binding DbEntry}"
+                                                        MouseAction="LeftClick" />
+                                                </Button.InputBindings>
+                                            </Button>
+                                            <Button Content="{Binding DbEntry.Iso, Converter={StaticResource IsoWithDefault}}" ToolTip="ISO - click to search for other pictures taken at this ISO">
+                                                <Button.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding DataContext.IsoSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        CommandParameter="{Binding DbEntry}"
+                                                        MouseAction="LeftClick" />
+                                                </Button.InputBindings>
+                                            </Button>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                    <ContentPresenter
+                                        Grid.Row="1"
+                                        VerticalAlignment="Bottom"
+                                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
+                                </Grid>
 
-                                    </WrapPanel>
-                                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanel}">
-                                        <TextBox
-                                            Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
-                                        <TextBox
-                                            Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="SelectionChanged">
-                                                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </TextBox>
-                                    </WrapPanel>
-                                </StackPanel>
                             </Grid>
                         </Border>
                     </DataTemplate>

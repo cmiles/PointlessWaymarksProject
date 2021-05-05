@@ -163,8 +163,7 @@ namespace PointlessWaymarks.CmsData.Content
         }
 
 
-        public static async Task<IsValid> FileContentFileValidation(FileInfo? fileContentFile,
-            Guid? currentContentId)
+        public static async Task<IsValid> FileContentFileValidation(FileInfo? fileContentFile, Guid? currentContentId)
         {
             if (fileContentFile == null) return new IsValid(false, "No File?");
 
@@ -204,8 +203,7 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, string.Empty);
         }
 
-        public static async Task<IsValid> ImageFileValidation(FileInfo imageFile,
-            Guid? currentContentId)
+        public static async Task<IsValid> ImageFileValidation(FileInfo imageFile, Guid? currentContentId)
         {
             imageFile.Refresh();
 
@@ -241,8 +239,7 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, "Longitude is Valid");
         }
 
-        public static async Task<IsValid> PhotoFileValidation(FileInfo photoFile,
-            Guid? currentContentId)
+        public static async Task<IsValid> PhotoFileValidation(FileInfo photoFile, Guid? currentContentId)
         {
             photoFile.Refresh();
 
@@ -352,8 +349,7 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
         }
 
-        public static IsValid ValidateCreatedAndUpdatedBy(
-            ICreatedAndLastUpdateOnAndBy toValidate, bool isNewEntry)
+        public static IsValid ValidateCreatedAndUpdatedBy(ICreatedAndLastUpdateOnAndBy toValidate, bool isNewEntry)
         {
             var isValid = true;
             var errorMessage = new List<string>();
@@ -427,8 +423,7 @@ namespace PointlessWaymarks.CmsData.Content
             return new IsValid(true, string.Empty);
         }
 
-        public static async Task<IsValid> ValidateLinkContentLinkUrl(string? url,
-            Guid? contentGuid)
+        public static async Task<IsValid> ValidateLinkContentLinkUrl(string? url, Guid? contentGuid)
         {
             if (string.IsNullOrWhiteSpace(url)) return new IsValid(false, "Link URL can not be blank");
 

@@ -47,8 +47,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
         /// <typeparam name="T">The 1st type parameter.</typeparam>
         public static async Task<T> WithTimeout<T>(this Task<T> task, int timeoutInMilliseconds)
         {
-            var retTask = await Task.WhenAny(task, Task.Delay(timeoutInMilliseconds))
-                .ConfigureAwait(false);
+            var retTask = await Task.WhenAny(task, Task.Delay(timeoutInMilliseconds)).ConfigureAwait(false);
 
 #pragma warning disable CS8603 // Possible null reference return.
             return retTask is Task<T> ? task.Result : default;

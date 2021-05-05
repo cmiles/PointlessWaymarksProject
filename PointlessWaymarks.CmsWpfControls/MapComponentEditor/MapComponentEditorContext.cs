@@ -461,8 +461,8 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             try
             {
                 smallImageUrl =
-                    PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture?.File?
-                        .FullName ?? string.Empty;
+                    PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture?.File
+                        ?.FullName ?? string.Empty;
             }
             catch
             {
@@ -490,10 +490,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             TitleEntry.HelpText = "Title Text";
             TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
             TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-            TitleEntry.ValidationFunctions = new List<Func<string, IsValid>>
-            {
-                CommonContentValidation.ValidateTitle
-            };
+            TitleEntry.ValidationFunctions = new List<Func<string, IsValid>> {CommonContentValidation.ValidateTitle};
 
             SummaryEntry = StringDataEntryContext.CreateInstance();
             SummaryEntry.Title = "Summary";

@@ -292,10 +292,9 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             if (!string.IsNullOrWhiteSpace(emailSize.AltText))
                 imageTag.Attr("alt", emailSize.AltText);
 
-            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(emailSize.AltText)
-                                        && pictureDirectoryInfo.DbEntry != null
-                                        && !string.IsNullOrWhiteSpace(
-                                            ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
+            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(emailSize.AltText) &&
+                pictureDirectoryInfo.DbEntry != null &&
+                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
                 imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;
@@ -317,10 +316,9 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             if (!string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText))
                 imageTag.Attr("alt", pictureDirectoryInfo.DisplayPicture.AltText);
 
-            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText)
-                                        && pictureDirectoryInfo.DbEntry != null
-                                        && !string.IsNullOrWhiteSpace(
-                                            ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
+            if (!willHaveVisibleCaption && string.IsNullOrWhiteSpace(pictureDirectoryInfo.DisplayPicture.AltText) &&
+                pictureDirectoryInfo.DbEntry != null &&
+                !string.IsNullOrWhiteSpace(((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary))
                 imageTag.Attr("alt", ((ITitleSummarySlugFolder) pictureDirectoryInfo.DbEntry).Summary);
 
             return imageTag;

@@ -293,25 +293,19 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
 
                 var processedCount = processedContent.Count;
 
-                foreach (var loopPages
-                    in pages)
+                foreach (var loopPages in pages)
                 {
                     if (existingUrls.Contains(loopPages.Slug.ToLower())) continue;
 
                     processedContent.Add(new WordPressXmlImportListItem
                     {
-                        CreatedBy = loopPages
-                            .Author.DisplayName,
-                        CreatedOn = loopPages
-                            .PublishDate,
+                        CreatedBy = loopPages.Author.DisplayName,
+                        CreatedOn = loopPages.PublishDate,
                         Category = string.Empty,
                         Tags = string.Empty,
-                        Title = loopPages
-                            .Title,
-                        Slug = loopPages
-                            .Slug,
-                        Content = loopPages
-                            .Body,
+                        Title = loopPages.Title,
+                        Slug = loopPages.Slug,
+                        Content = loopPages.Body,
                         WordPressType = "Page"
                     });
                 }
@@ -356,8 +350,9 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
                     BodyContent = loopItems.Content,
                     CreatedBy = loopItems.CreatedBy,
                     CreatedOn = loopItems.CreatedOn,
-                    Folder =
-                        FolderFromYear ? loopItems.CreatedOn.Year.ToString() : loopItems.Category.Replace(" ", "-"),
+                    Folder = FolderFromYear
+                        ? loopItems.CreatedOn.Year.ToString()
+                        : loopItems.Category.Replace(" ", "-"),
                     Slug = loopItems.Slug,
                     Tags = loopItems.Tags,
                     Title = loopItems.Title
@@ -390,8 +385,9 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
                     BodyContent = loopItems.Content,
                     CreatedBy = loopItems.CreatedBy,
                     CreatedOn = loopItems.CreatedOn,
-                    Folder =
-                        FolderFromYear ? loopItems.CreatedOn.Year.ToString() : loopItems.Category.Replace(" ", "-"),
+                    Folder = FolderFromYear
+                        ? loopItems.CreatedOn.Year.ToString()
+                        : loopItems.Category.Replace(" ", "-"),
                     Slug = loopItems.Slug,
                     Tags = loopItems.Tags,
                     Title = loopItems.Title

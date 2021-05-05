@@ -349,8 +349,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
             LinkUrlEntry = StringDataEntryContext.CreateInstance();
             LinkUrlEntry.Title = "URL";
             LinkUrlEntry.HelpText = "Link address";
-            LinkUrlEntry.ValidationFunctions =
-                new List<Func<string, IsValid>> {ValidateUrl};
+            LinkUrlEntry.ValidationFunctions = new List<Func<string, IsValid>> {ValidateUrl};
             LinkUrlEntry.ReferenceValue = DbEntry.Url.TrimNullToEmpty();
             LinkUrlEntry.UserValue = DbEntry.Url.TrimNullToEmpty();
 
@@ -365,10 +364,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
             TitleEntry.HelpText = "Title Text";
             TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
             TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-            TitleEntry.ValidationFunctions = new List<Func<string, IsValid>>
-            {
-                CommonContentValidation.ValidateTitle
-            };
+            TitleEntry.ValidationFunctions = new List<Func<string, IsValid>> {CommonContentValidation.ValidateTitle};
 
             SiteEntry = StringDataEntryContext.CreateInstance();
             SiteEntry.Title = "Site";

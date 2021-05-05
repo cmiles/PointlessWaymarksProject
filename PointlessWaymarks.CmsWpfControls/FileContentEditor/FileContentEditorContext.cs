@@ -633,8 +633,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
             }
 
             var (generationReturn, fileContent) = await FileGenerator.SaveAndGenerateHtml(CurrentStateToFileContent(),
-                SelectedFile, true,
-                null, StatusContext.ProgressTracker());
+                SelectedFile, true, null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError)
             {
@@ -692,8 +691,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
 
             HelpContext = new HelpDisplayContext(new List<string>
             {
-                FileContentHelpMarkdown.HelpBlock,
-                BracketCodeHelpMarkdown.HelpBlock
+                FileContentHelpMarkdown.HelpBlock, BracketCodeHelpMarkdown.HelpBlock
             });
 
             ChooseFileCommand = StatusContext.RunBlockingTaskCommand(async () => await ChooseFile());

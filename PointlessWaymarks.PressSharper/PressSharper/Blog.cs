@@ -15,8 +15,7 @@ namespace PressSharper
 
         private XElement _channelElement;
 
-        public Blog(string xml)
-            : this(XDocument.Parse(xml))
+        public Blog(string xml) : this(XDocument.Parse(xml))
         {
         }
 
@@ -58,15 +57,13 @@ namespace PressSharper
 
         public IEnumerable<Page> GetPages()
         {
-            return _channelElement.Elements("item")
-                .Where(e => IsPageItem(e) && IsPublished(e))
+            return _channelElement.Elements("item").Where(e => IsPageItem(e) && IsPublished(e))
                 .Select(ParsePageElement);
         }
 
         public IEnumerable<Post> GetPosts()
         {
-            return _channelElement.Elements("item")
-                .Where(e => IsPostItem(e) && IsPublished(e))
+            return _channelElement.Elements("item").Where(e => IsPostItem(e) && IsPublished(e))
                 .Select(ParsePostElement);
         }
 
@@ -80,15 +77,12 @@ namespace PressSharper
 
         private void InitializeAttachments()
         {
-            Attachments = _channelElement.Elements("item")
-                .Where(IsAttachmentItem)
-                .Select(ParseAttachmentElement);
+            Attachments = _channelElement.Elements("item").Where(IsAttachmentItem).Select(ParseAttachmentElement);
         }
 
         private void InitializeAuthors()
         {
-            Authors = _channelElement.Descendants(WordPressNamespace + "author")
-                .Select(ParseAuthorElement);
+            Authors = _channelElement.Descendants(WordPressNamespace + "author").Select(ParseAuthorElement);
         }
 
         private void InitializeChannelElement(XDocument document)
@@ -135,9 +129,7 @@ namespace PressSharper
             var attachmentTitleElement = attachmentElement.Element("title");
             var attachmentUrlElement = attachmentElement.Element(WordPressNamespace + "attachment_url");
 
-            if (attachmentIdElement == null ||
-                attachmentTitleElement == null ||
-                attachmentUrlElement == null)
+            if (attachmentIdElement == null || attachmentTitleElement == null || attachmentUrlElement == null)
                 throw new XmlException("Unable to parse malformed attachment.");
 
             var attachment = new Attachment
@@ -181,12 +173,8 @@ namespace PressSharper
             var pagePublishDateElement = pageElement.Element(WordPressNamespace + "post_date");
             var pageSlugElement = pageElement.Element(WordPressNamespace + "post_name");
 
-            if (pageIdElement == null ||
-                pageParentIdElement == null ||
-                pageTitleElement == null ||
-                pageUsernameElement == null ||
-                pageBodyElement == null ||
-                pagePublishDateElement == null ||
+            if (pageIdElement == null || pageParentIdElement == null || pageTitleElement == null ||
+                pageUsernameElement == null || pageBodyElement == null || pagePublishDateElement == null ||
                 pageSlugElement == null)
                 throw new XmlException("Unable to parse malformed page.");
 
@@ -212,11 +200,8 @@ namespace PressSharper
             var postPublishDateElement = postElement.Element(WordPressNamespace + "post_date");
             var postSlugElement = postElement.Element(WordPressNamespace + "post_name");
 
-            if (postTitleElement == null ||
-                postUsernameElement == null ||
-                postBodyElement == null ||
-                postPublishDateElement == null ||
-                postSlugElement == null)
+            if (postTitleElement == null || postUsernameElement == null || postBodyElement == null ||
+                postPublishDateElement == null || postSlugElement == null)
                 throw new XmlException("Unable to parse malformed post.");
 
             var postExcerptElement = postElement.Element(ExcerptNamespace + "encoded");
@@ -242,15 +227,10 @@ namespace PressSharper
                 if (domainAttribute.Value == "category")
                     post.Categories.Add(new Category
                     {
-                        Slug = wpCategory.Attribute("nicename")?.Value,
-                        Name = wpCategory.Value
+                        Slug = wpCategory.Attribute("nicename")?.Value, Name = wpCategory.Value
                     });
                 else if (domainAttribute.Value == "post_tag")
-                    post.Tags.Add(new Tag
-                    {
-                        Slug = wpCategory.Attribute("nicename")?.Value,
-                        Name = wpCategory.Value
-                    });
+                    post.Tags.Add(new Tag {Slug = wpCategory.Attribute("nicename")?.Value, Name = wpCategory.Value});
             }
 
             // get featured image

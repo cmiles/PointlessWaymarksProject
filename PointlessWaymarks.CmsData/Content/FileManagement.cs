@@ -93,8 +93,8 @@ namespace PointlessWaymarks.CmsData.Content
             var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
 
             if (bothFilesPresent)
-                return GenerationReturn.Success(
-                    $"File {dbContent.Title} Present in both Content and Media Folders", dbContent.ContentId);
+                return GenerationReturn.Success($"File {dbContent.Title} Present in both Content and Media Folders",
+                    dbContent.ContentId);
 
             return GenerationReturn.Error(
                 $"There was a problem - Archive File Present: {archiveFile.Exists}, " +
@@ -140,8 +140,8 @@ namespace PointlessWaymarks.CmsData.Content
             var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
 
             if (bothFilesPresent)
-                return GenerationReturn.Success(
-                    $"Image {dbContent.Title} Present in both Content and Media Folders", dbContent.ContentId);
+                return GenerationReturn.Success($"Image {dbContent.Title} Present in both Content and Media Folders",
+                    dbContent.ContentId);
 
             return GenerationReturn.Error(
                 $"There was a problem - Archive Image Present: {archiveFile.Exists}, " +
@@ -186,8 +186,8 @@ namespace PointlessWaymarks.CmsData.Content
             var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
 
             if (bothFilesPresent)
-                return GenerationReturn.Success(
-                    $"Photo {dbContent.Title} Present in both Content and Media Folders", dbContent.ContentId);
+                return GenerationReturn.Success($"Photo {dbContent.Title} Present in both Content and Media Folders",
+                    dbContent.ContentId);
 
             return GenerationReturn.Error(
                 $"There was a problem - Archive Photo Present: {archiveFile.Exists}, " +
@@ -672,7 +672,8 @@ namespace PointlessWaymarks.CmsData.Content
                 var existingFiles = loopExistingDirectories.GetFiles().ToList();
                 var dbContentSlugs = db.NoteContents.Where(x =>
                         x.Folder == loopExistingDirectories.Name && !string.IsNullOrWhiteSpace(x.Slug))
-                    .Select(x => x.Slug!).OrderBy(x => x).ToList();
+                    .Select(x => x.Slug!)
+                    .OrderBy(x => x).ToList();
                 var dbContentIds = db.NoteContents.Where(x => x.Folder == loopExistingDirectories.Name)
                     .Select(x => x.ContentId.ToString()).ToList();
 

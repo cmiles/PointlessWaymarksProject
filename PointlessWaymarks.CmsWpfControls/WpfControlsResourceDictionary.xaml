@@ -340,4 +340,155 @@
             </Grid>
         </Border>
     </DataTemplate>
+    <TextBox
+        x:Key="ContentListSummaryDisplay"
+        Margin="0,2,0,0"
+        x:Shared="False"
+        Style="{StaticResource ReadOnlyTextBox}"
+        Text="{Binding DbEntry.Summary}"
+        TextWrapping="Wrap">
+        <b:Interaction.Behaviors>
+            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+        </b:Interaction.Behaviors>
+        <b:Interaction.Triggers>
+            <b:EventTrigger EventName="SelectionChanged">
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+            </b:EventTrigger>
+        </b:Interaction.Triggers>
+    </TextBox>
+    <TextBox
+        x:Key="ContentListTagsDisplay"
+        Margin="0,4,0,0"
+        x:Shared="False"
+        Style="{StaticResource ReadOnlyTextBox}"
+        Text="{Binding DbEntry.Tags, StringFormat='Tags: {0}'}"
+        TextWrapping="Wrap">
+        <b:Interaction.Behaviors>
+            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+        </b:Interaction.Behaviors>
+        <b:Interaction.Triggers>
+            <b:EventTrigger EventName="SelectionChanged">
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+            </b:EventTrigger>
+        </b:Interaction.Triggers>
+    </TextBox>
+    <TextBox
+        x:Key="ContentListTitleDisplay"
+        x:Shared="False"
+        FontWeight="Bold"
+        Style="{StaticResource ReadOnlyTextBox}"
+        Text="{Binding DbEntry.Title}"
+        TextWrapping="Wrap">
+        <b:Interaction.Behaviors>
+            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+        </b:Interaction.Behaviors>
+        <b:Interaction.Triggers>
+            <b:EventTrigger EventName="SelectionChanged">
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+            </b:EventTrigger>
+        </b:Interaction.Triggers>
+    </TextBox>
+    <TextBox
+        x:Key="ContentListOriginalFileNameDisplay"
+        Margin="0,4,0,0"
+        x:Shared="False"
+        Style="{StaticResource ReadOnlyTextBox}"
+        Text="{Binding DbEntry.OriginalFileName, StringFormat='File: {0}'}"
+        TextWrapping="Wrap">
+        <b:Interaction.Behaviors>
+            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+        </b:Interaction.Behaviors>
+        <b:Interaction.Triggers>
+            <b:EventTrigger EventName="SelectionChanged">
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+            </b:EventTrigger>
+        </b:Interaction.Triggers>
+    </TextBox>
+    <WrapPanel
+        x:Key="ContentListContentIdAndDateDisplay"
+        x:Shared="False"
+        Style="{StaticResource ContentListContentVersionIdWrapPanel}">
+        <TextBox
+            Margin="8,0,0,0"
+            Style="{StaticResource ReadOnlyTextBox}"
+            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
+            TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+        </TextBox>
+        <TextBox
+            Margin="8,0,0,0"
+            Style="{StaticResource ReadOnlyTextBox}"
+            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
+            TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.CurrentSelectedText}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </TextBox>
+    </WrapPanel>
+    <WrapPanel
+        x:Key="ContentListFolderAndSlugDisplay"
+        x:Shared="False"
+        Orientation="Horizontal">
+        <TextBox
+            HorizontalAlignment="Right"
+            Style="{StaticResource ReadOnlyTextBox}"
+            Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
+            TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </TextBox>
+        <TextBox
+            Margin="8,0,0,0"
+            HorizontalAlignment="Right"
+            Style="{StaticResource ReadOnlyTextBox}"
+            Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
+            TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+        </TextBox>
+    </WrapPanel>
+    <Image
+        x:Key="ContentListSmallMainImageDisplay"
+        Margin="2"
+        x:Shared="False"
+        Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
+        ToolTip="Shift Double Click to Edit Post">
+        <Image.InputBindings>
+            <MouseBinding
+                Command="{Binding DataContext.EditContentCommand, ElementName=PostListControlXaml}"
+                CommandParameter="{Binding DbEntry}"
+                Gesture="Shift+LeftDoubleClick" />
+        </Image.InputBindings>
+    </Image>
+    <Image
+        x:Key="ContentListSmallImageContentDisplay"
+        Margin="2"
+        x:Shared="False"
+        Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
+        ToolTip="Double Click to View, Shift Double Click to Edit">
+        <Image.InputBindings>
+            <MouseBinding
+                Command="{Binding DataContext.ViewImageCommand, ElementName=PhotoListControlXaml}"
+                CommandParameter="{Binding DbEntry}"
+                MouseAction="LeftDoubleClick" />
+            <MouseBinding
+                Command="{Binding DataContext.EditContentCommand, ElementName=PhotoListControlXaml}"
+                CommandParameter="{Binding DbEntry}"
+                Gesture="Shift+LeftDoubleClick" />
+        </Image.InputBindings>
+    </Image>
 </ResourceDictionary>

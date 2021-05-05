@@ -65,9 +65,8 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
             ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-            ImportFromOpenExcelInstanceCommand =
-                StatusContext.RunBlockingTaskCommand(async () =>
-                    await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
+            ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -444,10 +443,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
             foreach (var (tag, contentObjects) in allTags)
             {
-                var toAdd = new TagListListItem
-                {
-                    TagName = tag, ContentCount = contentObjects.Count
-                };
+                var toAdd = new TagListListItem {TagName = tag, ContentCount = contentObjects.Count};
 
                 var contentDetails = new List<TagItemContentInformation>();
 

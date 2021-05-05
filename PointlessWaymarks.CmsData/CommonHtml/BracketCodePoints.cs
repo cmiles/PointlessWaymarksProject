@@ -91,8 +91,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 progress?.Report($"Adding point {dbContent.Title} from Code");
 
-                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText, () =>
-                    PointParts.PointDivAndScriptForDirectLocalAccess(dbContent.Slug));
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
+                    () => PointParts.PointDivAndScriptForDirectLocalAccess(dbContent.Slug));
             }
 
             return toProcess;

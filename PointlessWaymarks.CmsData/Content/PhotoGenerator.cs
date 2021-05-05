@@ -164,8 +164,7 @@ namespace PointlessWaymarks.CmsData.Content
                         var tempDate = new DateTime(int.Parse(possibleTitleDate.Substring(0, 4)),
                             int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
-                        toReturn.Summary =
-                            $"{toReturn.Title[possibleTitleDate.Length..]}";
+                        toReturn.Summary = $"{toReturn.Title[possibleTitleDate.Length..]}";
                         toReturn.Title =
                             $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[possibleTitleDate.Length..]}";
 
@@ -191,8 +190,7 @@ namespace PointlessWaymarks.CmsData.Content
                             : new DateTime(1900 + year, month, 1);
 
                         toReturn.Summary = $"{toReturn.Title[5..]}";
-                        toReturn.Title =
-                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[5..]}";
+                        toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[5..]}";
 
                         progress?.Report("Title updated based on YYMM start pattern for file name");
                     }
@@ -214,8 +212,7 @@ namespace PointlessWaymarks.CmsData.Content
                         : new DateTime(1900 + year, month, 1);
 
                     toReturn.Summary = $"{toReturn.Title[..^5]}";
-                    toReturn.Title =
-                        $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^5]}";
+                    toReturn.Title = $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^5]}";
 
                     progress?.Report("Title updated based on YYMM end pattern for file name");
                 }
@@ -334,10 +331,9 @@ namespace PointlessWaymarks.CmsData.Content
             toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
             toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
 
-            var possibleTitleYear = Regex
-                .Match(toReturn.Title ?? string.Empty,
-                    @"\A(?<possibleYear>\d\d\d\d) (?<possibleMonth>January?|February?|March?|April?|May|June?|July?|August?|September?|October?|November?|December?) .*",
-                    RegexOptions.IgnoreCase).Groups["possibleYear"].Value;
+            var possibleTitleYear = Regex.Match(toReturn.Title ?? string.Empty,
+                @"\A(?<possibleYear>\d\d\d\d) (?<possibleMonth>January?|February?|March?|April?|May|June?|July?|August?|September?|October?|November?|December?) .*",
+                RegexOptions.IgnoreCase).Groups["possibleYear"].Value;
             if (!string.IsNullOrWhiteSpace(possibleTitleYear))
                 if (int.TryParse(possibleTitleYear, out var convertedYear))
                     if (convertedYear >= 1826 && convertedYear <= DateTime.Now.Year)

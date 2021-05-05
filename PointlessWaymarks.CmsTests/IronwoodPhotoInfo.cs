@@ -368,8 +368,7 @@ namespace PointlessWaymarks.CmsTests
 
             var (generationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(newContent, originalFile, true, null,
                 DebugTrackers.DebugProgressTracker());
-            Assert.False(generationReturn.HasError,
-                $"Unexpected Save Error - {generationReturn.GenerationNote}");
+            Assert.False(generationReturn.HasError, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 
             Assert.IsTrue(newContent.MainPicture == newContent.ContentId,
                 $"Main Picture - {newContent.MainPicture} - Should be set to Content Id {newContent.ContentId}");

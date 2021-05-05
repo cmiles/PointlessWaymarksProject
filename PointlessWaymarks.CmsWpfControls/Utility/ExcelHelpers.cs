@@ -175,8 +175,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
                 return;
             }
 
-            statusContext.ToastSuccess(
-                $"Imported {contentImportResult.ToUpdate.Count} items with changes from Excel");
+            statusContext.ToastSuccess($"Imported {contentImportResult.ToUpdate.Count} items with changes from Excel");
         }
 
         public static async Task<FileInfo> PointContentToExcel(List<Guid> toDisplay, string fileName,

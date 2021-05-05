@@ -493,8 +493,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
 
             var contentChanges = files.Concat(geoJson).Concat(images).Concat(lines).Concat(links).Concat(notes)
-                .Concat(maps)
-                .Concat(photos).Concat(points).Concat(posts).ToList();
+                .Concat(maps).Concat(photos).Concat(points).Concat(posts).ToList();
 
             progress?.Report("Gathering deleted and new content with related content...");
 
@@ -731,8 +730,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             //Evaluate each Tag - the tags list is a standard search list showing summary and main image in addition to changes to the linked content also check for changes
             //to the linked content contents...
             var allCurrentTags = db.GenerationTagLogs.Where(x => x.GenerationVersion == generationVersion)
-                .Where(x => x.TagSlug != null)
-                .Select(x => x.TagSlug!).Distinct().OrderBy(x => x).ToList();
+                .Where(x => x.TagSlug != null).Select(x => x.TagSlug!).Distinct().OrderBy(x => x).ToList();
 
             var tagCompareLogic = new CompareLogic();
             var spec = new Dictionary<Type, IEnumerable<string>>

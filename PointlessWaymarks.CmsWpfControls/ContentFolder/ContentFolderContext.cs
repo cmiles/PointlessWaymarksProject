@@ -203,11 +203,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentFolder
         {
             var newControl = new ContentFolderContext(statusContext)
             {
-                ValidationFunctions =
-                    new List<Func<string, IsValid>>
-                    {
-                        CommonContentValidation.ValidateFolder
-                    }
+                ValidationFunctions = new List<Func<string, IsValid>> {CommonContentValidation.ValidateFolder}
             };
 
             await newControl.LoadData(dbEntry);

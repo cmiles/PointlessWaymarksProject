@@ -367,9 +367,8 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-            ImportFromOpenExcelInstanceCommand =
-                StatusContext.RunBlockingTaskCommand(async () =>
-                    await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
+            ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await SelectedToExcel(ListContext.SelectedItems.Select(x => x.DbEntry.ContentId).ToList(),
                     StatusContext));

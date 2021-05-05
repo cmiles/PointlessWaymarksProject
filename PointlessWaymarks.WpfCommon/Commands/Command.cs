@@ -14,12 +14,11 @@ namespace PointlessWaymarks.WpfCommon.Commands
         ///     Command that takes an action to execute
         /// </summary>
         /// <param name="execute">The action to execute of type T</param>
-        public Command(Action<T> execute)
-            : base(o =>
-            {
-                if (CommandUtils.IsValidCommandParameter<T>(o))
-                    execute((T) o);
-            })
+        public Command(Action<T> execute) : base(o =>
+        {
+            if (CommandUtils.IsValidCommandParameter<T>(o))
+                execute((T) o);
+        })
         {
             if (execute == null) throw new ArgumentNullException(nameof(execute));
         }
@@ -29,12 +28,11 @@ namespace PointlessWaymarks.WpfCommon.Commands
         /// </summary>
         /// <param name="execute">The action to execute of type T</param>
         /// <param name="canExecute">Function to call to determine if it can be executed.</param>
-        public Command(Action<T> execute, Func<T, bool> canExecute)
-            : base(o =>
-            {
-                if (CommandUtils.IsValidCommandParameter<T>(o))
-                    execute((T) o);
-            }, o => CommandUtils.IsValidCommandParameter<T>(o) && canExecute((T) o))
+        public Command(Action<T> execute, Func<T, bool> canExecute) : base(o =>
+        {
+            if (CommandUtils.IsValidCommandParameter<T>(o))
+                execute((T) o);
+        }, o => CommandUtils.IsValidCommandParameter<T>(o) && canExecute((T) o))
         {
             if (execute == null)
                 throw new ArgumentNullException(nameof(execute));

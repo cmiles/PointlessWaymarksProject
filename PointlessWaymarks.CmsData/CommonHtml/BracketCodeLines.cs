@@ -64,8 +64,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 progress?.Report($"Adding Line {dbContent.Title} from Code");
 
-                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText, () =>
-                    LineParts.LineDivAndScriptWithCaption(dbContent));
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
+                    () => LineParts.LineDivAndScriptWithCaption(dbContent));
             }
 
             return toProcess;
@@ -90,8 +90,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                 progress?.Report($"Adding Line {dbContent.Title} from Code");
 
-                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText, () =>
-                    LineParts.LineDivAndScriptWithCaptionForDirectLocalAccess(dbContent));
+                toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
+                    () => LineParts.LineDivAndScriptWithCaptionForDirectLocalAccess(dbContent));
             }
 
             return toProcess;

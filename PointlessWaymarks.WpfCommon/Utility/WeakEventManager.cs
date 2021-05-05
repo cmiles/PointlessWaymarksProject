@@ -19,8 +19,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
         /// <param name="handler">Handler of the event</param>
         /// <param name="eventName">Name to use in the dictionary. Should be unique.</param>
         public void AddEventHandler<TEventArgs>(EventHandler<TEventArgs> handler,
-            [CallerMemberName] string eventName = "")
-            where TEventArgs : EventArgs
+            [CallerMemberName] string eventName = "") where TEventArgs : EventArgs
         {
             if (string.IsNullOrEmpty(eventName))
                 throw new ArgumentNullException(nameof(eventName));
@@ -119,8 +118,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
         /// <param name="handler">Handler to remove</param>
         /// <param name="eventName">Event name to remove</param>
         public void RemoveEventHandler<TEventArgs>(EventHandler<TEventArgs> handler,
-            [CallerMemberName] string eventName = "")
-            where TEventArgs : EventArgs
+            [CallerMemberName] string eventName = "") where TEventArgs : EventArgs
         {
             if (string.IsNullOrEmpty(eventName))
                 throw new ArgumentNullException(nameof(eventName));

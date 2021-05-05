@@ -70,66 +70,47 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         ///     Identifies the <see cref="CommandParameter" /> dependency property
         /// </summary>
         public static readonly DependencyProperty CommandParameterProperty = DependencyProperty.Register(
-            "CommandParameter",
-            typeof(object),
-            typeof(EventToCommand),
-            new PropertyMetadata(
-                null,
-                (s, _) =>
-                {
-                    var sender = s as EventToCommand;
+            "CommandParameter", typeof(object), typeof(EventToCommand), new PropertyMetadata(null, (s, _) =>
+            {
+                var sender = s as EventToCommand;
 
-                    if (sender?.AssociatedObject == null) return;
+                if (sender?.AssociatedObject == null) return;
 
-                    sender.EnableDisableElement();
-                }));
+                sender.EnableDisableElement();
+            }));
 
         /// <summary>
         ///     Identifies the <see cref="Command" /> dependency property
         /// </summary>
-        public static readonly DependencyProperty CommandProperty = DependencyProperty.Register(
-            "Command",
-            typeof(ICommand),
-            typeof(EventToCommand),
-            new PropertyMetadata(
-                null,
-                (s, e) => OnCommandChanged(s as EventToCommand, e)));
+        public static readonly DependencyProperty CommandProperty = DependencyProperty.Register("Command",
+            typeof(ICommand), typeof(EventToCommand),
+            new PropertyMetadata(null, (s, e) => OnCommandChanged(s as EventToCommand, e)));
 
         /// <summary>
         ///     Identifies the <see cref="MustToggleIsEnabled" /> dependency property
         /// </summary>
         public static readonly DependencyProperty MustToggleIsEnabledProperty = DependencyProperty.Register(
-            "MustToggleIsEnabled",
-            typeof(bool),
-            typeof(EventToCommand),
-            new PropertyMetadata(
-                false,
-                (s, _) =>
-                {
-                    var sender = s as EventToCommand;
+            "MustToggleIsEnabled", typeof(bool), typeof(EventToCommand), new PropertyMetadata(false, (s, _) =>
+            {
+                var sender = s as EventToCommand;
 
-                    if (sender?.AssociatedObject == null) return;
+                if (sender?.AssociatedObject == null) return;
 
-                    sender.EnableDisableElement();
-                }));
+                sender.EnableDisableElement();
+            }));
 
         /// <summary>
         ///     Identifies the <see cref="EventArgsConverterParameter" /> dependency property.
         /// </summary>
         public static readonly DependencyProperty EventArgsConverterParameterProperty = DependencyProperty.Register(
-            EventArgsConverterParameterPropertyName,
-            typeof(object),
-            typeof(EventToCommand),
+            EventArgsConverterParameterPropertyName, typeof(object), typeof(EventToCommand),
             new PropertyMetadata(null));
 
         /// <summary>
         ///     Identifies the <see cref="AlwaysInvokeCommand" /> dependency property.
         /// </summary>
         public static readonly DependencyProperty AlwaysInvokeCommandProperty = DependencyProperty.Register(
-            AlwaysInvokeCommandPropertyName,
-            typeof(bool),
-            typeof(EventToCommand),
-            new PropertyMetadata(false));
+            AlwaysInvokeCommandPropertyName, typeof(bool), typeof(EventToCommand), new PropertyMetadata(false));
 
 
         private object _commandParameterValue;
@@ -228,10 +209,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         /// </summary>
         public bool MustToggleIsEnabledValue
         {
-            get =>
-                _mustToggleValue == null
-                    ? MustToggleIsEnabled
-                    : _mustToggleValue.Value;
+            get => _mustToggleValue == null ? MustToggleIsEnabled : _mustToggleValue.Value;
 
             set
             {
@@ -252,9 +230,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         {
             var element = GetAssociatedObject();
 
-            return AssociatedObject == null
-                   || element != null
-                   && !element.IsEnabled;
+            return AssociatedObject == null || element != null && !element.IsEnabled;
         }
 
         private void EnableDisableElement()
@@ -265,8 +241,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
 
             var command = GetCommand();
 
-            if (MustToggleIsEnabledValue
-                && command != null)
+            if (MustToggleIsEnabledValue && command != null)
                 element.IsEnabled = command.CanExecute(CommandParameterValue);
         }
 
@@ -317,21 +292,18 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         /// <param name="parameter">The EventArgs of the fired event.</param>
         protected override void Invoke(object parameter)
         {
-            if (AssociatedElementIsDisabled()
-                && !AlwaysInvokeCommand)
+            if (AssociatedElementIsDisabled() && !AlwaysInvokeCommand)
                 return;
 
             var command = GetCommand();
             var commandParameter = CommandParameterValue;
 
-            if (commandParameter == null
-                && PassEventArgsToCommand)
+            if (commandParameter == null && PassEventArgsToCommand)
                 commandParameter = EventArgsConverter == null
                     ? parameter
                     : EventArgsConverter.Convert(parameter, EventArgsConverterParameter);
 
-            if (command != null
-                && command.CanExecute(commandParameter))
+            if (command != null && command.CanExecute(commandParameter))
                 command.Execute(commandParameter);
         }
 
@@ -349,9 +321,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
             EnableDisableElement();
         }
 
-        private static void OnCommandChanged(
-            EventToCommand element,
-            DependencyPropertyChangedEventArgs e)
+        private static void OnCommandChanged(EventToCommand element, DependencyPropertyChangedEventArgs e)
         {
             if (element == null) return;
 

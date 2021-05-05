@@ -18,9 +18,9 @@ namespace PointlessWaymarks.CmsData
         public static LoggerConfiguration AddEventFileLogForLogFolderBasedOnCurrentSettings(
             this LoggerConfiguration toAddTo)
         {
-            return toAddTo.WriteTo.File(new RenderedCompactJsonFormatter(), Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
-                "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true);
+            return toAddTo.WriteTo.File(new RenderedCompactJsonFormatter(),
+                Path.Combine(UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
+                    "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true);
         }
 
         /// <summary>
@@ -44,14 +44,8 @@ namespace PointlessWaymarks.CmsData
         /// <returns></returns>
         public static LoggerConfiguration BasicLogConfiguration()
         {
-            return new LoggerConfiguration()
-                .Enrich.WithProcessId()
-                .Enrich.WithProcessName()
-                .Enrich.WithThreadId()
-                .Enrich.WithThreadName()
-                .Enrich.WithMachineName()
-                .Enrich.WithEnvironmentUserName()
-                .WriteTo.Console();
+            return new LoggerConfiguration().Enrich.WithProcessId().Enrich.WithProcessName().Enrich.WithThreadId()
+                .Enrich.WithThreadName().Enrich.WithMachineName().Enrich.WithEnvironmentUserName().WriteTo.Console();
         }
 
         /// <summary>

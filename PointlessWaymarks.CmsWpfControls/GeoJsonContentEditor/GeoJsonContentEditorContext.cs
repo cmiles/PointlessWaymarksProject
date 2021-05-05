@@ -70,12 +70,12 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             ImportGeoJsonFromClipboardCommand = StatusContext.RunBlockingTaskCommand(ImportGeoJsonFromClipboard);
             RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
 
-            HelpContext =
-                new HelpDisplayContext(new List<string>
-                {
-                    CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock,
-                    GeoJsonContentHelpMarkdown.HelpBlock
-                });
+            HelpContext = new HelpDisplayContext(new List<string>
+            {
+                CommonFields.TitleSlugFolderSummary,
+                BracketCodeHelpMarkdown.HelpBlock,
+                GeoJsonContentHelpMarkdown.HelpBlock
+            });
 
             PreviewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,

@@ -75,9 +75,10 @@ namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
             ReplaceElevationsCommand = StatusContext.RunBlockingTaskCommand(async () => await ReplaceElevations());
             RefreshMapPreviewCommand = StatusContext.RunBlockingTaskCommand(RefreshMapPreview);
 
-            HelpContext =
-                new HelpDisplayContext(new List<string>
-                    {CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock});
+            HelpContext = new HelpDisplayContext(new List<string>
+            {
+                CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+            });
 
             PreviewHtml = WpfHtmlDocument.ToHtmlLeafletLineDocument("Line",
                 UserSettingsSingleton.CurrentSettings().LatitudeDefault,
