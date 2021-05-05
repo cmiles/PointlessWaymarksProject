@@ -77,13 +77,13 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var displayImageFile = possibleDisplayImageFile.FirstOrDefault();
 
-            if (displayImageFile != null && displayImageFile.Exists)
+            if (displayImageFile is {Exists: true})
                 toReturn.DisplayPicture = new PictureFile
                 {
                     FileName = displayImageFile.Name,
                     SiteUrl = $@"//{siteUrl}/Images/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
                     File = displayImageFile,
-                    AltText = dbEntry.AltText ?? string.Empty,
+                    AltText = string.IsNullOrWhiteSpace(dbEntry.AltText) ? dbEntry.Title : dbEntry.AltText,
                     Height =
                         int.Parse(Regex
                             .Match(displayImageFile.Name, @".*--(?<height>\d*)h.*", RegexOptions.Singleline)
@@ -103,7 +103,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 Width = int.Parse(Regex.Match(x.Name, @".*--(?<width>\d*)w.*", RegexOptions.Singleline)
                     .Groups["width"].Value),
                 SiteUrl = $@"//{siteUrl}/Images/{dbEntry.Folder}/{dbEntry.Slug}/{x.Name}",
-                AltText = dbEntry.AltText ?? string.Empty,
+                AltText = string.IsNullOrWhiteSpace(dbEntry.AltText) ? dbEntry.Title : dbEntry.AltText,
                 File = x
             }).ToList();
 
@@ -164,7 +164,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                     FileName = displayImageFile.Name,
                     SiteUrl = $@"//{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{displayImageFile.Name}",
                     File = displayImageFile,
-                    AltText = dbEntry.AltText ?? string.Empty,
+                    AltText = string.IsNullOrWhiteSpace(dbEntry.AltText) ? dbEntry.Title : dbEntry.AltText,
                     Height =
                         int.Parse(Regex
                             .Match(displayImageFile.Name, @".*--(?<height>\d*)h.*", RegexOptions.Singleline)
@@ -180,7 +180,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 FileName = x.Name,
                 SiteUrl = $@"//{siteUrl}/Photos/{dbEntry.Folder}/{dbEntry.Slug}/{x.Name}",
                 File = x,
-                AltText = dbEntry.AltText ?? string.Empty,
+                AltText = string.IsNullOrWhiteSpace(dbEntry.AltText) ? dbEntry.Title : dbEntry.AltText,
                 Height =
                     int.Parse(Regex.Match(x.Name, @".*--(?<height>\d*)h.*", RegexOptions.Singleline)
                         .Groups["height"].Value),

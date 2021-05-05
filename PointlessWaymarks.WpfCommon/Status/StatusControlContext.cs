@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using JetBrains.Annotations;
-using MvvmHelpers.Commands;
+using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.ToastControl;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;

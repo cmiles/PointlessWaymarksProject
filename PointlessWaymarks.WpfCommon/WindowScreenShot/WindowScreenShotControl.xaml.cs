@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using JetBrains.Annotations;
-using MvvmHelpers.Commands;
+using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.WpfCommon.WindowScreenShot

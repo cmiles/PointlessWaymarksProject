@@ -46,6 +46,18 @@
  
 ## Notes
 
+5/4/2021
+
+Pulled in code for the Commands that I was using from the MvvmHelpers - the package is amazing but with only WPF in the project it felt appropriate to pull in code rather than keep the whole library.
+
+Photo List - I like the way that the lists select the item and allow highlighting the text - but you can only copy the text with the context menu - the Photo list is now modified to track the selection and the selected item so that Control-C works to copy the text. Quick testing is encouraging - only downside is that the solution takes a bit of code modification and isn't something clever like a single behaviour to easily drop into other lists.
+
+Alt Text - so the suggestion that comes out of automated systems is AltText for all non-desgin/decorative images, and I understand the advice about what Alt Text should be, but if you write a full useful caption how do you have non-repetitive Alt Text? And obviously there would be no point in a full caption repetition. However to try to feed the machine I changed the code so the Alt Text is the title is a specific Alt Text is not specified. This is clearly a compromise as the title and the caption for many of the PointlessWaymarks photos are nearly the same - but perhaps this will help in some situations.
+
+In reading PointlessWaymarks I noticed the related content links were sometimes useful - an image that already was shown as an image then had a related content link? Changed the related content to eliminate some of the needless related links.
+
+Some base style.css links.
+
 3/29/2021
 
 Source Generators Experiment - Added a project and code based on the current github 'cookbook' to generate INotifyPropertyChanged, refactored the common project to use it and felt quite happy when everything was building and intellisense for generated properties was working!! But I failed to get the entire project working with the source generators in place... I tried referencing the source generator package in other projects and tried cleaning and rebuilding but didn't have any luck - checking for issues on GitHub I saw some possible troubleshooting steps but was somewhat discouraged by the wide set of associated issues so dropped this for now...

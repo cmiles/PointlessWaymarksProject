@@ -1,6 +1,6 @@
 body {
-    font-family: Verdana, 'Verdana Ref', sans-serif;
-    font-size: 16px;
+    font-family: charter, Cambria, Georgia, Times, ‘Times New Roman’, serif;
+    font-size: 1rem;
 }
 
 .wait-cursor {
@@ -8,10 +8,8 @@ body {
 }
 
 .single-photo-body {
-    font-family: Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
     color: rgb(180, 180, 180);
     margin-top: 0;
-    font-size: 16px;
 }
 
 .single-photo-container {
@@ -32,9 +30,11 @@ body {
 .single-photo-caption {
     text-align: center;
     margin-top: .2rem;
+    margin-bottom: .3rem;
     display: table-caption;
     caption-side: bottom;
     color: rgb(180, 180, 180);
+    line-height: 1.4rem;
 }
 
 .map-figure-title-caption {
@@ -47,7 +47,6 @@ body {
     font-family: Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
     color: rgb(180, 180, 180);
     margin-top: 0;
-    font-size: 16px;
 }
 
 .single-image-container {
@@ -67,10 +66,12 @@ body {
 
 .single-image-caption {
     text-align: center;
-    margin-top: 1rem;
+    margin-top: .2rem;
+    margin-bottom: .3rem;
     display: table-caption;
     caption-side: bottom;
     color: rgb(180, 180, 180);
+    line-height: 1.4rem;
 }
 
 .image-source-notes-content {
@@ -181,7 +182,7 @@ p.tag-detail-text {
 .index-title-content {
     text-align: center;
     font-weight: normal;
-    font-size: 1.8rem;
+    font-size: 2.4rem;
     margin-bottom: 0;
 }
 
@@ -218,7 +219,6 @@ a.index-title-content-link:active {
     text-align: center;
     margin: .8rem .4rem 0 1rem;
     font-weight: normal;
-    font-size: .9rem;
 }
 
 .title-link-content, .title-content {
@@ -226,7 +226,7 @@ a.index-title-content-link:active {
     font-weight: normal;
     text-decoration: none;
     color: black;
-    font-size: 1.4rem;
+    font-size: 1.7rem;
     line-height: 2.2rem;
     margin-bottom: 0;
 }
@@ -253,7 +253,6 @@ a.index-title-content-link:active {
 
 .post-title-area-created-and-updated-content { 
     font-weight: normal;
-    font-size: 1.1rem;
     text-align: center;
     margin-top: .5rem;
     color: rgb(180, 180, 180);
@@ -268,7 +267,6 @@ a.index-title-content-link:active {
 }
 
 .core-links-item {
-    font-size: .9rem;
     line-height: 0;
     margin: 2px 12px;
 }
@@ -308,7 +306,7 @@ a.index-title-content-link:active {
     margin-right: 1%;
     margin-top: 1rem;
     margin-bottom: 2rem;
-    line-height: 1.3rem;
+    line-height: 1.55rem;
 }
 
 .post-body-content blockquote {
@@ -329,7 +327,6 @@ a.index-title-content-link:active {
     margin-top: 1rem;
     margin-bottom: 1rem;
     line-height: 1rem;
-    font-size: 14px;
     color: rgb(180, 180, 180);
 }
 
@@ -588,9 +585,13 @@ a.tag-list-link {
 }
 
 @media screen and (min-width: 600px) {
-    .title-link-content, .title-content {
-        font-size: 1.6rem;
-        line-height: 2.4rem;
+    .title-link-content, .title-content { 
+        font-size: 1.3rem;
+        line-height: 1.6rem;
+    }
+
+    .post-title-area-created-and-updated-content {
+        font-size: .8rem;
     }
 
     .post-body-content p,

@@ -107,9 +107,11 @@
                 Name="PhotoListBox"
                 ItemsSource="{Binding Items}"
                 PreviewKeyDown="PhotoListBox_OnPreviewKeyDown"
+                SelectedItem="{Binding Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
+                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListBoxAppCommandBindings}" />
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
                 <ListBox.Resources>
@@ -166,6 +168,11 @@
                                         <i:Interaction.Behaviors>
                                             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </i:Interaction.Behaviors>
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="SelectionChanged">
+                                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
                                     </TextBox>
                                     <TextBox
                                         Margin="0,4,0,0"
@@ -175,6 +182,11 @@
                                         <i:Interaction.Behaviors>
                                             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </i:Interaction.Behaviors>
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="SelectionChanged">
+                                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
                                     </TextBox>
                                     <TextBox
                                         Margin="0,4,0,0"
@@ -184,6 +196,11 @@
                                         <i:Interaction.Behaviors>
                                             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </i:Interaction.Behaviors>
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="SelectionChanged">
+                                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
                                     </TextBox>
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBox
@@ -194,6 +211,11 @@
                                             <i:Interaction.Behaviors>
                                                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                             </i:Interaction.Behaviors>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                         </TextBox>
                                         <TextBox
                                             Margin="8,0,0,0"
@@ -204,6 +226,11 @@
                                             <i:Interaction.Behaviors>
                                                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                             </i:Interaction.Behaviors>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                         </TextBox>
                                     </WrapPanel>
                                     <WrapPanel Orientation="Horizontal">
@@ -306,6 +333,11 @@
                                             <i:Interaction.Behaviors>
                                                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                             </i:Interaction.Behaviors>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectionChanged">
+                                                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                         </TextBox>
                                     </WrapPanel>
                                 </StackPanel>

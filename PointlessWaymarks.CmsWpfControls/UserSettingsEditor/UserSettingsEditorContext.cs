@@ -8,10 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon;
 using JetBrains.Annotations;
-using MvvmHelpers.Commands;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
+using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 

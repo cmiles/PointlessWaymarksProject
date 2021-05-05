@@ -11,10 +11,10 @@ using System.Windows;
 using Amazon.S3;
 using Amazon.S3.Model;
 using JetBrains.Annotations;
-using MvvmHelpers.Commands;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Aws;
+using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 

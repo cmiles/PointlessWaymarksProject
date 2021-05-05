@@ -46,6 +46,13 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return relatedPostContainerDiv;
         }
 
+        /// <summary>
+        ///     Finds Post, Note and File reference to the input ContentId Guid.
+        /// </summary>
+        /// <param name="toQuery"></param>
+        /// <param name="toCheckFor"></param>
+        /// <param name="generationVersion"></param>
+        /// <returns></returns>
         public static async Task<List<IContentCommon>> RelatedContentReferencesFromOtherContent(
             this PointlessWaymarksContext toQuery, Guid toCheckFor, DateTime? generationVersion)
         {
@@ -117,21 +124,24 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var db = await Db.Context();
 
+            //References to this content
             contentCommonList.AddRange(
                 await RelatedContentReferencesFromOtherContent(db, toCheckFor, generationVersion));
+
+            //5/4/2021 - Based on looking at Pointless Waymarks it doesn't seem useful to link back to all the content that is used - for example an Image that is displayed doesn't merit a related content link to the image (the display of the image seems self documenting), otoh just using a link to an image seems like it may be worth a related link.
             contentCommonList.AddRange(BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodeFileImage.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            //contentCommonList.AddRange(BracketCodeFileImage.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
                 BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodeGeoJson.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            //contentCommonList.AddRange(BracketCodeGeoJson.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
                 BracketCodeGeoJsonLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            //contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodeLines.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            //contentCommonList.AddRange(BracketCodeLines.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeLineLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodePoints.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            //contentCommonList.AddRange(BracketCodePoints.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodePointLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
 

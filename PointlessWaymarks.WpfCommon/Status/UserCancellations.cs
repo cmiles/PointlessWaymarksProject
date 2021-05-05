@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using JetBrains.Annotations;
-using MvvmHelpers.Commands;
+using PointlessWaymarks.WpfCommon.Commands;
 
 namespace PointlessWaymarks.WpfCommon.Status
 {
