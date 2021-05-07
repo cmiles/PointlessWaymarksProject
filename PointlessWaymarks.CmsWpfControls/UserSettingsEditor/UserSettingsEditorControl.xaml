@@ -27,7 +27,7 @@
     <Grid>
         <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
             <StackPanel Orientation="Vertical">
-                <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource ActionPanelButton}">Save</Button>
+                <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Save</Button>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LocalSiteRootDirectoryTextBox}">
                         Local Site Root Directory

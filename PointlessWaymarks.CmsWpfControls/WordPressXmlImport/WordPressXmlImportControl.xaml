@@ -78,7 +78,7 @@
                                 <TextBox
                                     Margin="2"
                                     FontWeight="Bold"
-                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    Style="{StaticResource ReadOnlyTextBoxStyle}"
                                     TextWrapping="Wrap">
                                     <TextBox.Text>
                                         <MultiBinding StringFormat="{}{0} - {1}">
@@ -93,7 +93,7 @@
                                 <TextBox
                                     Grid.Row="1"
                                     Margin="4,2,2,2"
-                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    Style="{StaticResource ReadOnlyTextBoxStyle}"
                                     TextWrapping="Wrap">
                                     <TextBox.Text>
                                         <MultiBinding StringFormat="{}{0} by {1}">
@@ -109,7 +109,7 @@
                                 <TextBox
                                     Grid.Row="2"
                                     Margin="4,2,2,2"
-                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    Style="{StaticResource ReadOnlyTextBoxStyle}"
                                     TextWrapping="Wrap">
                                     <TextBox.Text>
                                         <MultiBinding StringFormat="Category: {0} - Tags: {1}">

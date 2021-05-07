@@ -57,7 +57,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Border Style="{StaticResource ActionPanelBorder}">
+            <Border Style="{StaticResource ActionPanelBorderStyle}">
                 <Border.Resources>
                     <Style TargetType="Border">
                         <Setter Property="Margin" Value="4" />
@@ -125,7 +125,7 @@
                     </Border>
                 </WrapPanel>
             </Border>
-            <Border Grid.Column="1" Style="{StaticResource ActionPanelBorder}">
+            <Border Grid.Column="1" Style="{StaticResource ActionPanelBorderStyle}">
                 <Button
                     Width="120"
                     Margin="4"

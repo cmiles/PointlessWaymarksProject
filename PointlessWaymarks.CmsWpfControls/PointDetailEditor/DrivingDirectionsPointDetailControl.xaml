@@ -26,7 +26,7 @@
             <StackPanel Orientation="Vertical">
                 <TextBox
                     FontWeight="Bold"
-                    Style="{StaticResource ReadOnlyTextBox}"
+                    Style="{StaticResource ReadOnlyTextBoxStyle}"
                     Text="{Binding DbEntry.DataType}"
                     TextWrapping="Wrap">
                     <b:Interaction.Behaviors>
@@ -39,7 +39,7 @@
                     HorizontalAlignment="Right"
                     Command="{Binding DataContext.DeleteDetailCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
                     CommandParameter="{Binding .}"
-                    Style="{StaticResource ActionPanelButton}">
+                    Style="{StaticResource ActionPanelButtonStyle}">
                     Delete
                 </Button>
             </StackPanel>

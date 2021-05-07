@@ -57,7 +57,7 @@
             Grid.Row="1"
             Margin="4,5,4,6"
             DataContext="{Binding ListContext}" />
-        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel
                 Grid.Row="1"
                 HorizontalAlignment="Center"
@@ -65,32 +65,32 @@
                 <Button
                     Command="{Binding RefreshDataCommand}"
                     Content="_Refresh"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding EditSelectedContentCommand}"
                     Content="_Edit"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding NewContentFromFilesCommand}"
                     Content="_New from Files"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding NewContentFromFilesWithAutosaveCommand}"
                     Content="_New w/Autosave"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding NewContentCommand}"
                     Content="New - Blank"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding PhotoCodesToClipboardForSelectedCommand}"
                     Content="_Code to Clipboard"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding PhotoLinkCodesToClipboardForSelectedCommand}"
                     Content="Link Code to Clipboard"
-                    Style="{StaticResource ActionPanelButton}" />
-                <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
             </WrapPanel>
         </Border>
         <status:StatusControl

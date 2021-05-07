@@ -56,7 +56,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private Command _toggleListSortDirectionCommand;
         private Command _toggleLoadRecentLoadAllCommand;
         private string _userFilterText;
-        private Command<PhotoContent> _viewImageCommand;
+        private Command<PhotoContent> _viewFileCommand;
 
         public PhotoListContext(StatusControlContext statusContext, PhotoListLoadMode photoListLoadMode)
         {
@@ -64,7 +64,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
-            ViewImageCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewImage);
+            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewImage);
             EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(EditContent);
             ApertureSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await ApertureSearch(x), $"Aperture - {x.Aperture}"));
@@ -77,7 +77,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             FocalLengthSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await FocalLengthSearch(x), $"Focal Length - {x.FocalLength}"));
             IsoSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await IsoSearch(x), $"Iso - {x.Iso}"));
+                await RunReport(async () => await IsoSearch(x), $"ISO - {x.Iso}"));
             ShutterSpeedSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await ShutterSpeedSearch(x), $"Shutter Speed - {x.ShutterSpeed}"));
             PhotoTakenOnSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
@@ -331,13 +331,13 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command<PhotoContent> ViewImageCommand
+        public Command<PhotoContent> ViewFileCommand
         {
-            get => _viewImageCommand;
+            get => _viewFileCommand;
             set
             {
-                if (Equals(value, _viewImageCommand)) return;
-                _viewImageCommand = value;
+                if (Equals(value, _viewFileCommand)) return;
+                _viewFileCommand = value;
                 OnPropertyChanged();
             }
         }

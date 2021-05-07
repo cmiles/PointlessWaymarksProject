@@ -14,7 +14,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             if (DataContext == null) return;
             var viewmodel = (FileListContext) DataContext;
-            viewmodel.SelectedItems = FileListBox?.SelectedItems.Cast<FileListListItem>().ToList();
+            viewmodel.ListSelection.SelectedItems = FileListBox?.SelectedItems.Cast<FileListListItem>().ToList();
         }
     }
 }

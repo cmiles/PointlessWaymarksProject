@@ -36,43 +36,43 @@
             Grid.Row="1"
             Margin="4,5,4,6"
             DataContext="{Binding ListContext}" />
-        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{Binding RefreshDataCommand}"
                     Content="_Refresh"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding EditSelectedContentCommand}"
                     Content="_Edit"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding NewContentFromFilesCommand}"
                     Content="_New From Files"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding NewContentCommand}"
                     Content="New - Blank"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding GenerateSelectedHtmlCommand}"
                     Content="_Generate Html"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ImageBracketCodesToClipboardForSelectedCommand}"
                     Content="_Code to Clipboard"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ImageBracketLinkCodesToClipboardForSelectedCommand}"
                     Content="Link Code to Clipboard"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding OpenUrlForSelectedCommand}"
                     Content="_Open Selected In Browser"
-                    Style="{StaticResource ActionPanelButton}" />
-                <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButton}">Delete</Button>
-                <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButton}">View History</Button>
-                <Button Command="{Binding ExtractNewLinksInSelectedCommand}" Style="{StaticResource ActionPanelButton}">Extract Links</Button>
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
+                <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButtonStyle}">View History</Button>
+                <Button Command="{Binding ExtractNewLinksInSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Extract Links</Button>
             </WrapPanel>
         </Border>
         <status:StatusControl

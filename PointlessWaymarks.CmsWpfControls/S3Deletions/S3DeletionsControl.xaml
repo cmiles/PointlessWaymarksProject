@@ -73,7 +73,7 @@
                                     <RowDefinition />
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
-                                <TextBox Style="{StaticResource ReadOnlyTextBox}" TextWrapping="Wrap">
+                                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
                                     <TextBox.Text>
                                         <MultiBinding StringFormat="{}{0}/{1}">
                                             <Binding Path="BucketName" />
@@ -86,7 +86,7 @@
                                 </TextBox>
                                 <TextBox
                                     Grid.Row="1"
-                                    Style="{StaticResource ReadOnlyTextBox}"
+                                    Style="{StaticResource ReadOnlyTextBoxStyle}"
                                     Text="{Binding ErrorMessage, StringFormat='Error: {0}'}"
                                     TextWrapping="Wrap"
                                     Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}}">

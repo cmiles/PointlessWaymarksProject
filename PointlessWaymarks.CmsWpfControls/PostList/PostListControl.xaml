@@ -9,7 +9,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    Name="PostListControlXaml"
+    Name="UserControlXaml"
     d:DataContext="{d:DesignInstance postList:PostListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -48,7 +48,7 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -59,7 +59,7 @@
                     </Button>
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -110,17 +110,17 @@
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Border.InputBindings>
                                 <MouseBinding
-                                    Command="{Binding ElementName=PostListControlXaml, Path=DataContext.EditContentCommand}"
+                                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
                                     CommandParameter="{Binding DbEntry}"
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
                             <Grid Margin="4">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="110" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
                                 <ContentPresenter Content="{StaticResource ContentListSmallMainImageDisplay}" />
-                                <Grid Grid.Column="1" Margin="2">
+                                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="Auto" />
@@ -128,6 +128,7 @@
                                     <StackPanel Orientation="Vertical">
                                         <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
                                     </StackPanel>
                                     <ContentPresenter

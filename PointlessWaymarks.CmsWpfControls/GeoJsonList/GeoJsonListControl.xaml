@@ -49,7 +49,7 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -60,7 +60,7 @@
                     </Button>
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"

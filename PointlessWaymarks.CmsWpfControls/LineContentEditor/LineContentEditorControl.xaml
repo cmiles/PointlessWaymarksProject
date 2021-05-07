@@ -57,21 +57,21 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Style="{StaticResource ActionPanelBorder}">
+                    <Border Grid.Row="0" Style="{StaticResource ActionPanelBorderStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <Button
                                 Command="{Binding ImportFromGpxCommand}"
                                 Content="Load File"
-                                Style="{StaticResource ActionPanelButton}" />
+                                Style="{StaticResource ActionPanelButtonStyle}" />
                             <CheckBox VerticalAlignment="Center" IsChecked="{Binding ReplaceElevationOnImport}">Replace Elevation when Importing</CheckBox>
                             <Button
                                 Command="{Binding ReplaceElevationsCommand}"
                                 Content="Replace Elevations"
-                                Style="{StaticResource ActionPanelButton}" />
+                                Style="{StaticResource ActionPanelButtonStyle}" />
                             <Button
                                 Command="{Binding RefreshMapPreviewCommand}"
                                 Content="Refresh Map"
-                                Style="{StaticResource ActionPanelButton}" />
+                                Style="{StaticResource ActionPanelButtonStyle}" />
                         </WrapPanel>
                     </Border>
                     <wpf:WebView2
@@ -97,7 +97,7 @@
             </TabItem>
             <TabItem Header="Raw GeoJson">
                 <TextBox
-                    Style="{StaticResource ReadOnlyTextBox}"
+                    Style="{StaticResource ReadOnlyTextBoxStyle}"
                     Text="{Binding LineGeoJson}"
                     TextWrapping="Wrap"
                     VerticalScrollBarVisibility="Visible" />
@@ -106,24 +106,24 @@
                 <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{Binding SaveCommand}"
                     Content="_Save"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding SaveAndCloseCommand}"
                     Content="Save and Close"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ExtractNewLinksCommand}"
                     Content="_Extract New Links"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ViewOnSiteCommand}"
                     Content="_View on Site"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <windowScreenShot:WindowScreenShotControl

@@ -13,6 +13,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -28,13 +29,13 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private Command<FileContent> _editContentCommand;
         private ObservableCollection<FileListListItem> _items;
         private string _lastSortColumn;
-        private Command<FileListListItem> _openFileCommand;
-        private List<FileListListItem> _selectedItems;
+        private ContentListSelected<FileListListItem> _listSelection;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
+        private Command<FileListListItem> _viewFileCommand;
 
         public FileListContext(StatusControlContext statusContext)
         {
@@ -49,7 +50,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             });
-            OpenFileCommand = StatusContext.RunNonBlockingTaskCommand<FileListListItem>(OpenFile);
+            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileListListItem>(OpenFile);
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -88,24 +89,13 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             }
         }
 
-        public Command<FileListListItem> OpenFileCommand
+        public ContentListSelected<FileListListItem> ListSelection
         {
-            get => _openFileCommand;
+            get => _listSelection;
             set
             {
-                if (Equals(value, _openFileCommand)) return;
-                _openFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public List<FileListListItem> SelectedItems
-        {
-            get => _selectedItems;
-            set
-            {
-                if (Equals(value, _selectedItems)) return;
-                _selectedItems = value;
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
                 OnPropertyChanged();
             }
         }
@@ -164,6 +154,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 OnPropertyChanged();
 
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+            }
+        }
+
+        public Command<FileListListItem> ViewFileCommand
+        {
+            get => _viewFileCommand;
+            set
+            {
+                if (Equals(value, _viewFileCommand)) return;
+                _viewFileCommand = value;
+                OnPropertyChanged();
             }
         }
 
@@ -327,6 +328,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+            ListSelection = await ContentListSelected<FileListListItem>.CreateInstance(StatusContext);
 
             StatusContext.Progress("Connecting to DB");
 

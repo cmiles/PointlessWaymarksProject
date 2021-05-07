@@ -18,17 +18,17 @@
     </UserControl.Resources>
     <StackPanel Orientation="Vertical">
         <TextBox
-            Style="{StaticResource ReadOnlyTextBox}"
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}', TargetNullValue='None'}"
             TextWrapping="Wrap" />
         <TextBox
             Margin="0,6,0,0"
-            Style="{StaticResource ReadOnlyTextBox}"
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}', TargetNullValue='None'}"
             TextWrapping="Wrap" />
         <TextBox
             Margin="0,6,0,0"
-            Style="{StaticResource ReadOnlyTextBox}"
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.Id, StringFormat='Db Id: {0}', TargetNullValue='None'}"
             TextWrapping="Wrap" />
     </StackPanel>

@@ -48,7 +48,7 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -59,7 +59,7 @@
                     </Button>
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -116,7 +116,7 @@
                                 <StackPanel Margin="2" Orientation="Vertical">
                                     <TextBox
                                         FontWeight="Bold"
-                                        Style="{StaticResource ReadOnlyTextBox}"
+                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
                                         Text="{Binding DbEntry.Title}"
                                         TextWrapping="Wrap">
                                         <b:Interaction.Behaviors>
@@ -125,17 +125,17 @@
                                     </TextBox>
                                     <TextBox
                                         Margin="0,2,0,0"
-                                        Style="{StaticResource ReadOnlyTextBox}"
+                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
                                         Text="{Binding DbEntry.Summary}"
                                         TextWrapping="Wrap">
                                         <b:Interaction.Behaviors>
                                             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </b:Interaction.Behaviors>
                                     </TextBox>
-                                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanel}">
+                                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanelStyle}">
                                         <TextBox
                                             Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
                                             TextWrapping="Wrap">
                                             <b:Interaction.Behaviors>
@@ -144,7 +144,7 @@
                                         </TextBox>
                                         <TextBox
                                             Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
                                             TextWrapping="Wrap">
                                             <b:Interaction.Behaviors>

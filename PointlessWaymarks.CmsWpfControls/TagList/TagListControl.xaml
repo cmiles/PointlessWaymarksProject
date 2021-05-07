@@ -64,7 +64,7 @@
                                     <TextBox
                                         VerticalAlignment="Center"
                                         FontSize="14"
-                                        Style="{StaticResource ReadOnlyTextBox}"
+                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
                                         TextWrapping="Wrap">
                                         <TextBox.Text>
                                             <MultiBinding StringFormat="{}{0} ({1})">
@@ -80,16 +80,16 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
+                    <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <Button
                                 Command="{Binding VisibleTagsToExcelCommand}"
                                 Content="Visible To Excel"
-                                Style="{StaticResource ActionPanelButton}" />
+                                Style="{StaticResource ActionPanelButtonStyle}" />
                             <Button
                                 Command="{Binding SelectedTagsToExcelCommand}"
                                 Content="Selected To Excel"
-                                Style="{StaticResource ActionPanelButton}" />
+                                Style="{StaticResource ActionPanelButtonStyle}" />
                         </WrapPanel>
                     </Border>
                 </Grid>
@@ -122,7 +122,7 @@
                                             <TextBox
                                                 Margin="4"
                                                 FontWeight="Bold"
-                                                Style="{StaticResource ReadOnlyTextBox}"
+                                                Style="{StaticResource ReadOnlyTextBoxStyle}"
                                                 Text="{Binding Title}"
                                                 TextWrapping="Wrap">
                                                 <b:Interaction.Behaviors>
@@ -131,7 +131,7 @@
                                             </TextBox>
                                             <TextBox
                                                 Margin="6,0,0,0"
-                                                Style="{StaticResource ReadOnlyTextBox}"
+                                                Style="{StaticResource ReadOnlyTextBoxStyle}"
                                                 Text="{Binding ContentType}"
                                                 TextWrapping="Wrap">
                                                 <b:Interaction.Behaviors>
@@ -140,7 +140,7 @@
                                             </TextBox>
                                             <TextBox
                                                 Margin="6,0,0,6"
-                                                Style="{StaticResource ReadOnlyTextBox}"
+                                                Style="{StaticResource ReadOnlyTextBoxStyle}"
                                                 Text="{Binding Tags, StringFormat='Tags: {0}'}"
                                                 TextWrapping="Wrap">
                                                 <b:Interaction.Behaviors>
@@ -161,16 +161,16 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+                    <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <Button
                                 Command="{Binding AllDetailItemsToExcelCommand}"
                                 Content="All To Excel"
-                                Style="{StaticResource ActionPanelButton}" />
+                                Style="{StaticResource ActionPanelButtonStyle}" />
                             <Button
                                 Command="{Binding SelectedDetailItemsToExcelCommand}"
                                 Content="Selected To Excel"
-                                Style="{StaticResource ActionPanelButton}" />
+                                Style="{StaticResource ActionPanelButtonStyle}" />
                         </WrapPanel>
                     </Border>
                 </Grid>
@@ -178,7 +178,7 @@
             </GroupBox>
         </Grid>
 
-        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel
                 Grid.Row="1"
                 HorizontalAlignment="Center"
@@ -186,7 +186,7 @@
                 <Button
                     Command="{Binding RefreshDataCommand}"
                     Content="_Refresh"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <status:StatusControl

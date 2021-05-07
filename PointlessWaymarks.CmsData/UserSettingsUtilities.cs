@@ -744,6 +744,15 @@ namespace PointlessWaymarks.CmsData
             return directory;
         }
 
+        public static FileInfo? LocalSitePhotoContentFile(this UserSettings settings, PhotoContent? content)
+        {
+            if (string.IsNullOrWhiteSpace(content?.OriginalFileName)) return null;
+
+            var directory = settings.LocalSitePhotoContentDirectory(content, false);
+
+            return new FileInfo(Path.Combine(directory.FullName, content.OriginalFileName));
+        }
+
         public static DirectoryInfo LocalSitePhotoDirectory(this UserSettings settings)
         {
             var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootDirectory, "Photos"));

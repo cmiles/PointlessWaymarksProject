@@ -9,7 +9,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    Name="ImageListControlXaml"
+    x:Name="UserControlXaml"
     d:DataContext="{d:DesignInstance imageList:ImageListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -20,7 +20,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <wpfConverter:ImageCacheConverter x:Key="ImageCache" />
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
@@ -49,7 +48,7 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -59,7 +58,7 @@
                     </Button>
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -89,7 +88,7 @@
             Header="Images"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
-                Name="ContentListBox"
+                x:Name="ContentListBox"
                 ItemsSource="{Binding Items}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
@@ -101,105 +100,42 @@
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Border.InputBindings>
                                 <MouseBinding
-                                    Command="{Binding ElementName=ImageListControlXaml, Path=DataContext.EditContentCommand}"
+                                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
                                     CommandParameter="{Binding DbEntry}"
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
-                            <Grid Margin="4">
+                            <Grid Style="{StaticResource ContentListOuterGridStyle}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Orientation="Vertical">
-                                    <Image
-                                        Margin="2"
-                                        Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
-                                        ToolTip="Double Click to View, Shift Double Click to Edit">
-                                        <Image.InputBindings>
-                                            <MouseBinding
-                                                Command="{Binding DataContext.ViewImageCommand, ElementName=ImageListControlXaml}"
-                                                CommandParameter="{Binding DbEntry}"
-                                                MouseAction="LeftDoubleClick" />
-                                            <MouseBinding
-                                                Command="{Binding DataContext.EditContentCommand, ElementName=ImageListControlXaml}"
-                                                CommandParameter="{Binding DbEntry}"
-                                                Gesture="Shift+LeftDoubleClick" />
-                                        </Image.InputBindings>
-                                    </Image>
-                                    <Button
-                                        Height="24"
-                                        Margin="0,0,8,8"
-                                        HorizontalAlignment="Center"
-                                        Command="{Binding DataContext.OpenFileCommand, ElementName=ImageListControlXaml}"
-                                        CommandParameter="{Binding .}"
-                                        Opacity=".5">
-                                        view image
+                                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                                    <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
+                                        view
                                     </Button>
-                                </StackPanel>
-                                <StackPanel
-                                    Grid.Column="1"
-                                    Margin="2"
-                                    Orientation="Vertical">
-                                    <TextBox
-                                        FontWeight="Bold"
-                                        Style="{StaticResource ReadOnlyTextBox}"
-                                        Text="{Binding DbEntry.Title}"
-                                        TextWrapping="Wrap">
-                                        <i:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
-                                    <TextBox
-                                        Margin="0,2,0,0"
-                                        Style="{StaticResource ReadOnlyTextBox}"
-                                        Text="{Binding DbEntry.Summary}"
-                                        TextWrapping="Wrap">
-                                        <i:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
-                                    <WrapPanel Orientation="Horizontal">
-                                        <TextBox
-                                            HorizontalAlignment="Right"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
-                                        <TextBox
-                                            Margin="8,0,0,0"
-                                            HorizontalAlignment="Right"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
-                                    </WrapPanel>
-                                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanel}">
-                                        <TextBox
-                                            Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
-                                        <TextBox
-                                            Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
-                                    </WrapPanel>
-                                </StackPanel>
+                                </Grid>
+                                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Orientation="Vertical">
+                                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListOriginalFileNameDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
+                                    </StackPanel>
+                                    <ContentPresenter
+                                        Grid.Row="1"
+                                        VerticalAlignment="Bottom"
+                                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
+                                </Grid>
                             </Grid>
                         </Border>
                     </DataTemplate>

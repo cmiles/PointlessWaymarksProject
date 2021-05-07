@@ -46,6 +46,14 @@
  
 ## Notes
 
+5/7/2021
+
+File List uses the updated selection model now.
+
+In working on File List I did some quick experiments in how to further reduce boilerplate on the list templates - in the end I think the current approach of simple controls in the resources works and I added to that pulling as much styling as possible into the resources also. This does leave a bit more xaml than I would like, but keeps quite a bit of flexibility with now less problems with small changes. I think with the limited scope here - the current number of lists is the intended number of lists - this is probably a good compromise.
+
+The newer list selection model is great for functionality but the wire up is has more to it than I would like - thinking about pulling together a behaviour to help with that but wondering if I could get enough functionality so that the magic behaviour wireup is distinctly better than the current magic wireups...
+
 5/5/2021
 
 Reworked the copy changes in the Photo list in a more re-usable form and reworked the Post and Photo lists. In the process also pulled a number of the list item display controls into the resource file for better reuse.

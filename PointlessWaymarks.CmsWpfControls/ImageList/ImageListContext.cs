@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -29,10 +28,10 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         private Command<ImageContent> _editContentCommand;
         private ObservableCollection<ImageListListItem> _items;
         private string _lastSortColumn;
-        private Command<ImageListListItem> _openFileCommand;
         private List<ImageListListItem> _selectedItems;
         private StatusControlContext _statusContext;
         private string _userFilterText;
+        private Command<ImageListListItem> _viewFileCommand;
         private Command<ImageContent> _viewImageCommand;
 
         public ImageListContext(StatusControlContext statusContext)
@@ -41,7 +40,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
-            ViewImageCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewImage);
             EditContentCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(EditContent);
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
@@ -50,7 +48,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             });
-            OpenFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageListListItem>(OpenFile);
+            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageListListItem>(OpenFile);
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -85,17 +83,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<ImageListListItem> OpenFileCommand
-        {
-            get => _openFileCommand;
-            set
-            {
-                if (Equals(value, _openFileCommand)) return;
-                _openFileCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -138,6 +125,17 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 OnPropertyChanged();
 
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+            }
+        }
+
+        public Command<ImageListListItem> ViewFileCommand
+        {
+            get => _viewFileCommand;
+            set
+            {
+                if (Equals(value, _viewFileCommand)) return;
+                _viewFileCommand = value;
+                OnPropertyChanged();
             }
         }
 
@@ -365,7 +363,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 
             var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentFile(listItem.DbEntry);
 
-            if (!toOpen.Exists)
+            if (toOpen == null || !toOpen.Exists)
             {
                 StatusContext.ToastError("File doesn't exist?");
                 return;
@@ -389,38 +387,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             if (string.IsNullOrWhiteSpace(sortColumn)) return;
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
-        }
-
-        private async Task ViewImage(ImageContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            try
-            {
-                var context = await Db.Context();
-
-                var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-                var possibleFile = UserSettingsSingleton.CurrentSettings()
-                    .LocalMediaArchiveImageContentFile(refreshedData);
-
-                if (possibleFile == null || !possibleFile.Exists)
-                {
-                    StatusContext.ToastWarning("No Media File Found?");
-                    return;
-                }
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                var ps = new ProcessStartInfo(possibleFile.FullName) {UseShellExecute = true, Verb = "open"};
-                Process.Start(ps);
-            }
-            catch (Exception e)
-            {
-                StatusContext.ToastWarning($"Trouble Showing Image - {e.Message}");
-            }
         }
     }
 }

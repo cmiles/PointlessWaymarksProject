@@ -71,12 +71,12 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Button Command="{Binding ChooseFileCommand}" Style="{StaticResource ActionPanelButton}">Choose File</Button>
+                                    <Button Command="{Binding ChooseFileCommand}" Style="{StaticResource ActionPanelButtonStyle}">Choose File</Button>
                                     <Label Grid.Row="1" Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
                                     <TextBox
                                         Grid.Row="2"
                                         Margin="6,2,0,8"
-                                        Style="{StaticResource ReadOnlyTextBox}"
+                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
                                         Text="{Binding SelectedFile.FullName, Mode=OneWay}"
                                         TextDecorations="Underline"
                                         TextWrapping="Wrap">
@@ -133,29 +133,29 @@
                 <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{Binding SaveCommand}"
                     Content="_Save"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding SaveAndCloseCommand}"
                     Content="Save and Close"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ExtractNewLinksCommand}"
                     Content="_Extract New Links"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding LinkToClipboardCommand}"
                     Content="Link to Clipboard"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding DownloadLinkToClipboardCommand}"
                     Content="Download Link to Clipboard"
-                    Style="{StaticResource ActionPanelButton}" />
-                <Button Command="{Binding SaveAndExtractImageFromPdfCommand}" Style="{StaticResource ActionPanelButton}">
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button Command="{Binding SaveAndExtractImageFromPdfCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     <Viewbox StretchDirection="DownOnly">
                         <StackPanel Orientation="Horizontal">
                             <Label>Save, Extract Pdf Page</Label>
@@ -171,7 +171,7 @@
                 <Button
                     Command="{Binding ViewOnSiteCommand}"
                     Content="_View on Site"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <windowScreenShot:WindowScreenShotControl

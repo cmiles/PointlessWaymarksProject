@@ -9,7 +9,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    Name="FileListControlXaml"
+    Name="UserControlXaml"
     d:DataContext="{d:DesignInstance fileList:FileListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -20,7 +20,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <wpfConverter:ImageCacheConverter x:Key="ImageCache" />
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
@@ -49,7 +48,7 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -59,7 +58,7 @@
                     </Button>
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -98,9 +97,11 @@
             <ListBox
                 Name="FileListBox"
                 ItemsSource="{Binding Items}"
+                SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
+                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
@@ -108,95 +109,42 @@
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Border.InputBindings>
                                 <MouseBinding
-                                    Command="{Binding ElementName=FileListControlXaml, Path=DataContext.EditContentCommand}"
+                                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
                                     CommandParameter="{Binding DbEntry}"
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
-                            <Grid Margin="4">
+                            <Grid Style="{StaticResource ContentListOuterGridStyle}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Image Margin="2" Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" />
-                                <StackPanel
-                                    Grid.Column="1"
-                                    Margin="2"
-                                    Orientation="Vertical">
-                                    <TextBox
-                                        FontWeight="Bold"
-                                        Style="{StaticResource ReadOnlyTextBox}"
-                                        Text="{Binding DbEntry.Title}"
-                                        TextWrapping="Wrap">
-                                        <i:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
-                                    <TextBox
-                                        Margin="0,2,0,0"
-                                        Style="{StaticResource ReadOnlyTextBox}"
-                                        Text="{Binding DbEntry.Summary}"
-                                        TextWrapping="Wrap">
-                                        <i:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
-                                    <WrapPanel Orientation="Horizontal">
-                                        <TextBox
-                                            HorizontalAlignment="Right"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
-                                        <TextBox
-                                            Margin="8,0,0,0"
-                                            HorizontalAlignment="Right"
-                                            Style="{StaticResource ReadOnlyTextBox}"
-                                            Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
-                                            TextWrapping="Wrap">
-                                            <i:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
-                                    </WrapPanel>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition />
-                                        </Grid.ColumnDefinitions>
-                                        <Button
-                                            Width="180"
-                                            Height="30"
-                                            HorizontalAlignment="Left"
-                                            Command="{Binding DataContext.OpenFileCommand, ElementName=FileListControlXaml}"
-                                            CommandParameter="{Binding .}">
-                                            Open File
-                                        </Button>
-                                        <WrapPanel Grid.Column="1" Style="{StaticResource ContentListContentVersionIdWrapPanel}">
-                                            <TextBox
-                                                Margin="8,0,0,0"
-                                                Style="{StaticResource ReadOnlyTextBox}"
-                                                Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
-                                                TextWrapping="Wrap">
-                                                <i:Interaction.Behaviors>
-                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                                </i:Interaction.Behaviors>
-                                            </TextBox>
-                                            <TextBox
-                                                Margin="8,0,0,0"
-                                                Style="{StaticResource ReadOnlyTextBox}"
-                                                Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
-                                                TextWrapping="Wrap">
-                                                <i:Interaction.Behaviors>
-                                                    <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                                </i:Interaction.Behaviors>
-                                            </TextBox>
-                                        </WrapPanel>
-                                    </Grid>
-
-                                </StackPanel>
+                                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                                    <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
+                                        view
+                                    </Button>
+                                </Grid>
+                                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Orientation="Vertical">
+                                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListOriginalFileNameDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
+                                    </StackPanel>
+                                    <ContentPresenter
+                                        Grid.Row="1"
+                                        VerticalAlignment="Bottom"
+                                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
+                                </Grid>
                             </Grid>
                         </Border>
                     </DataTemplate>

@@ -261,7 +261,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext?.SelectedItems?.OrderBy(x => x.DbEntry.Title).ToList();
+            var selected = ListContext?.ListSelection.SelectedItems?.OrderBy(x => x.DbEntry.Title).ToList();
 
             if (selected == null || !selected.Any())
             {
@@ -302,14 +302,14 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var context = await Db.Context();
-            var frozenList = ListContext.SelectedItems;
+            var frozenList = ListContext.ListSelection.SelectedItems;
 
             foreach (var loopSelected in frozenList)
             {
@@ -338,19 +338,19 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
-            if (ListContext.SelectedItems.Count > 1)
+            if (ListContext.ListSelection.SelectedItems.Count > 1)
             {
                 StatusContext.ToastError("Please select only 1 item...");
                 return;
             }
 
-            var frozenSelected = ListContext.SelectedItems.First();
+            var frozenSelected = ListContext.ListSelection.SelectedItems.First();
 
             var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
@@ -365,14 +365,14 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var context = await Db.Context();
-            var frozenList = ListContext.SelectedItems;
+            var frozenList = ListContext.ListSelection.SelectedItems;
 
             foreach (var loopSelected in frozenList)
             {
@@ -390,7 +390,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -398,7 +398,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             var finalString = string.Empty;
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in ListContext.ListSelection.SelectedItems)
                 finalString += @$"{BracketCodeFileDownloads.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -412,7 +412,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -420,10 +420,10 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             var finalString = string.Empty;
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in ListContext.ListSelection.SelectedItems)
                 finalString += @$"{BracketCodeFileImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
-            if (ListContext.SelectedItems.Any(x => x.DbEntry.MainPicture == null))
+            if (ListContext.ListSelection.SelectedItems.Any(x => x.DbEntry.MainPicture == null))
                 StatusContext.ToastWarning("Some File Image Links do not have images?");
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -437,7 +437,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -445,7 +445,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             var finalString = string.Empty;
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in ListContext.ListSelection.SelectedItems)
                 finalString += @$"{BracketCodeFiles.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -457,7 +457,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
         private async Task FirstPagePreviewFromPdfToCairo()
         {
-            var selected = ListContext.SelectedItems;
+            var selected = ListContext.ListSelection.SelectedItems;
 
             if (selected == null || !selected.Any())
             {
@@ -473,16 +473,16 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var loopCount = 1;
-            var totalCount = ListContext.SelectedItems.Count;
+            var totalCount = ListContext.ListSelection.SelectedItems.Count;
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in ListContext.ListSelection.SelectedItems)
             {
                 StatusContext.Progress(
                     $"Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
@@ -533,7 +533,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
+                await ExcelHelpers.SelectedToExcel(ListContext.ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
+                    StatusContext));
         }
 
         private async Task NewContent()
@@ -602,7 +603,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -610,7 +611,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in ListContext.ListSelection.SelectedItems)
             {
                 var url = $@"http://{settings.FilePageUrl(loopSelected.DbEntry)}";
 
@@ -623,7 +624,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext.SelectedItems;
+            var selected = ListContext.ListSelection.SelectedItems;
 
             if (selected == null || !selected.Any())
             {

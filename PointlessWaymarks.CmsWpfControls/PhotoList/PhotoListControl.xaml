@@ -9,7 +9,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    Name="PhotoListControlXaml"
+    Name="UserControlXaml"
     d:DataContext="{d:DesignInstance photoList:PhotoListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -56,7 +56,7 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -66,7 +66,7 @@
                     </Button>
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -121,17 +121,26 @@
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">
                             <Border.InputBindings>
                                 <MouseBinding
-                                    Command="{Binding ElementName=userControlXaml, Path=DataContext.EditContentCommand}"
+                                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
                                     CommandParameter="{Binding DbEntry}"
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
-                            <Grid Margin="4">
+                            <Grid Style="{StaticResource ContentListOuterGridStyle}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <ContentPresenter Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                                <Grid Grid.Column="1" Margin="2">
+                                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                                    <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
+                                        view
+                                    </Button>
+                                </Grid>
+                                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="Auto" />
@@ -142,18 +151,18 @@
                                         <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListOriginalFileNameDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
-                                        <WrapPanel Orientation="Horizontal">
+                                        <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
                                             <TextBox
                                                 HorizontalAlignment="Right"
                                                 Cursor="Arrow"
-                                                Style="{StaticResource ReadOnlyTextBox}"
+                                                Style="{StaticResource ReadOnlyTextBoxStyle}"
                                                 Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo Created On: {0}'}"
                                                 TextDecorations="Underline"
                                                 TextWrapping="Wrap"
                                                 ToolTip="Photo taken on - click to search to find other photos taken on this day">
                                                 <TextBox.InputBindings>
                                                     <MouseBinding
-                                                        Command="{Binding DataContext.PhotoTakenOnSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        Command="{Binding DataContext.PhotoTakenOnSearchCommand, ElementName=UserControlXaml}"
                                                         CommandParameter="{Binding DbEntry}"
                                                         MouseAction="LeftClick" />
                                                 </TextBox.InputBindings>
@@ -169,7 +178,7 @@
                                             <Button Content="{Binding DbEntry.CameraMake, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Make)'}" ToolTip="Camera Make - click to search for other photos with this Camera Make">
                                                 <Button.InputBindings>
                                                     <MouseBinding
-                                                        Command="{Binding DataContext.CameraMakeSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        Command="{Binding DataContext.CameraMakeSearchCommand, ElementName=UserControlXaml}"
                                                         CommandParameter="{Binding DbEntry}"
                                                         MouseAction="LeftClick" />
                                                 </Button.InputBindings>
@@ -177,7 +186,7 @@
                                             <Button Content="{Binding DbEntry.CameraModel, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Model)'}" ToolTip="Camera Model - click to search for other photos with this Camera Model">
                                                 <Button.InputBindings>
                                                     <MouseBinding
-                                                        Command="{Binding DataContext.CameraModelSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        Command="{Binding DataContext.CameraModelSearchCommand, ElementName=UserControlXaml}"
                                                         CommandParameter="{Binding DbEntry}"
                                                         MouseAction="LeftClick" />
                                                 </Button.InputBindings>
@@ -185,7 +194,7 @@
                                             <Button Content="{Binding DbEntry.Lens, Converter={StaticResource StringDefault}, ConverterParameter='(No Lens)'}" ToolTip="Lens - click to search for other photos taken with this lens">
                                                 <Button.InputBindings>
                                                     <MouseBinding
-                                                        Command="{Binding DataContext.LensSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        Command="{Binding DataContext.LensSearchCommand, ElementName=UserControlXaml}"
                                                         CommandParameter="{Binding DbEntry}"
                                                         MouseAction="LeftClick" />
                                                 </Button.InputBindings>
@@ -193,7 +202,7 @@
                                             <Button Content="{Binding DbEntry.FocalLength, Converter={StaticResource StringDefault}, ConverterParameter='(No Focal Length)'}" ToolTip="Focal Length - click to search for other photos with this focal length">
                                                 <Button.InputBindings>
                                                     <MouseBinding
-                                                        Command="{Binding DataContext.FocalLengthSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        Command="{Binding DataContext.FocalLengthSearchCommand, ElementName=UserControlXaml}"
                                                         CommandParameter="{Binding DbEntry}"
                                                         MouseAction="LeftClick" />
                                                 </Button.InputBindings>
@@ -201,7 +210,7 @@
                                             <Button Content="{Binding DbEntry.Aperture, Converter={StaticResource StringDefault}, ConverterParameter='(No Aperture Model)'}" ToolTip="Aperture - click to search for other photos taken with this Aperture">
                                                 <Button.InputBindings>
                                                     <MouseBinding
-                                                        Command="{Binding DataContext.ApertureSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        Command="{Binding DataContext.ApertureSearchCommand, ElementName=UserControlXaml}"
                                                         CommandParameter="{Binding DbEntry}"
                                                         MouseAction="LeftClick" />
                                                 </Button.InputBindings>
@@ -209,7 +218,7 @@
                                             <Button Content="{Binding DbEntry.ShutterSpeed, Converter={StaticResource StringDefault}, ConverterParameter='(No Shutter Speed)'}" ToolTip="Shutter Speed - click to search for other photos take with this Shutter Speed">
                                                 <Button.InputBindings>
                                                     <MouseBinding
-                                                        Command="{Binding DataContext.ShutterSpeedSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        Command="{Binding DataContext.ShutterSpeedSearchCommand, ElementName=UserControlXaml}"
                                                         CommandParameter="{Binding DbEntry}"
                                                         MouseAction="LeftClick" />
                                                 </Button.InputBindings>
@@ -217,7 +226,7 @@
                                             <Button Content="{Binding DbEntry.Iso, Converter={StaticResource IsoWithDefault}}" ToolTip="ISO - click to search for other pictures taken at this ISO">
                                                 <Button.InputBindings>
                                                     <MouseBinding
-                                                        Command="{Binding DataContext.IsoSearchCommand, ElementName=PhotoListControlXaml}"
+                                                        Command="{Binding DataContext.IsoSearchCommand, ElementName=UserControlXaml}"
                                                         CommandParameter="{Binding DbEntry}"
                                                         MouseAction="LeftClick" />
                                                 </Button.InputBindings>
@@ -229,7 +238,6 @@
                                         VerticalAlignment="Bottom"
                                         Content="{StaticResource ContentListContentIdAndDateDisplay}" />
                                 </Grid>
-
                             </Grid>
                         </Border>
                     </DataTemplate>

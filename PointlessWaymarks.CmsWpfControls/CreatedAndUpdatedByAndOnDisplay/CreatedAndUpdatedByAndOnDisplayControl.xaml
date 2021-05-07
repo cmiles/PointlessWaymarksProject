@@ -29,7 +29,7 @@
             </StackPanel>
             <TextBox
                 Margin="12,4,0,0"
-                Style="{StaticResource ReadOnlyTextBox}"
+                Style="{StaticResource ReadOnlyTextBoxStyle}"
                 Text="{Binding CreatedAndUpdatedByAndOn}"
                 TextWrapping="Wrap" />
         </StackPanel>

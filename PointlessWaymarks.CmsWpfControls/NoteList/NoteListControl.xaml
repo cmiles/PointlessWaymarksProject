@@ -48,7 +48,7 @@
                 <WrapPanel HorizontalAlignment="Center">
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -58,7 +58,7 @@
                     </Button>
                     <Button
                         Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButton}"
+                        Style="{StaticResource ListSortButtonStyle}"
                         Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
                         <utility:IndicatorIcon
                             VerticalAlignment="Center"
@@ -115,7 +115,7 @@
                                 <StackPanel Margin="2" Orientation="Vertical">
                                     <TextBox
                                         FontWeight="Bold"
-                                        Style="{StaticResource ReadOnlyTextBox}"
+                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
                                         Text="{Binding DbEntry.Summary}"
                                         TextWrapping="Wrap">
                                         <i:Interaction.Behaviors>
@@ -125,7 +125,7 @@
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBox
                                             HorizontalAlignment="Right"
-                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
                                             TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>
@@ -135,7 +135,7 @@
                                         <TextBox
                                             Margin="8,0,0,0"
                                             HorizontalAlignment="Right"
-                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
                                             TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>
@@ -143,10 +143,10 @@
                                             </i:Interaction.Behaviors>
                                         </TextBox>
                                     </WrapPanel>
-                                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanel}">
+                                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanelStyle}">
                                         <TextBox
                                             Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
                                             TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>
@@ -155,7 +155,7 @@
                                         </TextBox>
                                         <TextBox
                                             Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBox}"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
                                             TextWrapping="Wrap">
                                             <i:Interaction.Behaviors>

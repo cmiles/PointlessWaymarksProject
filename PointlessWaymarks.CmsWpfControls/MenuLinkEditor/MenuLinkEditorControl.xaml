@@ -159,7 +159,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
-        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel
                 Grid.Row="1"
                 HorizontalAlignment="Center"
@@ -167,15 +167,15 @@
                 <Button
                     Command="{Binding AddItemCommand}"
                     Content="Add"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding DeleteItemCommand}"
                     Content="Delete"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding SaveCommand}"
                     Content="Save"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <status:StatusControl

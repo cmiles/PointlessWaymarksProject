@@ -97,12 +97,12 @@
                 </ItemsControl>
             </ScrollViewer>
         </GroupBox>
-        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorder}">
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{Binding AddNewItemCommand}"
                     Content="Add New Item"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <status:StatusControl

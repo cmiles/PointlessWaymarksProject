@@ -104,24 +104,24 @@
                 <helpDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
-        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorder}">
+        <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{Binding SaveCommand}"
                     Content="_Save"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding SaveAndCloseCommand}"
                     Content="Save and Close"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ExtractNewLinksCommand}"
                     Content="_Extract New Links"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ViewOnSiteCommand}"
                     Content="_View on Site"
-                    Style="{StaticResource ActionPanelButton}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <windowScreenShot:WindowScreenShotControl
