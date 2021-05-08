@@ -27,7 +27,7 @@
 <body>
     <#= Tags.StandardHeader().ToString() #>
     <#= HorizontalRule.StandardRule() #>
-    <h1 class="index-title-content"><#= $"Search {ListTitle}" #></h1>
+    <h1 class="site-header-title"><#= $"Search {ListTitle}" #></h1>
     <div class="search-input-container">
         <input type="text" class="search-input enable-after-loading wait-cursor" id="userSearchText" onkeyup="searchContent()" disabled placeholder="Search <#= ListTitle #>...">
     </div>

@@ -454,11 +454,11 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
         public static HtmlTag StandardHeader()
         {
-            var titleContainer = new DivTag().AddClass("index-title-container");
+            var titleContainer = new DivTag().AddClass("site-header-container");
 
-            var titleHeader = new HtmlTag("H1").AddClass("index-title-content");
+            var titleHeader = new HtmlTag("H1").AddClass("site-header-title");
             titleHeader.Children.Add(new LinkTag(UserSettingsSingleton.CurrentSettings().SiteName,
-                $"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}", "index-title-content-link"));
+                $"https://{UserSettingsSingleton.CurrentSettings().SiteUrl}", "site-header-title-link"));
 
             titleContainer.Children.Add(titleHeader);
 
@@ -466,7 +466,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!string.IsNullOrWhiteSpace(siteSummary))
             {
-                var titleSiteSummary = new HtmlTag("H5").AddClass("index-title-summary-content").Text(siteSummary);
+                var titleSiteSummary = new HtmlTag("H5").AddClass("site-header-subtitle").Text(siteSummary);
                 titleContainer.Children.Add(titleSiteSummary);
             }
 

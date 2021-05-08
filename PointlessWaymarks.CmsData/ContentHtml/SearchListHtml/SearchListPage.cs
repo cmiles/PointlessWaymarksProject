@@ -108,7 +108,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             
             #line default
             #line hidden
-            this.Write("\r\n    <h1 class=\"index-title-content\">");
+            this.Write("\r\n    <h1 class=\"site-header-title\">");
             
             #line 30 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"Search {ListTitle}"));
