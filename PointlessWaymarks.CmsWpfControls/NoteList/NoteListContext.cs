@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -26,6 +27,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         private Command<NoteContent> _editContentCommand;
         private ObservableCollection<NoteListListItem> _items;
         private string _lastSortColumn;
+        private ContentListSelected<NoteListListItem> _listSelection;
         private List<NoteListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
@@ -81,6 +83,17 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentListSelected<NoteListListItem> ListSelection
+        {
+            get => _listSelection;
+            set
+            {
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
                 OnPropertyChanged();
             }
         }
@@ -284,6 +297,8 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+            ListSelection = await ContentListSelected<NoteListListItem>.CreateInstance(StatusContext);
 
             StatusContext.Progress("Connecting to DB");
 

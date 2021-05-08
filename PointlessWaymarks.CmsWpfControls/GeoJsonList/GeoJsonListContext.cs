@@ -30,6 +30,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         private Command<GeoJsonContent> _editContentCommand;
         private ObservableCollection<GeoJsonListListItem> _items;
         private string _lastSortColumn;
+        private ContentListSelected<GeoJsonListListItem> _listSelection;
         private List<GeoJsonListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
@@ -77,6 +78,17 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentListSelected<GeoJsonListListItem> ListSelection
+        {
+            get => _listSelection;
+            set
+            {
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
                 OnPropertyChanged();
             }
         }
@@ -350,6 +362,8 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+            ListSelection = await ContentListSelected<GeoJsonListListItem>.CreateInstance(StatusContext);
 
             StatusContext.Progress("Connecting to DB");
 

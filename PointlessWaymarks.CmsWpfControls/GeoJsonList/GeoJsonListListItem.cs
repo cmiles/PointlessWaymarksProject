@@ -7,9 +7,10 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 {
-    public class GeoJsonListListItem : INotifyPropertyChanged, IContentCommonGuiListItem
+    public class GeoJsonListListItem : INotifyPropertyChanged, IContentCommonGuiListItem, ISelectedTextTracker
     {
         private GeoJsonContent _dbEntry;
+        private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
 
         public GeoJsonContent DbEntry
@@ -40,6 +41,17 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public CurrentSelectedTextTracker SelectedTextTracker
+        {
+            get => _selectedTextTracker;
+            set
+            {
+                if (Equals(value, _selectedTextTracker)) return;
+                _selectedTextTracker = value;
+                OnPropertyChanged();
+            }
+        }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

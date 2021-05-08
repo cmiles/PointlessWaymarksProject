@@ -81,7 +81,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
             if (Selected == null) return;
             StatusContext.ContextDispatcher.Invoke(() =>
             {
-                Clipboard.SetText(Selected.SelectedTextTracker.CurrentSelectedText);
+                Clipboard.SetText(Selected.SelectedTextTracker?.CurrentSelectedText ?? string.Empty);
             });
         }
 

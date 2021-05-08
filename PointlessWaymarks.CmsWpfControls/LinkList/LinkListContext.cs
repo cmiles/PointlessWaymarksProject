@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Input;
 using HtmlTableHelper;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +17,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -35,9 +35,8 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         private ObservableCollection<LinkListListItem> _items;
         private string _lastSortColumn;
 
-        private ObservableCollection<CommandBinding> _listBoxAppCommandBindings = new();
-
         private Command _listSelectedLinksNotOnPinboardCommand;
+        private ContentListSelected<LinkListListItem> _listSelection;
         private Command<string> _openUrlCommand;
         private List<LinkListListItem> _selectedItems;
         private bool _sortDescending;
@@ -105,17 +104,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
-        public ObservableCollection<CommandBinding> ListBoxAppCommandBindings
-        {
-            get => _listBoxAppCommandBindings;
-            set
-            {
-                if (Equals(value, _listBoxAppCommandBindings)) return;
-                _listBoxAppCommandBindings = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Command ListSelectedLinksNotOnPinboardCommand
         {
             get => _listSelectedLinksNotOnPinboardCommand;
@@ -123,6 +111,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             {
                 if (Equals(value, _listSelectedLinksNotOnPinboardCommand)) return;
                 _listSelectedLinksNotOnPinboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentListSelected<LinkListListItem> ListSelection
+        {
+            get => _listSelection;
+            set
+            {
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
                 OnPropertyChanged();
             }
         }
@@ -417,6 +416,8 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+            ListSelection = await ContentListSelected<LinkListListItem>.CreateInstance(StatusContext);
 
             StatusContext.Progress("Connecting to DB");
 

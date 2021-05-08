@@ -678,7 +678,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 var possibleFile = UserSettingsSingleton.CurrentSettings()
                     .LocalMediaArchivePhotoContentFile(refreshedData);
 
-                if (possibleFile == null || !possibleFile.Exists)
+                if (possibleFile is not {Exists: true})
                 {
                     StatusContext.ToastWarning("No Media File Found?");
                     return;

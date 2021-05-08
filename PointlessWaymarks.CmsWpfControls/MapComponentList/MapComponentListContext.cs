@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -25,6 +26,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
         private Command<MapComponent> _editContentCommand;
         private ObservableCollection<MapComponentListListItem> _items;
         private string _lastSortColumn;
+        private ContentListSelected<MapComponentListListItem> _listSelection;
         private List<MapComponentListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
@@ -72,6 +74,17 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentListSelected<MapComponentListListItem> ListSelection
+        {
+            get => _listSelection;
+            set
+            {
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
                 OnPropertyChanged();
             }
         }
@@ -220,6 +233,8 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+            ListSelection = await ContentListSelected<MapComponentListListItem>.CreateInstance(StatusContext);
 
             StatusContext.Progress("Connecting to DB");
 

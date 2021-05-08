@@ -104,7 +104,7 @@
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="Command" Value="{Binding DataContext.ViewFileCommand, ElementName=UserControlXaml}" />
-        <Setter Property="CommandParameter" Value="{Binding .}" />
+        <Setter Property="CommandParameter" Value="{Binding DbEntry}" />
     </Style>
     <Style x:Key="ContentListItemImageColumnStyle" TargetType="ColumnDefinition">
         <Setter Property="Width" Value="110" />
@@ -116,255 +116,13 @@
         <Setter Property="Margin" Value="2" />
     </Style>
     <wpfConverter:ImageCacheConverter x:Key="ImageCache" />
-    <DataTemplate x:Key="PointListItemTemplate" DataType="pointList:PointListListItem">
-        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-            <Border.InputBindings>
-                <MouseBinding
-                    Command="{Binding ElementName=userControlXaml, Path=DataContext.EditContentCommand}"
-                    CommandParameter="{Binding DbEntry}"
-                    Gesture="Shift+LeftDoubleClick" />
-            </Border.InputBindings>
-            <Grid Margin="4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Image Margin="2" Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" />
-                <StackPanel
-                    Grid.Column="1"
-                    Margin="2"
-                    Orientation="Vertical">
-                    <TextBox
-                        FontWeight="Bold"
-                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                        Text="{Binding DbEntry.Title}"
-                        TextWrapping="Wrap">
-                        <b:Interaction.Behaviors>
-                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                        </b:Interaction.Behaviors>
-                    </TextBox>
-                    <TextBox
-                        Margin="0,2,0,0"
-                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                        Text="{Binding DbEntry.Summary}"
-                        TextWrapping="Wrap">
-                        <b:Interaction.Behaviors>
-                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                        </b:Interaction.Behaviors>
-                    </TextBox>
-                    <WrapPanel Orientation="Horizontal">
-                        <TextBox
-                            HorizontalAlignment="Right"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                        <TextBox
-                            Margin="8,0,0,0"
-                            HorizontalAlignment="Right"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                    </WrapPanel>
-                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanelStyle}">
-                        <TextBox
-                            Margin="8,0,0,0"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                        <TextBox
-                            Margin="8,0,0,0"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                    </WrapPanel>
-                </StackPanel>
-            </Grid>
-        </Border>
-    </DataTemplate>
-    <DataTemplate x:Key="GeoJsonListItemTemplate" DataType="geoJsonList:GeoJsonListListItem">
-        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-            <Border.InputBindings>
-                <MouseBinding
-                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
-                    CommandParameter="{Binding DbEntry}"
-                    Gesture="Shift+LeftDoubleClick" />
-            </Border.InputBindings>
-            <Grid Margin="4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Image Margin="2" Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" />
-                <StackPanel
-                    Grid.Column="1"
-                    Margin="2"
-                    Orientation="Vertical">
-                    <TextBox
-                        FontWeight="Bold"
-                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                        Text="{Binding DbEntry.Title}"
-                        TextWrapping="Wrap">
-                        <b:Interaction.Behaviors>
-                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                        </b:Interaction.Behaviors>
-                    </TextBox>
-                    <TextBox
-                        Margin="0,2,0,0"
-                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                        Text="{Binding DbEntry.Summary}"
-                        TextWrapping="Wrap">
-                        <b:Interaction.Behaviors>
-                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                        </b:Interaction.Behaviors>
-                    </TextBox>
-                    <WrapPanel Orientation="Horizontal">
-                        <TextBox
-                            HorizontalAlignment="Right"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                        <TextBox
-                            Margin="8,0,0,0"
-                            HorizontalAlignment="Right"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                    </WrapPanel>
-                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanelStyle}">
-                        <TextBox
-                            Margin="8,0,0,0"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                        <TextBox
-                            Margin="8,0,0,0"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                    </WrapPanel>
-                </StackPanel>
-            </Grid>
-        </Border>
-    </DataTemplate>
-    <DataTemplate x:Key="LineListItemTemplate" DataType="lineList:LineListListItem">
-        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-            <Border.InputBindings>
-                <MouseBinding
-                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
-                    CommandParameter="{Binding DbEntry}"
-                    Gesture="Shift+LeftDoubleClick" />
-            </Border.InputBindings>
-            <Grid Margin="4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Image Margin="2" Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}" />
-                <StackPanel
-                    Grid.Column="1"
-                    Margin="2"
-                    Orientation="Vertical">
-                    <TextBox
-                        FontWeight="Bold"
-                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                        Text="{Binding DbEntry.Title}"
-                        TextWrapping="Wrap">
-                        <b:Interaction.Behaviors>
-                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                        </b:Interaction.Behaviors>
-                    </TextBox>
-                    <TextBox
-                        Margin="0,2,0,0"
-                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                        Text="{Binding DbEntry.Summary}"
-                        TextWrapping="Wrap">
-                        <b:Interaction.Behaviors>
-                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                        </b:Interaction.Behaviors>
-                    </TextBox>
-                    <WrapPanel Orientation="Horizontal">
-                        <TextBox
-                            HorizontalAlignment="Right"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                        <TextBox
-                            Margin="8,0,0,0"
-                            HorizontalAlignment="Right"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                    </WrapPanel>
-                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanelStyle}">
-                        <TextBox
-                            Margin="8,0,0,0"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                        <TextBox
-                            Margin="8,0,0,0"
-                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
-                            TextWrapping="Wrap">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                            </b:Interaction.Behaviors>
-                        </TextBox>
-                    </WrapPanel>
-                </StackPanel>
-            </Grid>
-        </Border>
-    </DataTemplate>
+
     <TextBox
         x:Key="ContentListSummaryDisplay"
         Margin="0,6,0,0"
         x:Shared="False"
         Style="{StaticResource ReadOnlyTextBoxStyle}"
-        Text="{Binding DbEntry.Summary}"
+        Text="{Binding DbEntry.Summary, Mode=OneWay}"
         TextWrapping="Wrap">
         <b:Interaction.Behaviors>
             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
@@ -380,7 +138,7 @@
         Margin="0,4,0,0"
         x:Shared="False"
         Style="{StaticResource ReadOnlyTextBoxStyle}"
-        Text="{Binding DbEntry.Tags, StringFormat='Tags: {0}'}"
+        Text="{Binding DbEntry.Tags, Mode=OneWay, StringFormat='Tags: {0}'}"
         TextWrapping="Wrap">
         <b:Interaction.Behaviors>
             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
@@ -396,7 +154,7 @@
         x:Shared="False"
         FontWeight="Bold"
         Style="{StaticResource ReadOnlyTextBoxStyle}"
-        Text="{Binding DbEntry.Title}"
+        Text="{Binding DbEntry.Title, Mode=OneWay}"
         TextWrapping="Wrap">
         <b:Interaction.Behaviors>
             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
@@ -412,7 +170,7 @@
         Margin="0,6,0,0"
         x:Shared="False"
         Style="{StaticResource ReadOnlyTextBoxStyle}"
-        Text="{Binding DbEntry.OriginalFileName, StringFormat='File: {0}'}"
+        Text="{Binding DbEntry.OriginalFileName, Mode=OneWay, StringFormat='File: {0}'}"
         TextWrapping="Wrap">
         <b:Interaction.Behaviors>
             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
@@ -430,23 +188,28 @@
         Style="{StaticResource ContentListContentVersionIdWrapPanelStyle}">
         <TextBox
             Style="{StaticResource ReadOnlyTextBoxStyle}"
-            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
-            TextWrapping="Wrap">
-            <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-            </b:Interaction.Behaviors>
-        </TextBox>
-        <TextBox
-            Margin="8,0,0,0"
-            Style="{StaticResource ReadOnlyTextBoxStyle}"
-            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
+            Text="{Binding DbEntry.ContentVersion, Mode=OneWay, StringFormat='Content Version (UTC): {0:r}'}"
             TextWrapping="Wrap">
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.CurrentSelectedText}" PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </TextBox>
+        <TextBox
+            Margin="8,0,0,0"
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
+            Text="{Binding DbEntry.ContentId, Mode=OneWay, StringFormat='Content Id: {0}'}"
+            TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -459,7 +222,7 @@
         <TextBox
             HorizontalAlignment="Right"
             Style="{StaticResource ReadOnlyTextBoxStyle}"
-            Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
+            Text="{Binding DbEntry.Folder, Mode=OneWay, StringFormat='Folder: {0}'}"
             TextWrapping="Wrap">
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
@@ -474,18 +237,24 @@
             Margin="8,0,0,0"
             HorizontalAlignment="Right"
             Style="{StaticResource ReadOnlyTextBoxStyle}"
-            Text="{Binding DbEntry.Slug, StringFormat='Slug: {0}'}"
+            Text="{Binding DbEntry.Slug, Mode=OneWay, StringFormat='Slug: {0}'}"
             TextWrapping="Wrap">
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
             </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
         </TextBox>
     </WrapPanel>
     <Image
         x:Key="ContentListSmallMainImageDisplay"
         Margin="2"
+        VerticalAlignment="Top"
         x:Shared="False"
-        Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
+        Source="{Binding SmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}"
         ToolTip="Shift Double Click to Edit Post">
         <Image.InputBindings>
             <MouseBinding
@@ -498,7 +267,7 @@
         x:Key="ContentListSmallImageContentDisplay"
         Margin="2"
         x:Shared="False"
-        Source="{Binding SmallImageUrl, Converter={StaticResource ImageCache}}"
+        Source="{Binding SmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}"
         ToolTip="Double Click to View, Shift Double Click to Edit">
         <Image.InputBindings>
             <MouseBinding
@@ -511,4 +280,107 @@
                 Gesture="Shift+LeftDoubleClick" />
         </Image.InputBindings>
     </Image>
+    <DataTemplate x:Key="PointListItemTemplate" DataType="pointList:PointListListItem">
+        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+            <Border.InputBindings>
+                <MouseBinding
+                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
+                    CommandParameter="{Binding DbEntry}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </Border.InputBindings>
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <ContentPresenter Content="{StaticResource ContentListSmallMainImageDisplay}" />
+                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical">
+                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
+                    </StackPanel>
+                    <ContentPresenter
+                        Grid.Row="1"
+                        Margin="2"
+                        VerticalAlignment="Bottom"
+                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
+                </Grid>
+            </Grid>
+        </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="GeoJsonListItemTemplate" DataType="geoJsonList:GeoJsonListListItem">
+        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+            <Border.InputBindings>
+                <MouseBinding
+                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
+                    CommandParameter="{Binding DbEntry}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </Border.InputBindings>
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <ContentPresenter Content="{StaticResource ContentListSmallMainImageDisplay}" />
+                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical">
+                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
+                    </StackPanel>
+                    <ContentPresenter
+                        Grid.Row="1"
+                        Margin="2"
+                        VerticalAlignment="Bottom"
+                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
+                </Grid>
+            </Grid>
+        </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="LineListItemTemplate" DataType="lineList:LineListListItem">
+        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+            <Border.InputBindings>
+                <MouseBinding
+                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
+                    CommandParameter="{Binding DbEntry}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </Border.InputBindings>
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <ContentPresenter Content="{StaticResource ContentListSmallMainImageDisplay}" />
+                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical">
+                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
+                    </StackPanel>
+                    <ContentPresenter
+                        Grid.Row="1"
+                        Margin="2"
+                        VerticalAlignment="Bottom"
+                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
+                </Grid>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
 </ResourceDictionary>

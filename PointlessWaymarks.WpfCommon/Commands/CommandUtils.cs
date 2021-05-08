@@ -16,7 +16,7 @@ namespace PointlessWaymarks.WpfCommon.Commands
                 if (!valid)
                     throw new InvalidCommandParameterException(typeof(T), o.GetType());
 
-                return valid;
+                return true;
             }
 
             var t = typeof(T);
@@ -30,7 +30,7 @@ namespace PointlessWaymarks.WpfCommon.Commands
             if (!valid)
                 throw new InvalidCommandParameterException(typeof(T));
 
-            return valid;
+            return true;
         }
     }
 }

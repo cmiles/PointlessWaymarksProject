@@ -7,9 +7,10 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList
 {
-    public class LineListListItem : INotifyPropertyChanged, IContentCommonGuiListItem
+    public class LineListListItem : INotifyPropertyChanged, IContentCommonGuiListItem, ISelectedTextTracker
     {
         private LineContent _dbEntry;
+        private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
 
         public LineContent DbEntry
@@ -40,6 +41,17 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public CurrentSelectedTextTracker SelectedTextTracker
+        {
+            get => _selectedTextTracker;
+            set
+            {
+                if (Equals(value, _selectedTextTracker)) return;
+                _selectedTextTracker = value;
+                OnPropertyChanged();
+            }
+        }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

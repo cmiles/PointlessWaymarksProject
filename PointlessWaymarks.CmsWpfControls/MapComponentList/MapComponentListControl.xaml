@@ -93,14 +93,16 @@
         </Grid>
         <GroupBox
             Grid.Row="1"
-            Header="Posts"
+            Header="Maps"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Name="MapsListBox"
                 ItemsSource="{Binding Items}"
+                SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <b:Interaction.Behaviors>
+                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
@@ -113,46 +115,21 @@
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
                             <Grid Margin="4">
-                                <StackPanel Margin="2" Orientation="Vertical">
-                                    <TextBox
-                                        FontWeight="Bold"
-                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                        Text="{Binding DbEntry.Title}"
-                                        TextWrapping="Wrap">
-                                        <b:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </b:Interaction.Behaviors>
-                                    </TextBox>
-                                    <TextBox
-                                        Margin="0,2,0,0"
-                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                        Text="{Binding DbEntry.Summary}"
-                                        TextWrapping="Wrap">
-                                        <b:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </b:Interaction.Behaviors>
-                                    </TextBox>
-                                    <WrapPanel Style="{StaticResource ContentListContentVersionIdWrapPanelStyle}">
-                                        <TextBox
-                                            Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                            Text="{Binding DbEntry.ContentVersion, StringFormat='Content Version (UTC): {0:r}'}"
-                                            TextWrapping="Wrap">
-                                            <b:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </b:Interaction.Behaviors>
-                                        </TextBox>
-                                        <TextBox
-                                            Margin="8,0,0,0"
-                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                            Text="{Binding DbEntry.ContentId, StringFormat='Content Id: {0}'}"
-                                            TextWrapping="Wrap">
-                                            <b:Interaction.Behaviors>
-                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                            </b:Interaction.Behaviors>
-                                        </TextBox>
-                                    </WrapPanel>
-                                </StackPanel>
+                                <Grid Style="{StaticResource ContentListTextGridStyle}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Orientation="Vertical">
+                                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
+                                    </StackPanel>
+                                    <ContentPresenter
+                                        Grid.Row="1"
+                                        Margin="2"
+                                        VerticalAlignment="Bottom"
+                                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
+                                </Grid>
                             </Grid>
                         </Border>
                     </DataTemplate>

@@ -102,9 +102,11 @@
                 dd:DragDrop.IsDragSource="True"
                 ItemTemplate="{StaticResource GeoJsonListItemTemplate}"
                 ItemsSource="{Binding Items}"
+                SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
+                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
             </ListBox>

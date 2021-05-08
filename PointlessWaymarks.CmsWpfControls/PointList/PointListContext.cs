@@ -30,6 +30,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         private Command<PointContent> _editContentCommand;
         private ObservableCollection<PointListListItem> _items;
         private string _lastSortColumn;
+        private ContentListSelected<PointListListItem> _listSelection;
         private List<PointListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
@@ -79,6 +80,17 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentListSelected<PointListListItem> ListSelection
+        {
+            get => _listSelection;
+            set
+            {
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
                 OnPropertyChanged();
             }
         }
@@ -292,6 +304,8 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
+            ListSelection = await ContentListSelected<PointListListItem>.CreateInstance(StatusContext);
 
             StatusContext.Progress("Connecting to DB");
 

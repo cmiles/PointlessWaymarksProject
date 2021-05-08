@@ -3,13 +3,15 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList
 {
-    public class LinkListListItem : INotifyPropertyChanged
+    public class LinkListListItem : INotifyPropertyChanged, ISelectedTextTracker
     {
         private LinkContent _dbEntry;
         private string _linkContentString;
+        private CurrentSelectedTextTracker _selectedTextTracker = new();
 
         public LinkContent DbEntry
         {
@@ -36,6 +38,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public CurrentSelectedTextTracker SelectedTextTracker
+        {
+            get => _selectedTextTracker;
+            set
+            {
+                if (Equals(value, _selectedTextTracker)) return;
+                _selectedTextTracker = value;
+                OnPropertyChanged();
+            }
+        }
 
         private void ConstructContentString()
         {
