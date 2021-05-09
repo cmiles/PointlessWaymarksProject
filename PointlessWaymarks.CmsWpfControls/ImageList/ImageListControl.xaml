@@ -125,7 +125,7 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListOriginalFileNameDisplay}" />

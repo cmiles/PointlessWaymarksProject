@@ -102,6 +102,83 @@
                     </Grid>
                 </Border>
             </DataTemplate>
+            <DataTemplate x:Key="S3SummaryUploadDataTemplate" DataType="s3Uploads:S3UploadsItem">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBox
+                            Margin="2"
+                            FontWeight="Bold"
+                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                            Text="{Binding Note, Mode=OneWay}"
+                            TextWrapping="Wrap">
+                            <b:Interaction.Behaviors>
+                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                            </b:Interaction.Behaviors>
+                        </TextBox>
+                        <TextBox
+                            Grid.Row="1"
+                            Margin="2"
+                            Cursor="Arrow"
+                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                            Text="{Binding FileToUpload.FullName, StringFormat='From: {0}', Mode=OneWay}"
+                            TextDecorations="Underline"
+                            TextWrapping="Wrap">
+                            <TextBox.InputBindings>
+                                <MouseBinding
+                                    Command="{Binding ElementName=S3UploadsControlXaml, Path=DataContext.OpenLocalFileInExplorerCommand}"
+                                    CommandParameter="{Binding .}"
+                                    MouseAction="LeftClick" />
+                            </TextBox.InputBindings>
+                            <b:Interaction.Behaviors>
+                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                            </b:Interaction.Behaviors>
+                        </TextBox>
+                        <TextBox
+                            Grid.Row="2"
+                            Margin="2"
+                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                            TextWrapping="Wrap">
+                            <TextBox.Text>
+                                <MultiBinding StringFormat="To: {0}/{1}">
+                                    <Binding Path="BucketName" />
+                                    <Binding Path="AmazonObjectKey" />
+                                </MultiBinding>
+                            </TextBox.Text>
+                            <b:Interaction.Behaviors>
+                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                            </b:Interaction.Behaviors>
+                        </TextBox>
+                        <WrapPanel Grid.Row="3" Margin="2">
+                            <TextBlock
+                                Background="DarkGray"
+                                Text="Queued"
+                                Visibility="{Binding Queued, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}" />
+                            <TextBlock
+                                Background="LightSkyBlue"
+                                Text="Uploading"
+                                Visibility="{Binding IsUploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}" />
+                            <TextBlock
+                                Background="GreenYellow"
+                                Text="Completed"
+                                Visibility="{Binding Completed, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}" />
+                            <TextBlock
+                                Background="Yellow"
+                                Text="{Binding ErrorMessage, StringFormat='Error: {0}'}"
+                                Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}" />
+                        </WrapPanel>
+                        <WrapPanel Grid.Row="4">
+                            <TextBlock Text="{Binding Status}" />
+                        </WrapPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -142,29 +219,6 @@
         </GroupBox>
         <GroupBox
             Grid.Row="2"
-            Header="Items"
-            Style="{StaticResource UiComponentGroupBoxStyle}">
-            <ListBox
-                x:Name="ItemsListBox"
-                HorizontalContentAlignment="Stretch"
-                ItemTemplate="{StaticResource S3UploadsDataTemplate}"
-                ItemsSource="{Binding Items}"
-                ScrollViewer.CanContentScroll="True"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                SelectionChanged="Selector_OnSelectionChanged"
-                SelectionMode="Extended"
-                VirtualizingPanel.IsVirtualizing="True"
-                VirtualizingPanel.ScrollUnit="Item">
-                <b:Interaction.Behaviors>
-                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
-                </b:Interaction.Behaviors>
-                <ListBox.InputBindings>
-                    <KeyBinding Key="Delete" Command="{Binding Path=RemoveSelectedItemsCommand}" />
-                </ListBox.InputBindings>
-            </ListBox>
-        </GroupBox>
-        <GroupBox
-            Grid.Row="3"
             Header="Upload"
             Style="{StaticResource UiComponentGroupBoxStyle}"
             Visibility="{Binding UploadBatch, Converter={StaticResource NullToCollapsedVisibility}}">
@@ -231,10 +285,34 @@
                         HorizontalScrollBarVisibility="Disabled"
                         VerticalScrollBarVisibility="Visible"
                         Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
-                        <ContentControl Content="{Binding UploadBatch.CurrentUpload, FallbackValue=''}" ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
+                        <ContentControl Content="{Binding UploadBatch.CurrentUpload, FallbackValue=''}" ContentTemplate="{StaticResource S3SummaryUploadDataTemplate}" />
                     </ScrollViewer>
                 </GroupBox>
             </Grid>
         </GroupBox>
+        <GroupBox
+            Grid.Row="3"
+            Header="Items"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <ListBox
+                x:Name="ItemsListBox"
+                HorizontalContentAlignment="Stretch"
+                ItemTemplate="{StaticResource S3UploadsDataTemplate}"
+                ItemsSource="{Binding Items}"
+                ScrollViewer.CanContentScroll="True"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                SelectionChanged="Selector_OnSelectionChanged"
+                SelectionMode="Extended"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.ScrollUnit="Item">
+                <b:Interaction.Behaviors>
+                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
+                </b:Interaction.Behaviors>
+                <ListBox.InputBindings>
+                    <KeyBinding Key="Delete" Command="{Binding Path=RemoveSelectedItemsCommand}" />
+                </ListBox.InputBindings>
+            </ListBox>
+        </GroupBox>
+
     </Grid>
 </UserControl>

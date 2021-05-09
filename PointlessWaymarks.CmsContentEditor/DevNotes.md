@@ -46,6 +46,14 @@
  
 ## Notes
 
+5/9/2021
+
+On PointlessWaymarks I noticed that the Daily Photos related content had duplicates. Fixed the bug in the code and added a test to make sure that the related content is unique/de-duplicated. (The bug was calling Distinct on an ICommonContent list, of course with reference types this didn't do what I intended...)
+
+In earlier development I felt like the list performance with VirtualizingPanel.ScrollUnit at pixel was not good enoght and have set that to item for some time now. Tried pixel again today and it seemed like the performance was good - not sure what changed (possible something changed in the rather recent WPF .NET Core) but set it to pixel especially since this is the more expected interface experience.
+
+While working on the List items I had made the various fields more spaced out - my eyes found that more pleasant. However in living with this for a bit I think it is worth a more compact display in order to have slightly more list items visible.
+
 5/7/2021
 
 File List uses the updated selection model now.

@@ -110,11 +110,11 @@
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
                     <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
-                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
                 <ListBox.Resources>
                     <wpfConverter:NullOrWhiteSpaceStringToDefaultConverter x:Key="StringDefault" />
                     <wpfConverter:IsoConverter x:Key="IsoWithDefault" />
+                    <wpfConverter:CreatedOnDayConverter x:Key="CreatedOnDay" />
                 </ListBox.Resources>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="photoList:PhotoListListItem">
@@ -146,35 +146,27 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListOriginalFileNameDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
-                                        <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
-                                            <TextBox
-                                                HorizontalAlignment="Right"
-                                                Cursor="Arrow"
-                                                Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                                Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo Created On: {0}'}"
-                                                TextDecorations="Underline"
-                                                TextWrapping="Wrap"
-                                                ToolTip="Photo taken on - click to search to find other photos taken on this day">
-                                                <TextBox.InputBindings>
-                                                    <MouseBinding
-                                                        Command="{Binding DataContext.PhotoTakenOnSearchCommand, ElementName=UserControlXaml}"
-                                                        CommandParameter="{Binding DbEntry}"
-                                                        MouseAction="LeftClick" />
-                                                </TextBox.InputBindings>
-                                            </TextBox>
-                                        </WrapPanel>
                                         <WrapPanel Margin="0,4,0,0" Orientation="Horizontal">
                                             <WrapPanel.Resources>
                                                 <Style TargetType="Button">
                                                     <Setter Property="Padding" Value="6,0,6,0" />
-                                                    <Setter Property="Margin" Value="2,0,2,0" />
+                                                    <Setter Property="Margin" Value="2,3,2,0" />
                                                 </Style>
                                             </WrapPanel.Resources>
+                                            <TextBlock Margin="0,3,4,0">Search:</TextBlock>
+                                            <Button Content="{Binding DbEntry.PhotoCreatedOn, Converter={StaticResource CreatedOnDay}}">
+                                                <Button.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding DataContext.PhotoTakenOnSearchCommand, ElementName=UserControlXaml}"
+                                                        CommandParameter="{Binding DbEntry}"
+                                                        MouseAction="LeftClick" />
+                                                </Button.InputBindings>
+                                            </Button>
                                             <Button Content="{Binding DbEntry.CameraMake, Converter={StaticResource StringDefault}, ConverterParameter='(No Camera Make)'}" ToolTip="Camera Make - click to search for other photos with this Camera Make">
                                                 <Button.InputBindings>
                                                     <MouseBinding

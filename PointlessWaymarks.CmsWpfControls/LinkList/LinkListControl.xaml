@@ -119,7 +119,7 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                                    <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                                    <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                                     <TextBox
                                         Style="{StaticResource ReadOnlyTextBoxStyle}"
                                         Text="{Binding LinkContentString, Mode=OneWay}"

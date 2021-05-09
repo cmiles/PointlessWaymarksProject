@@ -11,6 +11,7 @@
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon">
+    <wpfConverter:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
     <Style x:Key="ActionPanelButtonStyle" TargetType="Button">
         <Setter Property="Margin" Value="4" />
         <Setter Property="Height" Value="24" />
@@ -45,12 +46,12 @@
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="SelectionMode" Value="Extended" />
         <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
-        <Setter Property="VirtualizingPanel.ScrollUnit" Value="Item" />
+        <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
         <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
     </Style>
     <Style x:Key="ContentListContentVersionIdWrapPanelStyle" TargetType="WrapPanel">
-        <Setter Property="Margin" Value="0,4,0,0" />
-        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Margin" Value="0,3,0,0" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="Orientation" Value="Horizontal" />
         <Setter Property="Opacity" Value=".3" />
     </Style>
@@ -116,39 +117,6 @@
         <Setter Property="Margin" Value="2" />
     </Style>
     <wpfConverter:ImageCacheConverter x:Key="ImageCache" />
-
-    <TextBox
-        x:Key="ContentListSummaryDisplay"
-        Margin="0,6,0,0"
-        x:Shared="False"
-        Style="{StaticResource ReadOnlyTextBoxStyle}"
-        Text="{Binding DbEntry.Summary, Mode=OneWay}"
-        TextWrapping="Wrap">
-        <b:Interaction.Behaviors>
-            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-        </b:Interaction.Behaviors>
-        <b:Interaction.Triggers>
-            <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-            </b:EventTrigger>
-        </b:Interaction.Triggers>
-    </TextBox>
-    <TextBox
-        x:Key="ContentListTagsDisplay"
-        Margin="0,4,0,0"
-        x:Shared="False"
-        Style="{StaticResource ReadOnlyTextBoxStyle}"
-        Text="{Binding DbEntry.Tags, Mode=OneWay, StringFormat='Tags: {0}'}"
-        TextWrapping="Wrap">
-        <b:Interaction.Behaviors>
-            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-        </b:Interaction.Behaviors>
-        <b:Interaction.Triggers>
-            <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-            </b:EventTrigger>
-        </b:Interaction.Triggers>
-    </TextBox>
     <TextBox
         x:Key="ContentListTitleDisplay"
         x:Shared="False"
@@ -165,12 +133,73 @@
             </b:EventTrigger>
         </b:Interaction.Triggers>
     </TextBox>
+    <WrapPanel x:Key="ContentListContentTitleAndAttributionDisplay" x:Shared="False">
+        <TextBox
+            FontWeight="Bold"
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
+            Text="{Binding DbEntry.Title, Mode=OneWay}"
+            TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </TextBox>
+        <TextBox
+            Margin="6,0,0,0"
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
+            Text="{Binding DbEntry.CreatedBy, Mode=OneWay, StringFormat='Created By: {0}'}"
+            TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </TextBox>
+        <TextBox
+            Margin="0,0,0,0"
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
+            Text="{Binding DbEntry.LastUpdatedBy, Mode=OneWay, StringFormat='- Updated by: {0}'}"
+            TextWrapping="Wrap"
+            Visibility="{Binding DbEntry.LastUpdatedBy, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </TextBox>
+    </WrapPanel>
     <TextBox
-        x:Key="ContentListOriginalFileNameDisplay"
-        Margin="0,6,0,0"
+        x:Key="ContentListSummaryDisplay"
+        Margin="0,3,0,0"
         x:Shared="False"
         Style="{StaticResource ReadOnlyTextBoxStyle}"
-        Text="{Binding DbEntry.OriginalFileName, Mode=OneWay, StringFormat='File: {0}'}"
+        Text="{Binding DbEntry.Summary, Mode=OneWay}"
+        TextWrapping="Wrap">
+        <b:Interaction.Behaviors>
+            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+        </b:Interaction.Behaviors>
+        <b:Interaction.Triggers>
+            <b:EventTrigger EventName="SelectionChanged">
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+            </b:EventTrigger>
+        </b:Interaction.Triggers>
+    </TextBox>
+    <TextBox
+        x:Key="ContentListTagsDisplay"
+        Margin="0,2,0,0"
+        x:Shared="False"
+        Style="{StaticResource ReadOnlyTextBoxStyle}"
+        Text="{Binding DbEntry.Tags, Mode=OneWay, StringFormat='Tags: {0}'}"
         TextWrapping="Wrap">
         <b:Interaction.Behaviors>
             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
@@ -182,41 +211,8 @@
         </b:Interaction.Triggers>
     </TextBox>
     <WrapPanel
-        x:Key="ContentListContentIdAndDateDisplay"
-        Margin="0,6,0,0"
-        x:Shared="False"
-        Style="{StaticResource ContentListContentVersionIdWrapPanelStyle}">
-        <TextBox
-            Style="{StaticResource ReadOnlyTextBoxStyle}"
-            Text="{Binding DbEntry.ContentVersion, Mode=OneWay, StringFormat='Content Version (UTC): {0:r}'}"
-            TextWrapping="Wrap">
-            <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-            </b:Interaction.Behaviors>
-            <b:Interaction.Triggers>
-                <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-                </b:EventTrigger>
-            </b:Interaction.Triggers>
-        </TextBox>
-        <TextBox
-            Margin="8,0,0,0"
-            Style="{StaticResource ReadOnlyTextBoxStyle}"
-            Text="{Binding DbEntry.ContentId, Mode=OneWay, StringFormat='Content Id: {0}'}"
-            TextWrapping="Wrap">
-            <b:Interaction.Behaviors>
-                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-            </b:Interaction.Behaviors>
-            <b:Interaction.Triggers>
-                <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-                </b:EventTrigger>
-            </b:Interaction.Triggers>
-        </TextBox>
-    </WrapPanel>
-    <WrapPanel
         x:Key="ContentListFolderAndSlugDisplay"
-        Margin="0,6,0,0"
+        Margin="0,3,0,0"
         x:Shared="False"
         Orientation="Horizontal">
         <TextBox
@@ -249,6 +245,55 @@
             </b:Interaction.Triggers>
         </TextBox>
     </WrapPanel>
+    <TextBox
+        x:Key="ContentListOriginalFileNameDisplay"
+        Margin="0,3,0,0"
+        x:Shared="False"
+        Style="{StaticResource ReadOnlyTextBoxStyle}"
+        Text="{Binding DbEntry.OriginalFileName, Mode=OneWay, StringFormat='File: {0}'}"
+        TextWrapping="Wrap">
+        <b:Interaction.Behaviors>
+            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+        </b:Interaction.Behaviors>
+        <b:Interaction.Triggers>
+            <b:EventTrigger EventName="SelectionChanged">
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+            </b:EventTrigger>
+        </b:Interaction.Triggers>
+    </TextBox>
+    <WrapPanel
+        x:Key="ContentListContentIdAndDateDisplay"
+        x:Shared="False"
+        Style="{StaticResource ContentListContentVersionIdWrapPanelStyle}">
+        <TextBox
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
+            Text="{Binding DbEntry.ContentVersion, Mode=OneWay, StringFormat='Content Version (UTC): {0:r}'}"
+            TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </TextBox>
+        <TextBox
+            Margin="8,0,0,0"
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
+            Text="{Binding DbEntry.ContentId, Mode=OneWay, StringFormat='Content Id: {0}'}"
+            TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </TextBox>
+    </WrapPanel>
+
     <Image
         x:Key="ContentListSmallMainImageDisplay"
         Margin="2"
@@ -300,7 +345,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
@@ -334,7 +379,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
@@ -368,7 +413,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />

@@ -121,7 +121,7 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <StackPanel Orientation="Vertical">
-                                        <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
+                                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                                     </StackPanel>
                                     <ContentPresenter
