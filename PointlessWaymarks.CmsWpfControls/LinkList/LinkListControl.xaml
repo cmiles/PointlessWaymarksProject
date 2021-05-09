@@ -101,8 +101,7 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
-                    <wpfBehavior:AttachCommandBindingsBehavior
-                        CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
+                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
@@ -119,7 +118,7 @@
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
                                     <ContentPresenter Content="{StaticResource ContentListTitleDisplay}" />
                                     <TextBox
                                         Style="{StaticResource ReadOnlyTextBoxStyle}"
@@ -130,17 +129,13 @@
                                         </i:Interaction.Behaviors>
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="SelectionChanged">
-                                                <wpfBehavior:EventToCommand
-                                                    Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                    PassEventArgsToCommand="True" />
+                                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </TextBox>
-                                    <WrapPanel Orientation="Horizontal" Margin="0, 6,0,0">
+                                    <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
                                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
-                                            <Hyperlink
-                                                Command="{Binding DataContext.OpenUrlCommand, ElementName=LinkListControlXaml}"
-                                                CommandParameter="{Binding DbEntry.Url}">
+                                            <Hyperlink Command="{Binding DataContext.OpenUrlCommand, ElementName=LinkListControlXaml}" CommandParameter="{Binding DbEntry.Url}">
                                                 <Hyperlink.Inlines>
                                                     <Run Text="{Binding DbEntry.Url}" />
                                                 </Hyperlink.Inlines>

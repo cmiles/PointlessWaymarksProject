@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using AngleSharp;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -98,6 +99,9 @@ namespace PointlessWaymarks.CmsTests
                 IronwoodPhotoInfo.AguaBlancaWidth);
             await IronwoodPhotoInfo.PhotoTest(IronwoodPhotoInfo.IronwoodTreeFileName,
                 IronwoodPhotoInfo.IronwoodTreeContent01, IronwoodPhotoInfo.IronwoodTreeWidth);
+            await IronwoodPhotoInfo.PhotoTest(IronwoodPhotoInfo.IronwoodFileBarrelFileName,
+                IronwoodPhotoInfo.IronwoodFireBarrelContent01,
+                IronwoodPhotoInfo.IronwoodFireBarrelWidth);
             await IronwoodPhotoInfo.PhotoTest(IronwoodPhotoInfo.QuarryFileName, IronwoodPhotoInfo.QuarryContent01,
                 IronwoodPhotoInfo.QuarryWidth);
             await IronwoodPhotoInfo.PhotoTest(IronwoodPhotoInfo.IronwoodPodFileName,
@@ -569,7 +573,6 @@ namespace PointlessWaymarks.CmsTests
             photoContent.ForEach(x =>
                 IronwoodHtmlHelpers.CheckGenerationVersionEquals(x, currentGeneration.GenerationVersion));
 
-
             wikiQuotePost = db.PostContents.Single(x => x.Slug == IronwoodPostInfo.WikiQuotePostContent01.Slug);
 
             wikiQuotePost.BodyContent += $"{Environment.NewLine}Visit Ironwood Today!";
@@ -605,6 +608,32 @@ namespace PointlessWaymarks.CmsTests
                 allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count(), 1);
 
             //Todo: Check that the excluded photo is not regened
+        }
+
+        public async Task H10_PostUpdateChangedDetectionTest()
+        {
+            var dailyGalleryDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteDailyPhotoGalleryDirectory();
+
+            var multiPictureTestFile =
+                new FileInfo(Path.Combine(dailyGalleryDirectory.FullName, @"DailyPhotos-2020-05-28.html"));
+
+            //Use the default configuration for AngleSharp
+            var config = Configuration.Default;
+
+            //Create a new context for evaluating webpages with the given config
+            var context = BrowsingContext.New(config);
+
+            //Just get the DOM representation
+            var document = await context.OpenAsync(x => x.Content(File.ReadAllText(multiPictureTestFile.FullName)));
+
+            var relatedItems = document.QuerySelectorAll(".related-posts-list-container .related-post-container");
+
+            Assert.AreEqual(1, relatedItems.Length);
+
+            var dailyBeforeAfterItems =
+                document.QuerySelectorAll(".post-related-posts-container .related-post-container");
+
+            Assert.AreEqual(2, relatedItems.Length);
         }
     }
 }

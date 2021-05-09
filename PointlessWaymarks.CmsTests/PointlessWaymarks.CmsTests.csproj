@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.0.18" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.0.19" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
     <PackageReference Include="CompareNETObjects" Version="4.73.0" />
     <PackageReference Include="GitInfo" Version="2.1.2">
@@ -56,6 +56,9 @@
     </None>
     <None Update="TestMedia\2020-05-A-Quarry-in-Ironwood-Forest-National-Monument.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestMedia\2020-05-Fire-Barrel-Cactus.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TestMedia\2020-05-Ironwood-Pod.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

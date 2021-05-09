@@ -201,7 +201,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!allRelated.Any()) return HtmlTag.Empty();
 
-            allRelated = allRelated.Distinct().OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
+            allRelated = allRelated.GroupBy(x => x.ContentId).Select(x => x.First())
+                .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).ToList();
 
             var relatedPostsList = new DivTag().AddClass("related-posts-list-container");
 

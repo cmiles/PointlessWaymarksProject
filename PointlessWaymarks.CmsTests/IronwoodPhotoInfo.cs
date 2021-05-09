@@ -72,6 +72,32 @@ namespace PointlessWaymarks.CmsTests
 
         public static int DisappearingWidth => 800;
 
+        public static string IronwoodFileBarrelFileName => "2020-05-Fire-Barrel-Cactus.jpg";
+
+        public static PhotoContent IronwoodFireBarrelContent01 =>
+            new()
+            {
+                Aperture = "f/13.0",
+                BodyContentFormat = ContentFormatDefaults.Content.ToString(),
+                CameraMake = "SONY",
+                CameraModel = "ILCE-7RM2",
+                Folder = "2020",
+                Iso = 200,
+                FocalLength = "90 mm",
+                Lens = "FE 90mm F2.8 Macro G OSS",
+                License = "Public Domain",
+                PhotoCreatedOn = new DateTime(2020, 5, 28, 13, 39, 56),
+                PhotoCreatedBy = "Charles Miles",
+                ShutterSpeed = "1/200",
+                Slug = "2020-may-fire-barrel-cactus",
+                Summary = "Fire Barrel Cactus.",
+                Title = "2020 May Fire Barrel Cactus",
+                Tags = "fire barrel cactus,ironwood forest national monument,waterman mountains",
+                UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
+            };
+
+        public static int IronwoodFireBarrelWidth => 700;
+
         public static PhotoContent IronwoodPodContent01 =>
             new()
             {

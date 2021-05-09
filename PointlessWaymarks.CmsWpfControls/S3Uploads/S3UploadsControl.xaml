@@ -149,9 +149,12 @@
                 HorizontalContentAlignment="Stretch"
                 ItemTemplate="{StaticResource S3UploadsDataTemplate}"
                 ItemsSource="{Binding Items}"
+                ScrollViewer.CanContentScroll="True"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectionChanged="Selector_OnSelectionChanged"
-                SelectionMode="Extended">
+                SelectionMode="Extended"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.ScrollUnit="Item">
                 <b:Interaction.Behaviors>
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
@@ -215,7 +218,7 @@
                     Grid.Row="3"
                     Margin="4"
                     Command="{Binding UploadBatch.CancelCommand, FallbackValue=''}"
-                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=''}">
+                    Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
                     Cancel
                 </Button>
                 <GroupBox
@@ -227,7 +230,7 @@
                         Margin="4"
                         HorizontalScrollBarVisibility="Disabled"
                         VerticalScrollBarVisibility="Visible"
-                        Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=''}">
+                        Visibility="{Binding UploadBatch.Uploading, Converter={StaticResource BooleanToVisibility}, FallbackValue=Hidden}">
                         <ContentControl Content="{Binding UploadBatch.CurrentUpload, FallbackValue=''}" ContentTemplate="{StaticResource S3UploadsDataTemplate}" />
                     </ScrollViewer>
                 </GroupBox>

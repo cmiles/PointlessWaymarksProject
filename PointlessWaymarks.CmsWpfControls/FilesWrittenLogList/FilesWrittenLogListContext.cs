@@ -503,6 +503,8 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
         private async Task FileItemsToS3Uploader(List<FilesWrittenLogListListItem> items)
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             if (!items.Any()) return;
 
             var toTransfer = FileItemsToUploaderItems(items);
@@ -518,13 +520,6 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             if (toSkipCount > 0)
                 StatusContext.ToastWarning($"{toSkipCount} skipped files not in the Generation Directory");
 
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newUploadWindow = new S3UploadsWindow(toTransfer);
-            newUploadWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
             var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteScriptsDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
@@ -539,7 +534,10 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             await db.SaveChangesAsync();
 
-            await LoadDateTimeFilterChoices();
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newUploadWindow = new S3UploadsWindow(toTransfer);
+            newUploadWindow.PositionWindowAndShow();
         }
 
         private async Task FileItemsToS3UploaderJsonFile(List<FilesWrittenLogListListItem> items)
