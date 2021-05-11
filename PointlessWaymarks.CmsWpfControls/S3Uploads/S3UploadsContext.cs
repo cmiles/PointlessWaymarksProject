@@ -23,6 +23,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
     {
         private Command _clearUploadedCommand;
         private ObservableCollection<S3UploadsItem>? _items;
+        private ContentListSelected<S3UploadsItem>? _listSelection;
         private Command<S3UploadsItem> _openLocalFileInExplorerCommand;
         private Command _removeSelectedItemsCommand;
         private Command _saveAllToUploadJsonFileCommand;
@@ -36,7 +37,6 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         private Command _toExcelAllItemsCommand;
         private Command _toExcelSelectedItemsCommand;
         private S3UploadsUploadBatch? _uploadBatch;
-        private ContentListSelected<S3UploadsItem>? _listSelection;
 
         public S3UploadsContext(StatusControlContext? statusContext)
         {
@@ -57,11 +57,13 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             _toExcelAllItemsCommand =
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
             _toExcelSelectedItemsCommand =
-                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(ListSelection?.SelectedItems.ToList()));
+                StatusContext.RunNonBlockingTaskCommand(async () =>
+                    await ItemsToExcel(ListSelection?.SelectedItems.ToList()));
             _toClipboardAllItemsCommand =
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
             _toClipboardSelectedItemsCommand =
-                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(ListSelection?.SelectedItems.ToList()));
+                StatusContext.RunNonBlockingTaskCommand(async () =>
+                    await ItemsToClipboard(ListSelection?.SelectedItems.ToList()));
 
             _removeSelectedItemsCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedItems);
         }
@@ -84,6 +86,17 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             {
                 if (Equals(value, _items)) return;
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentListSelected<S3UploadsItem>? ListSelection
+        {
+            get => _listSelection;
+            set
+            {
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
                 OnPropertyChanged();
             }
         }
@@ -342,17 +355,6 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             {
                 Items.Clear();
                 newItemsList.ForEach(x => Items.Add(x));
-            }
-        }
-
-        public ContentListSelected<S3UploadsItem>? ListSelection
-        {
-            get => _listSelection;
-            set
-            {
-                if (Equals(value, _listSelection)) return;
-                _listSelection = value;
-                OnPropertyChanged();
             }
         }
 

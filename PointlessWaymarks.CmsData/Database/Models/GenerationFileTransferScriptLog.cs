@@ -2,7 +2,7 @@
 
 namespace PointlessWaymarks.CmsData.Database.Models
 {
-    public class GenerationFileScriptLog
+    public class GenerationFileTransferScriptLog
     {
         public string? FileName { get; set; }
         public int Id { get; set; }

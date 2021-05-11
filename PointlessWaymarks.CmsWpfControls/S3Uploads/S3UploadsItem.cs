@@ -27,8 +27,8 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         private bool _isUploading;
         private string _note;
         private bool _queued;
-        private string _status = string.Empty;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
+        private string _status = string.Empty;
 
         public S3UploadsItem(FileInfo fileToUpload, string amazonObjectKey, string bucket, string region, string note)
         {
@@ -174,6 +174,17 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        public CurrentSelectedTextTracker SelectedTextTracker
+        {
+            get => _selectedTextTracker;
+            set
+            {
+                if (Equals(value, _selectedTextTracker)) return;
+                _selectedTextTracker = value;
+                OnPropertyChanged();
+            }
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
@@ -267,17 +278,6 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         private void UploadRequestOnUploadProgressEvent(object? sender, UploadProgressArgs e)
         {
             Status = $"{e.PercentDone}% Done, {e.TransferredBytes:N0} Transferred of {e.TotalBytes:N0}";
-        }
-
-        public CurrentSelectedTextTracker SelectedTextTracker
-        {
-            get => _selectedTextTracker;
-            set
-            {
-                if (Equals(value, _selectedTextTracker)) return;
-                _selectedTextTracker = value;
-                OnPropertyChanged();
-            }
         }
     }
 }

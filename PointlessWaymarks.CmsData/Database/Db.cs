@@ -1000,6 +1000,20 @@ namespace PointlessWaymarks.CmsData.Database
                 new List<Guid> {toSave.ContentId});
         }
 
+        public static async Task SaveGenerationFileTransferScriptLog(GenerationFileTransferScriptLog? toSave)
+        {
+            if (toSave == null) return;
+
+            var context = await Context();
+
+            await context.GenerationFileTransferScriptLogs.AddAsync(toSave);
+
+            await context.SaveChangesAsync();
+
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.FileTransferScriptLog,
+                DataNotificationUpdateType.New, new List<Guid>());
+        }
+
         public static async Task SaveGenerationLogAndRecordSettings(DateTime generationVersion)
         {
             var db = await Context();

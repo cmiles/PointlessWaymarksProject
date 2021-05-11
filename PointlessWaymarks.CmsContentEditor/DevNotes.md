@@ -1,50 +1,42 @@
 ﻿## Todos
- - Review Tags - could changes be reduced to 'primary' changes rather than all changes?
  - The GUI Context tests are breaking - longer waits needed for the background events to run? Something else?
- - Look again and Main Feed/Before/After for content - currently the entire main feed is regenerated - could this be done selectively and/or does other content need before/after help?
- - File Log Window:
-  - DataNotification for Generation Log needs a quick test
-  - The script written refreshes to the datetime filter should be via datanotifications not direct
-  - Changing the datetime filter should run the report? maybe run report becomes refresh report or ...
-  - Clearing Generation Log Entries needs DataNotification Support
- - Revisit AvalonEdit for the BodyContent Editor for performance reasons - probably 'as a service' since for perf AvalonEdit doesn't expose a bound Text property (maybe look at https://github.com/martinkirsche/AsYouTypeSpellChecker for spell checking)
- - Could Tag List javascript be abstracted to site resources easily?
- - Better loading indication on the search lists site pages
- - Text to Speech:
+ - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
+ - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
+ - Deleted Content Report so it is possible to restore completely deleted
+ - Text to Speech - abstract to better control:
    - Cancellation
    - in Update Notes
    - Potentially in editor
- - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
- - Track tags in db so changes can be more quickly detected (long generation time on PointlessWaymarks.com after adding all photos)
- - Integrate Xaml Styler - is the git hook working? I don't think it is...
- - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
- - Deleted Content Report so it is possible to restore completely deleted
- - In Search it might be nice to have the content type on the line with date?
- - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
- - Sorting needs better visual indicators
- - Should temp files be auto-deleted or live forever?
- - Folder Name in Lists needs to open in Explorer when clicked
- - Revisit og and dublin metadata - reference site not code and is it used correctly? Other tags that could be included?
- - Is everything getting HMTL Encoded - are there spots with leaks? (tests?)
- - RSS - Does title need CDATA to be completely safe? Or?
+ - Sorting needs better interface and visual indicators
+ - Should temp files be auto-deleted or live forever? Review.
+ - Review Item History 
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
+Site:
+ - Could Tag List javascript be abstracted to site resources easily?
+ - Better loading indication on the search lists site pages
+ - In Search it might be nice to have the content type on the line with date?
+ - Class name cleanup
 
 ## Ideas
- - Could you write S3 object metadata to indicate file version in a way that would coordinate and be a quick check against local files?
- - Clean up the main window - split out context - consider creating a control?
  - Should the code record a checksum of media archive files to be able to check if they change on disk rather than thru the program?
- - Review https://github.com/Softwire/HighlightingTextBox/blob/master/HighlightingTextBox/HighlightingTextBox.cs - is there something useful here?
- - Clicking a content code should open the editor for that content? Maybe don't highlight/hint just process the selected text - would make hidden but useful and could maybe support urls from text as well - perhaps via Behavior?
- - History Cleanup for Content. Maybe on save - limit to ?last 1000?, it would be great to not grow to infinity but want to save very old entries for seldom edited content and many entries for frequently edited content...
- - GUI Automation Testing https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/march/test-run-automating-ui-tests-in-wpf-applications and/or ViewModel testing (the ViewModels should be testable without the views - however an interesting issue is that testing the GUI will test both...)
- - Look at deployment options - self contained? msix? automated?
- - Watch https://devblogs.microsoft.com/dotnet/introducing-c-source-generators/ - the source generators look like they could be quite interesting for INPC and HasChanges
- - Provide a bit of abstraction to easily do MarkDown help text - see pdftocairo notes in settings - that works ok but font size don't match, link handler is code behind...
- - Could all font sizes be controlled by slider? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
- - Explore https://wkhtmltopdf.org/ - Is this actually a jumping off point to an interlinked set of pdfs - maybe for some portion or subsection of the site - or maybe look for other PDF generation strategies
- - How hard would it be to create a GridSplitter that would be easy to set the initial split based off of the last editor use - and/or that could completely hide content to one side with a shortcut
+ - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
+ - Track tags in db so changes can be more quickly detected (long generation time on PointlessWaymarks.com after adding all photos)
+ - GUI Automation Testing https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/march/test-run-automating-ui-tests-in-wpf-applications
+ - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
  
 ## Notes
+
+5/11/2021
+
+Written File control updated:
+ - The list of 'upload' and generation events is now powered by Data notifications - this should help it stay current with a diverse set of inputs (previously it was only updated 'directly' via the code in the control). Switching to this triggered a db name change (the previous table for script file generation seemed ambiguously named to me),  the data notifications were filtering out messages with no content guids (changed, the Generation and File Transfer events won't have content guids) and the File Written control wasn't properly setup to receive the notifications...
+ - The File Written control started as a way to generate scripts, which was a nice step up but later I added an S3 GUI uploader and change detection menu options which seem to me the most obviously useful option, but the somewhat obtuse script options were still prominent in the UI... Moved the 'settings' (including filtering for only 'Generated Site' items) to a different tab to clean up the main UI (at a slight cost of Tab mania, a good trade atm I believe)
+
+Some clean up on the Todo and idea list.
+
+5/10/2021
+
+Tried splitting the current controls resource dictionary into multiple files but ended up with compile errors I couldn't resolve in a reasonable way that I believe relate to requirements about the locations of resource references inside resource dictionaries. It is very possible that I was making a simple mistake that I can just not quite grok but as this wasn't going to result in anything other than personal satisfaction at this point I reverted to move on with other small tweaks today.
 
 5/9/2021
 

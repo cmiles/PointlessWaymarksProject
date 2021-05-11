@@ -37,11 +37,11 @@
                         </Grid.RowDefinitions>
                         <TextBox
                             Margin="2"
+                            HorizontalAlignment="Left"
                             FontWeight="Bold"
                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                             Text="{Binding Note, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            HorizontalAlignment="Left">
+                            TextWrapping="Wrap">
                             <b:Interaction.Behaviors>
                                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                             </b:Interaction.Behaviors>
@@ -54,12 +54,12 @@
                         <TextBox
                             Grid.Row="1"
                             Margin="2"
+                            HorizontalAlignment="Left"
                             Cursor="Arrow"
                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                             Text="{Binding FileToUpload.FullName, StringFormat='From: {0}', Mode=OneWay}"
                             TextDecorations="Underline"
-                            TextWrapping="Wrap"
-                            HorizontalAlignment="Left">
+                            TextWrapping="Wrap">
                             <TextBox.InputBindings>
                                 <MouseBinding
                                     Command="{Binding ElementName=S3UploadsControlXaml, Path=DataContext.OpenLocalFileInExplorerCommand}"
@@ -73,9 +73,9 @@
                         <TextBox
                             Grid.Row="2"
                             Margin="2"
+                            HorizontalAlignment="Left"
                             Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            TextWrapping="Wrap"
-                            HorizontalAlignment="Left">
+                            TextWrapping="Wrap">
                             <TextBox.Text>
                                 <MultiBinding StringFormat="To: {0}/{1}">
                                     <Binding Path="BucketName" />
@@ -196,7 +196,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Menu>
@@ -314,9 +314,9 @@
                 ItemsSource="{Binding Items}"
                 ScrollViewer.CanContentScroll="True"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 SelectionMode="Extended"
-                SelectedItem="{Binding ListSelection.Selected}"
                 VirtualizingPanel.IsVirtualizing="True"
                 VirtualizingPanel.ScrollUnit="Pixel">
                 <b:Interaction.Behaviors>

@@ -89,6 +89,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             if (loadInBackground) StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
             _dataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+            DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         public Command? AllFilesToExcelCommand
@@ -483,7 +484,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             return newContext;
         }
 
-        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
+        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs? e)
         {
             var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
 
@@ -494,11 +495,13 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
                 return;
             }
 
-            if (translatedMessage.ContentType != DataNotificationContentType.GenerationLog) return;
+            if (translatedMessage.ContentType == DataNotificationContentType.FileTransferScriptLog ||
+                translatedMessage.ContentType == DataNotificationContentType.GenerationLog)
+            {
+                await ThreadSwitcher.ResumeBackgroundAsync();
 
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            await LoadDateTimeFilterChoices();
+                await LoadDateTimeFilterChoices();
+            }
         }
 
         private async Task FileItemsToS3Uploader(List<FilesWrittenLogListListItem> items)
@@ -524,15 +527,6 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
 
             await S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
-
-            var db = await Db.Context();
-
-            await db.GenerationFileScriptLogs.AddAsync(new GenerationFileScriptLog
-            {
-                FileName = fileName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
-            });
-
-            await db.SaveChangesAsync();
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -564,16 +558,10 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             await File.WriteAllTextAsync(file.FullName, scriptString);
 
-            var db = await Db.Context();
-
-            await db.GenerationFileScriptLogs.AddAsync(new GenerationFileScriptLog
+            await Db.SaveGenerationFileTransferScriptLog(new GenerationFileTransferScriptLog
             {
-                FileName = file.Name, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+                FileName = file.FullName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
             });
-
-            await db.SaveChangesAsync();
-
-            await LoadDateTimeFilterChoices();
 
             await ProcessHelpers.OpenExplorerWindowForFile(file.FullName).ConfigureAwait(false);
         }
@@ -722,7 +710,8 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             StatusContext.Progress($"Using {logChoiceList.Count} Generation Dates - Adding Script Dates");
 
             logChoiceList.AddRange(
-                (await db.GenerationFileScriptLogs.OrderByDescending(x => x.WrittenOnVersion).Take(30).ToListAsync())
+                (await db.GenerationFileTransferScriptLogs.OrderByDescending(x => x.WrittenOnVersion).Take(30)
+                    .ToListAsync())
                 .Select(x => new FileWrittenLogListDateTimeFilterChoice
                 {
                     DisplayText = $"{x.WrittenOnVersion.ToLocalTime():F} - Upload Generated",
@@ -764,6 +753,11 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
             logChoiceList.ForEach(x => GenerationChoices.Add(x));
 
             SelectedGenerationChoice = toSelect;
+        }
+
+        private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
+        {
+            DataNotificationsProcessor.Enqueue(e);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -840,16 +834,11 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             await File.WriteAllTextAsync(file.FullName, jsonInfo);
 
-            var db = await Db.Context();
-
-            await db.GenerationFileScriptLogs.AddAsync(new GenerationFileScriptLog
+            await Db.SaveGenerationFileTransferScriptLog(new GenerationFileTransferScriptLog
             {
-                FileName = file.Name, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+                FileName = file.FullName,
+                WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
             });
-
-            await db.SaveChangesAsync();
-
-            await LoadDateTimeFilterChoices();
         }
 
         private async Task SelectedFilesToExcel()

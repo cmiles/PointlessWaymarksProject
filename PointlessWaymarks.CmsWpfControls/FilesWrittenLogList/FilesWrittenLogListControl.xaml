@@ -19,145 +19,158 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <Menu>
-            <MenuItem Header="S3 ">
-                <MenuItem Command="{Binding SiteMissingFilesReportCommand}" Header="S3 - Missing and Changed Files on Site" />
-                <MenuItem Command="{Binding SiteDeletedFilesReportCommand}" Header="S3 - Deleted Files on Site" />
-                <Separator />
-                <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}" Header="S3 - Selected to Uploader" />
-                <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}" Header="S3 - All to Uploader" />
-                <Separator />
-                <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderJsonFileCommand}" Header="Selected to Uploader Json File" />
-                <MenuItem Command="{Binding AllWrittenFilesToS3UploaderJsonFileCommand}" Header="All to Uploader Json File" />
-                <Separator />
-                <MenuItem Command="{Binding OpenUploaderJsonFileCommand}" Header="Open Uploader Json File" />
-                <Separator />
-                <MenuItem Command="{Binding SelectedScriptStringsToPowerShellScriptCommand}" Header="Selected to PowerShell Ps1 File" />
-                <MenuItem Command="{Binding SelectedScriptStringsToClipboardCommand}" Header="Selected to Clipboard" />
-                <Separator />
-                <MenuItem Command="{Binding AllScriptStringsToPowerShellScriptCommand}" Header="All to PowerShell Ps1 File" />
-                <MenuItem Command="{Binding AllScriptStringsToClipboardCommand}" Header="All to Clipboard" />
-            </MenuItem>
-            <MenuItem Header="File Names">
-                <MenuItem Command="{Binding SelectedWrittenFilesToClipboardCommand}" Header="Selected to Clipboard" />
-                <MenuItem Command="{Binding AllWrittenFilesToClipboardCommand}" Header="All to Clipboard" />
-            </MenuItem>
-            <MenuItem Header="Excel">
-                <MenuItem Command="{Binding SelectedFilesToExcelCommand}" Header="Selected to Excel" />
-                <MenuItem Command="{Binding AllFilesToExcelCommand}" Header="All to Excel" />
-            </MenuItem>
-        </Menu>
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Border Style="{StaticResource ActionPanelBorderStyle}">
-                <Border.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="Margin" Value="4" />
-                        <Setter Property="CornerRadius" Value="4" />
-                        <Setter Property="BorderThickness" Value="1" />
-                        <Setter Property="BorderBrush" Value="LightGray" />
-                    </Style>
-                </Border.Resources>
-                <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                    <Border>
-                        <CheckBox
-                            Margin="4"
-                            VerticalAlignment="Center"
-                            IsChecked="{Binding FilterForFilesInCurrentGenerationDirectory}">
-                            Filter For Generation Directory
-                        </CheckBox>
-                    </Border>
-                    <Border>
-                        <StackPanel
-                            Margin="4"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal">
-                            <Label>Files Written After:</Label>
-                            <ComboBox
-                                Width="360"
+        <TabControl>
+            <TabItem Header="Written Files">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Menu>
+                        <MenuItem Header="S3 ">
+                            <MenuItem Command="{Binding SiteMissingFilesReportCommand}" Header="S3 - Missing and Changed Files on Site" />
+                            <MenuItem Command="{Binding SiteDeletedFilesReportCommand}" Header="S3 - Deleted Files on Site" />
+                            <Separator />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}" Header="S3 - Selected to Uploader" />
+                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}" Header="S3 - All to Uploader" />
+                            <Separator />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderJsonFileCommand}" Header="Selected to Uploader Json File" />
+                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderJsonFileCommand}" Header="All to Uploader Json File" />
+                            <Separator />
+                            <MenuItem Command="{Binding OpenUploaderJsonFileCommand}" Header="Open Uploader Json File" />
+                            <Separator />
+                            <MenuItem Command="{Binding SelectedScriptStringsToPowerShellScriptCommand}" Header="Selected to PowerShell Ps1 File" />
+                            <MenuItem Command="{Binding SelectedScriptStringsToClipboardCommand}" Header="Selected to Clipboard" />
+                            <Separator />
+                            <MenuItem Command="{Binding AllScriptStringsToPowerShellScriptCommand}" Header="All to PowerShell Ps1 File" />
+                            <MenuItem Command="{Binding AllScriptStringsToClipboardCommand}" Header="All to Clipboard" />
+                        </MenuItem>
+                        <MenuItem Header="File Names">
+                            <MenuItem Command="{Binding SelectedWrittenFilesToClipboardCommand}" Header="Selected to Clipboard" />
+                            <MenuItem Command="{Binding AllWrittenFilesToClipboardCommand}" Header="All to Clipboard" />
+                        </MenuItem>
+                        <MenuItem Header="Excel">
+                            <MenuItem Command="{Binding SelectedFilesToExcelCommand}" Header="Selected to Excel" />
+                            <MenuItem Command="{Binding AllFilesToExcelCommand}" Header="All to Excel" />
+                        </MenuItem>
+                    </Menu>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource ActionPanelBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                DisplayMemberPath="DisplayText"
-                                ItemsSource="{Binding GenerationChoices}"
-                                SelectedItem="{Binding SelectedGenerationChoice}" />
-                        </StackPanel>
-                    </Border>
-                    <Border>
-                        <StackPanel
-                            Margin="4"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal">
-                            <Label>Bucket Name:</Label>
+                                Orientation="Horizontal">
+                                <Label VerticalAlignment="Center">Files Written After:</Label>
+                                <ComboBox
+                                    Height="28"
+                                    VerticalAlignment="Center"
+                                    HorizontalContentAlignment="Left"
+                                    VerticalContentAlignment="Center"
+                                    DisplayMemberPath="DisplayText"
+                                    ItemsSource="{Binding GenerationChoices}"
+                                    SelectedItem="{Binding SelectedGenerationChoice}" />
+                                <Button
+                                    Width="120"
+                                    Height="28"
+                                    Margin="4"
+                                    Command="{Binding GenerateItemsCommand}">
+                                    Run Report
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <DataGrid
+                        x:Name="WrittenFilesDataGrid"
+                        Grid.Row="2"
+                        Margin="4,0,4,4"
+                        AlternatingRowBackground="Gainsboro"
+                        AlternationCount="1"
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        CanUserResizeColumns="True"
+                        IsReadOnly="True"
+                        ItemsSource="{Binding Items}"
+                        SelectionChanged="Selector_OnSelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding WrittenOn}" Header="Written On" />
+                            <DataGridTextColumn Binding="{Binding FileBase}" Header="File" />
+                            <DataGridTextColumn Binding="{Binding WrittenFile}" Header="Local File Path" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Settings">
+                <StackPanel Margin="4">
+                    <GroupBox Header="File Filter" Style="{StaticResource UiComponentGroupBoxStyle}">
+                        <StackPanel Margin="2" HorizontalAlignment="Left">
+                            <CheckBox
+                                Margin="4"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding FilterForFilesInCurrentGenerationDirectory}">
+                                Filter For Generation Directory
+                            </CheckBox>
                             <TextBox
-                                Width="180"
-                                VerticalAlignment="Center"
-                                Text="{Binding UserBucketName, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+                                Margin="4"
+                                Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                TextWrapping="Wrap">
+                                Files written to locations such as the Media Archive are tracked in addition to files written to the Generated Site. The default is to show only files written to the Generated site with the assumption that the main use for tracking files will be to easily decide what to push to the 'public' site.
+                            </TextBox>
                         </StackPanel>
-                    </Border>
-                    <Border>
+                    </GroupBox>
+                    <GroupBox
+                        Margin="0,6,0,0"
+                        Header="Script Settings"
+                        Style="{StaticResource UiComponentGroupBoxStyle}">
                         <StackPanel
-                            Margin="4"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal">
-                            <Label>Script Prefix:</Label>
+                            Margin="2"
+                            HorizontalAlignment="Left"
+                            Orientation="Vertical">
                             <TextBox
-                                Width="120"
+                                Margin="4"
+                                Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                TextWrapping="Wrap">
+                                Using the built in Amazon S3 Uploader is an easy way to transfer and manage files for a public site. To help support other scenarios scripts can be generated instead - the script generation is oriented around the AWS cli but may be able to help with other similar cli scripts...
+                            </TextBox>
+                            <StackPanel
+                                Margin="4"
                                 VerticalAlignment="Center"
-                                Text="{Binding UserScriptPrefix, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+                                Orientation="Horizontal">
+                                <Label>Bucket Name:</Label>
+                                <TextBox
+                                    Width="180"
+                                    VerticalAlignment="Center"
+                                    Text="{Binding UserBucketName, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+                            </StackPanel>
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                                <Label>Script Prefix:</Label>
+                                <TextBox
+                                    Width="120"
+                                    VerticalAlignment="Center"
+                                    Text="{Binding UserScriptPrefix, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+                            </StackPanel>
+                            <CheckBox
+                                Margin="8,2,4,4"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding ChangeSlashes}">
+                                \ to /
+                            </CheckBox>
                         </StackPanel>
-                    </Border>
-                    <Border>
-                        <CheckBox
-                            Margin="4"
-                            VerticalAlignment="Center"
-                            IsChecked="{Binding ChangeSlashes}">
-                            \ to /
-                        </CheckBox>
-                    </Border>
-                </WrapPanel>
-            </Border>
-            <Border Grid.Column="1" Style="{StaticResource ActionPanelBorderStyle}">
-                <Button
-                    Width="120"
-                    Margin="4"
-                    Command="{Binding GenerateItemsCommand}">
-                    Run Report
-                </Button>
-            </Border>
-        </Grid>
+                    </GroupBox>
 
-        <DataGrid
-            x:Name="WrittenFilesDataGrid"
-            Grid.Row="2"
-            Margin="4,0,4,4"
-            AlternatingRowBackground="Gainsboro"
-            AlternationCount="1"
-            AutoGenerateColumns="False"
-            CanUserAddRows="False"
-            CanUserResizeColumns="True"
-            IsReadOnly="True"
-            ItemsSource="{Binding Items}"
-            SelectionChanged="Selector_OnSelectionChanged">
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding WrittenOn}" Header="Written On" />
-                <DataGridTextColumn Binding="{Binding FileBase}" Header="File" />
-                <DataGridCheckBoxColumn Binding="{Binding IsInGenerationDirectory}" Header="In Generated" />
-                <DataGridTextColumn Binding="{Binding TransformedFile}" Header="Remote File" />
-                <DataGridTextColumn Binding="{Binding WrittenFile}" Header="Written File" />
-            </DataGrid.Columns>
-        </DataGrid>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
         <status:StatusControl
             Grid.Row="0"
-            Grid.RowSpan="3"
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
     </Grid>

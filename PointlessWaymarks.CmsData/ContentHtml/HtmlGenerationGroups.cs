@@ -66,14 +66,22 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             //File Script Cleanup
 
-            var olderScriptGenerations = await db.GenerationFileScriptLogs.OrderByDescending(x => x.WrittenOnVersion)
+            var olderScriptGenerations = await db.GenerationFileTransferScriptLogs
+                .OrderByDescending(x => x.WrittenOnVersion)
                 .Skip(30).ToListAsync();
 
             progress?.Report($"Found {olderScriptGenerations.Count} logs to remove");
 
-            db.GenerationFileScriptLogs.RemoveRange(olderScriptGenerations);
+            if (olderScriptGenerations.Any())
+            {
+                db.GenerationFileTransferScriptLogs.RemoveRange(olderScriptGenerations);
 
-            await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
+
+                DataNotifications.PublishDataNotification("HtmlGenerationGroups.CleanupGenerationInformation",
+                    DataNotificationContentType.FileTransferScriptLog, DataNotificationUpdateType.Delete,
+                    new List<Guid>());
+            }
 
 
             //File Write Logs
@@ -82,9 +90,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             if (currentGenerationVersions.Any()) oldestDateTimeLog = currentGenerationVersions.Min();
 
-            if (db.GenerationFileScriptLogs.Any())
+            if (db.GenerationFileWriteLogs.Any())
             {
-                var oldestGenerationLog = db.GenerationFileScriptLogs.Min(x => x.WrittenOnVersion);
+                var oldestGenerationLog = db.GenerationFileWriteLogs.Min(x => x.WrittenOnVersion);
                 if (oldestDateTimeLog == null || oldestGenerationLog < oldestDateTimeLog)
                     oldestDateTimeLog = oldestGenerationLog;
             }

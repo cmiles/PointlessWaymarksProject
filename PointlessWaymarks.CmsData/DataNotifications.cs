@@ -48,12 +48,14 @@ namespace PointlessWaymarks.CmsData
         {
             if (SuspendNotifications) return;
 
-            if (contentGuidList == null || !contentGuidList.Any()) return;
+            if (contentType != DataNotificationContentType.FileTransferScriptLog &&
+                contentType != DataNotificationContentType.GenerationLog &&
+                (contentGuidList == null || !contentGuidList.Any())) return;
 
             var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
             SendMessageQueue.Enqueue(
-                $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList)}");
+                $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList ?? new List<Guid>())}");
         }
 
         public static InterProcessDataNotification TranslateDataNotification(byte[]? received)
@@ -114,6 +116,7 @@ namespace PointlessWaymarks.CmsData
     {
         File,
         GenerationLog,
+        FileTransferScriptLog,
         GeoJson,
         Image,
         Line,
