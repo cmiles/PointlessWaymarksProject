@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Database\Migrations\**" />
+    <EmbeddedResource Remove="Database\Migrations\**" />
+    <None Remove="Database\Migrations\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="leaflet.css" />
     <None Remove="leaflet.js" />
     <None Remove="SiteResources\images\layers-2x.png" />
@@ -24,7 +30,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
     <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.0.19" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.0.21" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
     <PackageReference Include="CompareNETObjects" Version="4.73.0" />
     <PackageReference Include="FluentMigrator" Version="3.2.15" />
@@ -39,7 +45,7 @@
     <PackageReference Include="HtmlTags" Version="8.1.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="Markdig" Version="0.24.0" />
-    <PackageReference Include="MetadataExtractor" Version="2.4.3" />
+    <PackageReference Include="MetadataExtractor" Version="2.5.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
@@ -337,10 +343,6 @@
     <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-spatial-common.js" />
     <EmbeddedResource Include="style.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Database\Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

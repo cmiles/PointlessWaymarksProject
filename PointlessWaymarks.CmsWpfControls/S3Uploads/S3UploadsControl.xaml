@@ -40,10 +40,16 @@
                             FontWeight="Bold"
                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                             Text="{Binding Note, Mode=OneWay}"
-                            TextWrapping="Wrap">
+                            TextWrapping="Wrap"
+                            HorizontalAlignment="Left">
                             <b:Interaction.Behaviors>
                                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                             </b:Interaction.Behaviors>
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="SelectionChanged">
+                                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
                         </TextBox>
                         <TextBox
                             Grid.Row="1"
@@ -52,7 +58,8 @@
                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                             Text="{Binding FileToUpload.FullName, StringFormat='From: {0}', Mode=OneWay}"
                             TextDecorations="Underline"
-                            TextWrapping="Wrap">
+                            TextWrapping="Wrap"
+                            HorizontalAlignment="Left">
                             <TextBox.InputBindings>
                                 <MouseBinding
                                     Command="{Binding ElementName=S3UploadsControlXaml, Path=DataContext.OpenLocalFileInExplorerCommand}"
@@ -67,7 +74,8 @@
                             Grid.Row="2"
                             Margin="2"
                             Style="{StaticResource ReadOnlyTextBoxStyle}"
-                            TextWrapping="Wrap">
+                            TextWrapping="Wrap"
+                            HorizontalAlignment="Left">
                             <TextBox.Text>
                                 <MultiBinding StringFormat="To: {0}/{1}">
                                     <Binding Path="BucketName" />
@@ -77,6 +85,11 @@
                             <b:Interaction.Behaviors>
                                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                             </b:Interaction.Behaviors>
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="SelectionChanged">
+                                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
                         </TextBox>
                         <WrapPanel Grid.Row="3" Margin="2">
                             <TextBlock
@@ -183,8 +196,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Save">
@@ -303,9 +316,11 @@
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectionChanged="Selector_OnSelectionChanged"
                 SelectionMode="Extended"
+                SelectedItem="{Binding ListSelection.Selected}"
                 VirtualizingPanel.IsVirtualizing="True"
-                VirtualizingPanel.ScrollUnit="Item">
+                VirtualizingPanel.ScrollUnit="Pixel">
                 <b:Interaction.Behaviors>
+                    <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
                 <ListBox.InputBindings>

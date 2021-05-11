@@ -368,6 +368,7 @@ a.site-header-title-link:active {
     flex-wrap: wrap;
     align-items: center;
     margin-top: 2.5rem;
+    color: rgb(180, 180, 180);
 }
 
 .related-post-container {
@@ -408,6 +409,8 @@ a.site-header-title-link:active {
 
 .related-post-text-content-title-container {
     font-size: 14px;
+    text-align: center;
+    margin: .4rem .2rem .2rem 0;
 }
 
 .related-post-text-content-title-link {

@@ -16,9 +16,9 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
         private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (DataContext == null) return;
             var viewmodel = (S3UploadsContext) DataContext;
-            viewmodel.SelectedItems =
+            if (viewmodel?.ListSelection == null) return;
+            viewmodel.ListSelection.SelectedItems =
                 ItemsListBox?.SelectedItems.Cast<S3UploadsItem>().ToList() ?? new List<S3UploadsItem>();
         }
     }

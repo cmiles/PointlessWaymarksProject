@@ -28,7 +28,6 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         private Command _saveAllToUploadJsonFileCommand;
         private Command _saveNotUploadedToUploadJsonFileCommand;
         private Command _saveSelectedToUploadJsonFileCommand;
-        private List<S3UploadsItem> _selectedItems = new();
         private Command _startAllUploadsCommand;
         private Command _startSelectedUploadsCommand;
         private StatusControlContext _statusContext;
@@ -37,6 +36,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         private Command _toExcelAllItemsCommand;
         private Command _toExcelSelectedItemsCommand;
         private S3UploadsUploadBatch? _uploadBatch;
+        private ContentListSelected<S3UploadsItem>? _listSelection;
 
         public S3UploadsContext(StatusControlContext? statusContext)
         {
@@ -57,11 +57,11 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             _toExcelAllItemsCommand =
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
             _toExcelSelectedItemsCommand =
-                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(SelectedItems.ToList()));
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(ListSelection?.SelectedItems.ToList()));
             _toClipboardAllItemsCommand =
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
             _toClipboardSelectedItemsCommand =
-                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(SelectedItems.ToList()));
+                StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(ListSelection?.SelectedItems.ToList()));
 
             _removeSelectedItemsCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedItems);
         }
@@ -139,17 +139,6 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             {
                 if (Equals(value, _saveSelectedToUploadJsonFileCommand)) return;
                 _saveSelectedToUploadJsonFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public List<S3UploadsItem> SelectedItems
-        {
-            get => _selectedItems;
-            set
-            {
-                if (Equals(value, _selectedItems)) return;
-                _selectedItems = value;
                 OnPropertyChanged();
             }
         }
@@ -336,6 +325,8 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
             if (!uploadList.Any()) return;
 
+            ListSelection = await ContentListSelected<S3UploadsItem>.CreateInstance(StatusContext);
+
             var newItemsList = uploadList
                 .Select(x => new S3UploadsItem(x.ToUpload, x.S3Key, x.BucketName, x.Region, x.Note))
                 .OrderByDescending(x => x.FileToUpload.FullName.Count(y => y == '\\'))
@@ -351,6 +342,17 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
             {
                 Items.Clear();
                 newItemsList.ForEach(x => Items.Add(x));
+            }
+        }
+
+        public ContentListSelected<S3UploadsItem>? ListSelection
+        {
+            get => _listSelection;
+            set
+            {
+                if (Equals(value, _listSelection)) return;
+                _listSelection = value;
+                OnPropertyChanged();
             }
         }
 
@@ -370,15 +372,13 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (Items == null)
+            if (Items == null || ListSelection == null)
             {
                 StatusContext.ToastError("Nothing to delete?");
                 return;
             }
 
-            var frozenSelected = SelectedItems;
-
-            var canDelete = SelectedItems.Where(x => !x.Queued && !x.IsUploading).ToList();
+            var canDelete = ListSelection.SelectedItems.Where(x => !x.Queued && !x.IsUploading).ToList();
 
             if (canDelete.Count == 0)
             {
@@ -425,18 +425,18 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (!SelectedItems.Any())
+            if (ListSelection == null || !ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("No Items to Save?");
                 return;
             }
 
-            await FileItemsToS3UploaderJsonFile(SelectedItems);
+            await FileItemsToS3UploaderJsonFile(ListSelection.SelectedItems);
         }
 
         public async Task StartAllUploads()
         {
-            if (UploadBatch != null && !UploadBatch.Completed)
+            if (UploadBatch is {Completed: false})
             {
                 StatusContext.ToastWarning("Wait for the current Upload Batch to Complete...");
                 return;
@@ -457,19 +457,19 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
         public async Task StartSelectedUploads()
         {
-            if (UploadBatch != null && !UploadBatch.Completed)
+            if (UploadBatch is {Completed: false})
             {
                 StatusContext.ToastWarning("Wait for the current Upload Batch to Complete...");
                 return;
             }
 
-            if (!SelectedItems.Any())
+            if (ListSelection == null || !ListSelection.SelectedItems.Any())
             {
                 StatusContext.ToastError("Nothing Selected...");
                 return;
             }
 
-            var localSelected = SelectedItems.ToList();
+            var localSelected = ListSelection.SelectedItems.ToList();
 
             UploadBatch = await S3UploadsUploadBatch.CreateInstance(localSelected);
 

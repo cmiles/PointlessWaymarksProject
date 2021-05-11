@@ -30,7 +30,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             {
                 var loopDate = datesToCreate[i];
 
-                if (i % 10 == 0) progress?.Report($"Daily Photo Page - {loopDate:D} - {i} of {loopGoal}");
+                if (i % 10 == 0) progress?.Report($"Daily Photo Page - {loopDate:D} - {i+1} of {loopGoal}");
                 var toAdd = await DailyPhotoGallery(loopDate, generationVersion);
 
                 var nextDate = allDates.Where(x => x > loopDate).OrderBy(x => x).FirstOrDefault();
