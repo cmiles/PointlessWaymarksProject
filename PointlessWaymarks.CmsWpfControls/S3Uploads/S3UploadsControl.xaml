@@ -301,6 +301,17 @@
                         <ContentControl Content="{Binding UploadBatch.CurrentUpload, FallbackValue=''}" ContentTemplate="{StaticResource S3SummaryUploadDataTemplate}" />
                     </ScrollViewer>
                 </GroupBox>
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Width="92"
+                    Margin="0,2,2,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Command="{Binding ClearCompletedUploadBatch}"
+                    Visibility="{Binding UploadBatch.Completed, Converter={StaticResource BooleanToVisibility}}">
+                    Dismiss
+                </Button>
             </Grid>
         </GroupBox>
         <GroupBox

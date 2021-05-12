@@ -21,6 +21,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 {
     public class S3UploadsContext : INotifyPropertyChanged
     {
+        private Command _clearCompletedUploadBatch;
         private Command _clearUploadedCommand;
         private ObservableCollection<S3UploadsItem>? _items;
         private ContentListSelected<S3UploadsItem>? _listSelection;
@@ -66,6 +67,21 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
                     await ItemsToClipboard(ListSelection?.SelectedItems.ToList()));
 
             _removeSelectedItemsCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedItems);
+            _clearCompletedUploadBatch = StatusContext.RunNonBlockingActionCommand(() =>
+            {
+                if (UploadBatch is {Completed: true}) UploadBatch = null;
+            });
+        }
+
+        public Command ClearCompletedUploadBatch
+        {
+            get => _clearCompletedUploadBatch;
+            set
+            {
+                if (Equals(value, _clearCompletedUploadBatch)) return;
+                _clearCompletedUploadBatch = value;
+                OnPropertyChanged();
+            }
         }
 
         public Command ClearUploadedCommand
