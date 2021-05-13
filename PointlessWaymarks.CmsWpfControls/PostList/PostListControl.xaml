@@ -9,6 +9,7 @@
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:columnSort="clr-namespace:PointlessWaymarks.CmsWpfControls.ColumnSort"
     Name="UserControlXaml"
     d:DataContext="{d:DesignInstance postList:PostListContext}"
     d:DesignHeight="300"
@@ -45,50 +46,7 @@
                 Grid.Column="1"
                 Header="Sort"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
-                <WrapPanel HorizontalAlignment="Center">
-                    <Button
-                        Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButtonStyle}"
-                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanToVisibility}}">
-                        <utility:IndicatorIcon
-                            VerticalAlignment="Center"
-                            HorizontalContentAlignment="Center"
-                            IconBrush="Black"
-                            IconPathGeometry="{StaticResource IconDataUpArrowThick}"
-                            IconSize="{StaticResource SmallIconSize}" />
-                    </Button>
-                    <Button
-                        Command="{Binding ToggleListSortDirectionCommand}"
-                        Style="{StaticResource ListSortButtonStyle}"
-                        Visibility="{Binding SortDescending, Converter={StaticResource BooleanNotToVisibility}}">
-                        <utility:IndicatorIcon
-                            VerticalAlignment="Center"
-                            IconBrush="Black"
-                            IconPathGeometry="{StaticResource IconDataDownArrowThick}"
-                            IconSize="{StaticResource SmallIconSize}" />
-                    </Button>
-                    <Button
-                        Width="90"
-                        Height="24"
-                        Command="{Binding SortListCommand}"
-                        CommandParameter="CreatedOn">
-                        Page Created
-                    </Button>
-                    <Button
-                        Width="90"
-                        Height="24"
-                        Command="{Binding SortListCommand}"
-                        CommandParameter="Title">
-                        Title
-                    </Button>
-                    <Button
-                        Width="90"
-                        Height="24"
-                        Command="{Binding SortListCommand}"
-                        CommandParameter="CreatedBy">
-                        Created By
-                    </Button>
-                </WrapPanel>
+                <columnSort:ColumnSortControl DataContext="{Binding ListSort}"></columnSort:ColumnSortControl>
             </GroupBox>
         </Grid>
         <GroupBox

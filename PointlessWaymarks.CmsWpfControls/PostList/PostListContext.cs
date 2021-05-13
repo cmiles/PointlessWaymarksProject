@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -33,6 +34,8 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
+        private ObservableCollection<ColumnSortControlSortItem> _listSortItems;
+        private ColumnSortControlContext _listSort;
 
         public PostListContext(StatusControlContext statusContext)
         {
@@ -143,6 +146,17 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 OnPropertyChanged();
 
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
+            }
+        }
+
+        public ColumnSortControlContext ListSort
+        {
+            get => _listSort;
+            set
+            {
+                if (Equals(value, _listSort)) return;
+                _listSort = value;
+                OnPropertyChanged();
             }
         }
 
@@ -269,11 +283,22 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 currentLoop++;
             }
 
+            ListSort = new ColumnSortControlContext
+            {
+                Items = new List<ColumnSortControlSortItem>
+                {
+                    new() {DisplayName = "Photo On"},
+                    new() {DisplayName = "Title"},
+                    new() {DisplayName = "Created On"}
+                }
+            };
+
             await ThreadSwitcher.ResumeForegroundAsync();
 
             StatusContext.Progress("Displaying Posts");
 
             Items = new ObservableCollection<PostListListItem>(listItems);
+
 
             SortDescending = true;
             await SortList("CreatedOn");

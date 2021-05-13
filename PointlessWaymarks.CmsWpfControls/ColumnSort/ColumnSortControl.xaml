@@ -4,17 +4,77 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.ColumnSort"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             Name="UserControlXaml"
+             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ColumnSortControlContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <valueConverters:GreaterThanZeroIntIsVisibleConverter x:Key="GreaterThanZeroIntIsVisible" />
+            <valueConverters:AnyNotVisibleToCollapsedMultiConverter x:Key="AnyNotVisibleToCollapsed" />
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
-        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Items}">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel IsItemsHost="True" />
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
-                <DataTemplate></DataTemplate>
+                <DataTemplate DataType="local:ColumnSortControlSortItem">
+                    <Button>
+                        <Button.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                          Command="{Binding DataContext.ColumnSortToggleCommand, ElementName=UserControlXaml}"
+                                          CommandParameter="{Binding .}" />
+                            <MouseBinding Gesture="Control+LeftClick"
+                                          Command="{Binding DataContext.ColumnSortAddCommand, ElementName=UserControlXaml}"
+                                          CommandParameter="{Binding .}" />
+                        </Button.InputBindings>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" Margin="12,0,12,0">
+                                <TextBlock Text="{Binding Order, StringFormat='({0})'}"
+                                           Visibility="{Binding Order, Converter={StaticResource GreaterThanZeroIntIsVisible}}" />
+                                <TextBlock Text="{Binding DisplayName}" Margin="6,0,0,0" />
+                                <utility:IndicatorIcon Margin="6,0,0,0"
+                                                       VerticalAlignment="Center"
+                                                       IconBrush="Black"
+                                                       IconPathGeometry="{StaticResource IconDataUpArrowThick}"
+                                                       IconSize="{StaticResource SmallIconSize}">
+                                    <utility:IndicatorIcon.Visibility>
+                                        <MultiBinding Converter="{StaticResource AnyNotVisibleToCollapsed}">
+                                            <Binding Path="Order"
+                                                     Converter="{StaticResource GreaterThanZeroIntIsVisible}" />
+                                            <Binding Path="Ascending" Converter="{StaticResource BooleanToVisibility}" />
+                                        </MultiBinding>
+                                    </utility:IndicatorIcon.Visibility>
+                                </utility:IndicatorIcon>
+                                <utility:IndicatorIcon Margin="6,0,0,0"
+                                                       VerticalAlignment="Center"
+                                                       IconBrush="Black"
+                                                       IconPathGeometry="{StaticResource IconDataDownArrowThick}"
+                                                       IconSize="{StaticResource SmallIconSize}">
+                                    <utility:IndicatorIcon.Visibility>
+                                        <MultiBinding Converter="{StaticResource AnyNotVisibleToCollapsed}">
+                                            <Binding Path="Order"
+                                                     Converter="{StaticResource GreaterThanZeroIntIsVisible}" />
+                                            <Binding Path="Ascending"
+                                                     Converter="{StaticResource BooleanNotToVisibility}" />
+                                        </MultiBinding>
+                                    </utility:IndicatorIcon.Visibility>
+                                </utility:IndicatorIcon>
+                            </StackPanel>
+                        </Grid>
+                    </Button>
+                </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
     </Grid>
