@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace PointlessWaymarks.WpfCommon.ValueConverters
 {
-    public sealed class GreaterThanZeroIntIsVisibleConverter : IValueConverter
+    public sealed class GreaterThanZeroIntIsVisibleElseHiddenConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -15,7 +15,7 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters
                     return Visibility.Visible;
 
                 case < 1:
-                    return Visibility.Collapsed;
+                    return Visibility.Hidden;
 
                 default:
                     return Visibility.Visible;

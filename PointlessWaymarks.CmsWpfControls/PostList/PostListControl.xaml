@@ -2,6 +2,7 @@
     x:Class="PointlessWaymarks.CmsWpfControls.PostList.PostListControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:columnSort="clr-namespace:PointlessWaymarks.CmsWpfControls.ColumnSort"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -9,7 +10,6 @@
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:columnSort="clr-namespace:PointlessWaymarks.CmsWpfControls.ColumnSort"
     Name="UserControlXaml"
     d:DataContext="{d:DesignInstance postList:PostListContext}"
     d:DesignHeight="300"
@@ -46,7 +46,7 @@
                 Grid.Column="1"
                 Header="Sort"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
-                <columnSort:ColumnSortControl DataContext="{Binding ListSort}"></columnSort:ColumnSortControl>
+                <columnSort:ColumnSortControl DataContext="{Binding ListSort}" />
             </GroupBox>
         </Grid>
         <GroupBox

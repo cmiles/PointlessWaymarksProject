@@ -1,9 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PointlessWaymarks.CmsData.Database.Models
 {
     public class PostContent : IUpdateNotes, IContentCommon
     {
+        [NotMapped] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
+
         public string? BodyContent { get; set; }
         public string? BodyContentFormat { get; set; }
         public Guid ContentId { get; set; }

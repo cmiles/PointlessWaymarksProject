@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using System.Windows.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
@@ -27,15 +28,13 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
     {
         private Command<PostContent> _editContentCommand;
         private ObservableCollection<PostListListItem> _items;
-        private string _lastSortColumn;
         private ContentListSelected<PostListListItem> _listSelection;
+        private ColumnSortControlContext _listSort;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
-        private ObservableCollection<ColumnSortControlSortItem> _listSortItems;
-        private ColumnSortControlContext _listSort;
 
         public PostListContext(StatusControlContext statusContext)
         {
@@ -44,13 +43,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(EditContent);
-
-            SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
-            ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-            {
-                SortDescending = !SortDescending;
-                await SortList(_lastSortColumn);
-            });
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
@@ -88,6 +80,17 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             {
                 if (Equals(value, _listSelection)) return;
                 _listSelection = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ColumnSortControlContext ListSort
+        {
+            get => _listSort;
+            set
+            {
+                if (Equals(value, _listSort)) return;
+                _listSort = value;
                 OnPropertyChanged();
             }
         }
@@ -146,17 +149,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 OnPropertyChanged();
 
                 StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
-            }
-        }
-
-        public ColumnSortControlContext ListSort
-        {
-            get => _listSort;
-            set
-            {
-                if (Equals(value, _listSort)) return;
-                _listSort = value;
-                OnPropertyChanged();
             }
         }
 
@@ -267,7 +259,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             var db = await Db.Context();
 
             StatusContext.Progress("Getting Post Db Entries");
-            var dbItems = db.PostContents.ToList();
+            var dbItems = db.PostContents.OrderByDescending(x => x.CreatedOn).ToList();
             var listItems = new List<PostListListItem>();
 
             var totalCount = dbItems.Count;
@@ -287,11 +279,13 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             {
                 Items = new List<ColumnSortControlSortItem>
                 {
-                    new() {DisplayName = "Photo On"},
-                    new() {DisplayName = "Title"},
-                    new() {DisplayName = "Created On"}
+                    new() {DisplayName = "Latest Update", ColumnName = "DbEntry.LatestUpdate", Order = 1},
+                    new() {DisplayName = "Title", ColumnName = "DbEntry.Title"},
+                    new() {DisplayName = "Created On", ColumnName = "DbEntry.CreatedOn"}
                 }
             };
+
+            ListSort.SortUpdated += SortUpdated;
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -299,13 +293,13 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             Items = new ObservableCollection<PostListListItem>(listItems);
 
-
             SortDescending = true;
-            await SortList("CreatedOn");
+            SortList(ListSort.SortDescriptions());
             await FilterList();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
+
 
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
         {
@@ -394,18 +388,20 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
-        private async Task SortList(string sortColumn)
+        private void SortList(List<SortDescription> listSorts)
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            _lastSortColumn = sortColumn;
-
             var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
             collectionView.SortDescriptions.Clear();
 
-            if (string.IsNullOrWhiteSpace(sortColumn)) return;
-            collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
-                SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
+            if (listSorts == null || listSorts.Count < 1) return;
+
+            foreach (var loopSorts in listSorts) collectionView.SortDescriptions.Add(loopSorts);
+        }
+
+
+        private void SortUpdated(object sender, List<SortDescription> e)
+        {
+            Dispatcher.CurrentDispatcher.Invoke(() => { SortList(e); });
         }
     }
 }
