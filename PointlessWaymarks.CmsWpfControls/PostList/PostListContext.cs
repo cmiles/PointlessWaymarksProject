@@ -30,7 +30,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private ObservableCollection<PostListListItem> _items;
         private ContentListSelected<PostListListItem> _listSelection;
         private ColumnSortControlContext _listSort;
-        private bool _sortDescending;
         private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
@@ -91,17 +90,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             {
                 if (Equals(value, _listSort)) return;
                 _listSort = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool SortDescending
-        {
-            get => _sortDescending;
-            set
-            {
-                if (value == _sortDescending) return;
-                _sortDescending = value;
                 OnPropertyChanged();
             }
         }
@@ -279,13 +267,31 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             {
                 Items = new List<ColumnSortControlSortItem>
                 {
-                    new() {DisplayName = "Latest Update", ColumnName = "DbEntry.LatestUpdate", Order = 1},
-                    new() {DisplayName = "Title", ColumnName = "DbEntry.Title"},
-                    new() {DisplayName = "Created On", ColumnName = "DbEntry.CreatedOn"}
+                    new()
+                    {
+                        DisplayName = "Latest Update",
+                        ColumnName = "DbEntry.LatestUpdate",
+                        Order = 1,
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Title",
+                        ColumnName = "DbEntry.Title",
+                        DefaultSortDirection = ListSortDirection.Ascending
+                    },
+                    new()
+                    {
+                        DisplayName = "Created On",
+                        ColumnName = "DbEntry.CreatedOn",
+                        DefaultSortDirection = ListSortDirection.Descending
+                    }
                 }
             };
 
-            ListSort.SortUpdated += SortUpdated;
+            ListSort.SortUpdated += (sender, list) =>
+                Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+            ;
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -293,8 +299,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             Items = new ObservableCollection<PostListListItem>(listItems);
 
-            SortDescending = true;
-            SortList(ListSort.SortDescriptions());
+            ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
             await FilterList();
 
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
@@ -386,22 +391,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
-        }
-
-        private void SortList(List<SortDescription> listSorts)
-        {
-            var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
-            collectionView.SortDescriptions.Clear();
-
-            if (listSorts == null || listSorts.Count < 1) return;
-
-            foreach (var loopSorts in listSorts) collectionView.SortDescriptions.Add(loopSorts);
-        }
-
-
-        private void SortUpdated(object sender, List<SortDescription> e)
-        {
-            Dispatcher.CurrentDispatcher.Invoke(() => { SortList(e); });
         }
     }
 }

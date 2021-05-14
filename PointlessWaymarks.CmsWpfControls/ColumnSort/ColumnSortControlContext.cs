@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Forms.VisualStyles;
 using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Commands;
 
@@ -48,20 +49,28 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
 
         private void AddItem(ColumnSortControlSortItem x)
         {
-            if (x.Order > 0 && x.Ascending)
+            var currentSortCount = Items.Count(x => x.Order > 0);
+            if (Items.Count(x => x.Order > 0) == 0 || (currentSortCount == 1 && x.Order > 0))
             {
-                x.Ascending = false;
+                ToggleItem(x);
+                return;
+            }
+            
+            if (x.Order > 0 && x.SortDirection != x.DefaultSortDirection)
+            {
+                x.SortDirection = x.DefaultSortDirection;
                 x.Order = 0;
                 OrderSorts();
                 return;
             }
 
-            if (x.Order > 0 && !x.Ascending)
+            if (x.Order > 0)
             {
-                x.Ascending = true;
+                x.SortDirection = ChangeSortDirection(x.SortDirection);
                 return;
             }
 
+            x.SortDirection = x.DefaultSortDirection;
             x.Order = Items.Max(y => y.Order) + 1;
         }
 
@@ -83,26 +92,20 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
 
             foreach (var loopSorts in Items.Where(x => x.Order > 0).OrderBy(x => x.Order).ToList())
                 returnList.Add(new SortDescription(loopSorts.ColumnName,
-                    loopSorts.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending));
+                    loopSorts.SortDirection));
 
             return returnList;
         }
 
         private void ToggleItem(ColumnSortControlSortItem x)
         {
-            if (x.Order == 1 && !x.Ascending)
-            {
-                x.Ascending = true;
-                return;
-            }
-
             if (x.Order == 1)
             {
-                x.Order = 0;
-                x.Ascending = false;
+                x.SortDirection = ChangeSortDirection(x.SortDirection);
                 return;
             }
 
+            x.SortDirection = x.DefaultSortDirection;
             x.Order = 1;
 
             Items.Where(y => y != x)
@@ -110,8 +113,14 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
                 .ForEach(y =>
                 {
                     y.Order = 0;
-                    y.Ascending = false;
+                    y.SortDirection = x.DefaultSortDirection;
                 });
+        }
+
+        public ListSortDirection ChangeSortDirection(ListSortDirection currentDirection)
+        {
+            if (currentDirection == ListSortDirection.Ascending) return ListSortDirection.Descending;
+            return ListSortDirection.Ascending;
         }
     }
 }

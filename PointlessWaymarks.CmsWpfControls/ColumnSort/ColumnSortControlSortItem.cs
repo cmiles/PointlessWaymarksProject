@@ -6,18 +6,31 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
 {
     public class ColumnSortControlSortItem : INotifyPropertyChanged
     {
-        private bool _ascending;
         private string _columnName;
         private string _displayName;
         private int _order;
+        private ListSortDirection _defaultSortDirection = ListSortDirection.Ascending;
+        private ListSortDirection _sortDirection = ListSortDirection.Ascending;
 
-        public bool Ascending
+        public ListSortDirection DefaultSortDirection
         {
-            get => _ascending;
+            get => _defaultSortDirection;
             set
             {
-                if (value == _ascending) return;
-                _ascending = value;
+                if (value == _defaultSortDirection) return;
+                _defaultSortDirection = value;
+                OnPropertyChanged();
+                SortDirection = DefaultSortDirection;
+            }
+        }
+
+        public ListSortDirection SortDirection
+        {
+            get => _sortDirection;
+            set
+            {
+                if (value == _sortDirection) return;
+                _sortDirection = value;
                 OnPropertyChanged();
             }
         }
@@ -25,7 +38,7 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
         public string ColumnName
         {
             get => _columnName;
-            set
+            init
             {
                 if (value == _columnName) return;
                 _columnName = value;
@@ -36,7 +49,7 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
         public string DisplayName
         {
             get => _displayName;
-            set
+            init
             {
                 if (value == _displayName) return;
                 _displayName = value;
