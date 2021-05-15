@@ -11,6 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private FileContent _dbEntry;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
+        private FileListItemActions _itemActions;
 
         public FileContent DbEntry
         {
@@ -30,6 +31,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             {
                 if (value == _smallImageUrl) return;
                 _smallImageUrl = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public FileListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }

@@ -113,7 +113,7 @@
         <Setter Property="Margin" Value="0,6,6,0" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Top" />
-        <Setter Property="Command" Value="{Binding DataContext.ViewFileCommand, ElementName=UserControlXaml}" />
+        <Setter Property="Command" Value="{Binding ItemActions.ViewFileCommand}" />
         <Setter Property="CommandParameter" Value="{Binding DbEntry}" />
     </Style>
     <Style x:Key="ContentListItemImageColumnStyle" TargetType="ColumnDefinition">
@@ -325,11 +325,11 @@
         ToolTip="Double Click to View, Shift Double Click to Edit">
         <Image.InputBindings>
             <MouseBinding
-                Command="{Binding DataContext.ViewImageCommand, ElementName=UserControlXaml}"
+                Command="{Binding ItemActions.ViewImageCommand}"
                 CommandParameter="{Binding DbEntry}"
                 MouseAction="LeftDoubleClick" />
             <MouseBinding
-                Command="{Binding DataContext.EditContentCommand, ElementName=UserControlXaml}"
+                Command="{Binding ItemActions.EditContentCommand}"
                 CommandParameter="{Binding DbEntry}"
                 Gesture="Shift+LeftDoubleClick" />
         </Image.InputBindings>
@@ -440,7 +440,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
+                    Command="{Binding ItemActions.EditContentCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>

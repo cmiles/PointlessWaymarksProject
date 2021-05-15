@@ -26,7 +26,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
     public class FileListContext : INotifyPropertyChanged
     {
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
-        private Command<FileContent> _editContentCommand;
         private ObservableCollection<FileListListItem> _items;
         private string _lastSortColumn;
         private ContentListSelected<FileListListItem> _listSelection;
@@ -35,24 +34,35 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
-        private Command<FileContent> _viewFileCommand;
+        private FileListItemActions _itemActions;
 
         public FileListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            ItemActions = new FileListItemActions(StatusContext);
+            
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(EditContent);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             });
-            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
+        }
+
+        public FileListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
+                OnPropertyChanged();
+            }
         }
 
         public DataNotificationsWorkQueue DataNotificationsProcessor
@@ -65,18 +75,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 OnPropertyChanged();
             }
         }
-
-        public Command<FileContent> EditContentCommand
-        {
-            get => _editContentCommand;
-            set
-            {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
 
         public ObservableCollection<FileListListItem> Items
         {
@@ -157,17 +155,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             }
         }
 
-        public Command<FileContent> ViewFileCommand
-        {
-            get => _viewFileCommand;
-            set
-            {
-                if (Equals(value, _viewFileCommand)) return;
-                _viewFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -210,7 +197,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             var dbItems =
                 (await context.FileContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(x => FileListItemActions.ListItemFromDbItem(x, ItemActions)).ToList();
 
             if (!dbItems.Any()) return;
 
@@ -245,33 +232,10 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                     existingItem.DbEntry = loopItems.DbEntry;
 
-                existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
+                existingItem.SmallImageUrl = FileListItemActions.GetSmallImageUrl(existingItem.DbEntry);
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
-        }
-
-        private async Task EditContent(FileContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.FileContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError(
-                    $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new FileContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
         private async Task FilterList()
@@ -299,29 +263,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             };
         }
 
-        public static string GetSmallImageUrl(FileContent content)
-        {
-            if (content?.MainPicture == null) return null;
 
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
-                    ?.File.FullName;
-            }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
-
-        public static FileListListItem ListItemFromDbItem(FileContent content)
-        {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
-        }
 
         public async Task LoadData()
         {
@@ -347,7 +289,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing File Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(FileListItemActions.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }
@@ -385,7 +327,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                     x.DbEntry.MainPicture != null && translatedMessage.ContentIds.Contains(x.DbEntry.MainPicture.Value))
                 .ToList();
 
-            toUpdate.ForEach(x => { x.SmallImageUrl = GetSmallImageUrl(x.DbEntry); });
+            toUpdate.ForEach(x => { x.SmallImageUrl = FileListItemActions.GetSmallImageUrl(x.DbEntry); });
         }
 
 
@@ -400,34 +342,5 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
 
-        private async Task ViewFile(FileContent listItem)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (listItem == null)
-            {
-                StatusContext.ToastError("Nothing Items to Open?");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(listItem.OriginalFileName))
-            {
-                StatusContext.ToastError("No File?");
-                return;
-            }
-
-            var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentFile(listItem);
-
-            if (toOpen is not {Exists: true})
-            {
-                StatusContext.ToastError("File doesn't exist?");
-                return;
-            }
-
-            var url = toOpen.FullName;
-
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
-        }
     }
 }
