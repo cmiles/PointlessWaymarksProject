@@ -20,12 +20,16 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
     {
         private ObservableCollection<object> _items;
         private PhotoListItemActions _photoItemActions;
+        private PostListItemActions _postItemActions;
+        private ImageListItemActions _imageItemActions;
 
         public ContentListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             PhotoItemActions = new PhotoListItemActions(StatusContext);
+            PostItemActions = new PostListItemActions(StatusContext);
+            ImageItemActions = new ImageListItemActions(StatusContext);
             
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
         }
@@ -57,6 +61,28 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
+        public PostListItemActions PostItemActions
+        {
+            get => _postItemActions;
+            set
+            {
+                if (Equals(value, _postItemActions)) return;
+                _postItemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ImageListItemActions ImageItemActions
+        {
+            get => _imageItemActions;
+            set
+            {
+                if (Equals(value, _imageItemActions)) return;
+                _imageItemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -75,12 +101,12 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             var postItems = db.PostContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                 .Take(20).ToList();
             
-            listItems.AddRange(postItems.Select(PostListContext.ListItemFromDbItem));
+            listItems.AddRange(postItems.Select(x => PostListItemActions.ListItemFromDbItem(x, PostItemActions)));
             
             var imageItems = db.ImageContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                 .Take(20).ToList();
             
-            listItems.AddRange(imageItems.Select(ImageListContext.ListItemFromDbItem));
+            listItems.AddRange(imageItems.Select(x => ImageListItemActions.ListItemFromDbItem(x, ImageItemActions)));
             
             await ThreadSwitcher.ResumeForegroundAsync();
 

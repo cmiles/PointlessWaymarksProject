@@ -11,6 +11,18 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private PostContent _dbEntry;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
+        private PostListItemActions _itemActions;
+
+        public PostListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
+                OnPropertyChanged();
+            }
+        }
 
         public PostContent DbEntry
         {

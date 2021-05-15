@@ -26,7 +26,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 {
     public class PostListContext : INotifyPropertyChanged
     {
-        private Command<PostContent> _editContentCommand;
         private ObservableCollection<PostListListItem> _items;
         private ContentListSelected<PostListListItem> _listSelection;
         private ColumnSortControlContext _listSort;
@@ -34,32 +33,22 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
+        private PostListItemActions _itemActions;
 
         public PostListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            ItemActions = new PostListItemActions(StatusContext);
+            
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
-
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(EditContent);
-
+            
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
-
-        public Command<PostContent> EditContentCommand
-        {
-            get => _editContentCommand;
-            set
-            {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
 
         public ObservableCollection<PostListListItem> Items
         {
@@ -163,29 +152,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                     await PossibleMainImageUpdateDataNotificationReceived(translatedMessage));
         }
 
-        private async Task EditContent(PostContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.PostContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PostContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
-
         private async Task FilterList()
         {
             if (Items == null || !Items.Any()) return;
@@ -210,29 +176,17 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             };
         }
 
-        public static string GetSmallImageUrl(PostContent content)
+        public PostListItemActions ItemActions
         {
-            if (content?.MainPicture == null) return null;
-
-            string smallImageUrl;
-
-            try
+            get => _itemActions;
+            set
             {
-                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
-                    ?.File.FullName;
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
+                OnPropertyChanged();
             }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
         }
 
-        public static PostListListItem ListItemFromDbItem(PostContent content)
-        {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
-        }
 
         public async Task LoadData()
         {
@@ -258,7 +212,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing Post Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(PostListItemActions.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }
@@ -329,7 +283,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             toUpdate.ForEach(x =>
             {
                 x.SmallImageUrl = null;
-                x.SmallImageUrl = GetSmallImageUrl(x.DbEntry);
+                x.SmallImageUrl = PostListItemActions.GetSmallImageUrl(x.DbEntry);
             });
         }
 
@@ -352,7 +306,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             var dbItems =
                 (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(x => PostListItemActions.ListItemFromDbItem(x, ItemActions)).ToList();
 
             if (!dbItems.Any()) return;
 
@@ -387,7 +341,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                     existingItem.DbEntry = loopItems.DbEntry;
 
-                existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
+                existingItem.SmallImageUrl = PostListItemActions.GetSmallImageUrl(existingItem.DbEntry);
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);

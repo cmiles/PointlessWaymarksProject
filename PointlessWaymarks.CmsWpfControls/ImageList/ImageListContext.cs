@@ -25,30 +25,28 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
     public class ImageListContext : INotifyPropertyChanged
     {
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
-        private Command<ImageContent> _editContentCommand;
         private ObservableCollection<ImageListListItem> _items;
         private string _lastSortColumn;
         private List<ImageListListItem> _selectedItems;
         private StatusControlContext _statusContext;
         private string _userFilterText;
         private Command<ImageContent> _viewFileCommand;
-        private Command<ImageContent> _viewImageCommand;
+        private ImageListItemActions _itemActions;
 
         public ImageListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            ItemActions = new ImageListItemActions(StatusContext);
+            
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
-
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(EditContent);
-
+            
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             });
-            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewImage);
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
@@ -63,18 +61,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 OnPropertyChanged();
             }
         }
-
-        public Command<ImageContent> EditContentCommand
-        {
-            get => _editContentCommand;
-            set
-            {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
 
         public ObservableCollection<ImageListListItem> Items
         {
@@ -139,17 +125,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             }
         }
 
-        public Command<ImageContent> ViewImageCommand
-        {
-            get => _viewImageCommand;
-            set
-            {
-                if (Equals(value, _viewImageCommand)) return;
-                _viewImageCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -182,7 +157,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 
             var dbItems =
                 (await context.ImageContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(x => ImageListItemActions.ListItemFromDbItem(x, ItemActions)).ToList();
 
             if (!dbItems.Any()) return;
 
@@ -217,34 +192,12 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                     existingItem.DbEntry = loopItems.DbEntry;
 
-                existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
+                existingItem.SmallImageUrl = ImageListItemActions.GetSmallImageUrl(existingItem.DbEntry);
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
-        private async Task EditContent(ImageContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new ImageContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
 
         private async Task FilterList()
         {
@@ -270,28 +223,15 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             };
         }
 
-        public static string GetSmallImageUrl(ImageContent content)
+        public ImageListItemActions ItemActions
         {
-            if (content == null) return null;
-
-            string smallImageUrl;
-
-            try
+            get => _itemActions;
+            set
             {
-                smallImageUrl = PictureAssetProcessing.ProcessImageDirectory(content).SmallPicture?.File.FullName;
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
+                OnPropertyChanged();
             }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
-
-
-        public static ImageListListItem ListItemFromDbItem(ImageContent content)
-        {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }
 
         public async Task LoadData()
@@ -316,7 +256,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing Image Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(ImageListItemActions.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }
@@ -359,34 +299,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
 
-        private async Task ViewImage(ImageContent listItem)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (listItem == null)
-            {
-                StatusContext.ToastError("Nothing Items to Open?");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(listItem.OriginalFileName))
-            {
-                StatusContext.ToastError("No File?");
-                return;
-            }
-
-            var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentFile(listItem);
-
-            if (toOpen is not {Exists: true})
-            {
-                StatusContext.ToastError("File doesn't exist?");
-                return;
-            }
-
-            var url = toOpen.FullName;
-
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
-        }
     }
 }

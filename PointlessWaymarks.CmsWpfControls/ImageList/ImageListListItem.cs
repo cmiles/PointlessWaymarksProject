@@ -9,6 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
     {
         private ImageContent _dbEntry;
         private string _smallImageUrl;
+        private ImageListItemActions _itemActions;
 
         public ImageContent DbEntry
         {
@@ -28,6 +29,17 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             {
                 if (value == _smallImageUrl) return;
                 _smallImageUrl = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ImageListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
