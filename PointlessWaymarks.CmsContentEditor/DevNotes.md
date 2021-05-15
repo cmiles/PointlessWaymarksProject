@@ -26,6 +26,12 @@ Site:
  
 ## Notes
 
+5/15/2021
+
+Branching to explore the idea of a list control that can contain any content type:
+  - Pulled the list DataTemplates into the resources file for reuse
+  - Started an experiment in pulling the Item Actions out into an object so that they can be accessed thru the item itself - this solves the immediate problem of broken bindings on the template where the template was originally assuming access to the parent list context and I think sets up for some nice use in the consolidated list where actions of the correct type for each item are accessible thru the item.
+
 5/11/2021
 
 Written File control updated:

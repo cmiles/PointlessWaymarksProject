@@ -33,56 +33,27 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ReportQuery
         }
 
-        private Command<PhotoContent> _apertureSearchCommand;
-        private Command<PhotoContent> _cameraMakeSearchCommand;
-        private Command<PhotoContent> _cameraModelSearchCommand;
-
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
-        private Command<PhotoContent> _editContentCommand;
-        private Command<PhotoContent> _focalLengthSearchCommand;
-        private Command<PhotoContent> _isoSearchCommand;
 
         private ObservableCollection<PhotoListListItem> _items;
         private string _lastSortColumn = "CreatedOn";
-        private Command<PhotoContent> _lensSearchCommand;
         private ContentListSelected<PhotoListListItem> _listSelection;
         private PhotoListLoadMode _loadMode = PhotoListLoadMode.Recent;
-        private Command<PhotoContent> _photoTakenOnSearchCommand;
         private Func<Task<List<PhotoContent>>> _reportGenerator;
-        private Command<PhotoContent> _shutterSpeedSearchCommand;
         private bool _sortDescending = true;
         private Command<string> _sortListCommand;
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private Command _toggleLoadRecentLoadAllCommand;
         private string _userFilterText;
-        private Command<PhotoContent> _viewFileCommand;
+        private PhotoListItemActions _itemActions;
 
         public PhotoListContext(StatusControlContext statusContext, PhotoListLoadMode photoListLoadMode)
         {
             StatusContext = statusContext ?? new StatusControlContext();
-
+            ItemActions = new PhotoListItemActions(StatusContext);
+            
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
-
-            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewImage);
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(EditContent);
-            ApertureSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await ApertureSearch(x), $"Aperture - {x.Aperture}"));
-            LensSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await LensSearch(x), $"Lens - {x.Lens}"));
-            CameraMakeSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await CameraMakeSearch(x), $"Camera Make - {x.CameraMake}"));
-            CameraModelSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await CameraModelSearch(x), $"Camera Model - {x.CameraModel}"));
-            FocalLengthSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await FocalLengthSearch(x), $"Focal Length - {x.FocalLength}"));
-            IsoSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await IsoSearch(x), $"ISO - {x.Iso}"));
-            ShutterSpeedSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await ShutterSpeedSearch(x), $"Shutter Speed - {x.ShutterSpeed}"));
-            PhotoTakenOnSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await PhotoTakenOnSearch(x),
-                    $"Photo Created On - {x.PhotoCreatedOn.Date:D}"));
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -108,38 +79,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             LoadMode = photoListLoadMode;
         }
 
-        public Command<PhotoContent> ApertureSearchCommand
-        {
-            get => _apertureSearchCommand;
-            set
-            {
-                if (Equals(value, _apertureSearchCommand)) return;
-                _apertureSearchCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<PhotoContent> CameraMakeSearchCommand
-        {
-            get => _cameraMakeSearchCommand;
-            set
-            {
-                if (Equals(value, _cameraMakeSearchCommand)) return;
-                _cameraMakeSearchCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<PhotoContent> CameraModelSearchCommand
-        {
-            get => _cameraModelSearchCommand;
-            set
-            {
-                if (Equals(value, _cameraModelSearchCommand)) return;
-                _cameraModelSearchCommand = value;
-                OnPropertyChanged();
-            }
-        }
 
         public DataNotificationsWorkQueue DataNotificationsProcessor
         {
@@ -152,38 +91,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command<PhotoContent> EditContentCommand
-        {
-            get => _editContentCommand;
-            set
-            {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<PhotoContent> FocalLengthSearchCommand
-        {
-            get => _focalLengthSearchCommand;
-            set
-            {
-                if (Equals(value, _focalLengthSearchCommand)) return;
-                _focalLengthSearchCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<PhotoContent> IsoSearchCommand
-        {
-            get => _isoSearchCommand;
-            set
-            {
-                if (Equals(value, _isoSearchCommand)) return;
-                _isoSearchCommand = value;
-                OnPropertyChanged();
-            }
-        }
 
         public ObservableCollection<PhotoListListItem> Items
         {
@@ -196,16 +103,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command<PhotoContent> LensSearchCommand
-        {
-            get => _lensSearchCommand;
-            set
-            {
-                if (Equals(value, _lensSearchCommand)) return;
-                _lensSearchCommand = value;
-                OnPropertyChanged();
-            }
-        }
 
         public ContentListSelected<PhotoListListItem> ListSelection
         {
@@ -229,16 +126,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command<PhotoContent> PhotoTakenOnSearchCommand
-        {
-            get => _photoTakenOnSearchCommand;
-            set
-            {
-                if (Equals(value, _photoTakenOnSearchCommand)) return;
-                _photoTakenOnSearchCommand = value;
-                OnPropertyChanged();
-            }
-        }
 
         public Func<Task<List<PhotoContent>>> ReportGenerator
         {
@@ -250,19 +137,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 OnPropertyChanged();
             }
         }
-
-
-        public Command<PhotoContent> ShutterSpeedSearchCommand
-        {
-            get => _shutterSpeedSearchCommand;
-            set
-            {
-                if (Equals(value, _shutterSpeedSearchCommand)) return;
-                _shutterSpeedSearchCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
+        
         public bool SortDescending
         {
             get => _sortDescending;
@@ -331,45 +206,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command<PhotoContent> ViewFileCommand
-        {
-            get => _viewFileCommand;
-            set
-            {
-                if (Equals(value, _viewFileCommand)) return;
-                _viewFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private static async Task<List<PhotoContent>> ApertureSearch(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            return await db.PhotoContents.Where(x => x.Aperture == content.Aperture).ToListAsync();
-        }
-
-        private static async Task<List<PhotoContent>> CameraMakeSearch(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            return await db.PhotoContents.Where(x => x.CameraMake == content.CameraMake).ToListAsync();
-        }
-
-        private static async Task<List<PhotoContent>> CameraModelSearch(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            return await db.PhotoContents.Where(x => x.CameraModel == content.CameraModel).ToListAsync();
-        }
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
         {
@@ -401,7 +239,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             var dbItems =
                 (await context.PhotoContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(content => PhotoListItemActions.ListItemFromDbItem(content, ItemActions)).ToList();
 
             if (!dbItems.Any()) return;
 
@@ -438,35 +276,11 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                     existingItem.DbEntry = loopItems.DbEntry;
 
-                existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
+                existingItem.SmallImageUrl = PhotoListItemActions.GetSmallImageUrl(existingItem.DbEntry);
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
-
-        private async Task EditContent(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.PhotoContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PhotoContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
-
 
         private async Task FilterList()
         {
@@ -497,54 +311,15 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             };
         }
 
-        private static async Task<List<PhotoContent>> FocalLengthSearch(PhotoContent content)
+        public PhotoListItemActions ItemActions
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            return await db.PhotoContents.Where(x => x.FocalLength == content.FocalLength).ToListAsync();
-        }
-
-        public static string GetSmallImageUrl(PhotoContent content)
-        {
-            if (content == null) return null;
-
-            string smallImageUrl;
-
-            try
+            get => _itemActions;
+            set
             {
-                smallImageUrl = PictureAssetProcessing.ProcessPhotoDirectory(content).SmallPicture?.File.FullName;
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
+                OnPropertyChanged();
             }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
-
-        private static async Task<List<PhotoContent>> IsoSearch(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            return await db.PhotoContents.Where(x => x.Iso == content.Iso).ToListAsync();
-        }
-
-        private static async Task<List<PhotoContent>> LensSearch(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            return await db.PhotoContents.Where(x => x.Lens == content.Lens).ToListAsync();
-        }
-
-        public static PhotoListListItem ListItemFromDbItem(PhotoContent content)
-        {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
         }
 
         public async Task LoadData()
@@ -582,7 +357,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 if (currentLoop == 1 || currentLoop % 25 == 0)
                     StatusContext.Progress($"Processing Photo Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(PhotoListItemActions.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }
@@ -610,20 +385,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private static async Task<List<PhotoContent>> PhotoTakenOnSearch(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            //Todo: I think this should be possible via something like DbFunctions or EF functions?
-            //I didn't understand what approach to take from a few google searches...
-            var dateTimeAfter = content.PhotoCreatedOn.Date.AddDays(-1);
-            var dateTimeBefore = content.PhotoCreatedOn.Date.AddDays(1);
-
-            return await db.PhotoContents
-                .Where(x => x.PhotoCreatedOn > dateTimeAfter && x.PhotoCreatedOn < dateTimeBefore).ToListAsync();
-        }
 
 
         private static async Task RunReport(Func<Task<List<PhotoContent>>> toRun, string title)
@@ -639,15 +400,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             newWindow.PositionWindowAndShow();
         }
 
-        private static async Task<List<PhotoContent>> ShutterSpeedSearch(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var db = await Db.Context();
-
-            return await db.PhotoContents.Where(x => x.ShutterSpeed == content.ShutterSpeed).ToListAsync();
-        }
-
         private async Task SortList(string sortColumn)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
@@ -661,38 +413,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
-
-
-        private async Task ViewImage(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            try
-            {
-                var context = await Db.Context();
-
-                var refreshedData = context.PhotoContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-                var possibleFile = UserSettingsSingleton.CurrentSettings()
-                    .LocalMediaArchivePhotoContentFile(refreshedData);
-
-                if (possibleFile is not {Exists: true})
-                {
-                    StatusContext.ToastWarning("No Media File Found?");
-                    return;
-                }
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                var ps = new ProcessStartInfo(possibleFile.FullName) {UseShellExecute = true, Verb = "open"};
-                Process.Start(ps);
-            }
-            catch (Exception e)
-            {
-                StatusContext.ToastWarning($"Trouble Showing Image - {e.Message}");
-            }
-        }
+        
     }
 }

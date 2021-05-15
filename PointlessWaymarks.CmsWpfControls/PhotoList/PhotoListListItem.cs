@@ -11,6 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private PhotoContent _dbEntry;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
+        private PhotoListItemActions _itemActions;
 
         public PhotoContent DbEntry
         {
@@ -19,6 +20,17 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PhotoListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }

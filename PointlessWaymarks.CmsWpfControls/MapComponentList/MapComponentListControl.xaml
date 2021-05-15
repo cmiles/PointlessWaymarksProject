@@ -100,40 +100,12 @@
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
+                ItemTemplate="{StaticResource MapListItemTemplate}"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <b:Interaction.Behaviors>
                     <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="mapComponentList:MapComponentListListItem">
-                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-                            <Border.InputBindings>
-                                <MouseBinding
-                                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
-                                    CommandParameter="{Binding DbEntry}"
-                                    Gesture="Shift+LeftDoubleClick" />
-                            </Border.InputBindings>
-                            <Grid Margin="4">
-                                <Grid Style="{StaticResource ContentListTextGridStyle}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <StackPanel Orientation="Vertical">
-                                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
-                                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
-                                    </StackPanel>
-                                    <ContentPresenter
-                                        Grid.Row="1"
-                                        Margin="2"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
     </Grid>

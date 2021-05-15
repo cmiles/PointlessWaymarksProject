@@ -18,6 +18,7 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Diagnostics;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
@@ -163,12 +164,21 @@ namespace PointlessWaymarks.CmsContentEditor
             //Rebuild
             ImportJsonFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(ImportJsonFromDirectory);
 
+            TestWindowCommand = StatusContext.RunBlockingTaskCommand(async () =>
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                var x = new ContentListWindow();
+                x.Show();
+            });
+
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
 
             SettingsFileChooser.SettingsFileUpdated += SettingsFileChooserOnSettingsFileUpdatedEvent;
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanupTemporaryFiles);
         }
+
+        public Command TestWindowCommand { get; set; }
 
         public Command AllEventsExcelReportCommand { get; set; }
 
