@@ -96,6 +96,7 @@
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Name="FileListBox"
+                ItemTemplate="{StaticResource FileListItemTemplate}"
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
@@ -104,51 +105,6 @@
                     <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                     <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="fileList:FileListListItem">
-                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-                            <Border.InputBindings>
-                                <MouseBinding
-                                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
-                                    CommandParameter="{Binding DbEntry}"
-                                    Gesture="Shift+LeftDoubleClick" />
-                            </Border.InputBindings>
-                            <Grid Style="{StaticResource ContentListOuterGridStyle}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-                                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                                    <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
-                                        view
-                                    </Button>
-                                </Grid>
-                                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
-                                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
-                                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
-                                        <ContentPresenter Content="{StaticResource ContentListOriginalFileNameDisplay}" />
-                                        <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
-                                    </StackPanel>
-                                    <ContentPresenter
-                                        Grid.Row="1"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
     </Grid>

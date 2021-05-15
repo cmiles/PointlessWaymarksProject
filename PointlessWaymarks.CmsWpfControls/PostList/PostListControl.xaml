@@ -7,9 +7,7 @@
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:postList="clr-namespace:PointlessWaymarks.CmsWpfControls.PostList"
-    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     Name="UserControlXaml"
     d:DataContext="{d:DesignInstance postList:PostListContext}"
     d:DesignHeight="300"
@@ -21,8 +19,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
-            <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -55,6 +51,7 @@
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Name="ItemsListBox"
+                ItemTemplate="{StaticResource PostListItemTemplate}"
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
@@ -62,42 +59,6 @@
                 <i:Interaction.Behaviors>
                     <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                 </i:Interaction.Behaviors>
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="postList:PostListListItem">
-                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-                            <Border.InputBindings>
-                                <MouseBinding
-                                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
-                                    CommandParameter="{Binding DbEntry}"
-                                    Gesture="Shift+LeftDoubleClick" />
-                            </Border.InputBindings>
-                            <Grid Margin="4">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="110" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <ContentPresenter Content="{StaticResource ContentListSmallMainImageDisplay}" />
-                                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
-                                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
-                                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
-                                        <ContentPresenter Content="{StaticResource ContentListFolderAndSlugDisplay}" />
-                                    </StackPanel>
-                                    <ContentPresenter
-                                        Grid.Row="1"
-                                        Margin="2"
-                                        VerticalAlignment="Bottom"
-                                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
     </Grid>

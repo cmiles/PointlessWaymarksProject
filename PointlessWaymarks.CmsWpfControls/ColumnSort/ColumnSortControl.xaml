@@ -25,7 +25,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <ItemsControl  ItemsSource="{Binding Items}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding Items}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel HorizontalAlignment="Left" IsItemsHost="True" />
