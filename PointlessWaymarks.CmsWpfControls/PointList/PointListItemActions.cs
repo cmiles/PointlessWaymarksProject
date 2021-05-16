@@ -6,26 +6,28 @@ using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.PostContentEditor;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.PostList
+namespace PointlessWaymarks.CmsWpfControls.PointList
 {
-    public class PostListItemActions : INotifyPropertyChanged
+    public class PointListItemActions : INotifyPropertyChanged
     {
-        private Command<PostContent> _editContentCommand;
+        private Command<PointContent> _editContentCommand;
+
         private StatusControlContext _statusContext;
 
-        public PostListItemActions(StatusControlContext statusContext)
+        public PointListItemActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(EditContent);
+            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(EditContent);
         }
 
-        public Command<PostContent> EditContentCommand
+
+        public Command<PointContent> EditContentCommand
         {
             get => _editContentCommand;
             set
@@ -47,10 +49,10 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private async Task EditContent(PostContent content)
+
+        private async Task EditContent(PointContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -58,7 +60,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             var context = await Db.Context();
 
-            var refreshedData = context.PostContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null)
                 StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
@@ -66,14 +68,14 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PostContentEditorWindow(refreshedData);
+            var newContentWindow = new PointContentEditorWindow(refreshedData);
 
             newContentWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public static string GetSmallImageUrl(PostContent content)
+        public static string GetSmallImageUrl(PointContent content)
         {
             if (content?.MainPicture == null) return null;
 
@@ -92,7 +94,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             return smallImageUrl;
         }
 
-        public static PostListListItem ListItemFromDbItem(PostContent content, PostListItemActions itemActions)
+        public static PointListListItem ListItemFromDbItem(PointContent content, PointListItemActions itemActions)
         {
             return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content), ItemActions = itemActions};
         }

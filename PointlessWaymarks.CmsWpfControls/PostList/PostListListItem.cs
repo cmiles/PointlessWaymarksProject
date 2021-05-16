@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -6,23 +7,12 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList
 {
-    public class PostListListItem : INotifyPropertyChanged, ISelectedTextTracker
+    public class PostListListItem : IContentListItem
     {
         private PostContent _dbEntry;
+        private PostListItemActions _itemActions;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
-        private PostListItemActions _itemActions;
-
-        public PostListItemActions ItemActions
-        {
-            get => _itemActions;
-            set
-            {
-                if (Equals(value, _itemActions)) return;
-                _itemActions = value;
-                OnPropertyChanged();
-            }
-        }
 
         public PostContent DbEntry
         {
@@ -31,6 +21,17 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PostListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -44,6 +45,16 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 _smallImageUrl = value;
                 OnPropertyChanged();
             }
+        }
+
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
+        }
+
+        public IContentCommon Content()
+        {
+            return DbEntry;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -3,29 +3,29 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.PostContentEditor;
+using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.PostList
+namespace PointlessWaymarks.CmsWpfControls.NoteList
 {
-    public class PostListItemActions : INotifyPropertyChanged
+    public class NoteListItemAction : INotifyPropertyChanged
     {
-        private Command<PostContent> _editContentCommand;
+        private Command<NoteContent> _editContentCommand;
+
         private StatusControlContext _statusContext;
 
-        public PostListItemActions(StatusControlContext statusContext)
+        public NoteListItemAction(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(EditContent);
+            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(EditContent);
         }
 
-        public Command<PostContent> EditContentCommand
+        public Command<NoteContent> EditContentCommand
         {
             get => _editContentCommand;
             set
@@ -47,10 +47,9 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private async Task EditContent(PostContent content)
+        private async Task EditContent(NoteContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -58,7 +57,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             var context = await Db.Context();
 
-            var refreshedData = context.PostContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.NoteContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null)
                 StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
@@ -66,35 +65,18 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PostContentEditorWindow(refreshedData);
+            var newContentWindow = new NoteContentEditorWindow(refreshedData);
 
             newContentWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public static string GetSmallImageUrl(PostContent content)
+        public static NoteListListItem ListItemFromDbItem(NoteContent content, NoteListItemAction itemActions)
         {
-            if (content?.MainPicture == null) return null;
+            var newItem = new NoteListListItem {DbEntry = content, ItemActions = itemActions};
 
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
-                    ?.File.FullName;
-            }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
-
-        public static PostListListItem ListItemFromDbItem(PostContent content, PostListItemActions itemActions)
-        {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content), ItemActions = itemActions};
+            return newItem;
         }
 
         [NotifyPropertyChangedInvocator]

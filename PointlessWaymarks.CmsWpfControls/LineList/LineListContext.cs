@@ -11,15 +11,11 @@ using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -27,7 +23,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
 {
     public class LineListContext : INotifyPropertyChanged, IDragSource
     {
-        private Command<LineContent> _editContentCommand;
+        private LineListItemActions _itemActions;
         private ObservableCollection<LineListListItem> _items;
         private string _lastSortColumn;
         private ContentListSelected<LineListListItem> _listSelection;
@@ -42,9 +38,9 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+            ItemActions = new LineListItemActions(StatusContext);
 
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<LineContent>(EditContent);
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -60,13 +56,13 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
-        public Command<LineContent> EditContentCommand
+        public LineListItemActions ItemActions
         {
-            get => _editContentCommand;
+            get => _itemActions;
             set
             {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -226,28 +222,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
                     await PossibleMainImageUpdateDataNotificationReceived(translatedMessage));
         }
 
-        private async Task EditContent(LineContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.LineContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new LineContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
 
         private async Task FilterList()
         {
@@ -273,24 +247,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
             };
         }
 
-        public static string GetSmallImageUrl(LineContent content)
-        {
-            if (content?.MainPicture == null) return null;
-
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
-                    ?.File.FullName;
-            }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
 
         private async Task LineDataNotificationReceived(InterProcessDataNotification translatedMessage)
         {
@@ -311,7 +267,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
 
             var dbItems =
                 (await context.LineContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(x => LineListItemActions.ListItemFromDbItem(x, ItemActions)).ToList();
 
             if (!dbItems.Any()) return;
 
@@ -346,16 +302,12 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
                 if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                     existingItem.DbEntry = loopItems.DbEntry;
 
-                existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
+                existingItem.SmallImageUrl = LineListItemActions.GetSmallImageUrl(existingItem.DbEntry);
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
-        public static LineListListItem ListItemFromDbItem(LineContent content)
-        {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
-        }
 
         public async Task LoadData()
         {
@@ -381,7 +333,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing Line Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(LineListItemActions.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }
@@ -422,7 +374,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
             toUpdate.ForEach(x =>
             {
                 x.SmallImageUrl = null;
-                x.SmallImageUrl = GetSmallImageUrl(x.DbEntry);
+                x.SmallImageUrl = LineListItemActions.GetSmallImageUrl(x.DbEntry);
             });
         }
 

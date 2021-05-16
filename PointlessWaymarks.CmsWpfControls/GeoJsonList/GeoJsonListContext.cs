@@ -11,15 +11,11 @@ using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -27,7 +23,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 {
     public class GeoJsonListContext : INotifyPropertyChanged, IDragSource
     {
-        private Command<GeoJsonContent> _editContentCommand;
+        private GeoJsonListItemActions _itemActions;
         private ObservableCollection<GeoJsonListListItem> _items;
         private string _lastSortColumn;
         private ContentListSelected<GeoJsonListListItem> _listSelection;
@@ -42,9 +38,9 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+            ItemActions = new GeoJsonListItemActions(StatusContext);
 
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(EditContent);
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -60,13 +56,13 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
-        public Command<GeoJsonContent> EditContentCommand
+        public GeoJsonListItemActions ItemActions
         {
-            get => _editContentCommand;
+            get => _itemActions;
             set
             {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -226,28 +222,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
                     await PossibleMainImageUpdateDataNotificationReceived(translatedMessage));
         }
 
-        private async Task EditContent(GeoJsonContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.GeoJsonContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new GeoJsonContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
 
         private async Task FilterList()
         {
@@ -292,7 +266,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 
             var dbItems =
                 (await context.GeoJsonContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(x => GeoJsonListItemActions.ListItemFromDbItem(x, ItemActions)).ToList();
 
             if (!dbItems.Any()) return;
 
@@ -327,35 +301,12 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
                 if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                     existingItem.DbEntry = loopItems.DbEntry;
 
-                existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
+                existingItem.SmallImageUrl = GeoJsonListItemActions.GetSmallImageUrl(existingItem.DbEntry);
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
-        public static string GetSmallImageUrl(GeoJsonContent content)
-        {
-            if (content?.MainPicture == null) return null;
-
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
-                    ?.File.FullName;
-            }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
-
-        public static GeoJsonListListItem ListItemFromDbItem(GeoJsonContent content)
-        {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
-        }
 
         public async Task LoadData()
         {
@@ -381,7 +332,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing GeoJson Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(GeoJsonListItemActions.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }
@@ -422,7 +373,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             toUpdate.ForEach(x =>
             {
                 x.SmallImageUrl = null;
-                x.SmallImageUrl = GetSmallImageUrl(x.DbEntry);
+                x.SmallImageUrl = GeoJsonListItemActions.GetSmallImageUrl(x.DbEntry);
             });
         }
 

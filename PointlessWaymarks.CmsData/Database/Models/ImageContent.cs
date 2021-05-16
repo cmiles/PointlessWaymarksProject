@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PointlessWaymarks.CmsData.Database.Models
 {
@@ -15,6 +16,7 @@ namespace PointlessWaymarks.CmsData.Database.Models
         public DateTime CreatedOn { get; set; }
         public string? LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedOn { get; set; }
+        [NotMapped] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
         public Guid? MainPicture { get; set; }
         public bool ShowInSearch { get; set; }
         public bool ShowInMainSiteFeed { get; set; }

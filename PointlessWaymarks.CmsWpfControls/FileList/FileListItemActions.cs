@@ -18,8 +18,8 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 {
     public class FileListItemActions : INotifyPropertyChanged
     {
-        private StatusControlContext _statusContext;
         private Command<FileContent> _editContentCommand;
+        private StatusControlContext _statusContext;
         private Command<FileContent> _viewFileCommand;
 
         public FileListItemActions(StatusControlContext statusContext)
@@ -27,9 +27,66 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             StatusContext = statusContext;
             EditContentCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(EditContent);
             ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
-
         }
-        
+
+        public Command<FileContent> EditContentCommand
+        {
+            get => _editContentCommand;
+            set
+            {
+                if (Equals(value, _editContentCommand)) return;
+                _editContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<FileContent> ViewFileCommand
+        {
+            get => _viewFileCommand;
+            set
+            {
+                if (Equals(value, _viewFileCommand)) return;
+                _viewFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private async Task EditContent(FileContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null) return;
+
+            var context = await Db.Context();
+
+            var refreshedData = context.FileContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null)
+                StatusContext.ToastError(
+                    $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new FileContentEditorWindow(refreshedData);
+
+            newContentWindow.PositionWindowAndShow();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+        }
+
         public static string GetSmallImageUrl(FileContent content)
         {
             if (content?.MainPicture == null) return null;
@@ -53,8 +110,14 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content), ItemActions = itemActions};
         }
-        
-        
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
         private async Task ViewFile(FileContent listItem)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -83,70 +146,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
-        }
-        
-        private async Task EditContent(FileContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.FileContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError(
-                    $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new FileContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
-
-        public Command<FileContent> ViewFileCommand
-        {
-            get => _viewFileCommand;
-            set
-            {
-                if (Equals(value, _viewFileCommand)) return;
-                _viewFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<FileContent> EditContentCommand
-        {
-            get => _editContentCommand;
-            set
-            {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -178,8 +178,6 @@ namespace PointlessWaymarks.CmsContentEditor
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(CleanupTemporaryFiles);
         }
 
-        public Command TestWindowCommand { get; set; }
-
         public Command AllEventsExcelReportCommand { get; set; }
 
         public Command AllEventsHtmlReportCommand { get; set; }
@@ -474,6 +472,8 @@ namespace PointlessWaymarks.CmsContentEditor
                 OnPropertyChanged();
             }
         }
+
+        public Command TestWindowCommand { get; set; }
 
         public Command WriteStyleCssFileCommand { get; set; }
 

@@ -11,15 +11,11 @@ using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -27,7 +23,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 {
     public class PointListContext : INotifyPropertyChanged, IDragSource
     {
-        private Command<PointContent> _editContentCommand;
+        private PointListItemActions _itemActions;
         private ObservableCollection<PointListListItem> _items;
         private string _lastSortColumn;
         private ContentListSelected<PointListListItem> _listSelection;
@@ -42,9 +38,9 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+            ItemActions = new PointListItemActions(StatusContext);
 
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(EditContent);
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -61,17 +57,16 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
-        public Command<PointContent> EditContentCommand
+        public PointListItemActions ItemActions
         {
-            get => _editContentCommand;
+            get => _itemActions;
             set
             {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
-
 
         public ObservableCollection<PointListListItem> Items
         {
@@ -228,28 +223,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
                     await PossibleMainImageUpdateDataNotificationReceived(translatedMessage));
         }
 
-        private async Task EditContent(PointContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PointContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
 
         private async Task FilterList()
         {
@@ -275,29 +248,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             };
         }
 
-        public static string GetSmallImageUrl(PointContent content)
-        {
-            if (content?.MainPicture == null) return null;
-
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
-                    ?.File.FullName;
-            }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
-
-        public static PointListListItem ListItemFromDbItem(PointContent content)
-        {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content)};
-        }
 
         public async Task LoadData()
         {
@@ -323,7 +273,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing Point Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(PointListItemActions.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }
@@ -371,7 +321,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             var dbItems =
                 (await context.PointContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(x => PointListItemActions.ListItemFromDbItem(x, ItemActions)).ToList();
 
             if (!dbItems.Any()) return;
 
@@ -406,7 +356,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
                 if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                     existingItem.DbEntry = loopItems.DbEntry;
 
-                existingItem.SmallImageUrl = GetSmallImageUrl(existingItem.DbEntry);
+                existingItem.SmallImageUrl = PointListItemActions.GetSmallImageUrl(existingItem.DbEntry);
             }
 
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
@@ -424,7 +374,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             toUpdate.ForEach(x =>
             {
                 x.SmallImageUrl = null;
-                x.SmallImageUrl = GetSmallImageUrl(x.DbEntry);
+                x.SmallImageUrl = PointListItemActions.GetSmallImageUrl(x.DbEntry);
             });
         }
 

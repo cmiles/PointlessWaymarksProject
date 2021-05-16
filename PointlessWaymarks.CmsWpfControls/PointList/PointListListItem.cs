@@ -7,9 +7,10 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList
 {
-    public class PointListListItem : INotifyPropertyChanged, IContentCommonGuiListItem, ISelectedTextTracker
+    public class PointListListItem : IContentListItem
     {
         private PointContent _dbEntry;
+        private PointListItemActions _itemActions;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
 
@@ -20,6 +21,17 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PointListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -38,6 +50,11 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         public Guid? ContentId()
         {
             return DbEntry?.ContentId;
+        }
+
+        public IContentCommon Content()
+        {
+            return DbEntry;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

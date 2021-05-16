@@ -1,15 +1,18 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList
 {
-    public class ImageListListItem : INotifyPropertyChanged
+    public class ImageListListItem : IContentListItem
     {
         private ImageContent _dbEntry;
-        private string _smallImageUrl;
         private ImageListItemActions _itemActions;
+        private CurrentSelectedTextTracker _selectedTextTracker;
+        private string _smallImageUrl;
 
         public ImageContent DbEntry
         {
@@ -18,17 +21,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string SmallImageUrl
-        {
-            get => _smallImageUrl;
-            set
-            {
-                if (value == _smallImageUrl) return;
-                _smallImageUrl = value;
                 OnPropertyChanged();
             }
         }
@@ -44,7 +36,39 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             }
         }
 
+        public string SmallImageUrl
+        {
+            get => _smallImageUrl;
+            set
+            {
+                if (value == _smallImageUrl) return;
+                _smallImageUrl = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
+        }
+
+        public IContentCommon Content()
+        {
+            return DbEntry;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public CurrentSelectedTextTracker SelectedTextTracker
+        {
+            get => _selectedTextTracker;
+            set
+            {
+                if (Equals(value, _selectedTextTracker)) return;
+                _selectedTextTracker = value;
+                OnPropertyChanged();
+            }
+        }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

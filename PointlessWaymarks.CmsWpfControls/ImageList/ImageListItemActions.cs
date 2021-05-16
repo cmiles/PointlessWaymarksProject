@@ -18,17 +18,105 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 {
     public class ImageListItemActions : INotifyPropertyChanged
     {
-        private StatusControlContext _statusContext;
         private Command<ImageContent> _editContentCommand;
+        private StatusControlContext _statusContext;
         private Command<ImageContent> _viewFileCommand;
 
         public ImageListItemActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
-            
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(EditContent);
-                        ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewImage);
 
+            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(EditContent);
+            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewImage);
+        }
+
+        public Command<ImageContent> EditContentCommand
+        {
+            get => _editContentCommand;
+            set
+            {
+                if (Equals(value, _editContentCommand)) return;
+                _editContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<ImageContent> ViewFileCommand
+        {
+            get => _viewFileCommand;
+            set
+            {
+                if (Equals(value, _viewFileCommand)) return;
+                _viewFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private async Task EditContent(ImageContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null) return;
+
+            var context = await Db.Context();
+
+            var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null)
+                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
+                                         "look for a historic version...");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new ImageContentEditorWindow(refreshedData);
+
+            newContentWindow.PositionWindowAndShow();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+        }
+
+        public static string GetSmallImageUrl(ImageContent content)
+        {
+            if (content == null) return null;
+
+            string smallImageUrl;
+
+            try
+            {
+                smallImageUrl = PictureAssetProcessing.ProcessImageDirectory(content).SmallPicture?.File.FullName;
+            }
+            catch
+            {
+                smallImageUrl = null;
+            }
+
+            return smallImageUrl;
+        }
+
+
+        public static ImageListListItem ListItemFromDbItem(ImageContent content, ImageListItemActions itemActions)
+        {
+            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content), ItemActions = itemActions};
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private async Task ViewImage(ImageContent listItem)
@@ -59,96 +147,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
-        }
-        
-        public Command<ImageContent> ViewFileCommand
-        {
-            get => _viewFileCommand;
-            set
-            {
-                if (Equals(value, _viewFileCommand)) return;
-                _viewFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<ImageContent> EditContentCommand
-        {
-            get => _editContentCommand;
-            set
-            {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public static string GetSmallImageUrl(ImageContent content)
-        {
-            if (content == null) return null;
-
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl = PictureAssetProcessing.ProcessImageDirectory(content).SmallPicture?.File.FullName;
-            }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
-        
-        private async Task EditContent(ImageContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.ImageContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new ImageContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
-
-
-
-        public static ImageListListItem ListItemFromDbItem(ImageContent content, ImageListItemActions itemActions)
-        {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content), ItemActions = itemActions};
-        }
-
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

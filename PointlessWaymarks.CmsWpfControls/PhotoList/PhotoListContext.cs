@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -10,10 +9,8 @@ using System.Windows.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -34,6 +31,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
+        private PhotoListItemActions _itemActions;
 
         private ObservableCollection<PhotoListListItem> _items;
         private string _lastSortColumn = "CreatedOn";
@@ -46,13 +44,12 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private Command _toggleListSortDirectionCommand;
         private Command _toggleLoadRecentLoadAllCommand;
         private string _userFilterText;
-        private PhotoListItemActions _itemActions;
 
         public PhotoListContext(StatusControlContext statusContext, PhotoListLoadMode photoListLoadMode)
         {
             StatusContext = statusContext ?? new StatusControlContext();
             ItemActions = new PhotoListItemActions(StatusContext);
-            
+
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
@@ -87,6 +84,17 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             {
                 if (Equals(value, _dataNotificationsProcessor)) return;
                 _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PhotoListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -137,7 +145,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 OnPropertyChanged();
             }
         }
-        
+
         public bool SortDescending
         {
             get => _sortDescending;
@@ -239,7 +247,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             var dbItems =
                 (await context.PhotoContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(content => PhotoListItemActions.ListItemFromDbItem(content, ItemActions)).ToList();
+                    .ToListAsync()).Select(content => PhotoListItemActions.ListItemFromDbItem(content, ItemActions))
+                .ToList();
 
             if (!dbItems.Any()) return;
 
@@ -311,17 +320,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             };
         }
 
-        public PhotoListItemActions ItemActions
-        {
-            get => _itemActions;
-            set
-            {
-                if (Equals(value, _itemActions)) return;
-                _itemActions = value;
-                OnPropertyChanged();
-            }
-        }
-
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -386,7 +384,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
 
-
         private static async Task RunReport(Func<Task<List<PhotoContent>>> toRun, string title)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -413,6 +410,5 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
-        
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -6,12 +7,12 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList
 {
-    public class FileListListItem : INotifyPropertyChanged, ISelectedTextTracker
+    public class FileListListItem : IContentListItem
     {
         private FileContent _dbEntry;
+        private FileListItemActions _itemActions;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
-        private FileListItemActions _itemActions;
 
         public FileContent DbEntry
         {
@@ -20,6 +21,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             {
                 if (Equals(value, _dbEntry)) return;
                 _dbEntry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public FileListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -35,15 +47,14 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             }
         }
 
-        public FileListItemActions ItemActions
+        public Guid? ContentId()
         {
-            get => _itemActions;
-            set
-            {
-                if (Equals(value, _itemActions)) return;
-                _itemActions = value;
-                OnPropertyChanged();
-            }
+            return DbEntry?.ContentId;
+        }
+
+        public IContentCommon Content()
+        {
+            return DbEntry;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

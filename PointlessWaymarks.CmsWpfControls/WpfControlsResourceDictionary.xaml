@@ -9,14 +9,14 @@
     xmlns:geoJsonList="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoJsonList"
     xmlns:imageList="clr-namespace:PointlessWaymarks.CmsWpfControls.ImageList"
     xmlns:lineList="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList"
+    xmlns:mapComponentList="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentList"
     xmlns:noteList="clr-namespace:PointlessWaymarks.CmsWpfControls.NoteList"
     xmlns:photoList="clr-namespace:PointlessWaymarks.CmsWpfControls.PhotoList"
     xmlns:pointList="clr-namespace:PointlessWaymarks.CmsWpfControls.PointList"
     xmlns:postList="clr-namespace:PointlessWaymarks.CmsWpfControls.PostList"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:mapComponentList="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentList">
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon">
     <wpfConverter:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
     <wpfConverter:NullOrWhiteSpaceStringToDefaultConverter x:Key="StringDefault" />
     <wpfConverter:IsoConverter x:Key="IsoWithDefault" />
@@ -312,7 +312,7 @@
         ToolTip="Shift Double Click to Edit Post">
         <Image.InputBindings>
             <MouseBinding
-                Command="{Binding DataContext.EditContentCommand, ElementName=UserControlXaml}"
+                Command="{Binding ItemActions.EditContentCommand}"
                 CommandParameter="{Binding DbEntry}"
                 Gesture="Shift+LeftDoubleClick" />
         </Image.InputBindings>
@@ -325,7 +325,7 @@
         ToolTip="Double Click to View, Shift Double Click to Edit">
         <Image.InputBindings>
             <MouseBinding
-                Command="{Binding ItemActions.ViewImageCommand}"
+                Command="{Binding ItemActions.ViewFileCommand}"
                 CommandParameter="{Binding DbEntry}"
                 MouseAction="LeftDoubleClick" />
             <MouseBinding
@@ -338,7 +338,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
+                    Command="{Binding ItemActions.EditContentCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>
@@ -372,7 +372,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
+                    Command="{Binding ItemActions.EditContentCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>
@@ -406,7 +406,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
+                    Command="{Binding ItemActions.EditContentCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>
@@ -526,7 +526,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
+                    Command="{Binding ItemActions.EditContentCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>
@@ -705,7 +705,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
+                    Command="{Binding ItemActions.EditContentCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>

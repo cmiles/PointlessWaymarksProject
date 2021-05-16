@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows;
 using System.Windows.Data;
-using DocumentFormat.OpenXml.Spreadsheet;
-using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 
 namespace PointlessWaymarks.CmsWpfControls.ColumnSort
 {

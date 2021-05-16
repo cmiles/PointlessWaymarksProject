@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -6,12 +7,12 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList
 {
-    public class PhotoListListItem : INotifyPropertyChanged, ISelectedTextTracker
+    public class PhotoListListItem : IContentListItem
     {
         private PhotoContent _dbEntry;
+        private PhotoListItemActions _itemActions;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
         private string _smallImageUrl;
-        private PhotoListItemActions _itemActions;
 
         public PhotoContent DbEntry
         {
@@ -44,6 +45,16 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 _smallImageUrl = value;
                 OnPropertyChanged();
             }
+        }
+
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
+        }
+
+        public IContentCommon Content()
+        {
+            return DbEntry;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Forms.VisualStyles;
 using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Commands;
 
@@ -50,12 +49,12 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
         private void AddItem(ColumnSortControlSortItem x)
         {
             var currentSortCount = Items.Count(x => x.Order > 0);
-            if (Items.Count(x => x.Order > 0) == 0 || (currentSortCount == 1 && x.Order > 0))
+            if (Items.Count(x => x.Order > 0) == 0 || currentSortCount == 1 && x.Order > 0)
             {
                 ToggleItem(x);
                 return;
             }
-            
+
             if (x.Order > 0 && x.SortDirection != x.DefaultSortDirection)
             {
                 x.SortDirection = x.DefaultSortDirection;
@@ -72,6 +71,12 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
 
             x.SortDirection = x.DefaultSortDirection;
             x.Order = Items.Max(y => y.Order) + 1;
+        }
+
+        public ListSortDirection ChangeSortDirection(ListSortDirection currentDirection)
+        {
+            if (currentDirection == ListSortDirection.Ascending) return ListSortDirection.Descending;
+            return ListSortDirection.Ascending;
         }
 
         [NotifyPropertyChangedInvocator]
@@ -115,12 +120,6 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
                     y.Order = 0;
                     y.SortDirection = x.DefaultSortDirection;
                 });
-        }
-
-        public ListSortDirection ChangeSortDirection(ListSortDirection currentDirection)
-        {
-            if (currentDirection == ListSortDirection.Ascending) return ListSortDirection.Descending;
-            return ListSortDirection.Ascending;
         }
     }
 }

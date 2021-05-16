@@ -6,11 +6,22 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
 {
     public class ColumnSortControlSortItem : INotifyPropertyChanged
     {
-        private string _columnName;
-        private string _displayName;
-        private int _order;
+        private readonly string _columnName;
+        private readonly string _displayName;
         private ListSortDirection _defaultSortDirection = ListSortDirection.Ascending;
+        private int _order;
         private ListSortDirection _sortDirection = ListSortDirection.Ascending;
+
+        public string ColumnName
+        {
+            get => _columnName;
+            init
+            {
+                if (value == _columnName) return;
+                _columnName = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ListSortDirection DefaultSortDirection
         {
@@ -21,28 +32,6 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
                 _defaultSortDirection = value;
                 OnPropertyChanged();
                 SortDirection = DefaultSortDirection;
-            }
-        }
-
-        public ListSortDirection SortDirection
-        {
-            get => _sortDirection;
-            set
-            {
-                if (value == _sortDirection) return;
-                _sortDirection = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string ColumnName
-        {
-            get => _columnName;
-            init
-            {
-                if (value == _columnName) return;
-                _columnName = value;
-                OnPropertyChanged();
             }
         }
 
@@ -64,6 +53,17 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
             {
                 if (value == _order) return;
                 _order = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ListSortDirection SortDirection
+        {
+            get => _sortDirection;
+            set
+            {
+                if (value == _sortDirection) return;
+                _sortDirection = value;
                 OnPropertyChanged();
             }
         }

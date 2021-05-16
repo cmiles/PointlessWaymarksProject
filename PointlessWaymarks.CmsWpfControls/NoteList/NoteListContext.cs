@@ -9,13 +9,10 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -24,7 +21,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
     public class NoteListContext : INotifyPropertyChanged
     {
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
-        private Command<NoteContent> _editContentCommand;
+        private NoteListItemAction _itemActions;
         private ObservableCollection<NoteListListItem> _items;
         private string _lastSortColumn;
         private ContentListSelected<NoteListListItem> _listSelection;
@@ -39,9 +36,9 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+            ItemActions = new NoteListItemAction(StatusContext);
 
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(EditContent);
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -64,17 +61,16 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
-        public Command<NoteContent> EditContentCommand
+        public NoteListItemAction ItemActions
         {
-            get => _editContentCommand;
+            get => _itemActions;
             set
             {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
-
 
         public ObservableCollection<NoteListListItem> Items
         {
@@ -199,7 +195,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             var dbItems =
                 (await context.NoteContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(x => NoteListItemAction.ListItemFromDbItem(x, ItemActions)).ToList();
 
             if (!dbItems.Any()) return;
 
@@ -238,29 +234,6 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
-        private async Task EditContent(NoteContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.NoteContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new NoteContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
-
         private async Task FilterList()
         {
             if (Items == null || !Items.Any()) return;
@@ -284,13 +257,6 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             };
         }
 
-
-        public static NoteListListItem ListItemFromDbItem(NoteContent content)
-        {
-            var newItem = new NoteListListItem {DbEntry = content};
-
-            return newItem;
-        }
 
         public async Task LoadData()
         {
@@ -316,7 +282,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing Note Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(NoteListItemAction.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }

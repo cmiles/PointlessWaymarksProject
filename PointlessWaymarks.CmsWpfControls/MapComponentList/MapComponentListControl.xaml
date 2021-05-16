@@ -97,10 +97,10 @@
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Name="MapsListBox"
+                ItemTemplate="{StaticResource MapListItemTemplate}"
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
-                ItemTemplate="{StaticResource MapListItemTemplate}"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <b:Interaction.Behaviors>
                     <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />

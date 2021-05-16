@@ -103,7 +103,6 @@
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
                     <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
-                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
             </ListBox>
         </GroupBox>

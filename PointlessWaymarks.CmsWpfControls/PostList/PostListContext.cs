@@ -9,16 +9,12 @@ using System.Windows.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ColumnSort;
-using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -26,6 +22,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 {
     public class PostListContext : INotifyPropertyChanged
     {
+        private PostListItemActions _itemActions;
         private ObservableCollection<PostListListItem> _items;
         private ContentListSelected<PostListListItem> _listSelection;
         private ColumnSortControlContext _listSort;
@@ -33,22 +30,32 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
-        private PostListItemActions _itemActions;
 
         public PostListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             ItemActions = new PostListItemActions(StatusContext);
-            
+
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
-            
+
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
 
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
+
+        public PostListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<PostListListItem> Items
         {
@@ -176,17 +183,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             };
         }
 
-        public PostListItemActions ItemActions
-        {
-            get => _itemActions;
-            set
-            {
-                if (Equals(value, _itemActions)) return;
-                _itemActions = value;
-                OnPropertyChanged();
-            }
-        }
-
 
         public async Task LoadData()
         {
@@ -245,7 +241,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             ListSort.SortUpdated += (sender, list) =>
                 Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
-            ;
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

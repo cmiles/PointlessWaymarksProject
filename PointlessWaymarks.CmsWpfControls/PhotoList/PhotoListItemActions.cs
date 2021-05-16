@@ -280,7 +280,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         public static PhotoListListItem ListItemFromDbItem(PhotoContent content,
             PhotoListItemActions photoListItemActions)
         {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content), ItemActions = photoListItemActions};
+            return new()
+                {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content), ItemActions = photoListItemActions};
         }
 
 

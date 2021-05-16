@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -6,9 +7,10 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList
 {
-    public class NoteListListItem : INotifyPropertyChanged, ISelectedTextTracker
+    public class NoteListListItem : IContentListItem
     {
         private NoteContent _dbEntry;
+        private NoteListItemAction _itemActions;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
 
         public NoteContent DbEntry
@@ -20,6 +22,27 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
                 _dbEntry = value;
                 OnPropertyChanged();
             }
+        }
+
+        public NoteListItemAction ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
+        }
+
+        public IContentCommon Content()
+        {
+            return DbEntry;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

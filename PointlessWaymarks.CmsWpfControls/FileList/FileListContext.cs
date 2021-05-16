@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -9,15 +8,11 @@ using System.Windows.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -26,6 +21,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
     public class FileListContext : INotifyPropertyChanged
     {
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
+        private FileListItemActions _itemActions;
         private ObservableCollection<FileListListItem> _items;
         private string _lastSortColumn;
         private ContentListSelected<FileListListItem> _listSelection;
@@ -34,17 +30,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private StatusControlContext _statusContext;
         private Command _toggleListSortDirectionCommand;
         private string _userFilterText;
-        private FileListItemActions _itemActions;
 
         public FileListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             ItemActions = new FileListItemActions(StatusContext);
-            
+
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
+
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
@@ -54,17 +50,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public FileListItemActions ItemActions
-        {
-            get => _itemActions;
-            set
-            {
-                if (Equals(value, _itemActions)) return;
-                _itemActions = value;
-                OnPropertyChanged();
-            }
-        }
-
         public DataNotificationsWorkQueue DataNotificationsProcessor
         {
             get => _dataNotificationsProcessor;
@@ -72,6 +57,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             {
                 if (Equals(value, _dataNotificationsProcessor)) return;
                 _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public FileListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -264,7 +260,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         }
 
 
-
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -341,6 +336,5 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
-
     }
 }

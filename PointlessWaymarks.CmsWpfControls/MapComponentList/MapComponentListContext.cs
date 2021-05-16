@@ -9,13 +9,10 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -23,7 +20,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
 {
     public class MapComponentListContext : INotifyPropertyChanged
     {
-        private Command<MapComponent> _editContentCommand;
+        private MapComponentListItemActions _itemActions;
         private ObservableCollection<MapComponentListListItem> _items;
         private string _lastSortColumn;
         private ContentListSelected<MapComponentListListItem> _listSelection;
@@ -38,9 +35,9 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+            ItemActions = new MapComponentListItemActions(StatusContext);
 
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(EditContent);
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
@@ -56,13 +53,13 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
-        public Command<MapComponent> EditContentCommand
+        public MapComponentListItemActions ItemActions
         {
-            get => _editContentCommand;
+            get => _itemActions;
             set
             {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -177,29 +174,6 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
                     await MapComponentDataNotificationReceived(translatedMessage));
         }
 
-        private async Task EditContent(MapComponent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.MapComponents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new MapComponentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
-
         private async Task FilterList()
         {
             if (Items == null || !Items.Any()) return;
@@ -221,11 +195,6 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
                 if ((pi.DbEntry.LastUpdatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 return false;
             };
-        }
-
-        public static MapComponentListListItem ListItemFromDbItem(MapComponent content)
-        {
-            return new() {DbEntry = content};
         }
 
         public async Task LoadData()
@@ -252,7 +221,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing MapComponent Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(MapComponentListItemActions.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }
@@ -289,7 +258,8 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
 
             var dbItems =
                 (await context.MapComponents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(x => MapComponentListItemActions.ListItemFromDbItem(x, ItemActions))
+                .ToList();
 
             if (!dbItems.Any()) return;
 

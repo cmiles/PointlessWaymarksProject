@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -9,14 +8,11 @@ using System.Windows.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
-using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -25,22 +21,22 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
     public class ImageListContext : INotifyPropertyChanged
     {
         private DataNotificationsWorkQueue _dataNotificationsProcessor;
+        private ImageListItemActions _itemActions;
         private ObservableCollection<ImageListListItem> _items;
         private string _lastSortColumn;
         private List<ImageListListItem> _selectedItems;
         private StatusControlContext _statusContext;
         private string _userFilterText;
         private Command<ImageContent> _viewFileCommand;
-        private ImageListItemActions _itemActions;
 
         public ImageListContext(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             ItemActions = new ImageListItemActions(StatusContext);
-            
+
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
-            
+
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
@@ -58,6 +54,17 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             {
                 if (Equals(value, _dataNotificationsProcessor)) return;
                 _dataNotificationsProcessor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ImageListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -223,17 +230,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             };
         }
 
-        public ImageListItemActions ItemActions
-        {
-            get => _itemActions;
-            set
-            {
-                if (Equals(value, _itemActions)) return;
-                _itemActions = value;
-                OnPropertyChanged();
-            }
-        }
-
         public async Task LoadData()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -298,7 +294,5 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             collectionView.SortDescriptions.Add(new SortDescription($"DbEntry.{sortColumn}",
                 SortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         }
-
-
     }
 }
