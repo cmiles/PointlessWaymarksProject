@@ -9,6 +9,7 @@
     xmlns:geoJsonList="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoJsonList"
     xmlns:imageList="clr-namespace:PointlessWaymarks.CmsWpfControls.ImageList"
     xmlns:lineList="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList"
+    xmlns:linkList="clr-namespace:PointlessWaymarks.CmsWpfControls.LinkList"
     xmlns:mapComponentList="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentList"
     xmlns:noteList="clr-namespace:PointlessWaymarks.CmsWpfControls.NoteList"
     xmlns:photoList="clr-namespace:PointlessWaymarks.CmsWpfControls.PhotoList"
@@ -725,6 +726,60 @@
                         VerticalAlignment="Bottom"
                         Content="{StaticResource ContentListContentIdAndDateDisplay}" />
                 </Grid>
+            </Grid>
+        </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="LinkListItemTemplate" DataType="linkList:LinkListListItem">
+        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+            <Border.InputBindings>
+                <MouseBinding
+                    Command="{Binding ItemActions.EditContentCommand}"
+                    CommandParameter="{Binding DbEntry}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </Border.InputBindings>
+            <Grid Margin="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
+                    <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
+                    <TextBox
+                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                        Text="{Binding LinkContentString, Mode=OneWay}"
+                        TextWrapping="Wrap">
+                        <b:Interaction.Behaviors>
+                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                        </b:Interaction.Behaviors>
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="SelectionChanged">
+                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </TextBox>
+                    <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
+                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                            <Hyperlink Command="{Binding ItemActions.OpenUrlCommand}" CommandParameter="{Binding DbEntry.Url}">
+                                <Hyperlink.Inlines>
+                                    <Run Text="{Binding DbEntry.Url}" />
+                                </Hyperlink.Inlines>
+                            </Hyperlink>
+                        </TextBlock>
+                        <Button
+                            Width="80"
+                            Height="20"
+                            VerticalAlignment="Center"
+                            Command="{Binding ItemActions.CopyUrlCommand}"
+                            CommandParameter="{Binding DbEntry.Url}">
+                            Copy Link
+                        </Button>
+                    </WrapPanel>
+                </StackPanel>
+                <ContentPresenter
+                    Grid.Row="1"
+                    Margin="2"
+                    VerticalAlignment="Bottom"
+                    Content="{StaticResource ContentListContentIdAndDateDisplay}" />
             </Grid>
         </Border>
     </DataTemplate>

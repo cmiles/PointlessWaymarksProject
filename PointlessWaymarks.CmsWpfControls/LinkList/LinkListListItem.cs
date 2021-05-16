@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
@@ -7,9 +9,10 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList
 {
-    public class LinkListListItem : INotifyPropertyChanged, ISelectedTextTracker
+    public class LinkListListItem : IContentListItem
     {
         private LinkContent _dbEntry;
+        private LinkListItemActions _itemActions;
         private string _linkContentString;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
 
@@ -26,6 +29,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
+        public LinkListItemActions ItemActions
+        {
+            get => _itemActions;
+            set
+            {
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string LinkContentString
         {
             get => _linkContentString;
@@ -35,6 +49,36 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
                 _linkContentString = value;
                 OnPropertyChanged();
             }
+        }
+
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
+        }
+
+        public IContentCommon Content()
+        {
+            return new ContentCommonShell
+            {
+                Summary = string.Join(Environment.NewLine, new List<string>
+                {
+                    DbEntry.Title,
+                    DbEntry.Site,
+                    DbEntry.Url,
+                    DbEntry.Author,
+                    DbEntry.Description,
+                    DbEntry.Comments
+                }),
+                Title = DbEntry.Title,
+                ContentId = DbEntry.ContentId,
+                ContentVersion = DbEntry.ContentVersion,
+                Id = DbEntry.Id,
+                CreatedBy = DbEntry.CreatedBy,
+                CreatedOn = DbEntry.CreatedOn,
+                LastUpdatedBy = DbEntry.LastUpdatedBy,
+                LastUpdatedOn = DbEntry.LastUpdatedOn,
+                Tags = DbEntry.Tags
+            };
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

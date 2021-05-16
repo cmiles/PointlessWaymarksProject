@@ -96,70 +96,14 @@
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Name="ItemsListBox"
+                ItemTemplate="{StaticResource LinkListItemTemplate}"
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding ListSelection.Selected}"
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <i:Interaction.Behaviors>
                     <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
-                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </i:Interaction.Behaviors>
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="linkList:LinkListListItem">
-                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-                            <Border.InputBindings>
-                                <MouseBinding
-                                    Command="{Binding ElementName=UserControlXaml, Path=DataContext.EditContentCommand}"
-                                    CommandParameter="{Binding DbEntry}"
-                                    Gesture="Shift+LeftDoubleClick" />
-                            </Border.InputBindings>
-                            <Grid Margin="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                                    <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
-                                    <TextBox
-                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                        Text="{Binding LinkContentString, Mode=OneWay}"
-                                        TextWrapping="Wrap">
-                                        <i:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </i:Interaction.Behaviors>
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="SelectionChanged">
-                                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </TextBox>
-                                    <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
-                                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
-                                            <Hyperlink Command="{Binding DataContext.OpenUrlCommand, ElementName=LinkListControlXaml}" CommandParameter="{Binding DbEntry.Url}">
-                                                <Hyperlink.Inlines>
-                                                    <Run Text="{Binding DbEntry.Url}" />
-                                                </Hyperlink.Inlines>
-                                            </Hyperlink>
-                                        </TextBlock>
-                                        <Button
-                                            Width="80"
-                                            Height="20"
-                                            VerticalAlignment="Center"
-                                            Command="{Binding DataContext.CopyUrlCommand, ElementName=LinkListControlXaml}"
-                                            CommandParameter="{Binding DbEntry.Url}">
-                                            Copy Link
-                                        </Button>
-                                    </WrapPanel>
-                                </StackPanel>
-                                <ContentPresenter
-                                    Grid.Row="1"
-                                    Margin="2"
-                                    VerticalAlignment="Bottom"
-                                    Content="{StaticResource ContentListContentIdAndDateDisplay}" />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
     </Grid>

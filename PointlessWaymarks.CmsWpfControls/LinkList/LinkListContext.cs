@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Data;
 using HtmlTableHelper;
 using JetBrains.Annotations;
@@ -16,7 +14,6 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
-using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -30,14 +27,12 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 {
     public class LinkListContext : INotifyPropertyChanged
     {
-        private Command<string> _copyUrlCommand;
-        private Command<LinkContent> _editContentCommand;
+        private LinkListItemActions _itemActions;
         private ObservableCollection<LinkListListItem> _items;
         private string _lastSortColumn;
 
         private Command _listSelectedLinksNotOnPinboardCommand;
         private ContentListSelected<LinkListListItem> _listSelection;
-        private Command<string> _openUrlCommand;
         private List<LinkListListItem> _selectedItems;
         private bool _sortDescending;
         private Command<string> _sortListCommand;
@@ -49,49 +44,32 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            ItemActions = new LinkListItemActions(StatusContext);
+
             SortListCommand = StatusContext.RunNonBlockingTaskCommand<string>(SortList);
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(EditContent);
             ToggleListSortDirectionCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
             {
                 SortDescending = !SortDescending;
                 await SortList(_lastSortColumn);
             });
-            OpenUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(OpenUrl);
-            CopyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
-            {
-                await ThreadSwitcher.ResumeForegroundAsync();
 
-                Clipboard.SetText(x);
-
-                StatusContext.ToastSuccess($"To Clipboard {x}");
-            });
             ListSelectedLinksNotOnPinboardCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await ListSelectedLinksNotOnPinboard(StatusContext.ProgressTracker()));
 
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public Command<string> CopyUrlCommand
+        public LinkListItemActions ItemActions
         {
-            get => _copyUrlCommand;
+            get => _itemActions;
             set
             {
-                if (Equals(value, _copyUrlCommand)) return;
-                _copyUrlCommand = value;
+                if (Equals(value, _itemActions)) return;
+                _itemActions = value;
                 OnPropertyChanged();
             }
         }
 
-        public Command<LinkContent> EditContentCommand
-        {
-            get => _editContentCommand;
-            set
-            {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
 
         public ObservableCollection<LinkListListItem> Items
         {
@@ -122,17 +100,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             {
                 if (Equals(value, _listSelection)) return;
                 _listSelection = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<string> OpenUrlCommand
-        {
-            get => _openUrlCommand;
-            set
-            {
-                if (Equals(value, _openUrlCommand)) return;
-                _openUrlCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -238,7 +205,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             var dbItems =
                 (await context.LinkContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Select(ListItemFromDbItem).ToList();
+                    .ToListAsync()).Select(x => LinkListItemActions.ListItemFromDbItem(x, ItemActions)).ToList();
 
             if (!dbItems.Any()) return;
 
@@ -277,28 +244,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
-        private async Task EditContent(LinkContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null) return;
-
-            var context = await Db.Context();
-
-            var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
-
-            if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new LinkContentEditorWindow(refreshedData);
-
-            newContentWindow.PositionWindowAndShow();
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-        }
 
         private async Task FilterList()
         {
@@ -327,12 +272,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             };
         }
 
-        public static LinkListListItem ListItemFromDbItem(LinkContent content)
-        {
-            var newItem = new LinkListListItem {DbEntry = content};
-
-            return newItem;
-        }
 
         private async Task ListSelectedLinksNotOnPinboard(IProgress<string> progress)
         {
@@ -435,7 +374,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
                 if (totalCount == 1 || totalCount % 10 == 0)
                     StatusContext.Progress($"Processing Link Item {currentLoop} of {totalCount}");
 
-                listItems.Add(ListItemFromDbItem(loopItems));
+                listItems.Add(LinkListItemActions.ListItemFromDbItem(loopItems, ItemActions));
 
                 currentLoop++;
             }
@@ -463,20 +402,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async Task OpenUrl(string url)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (string.IsNullOrWhiteSpace(url))
-            {
-                StatusContext.ToastError("Link is blank?");
-                return;
-            }
-
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
         }
 
         private async Task SortList(string sortColumn)

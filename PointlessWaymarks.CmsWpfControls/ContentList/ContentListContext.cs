@@ -11,11 +11,13 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineList;
+using PointlessWaymarks.CmsWpfControls.LinkList;
 using PointlessWaymarks.CmsWpfControls.MapComponentList;
 using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
@@ -30,15 +32,24 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
     public class ContentListContext : INotifyPropertyChanged
     {
+        public enum ContentListLoadMode
+        {
+            Partial,
+            All,
+            ReportQuery
+        }
+
         private FileListItemActions _fileItemActions;
         private GeoJsonListItemActions _geoJasonItemActions;
         private ImageListItemActions _imageItemActions;
         private ObservableCollection<IContentListItem> _items;
         private LineListItemActions _lineItemActions;
+        private LinkListItemActions _linkItemActions;
         private ContentListSelected<IContentListItem> _listSelection;
         private ColumnSortControlContext _listSort;
         private MapComponentListItemActions _mapComponentItemActions;
         private NoteListItemAction _noteItemActions;
+        private int? _partialLoadQuantity;
         private PhotoListItemActions _photoItemActions;
         private PointListItemActions _pointItemActions;
         private PostListItemActions _postItemActions;
@@ -54,6 +65,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             GeoJasonItemActions = new GeoJsonListItemActions(StatusContext);
             ImageItemActions = new ImageListItemActions(StatusContext);
             LineItemActions = new LineListItemActions(StatusContext);
+            LinkItemActions = new LinkListItemActions(StatusContext);
             MapComponentItemActions = new MapComponentListItemActions(StatusContext);
             NoteItemActions = new NoteListItemAction(StatusContext);
             PointItemActions = new PointListItemActions(StatusContext);
@@ -62,6 +74,10 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
         }
+
+        public bool AllItemsLoaded { get; set; }
+
+        public Func<int?, Task<bool>> AllItemsLoadedCheck { get; set; }
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
@@ -120,6 +136,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
+        public LinkListItemActions LinkItemActions
+        {
+            get => _linkItemActions;
+            set
+            {
+                if (Equals(value, _linkItemActions)) return;
+                _linkItemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ContentListSelected<IContentListItem> ListSelection
         {
             get => _listSelection;
@@ -142,7 +169,12 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
+
+        public Func<int?, Task<List<object>>> LoadDbItemsFunction { get; set; }
+
         public Func<List<IContentListItem>> LoadFunction { get; set; }
+
+        public ContentListLoadMode LoadMode { get; set; }
 
         public MapComponentListItemActions MapComponentItemActions
         {
@@ -162,6 +194,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             {
                 if (Equals(value, _noteItemActions)) return;
                 _noteItemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int? PartialLoadQuantity
+        {
+            get => _partialLoadQuantity;
+            set
+            {
+                if (value == _partialLoadQuantity) return;
+                _partialLoadQuantity = value;
                 OnPropertyChanged();
             }
         }
@@ -263,85 +306,111 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             };
         }
 
-        public static async Task<List<IContentListItem>> LoadAll(ContentListContext context, int? partialLoadItems)
+        public IContentListItem ListItemFromDbItem(object dbItem)
         {
-            var listItems = new List<IContentListItem>();
+            return dbItem switch
+            {
+                FileContent f => FileListItemActions.ListItemFromDbItem(f, FileItemActions),
+                GeoJsonContent g => GeoJsonListItemActions.ListItemFromDbItem(g, GeoJasonItemActions),
+                LineContent l => LineListItemActions.ListItemFromDbItem(l, LineItemActions),
+                LinkContent k => LinkListItemActions.ListItemFromDbItem(k, LinkItemActions),
+                MapComponent m => MapComponentListItemActions.ListItemFromDbItem(m, MapComponentItemActions),
+                NoteContent n => NoteListItemAction.ListItemFromDbItem(n, NoteItemActions),
+                PhotoContent ph => PhotoListItemActions.ListItemFromDbItem(ph, PhotoItemActions),
+                PointContent pt => PointListItemActions.ListItemFromDbItem(pt, PointItemActions),
+                PostContent po => PostListItemActions.ListItemFromDbItem(po, PostItemActions),
+                _ => null
+            };
+        }
+
+        public static async Task<List<object>> LoadAll(int? partialLoadItems)
+        {
+            var listItems = new List<object>();
 
             var db = await Db.Context();
 
             if (partialLoadItems != null)
             {
                 listItems.AddRange(
-                    (await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(partialLoadItems.Value).ToListAsync()).Select(x =>
-                        FileListItemActions.ListItemFromDbItem(x, context.FileItemActions)));
+                    await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(partialLoadItems.Value).ToListAsync());
                 listItems.AddRange(
-                    (await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(partialLoadItems.Value).ToListAsync()).Select(x =>
-                        GeoJsonListItemActions.ListItemFromDbItem(x, context.GeoJasonItemActions)));
+                    await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(partialLoadItems.Value).ToListAsync());
                 listItems.AddRange(
-                    (await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(partialLoadItems.Value).ToListAsync()).Select(x =>
-                        LineListItemActions.ListItemFromDbItem(x, context.LineItemActions)));
+                    await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(partialLoadItems.Value).ToListAsync());
                 listItems.AddRange(
-                    (await db.MapComponents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(partialLoadItems.Value).ToListAsync()).Select(x =>
-                        MapComponentListItemActions.ListItemFromDbItem(x, context.MapComponentItemActions)));
+                    await db.LinkContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(partialLoadItems.Value).ToListAsync());
                 listItems.AddRange(
-                    (await db.NoteContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(partialLoadItems.Value).ToListAsync()).Select(x =>
-                        NoteListItemAction.ListItemFromDbItem(x, context.NoteItemActions)));
+                    await db.MapComponents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(partialLoadItems.Value).ToListAsync());
                 listItems.AddRange(
-                    (await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(partialLoadItems.Value).ToListAsync()).Select(x =>
-                        PhotoListItemActions.ListItemFromDbItem(x, context.PhotoItemActions)));
+                    await db.NoteContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(partialLoadItems.Value).ToListAsync());
                 listItems.AddRange(
-                    (await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(partialLoadItems.Value).ToListAsync()).Select(x =>
-                        PointListItemActions.ListItemFromDbItem(x, context.PointItemActions)));
+                    await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(partialLoadItems.Value).ToListAsync());
                 listItems.AddRange(
-                    (await db.PostContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(partialLoadItems.Value).ToListAsync()).Select(x =>
-                        PostListItemActions.ListItemFromDbItem(x, context.PostItemActions)));
+                    await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(partialLoadItems.Value).ToListAsync());
+                listItems.AddRange(
+                    await db.PostContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(partialLoadItems.Value).ToListAsync());
 
                 return listItems;
             }
 
 
             listItems.AddRange(
-                (await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync()).Select(x =>
-                    FileListItemActions.ListItemFromDbItem(x, context.FileItemActions)));
+                await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToListAsync());
             listItems.AddRange(
-                (await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync()).Select(x =>
-                    GeoJsonListItemActions.ListItemFromDbItem(x, context.GeoJasonItemActions)));
+                await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToListAsync());
             listItems.AddRange(
-                (await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync()).Select(x =>
-                    LineListItemActions.ListItemFromDbItem(x, context.LineItemActions)));
+                await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToListAsync());
             listItems.AddRange(
-                (await db.MapComponents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync()).Select(x =>
-                    MapComponentListItemActions.ListItemFromDbItem(x, context.MapComponentItemActions)));
+                await db.LinkContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToListAsync());
             listItems.AddRange(
-                (await db.NoteContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync()).Select(x =>
-                    NoteListItemAction.ListItemFromDbItem(x, context.NoteItemActions)));
+                await db.MapComponents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToListAsync());
             listItems.AddRange(
-                (await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync()).Select(x =>
-                    PhotoListItemActions.ListItemFromDbItem(x, context.PhotoItemActions)));
+                await db.NoteContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToListAsync());
             listItems.AddRange(
-                (await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync()).Select(x =>
-                    PointListItemActions.ListItemFromDbItem(x, context.PointItemActions)));
+                await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToListAsync());
             listItems.AddRange(
-                (await db.PostContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync()).Select(x =>
-                    PostListItemActions.ListItemFromDbItem(x, context.PostItemActions)));
+                await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToListAsync());
+            listItems.AddRange(
+                await db.PostContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .ToListAsync());
 
             return listItems;
+        }
+
+        public static async Task<bool> LoadAllAllLoaded(int? threshold)
+        {
+            if (threshold == null) return true;
+
+            var db = await Db.Context();
+
+            if (await db.FileContents.CountAsync() > threshold) return false;
+            if (await db.GeoJsonContents.CountAsync() > threshold) return false;
+            if (await db.LineContents.CountAsync() > threshold) return false;
+            if (await db.LinkContents.CountAsync() > threshold) return false;
+            if (await db.MapComponents.CountAsync() > threshold) return false;
+            if (await db.NoteContents.CountAsync() > threshold) return false;
+            if (await db.PhotoContents.CountAsync() > threshold) return false;
+            if (await db.PointContents.CountAsync() > threshold) return false;
+            if (await db.PostContents.CountAsync() > threshold) return false;
+
+            return true;
         }
 
         public async Task LoadData()
@@ -349,6 +418,10 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             ListSelection = await ContentListSelected<IContentListItem>.CreateInstance(StatusContext);
+
+            PartialLoadQuantity = 10;
+            AllItemsLoadedCheck = LoadAllAllLoaded;
+            LoadDbItemsFunction = LoadAll;
 
             //DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
@@ -381,13 +454,25 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             ListSort.SortUpdated += (sender, list) =>
                 Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
 
-            var listItems = await LoadAll(this, 10);
+            var listItems = await LoadDbItemsFunction(PartialLoadQuantity);
+
+            if (PartialLoadQuantity == null)
+            {
+                AllItemsLoaded = true;
+            }
+            else
+            {
+                if (AllItemsLoadedCheck == null) AllItemsLoaded = true;
+                AllItemsLoaded = await AllItemsLoadedCheck(PartialLoadQuantity);
+            }
+
+            var contentListItems = listItems.Select(ListItemFromDbItem);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
             StatusContext.Progress("Loading Display List of Photos");
 
-            Items = new ObservableCollection<IContentListItem>(listItems);
+            Items = new ObservableCollection<IContentListItem>(contentListItems);
 
             ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
             await FilterList();

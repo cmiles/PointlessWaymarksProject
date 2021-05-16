@@ -4,6 +4,7 @@ using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineList;
+using PointlessWaymarks.CmsWpfControls.LinkList;
 using PointlessWaymarks.CmsWpfControls.MapComponentList;
 using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
@@ -18,6 +19,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         public DataTemplate GeoJsonTemplate { get; set; }
         public DataTemplate ImageTemplate { get; set; }
         public DataTemplate LineTemplate { get; set; }
+        public DataTemplate LinkTemplate { get; set; }
         public DataTemplate MapComponentTemplate { get; set; }
         public DataTemplate NoteTemplate { get; set; }
         public DataTemplate PhotoTemplate { get; set; }
@@ -32,6 +34,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 GeoJsonListListItem => GeoJsonTemplate,
                 ImageListListItem => ImageTemplate,
                 LineListListItem => LineTemplate,
+                LinkListListItem => LinkTemplate,
                 MapComponentListListItem => MapComponentTemplate,
                 NoteListListItem => NoteTemplate,
                 PhotoListListItem => PhotoTemplate,

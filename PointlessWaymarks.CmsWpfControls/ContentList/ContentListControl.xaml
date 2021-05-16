@@ -24,6 +24,7 @@
                 GeoJsonTemplate="{StaticResource GeoJsonListItemTemplate}"
                 ImageTemplate="{StaticResource ImageListItemTemplate}"
                 LineTemplate="{StaticResource LineListItemTemplate}"
+                LinkTemplate="{StaticResource LinkListItemTemplate}"
                 MapComponentTemplate="{StaticResource MapListItemTemplate}"
                 NoteTemplate="{StaticResource NoteListItemTemplate}"
                 PhotoTemplate="{StaticResource PhotoListItemTemplate}"
