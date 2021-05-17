@@ -8,6 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance local:ContentListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -18,6 +19,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/Utility/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotVisibility" />
             <local:ContentListDataTemplateSelector
                 x:Key="ContentListTemplateSelector"
                 FileTemplate="{StaticResource FileListItemTemplate}"
@@ -39,18 +41,25 @@
         </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox Header="Load All Items" Style="{StaticResource UiComponentGroupBoxStyle}" Visibility="{Binding AllItemsLoaded, Converter={StaticResource BooleanNotVisibility}}">
+                <Button Command="{Binding LoadAllCommand}">
+                    Load All
+                </Button>
+            </GroupBox>
+            <GroupBox Grid.Column="1" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <TextBox
                     VerticalAlignment="Center"
                     AcceptsReturn="False"
                     MaxLines="1"
                     Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
             </GroupBox>
+
             <GroupBox
-                Grid.Column="1"
+                Grid.Column="2"
                 Header="Sort"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <columnSort:ColumnSortControl DataContext="{Binding ListSort}" />
@@ -68,7 +77,8 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <b:Interaction.Behaviors>
-                    <behaviors:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
+                    <behaviors:AttachCommandBindingsBehavior
+                        CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                 </b:Interaction.Behaviors>
             </ListBox>
         </GroupBox>
