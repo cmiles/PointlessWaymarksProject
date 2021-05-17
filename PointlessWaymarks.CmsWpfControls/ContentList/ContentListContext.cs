@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -35,8 +34,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
     public class ContentListContext : INotifyPropertyChanged
     {
-        private bool _addNewItemsFromDataNotifications;
-        private bool _allItemsLoaded;
+        private IContentListLoader _contentListLoader;
         private FileListItemActions _fileItemActions;
         private GeoJsonListItemActions _geoJasonItemActions;
         private ImageListItemActions _imageItemActions;
@@ -48,7 +46,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private Command _loadAllCommand;
         private MapComponentListItemActions _mapComponentItemActions;
         private NoteListItemAction _noteItemActions;
-        private int? _partialLoadQuantity;
         private PhotoListItemActions _photoItemActions;
         private PointListItemActions _pointItemActions;
         private PostListItemActions _postItemActions;
@@ -56,16 +53,11 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private StatusControlContext _statusContext;
         private string _userFilterText;
 
-        public ContentListContext(StatusControlContext statusContext,
-            Func<int?, IProgress<string>, Task<List<object>>> loadItemsFunction,
-            Func<int?, Task<bool>> allItemsLoadedCheck,
-            int? partialLoadQuantity)
+        public ContentListContext(StatusControlContext statusContext, IContentListLoader loader)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            PartialLoadQuantity = partialLoadQuantity;
-            LoadItemsFunction = loadItemsFunction;
-            AllItemsLoadedCheck = allItemsLoadedCheck;
+            ContentListLoader = loader;
 
             FileItemActions = new FileListItemActions(StatusContext);
             GeoJasonItemActions = new GeoJsonListItemActions(StatusContext);
@@ -82,38 +74,23 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             LoadAllCommand = StatusContext.RunBlockingTaskCommand(async () =>
             {
-                PartialLoadQuantity = null;
+                ContentListLoader.PartialLoadQuantity = null;
                 await LoadData();
             });
         }
 
-        public bool AddNewItemsFromDataNotifications
+        public IContentListLoader ContentListLoader
         {
-            get => _addNewItemsFromDataNotifications;
+            get => _contentListLoader;
             set
             {
-                if (value == _addNewItemsFromDataNotifications) return;
-                _addNewItemsFromDataNotifications = value;
+                if (Equals(value, _contentListLoader)) return;
+                _contentListLoader = value;
                 OnPropertyChanged();
             }
         }
-
-        public bool AllItemsLoaded
-        {
-            get => _allItemsLoaded;
-            set
-            {
-                if (value == _allItemsLoaded) return;
-                _allItemsLoaded = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Func<int?, Task<bool>> AllItemsLoadedCheck { get; set; }
 
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
-
-        public List<DataNotificationContentType> DataNotificationTypesToRespondTo { get; set; }
 
         public FileListItemActions FileItemActions
         {
@@ -214,8 +191,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public Func<int?, IProgress<string>, Task<List<object>>> LoadItemsFunction { get; set; }
-
         public MapComponentListItemActions MapComponentItemActions
         {
             get => _mapComponentItemActions;
@@ -238,16 +213,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public int? PartialLoadQuantity
-        {
-            get => _partialLoadQuantity;
-            set
-            {
-                if (value == _partialLoadQuantity) return;
-                _partialLoadQuantity = value;
-                OnPropertyChanged();
-            }
-        }
 
         public PhotoListItemActions PhotoItemActions
         {
@@ -342,8 +307,9 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                     existingListItemsMatchingNotification.Add(loopItem);
             }
 
-            if (DataNotificationTypesToRespondTo != null && DataNotificationTypesToRespondTo.Any())
-                if (!DataNotificationTypesToRespondTo.Contains(translatedMessage.ContentType))
+            if (ContentListLoader.DataNotificationTypesToRespondTo != null &&
+                ContentListLoader.DataNotificationTypesToRespondTo.Any())
+                if (!ContentListLoader.DataNotificationTypesToRespondTo.Contains(translatedMessage.ContentType))
                 {
                     await PossibleMainImageUpdateDataNotificationReceived(translatedMessage);
                     return;
@@ -439,7 +405,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
                 if (existingItem == null)
                 {
-                    if (!AddNewItemsFromDataNotifications) continue;
+                    if (!ContentListLoader.AddNewItemsFromDataNotifications) continue;
 
                     await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -562,23 +528,11 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             StatusContext.Progress("Starting Item Load");
 
-            var dbItems = LoadItemsFunction == null
-                ? new List<object>()
-                : await LoadItemsFunction(PartialLoadQuantity, StatusContext.ProgressTracker());
+            var dbItems = await ContentListLoader.LoadItems(StatusContext.ProgressTracker());
 
             StatusContext.Progress("Checking for All Items Loaded from Db");
 
-            if (PartialLoadQuantity == null)
-            {
-                AllItemsLoaded = true;
-            }
-            else
-            {
-                if (AllItemsLoadedCheck == null) AllItemsLoaded = true;
-                else AllItemsLoaded = await AllItemsLoadedCheck(PartialLoadQuantity);
-            }
-
-            StatusContext.Progress($"All Items Loaded from Db: {AllItemsLoaded}");
+            StatusContext.Progress($"All Items Loaded from Db: {ContentListLoader.AllItemsLoaded}");
 
             var contentListItems = new List<IContentListItem>();
 

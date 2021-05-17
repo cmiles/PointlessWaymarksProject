@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -181,31 +182,36 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        private static async Task<List<PhotoContent>> ApertureSearch(PhotoContent content)
+        private static async Task<List<object>> ApertureSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var db = await Db.Context();
 
-            return await db.PhotoContents.Where(x => x.Aperture == content.Aperture).ToListAsync();
+            return (await db.PhotoContents.Where(x => x.Aperture == content.Aperture).ToListAsync()).Cast<object>()
+                .ToList();
         }
 
-        private static async Task<List<PhotoContent>> CameraMakeSearch(PhotoContent content)
+        private static async Task<List<object>> CameraMakeSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var db = await Db.Context();
 
-            return await db.PhotoContents.Where(x => x.CameraMake == content.CameraMake).ToListAsync();
+            return (await db.PhotoContents.Where(x => x.CameraMake == content.CameraMake).ToListAsync()).Cast<object>()
+                .ToList();
+            ;
         }
 
-        private static async Task<List<PhotoContent>> CameraModelSearch(PhotoContent content)
+        private static async Task<List<object>> CameraModelSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var db = await Db.Context();
 
-            return await db.PhotoContents.Where(x => x.CameraModel == content.CameraModel).ToListAsync();
+            return (await db.PhotoContents.Where(x => x.CameraModel == content.CameraModel).ToListAsync())
+                .Cast<object>().ToList();
+            ;
         }
 
         private async Task EditContent(PhotoContent content)
@@ -232,13 +238,15 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
 
-        private static async Task<List<PhotoContent>> FocalLengthSearch(PhotoContent content)
+        private static async Task<List<object>> FocalLengthSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var db = await Db.Context();
 
-            return await db.PhotoContents.Where(x => x.FocalLength == content.FocalLength).ToListAsync();
+            return (await db.PhotoContents.Where(x => x.FocalLength == content.FocalLength).ToListAsync())
+                .Cast<object>().ToList();
+            ;
         }
 
         public static string GetSmallImageUrl(PhotoContent content)
@@ -259,22 +267,24 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             return smallImageUrl;
         }
 
-        private static async Task<List<PhotoContent>> IsoSearch(PhotoContent content)
+        private static async Task<List<object>> IsoSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var db = await Db.Context();
 
-            return await db.PhotoContents.Where(x => x.Iso == content.Iso).ToListAsync();
+            return (await db.PhotoContents.Where(x => x.Iso == content.Iso).ToListAsync()).Cast<object>().ToList();
+            ;
         }
 
-        private static async Task<List<PhotoContent>> LensSearch(PhotoContent content)
+        private static async Task<List<object>> LensSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var db = await Db.Context();
 
-            return await db.PhotoContents.Where(x => x.Lens == content.Lens).ToListAsync();
+            return (await db.PhotoContents.Where(x => x.Lens == content.Lens).ToListAsync()).Cast<object>().ToList();
+            ;
         }
 
         public static PhotoListListItem ListItemFromDbItem(PhotoContent content,
@@ -291,7 +301,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private static async Task<List<PhotoContent>> PhotoTakenOnSearch(PhotoContent content)
+        private static async Task<List<object>> PhotoTakenOnSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -302,17 +312,21 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             var dateTimeAfter = content.PhotoCreatedOn.Date.AddDays(-1);
             var dateTimeBefore = content.PhotoCreatedOn.Date.AddDays(1);
 
-            return await db.PhotoContents
-                .Where(x => x.PhotoCreatedOn > dateTimeAfter && x.PhotoCreatedOn < dateTimeBefore).ToListAsync();
+            return (await db.PhotoContents
+                    .Where(x => x.PhotoCreatedOn > dateTimeAfter && x.PhotoCreatedOn < dateTimeBefore).ToListAsync())
+                .Cast<object>().ToList();
+            ;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private static async Task RunReport(Func<Task<List<PhotoContent>>> toRun, string title)
+        private static async Task RunReport(Func<Task<List<object>>> toRun, string title)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var context = new PhotoListWithActionsContext(null, toRun);
+            var reportLoader = new ContentListLoaderReport(toRun);
+
+            var context = new PhotoListWithActionsContext(null, reportLoader);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -322,13 +336,15 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
 
-        private static async Task<List<PhotoContent>> ShutterSpeedSearch(PhotoContent content)
+        private static async Task<List<object>> ShutterSpeedSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
             var db = await Db.Context();
 
-            return await db.PhotoContents.Where(x => x.ShutterSpeed == content.ShutterSpeed).ToListAsync();
+            return (await db.PhotoContents.Where(x => x.ShutterSpeed == content.ShutterSpeed).ToListAsync())
+                .Cast<object>().ToList();
+            ;
         }
 
 

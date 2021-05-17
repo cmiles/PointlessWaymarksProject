@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -11,10 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
     public partial class ContentListWindow : INotifyPropertyChanged
     {
-        private readonly Func<int?, Task<bool>> _allItemsLoadedCheck;
-
-        private readonly Func<int?, IProgress<string>, Task<List<object>>> _loadItemsFunction;
-        private readonly int? _partialLoadQuantity;
+        private readonly IContentListLoader _loader;
         private ContentListContext _listContext;
 
         public ContentListWindow()
@@ -27,15 +22,11 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public ContentListWindow(
-            Func<int?, IProgress<string>, Task<List<object>>> loadItemsFunction,
-            Func<int?, Task<bool>> allItemsLoadedCheck, int? partialLoadQuantity)
+        public ContentListWindow(IContentListLoader loader)
         {
             InitializeComponent();
 
-            _partialLoadQuantity = partialLoadQuantity;
-            _loadItemsFunction = loadItemsFunction;
-            _allItemsLoadedCheck = allItemsLoadedCheck;
+            _loader = loader;
 
             StatusContext = new StatusControlContext();
             DataContext = this;
@@ -62,8 +53,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var listContext = new ContentListContext(StatusContext, _loadItemsFunction, _allItemsLoadedCheck,
-                _partialLoadQuantity);
+            var listContext = new ContentListContext(StatusContext, _loader);
 
             await listContext.LoadData();
 

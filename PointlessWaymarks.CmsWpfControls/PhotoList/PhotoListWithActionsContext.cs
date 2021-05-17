@@ -21,6 +21,7 @@ using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -40,7 +41,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private Command _generateSelectedHtmlCommand;
         private Command _importFromExcelFileCommand;
         private Command _importFromOpenExcelInstanceCommand;
-        private PhotoListContext _listContext;
+        private ContentListContext _listContext;
         private Command _newContentCommand;
         private Command _newContentFromFilesCommand;
         private Command _newContentFromFilesWithAutosaveCommand;
@@ -69,15 +70,12 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
         public PhotoListWithActionsContext(StatusControlContext statusContext,
-            Func<Task<List<PhotoContent>>> reportFilter)
+            IContentListLoader reportFilter)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
             ListContext =
-                new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.ReportQuery)
-                {
-                    ReportGenerator = reportFilter
-                };
+                new ContentListContext(StatusContext, reportFilter);
 
             SetupCommands();
 
@@ -172,7 +170,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public PhotoListContext ListContext
+        public ContentListContext ListContext
         {
             get => _listContext;
             set
@@ -398,7 +396,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext?.ListSelection.SelectedItems?.OrderBy(x => x.DbEntry.Title).ToList();
+            var selected = SelectedItems()?.OrderBy(x => x.DbEntry.Title).ToList();
 
             if (selected == null || !selected.Any())
             {
@@ -439,14 +437,14 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var context = await Db.Context();
-            var frozenList = ListContext.ListSelection.SelectedItems;
+            var frozenList = SelectedItems();
 
             foreach (var loopSelected in frozenList)
             {
@@ -475,19 +473,19 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
-            if (ListContext.ListSelection.SelectedItems.Count > 1)
+            if (SelectedItems().Count > 1)
             {
                 StatusContext.ToastError("Please select only 1 item...");
                 return;
             }
 
-            var frozenSelected = ListContext.ListSelection.SelectedItems.First();
+            var frozenSelected = SelectedItems().First();
 
             var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
@@ -502,14 +500,14 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var context = await Db.Context();
-            var frozenList = ListContext.ListSelection.SelectedItems;
+            var frozenList = SelectedItems();
 
             foreach (var loopSelected in frozenList)
             {
@@ -527,16 +525,16 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
-            var totalCount = ListContext.ListSelection.SelectedItems.Count;
+            var totalCount = SelectedItems().Count;
             var currentLoop = 1;
 
-            foreach (var loopSelected in ListContext.ListSelection.SelectedItems)
+            foreach (var loopSelected in SelectedItems())
             {
                 if (currentLoop % 10 == 0)
                     StatusContext.Progress($"Cleaning Generated Images And Resizing {currentLoop} of {totalCount} - " +
@@ -550,16 +548,16 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var loopCount = 1;
-            var totalCount = ListContext.ListSelection.SelectedItems.Count;
+            var totalCount = SelectedItems().Count;
 
-            foreach (var loopSelected in ListContext.ListSelection.SelectedItems)
+            foreach (var loopSelected in SelectedItems())
             {
                 StatusContext.Progress(
                     $"Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
@@ -578,7 +576,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new PhotoListContext(StatusContext, PhotoListContext.PhotoListLoadMode.Recent);
+            ListContext = new ContentListContext(StatusContext, new PhotoListLoader(20));
 
             await ListContext.LoadData();
 
@@ -706,7 +704,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -714,7 +712,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            foreach (var loopSelected in ListContext.ListSelection.SelectedItems)
+            foreach (var loopSelected in SelectedItems())
             {
                 var url = $@"https://{settings.PhotoPageUrl(loopSelected.DbEntry)}";
 
@@ -727,13 +725,13 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
-            var finalString = ListContext.ListSelection.SelectedItems.Aggregate(string.Empty,
+            var finalString = SelectedItems().Aggregate(string.Empty,
                 (current, loopSelected) =>
                     current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
 
@@ -748,13 +746,13 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
-            var finalString = ListContext.ListSelection.SelectedItems.Aggregate(string.Empty,
+            var finalString = SelectedItems().Aggregate(string.Empty,
                 (current, loopSelected) =>
                     current + BracketCodePhotos.Create(loopSelected.DbEntry) + Environment.NewLine);
 
@@ -769,20 +767,20 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.ListSelection.SelectedItems == null || !ListContext.ListSelection.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var loopCount = 0;
-            var totalCount = ListContext.ListSelection.SelectedItems.Count;
+            var totalCount = SelectedItems().Count;
 
             var db = await Db.Context();
 
             var errorList = new List<string>();
 
-            foreach (var loopSelected in ListContext.ListSelection.SelectedItems)
+            foreach (var loopSelected in SelectedItems())
             {
                 loopCount++;
 
@@ -831,14 +829,15 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        private async Task<List<PhotoContent>> ReportAllPhotosGenerator()
+        private async Task<List<object>> ReportAllPhotosGenerator()
         {
             var db = await Db.Context();
 
-            return await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+            return (await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync()).Cast<object>()
+                .ToList();
         }
 
-        private async Task<List<PhotoContent>> ReportBlankLicenseGenerator()
+        private async Task<List<object>> ReportBlankLicenseGenerator()
         {
             var db = await Db.Context();
 
@@ -850,29 +849,32 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 if (string.IsNullOrWhiteSpace(loopContents.License))
                     returnList.Add(loopContents);
 
-            return returnList;
+            return returnList.Cast<object>().ToList();
+            ;
         }
 
-        private async Task<List<PhotoContent>> ReportMultiSpacesInTitleGenerator()
+        private async Task<List<object>> ReportMultiSpacesInTitleGenerator()
         {
             var db = await Db.Context();
 
-            return await db.PhotoContents.Where(x => x.Title.Contains("  ")).OrderByDescending(x => x.PhotoCreatedOn)
-                .ToListAsync();
+            return (await db.PhotoContents.Where(x => x.Title.Contains("  ")).OrderByDescending(x => x.PhotoCreatedOn)
+                .ToListAsync()).Cast<object>().ToList();
+            ;
         }
 
-        private async Task<List<PhotoContent>> ReportNoTagsGenerator()
+        private async Task<List<object>> ReportNoTagsGenerator()
         {
             var db = await Db.Context();
 
-            return await db.PhotoContents.Where(x => x.Tags == "").ToListAsync();
+            return (await db.PhotoContents.Where(x => x.Tags == "").ToListAsync()).Cast<object>().ToList();
+            ;
         }
 
         private async Task ReportPhotoMetadata()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext.ListSelection.SelectedItems;
+            var selected = SelectedItems();
 
             if (selected == null || !selected.Any())
             {
@@ -895,7 +897,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             await PhotoMetadataReport.AllPhotoMetadataToHtml(archiveFile, StatusContext);
         }
 
-        private async Task<List<PhotoContent>> ReportTakenAndLicenseYearDoNotMatchGenerator()
+        private async Task<List<object>> ReportTakenAndLicenseYearDoNotMatchGenerator()
         {
             var db = await Db.Context();
 
@@ -925,10 +927,11 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 returnList.Add(loopContents);
             }
 
-            return returnList;
+            return returnList.Cast<object>().ToList();
+            ;
         }
 
-        private async Task<List<PhotoContent>> ReportTitleAndTakenDoNotMatchGenerator()
+        private async Task<List<object>> ReportTitleAndTakenDoNotMatchGenerator()
         {
             var db = await Db.Context();
 
@@ -960,20 +963,30 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 returnList.Add(loopContents);
             }
 
-            return returnList;
+            return returnList.Cast<object>().ToList();
+            ;
         }
 
-        private static async Task RunReport(Func<Task<List<PhotoContent>>> toRun, string title)
+        private static async Task RunReport(Func<Task<List<object>>> toRun, string title)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var context = new PhotoListWithActionsContext(null, toRun);
+            var reportLoader = new ContentListLoaderReport(toRun);
+
+            var context = new PhotoListWithActionsContext(null, reportLoader);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
             var newWindow = new PhotoListWindow {PhotoListContext = context, WindowTitle = title};
 
             newWindow.PositionWindowAndShow();
+        }
+
+        public List<PhotoListListItem> SelectedItems()
+        {
+            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PhotoListListItem)
+                .Cast<PhotoListListItem>()
+                .ToList() ?? new List<PhotoListListItem>();
         }
 
         private void SetupCommands()
@@ -1022,7 +1035,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ExcelHelpers.SelectedToExcel(ListContext.ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
+                await ExcelHelpers.SelectedToExcel(SelectedItems()?.Cast<dynamic>().ToList(),
                     StatusContext));
         }
 
@@ -1030,7 +1043,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext.ListSelection.SelectedItems;
+            var selected = SelectedItems();
 
             if (selected == null || !selected.Any())
             {

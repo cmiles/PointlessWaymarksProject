@@ -28,6 +28,10 @@ Site:
 
 5/17/2021
 
+Mostly happy with the refactor to the ContentList control for all lists as it has gone with posts and photos. Slightly worried though that what is happening is that I am sacrificing simpler code for less code without enough benefit - witness the list content loader that now involves both interfaces and an abstract class - how will future me feel about this? Here the benefit is that one base list can display all content types while still editing and maintaining other functionality - that is a huge advantage and represents actual useful functionality that I want myself... Certainly nothing here is particularly exotic and realistically it is always a balancing act of concerns - but probably still useful to reflect on recent work at the Summit Hut diving into old code that I didn't write and note that I don't spend my days thinking 'wow that code is just too simple'...
+
+5/17/2021
+
 Continuing work on the ContentList control - haven't run into show stoppers yet and hope this could replace the base lists for all types...
 
 Had a learning experience with this line of code:
