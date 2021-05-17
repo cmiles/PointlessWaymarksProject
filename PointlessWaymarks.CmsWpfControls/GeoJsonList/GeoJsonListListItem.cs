@@ -7,7 +7,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 {
-    public class GeoJsonListListItem : IContentListItem
+    public class GeoJsonListListItem : IContentListItem, IContentListSmallImage
     {
         private GeoJsonContent _dbEntry;
         private GeoJsonListItemActions _itemActions;
@@ -36,6 +36,16 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             }
         }
 
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
+        }
+
+        public IContentCommon Content()
+        {
+            return DbEntry;
+        }
+
         public string SmallImageUrl
         {
             get => _smallImageUrl;
@@ -45,16 +55,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
                 _smallImageUrl = value;
                 OnPropertyChanged();
             }
-        }
-
-        public Guid? ContentId()
-        {
-            return DbEntry?.ContentId;
-        }
-
-        public IContentCommon Content()
-        {
-            return DbEntry;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

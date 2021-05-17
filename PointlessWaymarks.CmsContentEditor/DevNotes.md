@@ -26,6 +26,17 @@ Site:
  
 ## Notes
 
+5/17/2021
+
+Continuing work on the ContentList control - haven't run into show stoppers yet and hope this could replace the base lists for all types...
+
+Had a learning experience with this line of code:
+    ((dynamic) existingItem).DbEntry = loopItem;
+This failed in the DataNotifications - in debugging I carefully checked for typos (none) and carefully checked the types, DbEntry expected a PostContent and loopItem was a PostContent... Because of the (dynamic) it didn't occur to me that the loopItem was not a PostContent but an IContentId so this line was throwing -- in part I  didn't realize because the compiler and Resharper didn't flag anything here as a problem. Because I don't know what type I want to assign at compile time the solution I found was to do:
+    ((dynamic) existingItem).DbEntry = (dynamic) loopItem;
+Even this had a pitfall - Rider didn't flag an issue (at least visibly) but the Code Cleanup removed (dynamic) (I assume as a unneeded cast) and removed it, leading back to the same issue. Decided to fix the clean up with resharper comments.
+
+
 5/15/2021
 
 Branching to explore the idea of a list control that can contain any content type:

@@ -7,7 +7,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList
 {
-    public class ImageListListItem : IContentListItem
+    public class ImageListListItem : IContentListItem, IContentListSmallImage
     {
         private ImageContent _dbEntry;
         private ImageListItemActions _itemActions;
@@ -36,6 +36,16 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             }
         }
 
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
+        }
+
+        public IContentCommon Content()
+        {
+            return DbEntry;
+        }
+
         public string SmallImageUrl
         {
             get => _smallImageUrl;
@@ -45,16 +55,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 _smallImageUrl = value;
                 OnPropertyChanged();
             }
-        }
-
-        public Guid? ContentId()
-        {
-            return DbEntry?.ContentId;
-        }
-
-        public IContentCommon Content()
-        {
-            return DbEntry;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

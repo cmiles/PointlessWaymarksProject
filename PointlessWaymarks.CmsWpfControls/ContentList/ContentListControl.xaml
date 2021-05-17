@@ -45,7 +45,10 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <GroupBox Header="Load All Items" Style="{StaticResource UiComponentGroupBoxStyle}" Visibility="{Binding AllItemsLoaded, Converter={StaticResource BooleanNotVisibility}}">
+            <GroupBox
+                Header="Load All Items"
+                Style="{StaticResource UiComponentGroupBoxStyle}"
+                Visibility="{Binding AllItemsLoaded, Converter={StaticResource BooleanNotVisibility}}">
                 <Button Command="{Binding LoadAllCommand}">
                     Load All
                 </Button>
@@ -77,8 +80,7 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <b:Interaction.Behaviors>
-                    <behaviors:AttachCommandBindingsBehavior
-                        CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
+                    <behaviors:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                 </b:Interaction.Behaviors>
             </ListBox>
         </GroupBox>

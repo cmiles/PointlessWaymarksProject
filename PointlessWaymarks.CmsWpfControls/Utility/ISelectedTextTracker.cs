@@ -8,6 +8,11 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
         IContentCommon Content();
     }
 
+    public interface IContentListSmallImage
+    {
+        string SmallImageUrl { get; set; }
+    }
+
     public interface ISelectedTextTracker
     {
         CurrentSelectedTextTracker SelectedTextTracker { get; set; }

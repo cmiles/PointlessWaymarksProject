@@ -7,7 +7,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList
 {
-    public class LineListListItem : IContentListItem
+    public class LineListListItem : IContentListItem, IContentListSmallImage
     {
         private LineContent _dbEntry;
         private LineListItemActions _itemActions;
@@ -36,17 +36,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
             }
         }
 
-        public string SmallImageUrl
-        {
-            get => _smallImageUrl;
-            set
-            {
-                if (value == _smallImageUrl) return;
-                _smallImageUrl = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Guid? ContentId()
         {
             return DbEntry?.ContentId;
@@ -56,6 +45,17 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         public IContentCommon Content()
         {
             return DbEntry;
+        }
+
+        public string SmallImageUrl
+        {
+            get => _smallImageUrl;
+            set
+            {
+                if (value == _smallImageUrl) return;
+                _smallImageUrl = value;
+                OnPropertyChanged();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

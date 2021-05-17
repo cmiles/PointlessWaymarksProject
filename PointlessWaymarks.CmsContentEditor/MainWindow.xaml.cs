@@ -167,7 +167,8 @@ namespace PointlessWaymarks.CmsContentEditor
             TestWindowCommand = StatusContext.RunBlockingTaskCommand(async () =>
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
-                var x = new ContentListWindow(ContentListLoaderAllItems.LoadAll, ContentListLoaderAllItems.AllLoaded, 10);
+                var x = new ContentListWindow(ContentListLoaderAllItems.LoadAll, ContentListLoaderAllItems.AllLoaded,
+                    10);
                 x.Show();
             });
 
