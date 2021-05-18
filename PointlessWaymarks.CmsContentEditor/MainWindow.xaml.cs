@@ -478,11 +478,7 @@ namespace PointlessWaymarks.CmsContentEditor
             }
         }
 
-        public Command TestWindowCommand { get; set; }
-
         public Command WriteStyleCssFileCommand { get; set; }
-
-        public Command WvTwoExperimentCommand { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -172,7 +172,6 @@
                                 <Button Command="{Binding GenerateAllTagHtmlCommand}">Tags</Button>
                                 <Button Command="{Binding GenerateCameraRollCommand}">Camera Roll</Button>
                                 <Button Command="{Binding GenerateDailyGalleryHtmlCommand}">Daily Photos</Button>
-                                <Button Command="{Binding TestWindowCommand}">Test Window</Button>
                             </WrapPanel>
                         </Grid>
                     </GroupBox>
