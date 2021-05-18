@@ -2,6 +2,7 @@
     x:Class="PointlessWaymarks.CmsWpfControls.PointList.PointListWithActionsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contentList="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pointList="clr-namespace:PointlessWaymarks.CmsWpfControls.PointList"
@@ -32,7 +33,7 @@
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
             </MenuItem>
         </Menu>
-        <pointList:PointListControl
+        <contentList:ContentListControl
             Grid.Row="1"
             Margin="4,5,4,6"
             DataContext="{Binding ListContext}" />

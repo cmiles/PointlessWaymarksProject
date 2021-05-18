@@ -13,6 +13,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -32,7 +33,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         private Command _geoJsonMapCodesToClipboardForSelectedCommand;
         private Command _importFromExcelFileCommand;
         private Command _importFromOpenExcelInstanceCommand;
-        private GeoJsonListContext _listContext;
+        private ContentListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
         private Command _refreshDataCommand;
@@ -135,7 +136,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             }
         }
 
-        public GeoJsonListContext ListContext
+        public ContentListContext ListContext
         {
             get => _listContext;
             set
@@ -190,6 +191,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             }
         }
 
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -218,9 +220,9 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext?.SelectedItems?.OrderBy(x => x.DbEntry.Title).ToList();
+            var selected = SelectedItems().OrderBy(x => x.DbEntry.Title).ToList();
 
-            if (selected == null || !selected.Any())
+            if (!selected.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -259,14 +261,14 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var context = await Db.Context();
-            var frozenList = ListContext.SelectedItems;
+            var frozenList = SelectedItems();
 
             foreach (var loopSelected in frozenList)
             {
@@ -295,14 +297,14 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var context = await Db.Context();
-            var frozenList = ListContext.SelectedItems;
+            var frozenList = SelectedItems();
 
             foreach (var loopSelected in frozenList)
             {
@@ -320,16 +322,16 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var loopCount = 1;
-            var totalCount = ListContext.SelectedItems.Count;
+            var totalCount = SelectedItems().Count;
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in SelectedItems())
             {
                 StatusContext.Progress(
                     $"Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
@@ -348,13 +350,13 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
-            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+            var finalString = SelectedItems().Aggregate(string.Empty,
                 (current, loopSelected) =>
                     current + @$"{BracketCodeGeoJsonLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
@@ -369,7 +371,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new GeoJsonListContext(StatusContext);
+            ListContext = new ContentListContext(StatusContext, new GeoJsonLoader(100));
 
             GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
             EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
@@ -389,20 +391,22 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
+                await ExcelHelpers.SelectedToExcel(SelectedItems()?.Cast<dynamic>().ToList(), StatusContext));
+
+            await ListContext.LoadData();
         }
 
         private async Task MapBracketCodesToClipboardForSelected()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
-            var finalString = ListContext.SelectedItems.Aggregate(string.Empty,
+            var finalString = SelectedItems().Aggregate(string.Empty,
                 (current, loopSelected) =>
                     current + @$"{BracketCodeGeoJson.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
@@ -432,7 +436,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -440,7 +444,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in SelectedItems())
             {
                 var url = $@"http://{settings.GeoJsonPageUrl(loopSelected.DbEntry)}";
 
@@ -449,11 +453,18 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             }
         }
 
+        public List<GeoJsonListListItem> SelectedItems()
+        {
+            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is GeoJsonListListItem)
+                .Cast<GeoJsonListListItem>()
+                .ToList() ?? new List<GeoJsonListListItem>();
+        }
+
         private async Task ViewHistory()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext.SelectedItems;
+            var selected = SelectedItems();
 
             if (selected == null || !selected.Any())
             {

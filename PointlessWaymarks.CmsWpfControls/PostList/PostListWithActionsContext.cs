@@ -410,7 +410,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new PostListLoader(20));
+            ListContext = new ContentListContext(StatusContext, new PostListLoader(100));
 
             GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
             EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);

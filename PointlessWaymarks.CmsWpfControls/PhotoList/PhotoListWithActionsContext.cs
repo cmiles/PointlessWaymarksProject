@@ -576,11 +576,11 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new PhotoListLoader(20));
-
-            await ListContext.LoadData();
+            ListContext = new ContentListContext(StatusContext, new PhotoListLoader(100));
 
             SetupCommands();
+
+            await ListContext.LoadData();
         }
 
 

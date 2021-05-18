@@ -2,6 +2,7 @@
     x:Class="PointlessWaymarks.CmsWpfControls.LinkList.LinkListWithActionsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contentList="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:linkList="clr-namespace:PointlessWaymarks.CmsWpfControls.LinkList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -29,7 +30,7 @@
                 <MenuItem Command="{Binding ImportFromExcelFileCommand}" Header="Import From Excel" />
             </MenuItem>
         </Menu>
-        <linkList:LinkListControl
+        <contentList:ContentListControl
             Grid.Row="1"
             Margin="4,5,4,6"
             DataContext="{Binding ListContext}" />

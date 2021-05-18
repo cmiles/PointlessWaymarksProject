@@ -48,7 +48,7 @@
             <GroupBox
                 Header="Load All Items"
                 Style="{StaticResource UiComponentGroupBoxStyle}"
-                Visibility="{Binding AllItemsLoaded, Converter={StaticResource BooleanNotVisibility}}">
+                Visibility="{Binding ContentListLoader.AllItemsLoaded, Converter={StaticResource BooleanNotVisibility}}">
                 <Button
                     Height="24"
                     VerticalAlignment="Center"

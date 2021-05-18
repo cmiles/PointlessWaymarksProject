@@ -1,15 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Database;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
     public abstract class ContentListLoaderBase : IContentListLoader
     {
+        public ContentListLoaderBase(int? partialLoadQuantity)
+        {
+            PartialLoadQuantity = partialLoadQuantity;
+        }
+        
         private bool _addNewItemsFromDataNotifications;
         private bool _allItemsLoaded;
 
@@ -17,11 +25,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             new();
 
         private int? _partialLoadQuantity;
-
-        public ContentListLoaderBase(int? partialLoadQuantity)
-        {
-            PartialLoadQuantity = partialLoadQuantity;
-        }
 
         public bool AddNewItemsFromDataNotifications
         {

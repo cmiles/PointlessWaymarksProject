@@ -476,6 +476,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             {
                 FileContent f => FileListItemActions.ListItemFromDbItem(f, FileItemActions),
                 GeoJsonContent g => GeoJsonListItemActions.ListItemFromDbItem(g, GeoJasonItemActions),
+                ImageContent g => ImageListItemActions.ListItemFromDbItem(g, ImageItemActions),
                 LineContent l => LineListItemActions.ListItemFromDbItem(l, LineItemActions),
                 LinkContent k => LinkListItemActions.ListItemFromDbItem(k, LinkItemActions),
                 MapComponent m => MapComponentListItemActions.ListItemFromDbItem(m, MapComponentItemActions),

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 
@@ -12,6 +13,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
     {
         public PostListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
         {
+            DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Post};
         }
 
         public override async Task<bool> CheckAllItemsAreLoaded()

@@ -7,14 +7,13 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 
-namespace PointlessWaymarks.CmsWpfControls.PhotoList
+namespace PointlessWaymarks.CmsWpfControls.FileList
 {
-    public class PhotoListLoader : ContentListLoaderBase
+    public class FileListLoader : ContentListLoaderBase
     {
-        public PhotoListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public FileListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
         {
-            DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
-                {DataNotificationContentType.Photo};
+            DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.File};
         }
 
         public override async Task<bool> CheckAllItemsAreLoaded()
@@ -23,7 +22,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             var db = await Db.Context();
 
-            return !(await db.PhotoContents.CountAsync() > PartialLoadQuantity);
+            return !(await db.FileContents.CountAsync() > PartialLoadQuantity);
         }
 
         public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
@@ -34,9 +33,9 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             if (PartialLoadQuantity != null)
             {
-                progress?.Report($"Loading Photo Content from DB - Max {PartialLoadQuantity} Items");
+                progress?.Report($"Loading File Content from DB - Max {PartialLoadQuantity} Items");
                 listItems.AddRange(
-                    await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                         .Take(PartialLoadQuantity.Value).ToListAsync());
 
                 AllItemsLoaded = await CheckAllItemsAreLoaded();
@@ -44,9 +43,9 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 return listItems;
             }
 
-            progress?.Report("Loading Photo Content from DB");
+            progress?.Report("Loading File Content from DB");
             listItems.AddRange(
-                await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                     .ToListAsync());
 
             return listItems;

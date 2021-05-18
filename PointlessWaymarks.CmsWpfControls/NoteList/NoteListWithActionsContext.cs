@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -30,7 +31,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         private Command _generateSelectedHtmlCommand;
         private Command _importFromExcelFileCommand;
         private Command _importFromOpenExcelInstanceCommand;
-        private NoteListContext _listContext;
+        private ContentListContext _listContext;
         private Command _newContentCommand;
         private Command _openUrlForSelectedCommand;
         private Command _postCodesToClipboardForSelectedCommand;
@@ -124,7 +125,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
-        public NoteListContext ListContext
+        public ContentListContext ListContext
         {
             get => _listContext;
             set
@@ -218,9 +219,9 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext?.SelectedItems?.OrderBy(x => x.DbEntry.Title).ToList();
+            var selected = SelectedItems().OrderBy(x => x.DbEntry.Title).ToList();
 
-            if (selected == null || !selected.Any())
+            if (!selected.Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -259,7 +260,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -267,7 +268,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
 
             var context = await Db.Context();
-            var frozenList = ListContext.SelectedItems;
+            var frozenList = SelectedItems();
 
             foreach (var loopSelected in frozenList)
             {
@@ -296,19 +297,19 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
-            if (ListContext.SelectedItems.Count > 1)
+            if (SelectedItems().Count > 1)
             {
                 StatusContext.ToastError("Please select only 1 item...");
                 return;
             }
 
-            var frozenSelected = ListContext.SelectedItems.First();
+            var frozenSelected = SelectedItems().First();
 
             var emailHtml = await Email.ToHtmlEmail(frozenSelected.DbEntry, StatusContext.ProgressTracker());
 
@@ -323,14 +324,14 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var context = await Db.Context();
-            var frozenList = ListContext.SelectedItems;
+            var frozenList = SelectedItems();
 
             foreach (var loopSelected in frozenList)
             {
@@ -348,16 +349,16 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
             var loopCount = 1;
-            var totalCount = ListContext.SelectedItems.Count;
+            var totalCount = SelectedItems().Count;
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in SelectedItems())
             {
                 StatusContext.Progress(
                     $"Generating Html for Note {loopSelected.DbEntry.Slug}, {loopCount} of {totalCount}");
@@ -376,7 +377,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new NoteListContext(StatusContext);
+            ListContext = new ContentListContext(StatusContext, new NoteListLoader(100));
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
@@ -396,7 +397,9 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ExcelHelpers.SelectedToExcel(ListContext.SelectedItems?.Cast<dynamic>().ToList(), StatusContext));
+                await ExcelHelpers.SelectedToExcel(SelectedItems()?.Cast<dynamic>().ToList(), StatusContext));
+
+            await ListContext.LoadData();
         }
 
         private async Task NewContent()
@@ -412,7 +415,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -420,7 +423,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             var finalString = string.Empty;
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in SelectedItems())
                 finalString +=
                     @$"{{{{notelink {loopSelected.DbEntry.ContentId}; {loopSelected.DbEntry.Slug}}}}}{Environment.NewLine}";
 
@@ -441,7 +444,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (ListContext.SelectedItems == null || !ListContext.SelectedItems.Any())
+            if (SelectedItems() == null || !SelectedItems().Any())
             {
                 StatusContext.ToastError("Nothing Selected?");
                 return;
@@ -449,7 +452,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            foreach (var loopSelected in ListContext.SelectedItems)
+            foreach (var loopSelected in SelectedItems())
             {
                 var url = $@"http://{settings.NotePageUrl(loopSelected.DbEntry)}";
 
@@ -458,11 +461,18 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
+        public List<NoteListListItem> SelectedItems()
+        {
+            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is NoteListListItem)
+                .Cast<NoteListListItem>()
+                .ToList() ?? new List<NoteListListItem>();
+        }
+
         private async Task ViewHistory()
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var selected = ListContext.SelectedItems;
+            var selected = SelectedItems();
 
             if (selected == null || !selected.Any())
             {

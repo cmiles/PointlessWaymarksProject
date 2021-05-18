@@ -7,14 +7,14 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 
-namespace PointlessWaymarks.CmsWpfControls.PhotoList
+namespace PointlessWaymarks.CmsWpfControls.PointList
 {
-    public class PhotoListLoader : ContentListLoaderBase
+    public class PointListLoader : ContentListLoaderBase
     {
-        public PhotoListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public PointListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
-                {DataNotificationContentType.Photo};
+                {DataNotificationContentType.Point};
         }
 
         public override async Task<bool> CheckAllItemsAreLoaded()
@@ -23,7 +23,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             var db = await Db.Context();
 
-            return !(await db.PhotoContents.CountAsync() > PartialLoadQuantity);
+            return !(await db.PointContents.CountAsync() > PartialLoadQuantity);
         }
 
         public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
@@ -34,9 +34,9 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             if (PartialLoadQuantity != null)
             {
-                progress?.Report($"Loading Photo Content from DB - Max {PartialLoadQuantity} Items");
+                progress?.Report($"Loading Point Content from DB - Max {PartialLoadQuantity} Items");
                 listItems.AddRange(
-                    await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                         .Take(PartialLoadQuantity.Value).ToListAsync());
 
                 AllItemsLoaded = await CheckAllItemsAreLoaded();
@@ -44,9 +44,9 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 return listItems;
             }
 
-            progress?.Report("Loading Photo Content from DB");
+            progress?.Report("Loading Point Content from DB");
             listItems.AddRange(
-                await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                     .ToListAsync());
 
             return listItems;
