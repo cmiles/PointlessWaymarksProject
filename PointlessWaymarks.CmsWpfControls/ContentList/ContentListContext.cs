@@ -474,16 +474,22 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         {
             return dbItem switch
             {
-                FileContent f => FileListItemActions.ListItemFromDbItem(f, FileItemActions),
-                GeoJsonContent g => GeoJsonListItemActions.ListItemFromDbItem(g, GeoJasonItemActions),
-                ImageContent g => ImageListItemActions.ListItemFromDbItem(g, ImageItemActions),
-                LineContent l => LineListItemActions.ListItemFromDbItem(l, LineItemActions),
-                LinkContent k => LinkListItemActions.ListItemFromDbItem(k, LinkItemActions),
-                MapComponent m => MapComponentListItemActions.ListItemFromDbItem(m, MapComponentItemActions),
-                NoteContent n => NoteListItemAction.ListItemFromDbItem(n, NoteItemActions),
-                PhotoContent ph => PhotoListItemActions.ListItemFromDbItem(ph, PhotoItemActions),
-                PointContent pt => PointListItemActions.ListItemFromDbItem(pt, PointItemActions),
-                PostContent po => PostListItemActions.ListItemFromDbItem(po, PostItemActions),
+                FileContent f => FileListItemActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
+                GeoJsonContent g => GeoJsonListItemActions.ListItemFromDbItem(g, GeoJasonItemActions,
+                    ContentListLoader.ShowType),
+                ImageContent g => ImageListItemActions.ListItemFromDbItem(g, ImageItemActions,
+                    ContentListLoader.ShowType),
+                LineContent l => LineListItemActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
+                LinkContent k => LinkListItemActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
+                MapComponent m => MapComponentListItemActions.ListItemFromDbItem(m, MapComponentItemActions,
+                    ContentListLoader.ShowType),
+                NoteContent n => NoteListItemAction.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
+                PhotoContent ph => PhotoListItemActions.ListItemFromDbItem(ph, PhotoItemActions,
+                    ContentListLoader.ShowType),
+                PointContent pt => PointListItemActions.ListItemFromDbItem(pt, PointItemActions,
+                    ContentListLoader.ShowType),
+                PostContent po => PostListItemActions.ListItemFromDbItem(po, PostItemActions,
+                    ContentListLoader.ShowType),
                 _ => null
             };
         }

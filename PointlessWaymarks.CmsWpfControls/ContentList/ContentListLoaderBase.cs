@@ -18,6 +18,8 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
         private int? _partialLoadQuantity;
 
+        private bool _showType;
+
         public ContentListLoaderBase(int? partialLoadQuantity)
         {
             PartialLoadQuantity = partialLoadQuantity;
@@ -67,6 +69,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             {
                 if (value == _partialLoadQuantity) return;
                 _partialLoadQuantity = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowType
+        {
+            get => _showType;
+            set
+            {
+                if (value == _showType) return;
+                _showType = value;
                 OnPropertyChanged();
             }
         }

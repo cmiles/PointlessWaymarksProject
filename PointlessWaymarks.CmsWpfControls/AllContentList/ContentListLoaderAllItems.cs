@@ -12,6 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
     {
         public ContentListLoaderAllItems(int? partialLoadQuantity) : base(partialLoadQuantity)
         {
+            ShowType = true;
         }
 
         public override async Task<bool> CheckAllItemsAreLoaded()

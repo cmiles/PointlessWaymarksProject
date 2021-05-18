@@ -12,6 +12,8 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         private GeoJsonContent _dbEntry;
         private GeoJsonListItemActions _itemActions;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
+
+        private bool _showType;
         private string _smallImageUrl;
 
         public GeoJsonContent DbEntry
@@ -32,6 +34,17 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             {
                 if (Equals(value, _itemActions)) return;
                 _itemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowType
+        {
+            get => _showType;
+            set
+            {
+                if (value == _showType) return;
+                _showType = value;
                 OnPropertyChanged();
             }
         }

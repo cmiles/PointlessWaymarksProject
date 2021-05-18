@@ -109,9 +109,14 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         }
 
 
-        public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkListItemActions itemActions)
+        public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkListItemActions itemActions,
+            bool showType)
         {
-            var newItem = new LinkListListItem {DbEntry = content, ItemActions = itemActions};
+            var newItem = new LinkListListItem
+            {
+                DbEntry = content, ItemActions = itemActions,
+                ShowType = showType
+            };
 
             return newItem;
         }

@@ -170,11 +170,7 @@
                             dd:DragDrop.IsDropTarget="True"
                             ItemTemplateSelector="{StaticResource MapElementSelector}"
                             ItemsSource="{Binding MapElements}"
-                            Style="{StaticResource ContentListListBoxStyle}">
-                            <b:Interaction.Behaviors>
-                                <wpfBehavior:ListBoxOneLineMouseWheelScroll />
-                            </b:Interaction.Behaviors>
-                        </ListBox>
+                            Style="{StaticResource ContentListListBoxStyle}" />
                     </GroupBox>
                 </Grid>
             </TabItem>

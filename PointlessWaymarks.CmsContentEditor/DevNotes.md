@@ -1,4 +1,8 @@
 ﻿## Todos
+ - All Items Tab
+   - Menu Items for creating all types
+   - Visible edit button/option
+   - Excel Options 
  - The GUI Context tests are breaking - longer waits needed for the background events to run? Something else?
  - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?
  - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
@@ -7,7 +11,6 @@
    - Cancellation
    - in Update Notes
    - Potentially in editor
- - Sorting needs better interface and visual indicators
  - Should temp files be auto-deleted or live forever? Review.
  - Review Item History 
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
@@ -25,6 +28,12 @@ Site:
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
  
 ## Notes
+
+5/18/2021
+
+Finished out the basic conversion to using a single Content List base control for all the lists. This immediately implemented the better sorting control for all lists and also the limited initial load/load all functionality for all lists and triggered some cleanup. As noted on 5/17 this added some complexity as well, but I think brought enough benefits to be worth it.
+
+All Items List - Added an all items list as the first tab. In a program that was targeted to a more general audience I can see an argument for letting this be the only content list tab perhaps with a few extra filters - simpler, search allows access to everything in a currently familiar/understandable way, menu bar still allows access to special type specific reporting/actions... However atm this program has no user base other than me and as reasonable I am letting my own use of the program guide features - the all content list could change my opinion but I currently very much like having pre-made tabs for the different content types - it makes it very quick and easy to see the latest photos/files/images while working on a post with nearly zero extra effort to understand which type I am looking at/for/thru, a content list with more filters and a setup where you could add tabs new 'search' tabs could simulate that but then the user has to do the setup each time which I don't like. So all things considered leaving all tabs for now and might look at settings or other options based on what emerges using the program...
 
 5/17/2021
 

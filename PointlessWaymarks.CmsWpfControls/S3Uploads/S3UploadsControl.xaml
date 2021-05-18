@@ -332,7 +332,6 @@
                 VirtualizingPanel.ScrollUnit="Pixel">
                 <b:Interaction.Behaviors>
                     <wpfBehavior:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
-                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
                 <ListBox.InputBindings>
                     <KeyBinding Key="Delete" Command="{Binding Path=RemoveSelectedItemsCommand}" />

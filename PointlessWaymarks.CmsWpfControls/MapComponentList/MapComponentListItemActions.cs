@@ -73,9 +73,13 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
         }
 
         public static MapComponentListListItem ListItemFromDbItem(MapComponent content,
-            MapComponentListItemActions itemActions)
+            MapComponentListItemActions itemActions, bool showType)
         {
-            return new() {DbEntry = content, ItemActions = itemActions};
+            return new()
+            {
+                DbEntry = content, ItemActions = itemActions,
+                ShowType = showType
+            };
         }
 
         [NotifyPropertyChangedInvocator]

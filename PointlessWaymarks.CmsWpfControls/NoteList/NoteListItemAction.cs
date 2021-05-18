@@ -72,9 +72,14 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public static NoteListListItem ListItemFromDbItem(NoteContent content, NoteListItemAction itemActions)
+        public static NoteListListItem ListItemFromDbItem(NoteContent content, NoteListItemAction itemActions,
+            bool showType)
         {
-            var newItem = new NoteListListItem {DbEntry = content, ItemActions = itemActions};
+            var newItem = new NoteListListItem
+            {
+                DbEntry = content, ItemActions = itemActions,
+                ShowType = showType
+            };
 
             return newItem;
         }

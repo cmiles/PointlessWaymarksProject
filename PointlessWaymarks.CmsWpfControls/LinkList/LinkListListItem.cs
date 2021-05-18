@@ -16,6 +16,8 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         private string _linkContentString;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
 
+        private bool _showType;
+
         public LinkContent DbEntry
         {
             get => _dbEntry;
@@ -47,6 +49,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             {
                 if (value == _linkContentString) return;
                 _linkContentString = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowType
+        {
+            get => _showType;
+            set
+            {
+                if (value == _showType) return;
+                _showType = value;
                 OnPropertyChanged();
             }
         }

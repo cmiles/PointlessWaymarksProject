@@ -12,6 +12,8 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         private ImageContent _dbEntry;
         private ImageListItemActions _itemActions;
         private CurrentSelectedTextTracker _selectedTextTracker;
+
+        private bool _showType;
         private string _smallImageUrl;
 
         public ImageContent DbEntry
@@ -32,6 +34,17 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             {
                 if (Equals(value, _itemActions)) return;
                 _itemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowType
+        {
+            get => _showType;
+            set
+            {
+                if (value == _showType) return;
+                _showType = value;
                 OnPropertyChanged();
             }
         }

@@ -87,12 +87,14 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public static FileListListItem ListItemFromDbItem(FileContent content, FileListItemActions itemActions)
+        public static FileListListItem ListItemFromDbItem(FileContent content, FileListItemActions itemActions,
+            bool showType)
         {
             return new()
             {
                 DbEntry = content, SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-                ItemActions = itemActions
+                ItemActions = itemActions,
+                ShowType = showType
             };
         }
 

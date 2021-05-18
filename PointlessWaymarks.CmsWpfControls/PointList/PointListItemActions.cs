@@ -75,12 +75,14 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public static PointListListItem ListItemFromDbItem(PointContent content, PointListItemActions itemActions)
+        public static PointListListItem ListItemFromDbItem(PointContent content, PointListItemActions itemActions,
+            bool showType)
         {
             return new()
             {
                 DbEntry = content, SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-                ItemActions = itemActions
+                ItemActions = itemActions,
+                ShowType = showType
             };
         }
 

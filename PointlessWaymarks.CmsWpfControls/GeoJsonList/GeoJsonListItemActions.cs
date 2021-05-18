@@ -73,12 +73,14 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public static GeoJsonListListItem ListItemFromDbItem(GeoJsonContent content, GeoJsonListItemActions itemActions)
+        public static GeoJsonListListItem ListItemFromDbItem(GeoJsonContent content, GeoJsonListItemActions itemActions,
+            bool showType)
         {
             return new()
             {
                 DbEntry = content, SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-                ItemActions = itemActions
+                ItemActions = itemActions,
+                ShowType = showType
             };
         }
 

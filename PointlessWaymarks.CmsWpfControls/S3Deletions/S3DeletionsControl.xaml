@@ -62,9 +62,6 @@
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectionChanged="Selector_OnSelectionChanged"
                 SelectionMode="Extended">
-                <b:Interaction.Behaviors>
-                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
-                </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="s3Deletions:S3DeletionsItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">

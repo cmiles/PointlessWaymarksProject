@@ -62,9 +62,6 @@
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectionChanged="Selector_OnSelectionChanged"
                 SelectionMode="Extended">
-                <b:Interaction.Behaviors>
-                    <wpfBehavior:ListBoxOneLineMouseWheelScroll />
-                </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="wordPressXmlImport:WordPressXmlImportListItem">
                         <Border Style="{StaticResource ContentListOuterBorderStyle}">

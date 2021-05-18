@@ -16,12 +16,15 @@
     xmlns:pointList="clr-namespace:PointlessWaymarks.CmsWpfControls.PointList"
     xmlns:postList="clr-namespace:PointlessWaymarks.CmsWpfControls.PostList"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
+    xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon">
     <wpfConverter:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
     <wpfConverter:NullOrWhiteSpaceStringToDefaultConverter x:Key="StringDefault" />
     <wpfConverter:IsoConverter x:Key="IsoWithDefault" />
     <wpfConverter:CreatedOnDayConverter x:Key="CreatedOnDay" />
+    <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    <utility:ListItemTypeToReadableNameConverter x:Key="ListItemTypeToReadableName" />
     <Style x:Key="ActionPanelButtonStyle" TargetType="Button">
         <Setter Property="Margin" Value="4" />
         <Setter Property="Height" Value="24" />
@@ -149,6 +152,21 @@
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.Title, Mode=OneWay}"
             TextWrapping="Wrap">
+            <b:Interaction.Behaviors>
+                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+            </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </TextBox>
+        <TextBox
+            Margin="6,0,0,0"
+            Style="{StaticResource ReadOnlyTextBoxStyle}"
+            Text="{Binding ., Mode=OneWay, Converter={StaticResource ListItemTypeToReadableName}}"
+            TextWrapping="Wrap"
+            Visibility="{Binding ShowType, Converter={StaticResource BooleanToVisibility}}">
             <b:Interaction.Behaviors>
                 <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
             </b:Interaction.Behaviors>
