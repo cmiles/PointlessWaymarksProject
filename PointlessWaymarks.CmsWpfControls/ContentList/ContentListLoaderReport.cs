@@ -24,6 +24,8 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             if (_loaderFunc != null) listItems.AddRange(await _loaderFunc());
 
+            AllItemsLoaded = true;
+            
             return listItems;
         }
     }
