@@ -1,14 +1,21 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -16,55 +23,73 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList
 {
-    public class FileListItemActions : INotifyPropertyChanged
+    public class FileListItemActions : IListItemActions<FileContent>
     {
-        private Command<FileContent> _editContentCommand;
+        private Command<FileContent> _deleteCommand;
+        private Command<FileContent> _editCommand;
+        private Command<FileContent> _extractNewLinksCommand;
+        private Command<FileContent> _generateHtmlCommand;
+        private Command<FileContent> _linkCodeToClipboardCommand;
+        private Command _newContentCommand;
+        private Command<FileContent> _openUrlCommand;
         private StatusControlContext _statusContext;
         private Command<FileContent> _viewFileCommand;
+        private Command<FileContent> _viewHistoryCommand;
 
         public FileListItemActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(EditContent);
+            DeleteCommand = StatusContext.RunBlockingTaskCommand<FileContent>(Delete);
+            EditCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(Edit);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ExtractNewLinks);
+            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(GenerateHtml);
+            LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<FileContent>(LinkCodeToClipboard);
+            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
+            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(OpenUrl);
             ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewHistory);
         }
 
-        public Command<FileContent> EditContentCommand
+        public async Task Delete(FileContent content)
         {
-            get => _editContentCommand;
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            if (content.Id < 1)
+            {
+                StatusContext.ToastError($"File {content.Title} - Entry is not saved - Skipping?");
+                return;
+            }
+
+            await Db.DeleteFileContent(content.ContentId, StatusContext.ProgressTracker());
+
+            var possibleContentDirectory = settings.LocalSiteFileContentDirectory(content, false);
+            if (possibleContentDirectory.Exists)
+            {
+                StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
+                possibleContentDirectory.Delete(true);
+            }
+        }
+
+        public Command<FileContent> DeleteCommand
+        {
+            get => _deleteCommand;
             set
             {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
+                if (Equals(value, _deleteCommand)) return;
+                _deleteCommand = value;
                 OnPropertyChanged();
             }
         }
 
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<FileContent> ViewFileCommand
-        {
-            get => _viewFileCommand;
-            set
-            {
-                if (Equals(value, _viewFileCommand)) return;
-                _viewFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private async Task EditContent(FileContent content)
+        public async Task Edit(FileContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -87,25 +112,172 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public static FileListListItem ListItemFromDbItem(FileContent content, FileListItemActions itemActions,
-            bool showType)
+        public Command<FileContent> EditCommand
         {
-            return new()
+            get => _editCommand;
+            set
             {
-                DbEntry = content, SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-                ItemActions = itemActions,
-                ShowType = showType
-            };
+                if (Equals(value, _editCommand)) return;
+                _editCommand = value;
+                OnPropertyChanged();
+            }
         }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public async Task ExtractNewLinks(FileContent content)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var context = await Db.Context();
+            var refreshedData = context.FileContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null) return;
+
+            await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+                $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
+        }
+
+        public Command<FileContent> ExtractNewLinksCommand
+        {
+            get => _extractNewLinksCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksCommand)) return;
+                _extractNewLinksCommand = value;
+                OnPropertyChanged();
+            }
         }
 
 
-        private async Task ViewFile(FileContent listItem)
+        public async Task GenerateHtml(FileContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            StatusContext.Progress($"Generating Html for {content.Title}");
+
+            var htmlContext = new SingleFilePage(content);
+
+            htmlContext.WriteLocalHtml();
+
+            StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+        }
+
+        public Command<FileContent> GenerateHtmlCommand
+        {
+            get => _generateHtmlCommand;
+            set
+            {
+                if (Equals(value, _generateHtmlCommand)) return;
+                _generateHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task LinkCodeToClipboard(FileContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = content.MainPicture != null
+                ? @$"{BracketCodeFileImage.Create(content)}{Environment.NewLine}"
+                : @$"{BracketCodeFiles.Create(content)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        public Command<FileContent> LinkCodeToClipboardCommand
+        {
+            get => _linkCodeToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkCodeToClipboardCommand)) return;
+                _linkCodeToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task NewContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new FileContentEditorWindow();
+
+            newContentWindow.PositionWindowAndShow();
+        }
+
+        public Command NewContentCommand
+        {
+            get => _newContentCommand;
+            set
+            {
+                if (Equals(value, _newContentCommand)) return;
+                _newContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task OpenUrl(FileContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var url = $@"http://{settings.FilePageUrl(content)}";
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
+        }
+
+        public Command<FileContent> OpenUrlCommand
+        {
+            get => _openUrlCommand;
+            set
+            {
+                if (Equals(value, _openUrlCommand)) return;
+                _openUrlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public async Task ViewFile(FileContent listItem)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -133,6 +305,81 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
+        }
+
+        public Command<FileContent> ViewFileCommand
+        {
+            get => _viewFileCommand;
+            set
+            {
+                if (Equals(value, _viewFileCommand)) return;
+                _viewFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task ViewHistory(FileContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var db = await Db.Context();
+
+            StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
+
+            var historicItems = await db.HistoricFileContents
+                .Where(x => x.ContentId == content.ContentId).ToListAsync();
+
+            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+            if (historicItems.Count < 1)
+            {
+                StatusContext.ToastWarning("No History to Show...");
+                return;
+            }
+
+            var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
+                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
+                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                    .Select(ObjectDumper.Dump).ToList());
+
+            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
+        }
+
+        public Command<FileContent> ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public static FileListListItem ListItemFromDbItem(FileContent content, FileListItemActions itemActions,
+            bool showType)
+        {
+            return new()
+            {
+                DbEntry = content,
+                SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
+                ItemActions = itemActions,
+                ShowType = showType
+            };
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

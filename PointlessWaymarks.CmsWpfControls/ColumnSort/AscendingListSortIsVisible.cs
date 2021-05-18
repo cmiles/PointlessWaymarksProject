@@ -10,17 +10,12 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch (value)
+            return value switch
             {
-                case null:
-                    return Visibility.Collapsed;
-
-                case ListSortDirection v:
-                    return v == ListSortDirection.Ascending ? Visibility.Visible : Visibility.Collapsed;
-
-                default:
-                    return Visibility.Collapsed;
-            }
+                null => Visibility.Collapsed,
+                ListSortDirection v => v == ListSortDirection.Ascending ? Visibility.Visible : Visibility.Collapsed,
+                _ => Visibility.Collapsed
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
