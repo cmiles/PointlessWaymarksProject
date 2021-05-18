@@ -504,9 +504,15 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 {
                     new()
                     {
-                        DisplayName = "Latest Update",
+                        DisplayName = "Updated",
                         ColumnName = "DbEntry.LatestUpdate",
                         Order = 1,
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Created",
+                        ColumnName = "DbEntry.CreatedOn",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
                     new()
@@ -514,12 +520,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                         DisplayName = "Title",
                         ColumnName = "DbEntry.Title",
                         DefaultSortDirection = ListSortDirection.Ascending
-                    },
-                    new()
-                    {
-                        DisplayName = "Created On",
-                        ColumnName = "DbEntry.CreatedOn",
-                        DefaultSortDirection = ListSortDirection.Descending
                     }
                 }
             };

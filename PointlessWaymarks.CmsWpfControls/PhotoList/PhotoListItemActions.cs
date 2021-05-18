@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -249,24 +248,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ;
         }
 
-        public static string GetSmallImageUrl(PhotoContent content)
-        {
-            if (content == null) return null;
-
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl = PictureAssetProcessing.ProcessPhotoDirectory(content).SmallPicture?.File.FullName;
-            }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
-
         private static async Task<List<object>> IsoSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -291,7 +272,10 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             PhotoListItemActions photoListItemActions)
         {
             return new()
-                {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content), ItemActions = photoListItemActions};
+            {
+                DbEntry = content, SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
+                ItemActions = photoListItemActions
+            };
         }
 
 

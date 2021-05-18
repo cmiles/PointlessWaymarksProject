@@ -278,10 +278,9 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                     new List<string> {"Yes", "No"}) == "No")
                     return;
 
-            var selectedItems = selected.ToList();
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            foreach (var loopSelected in selectedItems)
+            foreach (var loopSelected in selected)
             {
                 if (loopSelected.DbEntry == null || loopSelected.DbEntry.Id < 1)
                 {

@@ -3,9 +3,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
@@ -75,28 +75,13 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public static string GetSmallImageUrl(PointContent content)
-        {
-            if (content?.MainPicture == null) return null;
-
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
-                    ?.File.FullName;
-            }
-            catch
-            {
-                smallImageUrl = null;
-            }
-
-            return smallImageUrl;
-        }
-
         public static PointListListItem ListItemFromDbItem(PointContent content, PointListItemActions itemActions)
         {
-            return new() {DbEntry = content, SmallImageUrl = GetSmallImageUrl(content), ItemActions = itemActions};
+            return new()
+            {
+                DbEntry = content, SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
+                ItemActions = itemActions
+            };
         }
 
         [NotifyPropertyChangedInvocator]

@@ -58,10 +58,10 @@
             </GroupBox>
             <GroupBox Grid.Column="1" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <TextBox
-                    VerticalAlignment="Center"
+                    VerticalAlignment="Stretch"
                     AcceptsReturn="False"
-                    MaxLines="1"
-                    Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}" />
+                    Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=500}"
+                    TextWrapping="Wrap" />
             </GroupBox>
             <GroupBox
                 Grid.Column="2"

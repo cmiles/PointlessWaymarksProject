@@ -18,7 +18,7 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Json;
-using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.Diagnostics;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.FilesWrittenLogList;
@@ -58,6 +58,7 @@ namespace PointlessWaymarks.CmsContentEditor
         private bool _showSettingsFileChooser;
         private HelpDisplayContext _softwareComponentsHelpContext;
         private StatusControlContext _statusContext;
+        private AllItemsWithActionsContext _tabAllListContext;
         private FileListWithActionsContext _tabFileListContext;
         private GeoJsonListWithActionsContext _tabGeoJsonListContext;
         private ImageListWithActionsContext _tabImageListContext;
@@ -163,13 +164,6 @@ namespace PointlessWaymarks.CmsContentEditor
 
             //Rebuild
             ImportJsonFromDirectoryCommand = StatusContext.RunBlockingTaskCommand(ImportJsonFromDirectory);
-
-            TestWindowCommand = StatusContext.RunBlockingTaskCommand(async () =>
-            {
-                await ThreadSwitcher.ResumeForegroundAsync();
-                var x = new ContentListWindow(new ContentListLoaderAllItems(100));
-                x.Show();
-            });
 
             SettingsFileChooser = new SettingsFileChooserControlContext(StatusContext, RecentSettingsFilesNames);
 
@@ -326,6 +320,17 @@ namespace PointlessWaymarks.CmsContentEditor
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public AllItemsWithActionsContext TabAllListContext
+        {
+            get => _tabAllListContext;
+            set
+            {
+                if (Equals(value, _tabAllListContext)) return;
+                _tabAllListContext = value;
                 OnPropertyChanged();
             }
         }
@@ -726,7 +731,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
             StatusContext.Progress("Setting up UI Controls");
 
-            TabPostListContext = new PostListWithActionsContext(null);
+            TabAllListContext = new AllItemsWithActionsContext(null);
 
             SettingsEditorContext =
                 new UserSettingsEditorContext(StatusContext, UserSettingsSingleton.CurrentSettings());
@@ -742,6 +747,8 @@ namespace PointlessWaymarks.CmsContentEditor
         {
             if (SelectedTab == null) return;
 
+            if (SelectedTab.Header.ToString() == "Posts" && TabPostListContext == null)
+                TabPostListContext = new PostListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Photos" && TabPhotoListContext == null)
                 TabPhotoListContext = new PhotoListWithActionsContext(null);
             if (SelectedTab.Header.ToString() == "Images" && TabImageListContext == null)

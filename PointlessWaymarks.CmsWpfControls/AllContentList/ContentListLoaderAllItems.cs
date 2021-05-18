@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 
-namespace PointlessWaymarks.CmsWpfControls.ContentList
+namespace PointlessWaymarks.CmsWpfControls.AllContentList
 {
     public class ContentListLoaderAllItems : ContentListLoaderBase
     {

@@ -20,6 +20,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -334,7 +335,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             MapElements.Add(new MapElementListGeoJsonItem
             {
                 DbEntry = possibleGeoJson,
-                SmallImageUrl = GetSmallImageUrl(possibleGeoJson),
+                SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleGeoJson),
                 InInitialView = loopContent?.IncludeInDefaultView ?? true,
                 ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
@@ -364,7 +365,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             MapElements.Add(new MapElementListLineItem
             {
                 DbEntry = possibleLine,
-                SmallImageUrl = GetSmallImageUrl(possibleLine),
+                SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleLine),
                 InInitialView = loopContent?.IncludeInDefaultView ?? true,
                 ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
@@ -394,7 +395,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             MapElements.Add(new MapElementListPointItem
             {
                 DbEntry = possiblePoint,
-                SmallImageUrl = GetSmallImageUrl(possiblePoint),
+                SmallImageUrl = ContentListContext.GetSmallImageUrl(possiblePoint),
                 InInitialView = loopContent?.IncludeInDefaultView ?? true,
                 ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false
             });
@@ -450,26 +451,6 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
             }).ToList();
 
             return new MapComponentDto(newEntry, finalElementList);
-        }
-
-        public static string GetSmallImageUrl(IMainImage content)
-        {
-            if (content.MainPicture == null) return string.Empty;
-
-            string smallImageUrl;
-
-            try
-            {
-                smallImageUrl =
-                    PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture?.File
-                        ?.FullName ?? string.Empty;
-            }
-            catch
-            {
-                smallImageUrl = string.Empty;
-            }
-
-            return smallImageUrl;
         }
 
         public async Task LoadData(MapComponent? toLoad)

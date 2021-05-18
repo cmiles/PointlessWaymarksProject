@@ -59,7 +59,7 @@
                                         Margin="6,0,0,0"
                                         VerticalAlignment="Center"
                                         IconBrush="Black"
-                                        IconPathGeometry="{StaticResource IconDataUpArrowThick}"
+                                        IconPathGeometry="{StaticResource IconDataUpArrow}"
                                         IconSize="{StaticResource SmallIconSize}">
                                         <utility:IndicatorIcon.Visibility>
                                             <MultiBinding Converter="{StaticResource AnyNotVisibleToCollapsed}">
@@ -72,7 +72,7 @@
                                         Margin="6,0,0,0"
                                         VerticalAlignment="Center"
                                         IconBrush="Black"
-                                        IconPathGeometry="{StaticResource IconDataDownArrowThick}"
+                                        IconPathGeometry="{StaticResource IconDataDownArrow}"
                                         IconSize="{StaticResource SmallIconSize}">
                                         <utility:IndicatorIcon.Visibility>
                                             <MultiBinding Converter="{StaticResource AnyNotVisibleToCollapsed}">
