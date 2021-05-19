@@ -15,7 +15,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         Command NewContentCommand { get; set; }
         Command<T> OpenUrlCommand { get; set; }
         StatusControlContext StatusContext { get; set; }
-        Command<T> ViewFileCommand { get; set; }
         Command<T> ViewHistoryCommand { get; set; }
         Task Delete(T content);
         Task Edit(T content);
@@ -24,7 +23,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         Task LinkCodeToClipboard(T content);
         Task NewContent();
         Task OpenUrl(T content);
-        Task ViewFile(T listItem);
         Task ViewHistory(T content);
     }
 }
