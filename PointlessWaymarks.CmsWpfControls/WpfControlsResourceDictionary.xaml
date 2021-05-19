@@ -502,7 +502,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ItemActions.EditContentCommand}"
+                    Command="{Binding ItemActions.EditCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>
@@ -574,7 +574,7 @@
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding
-                    Command="{Binding ItemActions.EditContentCommand}"
+                    Command="{Binding ItemActions.EditCommand}"
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>

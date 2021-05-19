@@ -23,7 +23,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList
 {
-   public class PostListItemActions : IListItemActions<PostContent>
+    public class PostListItemActions : IListItemActions<PostContent>
     {
         private Command<PostContent> _deleteCommand;
         private Command<PostContent> _editCommand;
@@ -58,13 +58,13 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 return;
             }
 
-            var settings = UserSettingsSingleton.CurrentSettings();
-
             if (content.Id < 1)
             {
                 StatusContext.ToastError($"Post {content.Title} - Entry is not saved - Skipping?");
                 return;
             }
+
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             await Db.DeletePostContent(content.ContentId, StatusContext.ProgressTracker());
 
@@ -132,7 +132,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
 
             var context = await Db.Context();
-            
+
             var refreshedData = context.PostContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null) return;
@@ -217,7 +217,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PostContentEditorWindow(null);
+            var newContentWindow = new PostContentEditorWindow();
 
             newContentWindow.PositionWindowAndShow();
         }

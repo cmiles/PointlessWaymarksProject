@@ -50,6 +50,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewHistory);
         }
 
+        public Command<FileContent> ViewFileCommand
+        {
+            get => _viewFileCommand;
+            set
+            {
+                if (Equals(value, _viewFileCommand)) return;
+                _viewFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public async Task Delete(FileContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -60,13 +71,13 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 return;
             }
 
-            var settings = UserSettingsSingleton.CurrentSettings();
-
             if (content.Id < 1)
             {
                 StatusContext.ToastError($"File {content.Title} - Entry is not saved - Skipping?");
                 return;
             }
+
+            var settings = UserSettingsSingleton.CurrentSettings();
 
             await Db.DeleteFileContent(content.ContentId, StatusContext.ProgressTracker());
 
@@ -276,48 +287,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             }
         }
 
-
-        public async Task ViewFile(FileContent listItem)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (listItem == null)
-            {
-                StatusContext.ToastError("Nothing Items to Open?");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(listItem.OriginalFileName))
-            {
-                StatusContext.ToastError("No File?");
-                return;
-            }
-
-            var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentFile(listItem);
-
-            if (toOpen is not {Exists: true})
-            {
-                StatusContext.ToastError("File doesn't exist?");
-                return;
-            }
-
-            var url = toOpen.FullName;
-
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
-        }
-
-        public Command<FileContent> ViewFileCommand
-        {
-            get => _viewFileCommand;
-            set
-            {
-                if (Equals(value, _viewFileCommand)) return;
-                _viewFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public async Task ViewHistory(FileContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -380,6 +349,37 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
+        public async Task ViewFile(FileContent listItem)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (listItem == null)
+            {
+                StatusContext.ToastError("Nothing Items to Open?");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(listItem.OriginalFileName))
+            {
+                StatusContext.ToastError("No File?");
+                return;
+            }
+
+            var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentFile(listItem);
+
+            if (toOpen is not {Exists: true})
+            {
+                StatusContext.ToastError("File doesn't exist?");
+                return;
+            }
+
+            var url = toOpen.FullName;
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
     }
 }

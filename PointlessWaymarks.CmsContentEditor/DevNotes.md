@@ -3,6 +3,7 @@
    - Menu Items for creating all types
    - Visible edit button/option
    - Excel Options
+ - For geo types and notes review local file cleanup on delete
  - Right click context menu for items
  - The GUI Context tests are breaking - longer waits needed for the background events to run? Something else?
  - In the Conversion Data Entry Control the factory method should probably take the Conversion Function - the issue is that if you set user text and then the conversion function the user value may be unset - probably better than converting when the conversion function is set, or both?

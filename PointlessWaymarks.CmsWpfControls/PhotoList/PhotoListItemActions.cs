@@ -5,13 +5,18 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -19,17 +24,21 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList
 {
-    public class PhotoListItemActions
+    public class PhotoListItemActions : IListItemActions<PhotoContent>
     {
         private Command<PhotoContent> _apertureSearchCommand;
         private Command<PhotoContent> _cameraMakeSearchCommand;
         private Command<PhotoContent> _cameraModelSearchCommand;
-
-        private Command<PhotoContent> _editContentCommand;
+        private Command<PhotoContent> _deleteCommand;
+        private Command<PhotoContent> _editCommand;
+        private Command<PhotoContent> _extractNewLinksCommand;
         private Command<PhotoContent> _focalLengthSearchCommand;
+        private Command<PhotoContent> _generateHtmlCommand;
         private Command<PhotoContent> _isoSearchCommand;
-
         private Command<PhotoContent> _lensSearchCommand;
+        private Command<PhotoContent> _linkCodeToClipboardCommand;
+        private Command _newContentCommand;
+        private Command<PhotoContent> _openUrlCommand;
         private Command<PhotoContent> _photoTakenOnSearchCommand;
         private Command<PhotoContent> _shutterSpeedSearchCommand;
         private StatusControlContext _statusContext;
@@ -39,12 +48,18 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewImage);
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(EditContent);
+            DeleteCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(Delete);
+            EditCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(Edit);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(ExtractNewLinks);
+            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(GenerateHtml);
+            LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(LinkCodeToClipboard);
+            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
+            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(OpenUrl);
+            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewFile);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewHistory);
+
             ApertureSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await ApertureSearch(x), $"Aperture - {x.Aperture}"));
-            LensSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await LensSearch(x), $"Lens - {x.Lens}"));
             CameraMakeSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await CameraMakeSearch(x), $"Camera Make - {x.CameraMake}"));
             CameraModelSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
@@ -53,11 +68,13 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 await RunReport(async () => await FocalLengthSearch(x), $"Focal Length - {x.FocalLength}"));
             IsoSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await IsoSearch(x), $"ISO - {x.Iso}"));
-            ShutterSpeedSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
-                await RunReport(async () => await ShutterSpeedSearch(x), $"Shutter Speed - {x.ShutterSpeed}"));
+            LensSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
+                await RunReport(async () => await LensSearch(x), $"Lens - {x.Lens}"));
             PhotoTakenOnSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await PhotoTakenOnSearch(x),
                     $"Photo Created On - {x.PhotoCreatedOn.Date:D}"));
+            ShutterSpeedSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
+                await RunReport(async () => await ShutterSpeedSearch(x), $"Shutter Speed - {x.ShutterSpeed}"));
         }
 
         public Command<PhotoContent> ApertureSearchCommand
@@ -89,17 +106,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             {
                 if (Equals(value, _cameraModelSearchCommand)) return;
                 _cameraModelSearchCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<PhotoContent> EditContentCommand
-        {
-            get => _editContentCommand;
-            set
-            {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -159,6 +165,230 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
+        public Command<PhotoContent> ViewFileCommand
+        {
+            get => _viewFileCommand;
+            set
+            {
+                if (Equals(value, _viewFileCommand)) return;
+                _viewFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task Delete(PhotoContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (content.Id < 1)
+            {
+                StatusContext.ToastError("Entry is not saved - Skipping?");
+                return;
+            }
+
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            await Db.DeletePhotoContent(content.ContentId, StatusContext.ProgressTracker());
+
+            var possibleContentDirectory = settings.LocalSitePhotoContentDirectory(content, false);
+
+            if (possibleContentDirectory.Exists)
+            {
+                StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
+                possibleContentDirectory.Delete(true);
+            }
+        }
+
+        public Command<PhotoContent> DeleteCommand
+        {
+            get => _deleteCommand;
+            set
+            {
+                if (Equals(value, _deleteCommand)) return;
+                _deleteCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task Edit(PhotoContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null) return;
+
+            var context = await Db.Context();
+
+            var refreshedData = context.PhotoContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null)
+                StatusContext.ToastError(
+                    $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PhotoContentEditorWindow(refreshedData);
+
+            newContentWindow.PositionWindowAndShow();
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+        }
+
+        public Command<PhotoContent> EditCommand
+        {
+            get => _editCommand;
+            set
+            {
+                if (Equals(value, _editCommand)) return;
+                _editCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task ExtractNewLinks(PhotoContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var context = await Db.Context();
+            var refreshedData = context.PhotoContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null) return;
+
+            await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+                $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
+        }
+
+        public Command<PhotoContent> ExtractNewLinksCommand
+        {
+            get => _extractNewLinksCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksCommand)) return;
+                _extractNewLinksCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task GenerateHtml(PhotoContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            StatusContext.Progress($"Generating Html for {content.Title}");
+
+            var htmlContext = new SinglePhotoPage(content);
+
+            htmlContext.WriteLocalHtml();
+
+            StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+        }
+
+        public Command<PhotoContent> GenerateHtmlCommand
+        {
+            get => _generateHtmlCommand;
+            set
+            {
+                if (Equals(value, _generateHtmlCommand)) return;
+                _generateHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task LinkCodeToClipboard(PhotoContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = @$"{BracketCodePhotos.Create(content)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        public Command<PhotoContent> LinkCodeToClipboardCommand
+        {
+            get => _linkCodeToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkCodeToClipboardCommand)) return;
+                _linkCodeToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task NewContent()
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var newContentWindow = new PhotoContentEditorWindow();
+
+            newContentWindow.PositionWindowAndShow();
+        }
+
+        public Command NewContentCommand
+        {
+            get => _newContentCommand;
+            set
+            {
+                if (Equals(value, _newContentCommand)) return;
+                _newContentCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task OpenUrl(PhotoContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            var url = $@"http://{settings.PhotoPageUrl(content)}";
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
+        }
+
+        public Command<PhotoContent> OpenUrlCommand
+        {
+            get => _openUrlCommand;
+            set
+            {
+                if (Equals(value, _openUrlCommand)) return;
+                _openUrlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public StatusControlContext StatusContext
         {
             get => _statusContext;
@@ -170,16 +400,42 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command<PhotoContent> ViewFileCommand
+        public async Task ViewHistory(PhotoContent content)
         {
-            get => _viewFileCommand;
-            set
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
             {
-                if (Equals(value, _viewFileCommand)) return;
-                _viewFileCommand = value;
-                OnPropertyChanged();
+                StatusContext.ToastError("Nothing Selected?");
+                return;
             }
+
+            var db = await Db.Context();
+
+            StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
+
+            var historicItems = await db.HistoricPhotoContents
+                .Where(x => x.ContentId == content.ContentId).ToListAsync();
+
+            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+            if (historicItems.Count < 1)
+            {
+                StatusContext.ToastWarning("No History to Show...");
+                return;
+            }
+
+            var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
+                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
+                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                    .Select(ObjectDumper.Dump).ToList());
+
+            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
+
+        public Command<PhotoContent> ViewHistoryCommand { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private static async Task<List<object>> ApertureSearch(PhotoContent content)
         {
@@ -273,7 +529,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             return new()
             {
-                DbEntry = content, SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
+                DbEntry = content,
+                SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
                 ItemActions = photoListItemActions,
                 ShowType = showType
             };
@@ -303,8 +560,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private static async Task RunReport(Func<Task<List<object>>> toRun, string title)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -333,7 +588,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
 
-        private async Task ViewImage(PhotoContent content)
+        private async Task ViewFile(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 

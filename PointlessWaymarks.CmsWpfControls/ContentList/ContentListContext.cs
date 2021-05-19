@@ -45,7 +45,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private ColumnSortControlContext _listSort;
         private Command _loadAllCommand;
         private MapComponentListItemActions _mapComponentItemActions;
-        private NoteListItemAction _noteItemActions;
+        private NoteListItemActions _noteItemActions;
         private PhotoListItemActions _photoItemActions;
         private PointListItemActions _pointItemActions;
         private PostListItemActions _postItemActions;
@@ -65,7 +65,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             LineItemActions = new LineListItemActions(StatusContext);
             LinkItemActions = new LinkListItemActions(StatusContext);
             MapComponentItemActions = new MapComponentListItemActions(StatusContext);
-            NoteItemActions = new NoteListItemAction(StatusContext);
+            NoteItemActions = new NoteListItemActions(StatusContext);
             PointItemActions = new PointListItemActions(StatusContext);
             PhotoItemActions = new PhotoListItemActions(StatusContext);
             PostItemActions = new PostListItemActions(StatusContext);
@@ -202,7 +202,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public NoteListItemAction NoteItemActions
+        public NoteListItemActions NoteItemActions
         {
             get => _noteItemActions;
             set
@@ -483,7 +483,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 LinkContent k => LinkListItemActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
                 MapComponent m => MapComponentListItemActions.ListItemFromDbItem(m, MapComponentItemActions,
                     ContentListLoader.ShowType),
-                NoteContent n => NoteListItemAction.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
+                NoteContent n => NoteListItemActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
                 PhotoContent ph => PhotoListItemActions.ListItemFromDbItem(ph, PhotoItemActions,
                     ContentListLoader.ShowType),
                 PointContent pt => PointListItemActions.ListItemFromDbItem(pt, PointItemActions,

@@ -10,7 +10,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
     public class NoteListListItem : IContentListItem
     {
         private NoteContent _dbEntry;
-        private NoteListItemAction _itemActions;
+        private NoteListItemActions _itemActions;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
 
         private bool _showType;
@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
-        public NoteListItemAction ItemActions
+        public NoteListItemActions ItemActions
         {
             get => _itemActions;
             set
