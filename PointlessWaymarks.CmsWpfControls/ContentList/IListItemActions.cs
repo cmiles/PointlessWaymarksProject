@@ -12,7 +12,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         Command<T> ExtractNewLinksCommand { get; set; }
         Command<T> GenerateHtmlCommand { get; set; }
         Command<T> LinkCodeToClipboardCommand { get; set; }
-        Command NewContentCommand { get; set; }
         Command<T> OpenUrlCommand { get; set; }
         StatusControlContext StatusContext { get; set; }
         Command<T> ViewHistoryCommand { get; set; }
@@ -21,7 +20,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         Task ExtractNewLinks(T content);
         Task GenerateHtml(T content);
         Task LinkCodeToClipboard(T content);
-        Task NewContent();
         Task OpenUrl(T content);
         Task ViewHistory(T content);
     }

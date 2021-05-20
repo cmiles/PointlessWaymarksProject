@@ -29,7 +29,6 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
         private Command<MapComponent> _extractNewLinksCommand;
         private Command<MapComponent> _generateHtmlCommand;
         private Command<MapComponent> _linkCodeToClipboardCommand;
-        private Command _newContentCommand;
         private Command<MapComponent> _openUrlCommand;
         private StatusControlContext _statusContext;
         private Command<MapComponent> _viewHistoryCommand;
@@ -42,7 +41,6 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(GenerateHtml);
             LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(LinkCodeToClipboard);
-            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(OpenUrl);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(ViewHistory);
         }
@@ -197,26 +195,6 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
             {
                 if (Equals(value, _linkCodeToClipboardCommand)) return;
                 _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new MapComponentEditorWindow(null);
-
-            newContentWindow.PositionWindowAndShow();
-        }
-
-        public Command NewContentCommand
-        {
-            get => _newContentCommand;
-            set
-            {
-                if (Equals(value, _newContentCommand)) return;
-                _newContentCommand = value;
                 OnPropertyChanged();
             }
         }

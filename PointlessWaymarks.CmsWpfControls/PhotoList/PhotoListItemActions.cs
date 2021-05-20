@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -37,7 +41,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private Command<PhotoContent> _isoSearchCommand;
         private Command<PhotoContent> _lensSearchCommand;
         private Command<PhotoContent> _linkCodeToClipboardCommand;
-        private Command _newContentCommand;
         private Command<PhotoContent> _openUrlCommand;
         private Command<PhotoContent> _photoTakenOnSearchCommand;
         private Command<PhotoContent> _shutterSpeedSearchCommand;
@@ -53,7 +56,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(GenerateHtml);
             LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(LinkCodeToClipboard);
-            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(OpenUrl);
             ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewFile);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewHistory);
@@ -336,26 +338,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             {
                 if (Equals(value, _linkCodeToClipboardCommand)) return;
                 _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PhotoContentEditorWindow();
-
-            newContentWindow.PositionWindowAndShow();
-        }
-
-        public Command NewContentCommand
-        {
-            get => _newContentCommand;
-            set
-            {
-                if (Equals(value, _newContentCommand)) return;
-                _newContentCommand = value;
                 OnPropertyChanged();
             }
         }

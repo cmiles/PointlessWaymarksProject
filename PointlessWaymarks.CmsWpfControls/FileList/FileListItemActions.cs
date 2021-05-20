@@ -30,7 +30,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private Command<FileContent> _extractNewLinksCommand;
         private Command<FileContent> _generateHtmlCommand;
         private Command<FileContent> _linkCodeToClipboardCommand;
-        private Command _newContentCommand;
         private Command<FileContent> _openUrlCommand;
         private StatusControlContext _statusContext;
         private Command<FileContent> _viewFileCommand;
@@ -44,7 +43,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(GenerateHtml);
             LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<FileContent>(LinkCodeToClipboard);
-            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(OpenUrl);
             ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewHistory);
@@ -223,26 +221,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             {
                 if (Equals(value, _linkCodeToClipboardCommand)) return;
                 _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new FileContentEditorWindow();
-
-            newContentWindow.PositionWindowAndShow();
-        }
-
-        public Command NewContentCommand
-        {
-            get => _newContentCommand;
-            set
-            {
-                if (Equals(value, _newContentCommand)) return;
-                _newContentCommand = value;
                 OnPropertyChanged();
             }
         }

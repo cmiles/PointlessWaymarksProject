@@ -30,7 +30,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         private Command<GeoJsonContent> _extractNewLinksCommand;
         private Command<GeoJsonContent> _generateHtmlCommand;
         private Command<GeoJsonContent> _linkCodeToClipboardCommand;
-        private Command _newContentCommand;
         private Command<GeoJsonContent> _openUrlCommand;
         private StatusControlContext _statusContext;
         private Command<GeoJsonContent> _viewHistoryCommand;
@@ -43,7 +42,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(GenerateHtml);
             LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(LinkCodeToClipboard);
-            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(OpenUrl);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(ViewHistory);
         }
@@ -209,26 +207,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
             {
                 if (Equals(value, _linkCodeToClipboardCommand)) return;
                 _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new GeoJsonContentEditorWindow(null);
-
-            newContentWindow.PositionWindowAndShow();
-        }
-
-        public Command NewContentCommand
-        {
-            get => _newContentCommand;
-            set
-            {
-                if (Equals(value, _newContentCommand)) return;
-                _newContentCommand = value;
                 OnPropertyChanged();
             }
         }

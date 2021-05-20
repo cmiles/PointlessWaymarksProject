@@ -30,7 +30,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         private Command<PointContent> _extractNewLinksCommand;
         private Command<PointContent> _generateHtmlCommand;
         private Command<PointContent> _linkCodeToClipboardCommand;
-        private Command _newContentCommand;
         private Command<PointContent> _openUrlCommand;
         private StatusControlContext _statusContext;
         private Command<PointContent> _viewHistoryCommand;
@@ -43,7 +42,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PointContent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PointContent>(GenerateHtml);
             LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PointContent>(LinkCodeToClipboard);
-            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PointContent>(OpenUrl);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(ViewHistory);
         }
@@ -220,27 +218,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
                 OnPropertyChanged();
             }
         }
-
-        public async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PointContentEditorWindow(null);
-
-            newContentWindow.PositionWindowAndShow();
-        }
-
-        public Command NewContentCommand
-        {
-            get => _newContentCommand;
-            set
-            {
-                if (Equals(value, _newContentCommand)) return;
-                _newContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
+        
         public async Task OpenUrl(PointContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();

@@ -30,7 +30,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         private Command<PostContent> _extractNewLinksCommand;
         private Command<PostContent> _generateHtmlCommand;
         private Command<PostContent> _linkCodeToClipboardCommand;
-        private Command _newContentCommand;
         private Command<PostContent> _openUrlCommand;
         private StatusControlContext _statusContext;
         private Command<PostContent> _viewHistoryCommand;
@@ -43,7 +42,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PostContent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PostContent>(GenerateHtml);
             LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PostContent>(LinkCodeToClipboard);
-            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PostContent>(OpenUrl);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(ViewHistory);
         }
@@ -209,26 +207,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             {
                 if (Equals(value, _linkCodeToClipboardCommand)) return;
                 _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PostContentEditorWindow();
-
-            newContentWindow.PositionWindowAndShow();
-        }
-
-        public Command NewContentCommand
-        {
-            get => _newContentCommand;
-            set
-            {
-                if (Equals(value, _newContentCommand)) return;
-                _newContentCommand = value;
                 OnPropertyChanged();
             }
         }

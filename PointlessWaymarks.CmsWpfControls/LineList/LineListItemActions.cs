@@ -30,7 +30,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         private Command<LineContent> _extractNewLinksCommand;
         private Command<LineContent> _generateHtmlCommand;
         private Command<LineContent> _linkCodeToClipboardCommand;
-        private Command _newContentCommand;
         private Command<LineContent> _openUrlCommand;
         private StatusControlContext _statusContext;
         private Command<LineContent> _viewHistoryCommand;
@@ -43,7 +42,6 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LineContent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<LineContent>(GenerateHtml);
             LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LineContent>(LinkCodeToClipboard);
-            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<LineContent>(OpenUrl);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LineContent>(ViewHistory);
         }
@@ -212,27 +210,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
                 OnPropertyChanged();
             }
         }
-
-        public async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new LineContentEditorWindow(null);
-
-            newContentWindow.PositionWindowAndShow();
-        }
-
-        public Command NewContentCommand
-        {
-            get => _newContentCommand;
-            set
-            {
-                if (Equals(value, _newContentCommand)) return;
-                _newContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
+        
         public async Task OpenUrl(LineContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();

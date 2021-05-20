@@ -30,7 +30,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         private Command<LinkContent> _extractNewLinksCommand;
         private Command<LinkContent> _generateHtmlCommand;
         private Command<LinkContent> _linkCodeToClipboardCommand;
-        private Command _newContentCommand;
         private Command<LinkContent> _openUrlCommand;
         private StatusControlContext _statusContext;
         private Command<LinkContent> _viewHistoryCommand;
@@ -43,7 +42,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
             LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(LinkCodeToClipboard);
-            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(OpenUrl);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
 
@@ -120,17 +118,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             {
                 if (Equals(value, _linkCodeToClipboardCommand)) return;
                 _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command NewContentCommand
-        {
-            get => _newContentCommand;
-            set
-            {
-                if (Equals(value, _newContentCommand)) return;
-                _newContentCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -271,15 +258,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             bool showType)
         {
             return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
-        }
-
-        public async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new LinkContentEditorWindow(null);
-
-            newContentWindow.PositionWindowAndShow();
         }
 
         [NotifyPropertyChangedInvocator]
