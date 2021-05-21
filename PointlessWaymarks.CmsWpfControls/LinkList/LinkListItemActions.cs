@@ -5,9 +5,15 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
+using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -15,20 +21,30 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList
 {
-    public class LinkListItemActions : INotifyPropertyChanged
+    public class LinkListItemActions : IListItemActions<LinkContent>
     {
         private Command<string> _copyUrlCommand;
-        private Command<LinkContent> _editContentCommand;
-        private Command<string> _openUrlCommand;
 
-
+        private Command<LinkContent> _deleteCommand;
+        private Command<LinkContent> _editCommand;
+        private Command<LinkContent> _extractNewLinksCommand;
+        private Command<LinkContent> _generateHtmlCommand;
+        private Command<LinkContent> _linkCodeToClipboardCommand;
+        private Command<LinkContent> _openUrlCommand;
         private StatusControlContext _statusContext;
+        private Command<LinkContent> _viewHistoryCommand;
 
         public LinkListItemActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
-            EditContentCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(EditContent);
-            OpenUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(OpenUrl);
+            DeleteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(Delete);
+            EditCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(Edit);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
+            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
+            LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(LinkCodeToClipboard);
+            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(OpenUrl);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
+
             CopyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -38,6 +54,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
                 StatusContext.ToastSuccess($"To Clipboard {x}");
             });
         }
+
 
         public Command<string> CopyUrlCommand
         {
@@ -50,18 +67,62 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
-        public Command<LinkContent> EditContentCommand
+        public Command<LinkContent> DeleteCommand
         {
-            get => _editContentCommand;
+            get => _deleteCommand;
             set
             {
-                if (Equals(value, _editContentCommand)) return;
-                _editContentCommand = value;
+                if (Equals(value, _deleteCommand)) return;
+                _deleteCommand = value;
                 OnPropertyChanged();
             }
         }
 
-        public Command<string> OpenUrlCommand
+        public Command<LinkContent> EditCommand
+        {
+            get => _editCommand;
+            set
+            {
+                if (Equals(value, _editCommand)) return;
+                _editCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<LinkContent> ExtractNewLinksCommand
+        {
+            get => _extractNewLinksCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksCommand)) return;
+                _extractNewLinksCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<LinkContent> GenerateHtmlCommand
+        {
+            get => _generateHtmlCommand;
+            set
+            {
+                if (Equals(value, _generateHtmlCommand)) return;
+                _generateHtmlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<LinkContent> LinkCodeToClipboardCommand
+        {
+            get => _linkCodeToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkCodeToClipboardCommand)) return;
+                _linkCodeToClipboardCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<LinkContent> OpenUrlCommand
         {
             get => _openUrlCommand;
             set
@@ -83,9 +144,39 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
+        public Command<LinkContent> ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private async Task EditContent(LinkContent content)
+        public async Task Delete(LinkContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            if (content.Id < 1)
+            {
+                StatusContext.ToastError($"Link {content.Title} - Entry is not saved - Skipping?");
+                return;
+            }
+
+            await Db.DeleteLinkContent(content.ContentId, StatusContext.ProgressTracker());
+        }
+
+        public async Task Edit(LinkContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -96,8 +187,8 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null)
-                StatusContext.ToastError($"{content.Title} is no longer active in the database? Can not edit - " +
-                                         "look for a historic version...");
+                StatusContext.ToastError(
+                    $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -108,17 +199,65 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
+        public async Task ExtractNewLinks(LinkContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var context = await Db.Context();
+
+            var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+            if (refreshedData == null) return;
+
+            await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+                $"{refreshedData.Comments} {refreshedData.Description}", StatusContext.ProgressTracker());
+        }
+
+
+        public async Task GenerateHtml(LinkContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            StatusContext.Progress("Generating Html for Link List");
+
+            var htmlContext = new LinkListPage();
+
+            htmlContext.WriteLocalHtmlRssAndJson();
+
+            var settings = UserSettingsSingleton.CurrentSettings();
+
+            StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
+        }
+
+        public async Task LinkCodeToClipboard(LinkContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = $"[{content.Title}]({content.Url})";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
 
         public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkListItemActions itemActions,
             bool showType)
         {
-            var newItem = new LinkListListItem
-            {
-                DbEntry = content, ItemActions = itemActions,
-                ShowType = showType
-            };
-
-            return newItem;
+            return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
         }
 
         [NotifyPropertyChangedInvocator]
@@ -127,18 +266,59 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private async Task OpenUrl(string url)
+        public async Task OpenUrl(LinkContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (string.IsNullOrWhiteSpace(url))
+            if (content == null)
             {
-                StatusContext.ToastError("Link is blank?");
+                StatusContext.ToastError("Nothing Selected?");
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(content.Url))
+            {
+                StatusContext.ToastError("URL is Blank?");
+                return;
+            }
+
+            var url = content.Url;
+
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
+        }
+
+        public async Task ViewHistory(LinkContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var db = await Db.Context();
+
+            StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
+
+            var historicItems = await db.HistoricLinkContents
+                .Where(x => x.ContentId == content.ContentId).ToListAsync();
+
+            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+            if (historicItems.Count < 1)
+            {
+                StatusContext.ToastWarning("No History to Show...");
+                return;
+            }
+
+            var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
+                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
+                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                    .Select(ObjectDumper.Dump).ToList());
+
+            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
     }
 }

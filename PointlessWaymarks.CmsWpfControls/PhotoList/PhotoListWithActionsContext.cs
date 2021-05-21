@@ -850,7 +850,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                     returnList.Add(loopContents);
 
             return returnList.Cast<object>().ToList();
-            ;
         }
 
         private async Task<List<object>> ReportMultiSpacesInTitleGenerator()
@@ -859,7 +858,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             return (await db.PhotoContents.Where(x => x.Title.Contains("  ")).OrderByDescending(x => x.PhotoCreatedOn)
                 .ToListAsync()).Cast<object>().ToList();
-            ;
         }
 
         private async Task<List<object>> ReportNoTagsGenerator()

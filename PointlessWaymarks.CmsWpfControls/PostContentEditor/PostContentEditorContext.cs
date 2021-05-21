@@ -239,7 +239,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
         public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext statusContext,
-            PostContent postContent)
+            PostContent postContent = null)
         {
             var newControl = new PostContentEditorContext(statusContext);
             await newControl.LoadData(postContent);

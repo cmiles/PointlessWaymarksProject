@@ -87,7 +87,6 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             }
         }
 
-
         public Command ExtractNewLinksInSelectedCommand
         {
             get => _extractNewLinksInSelectedCommand;
@@ -534,8 +533,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
                 await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
             SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ExcelHelpers.SelectedToExcel(SelectedItems()?.Cast<dynamic>().ToList(),
-                    StatusContext));
+                await ExcelHelpers.SelectedToExcel(SelectedItems()?.Cast<dynamic>().ToList(), StatusContext));
 
             await ListContext.LoadData();
         }
@@ -625,8 +623,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
         public List<FileListListItem> SelectedItems()
         {
-            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is FileListListItem)
-                .Cast<FileListListItem>()
+            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is FileListListItem).Cast<FileListListItem>()
                 .ToList() ?? new List<FileListListItem>();
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -45,13 +46,15 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private ColumnSortControlContext _listSort;
         private Command _loadAllCommand;
         private MapComponentListItemActions _mapComponentItemActions;
-        private NoteListItemAction _noteItemActions;
+        private NoteListItemActions _noteItemActions;
         private PhotoListItemActions _photoItemActions;
         private PointListItemActions _pointItemActions;
         private PostListItemActions _postItemActions;
-        private IContentListItem _selectedItem;
         private StatusControlContext _statusContext;
         private string _userFilterText;
+        private NewContent _newActions;
+        private Command _editSelectedCommand;
+        private Command _deleteSelectedCommand;
 
         public ContentListContext(StatusControlContext statusContext, IContentListLoader loader)
         {
@@ -65,10 +68,12 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             LineItemActions = new LineListItemActions(StatusContext);
             LinkItemActions = new LinkListItemActions(StatusContext);
             MapComponentItemActions = new MapComponentListItemActions(StatusContext);
-            NoteItemActions = new NoteListItemAction(StatusContext);
+            NoteItemActions = new NoteListItemActions(StatusContext);
             PointItemActions = new PointListItemActions(StatusContext);
             PhotoItemActions = new PhotoListItemActions(StatusContext);
             PostItemActions = new PostListItemActions(StatusContext);
+
+            NewActions = new NewContent(StatusContext);
 
             DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
@@ -77,6 +82,150 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 ContentListLoader.PartialLoadQuantity = null;
                 await LoadData();
             });
+            EditSelectedCommand = StatusContext.RunBlockingTaskCommand(EditSelected);
+            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(DeleteSelected);
+        }
+
+        public Command DeleteSelectedCommand
+        {
+            get => _deleteSelectedCommand;
+            set
+            {
+                if (Equals(value, _deleteSelectedCommand)) return;
+                _deleteSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command EditSelectedCommand
+        {
+            get => _editSelectedCommand;
+            set
+            {
+                if (Equals(value, _editSelectedCommand)) return;
+                _editSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public NewContent NewActions
+        {
+            get => _newActions;
+            set
+            {
+                if (Equals(value, _newActions)) return;
+                _newActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async Task EditSelected()
+        {
+            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to Edit?");
+                return;
+            }
+
+            if (ListSelection.SelectedItems.Count > 20)
+            {
+                StatusContext.ToastWarning("Sorry - please select less than 20 items to edit...");
+                return;
+            }
+
+            var currentSelected = ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected)
+            {
+                switch (loopSelected)
+                {
+                    case FileListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case GeoJsonListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case ImageListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case LinkListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case LineListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case MapComponentListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case NoteListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case PointListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case PhotoListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case PostListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                }
+            }
+        }
+
+        public async Task DeleteSelected()
+        {
+            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to Edit?");
+                return;
+            }
+
+            if (ListSelection.SelectedItems.Count > 1)
+                if (await StatusContext.ShowMessage("Delete Multiple Items",
+                    $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
+                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
+                    new List<string> {"Yes", "No"}) == "No")
+                    return;
+
+            var currentSelected = ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected)
+            {
+                switch (loopSelected)
+                {
+                    case FileListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case GeoJsonListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case ImageListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case LinkListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case LineListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case MapComponentListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case NoteListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case PointListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case PhotoListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case PostListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                }
+            }
         }
 
         public IContentListLoader ContentListLoader
@@ -202,7 +351,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public NoteListItemAction NoteItemActions
+        public NoteListItemActions NoteItemActions
         {
             get => _noteItemActions;
             set
@@ -243,17 +392,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             {
                 if (Equals(value, _postItemActions)) return;
                 _postItemActions = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public IContentListItem SelectedItem
-        {
-            get => _selectedItem;
-            set
-            {
-                if (Equals(value, _selectedItem)) return;
-                _selectedItem = value;
                 OnPropertyChanged();
             }
         }
@@ -334,53 +472,48 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             switch (translatedMessage.ContentType)
             {
                 case DataNotificationContentType.File:
-                    dbItems = (await context.FileContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    dbItems = (await context.FileContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
                         .ToListAsync()).Cast<IContentId>().ToList();
                     break;
                 case DataNotificationContentType.GeoJson:
                     dbItems = (await context.GeoJsonContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
+                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                        .Cast<IContentId>().ToList();
                     break;
                 case DataNotificationContentType.Image:
                     dbItems = (await context.ImageContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
+                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                        .Cast<IContentId>().ToList();
                     break;
                 case DataNotificationContentType.Line:
-                    dbItems = (await context.LineContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    dbItems = (await context.LineContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
                         .ToListAsync()).Cast<IContentId>().ToList();
                     break;
                 case DataNotificationContentType.Link:
-                    dbItems = (await context.LinkContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    dbItems = (await context.LinkContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
                         .ToListAsync()).Cast<IContentId>().ToList();
                     break;
                 case DataNotificationContentType.Map:
                     dbItems = (await context.MapComponents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
+                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                        .Cast<IContentId>().ToList();
                     break;
                 case DataNotificationContentType.Note:
-                    dbItems = (await context.NoteContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    dbItems = (await context.NoteContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
                         .ToListAsync()).Cast<IContentId>().ToList();
                     break;
                 case DataNotificationContentType.Photo:
                     dbItems = (await context.PhotoContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
+                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                        .Cast<IContentId>().ToList();
                     break;
                 case DataNotificationContentType.Point:
                     dbItems = (await context.PointContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                        .ToListAsync()).Cast<IContentId>().ToList();
+                            .Where(x => translatedMessage.ContentIds.Contains(x.ContentId)).ToListAsync())
+                        .Cast<IContentId>().ToList();
                     break;
                 case DataNotificationContentType.Post:
-                    dbItems = (await context.PostContents
-                        .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    dbItems = (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
                         .ToListAsync()).Cast<IContentId>().ToList();
                     break;
             }
@@ -389,8 +522,8 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             foreach (var loopItem in dbItems)
             {
-                var existingItems =
-                    existingListItemsMatchingNotification.Where(x => x.ContentId() == loopItem.ContentId).ToList();
+                var existingItems = existingListItemsMatchingNotification
+                    .Where(x => x.ContentId() == loopItem.ContentId).ToList();
 
                 if (existingItems.Count > 1)
                 {
@@ -458,8 +591,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             try
             {
-                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)
-                    .SmallPicture
+                smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value).SmallPicture
                     ?.File.FullName;
             }
             catch
@@ -483,7 +615,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 LinkContent k => LinkListItemActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
                 MapComponent m => MapComponentListItemActions.ListItemFromDbItem(m, MapComponentItemActions,
                     ContentListLoader.ShowType),
-                NoteContent n => NoteListItemAction.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
+                NoteContent n => NoteListItemActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
                 PhotoContent ph => PhotoListItemActions.ListItemFromDbItem(ph, PhotoItemActions,
                     ContentListLoader.ShowType),
                 PointContent pt => PointListItemActions.ListItemFromDbItem(pt, PointItemActions,

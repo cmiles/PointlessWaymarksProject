@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostContentEditor
         private PostContentEditorContext _postContent;
         private StatusControlContext _statusContext;
 
-        public PostContentEditorWindow(PostContent toLoad)
+        public PostContentEditorWindow(PostContent toLoad = null)
         {
             InitializeComponent();
             StatusContext = new StatusControlContext();
