@@ -441,7 +441,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PostContentEditorWindow(null);
+            var newContentWindow = new PostContentEditorWindow();
 
             newContentWindow.PositionWindowAndShow();
         }

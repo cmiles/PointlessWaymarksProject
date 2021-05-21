@@ -60,7 +60,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
         {
             return DbEntry;
         }
-        
+
         public string DefaultBracketCode()
         {
             if (DbEntry?.ContentId == null || ItemActions == null) return string.Empty;

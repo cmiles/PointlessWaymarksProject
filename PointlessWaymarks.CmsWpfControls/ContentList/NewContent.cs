@@ -54,7 +54,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewPhotoContentFromFiles(true, x),
                     "Cancel Photo Import");
             NewPointContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPointContent);
-            NewPostContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPhotoContent);
+            NewPostContentCommand = StatusContext.RunNonBlockingTaskCommand(NewPostContent);
         }
 
         public Command NewFileContentCommand { get; }

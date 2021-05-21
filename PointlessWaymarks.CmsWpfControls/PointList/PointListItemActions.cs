@@ -218,7 +218,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
                 OnPropertyChanged();
             }
         }
-        
+
         public async Task OpenUrl(PointContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();

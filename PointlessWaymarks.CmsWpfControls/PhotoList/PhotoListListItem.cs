@@ -59,7 +59,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             return DbEntry;
         }
-        
+
         public string DefaultBracketCode()
         {
             if (DbEntry?.ContentId == null || ItemActions == null) return string.Empty;

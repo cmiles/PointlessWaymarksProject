@@ -60,6 +60,12 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             return DbEntry;
         }
 
+        public string DefaultBracketCode()
+        {
+            if (DbEntry?.ContentId == null || ItemActions == null) return string.Empty;
+            return @$"{BracketCodePoints.Create(DbEntry)}";
+        }
+
         public string SmallImageUrl
         {
             get => _smallImageUrl;
@@ -69,12 +75,6 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
                 _smallImageUrl = value;
                 OnPropertyChanged();
             }
-        }
-        
-        public string DefaultBracketCode()
-        {
-            if (DbEntry?.ContentId == null || ItemActions == null) return string.Empty;
-            return @$"{BracketCodePoints.Create(DbEntry)}";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

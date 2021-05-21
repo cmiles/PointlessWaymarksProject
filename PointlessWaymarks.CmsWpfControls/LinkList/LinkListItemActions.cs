@@ -67,96 +67,6 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
-        public Command<LinkContent> DeleteCommand
-        {
-            get => _deleteCommand;
-            set
-            {
-                if (Equals(value, _deleteCommand)) return;
-                _deleteCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<LinkContent> EditCommand
-        {
-            get => _editCommand;
-            set
-            {
-                if (Equals(value, _editCommand)) return;
-                _editCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<LinkContent> ExtractNewLinksCommand
-        {
-            get => _extractNewLinksCommand;
-            set
-            {
-                if (Equals(value, _extractNewLinksCommand)) return;
-                _extractNewLinksCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<LinkContent> GenerateHtmlCommand
-        {
-            get => _generateHtmlCommand;
-            set
-            {
-                if (Equals(value, _generateHtmlCommand)) return;
-                _generateHtmlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<LinkContent> LinkCodeToClipboardCommand
-        {
-            get => _linkCodeToClipboardCommand;
-            set
-            {
-                if (Equals(value, _linkCodeToClipboardCommand)) return;
-                _linkCodeToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<LinkContent> OpenUrlCommand
-        {
-            get => _openUrlCommand;
-            set
-            {
-                if (Equals(value, _openUrlCommand)) return;
-                _openUrlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public StatusControlContext StatusContext
-        {
-            get => _statusContext;
-            set
-            {
-                if (Equals(value, _statusContext)) return;
-                _statusContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command<LinkContent> ViewHistoryCommand
-        {
-            get => _viewHistoryCommand;
-            set
-            {
-                if (Equals(value, _viewHistoryCommand)) return;
-                _viewHistoryCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public async Task Delete(LinkContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -174,6 +84,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
 
             await Db.DeleteLinkContent(content.ContentId, StatusContext.ProgressTracker());
+        }
+
+        public Command<LinkContent> DeleteCommand
+        {
+            get => _deleteCommand;
+            set
+            {
+                if (Equals(value, _deleteCommand)) return;
+                _deleteCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public async Task Edit(LinkContent content)
@@ -199,6 +120,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
+        public Command<LinkContent> EditCommand
+        {
+            get => _editCommand;
+            set
+            {
+                if (Equals(value, _editCommand)) return;
+                _editCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public async Task ExtractNewLinks(LinkContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -219,6 +151,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
                 $"{refreshedData.Comments} {refreshedData.Description}", StatusContext.ProgressTracker());
         }
 
+        public Command<LinkContent> ExtractNewLinksCommand
+        {
+            get => _extractNewLinksCommand;
+            set
+            {
+                if (Equals(value, _extractNewLinksCommand)) return;
+                _extractNewLinksCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public async Task GenerateHtml(LinkContent content)
         {
@@ -233,6 +176,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             var settings = UserSettingsSingleton.CurrentSettings();
 
             StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
+        }
+
+        public Command<LinkContent> GenerateHtmlCommand
+        {
+            get => _generateHtmlCommand;
+            set
+            {
+                if (Equals(value, _generateHtmlCommand)) return;
+                _generateHtmlCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public async Task LinkCodeToClipboard(LinkContent content)
@@ -254,16 +208,15 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
-        public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkListItemActions itemActions,
-            bool showType)
+        public Command<LinkContent> LinkCodeToClipboardCommand
         {
-            return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
-        }
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            get => _linkCodeToClipboardCommand;
+            set
+            {
+                if (Equals(value, _linkCodeToClipboardCommand)) return;
+                _linkCodeToClipboardCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public async Task OpenUrl(LinkContent content)
@@ -286,6 +239,28 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
+        }
+
+        public Command<LinkContent> OpenUrlCommand
+        {
+            get => _openUrlCommand;
+            set
+            {
+                if (Equals(value, _openUrlCommand)) return;
+                _openUrlCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public StatusControlContext StatusContext
+        {
+            get => _statusContext;
+            set
+            {
+                if (Equals(value, _statusContext)) return;
+                _statusContext = value;
+                OnPropertyChanged();
+            }
         }
 
         public async Task ViewHistory(LinkContent content)
@@ -319,6 +294,31 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
                     .Select(ObjectDumper.Dump).ToList());
 
             historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
+        }
+
+        public Command<LinkContent> ViewHistoryCommand
+        {
+            get => _viewHistoryCommand;
+            set
+            {
+                if (Equals(value, _viewHistoryCommand)) return;
+                _viewHistoryCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkListItemActions itemActions,
+            bool showType)
+        {
+            return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

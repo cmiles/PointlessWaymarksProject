@@ -33,7 +33,7 @@ using Orientation = PhotoSauce.MagicScaler.Orientation;
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
 {
     public class PhotoContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-        ICheckForChangesAndValidation, IDropTarget
+        ICheckForChangesAndValidation
     {
         private StringDataEntryContext _altTextEntry;
         private StringDataEntryContext _apertureEntry;
@@ -950,23 +950,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
 
             var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
-        }
-
-        public void OnDragEnter(DragEventArgs e)
-        {
-        }
-
-        public void OnDragLeave(EventArgs e)
-        {
-        }
-
-        public void OnDragDrop(DragEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnDragOver(DragEventArgs e)
-        {
         }
     }
 }

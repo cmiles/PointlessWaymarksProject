@@ -210,7 +210,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
                 OnPropertyChanged();
             }
         }
-        
+
         public async Task OpenUrl(LineContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();

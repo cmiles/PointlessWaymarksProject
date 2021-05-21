@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsWpfControls.ColumnSort;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
@@ -90,6 +91,35 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public static ColumnSortControlContext SortContextDefault()
+        {
+            return new()
+            {
+                Items = new List<ColumnSortControlSortItem>
+                {
+                    new()
+                    {
+                        DisplayName = "Updated",
+                        ColumnName = "DbEntry.LatestUpdate",
+                        Order = 1,
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Created",
+                        ColumnName = "DbEntry.CreatedOn",
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Title",
+                        ColumnName = "DbEntry.Title",
+                        DefaultSortDirection = ListSortDirection.Ascending
+                    }
+                }
+            };
         }
     }
 }

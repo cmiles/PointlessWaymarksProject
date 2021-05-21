@@ -19,35 +19,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 {DataNotificationContentType.Photo};
         }
 
-        public ColumnSortControlContext SortContext()
-        {
-            return new ColumnSortControlContext
-            {
-                Items = new List<ColumnSortControlSortItem>
-                {
-                    new()
-                    {
-                        DisplayName = "Updated",
-                        ColumnName = "DbEntry.LatestUpdate",
-                        Order = 1,
-                        DefaultSortDirection = ListSortDirection.Descending
-                    },
-                    new()
-                    {
-                        DisplayName = "Photo Date",
-                        ColumnName = "DbEntry.PhotoCreatedOn",
-                        DefaultSortDirection = ListSortDirection.Descending
-                    },
-                    new()
-                    {
-                        DisplayName = "Title",
-                        ColumnName = "DbEntry.Title",
-                        DefaultSortDirection = ListSortDirection.Ascending
-                    }
-                }
-            };
-        }
-
         public override async Task<bool> CheckAllItemsAreLoaded()
         {
             if (PartialLoadQuantity == null) return true;
@@ -81,6 +52,40 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                     .ToListAsync());
 
             return listItems;
+        }
+
+        public ColumnSortControlContext SortContext()
+        {
+            return SortContextPhotoDefault();
+        }
+
+        public static ColumnSortControlContext SortContextPhotoDefault()
+        {
+            return new()
+            {
+                Items = new List<ColumnSortControlSortItem>
+                {
+                    new()
+                    {
+                        DisplayName = "Updated",
+                        ColumnName = "DbEntry.LatestUpdate",
+                        Order = 1,
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Photo Date",
+                        ColumnName = "DbEntry.PhotoCreatedOn",
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Title",
+                        ColumnName = "DbEntry.Title",
+                        DefaultSortDirection = ListSortDirection.Ascending
+                    }
+                }
+            };
         }
     }
 }

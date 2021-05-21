@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows;
-using DocumentFormat.OpenXml.Drawing.Charts;
 using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
@@ -39,9 +38,9 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
         private Command _speakSelectedTextCommand;
         private StatusControlContext _statusContext;
         private string _userBodyContent = string.Empty;
-        private string _userHtmlSelectedText;
-        private int _userBodyContentUserSelectionStart;
         private int _userBodyContentUserSelectionLength;
+        private int _userBodyContentUserSelectionStart;
+        private string _userHtmlSelectedText;
 
         private BodyContentEditorContext(StatusControlContext statusContext)
         {
@@ -151,6 +150,28 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
             }
         }
 
+        public int UserBodyContentUserSelectionLength
+        {
+            get => _userBodyContentUserSelectionLength;
+            set
+            {
+                if (value == _userBodyContentUserSelectionLength) return;
+                _userBodyContentUserSelectionLength = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int UserBodyContentUserSelectionStart
+        {
+            get => _userBodyContentUserSelectionStart;
+            set
+            {
+                if (value == _userBodyContentUserSelectionStart) return;
+                _userBodyContentUserSelectionStart = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string UserHtmlSelectedText
         {
             get => _userHtmlSelectedText;
@@ -168,6 +189,33 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
 
             HasChanges = BodyContentHasChanges || PropertyScanners.ChildPropertiesHaveValidationIssues(this);
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);
+        }
+
+
+        public void DragOver(IDropInfo dropInfo)
+        {
+            dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
+            dropInfo.Effects = DragDropEffects.Copy;
+        }
+
+        public void Drop(IDropInfo dropInfo)
+        {
+            var rawList = new List<string>();
+            switch (dropInfo.Data)
+            {
+                case IContentListItem i:
+                    rawList = new List<string> {i.DefaultBracketCode()};
+                    break;
+                case List<object> l:
+                    rawList = l.Cast<IContentListItem>().Select(x => x.DefaultBracketCode()).ToList();
+                    break;
+            }
+
+            var toInsertList = rawList.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+
+            if (!toInsertList.Any()) return;
+
+            InsertAtCaret(string.Join(Environment.NewLine, toInsertList));
         }
 
         public bool HasChanges
@@ -192,26 +240,20 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
             }
         }
 
-        public int UserBodyContentUserSelectionStart
-        {
-            get => _userBodyContentUserSelectionStart;
-            set
-            {
-                if (value == _userBodyContentUserSelectionStart) return;
-                _userBodyContentUserSelectionStart = value;
-                OnPropertyChanged();
-            }
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public int UserBodyContentUserSelectionLength
+        public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext statusContext,
+            IBodyContent dbEntry)
         {
-            get => _userBodyContentUserSelectionLength;
-            set
-            {
-                if (value == _userBodyContentUserSelectionLength) return;
-                _userBodyContentUserSelectionLength = value;
-                OnPropertyChanged();
-            }
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var newContext = new BodyContentEditorContext(statusContext);
+
+            newContext.BodyContentFormat = ContentFormatChooserContext.CreateInstance(newContext.StatusContext);
+
+            await newContext.LoadData(dbEntry);
+
+            return newContext;
         }
 
         public void InsertAtCaret(string toInsert)
@@ -229,22 +271,6 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
                     BodyContent.Length - UserBodyContentUserSelectionStart);
 
             BodyContent = prefix + toInsert + postfix;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext statusContext,
-            IBodyContent dbEntry)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var newContext = new BodyContentEditorContext(statusContext);
-
-            newContext.BodyContentFormat = ContentFormatChooserContext.CreateInstance(newContext.StatusContext);
-
-            await newContext.LoadData(dbEntry);
-
-            return newContext;
         }
 
         public async Task LoadData(IBodyContent toLoad)
@@ -330,33 +356,6 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
                     $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocument("Invalid",
                         string.Empty);
             }
-        }
-
-
-        public void DragOver(IDropInfo dropInfo)
-        {
-            dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
-            dropInfo.Effects = DragDropEffects.Copy;
-        }
-
-        public void Drop(IDropInfo dropInfo)
-        {
-            var rawList = new List<string>();
-            switch (dropInfo.Data)
-            {
-                case IContentListItem i :
-                    rawList = new List<string>() {i.DefaultBracketCode()};
-                    break;
-                case List<object> l :
-                    rawList = l.Cast<IContentListItem>().Select(x => x.DefaultBracketCode()).ToList();
-                    break;
-            }
-
-            var toInsertList = rawList.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-
-            if (!toInsertList.Any()) return;
-            
-            InsertAtCaret(string.Join(Environment.NewLine, toInsertList));
         }
     }
 }

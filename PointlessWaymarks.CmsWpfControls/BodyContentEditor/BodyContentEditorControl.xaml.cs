@@ -13,13 +13,11 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
         private void BodyContentTextBox_OnSelectionChanged(object sender, RoutedEventArgs e)
         {
             if (DataContext is BodyContentEditorContext context)
-            {
                 if (sender is TextBox t)
                 {
                     context.UserBodyContentUserSelectionStart = t.SelectionStart;
                     context.UserBodyContentUserSelectionLength = t.SelectionLength;
                 }
-            }
         }
     }
 }

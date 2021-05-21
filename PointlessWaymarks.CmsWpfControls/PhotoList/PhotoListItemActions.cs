@@ -2,18 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -533,7 +529,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             //Todo: I think this should be possible via something like DbFunctions or EF functions?
             //I didn't understand what approach to take from a few google searches...
-            var dateTimeAfter = content.PhotoCreatedOn.Date.AddDays(-1);
+            var dateTimeAfter = content.PhotoCreatedOn.Date;
             var dateTimeBefore = content.PhotoCreatedOn.Date.AddDays(1);
 
             return (await db.PhotoContents
@@ -546,7 +542,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var reportLoader = new ContentListLoaderReport(toRun);
+            var reportLoader = new ContentListLoaderReport(toRun, PhotoListLoader.SortContextPhotoDefault());
 
             var context = new PhotoListWithActionsContext(null, reportLoader);
 

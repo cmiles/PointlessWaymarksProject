@@ -58,7 +58,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         {
             return DbEntry;
         }
-        
+
         public string DefaultBracketCode()
         {
             if (DbEntry?.ContentId == null || ItemActions == null) return string.Empty;

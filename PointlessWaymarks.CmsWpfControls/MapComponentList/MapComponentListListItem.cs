@@ -77,7 +77,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
             if (DbEntry?.ContentId == null || ItemActions == null) return string.Empty;
             return @$"{BracketCodeMapComponents.Create(DbEntry)}";
         }
-        
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public CurrentSelectedTextTracker SelectedTextTracker

@@ -36,6 +36,8 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
     public class ContentListContext : INotifyPropertyChanged
     {
         private IContentListLoader _contentListLoader;
+        private Command _deleteSelectedCommand;
+        private Command _editSelectedCommand;
         private FileListItemActions _fileItemActions;
         private GeoJsonListItemActions _geoJasonItemActions;
         private ImageListItemActions _imageItemActions;
@@ -46,15 +48,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private ColumnSortControlContext _listSort;
         private Command _loadAllCommand;
         private MapComponentListItemActions _mapComponentItemActions;
+        private NewContent _newActions;
         private NoteListItemActions _noteItemActions;
         private PhotoListItemActions _photoItemActions;
         private PointListItemActions _pointItemActions;
         private PostListItemActions _postItemActions;
         private StatusControlContext _statusContext;
         private string _userFilterText;
-        private NewContent _newActions;
-        private Command _editSelectedCommand;
-        private Command _deleteSelectedCommand;
 
         public ContentListContext(StatusControlContext statusContext, IContentListLoader loader)
         {
@@ -86,6 +86,19 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(DeleteSelected);
         }
 
+        public IContentListLoader ContentListLoader
+        {
+            get => _contentListLoader;
+            set
+            {
+                if (Equals(value, _contentListLoader)) return;
+                _contentListLoader = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
+
         public Command DeleteSelectedCommand
         {
             get => _deleteSelectedCommand;
@@ -107,139 +120,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 OnPropertyChanged();
             }
         }
-
-        public NewContent NewActions
-        {
-            get => _newActions;
-            set
-            {
-                if (Equals(value, _newActions)) return;
-                _newActions = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public async Task EditSelected()
-        {
-            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-            {
-                StatusContext.ToastWarning("Nothing Selected to Edit?");
-                return;
-            }
-
-            if (ListSelection.SelectedItems.Count > 20)
-            {
-                StatusContext.ToastWarning("Sorry - please select less than 20 items to edit...");
-                return;
-            }
-
-            var currentSelected = ListSelection.SelectedItems;
-
-            foreach (var loopSelected in currentSelected)
-            {
-                switch (loopSelected)
-                {
-                    case FileListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case GeoJsonListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case ImageListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case LinkListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case LineListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case MapComponentListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case NoteListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case PointListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case PhotoListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case PostListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                }
-            }
-        }
-
-        public async Task DeleteSelected()
-        {
-            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
-            {
-                StatusContext.ToastWarning("Nothing Selected to Edit?");
-                return;
-            }
-
-            if (ListSelection.SelectedItems.Count > 1)
-                if (await StatusContext.ShowMessage("Delete Multiple Items",
-                    $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
-                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
-                    new List<string> {"Yes", "No"}) == "No")
-                    return;
-
-            var currentSelected = ListSelection.SelectedItems;
-
-            foreach (var loopSelected in currentSelected)
-            {
-                switch (loopSelected)
-                {
-                    case FileListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case GeoJsonListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case ImageListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case LinkListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case LineListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case MapComponentListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case NoteListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case PointListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case PhotoListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case PostListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                }
-            }
-        }
-
-        public IContentListLoader ContentListLoader
-        {
-            get => _contentListLoader;
-            set
-            {
-                if (Equals(value, _contentListLoader)) return;
-                _contentListLoader = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
         public FileListItemActions FileItemActions
         {
@@ -347,6 +227,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             {
                 if (Equals(value, _mapComponentItemActions)) return;
                 _mapComponentItemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public NewContent NewActions
+        {
+            get => _newActions;
+            set
+            {
+                if (Equals(value, _newActions)) return;
+                _newActions = value;
                 OnPropertyChanged();
             }
         }
@@ -561,6 +452,111 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
+        public async Task DeleteSelected()
+        {
+            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to Edit?");
+                return;
+            }
+
+            if (ListSelection.SelectedItems.Count > 1)
+                if (await StatusContext.ShowMessage("Delete Multiple Items",
+                    $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
+                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
+                    new List<string> {"Yes", "No"}) == "No")
+                    return;
+
+            var currentSelected = ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected)
+                switch (loopSelected)
+                {
+                    case FileListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case GeoJsonListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case ImageListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case LinkListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case LineListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case MapComponentListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case NoteListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case PointListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case PhotoListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                    case PostListListItem x:
+                        await x.ItemActions.Delete(x.DbEntry);
+                        break;
+                }
+        }
+
+        public async Task EditSelected()
+        {
+            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to Edit?");
+                return;
+            }
+
+            if (ListSelection.SelectedItems.Count > 20)
+            {
+                StatusContext.ToastWarning("Sorry - please select less than 20 items to edit...");
+                return;
+            }
+
+            var currentSelected = ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected)
+                switch (loopSelected)
+                {
+                    case FileListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case GeoJsonListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case ImageListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case LinkListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case LineListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case MapComponentListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case NoteListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case PointListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case PhotoListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                    case PostListListItem x:
+                        await x.ItemActions.Edit(x.DbEntry);
+                        break;
+                }
+        }
+
         private async Task FilterList()
         {
             if (Items == null || !Items.Any()) return;
@@ -636,31 +632,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             StatusContext.Progress("Setting up Sorting");
 
-            ListSort = new ColumnSortControlContext
-            {
-                Items = new List<ColumnSortControlSortItem>
-                {
-                    new()
-                    {
-                        DisplayName = "Updated",
-                        ColumnName = "DbEntry.LatestUpdate",
-                        Order = 1,
-                        DefaultSortDirection = ListSortDirection.Descending
-                    },
-                    new()
-                    {
-                        DisplayName = "Created",
-                        ColumnName = "DbEntry.CreatedOn",
-                        DefaultSortDirection = ListSortDirection.Descending
-                    },
-                    new()
-                    {
-                        DisplayName = "Title",
-                        ColumnName = "DbEntry.Title",
-                        DefaultSortDirection = ListSortDirection.Ascending
-                    }
-                }
-            };
+            ListSort = ContentListLoader.SortContext();
 
             ListSort.SortUpdated += (sender, list) =>
                 Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });

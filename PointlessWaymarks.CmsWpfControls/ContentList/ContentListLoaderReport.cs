@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PointlessWaymarks.CmsWpfControls.ColumnSort;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
-    public class ContentListLoaderReport : ContentListLoaderBase
+    public class ContentListLoaderReport : ContentListLoaderBase, IContentListLoader
     {
+        private readonly ColumnSortControlContext _columnSort;
         private readonly Func<Task<List<object>>> _loaderFunc;
 
-        public ContentListLoaderReport(Func<Task<List<object>>> loaderFunc) : base(null)
+        public ContentListLoaderReport(Func<Task<List<object>>> loaderFunc, ColumnSortControlContext sorting = null) :
+            base(null)
         {
             _loaderFunc = loaderFunc;
+            _columnSort = sorting;
         }
 
         public override async Task<bool> CheckAllItemsAreLoaded()
@@ -25,8 +29,14 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             if (_loaderFunc != null) listItems.AddRange(await _loaderFunc());
 
             AllItemsLoaded = true;
-            
+
             return listItems;
+        }
+
+        public ColumnSortControlContext SortContext()
+        {
+            if (_columnSort == null) SortContextDefault();
+            return _columnSort;
         }
     }
 }

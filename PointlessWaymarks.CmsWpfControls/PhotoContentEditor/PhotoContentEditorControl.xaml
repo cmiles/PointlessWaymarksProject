@@ -167,8 +167,7 @@
             </TabItem>
             <TabItem Header="Body">
                 <Grid>
-                    <bodyContentEditor1:BodyContentEditorHorizontalControl DataContext="{Binding BodyContent}"
-                    />
+                    <bodyContentEditor1:BodyContentEditorHorizontalControl DataContext="{Binding BodyContent}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">
