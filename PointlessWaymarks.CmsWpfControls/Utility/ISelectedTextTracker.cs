@@ -6,6 +6,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
     public interface IContentListItem : INotifyPropertyChanged, ISelectedTextTracker, IContentCommonGuiListItem
     {
         IContentCommon Content();
+        string DefaultBracketCode();
     }
 
     public interface IContentListSmallImage

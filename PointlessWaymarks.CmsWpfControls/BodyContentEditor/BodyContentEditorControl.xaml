@@ -13,6 +13,7 @@
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHtml"
+    xmlns:dd="urn:gong-wpf-dragdrop"
     d:DataContext="{d:DesignInstance bodyContentEditor:BodyContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -86,8 +87,11 @@
                         BorderThickness="0"
                         FontSize="{Binding ElementName=BodyMarkDownFontSizeSlider, Path=Value}"
                         SpellCheck.IsEnabled="True"
+                        dd:DragDrop.IsDropTarget="True"
+                        dd:DragDrop.DropHandler="{Binding .}"
                         Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged, Delay=350}"
                         TextWrapping="Wrap"
+                        SelectionChanged="BodyContentTextBox_OnSelectionChanged"
                         VerticalScrollBarVisibility="Visible">
                         <b:Interaction.Behaviors>
                             <wpfBehavior:TextBoxDoubleClickLauncher />

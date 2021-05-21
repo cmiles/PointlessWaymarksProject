@@ -9,6 +9,7 @@
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:dd="urn:gong-wpf-dragdrop"
     d:DataContext="{d:DesignInstance local:ContentListContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -76,6 +77,7 @@
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 x:Name="ContentListBox"
+                dd:DragDrop.IsDragSource="True"
                 ItemTemplateSelector="{StaticResource ContentListTemplateSelector}"
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding ListSelection.Selected}"

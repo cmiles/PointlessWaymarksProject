@@ -5,10 +5,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using JetBrains.Annotations;
 using Ookii.Dialogs.Wpf;
-using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -28,11 +28,12 @@ using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
+using Orientation = PhotoSauce.MagicScaler.Orientation;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
 {
     public class PhotoContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-        ICheckForChangesAndValidation
+        ICheckForChangesAndValidation, IDropTarget
     {
         private StringDataEntryContext _altTextEntry;
         private StringDataEntryContext _apertureEntry;
@@ -949,6 +950,23 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
 
             var ps = new ProcessStartInfo(SelectedFile.FullName) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
+        }
+
+        public void OnDragEnter(DragEventArgs e)
+        {
+        }
+
+        public void OnDragLeave(EventArgs e)
+        {
+        }
+
+        public void OnDragDrop(DragEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnDragOver(DragEventArgs e)
+        {
         }
     }
 }

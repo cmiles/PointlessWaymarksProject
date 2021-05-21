@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility;
 
@@ -57,6 +58,12 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         public IContentCommon Content()
         {
             return DbEntry;
+        }
+        
+        public string DefaultBracketCode()
+        {
+            if (DbEntry?.ContentId == null || ItemActions == null) return string.Empty;
+            return @$"{BracketCodeImages.Create(DbEntry)}";
         }
 
         public string SmallImageUrl

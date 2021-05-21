@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -6,11 +7,15 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using System.Windows;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -21,7 +26,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
 {
     public class BodyContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-        ICheckForChangesAndValidation
+        ICheckForChangesAndValidation, IDropTarget
     {
         private ContentFormatChooserContext _bodyContentFormat;
         private bool _bodyContentHasChanges;
@@ -35,6 +40,8 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
         private StatusControlContext _statusContext;
         private string _userBodyContent = string.Empty;
         private string _userHtmlSelectedText;
+        private int _userBodyContentUserSelectionStart;
+        private int _userBodyContentUserSelectionLength;
 
         private BodyContentEditorContext(StatusControlContext statusContext)
         {
@@ -185,6 +192,45 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
             }
         }
 
+        public int UserBodyContentUserSelectionStart
+        {
+            get => _userBodyContentUserSelectionStart;
+            set
+            {
+                if (value == _userBodyContentUserSelectionStart) return;
+                _userBodyContentUserSelectionStart = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int UserBodyContentUserSelectionLength
+        {
+            get => _userBodyContentUserSelectionLength;
+            set
+            {
+                if (value == _userBodyContentUserSelectionLength) return;
+                _userBodyContentUserSelectionLength = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public void InsertAtCaret(string toInsert)
+        {
+            if (UserBodyContentUserSelectionStart == 0)
+            {
+                BodyContent = toInsert + BodyContent;
+                return;
+            }
+
+            var prefix = BodyContent.Substring(0, UserBodyContentUserSelectionStart);
+            var postfix = BodyContent.Length == UserBodyContentUserSelectionStart
+                ? string.Empty
+                : BodyContent.Substring(UserBodyContentUserSelectionStart,
+                    BodyContent.Length - UserBodyContentUserSelectionStart);
+
+            BodyContent = prefix + toInsert + postfix;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext statusContext,
@@ -284,6 +330,33 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
                     $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocument("Invalid",
                         string.Empty);
             }
+        }
+
+
+        public void DragOver(IDropInfo dropInfo)
+        {
+            dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
+            dropInfo.Effects = DragDropEffects.Copy;
+        }
+
+        public void Drop(IDropInfo dropInfo)
+        {
+            var rawList = new List<string>();
+            switch (dropInfo.Data)
+            {
+                case IContentListItem i :
+                    rawList = new List<string>() {i.DefaultBracketCode()};
+                    break;
+                case List<object> l :
+                    rawList = l.Cast<IContentListItem>().Select(x => x.DefaultBracketCode()).ToList();
+                    break;
+            }
+
+            var toInsertList = rawList.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+
+            if (!toInsertList.Any()) return;
+            
+            InsertAtCaret(string.Join(Environment.NewLine, toInsertList));
         }
     }
 }

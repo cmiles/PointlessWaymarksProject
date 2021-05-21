@@ -1,20 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsWpfControls.ColumnSort;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList
 {
-    public class PhotoListLoader : ContentListLoaderBase
+    public class PhotoListLoader : ContentListLoaderBase, IContentListLoader
     {
         public PhotoListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
                 {DataNotificationContentType.Photo};
+        }
+
+        public ColumnSortControlContext SortContext()
+        {
+            return new ColumnSortControlContext
+            {
+                Items = new List<ColumnSortControlSortItem>
+                {
+                    new()
+                    {
+                        DisplayName = "Updated",
+                        ColumnName = "DbEntry.LatestUpdate",
+                        Order = 1,
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Photo Date",
+                        ColumnName = "DbEntry.PhotoCreatedOn",
+                        DefaultSortDirection = ListSortDirection.Descending
+                    },
+                    new()
+                    {
+                        DisplayName = "Title",
+                        ColumnName = "DbEntry.Title",
+                        DefaultSortDirection = ListSortDirection.Ascending
+                    }
+                }
+            };
         }
 
         public override async Task<bool> CheckAllItemsAreLoaded()

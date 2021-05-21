@@ -68,6 +68,12 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         {
             return DbEntry?.ContentId;
         }
+        
+        public string DefaultBracketCode()
+        {
+            if (DbEntry?.ContentId == null || ItemActions == null) return string.Empty;
+            return $"[{DbEntry.Title}]({DbEntry.Url})";
+        }
 
         public IContentCommon Content()
         {
