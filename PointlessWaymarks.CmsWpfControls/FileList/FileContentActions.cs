@@ -9,44 +9,87 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
+using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.PostContentEditor;
+using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.PostList
+namespace PointlessWaymarks.CmsWpfControls.FileList
 {
-    public class PostListItemActions : IListItemActions<PostContent>
+    public class FileContentActions : IContentActions<FileContent>
     {
-        private Command<PostContent> _deleteCommand;
-        private Command<PostContent> _editCommand;
-        private Command<PostContent> _extractNewLinksCommand;
-        private Command<PostContent> _generateHtmlCommand;
-        private Command<PostContent> _linkCodeToClipboardCommand;
-        private Command<PostContent> _openUrlCommand;
+        private Command<FileContent> _deleteCommand;
+        private Command<FileContent> _editCommand;
+        private Command<FileContent> _extractNewLinksCommand;
+        private Command<FileContent> _generateHtmlCommand;
+        private Command<FileContent> _linkCodeToClipboardCommand;
+        private Command<FileContent> _openUrlCommand;
         private StatusControlContext _statusContext;
-        private Command<PostContent> _viewHistoryCommand;
+        private Command<FileContent> _viewFileCommand;
+        private Command<FileContent> _viewHistoryCommand;
 
-        public PostListItemActions(StatusControlContext statusContext)
+        public FileContentActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
-            DeleteCommand = StatusContext.RunBlockingTaskCommand<PostContent>(Delete);
-            EditCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(Edit);
-            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PostContent>(ExtractNewLinks);
-            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PostContent>(GenerateHtml);
-            LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PostContent>(LinkCodeToClipboard);
-            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PostContent>(OpenUrl);
-            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PostContent>(ViewHistory);
+            DeleteCommand = StatusContext.RunBlockingTaskCommand<FileContent>(Delete);
+            EditCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(Edit);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<FileContent>(ExtractNewLinks);
+            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(GenerateHtml);
+            LinkCodeToClipboardCommand =
+                StatusContext.RunBlockingTaskCommand<FileContent>(DefaultBracketCodeToClipboard);
+            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<FileContent>(OpenUrl);
+            ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewFile);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<FileContent>(ViewHistory);
         }
 
-        public async Task Delete(PostContent content)
+        public Command<FileContent> ViewFileCommand
+        {
+            get => _viewFileCommand;
+            set
+            {
+                if (Equals(value, _viewFileCommand)) return;
+                _viewFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string DefaultBracketCode(FileContent content)
+        {
+            if (content?.ContentId == null) return string.Empty;
+            return content.MainPicture != null
+                ? @$"{BracketCodeFileImage.Create(content)}"
+                : @$"{BracketCodeFiles.Create(content)}";
+        }
+
+        public async Task DefaultBracketCodeToClipboard(FileContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = content.MainPicture != null
+                ? @$"{BracketCodeFileImage.Create(content)}{Environment.NewLine}"
+                : @$"{BracketCodeFiles.Create(content)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        public async Task Delete(FileContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -58,15 +101,15 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             if (content.Id < 1)
             {
-                StatusContext.ToastError($"Post {content.Title} - Entry is not saved - Skipping?");
+                StatusContext.ToastError($"File {content.Title} - Entry is not saved - Skipping?");
                 return;
             }
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            await Db.DeletePostContent(content.ContentId, StatusContext.ProgressTracker());
+            await Db.DeleteFileContent(content.ContentId, StatusContext.ProgressTracker());
 
-            var possibleContentDirectory = settings.LocalSitePostContentDirectory(content, false);
+            var possibleContentDirectory = settings.LocalSiteFileContentDirectory(content, false);
             if (possibleContentDirectory.Exists)
             {
                 StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
@@ -74,7 +117,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
-        public Command<PostContent> DeleteCommand
+        public Command<FileContent> DeleteCommand
         {
             get => _deleteCommand;
             set
@@ -85,7 +128,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
-        public async Task Edit(PostContent content)
+        public async Task Edit(FileContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -93,7 +136,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             var context = await Db.Context();
 
-            var refreshedData = context.PostContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.FileContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null)
                 StatusContext.ToastError(
@@ -101,14 +144,14 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PostContentEditorWindow(refreshedData);
+            var newContentWindow = new FileContentEditorWindow(refreshedData);
 
             newContentWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public Command<PostContent> EditCommand
+        public Command<FileContent> EditCommand
         {
             get => _editCommand;
             set
@@ -119,7 +162,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
-        public async Task ExtractNewLinks(PostContent content)
+        public async Task ExtractNewLinks(FileContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -130,8 +173,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
 
             var context = await Db.Context();
-
-            var refreshedData = context.PostContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.FileContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null) return;
 
@@ -139,7 +181,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
         }
 
-        public Command<PostContent> ExtractNewLinksCommand
+        public Command<FileContent> ExtractNewLinksCommand
         {
             get => _extractNewLinksCommand;
             set
@@ -151,7 +193,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         }
 
 
-        public async Task GenerateHtml(PostContent content)
+        public async Task GenerateHtml(FileContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -163,14 +205,14 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             StatusContext.Progress($"Generating Html for {content.Title}");
 
-            var htmlContext = new SinglePostPage(content);
+            var htmlContext = new SingleFilePage(content);
 
             htmlContext.WriteLocalHtml();
 
             StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
         }
 
-        public Command<PostContent> GenerateHtmlCommand
+        public Command<FileContent> GenerateHtmlCommand
         {
             get => _generateHtmlCommand;
             set
@@ -181,26 +223,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
-        public async Task LinkCodeToClipboard(PostContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = @$"{BracketCodePosts.Create(content)}{Environment.NewLine}";
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
-
-        public Command<PostContent> LinkCodeToClipboardCommand
+        public Command<FileContent> LinkCodeToClipboardCommand
         {
             get => _linkCodeToClipboardCommand;
             set
@@ -211,7 +234,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
-        public async Task OpenUrl(PostContent content)
+        public async Task OpenUrl(FileContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -223,13 +246,13 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var url = $@"http://{settings.PostPageUrl(content)}";
+            var url = $@"http://{settings.FilePageUrl(content)}";
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
 
-        public Command<PostContent> OpenUrlCommand
+        public Command<FileContent> OpenUrlCommand
         {
             get => _openUrlCommand;
             set
@@ -251,7 +274,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             }
         }
 
-        public async Task ViewHistory(PostContent content)
+        public async Task ViewHistory(FileContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -265,7 +288,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-            var historicItems = await db.HistoricPostContents
+            var historicItems = await db.HistoricFileContents
                 .Where(x => x.ContentId == content.ContentId).ToListAsync();
 
             StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
@@ -284,7 +307,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
 
-        public Command<PostContent> ViewHistoryCommand
+        public Command<FileContent> ViewHistoryCommand
         {
             get => _viewHistoryCommand;
             set
@@ -297,7 +320,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static PostListListItem ListItemFromDbItem(PostContent content, PostListItemActions itemActions,
+        public static FileListListItem ListItemFromDbItem(FileContent content, FileContentActions itemActions,
             bool showType)
         {
             return new()
@@ -313,6 +336,37 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
+        public async Task ViewFile(FileContent listItem)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (listItem == null)
+            {
+                StatusContext.ToastError("Nothing Items to Open?");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(listItem.OriginalFileName))
+            {
+                StatusContext.ToastError("No File?");
+                return;
+            }
+
+            var toOpen = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentFile(listItem);
+
+            if (toOpen is not {Exists: true})
+            {
+                StatusContext.ToastError("File doesn't exist?");
+                return;
+            }
+
+            var url = toOpen.FullName;
+
+            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
+            Process.Start(ps);
         }
     }
 }

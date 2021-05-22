@@ -26,8 +26,9 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Excel">
-                <MenuItem Command="{Binding SelectedToExcelCommand}" Header="Selected To Excel" />
-                <MenuItem Command="{Binding ImportFromExcelFileCommand}" Header="Import From Excel" />
+                <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
+                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
         </Menu>
         <contentList:ContentListControl
@@ -41,22 +42,22 @@
                     Content="_Refresh"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding EditSelectedContentCommand}"
+                    Command="{Binding ListContext.EditSelectedCommand}"
                     Content="_Edit"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding NewContentCommand}"
+                    Command="{Binding ListContext.NewActions.NewNoteContentCommand}"
                     Content="_New Content"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding MdLinkCodesToClipboardForSelectedCommand}"
                     Content="Md Link to _Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding ListContext.ListSelectedLinksNotOnPinboardCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding ListSelectedLinksNotOnPinboardCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Selected Pinboard Check
                 </Button>
-                <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
-                <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButtonStyle}">View History</Button>
+                <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
+                <Button Command="{Binding ListContext.ViewHistorySelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">View History</Button>
             </WrapPanel>
         </Border>
         <status:StatusControl

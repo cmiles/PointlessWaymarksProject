@@ -9,44 +9,69 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
+using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.PointContentEditor;
+using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.PointList
+namespace PointlessWaymarks.CmsWpfControls.NoteList
 {
-    public class PointListItemActions : IListItemActions<PointContent>
+    public class NoteContentActions : IContentActions<NoteContent>
     {
-        private Command<PointContent> _deleteCommand;
-        private Command<PointContent> _editCommand;
-        private Command<PointContent> _extractNewLinksCommand;
-        private Command<PointContent> _generateHtmlCommand;
-        private Command<PointContent> _linkCodeToClipboardCommand;
-        private Command<PointContent> _openUrlCommand;
+        private Command<NoteContent> _deleteCommand;
+        private Command<NoteContent> _editCommand;
+        private Command<NoteContent> _extractNewLinksCommand;
+        private Command<NoteContent> _generateHtmlCommand;
+        private Command<NoteContent> _linkCodeToClipboardCommand;
+        private Command<NoteContent> _openUrlCommand;
         private StatusControlContext _statusContext;
-        private Command<PointContent> _viewHistoryCommand;
+        private Command<NoteContent> _viewHistoryCommand;
 
-        public PointListItemActions(StatusControlContext statusContext)
+        public NoteContentActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
-            DeleteCommand = StatusContext.RunBlockingTaskCommand<PointContent>(Delete);
-            EditCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(Edit);
-            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PointContent>(ExtractNewLinks);
-            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PointContent>(GenerateHtml);
-            LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PointContent>(LinkCodeToClipboard);
-            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PointContent>(OpenUrl);
-            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PointContent>(ViewHistory);
+            DeleteCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(Delete);
+            EditCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(Edit);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(ExtractNewLinks);
+            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(GenerateHtml);
+            LinkCodeToClipboardCommand =
+                StatusContext.RunBlockingTaskCommand<NoteContent>(DefaultBracketCodeToClipboard);
+            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(OpenUrl);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(ViewHistory);
         }
 
-        public async Task Delete(PointContent content)
+        public string DefaultBracketCode(NoteContent content)
+        {
+            return content?.ContentId == null ? string.Empty : @$"{BracketCodeNotes.Create(content)}";
+        }
+
+        public async Task DefaultBracketCodeToClipboard(NoteContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = @$"{BracketCodeNotes.Create(content)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        public async Task Delete(NoteContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -58,15 +83,15 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             if (content.Id < 1)
             {
-                StatusContext.ToastError($"Point {content.Title} - Entry is not saved - Skipping?");
+                StatusContext.ToastError($"Note {content.Title} - Entry is not saved - Skipping?");
                 return;
             }
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            await Db.DeletePointContent(content.ContentId, StatusContext.ProgressTracker());
+            await Db.DeleteNoteContent(content.ContentId, StatusContext.ProgressTracker());
 
-            var possibleContentDirectory = settings.LocalSitePointContentDirectory(content, false);
+            var possibleContentDirectory = settings.LocalSiteNoteContentDirectory(content, false);
             if (possibleContentDirectory.Exists)
             {
                 StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
@@ -74,7 +99,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             }
         }
 
-        public Command<PointContent> DeleteCommand
+        public Command<NoteContent> DeleteCommand
         {
             get => _deleteCommand;
             set
@@ -85,7 +110,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             }
         }
 
-        public async Task Edit(PointContent content)
+        public async Task Edit(NoteContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -93,7 +118,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             var context = await Db.Context();
 
-            var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.NoteContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null)
                 StatusContext.ToastError(
@@ -101,14 +126,14 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new PointContentEditorWindow(refreshedData);
+            var newContentWindow = new NoteContentEditorWindow(refreshedData);
 
             newContentWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public Command<PointContent> EditCommand
+        public Command<NoteContent> EditCommand
         {
             get => _editCommand;
             set
@@ -119,7 +144,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             }
         }
 
-        public async Task ExtractNewLinks(PointContent content)
+        public async Task ExtractNewLinks(NoteContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -131,15 +156,15 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             var context = await Db.Context();
 
-            var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.NoteContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null) return;
 
-            await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-                $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
+            await LinkExtraction.ExtractNewAndShowLinkContentEditors(refreshedData.BodyContent,
+                StatusContext.ProgressTracker());
         }
 
-        public Command<PointContent> ExtractNewLinksCommand
+        public Command<NoteContent> ExtractNewLinksCommand
         {
             get => _extractNewLinksCommand;
             set
@@ -151,7 +176,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         }
 
 
-        public async Task GenerateHtml(PointContent content)
+        public async Task GenerateHtml(NoteContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -163,22 +188,14 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             StatusContext.Progress($"Generating Html for {content.Title}");
 
-            var fullItem = await Db.PointAndPointDetails(content.ContentId);
-
-            if (fullItem == null)
-            {
-                StatusContext.ToastError("Item no longer exists in DB?");
-                return;
-            }
-
-            var htmlContext = new SinglePointPage(fullItem);
+            var htmlContext = new SingleNotePage(content);
 
             htmlContext.WriteLocalHtml();
 
             StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
         }
 
-        public Command<PointContent> GenerateHtmlCommand
+        public Command<NoteContent> GenerateHtmlCommand
         {
             get => _generateHtmlCommand;
             set
@@ -189,26 +206,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             }
         }
 
-        public async Task LinkCodeToClipboard(PointContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = @$"{BracketCodePoints.Create(content)}{Environment.NewLine}";
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
-
-        public Command<PointContent> LinkCodeToClipboardCommand
+        public Command<NoteContent> LinkCodeToClipboardCommand
         {
             get => _linkCodeToClipboardCommand;
             set
@@ -219,7 +217,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             }
         }
 
-        public async Task OpenUrl(PointContent content)
+        public async Task OpenUrl(NoteContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -231,13 +229,13 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var url = $@"http://{settings.PointPageUrl(content)}";
+            var url = $@"http://{settings.NotePageUrl(content)}";
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
 
-        public Command<PointContent> OpenUrlCommand
+        public Command<NoteContent> OpenUrlCommand
         {
             get => _openUrlCommand;
             set
@@ -259,7 +257,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             }
         }
 
-        public async Task ViewHistory(PointContent content)
+        public async Task ViewHistory(NoteContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -273,7 +271,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-            var historicItems = await db.HistoricPointContents
+            var historicItems = await db.HistoricNoteContents
                 .Where(x => x.ContentId == content.ContentId).ToListAsync();
 
             StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
@@ -292,7 +290,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
 
-        public Command<PointContent> ViewHistoryCommand
+        public Command<NoteContent> ViewHistoryCommand
         {
             get => _viewHistoryCommand;
             set
@@ -305,16 +303,10 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static PointListListItem ListItemFromDbItem(PointContent content, PointListItemActions itemActions,
+        public static NoteListListItem ListItemFromDbItem(NoteContent content, NoteContentActions itemActions,
             bool showType)
         {
-            return new()
-            {
-                DbEntry = content,
-                SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-                ItemActions = itemActions,
-                ShowType = showType
-            };
+            return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
         }
 
         [NotifyPropertyChangedInvocator]

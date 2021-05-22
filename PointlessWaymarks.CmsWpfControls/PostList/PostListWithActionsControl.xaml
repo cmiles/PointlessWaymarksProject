@@ -26,9 +26,9 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Excel">
-                <MenuItem Command="{Binding SelectedToExcelCommand}" Header="Selected To Excel" />
-                <MenuItem Command="{Binding ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
+                <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
+                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
             <MenuItem Header="Email">
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
@@ -48,15 +48,15 @@
                     Content="_Refresh"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding EditSelectedContentCommand}"
+                    Command="{Binding ListContext.EditSelectedCommand}"
                     Content="_Edit"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding NewContentCommand}"
+                    Command="{Binding ListContext.NewActions.NewPostContentCommand}"
                     Content="_New Content"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding GenerateSelectedHtmlCommand}"
+                    Command="{Binding ListContext.GenerateHtmlSelectedCommand}"
                     Content="_Generate Html"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
@@ -68,12 +68,18 @@
                     Content="Email to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding OpenUrlForSelectedCommand}"
+                    Command="{Binding ListContext.OpenUrlSelectedCommand}"
                     Content="_Open Selected In Browser"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
-                <Button Command="{Binding ViewHistoryCommand}" Style="{StaticResource ActionPanelButtonStyle}">View History</Button>
-                <Button Command="{Binding ExtractNewLinksInSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Extract Links</Button>
+                <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                    Delete
+                </Button>
+                <Button Command="{Binding ListContext.ViewHistorySelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                    View History
+                </Button>
+                <Button Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                    Extract Links
+                </Button>
             </WrapPanel>
         </Border>
         <status:StatusControl

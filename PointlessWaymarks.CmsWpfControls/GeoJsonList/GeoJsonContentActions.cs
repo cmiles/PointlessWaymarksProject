@@ -9,44 +9,69 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
+using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
+using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.NoteList
+namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 {
-    public class NoteListItemActions : IListItemActions<NoteContent>
+    public class GeoJsonContentActions : IContentActions<GeoJsonContent>
     {
-        private Command<NoteContent> _deleteCommand;
-        private Command<NoteContent> _editCommand;
-        private Command<NoteContent> _extractNewLinksCommand;
-        private Command<NoteContent> _generateHtmlCommand;
-        private Command<NoteContent> _linkCodeToClipboardCommand;
-        private Command<NoteContent> _openUrlCommand;
+        private Command<GeoJsonContent> _deleteCommand;
+        private Command<GeoJsonContent> _editCommand;
+        private Command<GeoJsonContent> _extractNewLinksCommand;
+        private Command<GeoJsonContent> _generateHtmlCommand;
+        private Command<GeoJsonContent> _linkCodeToClipboardCommand;
+        private Command<GeoJsonContent> _openUrlCommand;
         private StatusControlContext _statusContext;
-        private Command<NoteContent> _viewHistoryCommand;
+        private Command<GeoJsonContent> _viewHistoryCommand;
 
-        public NoteListItemActions(StatusControlContext statusContext)
+        public GeoJsonContentActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
-            DeleteCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(Delete);
-            EditCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(Edit);
-            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(ExtractNewLinks);
-            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(GenerateHtml);
-            LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(LinkCodeToClipboard);
-            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<NoteContent>(OpenUrl);
-            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<NoteContent>(ViewHistory);
+            DeleteCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(Delete);
+            EditCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(Edit);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(ExtractNewLinks);
+            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(GenerateHtml);
+            LinkCodeToClipboardCommand =
+                StatusContext.RunBlockingTaskCommand<GeoJsonContent>(DefaultBracketCodeToClipboard);
+            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<GeoJsonContent>(OpenUrl);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<GeoJsonContent>(ViewHistory);
         }
 
-        public async Task Delete(NoteContent content)
+        public string DefaultBracketCode(GeoJsonContent content)
+        {
+            return content?.ContentId == null ? string.Empty : @$"{BracketCodeGeoJson.Create(content)}";
+        }
+
+        public async Task DefaultBracketCodeToClipboard(GeoJsonContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = @$"{BracketCodeGeoJson.Create(content)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        public async Task Delete(GeoJsonContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -58,15 +83,15 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             if (content.Id < 1)
             {
-                StatusContext.ToastError($"Note {content.Title} - Entry is not saved - Skipping?");
+                StatusContext.ToastError($"GeoJson {content.Title} - Entry is not saved - Skipping?");
                 return;
             }
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            await Db.DeleteNoteContent(content.ContentId, StatusContext.ProgressTracker());
+            await Db.DeleteGeoJsonContent(content.ContentId, StatusContext.ProgressTracker());
 
-            var possibleContentDirectory = settings.LocalSiteNoteContentDirectory(content, false);
+            var possibleContentDirectory = settings.LocalSiteGeoJsonContentDirectory(content, false);
             if (possibleContentDirectory.Exists)
             {
                 StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
@@ -74,7 +99,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
-        public Command<NoteContent> DeleteCommand
+        public Command<GeoJsonContent> DeleteCommand
         {
             get => _deleteCommand;
             set
@@ -85,7 +110,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
-        public async Task Edit(NoteContent content)
+        public async Task Edit(GeoJsonContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -93,7 +118,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             var context = await Db.Context();
 
-            var refreshedData = context.NoteContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.GeoJsonContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null)
                 StatusContext.ToastError(
@@ -101,14 +126,14 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new NoteContentEditorWindow(refreshedData);
+            var newContentWindow = new GeoJsonContentEditorWindow(refreshedData);
 
             newContentWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public Command<NoteContent> EditCommand
+        public Command<GeoJsonContent> EditCommand
         {
             get => _editCommand;
             set
@@ -119,7 +144,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
-        public async Task ExtractNewLinks(NoteContent content)
+        public async Task ExtractNewLinks(GeoJsonContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -131,15 +156,15 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             var context = await Db.Context();
 
-            var refreshedData = context.NoteContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.GeoJsonContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null) return;
 
-            await LinkExtraction.ExtractNewAndShowLinkContentEditors(refreshedData.BodyContent,
-                StatusContext.ProgressTracker());
+            await LinkExtraction.ExtractNewAndShowLinkContentEditors(
+                $"{refreshedData.BodyContent} {refreshedData.UpdateNotes}", StatusContext.ProgressTracker());
         }
 
-        public Command<NoteContent> ExtractNewLinksCommand
+        public Command<GeoJsonContent> ExtractNewLinksCommand
         {
             get => _extractNewLinksCommand;
             set
@@ -151,7 +176,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
         }
 
 
-        public async Task GenerateHtml(NoteContent content)
+        public async Task GenerateHtml(GeoJsonContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -163,14 +188,14 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             StatusContext.Progress($"Generating Html for {content.Title}");
 
-            var htmlContext = new SingleNotePage(content);
+            var htmlContext = new SingleGeoJsonPage(content);
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
 
             StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
         }
 
-        public Command<NoteContent> GenerateHtmlCommand
+        public Command<GeoJsonContent> GenerateHtmlCommand
         {
             get => _generateHtmlCommand;
             set
@@ -181,26 +206,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
-        public async Task LinkCodeToClipboard(NoteContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = @$"{BracketCodeNotes.Create(content)}{Environment.NewLine}";
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
-
-        public Command<NoteContent> LinkCodeToClipboardCommand
+        public Command<GeoJsonContent> LinkCodeToClipboardCommand
         {
             get => _linkCodeToClipboardCommand;
             set
@@ -211,7 +217,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
-        public async Task OpenUrl(NoteContent content)
+        public async Task OpenUrl(GeoJsonContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -223,13 +229,13 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             var settings = UserSettingsSingleton.CurrentSettings();
 
-            var url = $@"http://{settings.NotePageUrl(content)}";
+            var url = $@"http://{settings.GeoJsonPageUrl(content)}";
 
             var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
             Process.Start(ps);
         }
 
-        public Command<NoteContent> OpenUrlCommand
+        public Command<GeoJsonContent> OpenUrlCommand
         {
             get => _openUrlCommand;
             set
@@ -251,7 +257,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             }
         }
 
-        public async Task ViewHistory(NoteContent content)
+        public async Task ViewHistory(GeoJsonContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -265,7 +271,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-            var historicItems = await db.HistoricNoteContents
+            var historicItems = await db.HistoricGeoJsonContents
                 .Where(x => x.ContentId == content.ContentId).ToListAsync();
 
             StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
@@ -284,7 +290,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
             historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
 
-        public Command<NoteContent> ViewHistoryCommand
+        public Command<GeoJsonContent> ViewHistoryCommand
         {
             get => _viewHistoryCommand;
             set
@@ -297,10 +303,16 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static NoteListListItem ListItemFromDbItem(NoteContent content, NoteListItemActions itemActions,
+        public static GeoJsonListListItem ListItemFromDbItem(GeoJsonContent content, GeoJsonContentActions itemActions,
             bool showType)
         {
-            return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
+            return new()
+            {
+                DbEntry = content,
+                SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
+                ItemActions = itemActions,
+                ShowType = showType
+            };
         }
 
         [NotifyPropertyChangedInvocator]

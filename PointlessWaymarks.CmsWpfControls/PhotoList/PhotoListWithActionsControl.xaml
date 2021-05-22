@@ -35,21 +35,22 @@
                 <MenuItem Command="{Binding ReportPhotoMetadataCommand}" Header="Selected - Metadata to Html" />
             </MenuItem>
             <MenuItem Header="Excel">
-                <MenuItem Command="{Binding SelectedToExcelCommand}" Header="Selected To Excel" />
-                <MenuItem Command="{Binding ImportFromExcelFileCommand}" Header="Import From Excel" />
+                <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
+                <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
+                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
             <MenuItem Header="Email">
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
             </MenuItem>
             <MenuItem Header="On the Web">
-                <MenuItem Command="{Binding OpenUrlForSelectedCommand}" Header="Open Selected on Public Site In Browser" />
+                <MenuItem Command="{Binding ListContext.OpenUrlSelectedCommand}" Header="Open Selected on Public Site In Browser" />
             </MenuItem>
             <MenuItem Header="History">
-                <MenuItem Command="{Binding ViewHistoryCommand}" Header="View History" />
+                <MenuItem Command="{Binding ListContext.ViewHistorySelectedCommand}" Header="View History" />
             </MenuItem>
             <MenuItem Header="Processing">
-                <MenuItem Command="{Binding ExtractNewLinksInSelectedCommand}" Header="Extract Links" />
-                <MenuItem Command="{Binding GenerateSelectedHtmlCommand}" Header="Generate Html" />
+                <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
+                <MenuItem Command="{Binding ListContext.GenerateHtmlSelectedCommand}" Header="Generate Html" />
                 <MenuItem Command="{Binding ForcedResizeCommand}" Header="Reprocess Photo" />
                 <MenuItem Command="{Binding RegenerateHtmlAndReprocessPhotoForSelectedCommand}" Header="Reprocess Photo and Generate Html" />
             </MenuItem>
@@ -68,19 +69,19 @@
                     Content="_Refresh"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding EditSelectedContentCommand}"
+                    Command="{Binding ListContext.EditSelectedCommand}"
                     Content="_Edit"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding NewContentFromFilesCommand}"
+                    Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesCommand}"
                     Content="_New from Files"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding NewContentFromFilesWithAutosaveCommand}"
+                    Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesWithAutosaveCommand}"
                     Content="_New w/Autosave"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding NewContentCommand}"
+                    Command="{Binding ListContext.NewActions.NewPhotoContentCommand}"
                     Content="New - Blank"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
@@ -91,7 +92,7 @@
                     Command="{Binding PhotoLinkCodesToClipboardForSelectedCommand}"
                     Content="Link Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
+                <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
             </WrapPanel>
         </Border>
         <status:StatusControl

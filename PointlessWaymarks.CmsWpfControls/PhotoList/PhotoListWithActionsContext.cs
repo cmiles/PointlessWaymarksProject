@@ -1,29 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AngleSharp.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
-using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
@@ -33,20 +27,11 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 {
     public class PhotoListWithActionsContext : INotifyPropertyChanged
     {
-        private Command _deleteSelectedCommand;
-        private Command _editSelectedContentCommand;
+        private readonly StatusControlContext _statusContext;
         private Command _emailHtmlToClipboardCommand;
-        private Command _extractNewLinksInSelectedCommand;
         private Command _forcedResizeCommand;
-        private Command _generateSelectedHtmlCommand;
-        private Command _importFromExcelFileCommand;
-        private Command _importFromOpenExcelInstanceCommand;
         private ContentListContext _listContext;
-        private Command _newContentCommand;
-        private Command _newContentFromFilesCommand;
-        private Command _newContentFromFilesWithAutosaveCommand;
         private Command _openUrlForPhotoListCommand;
-        private Command _openUrlForSelectedCommand;
         private Command _photoCodesToClipboardForSelectedCommand;
         private Command _photoLinkCodesToClipboardForSelectedCommand;
         private Command _refreshDataCommand;
@@ -58,9 +43,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private Command _reportPhotoMetadataCommand;
         private Command _reportTakenAndLicenseYearDoNotMatchCommand;
         private Command _reportTitleAndTakenDoNotMatchCommand;
-        private Command _selectedToExcelCommand;
-        private StatusControlContext _statusContext;
-        private Command _viewHistoryCommand;
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
         {
@@ -82,28 +64,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(ListContext.LoadData);
         }
 
-        public Command DeleteSelectedCommand
-        {
-            get => _deleteSelectedCommand;
-            set
-            {
-                if (Equals(value, _deleteSelectedCommand)) return;
-                _deleteSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command EditSelectedContentCommand
-        {
-            get => _editSelectedContentCommand;
-            set
-            {
-                if (Equals(value, _editSelectedContentCommand)) return;
-                _editSelectedContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public Command EmailHtmlToClipboardCommand
         {
             get => _emailHtmlToClipboardCommand;
@@ -111,17 +71,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             {
                 if (Equals(value, _emailHtmlToClipboardCommand)) return;
                 _emailHtmlToClipboardCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ExtractNewLinksInSelectedCommand
-        {
-            get => _extractNewLinksInSelectedCommand;
-            set
-            {
-                if (Equals(value, _extractNewLinksInSelectedCommand)) return;
-                _extractNewLinksInSelectedCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -137,38 +86,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command GenerateSelectedHtmlCommand
-        {
-            get => _generateSelectedHtmlCommand;
-            set
-            {
-                if (Equals(value, _generateSelectedHtmlCommand)) return;
-                _generateSelectedHtmlCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ImportFromExcelFileCommand
-        {
-            get => _importFromExcelFileCommand;
-            set
-            {
-                if (Equals(value, _importFromExcelFileCommand)) return;
-                _importFromExcelFileCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command ImportFromOpenExcelInstanceCommand
-        {
-            get => _importFromOpenExcelInstanceCommand;
-            set
-            {
-                if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
-                _importFromOpenExcelInstanceCommand = value;
-                OnPropertyChanged();
-            }
-        }
 
         public ContentListContext ListContext
         {
@@ -177,39 +94,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             {
                 if (Equals(value, _listContext)) return;
                 _listContext = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command NewContentCommand
-        {
-            get => _newContentCommand;
-            set
-            {
-                if (Equals(value, _newContentCommand)) return;
-                _newContentCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command NewContentFromFilesCommand
-        {
-            get => _newContentFromFilesCommand;
-            set
-            {
-                if (Equals(value, _newContentFromFilesCommand)) return;
-                _newContentFromFilesCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public Command NewContentFromFilesWithAutosaveCommand
-        {
-            get => _newContentFromFilesWithAutosaveCommand;
-            set
-            {
-                if (Equals(value, _newContentFromFilesWithAutosaveCommand)) return;
-                _newContentFromFilesWithAutosaveCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -225,16 +109,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command OpenUrlForSelectedCommand
-        {
-            get => _openUrlForSelectedCommand;
-            set
-            {
-                if (Equals(value, _openUrlForSelectedCommand)) return;
-                _openUrlForSelectedCommand = value;
-                OnPropertyChanged();
-            }
-        }
 
         public Command PhotoCodesToClipboardForSelectedCommand
         {
@@ -357,21 +231,10 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command SelectedToExcelCommand
-        {
-            get => _selectedToExcelCommand;
-            set
-            {
-                if (Equals(value, _selectedToExcelCommand)) return;
-                _selectedToExcelCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public StatusControlContext StatusContext
         {
             get => _statusContext;
-            set
+            private init
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
@@ -379,95 +242,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        public Command ViewHistoryCommand
-        {
-            get => _viewHistoryCommand;
-            set
-            {
-                if (Equals(value, _viewHistoryCommand)) return;
-                _viewHistoryCommand = value;
-                OnPropertyChanged();
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private async Task Delete()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var selected = SelectedItems()?.OrderBy(x => x.DbEntry.Title).ToList();
-
-            if (selected == null || !selected.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            if (selected.Count > 1)
-                if (await StatusContext.ShowMessage("Delete Multiple Items",
-                    $"You are about to delete {selected.Count} items - do you really want to delete all of these items?" +
-                    $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, selected.Select(x => x.DbEntry.Title))}",
-                    new List<string> {"Yes", "No"}) == "No")
-                    return;
-
-            var selectedItems = selected.ToList();
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            foreach (var loopSelected in selectedItems)
-            {
-                if (loopSelected.DbEntry == null || loopSelected.DbEntry.Id < 1)
-                {
-                    StatusContext.ToastError("Entry is not saved - Skipping?");
-                    return;
-                }
-
-                await Db.DeletePhotoContent(loopSelected.DbEntry.ContentId, StatusContext.ProgressTracker());
-
-                var possibleContentDirectory = settings.LocalSitePhotoContentDirectory(loopSelected.DbEntry, false);
-                if (possibleContentDirectory.Exists)
-                {
-                    StatusContext.Progress($"Deleting Generated Folder {possibleContentDirectory.FullName}");
-                    possibleContentDirectory.Delete(true);
-                }
-            }
-        }
-
-        private async Task EditSelectedContent()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var context = await Db.Context();
-            var frozenList = SelectedItems();
-
-            foreach (var loopSelected in frozenList)
-            {
-                var refreshedData =
-                    context.PhotoContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
-
-                if (refreshedData == null)
-                {
-                    StatusContext.ToastError(
-                        $"{loopSelected.DbEntry.Title} is no longer active in the database? Can not edit - " +
-                        "look for a historic version...");
-                    continue;
-                }
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                var newContentWindow = new PhotoContentEditorWindow(refreshedData);
-
-                newContentWindow.PositionWindowAndShow();
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
-            }
-        }
 
         private async Task EmailHtmlToClipboard()
         {
@@ -496,30 +271,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             StatusContext.ToastSuccess("Email Html on Clipboard");
         }
 
-        private async Task ExtractNewLinksInSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var context = await Db.Context();
-            var frozenList = SelectedItems();
-
-            foreach (var loopSelected in frozenList)
-            {
-                var refreshedData =
-                    context.PhotoContents.SingleOrDefault(x => x.ContentId == loopSelected.DbEntry.ContentId);
-
-                if (refreshedData == null) continue;
-
-                await LinkExtraction.ExtractNewAndShowLinkContentEditors($"{refreshedData.UpdateNotes}",
-                    StatusContext.ProgressTracker());
-            }
-        }
 
         private async Task ForcedResize()
         {
@@ -544,33 +295,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
-        private async Task GenerateSelectedHtml()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var loopCount = 1;
-            var totalCount = SelectedItems().Count;
-
-            foreach (var loopSelected in SelectedItems())
-            {
-                StatusContext.Progress(
-                    $"Generating Html for {loopSelected.DbEntry.Title}, {loopCount} of {totalCount}");
-
-                var htmlContext = new SinglePhotoPage(loopSelected.DbEntry);
-
-                htmlContext.WriteLocalHtml();
-
-                StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
-
-                loopCount++;
-            }
-        }
 
         public async Task LoadData()
         {
@@ -584,141 +308,10 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
 
-        private async Task NewContent()
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var newContentWindow = new PhotoContentEditorWindow();
-
-            newContentWindow.PositionWindowAndShow();
-        }
-
-        private async Task NewContentFromFiles(bool autoSaveAndClose, CancellationToken cancellationToken)
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            StatusContext.Progress("Starting photo load.");
-
-            var dialog = new VistaOpenFileDialog {Multiselect = true};
-
-            if (!(dialog.ShowDialog() ?? false)) return;
-
-            var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
-
-            if (!selectedFiles.Any()) return;
-
-            if (!autoSaveAndClose && selectedFiles.Count > 10)
-            {
-                StatusContext.ToastError(
-                    "Opening new content in an editor window is limited to 10 photos at a time...");
-                return;
-            }
-
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var selectedFileInfos = selectedFiles.Select(x => new FileInfo(x)).ToList();
-
-            if (!selectedFileInfos.Any(x => x.Exists))
-            {
-                StatusContext.ToastError("Files don't exist?");
-                return;
-            }
-
-            selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
-
-            if (!selectedFileInfos.Any(FileHelpers.PhotoFileTypeIsSupported))
-            {
-                StatusContext.ToastError("None of the files appear to be supported file types...");
-                return;
-            }
-
-            if (selectedFileInfos.Any(x => !FileHelpers.PhotoFileTypeIsSupported(x)))
-                StatusContext.ToastWarning(
-                    $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.PhotoFileTypeIsSupported(x)))}");
-
-            var validFiles = selectedFileInfos.Where(FileHelpers.PhotoFileTypeIsSupported).ToList();
-
-            foreach (var loopFile in validFiles)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
-
-                if (autoSaveAndClose)
-                {
-                    var (metaGenerationReturn, metaContent) =
-                        PhotoGenerator.PhotoMetadataToNewPhotoContent(loopFile, StatusContext.ProgressTracker());
-
-                    if (metaGenerationReturn.HasError)
-                    {
-                        await ThreadSwitcher.ResumeForegroundAsync();
-
-                        var editor = new PhotoContentEditorWindow(loopFile);
-                        editor.PositionWindowAndShow();
-#pragma warning disable 4014
-                        //Allow execution to continue so Automation can continue
-                        editor.StatusContext.ShowMessageWithOkButton("Problem Extracting Metadata",
-                            metaGenerationReturn.GenerationNote);
-#pragma warning restore 4014
-                        continue;
-                    }
-
-                    var (saveGenerationReturn, _) = await PhotoGenerator.SaveAndGenerateHtml(metaContent, loopFile,
-                        true, null, StatusContext.ProgressTracker());
-
-                    if (saveGenerationReturn.HasError)
-                    {
-                        await ThreadSwitcher.ResumeForegroundAsync();
-
-                        var editor = new PhotoContentEditorWindow(loopFile);
-                        editor.PositionWindowAndShow();
-#pragma warning disable 4014
-                        //Allow execution to continue so Automation can continue
-                        editor.StatusContext.ShowMessageWithOkButton("Problem Saving",
-                            saveGenerationReturn.GenerationNote);
-#pragma warning restore 4014
-                        continue;
-                    }
-                }
-                else
-                {
-                    await ThreadSwitcher.ResumeForegroundAsync();
-
-                    var editor = new PhotoContentEditorWindow(loopFile);
-                    editor.PositionWindowAndShow();
-                }
-
-                StatusContext.Progress($"New Photo Editor - {loopFile.FullName} ");
-
-                await ThreadSwitcher.ResumeBackgroundAsync();
-            }
-        }
-
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async Task OpenUrlForSelected()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (SelectedItems() == null || !SelectedItems().Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            foreach (var loopSelected in SelectedItems())
-            {
-                var url = $@"https://{settings.PhotoPageUrl(loopSelected.DbEntry)}";
-
-                var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-                Process.Start(ps);
-            }
         }
 
         private async Task PhotoCodesToClipboardForSelected()
@@ -865,7 +458,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             var db = await Db.Context();
 
             return (await db.PhotoContents.Where(x => x.Tags == "").ToListAsync()).Cast<object>().ToList();
-            ;
         }
 
         private async Task ReportPhotoMetadata()
@@ -926,7 +518,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
 
             return returnList.Cast<object>().ToList();
-            ;
         }
 
         private async Task<List<object>> ReportTitleAndTakenDoNotMatchGenerator()
@@ -962,7 +553,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
 
             return returnList.Cast<object>().ToList();
-            ;
         }
 
         private static async Task RunReport(Func<Task<List<object>>> toRun, string title)
@@ -989,28 +579,14 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
         private void SetupCommands()
         {
-            GenerateSelectedHtmlCommand = StatusContext.RunBlockingTaskCommand(GenerateSelectedHtml);
             RegenerateHtmlAndReprocessPhotoForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(RegenerateHtmlAndReprocessPhotoForSelected);
-            EditSelectedContentCommand = StatusContext.RunBlockingTaskCommand(EditSelectedContent);
             PhotoCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
             PhotoLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
-            OpenUrlForSelectedCommand = StatusContext.RunNonBlockingTaskCommand(OpenUrlForSelected);
-            NewContentCommand = StatusContext.RunNonBlockingTaskCommand(NewContent);
-            NewContentFromFilesCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewContentFromFiles(false, x),
-                    "Cancel Photo Import");
-            NewContentFromFilesWithAutosaveCommand =
-                StatusContext.RunBlockingTaskWithCancellationCommand(async x => await NewContentFromFiles(true, x),
-                    "Cancel Photo Import");
-            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand(ViewHistory);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             ForcedResizeCommand = StatusContext.RunBlockingTaskCommand(ForcedResize);
-
-            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(Delete);
-            ExtractNewLinksInSelectedCommand = StatusContext.RunBlockingTaskCommand(ExtractNewLinksInSelected);
 
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
@@ -1027,63 +603,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List"));
             ReportMultiSpacesInTitleCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces"));
-
-            ImportFromExcelFileCommand =
-                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
-            ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
-                await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
-            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
-                await ExcelHelpers.SelectedToExcel(SelectedItems()?.Cast<dynamic>().ToList(),
-                    StatusContext));
-        }
-
-        private async Task ViewHistory()
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            var selected = SelectedItems();
-
-            if (selected == null || !selected.Any())
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            if (selected.Count > 1)
-            {
-                StatusContext.ToastError("Please Select a Single Item");
-                return;
-            }
-
-            var singleSelected = selected.Single();
-
-            if (singleSelected.DbEntry == null || singleSelected.DbEntry.ContentId == Guid.Empty)
-            {
-                StatusContext.ToastWarning("No History - New/Unsaved Entry?");
-                return;
-            }
-
-            var db = await Db.Context();
-
-            StatusContext.Progress($"Looking up Historic Entries for {singleSelected.DbEntry.Title}");
-
-            var historicItems = await db.HistoricPhotoContents
-                .Where(x => x.ContentId == singleSelected.DbEntry.ContentId).ToListAsync();
-
-            StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
-
-            if (historicItems.Count < 1)
-            {
-                StatusContext.ToastWarning("No History to Show...");
-                return;
-            }
-
-            var historicView = new ContentViewHistoryPage($"Historic Entries - {singleSelected.DbEntry.Title}",
-                UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {singleSelected.DbEntry.Title}",
-                historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
-                    .Select(ObjectDumper.Dump).ToList());
-
-            historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
     }
 }

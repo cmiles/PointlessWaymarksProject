@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
 using JetBrains.Annotations;
@@ -35,26 +37,33 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
     public class ContentListContext : INotifyPropertyChanged
     {
+        private Command _bracketCodeToClipboardSelectedCommand;
         private IContentListLoader _contentListLoader;
         private Command _deleteSelectedCommand;
         private Command _editSelectedCommand;
-        private FileListItemActions _fileItemActions;
-        private GeoJsonListItemActions _geoJasonItemActions;
-        private ImageListItemActions _imageItemActions;
+        private FileContentActions _fileItemActions;
+        private Command _generateHtmlSelectedCommand;
+        private GeoJsonContentActions _geoJasonItemActions;
+        private ImageContentActions _imageItemActions;
+        private Command _importFromExcelFileCommand;
+        private Command _importFromOpenExcelInstanceCommand;
         private ObservableCollection<IContentListItem> _items;
-        private LineListItemActions _lineItemActions;
-        private LinkListItemActions _linkItemActions;
+        private LineContentActions _lineItemActions;
+        private LinkContentActions _linkItemActions;
         private ContentListSelected<IContentListItem> _listSelection;
         private ColumnSortControlContext _listSort;
         private Command _loadAllCommand;
-        private MapComponentListItemActions _mapComponentItemActions;
+        private MapComponentContentActions _mapComponentItemActions;
         private NewContent _newActions;
-        private NoteListItemActions _noteItemActions;
-        private PhotoListItemActions _photoItemActions;
-        private PointListItemActions _pointItemActions;
-        private PostListItemActions _postItemActions;
+        private NoteContentActions _noteItemActions;
+        private Command _openUrlSelectedCommand;
+        private PhotoContentActions _photoItemActions;
+        private PointContentActions _pointItemActions;
+        private PostContentActions _postItemActions;
+        private Command _selectedToExcelCommand;
         private StatusControlContext _statusContext;
         private string _userFilterText;
+        private Command _viewHistorySelectedCommand;
 
         public ContentListContext(StatusControlContext statusContext, IContentListLoader loader)
         {
@@ -62,16 +71,16 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             ContentListLoader = loader;
 
-            FileItemActions = new FileListItemActions(StatusContext);
-            GeoJasonItemActions = new GeoJsonListItemActions(StatusContext);
-            ImageItemActions = new ImageListItemActions(StatusContext);
-            LineItemActions = new LineListItemActions(StatusContext);
-            LinkItemActions = new LinkListItemActions(StatusContext);
-            MapComponentItemActions = new MapComponentListItemActions(StatusContext);
-            NoteItemActions = new NoteListItemActions(StatusContext);
-            PointItemActions = new PointListItemActions(StatusContext);
-            PhotoItemActions = new PhotoListItemActions(StatusContext);
-            PostItemActions = new PostListItemActions(StatusContext);
+            FileItemActions = new FileContentActions(StatusContext);
+            GeoJasonItemActions = new GeoJsonContentActions(StatusContext);
+            ImageItemActions = new ImageContentActions(StatusContext);
+            LineItemActions = new LineContentActions(StatusContext);
+            LinkItemActions = new LinkContentActions(StatusContext);
+            MapComponentItemActions = new MapComponentContentActions(StatusContext);
+            NoteItemActions = new NoteContentActions(StatusContext);
+            PointItemActions = new PointContentActions(StatusContext);
+            PhotoItemActions = new PhotoContentActions(StatusContext);
+            PostItemActions = new PostContentActions(StatusContext);
 
             NewActions = new NewContent(StatusContext);
 
@@ -82,8 +91,39 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 ContentListLoader.PartialLoadQuantity = null;
                 await LoadData();
             });
-            EditSelectedCommand = StatusContext.RunBlockingTaskCommand(EditSelected);
-            DeleteSelectedCommand = StatusContext.RunBlockingTaskCommand(DeleteSelected);
+
+            DeleteSelectedCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(DeleteSelected, "Cancel Delete");
+            BracketCodeToClipboardSelectedCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(BracketCodeToClipboardSelected, "Cancel Delete");
+            EditSelectedCommand = StatusContext.RunBlockingTaskWithCancellationCommand(EditSelected, "Cancel Edit");
+            ExtractNewLinksSelectedCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(ExtractNewLinksSelected, "Cancel Link Extraction");
+            GenerateHtmlSelectedCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(GenerateHtmlSelected, "Cancel Generate Html");
+            OpenUrlSelectedCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(OpenUrlSelected, "Cancel Open Url");
+            ViewHistorySelectedCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(ViewHistorySelected, "Cancel View History");
+
+            ImportFromExcelFileCommand =
+                StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
+            ImportFromOpenExcelInstanceCommand = StatusContext.RunBlockingTaskCommand(async () =>
+                await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext));
+            SelectedToExcelCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ExcelHelpers.SelectedToExcel(ListSelection.SelectedItems?.Cast<dynamic>().ToList(),
+                    StatusContext));
+        }
+
+        public Command BracketCodeToClipboardSelectedCommand
+        {
+            get => _bracketCodeToClipboardSelectedCommand;
+            set
+            {
+                if (Equals(value, _bracketCodeToClipboardSelectedCommand)) return;
+                _bracketCodeToClipboardSelectedCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public IContentListLoader ContentListLoader
@@ -121,7 +161,9 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public FileListItemActions FileItemActions
+        public Command ExtractNewLinksSelectedCommand { get; set; }
+
+        public FileContentActions FileItemActions
         {
             get => _fileItemActions;
             set
@@ -132,7 +174,18 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public GeoJsonListItemActions GeoJasonItemActions
+        public Command GenerateHtmlSelectedCommand
+        {
+            get => _generateHtmlSelectedCommand;
+            set
+            {
+                if (Equals(value, _generateHtmlSelectedCommand)) return;
+                _generateHtmlSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public GeoJsonContentActions GeoJasonItemActions
         {
             get => _geoJasonItemActions;
             set
@@ -143,13 +196,35 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public ImageListItemActions ImageItemActions
+        public ImageContentActions ImageItemActions
         {
             get => _imageItemActions;
             set
             {
                 if (Equals(value, _imageItemActions)) return;
                 _imageItemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromExcelFileCommand
+        {
+            get => _importFromExcelFileCommand;
+            set
+            {
+                if (Equals(value, _importFromExcelFileCommand)) return;
+                _importFromExcelFileCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ImportFromOpenExcelInstanceCommand
+        {
+            get => _importFromOpenExcelInstanceCommand;
+            set
+            {
+                if (Equals(value, _importFromOpenExcelInstanceCommand)) return;
+                _importFromOpenExcelInstanceCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -165,7 +240,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public LineListItemActions LineItemActions
+        public LineContentActions LineItemActions
         {
             get => _lineItemActions;
             set
@@ -176,7 +251,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public LinkListItemActions LinkItemActions
+        public LinkContentActions LinkItemActions
         {
             get => _linkItemActions;
             set
@@ -220,7 +295,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public MapComponentListItemActions MapComponentItemActions
+        public MapComponentContentActions MapComponentItemActions
         {
             get => _mapComponentItemActions;
             set
@@ -242,7 +317,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public NoteListItemActions NoteItemActions
+        public NoteContentActions NoteItemActions
         {
             get => _noteItemActions;
             set
@@ -253,8 +328,19 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
+        public Command OpenUrlSelectedCommand
+        {
+            get => _openUrlSelectedCommand;
+            set
+            {
+                if (Equals(value, _openUrlSelectedCommand)) return;
+                _openUrlSelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public PhotoListItemActions PhotoItemActions
+
+        public PhotoContentActions PhotoItemActions
         {
             get => _photoItemActions;
             set
@@ -265,7 +351,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public PointListItemActions PointItemActions
+        public PointContentActions PointItemActions
         {
             get => _pointItemActions;
             set
@@ -276,13 +362,24 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public PostListItemActions PostItemActions
+        public PostContentActions PostItemActions
         {
             get => _postItemActions;
             set
             {
                 if (Equals(value, _postItemActions)) return;
                 _postItemActions = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command SelectedToExcelCommand
+        {
+            get => _selectedToExcelCommand;
+            set
+            {
+                if (Equals(value, _selectedToExcelCommand)) return;
+                _selectedToExcelCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -311,7 +408,55 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
+
+        public Command ViewHistorySelectedCommand
+        {
+            get => _viewHistorySelectedCommand;
+            set
+            {
+                if (Equals(value, _viewHistorySelectedCommand)) return;
+                _viewHistorySelectedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public async Task BracketCodeToClipboardSelected(CancellationToken cancelToken)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to Edit?");
+                return;
+            }
+
+            var currentSelected = ListSelection.SelectedItems;
+
+            var bracketCodes = new List<string>();
+
+            foreach (var loopSelected in currentSelected)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                bracketCodes.Add(loopSelected.DefaultBracketCode());
+            }
+
+            var finalString = string.Join(Environment.NewLine, bracketCodes.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+            if (string.IsNullOrWhiteSpace(finalString))
+            {
+                StatusContext.ToastSuccess("No Bracket Codes Found?");
+                return;
+            }
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
+        }
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
         {
@@ -452,15 +597,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             StatusContext.RunFireAndForgetTaskWithUiToastErrorReturn(FilterList);
         }
 
-        public async Task DeleteSelected()
+        public async Task DeleteSelected(CancellationToken cancelToken)
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
             {
                 StatusContext.ToastWarning("Nothing Selected to Edit?");
                 return;
             }
 
-            if (ListSelection.SelectedItems.Count > 1)
+            if (ListSelection.SelectedItems.Count > 20)
                 if (await StatusContext.ShowMessage("Delete Multiple Items",
                     $"You are about to delete {ListSelection.SelectedItems.Count} items - do you really want to delete all of these items?" +
                     $"{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, ListSelection.SelectedItems.Select(x => x.Content().Title))}",
@@ -470,43 +617,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             var currentSelected = ListSelection.SelectedItems;
 
             foreach (var loopSelected in currentSelected)
-                switch (loopSelected)
-                {
-                    case FileListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case GeoJsonListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case ImageListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case LinkListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case LineListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case MapComponentListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case NoteListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case PointListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case PhotoListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                    case PostListListItem x:
-                        await x.ItemActions.Delete(x.DbEntry);
-                        break;
-                }
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                await loopSelected.Delete();
+            }
         }
 
-        public async Task EditSelected()
+        public async Task EditSelected(CancellationToken cancelToken)
         {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
             if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
             {
                 StatusContext.ToastWarning("Nothing Selected to Edit?");
@@ -522,39 +643,31 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             var currentSelected = ListSelection.SelectedItems;
 
             foreach (var loopSelected in currentSelected)
-                switch (loopSelected)
-                {
-                    case FileListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case GeoJsonListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case ImageListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case LinkListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case LineListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case MapComponentListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case NoteListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case PointListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case PhotoListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                    case PostListListItem x:
-                        await x.ItemActions.Edit(x.DbEntry);
-                        break;
-                }
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                await loopSelected.Edit();
+            }
+        }
+
+        public async Task ExtractNewLinksSelected(CancellationToken cancelToken)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to Edit?");
+                return;
+            }
+
+            var currentSelected = ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                await loopSelected.ExtractNewLinks();
+            }
         }
 
         private async Task FilterList()
@@ -577,6 +690,26 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 if ((toFilter.Content().LastUpdatedBy ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 return false;
             };
+        }
+
+        public async Task GenerateHtmlSelected(CancellationToken cancelToken)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to Generate?");
+                return;
+            }
+
+            var currentSelected = ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                await loopSelected.GenerateHtml();
+            }
         }
 
         public static string GetSmallImageUrl(IMainImage content)
@@ -602,21 +735,21 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         {
             return dbItem switch
             {
-                FileContent f => FileListItemActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
-                GeoJsonContent g => GeoJsonListItemActions.ListItemFromDbItem(g, GeoJasonItemActions,
+                FileContent f => FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
+                GeoJsonContent g => GeoJsonContentActions.ListItemFromDbItem(g, GeoJasonItemActions,
                     ContentListLoader.ShowType),
-                ImageContent g => ImageListItemActions.ListItemFromDbItem(g, ImageItemActions,
+                ImageContent g => ImageContentActions.ListItemFromDbItem(g, ImageItemActions,
                     ContentListLoader.ShowType),
-                LineContent l => LineListItemActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
-                LinkContent k => LinkListItemActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
-                MapComponent m => MapComponentListItemActions.ListItemFromDbItem(m, MapComponentItemActions,
+                LineContent l => LineContentActions.ListItemFromDbItem(l, LineItemActions, ContentListLoader.ShowType),
+                LinkContent k => LinkContentActions.ListItemFromDbItem(k, LinkItemActions, ContentListLoader.ShowType),
+                MapComponent m => MapComponentContentActions.ListItemFromDbItem(m, MapComponentItemActions,
                     ContentListLoader.ShowType),
-                NoteContent n => NoteListItemActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
-                PhotoContent ph => PhotoListItemActions.ListItemFromDbItem(ph, PhotoItemActions,
+                NoteContent n => NoteContentActions.ListItemFromDbItem(n, NoteItemActions, ContentListLoader.ShowType),
+                PhotoContent ph => PhotoContentActions.ListItemFromDbItem(ph, PhotoItemActions,
                     ContentListLoader.ShowType),
-                PointContent pt => PointListItemActions.ListItemFromDbItem(pt, PointItemActions,
+                PointContent pt => PointContentActions.ListItemFromDbItem(pt, PointItemActions,
                     ContentListLoader.ShowType),
-                PostContent po => PostListItemActions.ListItemFromDbItem(po, PostItemActions,
+                PostContent po => PostContentActions.ListItemFromDbItem(po, PostItemActions,
                     ContentListLoader.ShowType),
                 _ => null
             };
@@ -634,7 +767,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             ListSort = ContentListLoader.SortContext();
 
-            ListSort.SortUpdated += (sender, list) =>
+            ListSort.SortUpdated += (_, list) =>
                 Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
 
             StatusContext.Progress("Starting Item Load");
@@ -682,6 +815,21 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        public async Task OpenUrlSelected(CancellationToken cancelToken)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to Edit?");
+                return;
+            }
+
+            var currentSelected = ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected) await loopSelected.OpenUrl();
+        }
+
         private async Task PossibleMainImageUpdateDataNotificationReceived(
             InterProcessDataNotification translatedMessage)
         {
@@ -695,6 +843,25 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                     dbMainImageEntry.MainPicture != null &&
                     translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
                     loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
+        }
+
+        public async Task ViewHistorySelected(CancellationToken cancelToken)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListSelection?.SelectedItems == null || ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to Edit?");
+                return;
+            }
+
+            var currentSelected = ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+                await loopSelected.ViewHistory();
+            }
         }
     }
 }

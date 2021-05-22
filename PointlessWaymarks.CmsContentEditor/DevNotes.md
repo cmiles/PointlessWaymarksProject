@@ -1,8 +1,6 @@
 ﻿## Todos
  - All Items Tab
-   - Menu Items for creating all types
    - Visible edit button/option
-   - Excel Options
  - For geo types and notes review local file cleanup on delete
  - Right click context menu for items
  - The GUI Context tests are breaking - longer waits needed for the background events to run? Something else?
@@ -30,6 +28,10 @@ Site:
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
  
 ## Notes
+
+5/22/2021
+
+First commit that finishes out the basic refactoring to using a common list control! A lot of changes went into this and overall I'm happy with the new code structure.
 
 5/18/2021
 

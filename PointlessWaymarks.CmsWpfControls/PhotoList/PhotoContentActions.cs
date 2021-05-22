@@ -24,7 +24,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList
 {
-    public class PhotoListItemActions : IListItemActions<PhotoContent>
+    public class PhotoContentActions : IContentActions<PhotoContent>
     {
         private Command<PhotoContent> _apertureSearchCommand;
         private Command<PhotoContent> _cameraMakeSearchCommand;
@@ -43,7 +43,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private StatusControlContext _statusContext;
         private Command<PhotoContent> _viewFileCommand;
 
-        public PhotoListItemActions(StatusControlContext statusContext)
+        public PhotoContentActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
@@ -51,7 +51,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             EditCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(Edit);
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(GenerateHtml);
-            LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(LinkCodeToClipboard);
+            LinkCodeToClipboardCommand =
+                StatusContext.RunBlockingTaskCommand<PhotoContent>(DefaultBracketCodeToClipboard);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<PhotoContent>(OpenUrl);
             ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewFile);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(ViewHistory);
@@ -74,6 +75,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ShutterSpeedSearchCommand = StatusContext.RunNonBlockingTaskCommand<PhotoContent>(async x =>
                 await RunReport(async () => await ShutterSpeedSearch(x), $"Shutter Speed - {x.ShutterSpeed}"));
         }
+
 
         public Command<PhotoContent> ApertureSearchCommand
         {
@@ -172,6 +174,30 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 _viewFileCommand = value;
                 OnPropertyChanged();
             }
+        }
+
+        public string DefaultBracketCode(PhotoContent content)
+        {
+            return content?.ContentId == null ? string.Empty : @$"{BracketCodePhotos.Create(content)}";
+        }
+
+        public async Task DefaultBracketCodeToClipboard(PhotoContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = @$"{BracketCodePhotos.Create(content)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         public async Task Delete(PhotoContent content)
@@ -306,25 +332,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 _generateHtmlCommand = value;
                 OnPropertyChanged();
             }
-        }
-
-        public async Task LinkCodeToClipboard(PhotoContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = @$"{BracketCodePhotos.Create(content)}{Environment.NewLine}";
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         public Command<PhotoContent> LinkCodeToClipboardCommand
@@ -503,13 +510,13 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
         public static PhotoListListItem ListItemFromDbItem(PhotoContent content,
-            PhotoListItemActions photoListItemActions, bool showType)
+            PhotoContentActions photoContentActions, bool showType)
         {
             return new()
             {
                 DbEntry = content,
                 SmallImageUrl = ContentListContext.GetSmallImageUrl(content),
-                ItemActions = photoListItemActions,
+                ItemActions = photoContentActions,
                 ShowType = showType
             };
         }

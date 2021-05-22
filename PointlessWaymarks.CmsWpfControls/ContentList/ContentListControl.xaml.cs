@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Windows.Controls;
-using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList
 {

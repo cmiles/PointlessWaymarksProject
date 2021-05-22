@@ -1,9 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList
@@ -11,7 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
     public class FileListListItem : IContentListItem, IContentListSmallImage
     {
         private FileContent _dbEntry;
-        private FileListItemActions _itemActions;
+        private FileContentActions _itemActions;
         private CurrentSelectedTextTracker _selectedTextTracker = new();
 
         private bool _showType;
@@ -28,7 +29,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             }
         }
 
-        public FileListItemActions ItemActions
+        public FileContentActions ItemActions
         {
             get => _itemActions;
             set
@@ -50,22 +51,54 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             }
         }
 
-        public Guid? ContentId()
-        {
-            return DbEntry?.ContentId;
-        }
-
         public IContentCommon Content()
         {
             return DbEntry;
         }
 
+        public Guid? ContentId()
+        {
+            return DbEntry?.ContentId;
+        }
+
         public string DefaultBracketCode()
         {
-            if (DbEntry?.ContentId == null || ItemActions == null) return string.Empty;
-            return DbEntry.MainPicture != null
-                ? @$"{BracketCodeFileImage.Create(DbEntry)}"
-                : @$"{BracketCodeFiles.Create(DbEntry)}";
+            return ItemActions.DefaultBracketCode(DbEntry);
+        }
+
+        public async Task DefaultBracketCodeToClipboard()
+        {
+            await ItemActions.DefaultBracketCodeToClipboard(DbEntry);
+        }
+
+        public async Task Delete()
+        {
+            await ItemActions.Delete(DbEntry);
+        }
+
+        public async Task Edit()
+        {
+            await ItemActions.Edit(DbEntry);
+        }
+
+        public async Task ExtractNewLinks()
+        {
+            await ItemActions.ExtractNewLinks(DbEntry);
+        }
+
+        public async Task GenerateHtml()
+        {
+            await ItemActions.GenerateHtml(DbEntry);
+        }
+
+        public async Task OpenUrl()
+        {
+            await ItemActions.OpenUrl(DbEntry);
+        }
+
+        public async Task ViewHistory()
+        {
+            await ItemActions.ViewHistory(DbEntry);
         }
 
         public string SmallImageUrl

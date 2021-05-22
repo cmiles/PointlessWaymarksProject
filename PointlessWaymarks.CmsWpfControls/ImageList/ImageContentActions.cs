@@ -23,7 +23,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageList
 {
-    public class ImageListItemActions : IListItemActions<ImageContent>
+    public class ImageContentActions : IContentActions<ImageContent>
     {
         private Command<ImageContent> _deleteCommand;
         private Command<ImageContent> _editCommand;
@@ -35,14 +35,15 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         private Command<ImageContent> _viewFileCommand;
         private Command<ImageContent> _viewHistoryCommand;
 
-        public ImageListItemActions(StatusControlContext statusContext)
+        public ImageContentActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
             DeleteCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(Delete);
             EditCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(Edit);
             ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(ExtractNewLinks);
             GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(GenerateHtml);
-            LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(LinkCodeToClipboard);
+            LinkCodeToClipboardCommand =
+                StatusContext.RunBlockingTaskCommand<ImageContent>(DefaultBracketCodeToClipboard);
             OpenUrlCommand = StatusContext.RunBlockingTaskCommand<ImageContent>(OpenUrl);
             ViewFileCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewFile);
             ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<ImageContent>(ViewHistory);
@@ -57,6 +58,30 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
                 _viewFileCommand = value;
                 OnPropertyChanged();
             }
+        }
+
+        public string DefaultBracketCode(ImageContent content)
+        {
+            return content?.ContentId == null ? string.Empty : @$"{BracketCodeImages.Create(content)}";
+        }
+
+        public async Task DefaultBracketCodeToClipboard(ImageContent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = @$"{BracketCodeImages.Create(content)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
         public async Task Delete(ImageContent content)
@@ -193,25 +218,6 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
             }
         }
 
-        public async Task LinkCodeToClipboard(ImageContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = @$"{BracketCodeImages.Create(content)}{Environment.NewLine}";
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
-
         public Command<ImageContent> LinkCodeToClipboardCommand
         {
             get => _linkCodeToClipboardCommand;
@@ -309,7 +315,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static ImageListListItem ListItemFromDbItem(ImageContent content, ImageListItemActions itemActions,
+        public static ImageListListItem ListItemFromDbItem(ImageContent content, ImageContentActions itemActions,
             bool showType)
         {
             return new()

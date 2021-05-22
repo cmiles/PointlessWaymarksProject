@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -7,67 +7,70 @@ using System.Windows;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
+using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
+using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
 using PointlessWaymarks.WpfCommon.Utility;
 
-namespace PointlessWaymarks.CmsWpfControls.LinkList
+namespace PointlessWaymarks.CmsWpfControls.MapComponentList
 {
-    public class LinkListItemActions : IListItemActions<LinkContent>
+    public class MapComponentContentActions : IContentActions<MapComponent>
     {
-        private Command<string> _copyUrlCommand;
-
-        private Command<LinkContent> _deleteCommand;
-        private Command<LinkContent> _editCommand;
-        private Command<LinkContent> _extractNewLinksCommand;
-        private Command<LinkContent> _generateHtmlCommand;
-        private Command<LinkContent> _linkCodeToClipboardCommand;
-        private Command<LinkContent> _openUrlCommand;
+        private Command<MapComponent> _deleteCommand;
+        private Command<MapComponent> _editCommand;
+        private Command<MapComponent> _extractNewLinksCommand;
+        private Command<MapComponent> _generateHtmlCommand;
+        private Command<MapComponent> _linkCodeToClipboardCommand;
+        private Command<MapComponent> _openUrlCommand;
         private StatusControlContext _statusContext;
-        private Command<LinkContent> _viewHistoryCommand;
+        private Command<MapComponent> _viewHistoryCommand;
 
-        public LinkListItemActions(StatusControlContext statusContext)
+        public MapComponentContentActions(StatusControlContext statusContext)
         {
             StatusContext = statusContext;
-            DeleteCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(Delete);
-            EditCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(Edit);
-            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(ExtractNewLinks);
-            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(GenerateHtml);
-            LinkCodeToClipboardCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(LinkCodeToClipboard);
-            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<LinkContent>(OpenUrl);
-            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<LinkContent>(ViewHistory);
-
-            CopyUrlCommand = StatusContext.RunNonBlockingTaskCommand<string>(async x =>
-            {
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                Clipboard.SetText(x);
-
-                StatusContext.ToastSuccess($"To Clipboard {x}");
-            });
+            DeleteCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(Delete);
+            EditCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(Edit);
+            ExtractNewLinksCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(ExtractNewLinks);
+            GenerateHtmlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(GenerateHtml);
+            LinkCodeToClipboardCommand =
+                StatusContext.RunBlockingTaskCommand<MapComponent>(DefaultBracketCodeToClipboard);
+            OpenUrlCommand = StatusContext.RunBlockingTaskCommand<MapComponent>(OpenUrl);
+            ViewHistoryCommand = StatusContext.RunNonBlockingTaskCommand<MapComponent>(ViewHistory);
         }
 
-
-        public Command<string> CopyUrlCommand
+        public string DefaultBracketCode(MapComponent content)
         {
-            get => _copyUrlCommand;
-            set
-            {
-                if (Equals(value, _copyUrlCommand)) return;
-                _copyUrlCommand = value;
-                OnPropertyChanged();
-            }
+            return content?.ContentId == null ? string.Empty : @$"{BracketCodeMapComponents.Create(content)}";
         }
 
-        public async Task Delete(LinkContent content)
+        public async Task DefaultBracketCodeToClipboard(MapComponent content)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
+
+            var finalString = @$"{BracketCodeMapComponents.Create(content)}{Environment.NewLine}";
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Clipboard.SetText(finalString);
+
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        }
+
+        public async Task Delete(MapComponent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -79,14 +82,14 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             if (content.Id < 1)
             {
-                StatusContext.ToastError($"Link {content.Title} - Entry is not saved - Skipping?");
+                StatusContext.ToastError($"Map {content.Title} - Entry is not saved - Skipping?");
                 return;
             }
 
-            await Db.DeleteLinkContent(content.ContentId, StatusContext.ProgressTracker());
+            await Db.DeleteMapComponent(content.ContentId, StatusContext.ProgressTracker());
         }
 
-        public Command<LinkContent> DeleteCommand
+        public Command<MapComponent> DeleteCommand
         {
             get => _deleteCommand;
             set
@@ -97,7 +100,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
-        public async Task Edit(LinkContent content)
+        public async Task Edit(MapComponent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -105,7 +108,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             var context = await Db.Context();
 
-            var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.MapComponents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null)
                 StatusContext.ToastError(
@@ -113,14 +116,14 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var newContentWindow = new LinkContentEditorWindow(refreshedData);
+            var newContentWindow = new MapComponentEditorWindow(refreshedData);
 
             newContentWindow.PositionWindowAndShow();
 
             await ThreadSwitcher.ResumeBackgroundAsync();
         }
 
-        public Command<LinkContent> EditCommand
+        public Command<MapComponent> EditCommand
         {
             get => _editCommand;
             set
@@ -131,7 +134,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
-        public async Task ExtractNewLinks(LinkContent content)
+        public async Task ExtractNewLinks(MapComponent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -143,15 +146,15 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             var context = await Db.Context();
 
-            var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
+            var refreshedData = context.MapComponents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
             if (refreshedData == null) return;
 
-            await LinkExtraction.ExtractNewAndShowLinkContentEditors(
-                $"{refreshedData.Comments} {refreshedData.Description}", StatusContext.ProgressTracker());
+            await LinkExtraction.ExtractNewAndShowLinkContentEditors($"{refreshedData.UpdateNotes}",
+                StatusContext.ProgressTracker());
         }
 
-        public Command<LinkContent> ExtractNewLinksCommand
+        public Command<MapComponent> ExtractNewLinksCommand
         {
             get => _extractNewLinksCommand;
             set
@@ -163,22 +166,24 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         }
 
 
-        public async Task GenerateHtml(LinkContent content)
+        public async Task GenerateHtml(MapComponent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            StatusContext.Progress("Generating Html for Link List");
+            if (content == null)
+            {
+                StatusContext.ToastError("Nothing Selected?");
+                return;
+            }
 
-            var htmlContext = new LinkListPage();
+            StatusContext.Progress($"Generating Html for {content.Title}");
 
-            htmlContext.WriteLocalHtmlRssAndJson();
+            await MapData.WriteJsonData(content.ContentId);
 
-            var settings = UserSettingsSingleton.CurrentSettings();
-
-            StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
+            StatusContext.ToastSuccess("Generated Map Data");
         }
 
-        public Command<LinkContent> GenerateHtmlCommand
+        public Command<MapComponent> GenerateHtmlCommand
         {
             get => _generateHtmlCommand;
             set
@@ -189,26 +194,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
-        public async Task LinkCodeToClipboard(LinkContent content)
-        {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            var finalString = $"[{content.Title}]({content.Url})";
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Clipboard.SetText(finalString);
-
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
-
-        public Command<LinkContent> LinkCodeToClipboardCommand
+        public Command<MapComponent> LinkCodeToClipboardCommand
         {
             get => _linkCodeToClipboardCommand;
             set
@@ -219,29 +205,14 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
-        public async Task OpenUrl(LinkContent content)
+        public async Task OpenUrl(MapComponent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (content == null)
-            {
-                StatusContext.ToastError("Nothing Selected?");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(content.Url))
-            {
-                StatusContext.ToastError("URL is Blank?");
-                return;
-            }
-
-            var url = content.Url;
-
-            var ps = new ProcessStartInfo(url) {UseShellExecute = true, Verb = "open"};
-            Process.Start(ps);
+            StatusContext.ToastWarning("Maps don't have a direct URL to open...");
         }
 
-        public Command<LinkContent> OpenUrlCommand
+        public Command<MapComponent> OpenUrlCommand
         {
             get => _openUrlCommand;
             set
@@ -263,7 +234,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
         }
 
-        public async Task ViewHistory(LinkContent content)
+        public async Task ViewHistory(MapComponent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -277,7 +248,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
 
-            var historicItems = await db.HistoricLinkContents
+            var historicItems = await db.HistoricMapComponents
                 .Where(x => x.ContentId == content.ContentId).ToListAsync();
 
             StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
@@ -296,7 +267,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
         }
 
-        public Command<LinkContent> ViewHistoryCommand
+        public Command<MapComponent> ViewHistoryCommand
         {
             get => _viewHistoryCommand;
             set
@@ -309,8 +280,8 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static LinkListListItem ListItemFromDbItem(LinkContent content, LinkListItemActions itemActions,
-            bool showType)
+        public static MapComponentListListItem ListItemFromDbItem(MapComponent content,
+            MapComponentContentActions itemActions, bool showType)
         {
             return new() {DbEntry = content, ItemActions = itemActions, ShowType = showType};
         }
