@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor
 {
-    public partial class TitleSummarySlugEditorControl : UserControl
+    public partial class TitleSummarySlugEditorControl
     {
         public TitleSummarySlugEditorControl()
         {

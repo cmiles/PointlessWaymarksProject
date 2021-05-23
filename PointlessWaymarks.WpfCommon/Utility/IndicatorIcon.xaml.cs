@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace PointlessWaymarks.WpfCommon.Utility
@@ -7,7 +6,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
     /// <summary>
     ///     Interaction logic for IndicatorIcon.xaml
     /// </summary>
-    public partial class IndicatorIcon : UserControl
+    public partial class IndicatorIcon
     {
         public static readonly DependencyProperty HoverTextProperty = DependencyProperty.Register("HoverText",
             typeof(string), typeof(IndicatorIcon), new PropertyMetadata(default(string)));

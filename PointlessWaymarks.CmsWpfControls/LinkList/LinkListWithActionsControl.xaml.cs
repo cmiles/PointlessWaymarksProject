@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.LinkList
+﻿namespace PointlessWaymarks.CmsWpfControls.LinkList
 {
-    public partial class LinkListWithActionsControl : UserControl
+    public partial class LinkListWithActionsControl
     {
         public LinkListWithActionsControl()
         {

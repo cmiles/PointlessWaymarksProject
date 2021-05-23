@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.AllContentList
+﻿namespace PointlessWaymarks.CmsWpfControls.AllContentList
 {
-    public partial class AllItemsWithActionsControl : UserControl
+    public partial class AllItemsWithActionsControl
     {
         public AllItemsWithActionsControl()
         {

@@ -7,7 +7,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
     /// <summary>
     ///     Interaction logic for FilesWrittenLogListControl.xaml
     /// </summary>
-    public partial class FilesWrittenLogListControl : UserControl
+    public partial class FilesWrittenLogListControl
     {
         public FilesWrittenLogListControl()
         {

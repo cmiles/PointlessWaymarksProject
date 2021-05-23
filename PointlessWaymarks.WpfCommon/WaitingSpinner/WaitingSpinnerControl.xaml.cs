@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace PointlessWaymarks.WpfCommon.WaitingSpinner
@@ -8,7 +7,7 @@ namespace PointlessWaymarks.WpfCommon.WaitingSpinner
     ///     Interaction logic for WaitingSpinnerControl.xaml - code from http://blog.trustmycode.net/?p=133 and
     ///     https://github.com/ThomasSteinbinder/WPFAnimatedLoadingSpinner
     /// </summary>
-    public partial class WaitingSpinnerControl : UserControl
+    public partial class WaitingSpinnerControl
     {
         public static readonly DependencyProperty DiameterProperty = DependencyProperty.Register("Diameter",
             typeof(int), typeof(WaitingSpinnerControl), new PropertyMetadata(20, OnDiameterPropertyChanged));

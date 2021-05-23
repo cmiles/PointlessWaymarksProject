@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.ContentIdViewer
+﻿namespace PointlessWaymarks.CmsWpfControls.ContentIdViewer
 {
-    public partial class ContentIdViewerControl : UserControl
+    public partial class ContentIdViewerControl
     {
         public ContentIdViewerControl()
         {

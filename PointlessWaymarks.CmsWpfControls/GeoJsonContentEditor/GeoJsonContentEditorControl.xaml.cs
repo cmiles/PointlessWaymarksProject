@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
 {
     /// <summary>
     ///     Interaction logic for GeoJsonContentEditorControl.xaml
     /// </summary>
-    public partial class GeoJsonContentEditorControl : UserControl
+    public partial class GeoJsonContentEditorControl
     {
         public GeoJsonContentEditorControl()
         {

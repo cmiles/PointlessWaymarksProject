@@ -88,6 +88,7 @@
                         AcceptsReturn="True"
                         BorderThickness="0"
                         FontSize="{Binding ElementName=BodyMarkDownFontSizeSlider, Path=Value}"
+                        PreviewDragOver="TextBoxPreviewDragOver"
                         SelectionChanged="BodyContentTextBox_OnSelectionChanged"
                         SpellCheck.IsEnabled="True"
                         Text="{Binding BodyContent, UpdateSourceTrigger=PropertyChanged, Delay=350}"

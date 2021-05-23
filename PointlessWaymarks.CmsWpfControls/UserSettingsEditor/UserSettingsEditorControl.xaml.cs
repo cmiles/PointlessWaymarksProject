@@ -1,10 +1,9 @@
-﻿using System.Windows.Controls;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor
 {
-    public partial class UserSettingsEditorControl : UserControl
+    public partial class UserSettingsEditorControl
     {
         public UserSettingsEditorControl()
         {

@@ -7,7 +7,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
     /// <summary>
     ///     Interaction logic for S3UploadsControl.xaml
     /// </summary>
-    public partial class S3UploadsControl : UserControl
+    public partial class S3UploadsControl
     {
         public S3UploadsControl()
         {

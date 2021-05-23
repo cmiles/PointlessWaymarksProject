@@ -7,7 +7,7 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
     /// <summary>
     ///     Interaction logic for WordPressXmlImportControl.xaml
     /// </summary>
-    public partial class WordPressXmlImportControl : UserControl
+    public partial class WordPressXmlImportControl
     {
         public WordPressXmlImportControl()
         {

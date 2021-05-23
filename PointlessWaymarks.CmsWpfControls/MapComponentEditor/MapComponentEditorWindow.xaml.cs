@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
@@ -12,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
     /// <summary>
     ///     Interaction logic for MapComponentEditorWindow.xaml
     /// </summary>
-    public partial class MapComponentEditorWindow : Window
+    public partial class MapComponentEditorWindow
     {
         private MapComponentEditorContext _mapComponentContent;
         private StatusControlContext _statusContext;

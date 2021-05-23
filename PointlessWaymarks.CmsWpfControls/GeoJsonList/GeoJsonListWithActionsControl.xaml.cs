@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
+﻿namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 {
-    public partial class GeoJsonListWithActionsControl : UserControl
+    public partial class GeoJsonListWithActionsControl
     {
         public GeoJsonListWithActionsControl()
         {

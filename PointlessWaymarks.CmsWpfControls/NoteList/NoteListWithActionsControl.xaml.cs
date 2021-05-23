@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.NoteList
+﻿namespace PointlessWaymarks.CmsWpfControls.NoteList
 {
-    public partial class NoteListWithActionsControl : UserControl
+    public partial class NoteListWithActionsControl
     {
         public NoteListWithActionsControl()
         {

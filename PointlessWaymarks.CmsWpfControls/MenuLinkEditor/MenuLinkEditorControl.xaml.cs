@@ -6,7 +6,7 @@ namespace PointlessWaymarks.CmsWpfControls.MenuLinkEditor
     /// <summary>
     ///     Interaction logic for MenuLinkEditorControl.xaml
     /// </summary>
-    public partial class MenuLinkEditorControl : UserControl
+    public partial class MenuLinkEditorControl
     {
         public MenuLinkEditorControl()
         {

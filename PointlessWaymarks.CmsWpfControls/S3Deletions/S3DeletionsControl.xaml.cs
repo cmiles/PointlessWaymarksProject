@@ -7,7 +7,7 @@ namespace PointlessWaymarks.CmsWpfControls.S3Deletions
     /// <summary>
     ///     Interaction logic for S3DeletionsControl.xaml
     /// </summary>
-    public partial class S3DeletionsControl : UserControl
+    public partial class S3DeletionsControl
     {
         public S3DeletionsControl()
         {

@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor
 {
-    public partial class UpdateNotesEditorVerticalControl : UserControl
+    public partial class UpdateNotesEditorVerticalControl
     {
         public UpdateNotesEditorVerticalControl()
         {

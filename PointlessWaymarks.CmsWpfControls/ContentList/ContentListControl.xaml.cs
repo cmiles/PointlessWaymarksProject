@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
-    public partial class ContentListControl : UserControl
+    public partial class ContentListControl
     {
         public ContentListControl()
         {

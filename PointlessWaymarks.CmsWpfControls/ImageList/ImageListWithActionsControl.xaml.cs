@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.ImageList
+﻿namespace PointlessWaymarks.CmsWpfControls.ImageList
 {
-    public partial class ImageListWithActionsControl : UserControl
+    public partial class ImageListWithActionsControl
     {
         public ImageListWithActionsControl()
         {

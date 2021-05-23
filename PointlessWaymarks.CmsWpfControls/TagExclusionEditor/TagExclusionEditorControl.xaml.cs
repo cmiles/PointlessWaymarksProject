@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
 {
     /// <summary>
     ///     Interaction logic for TagExclusionEditorControl.xaml
     /// </summary>
-    public partial class TagExclusionEditorControl : UserControl
+    public partial class TagExclusionEditorControl
     {
         public TagExclusionEditorControl()
         {

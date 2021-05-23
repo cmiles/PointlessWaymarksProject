@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.FileList
+﻿namespace PointlessWaymarks.CmsWpfControls.FileList
 {
-    public partial class FileListWithActionsControl : UserControl
+    public partial class FileListWithActionsControl
     {
         public FileListWithActionsControl()
         {

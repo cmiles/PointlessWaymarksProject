@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
 {
     /// <summary>
     ///     Interaction logic for CampgroundPointDetailControl.xaml
     /// </summary>
-    public partial class CampgroundPointDetailControl : UserControl
+    public partial class CampgroundPointDetailControl
     {
         public CampgroundPointDetailControl()
         {

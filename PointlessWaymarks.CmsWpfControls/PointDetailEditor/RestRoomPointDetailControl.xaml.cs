@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor
 {
     /// <summary>
     ///     Interaction logic for RestroomPointDetailControl.xaml
     /// </summary>
-    public partial class RestroomPointDetailControl : UserControl
+    public partial class RestroomPointDetailControl
     {
         public RestroomPointDetailControl()
         {

@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.LineList
+﻿namespace PointlessWaymarks.CmsWpfControls.LineList
 {
     /// <summary>
     ///     Interaction logic for LineListWithActionsControl.xaml
     /// </summary>
-    public partial class LineListWithActionsControl : UserControl
+    public partial class LineListWithActionsControl
     {
         public LineListWithActionsControl()
         {

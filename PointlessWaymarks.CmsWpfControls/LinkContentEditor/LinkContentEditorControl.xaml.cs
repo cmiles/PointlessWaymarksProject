@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor
 {
-    public partial class LinkContentEditorControl : UserControl
+    public partial class LinkContentEditorControl
     {
         public LinkContentEditorControl()
         {

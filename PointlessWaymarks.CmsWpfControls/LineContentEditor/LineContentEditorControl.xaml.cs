@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.LineContentEditor
 {
     /// <summary>
     ///     Interaction logic for LineContentEditorControl.xaml
     /// </summary>
-    public partial class LineContentEditorControl : UserControl
+    public partial class LineContentEditorControl
     {
         public LineContentEditorControl()
         {

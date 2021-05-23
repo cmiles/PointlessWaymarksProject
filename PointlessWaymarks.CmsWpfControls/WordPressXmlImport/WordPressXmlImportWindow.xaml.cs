@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using JetBrains.Annotations;
 using PointlessWaymarks.WpfCommon.Status;
 
@@ -10,7 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
     /// <summary>
     ///     Interaction logic for WordPressXmlImportWindow.xaml
     /// </summary>
-    public partial class WordPressXmlImportWindow : Window, INotifyPropertyChanged
+    public partial class WordPressXmlImportWindow : INotifyPropertyChanged
     {
         private WordPressXmlImportContext _importContext;
         private StatusControlContext _statusContext;

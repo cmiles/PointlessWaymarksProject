@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor
 {
     /// <summary>
     ///     Interaction logic for UpdateNotesEditorHorizontalControl.xaml
     /// </summary>
-    public partial class UpdateNotesEditorHorizontalControl : UserControl
+    public partial class UpdateNotesEditorHorizontalControl
     {
         public UpdateNotesEditorHorizontalControl()
         {
