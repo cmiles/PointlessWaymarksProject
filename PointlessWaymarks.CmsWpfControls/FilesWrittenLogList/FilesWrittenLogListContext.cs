@@ -711,8 +711,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             logChoiceList.AddRange(
                 (await db.GenerationFileTransferScriptLogs.OrderByDescending(x => x.WrittenOnVersion).Take(30)
-                    .ToListAsync())
-                .Select(x => new FileWrittenLogListDateTimeFilterChoice
+                    .ToListAsync()).Select(x => new FileWrittenLogListDateTimeFilterChoice
                 {
                     DisplayText = $"{x.WrittenOnVersion.ToLocalTime():F} - Upload Generated",
                     FilterDateTimeUtc = x.WrittenOnVersion
@@ -836,8 +835,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
             await Db.SaveGenerationFileTransferScriptLog(new GenerationFileTransferScriptLog
             {
-                FileName = file.FullName,
-                WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+                FileName = file.FullName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
             });
         }
 

@@ -152,8 +152,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
 
         public List<LineListListItem> SelectedItems()
         {
-            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is LineListListItem)
-                .Cast<LineListListItem>()
+            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is LineListListItem).Cast<LineListListItem>()
                 .ToList() ?? new List<LineListListItem>();
         }
     }

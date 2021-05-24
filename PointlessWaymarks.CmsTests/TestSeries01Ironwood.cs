@@ -100,8 +100,7 @@ namespace PointlessWaymarks.CmsTests
             await IronwoodPhotoInfo.PhotoTest(IronwoodPhotoInfo.IronwoodTreeFileName,
                 IronwoodPhotoInfo.IronwoodTreeContent01, IronwoodPhotoInfo.IronwoodTreeWidth);
             await IronwoodPhotoInfo.PhotoTest(IronwoodPhotoInfo.IronwoodFileBarrelFileName,
-                IronwoodPhotoInfo.IronwoodFireBarrelContent01,
-                IronwoodPhotoInfo.IronwoodFireBarrelWidth);
+                IronwoodPhotoInfo.IronwoodFireBarrelContent01, IronwoodPhotoInfo.IronwoodFireBarrelWidth);
             await IronwoodPhotoInfo.PhotoTest(IronwoodPhotoInfo.QuarryFileName, IronwoodPhotoInfo.QuarryContent01,
                 IronwoodPhotoInfo.QuarryWidth);
             await IronwoodPhotoInfo.PhotoTest(IronwoodPhotoInfo.IronwoodPodFileName,

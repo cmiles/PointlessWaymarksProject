@@ -29,6 +29,22 @@ Site:
  
 ## Notes
 
+5/24/2021
+
+Drag and Drop work... The ContentList is tricky for Drag and Drop because the inner text is selectable and draggable, regardless it seemed very worth getting drag and drop working esp. with the last refactor having put in place a default bracket code method on list items.
+
+My past experience has been that Drag and Drop in WPF is just easier and more pleasant with Gong Drag and Drop - https://github.com/punker76/gong-wpf-dragdrop - so started with that using the rather beautiful default behavior where the list items are automatically wrapped up into a drag and drop event with basically no effort - love it...
+
+But unlike some past work my primary target/use case was from the Content List into a TextBox - putting together a drop handler to get the default bracket codes from the dropped list items was easy enough but then the problems started...
+
+ - Cursor to Caret tracking in the textbox - code for this is available online - the most obvious framework methods won't return a position at the 'true end' of a line so additional code is needed, the additional code is easily found in samples but it took me a little time to modify it to behave correctly on every wrapped line of a multiline TextBox.
+
+ - Text Insert and Undo - as far as I know there is not a TextBox method to insert text 'as the user' in a way that adds the change to the default undo/redo stack. At work I have worked with SendKeys but looking at this problem this time I found raising the TextCompositionManager.TextInputEvent routed event as a nice solution.
+
+After working thru the two problems above the next issue was that now I needed to also handle at least unicode text like the default TextBox would, and I would need to do it everywhere I wanted drag and drop to work.
+
+This clearly didn't seem like a great solution so I back tracked and instead did the bracket code conversion in the drag handler and put text on the clipboard so that the default TextBox Drag and Drop functionality would handle the rest. That does mean that if a control wants the actual list items they are going to have to do text parsing and db queries, but there is already code to support this so...
+
 5/22/2021
 
 First commit that finishes out the basic refactoring to using a common list control! A lot of changes went into this and overall I'm happy with the new code structure.

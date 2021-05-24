@@ -155,8 +155,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         public List<GeoJsonListListItem> SelectedItems()
         {
             return ListContext?.ListSelection?.SelectedItems?.Where(x => x is GeoJsonListListItem)
-                .Cast<GeoJsonListListItem>()
-                .ToList() ?? new List<GeoJsonListListItem>();
+                .Cast<GeoJsonListListItem>().ToList() ?? new List<GeoJsonListListItem>();
         }
     }
 }

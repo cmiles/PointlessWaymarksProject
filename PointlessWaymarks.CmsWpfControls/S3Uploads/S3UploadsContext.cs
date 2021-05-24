@@ -57,14 +57,12 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
 
             _toExcelAllItemsCommand =
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToExcel(Items?.ToList()));
-            _toExcelSelectedItemsCommand =
-                StatusContext.RunNonBlockingTaskCommand(async () =>
-                    await ItemsToExcel(ListSelection?.SelectedItems.ToList()));
+            _toExcelSelectedItemsCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ItemsToExcel(ListSelection?.SelectedItems.ToList()));
             _toClipboardAllItemsCommand =
                 StatusContext.RunNonBlockingTaskCommand(async () => await ItemsToClipboard(Items?.ToList()));
-            _toClipboardSelectedItemsCommand =
-                StatusContext.RunNonBlockingTaskCommand(async () =>
-                    await ItemsToClipboard(ListSelection?.SelectedItems.ToList()));
+            _toClipboardSelectedItemsCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
+                await ItemsToClipboard(ListSelection?.SelectedItems.ToList()));
 
             _removeSelectedItemsCommand = StatusContext.RunBlockingTaskCommand(RemoveSelectedItems);
             _clearCompletedUploadBatch = StatusContext.RunNonBlockingActionCommand(() =>

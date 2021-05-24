@@ -96,8 +96,7 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
             var returnList = new List<SortDescription>();
 
             foreach (var loopSorts in Items.Where(x => x.Order > 0).OrderBy(x => x.Order).ToList())
-                returnList.Add(new SortDescription(loopSorts.ColumnName,
-                    loopSorts.SortDirection));
+                returnList.Add(new SortDescription(loopSorts.ColumnName, loopSorts.SortDirection));
 
             return returnList;
         }
@@ -113,13 +112,11 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
             x.SortDirection = x.DefaultSortDirection;
             x.Order = 1;
 
-            Items.Where(y => y != x)
-                .ToList()
-                .ForEach(y =>
-                {
-                    y.Order = 0;
-                    y.SortDirection = x.DefaultSortDirection;
-                });
+            Items.Where(y => y != x).ToList().ForEach(y =>
+            {
+                y.Order = 0;
+                y.SortDirection = x.DefaultSortDirection;
+            });
         }
     }
 }

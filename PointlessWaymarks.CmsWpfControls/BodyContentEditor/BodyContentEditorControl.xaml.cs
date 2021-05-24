@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using PointlessWaymarks.WpfCommon.Utility;
 
@@ -28,6 +29,8 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
             var dropPosition = e.GetPosition(textBox);
             textBox.SelectionStart = TextBoxHelpers.GetCaretIndexFromPoint(textBox, dropPosition);
             textBox.SelectionLength = 0;
+
+            Debug.WriteLine($"{textBox.SelectionStart}");
 
             // don't forget to set focus to the text box to make the caret visible!
             textBox.Focus();

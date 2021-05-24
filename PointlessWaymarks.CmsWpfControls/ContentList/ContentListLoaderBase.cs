@@ -14,8 +14,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private bool _addNewItemsFromDataNotifications;
         private bool _allItemsLoaded;
 
-        private List<DataNotificationContentType> _dataNotificationTypesToRespondTo =
-            new();
+        private List<DataNotificationContentType> _dataNotificationTypesToRespondTo = new();
 
         private int? _partialLoadQuantity;
 

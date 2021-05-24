@@ -6,7 +6,6 @@
     xmlns:bodyContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
     xmlns:contentFormat="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFormat"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:dd="urn:gong-wpf-dragdrop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
@@ -82,8 +81,6 @@
                     </GroupBox.Header>
                     <TextBox
                         x:Name="BodyContentTextBox"
-                        dd:DragDrop.DropHandler="{Binding .}"
-                        dd:DragDrop.IsDropTarget="True"
                         wpfBehavior:TextBoxHelper.SelectedText="{Binding SelectedBodyText}"
                         AcceptsReturn="True"
                         BorderThickness="0"

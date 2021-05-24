@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -7,14 +6,11 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using System.Windows;
-using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
-using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -25,7 +21,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
 {
     public class BodyContentEditorContext : INotifyPropertyChanged, IHasChanges, IHasValidationIssues,
-        ICheckForChangesAndValidation, IDropTarget
+        ICheckForChangesAndValidation
     {
         private ContentFormatChooserContext _bodyContentFormat;
         private bool _bodyContentHasChanges;
@@ -191,33 +187,6 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
             HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);
         }
 
-
-        public void DragOver(IDropInfo dropInfo)
-        {
-            dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
-            dropInfo.Effects = DragDropEffects.Copy;
-        }
-
-        public void Drop(IDropInfo dropInfo)
-        {
-            var rawList = new List<string>();
-            switch (dropInfo.Data)
-            {
-                case IContentListItem i:
-                    rawList = new List<string> {i.DefaultBracketCode()};
-                    break;
-                case List<object> l:
-                    rawList = l.Cast<IContentListItem>().Select(x => x.DefaultBracketCode()).ToList();
-                    break;
-            }
-
-            var toInsertList = rawList.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-
-            if (!toInsertList.Any()) return;
-
-            InsertAtCaret(string.Join(Environment.NewLine, toInsertList));
-        }
-
         public bool HasChanges
         {
             get => _hasChanges;
@@ -254,23 +223,6 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
             await newContext.LoadData(dbEntry);
 
             return newContext;
-        }
-
-        public void InsertAtCaret(string toInsert)
-        {
-            if (UserBodyContentUserSelectionStart == 0)
-            {
-                BodyContent = toInsert + BodyContent;
-                return;
-            }
-
-            var prefix = BodyContent.Substring(0, UserBodyContentUserSelectionStart);
-            var postfix = BodyContent.Length == UserBodyContentUserSelectionStart
-                ? string.Empty
-                : BodyContent.Substring(UserBodyContentUserSelectionStart,
-                    BodyContent.Length - UserBodyContentUserSelectionStart);
-
-            BodyContent = prefix + toInsert + postfix;
         }
 
         public async Task LoadData(IBodyContent toLoad)

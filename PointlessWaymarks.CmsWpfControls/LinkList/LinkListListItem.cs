@@ -70,15 +70,17 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
         {
             return new ContentCommonShell
             {
-                Summary = string.Join(Environment.NewLine, new List<string>
-                {
-                    DbEntry.Title,
-                    DbEntry.Site,
-                    DbEntry.Url,
-                    DbEntry.Author,
-                    DbEntry.Description,
-                    DbEntry.Comments
-                }),
+                Summary =
+                    string.Join(Environment.NewLine,
+                        new List<string>
+                        {
+                            DbEntry.Title,
+                            DbEntry.Site,
+                            DbEntry.Url,
+                            DbEntry.Author,
+                            DbEntry.Description,
+                            DbEntry.Comments
+                        }),
                 Title = DbEntry.Title,
                 ContentId = DbEntry.ContentId,
                 ContentVersion = DbEntry.ContentVersion,

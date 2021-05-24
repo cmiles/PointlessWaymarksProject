@@ -34,9 +34,8 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             if (PartialLoadQuantity != null)
             {
                 progress?.Report($"Loading Link Content from DB - Max {PartialLoadQuantity} Items");
-                listItems.AddRange(
-                    await db.LinkContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(PartialLoadQuantity.Value).ToListAsync());
+                listItems.AddRange(await db.LinkContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .Take(PartialLoadQuantity.Value).ToListAsync());
 
                 AllItemsLoaded = await CheckAllItemsAreLoaded();
 
@@ -44,9 +43,8 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
             }
 
             progress?.Report("Loading Link Content from DB");
-            listItems.AddRange(
-                await db.LinkContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync());
+            listItems.AddRange(await db.LinkContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                .ToListAsync());
 
             return listItems;
         }

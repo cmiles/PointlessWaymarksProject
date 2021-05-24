@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
+using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
@@ -35,7 +36,7 @@ using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList
 {
-    public class ContentListContext : INotifyPropertyChanged
+    public class ContentListContext : INotifyPropertyChanged, IDragSource
     {
         private Command _bracketCodeToClipboardSelectedCommand;
         private IContentListLoader _contentListLoader;
@@ -418,6 +419,36 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 _viewHistorySelectedCommand = value;
                 OnPropertyChanged();
             }
+        }
+
+        public bool CanStartDrag(IDragInfo dragInfo)
+        {
+            return (ListSelection.SelectedItems?.Count ?? 0) > 0;
+        }
+
+        public void DragCancelled()
+        {
+        }
+
+        public void DragDropOperationFinished(DragDropEffects operationResult, IDragInfo dragInfo)
+        {
+        }
+
+        public void Dropped(IDropInfo dropInfo)
+        {
+        }
+
+        public void StartDrag(IDragInfo dragInfo)
+        {
+            var defaultBracketCodeList = ListSelection.SelectedItems.Select(x => x.DefaultBracketCode()).ToList();
+            dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
+            dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
+            dragInfo.Effects = DragDropEffects.Copy;
+        }
+
+        public bool TryCatchOccurredException(Exception exception)
+        {
+            return false;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

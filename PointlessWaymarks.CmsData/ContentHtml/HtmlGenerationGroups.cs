@@ -67,8 +67,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             //File Script Cleanup
 
             var olderScriptGenerations = await db.GenerationFileTransferScriptLogs
-                .OrderByDescending(x => x.WrittenOnVersion)
-                .Skip(30).ToListAsync();
+                .OrderByDescending(x => x.WrittenOnVersion).Skip(30).ToListAsync();
 
             progress?.Report($"Found {olderScriptGenerations.Count} logs to remove");
 

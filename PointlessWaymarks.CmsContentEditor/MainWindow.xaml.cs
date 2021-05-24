@@ -81,6 +81,9 @@ namespace PointlessWaymarks.CmsContentEditor
 
             JotServices.Tracker.Track(this);
 
+            if (Width < 900) Width = 900;
+            if (Height < 650) Height = 650;
+
             WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
             InfoTitle =

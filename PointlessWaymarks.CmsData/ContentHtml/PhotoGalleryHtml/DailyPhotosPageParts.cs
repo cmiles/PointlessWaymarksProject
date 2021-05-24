@@ -31,8 +31,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
 
             var relatedPostMainTextCreatedOrUpdatedTextDiv = new DivTag().AddClass("related-post-text-content-date")
                 .Text(Tags.LatestCreatedOnOrUpdatedOn(
-                              photoPage.MainImage?.Pictures?.DbEntry as ICreatedAndLastUpdateOnAndBy)
-                          ?.ToString("M/d/yyyy") ??
+                          photoPage.MainImage?.Pictures?.DbEntry as ICreatedAndLastUpdateOnAndBy)
+                      ?.ToString("M/d/yyyy") ??
                       string.Empty);
 
             relatedPostMainTextContentDiv.Children.Add(relatedPostMainTextTitleTextDiv);

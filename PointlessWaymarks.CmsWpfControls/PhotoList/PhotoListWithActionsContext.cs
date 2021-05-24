@@ -51,13 +51,11 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-        public PhotoListWithActionsContext(StatusControlContext statusContext,
-            IContentListLoader reportFilter)
+        public PhotoListWithActionsContext(StatusControlContext statusContext, IContentListLoader reportFilter)
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
-            ListContext =
-                new ContentListContext(StatusContext, reportFilter);
+            ListContext = new ContentListContext(StatusContext, reportFilter);
 
             SetupCommands();
 
@@ -573,8 +571,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         public List<PhotoListListItem> SelectedItems()
         {
             return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PhotoListListItem)
-                .Cast<PhotoListListItem>()
-                .ToList() ?? new List<PhotoListListItem>();
+                .Cast<PhotoListListItem>().ToList() ?? new List<PhotoListListItem>();
         }
 
         private void SetupCommands()

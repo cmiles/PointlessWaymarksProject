@@ -16,7 +16,9 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         public PhotoListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
-                {DataNotificationContentType.Photo};
+            {
+                DataNotificationContentType.Photo
+            };
         }
 
         public override async Task<bool> CheckAllItemsAreLoaded()
@@ -37,9 +39,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             if (PartialLoadQuantity != null)
             {
                 progress?.Report($"Loading Photo Content from DB - Max {PartialLoadQuantity} Items");
-                listItems.AddRange(
-                    await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(PartialLoadQuantity.Value).ToListAsync());
+                listItems.AddRange(await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .Take(PartialLoadQuantity.Value).ToListAsync());
 
                 AllItemsLoaded = await CheckAllItemsAreLoaded();
 
@@ -47,9 +48,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
 
             progress?.Report("Loading Photo Content from DB");
-            listItems.AddRange(
-                await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync());
+            listItems.AddRange(await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                .ToListAsync());
 
             return listItems;
         }

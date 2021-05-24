@@ -153,8 +153,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         public List<PointListListItem> SelectedItems()
         {
             return ListContext?.ListSelection?.SelectedItems?.Where(x => x is PointListListItem)
-                .Cast<PointListListItem>()
-                .ToList() ?? new List<PointListListItem>();
+                .Cast<PointListListItem>().ToList() ?? new List<PointListListItem>();
         }
     }
 }

@@ -196,8 +196,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
                 return;
             }
 
-            var finalString = string.Join(", ",
-                SelectedItems().Select(x => $"[{x.DbEntry.Title}]({x.DbEntry.Url})"));
+            var finalString = string.Join(", ", SelectedItems().Select(x => $"[{x.DbEntry.Title}]({x.DbEntry.Url})"));
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -214,8 +213,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
         public List<LinkListListItem> SelectedItems()
         {
-            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is LinkListListItem)
-                .Cast<LinkListListItem>()
+            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is LinkListListItem).Cast<LinkListListItem>()
                 .ToList() ?? new List<LinkListListItem>();
         }
     }

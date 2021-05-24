@@ -118,8 +118,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
         public List<MapComponentListListItem> SelectedItems()
         {
             return ListContext?.ListSelection?.SelectedItems?.Where(x => x is MapComponentListListItem)
-                .Cast<MapComponentListListItem>()
-                .ToList() ?? new List<MapComponentListListItem>();
+                .Cast<MapComponentListListItem>().ToList() ?? new List<MapComponentListListItem>();
         }
     }
 }

@@ -14,7 +14,9 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
         public PointListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
-                {DataNotificationContentType.Point};
+            {
+                DataNotificationContentType.Point
+            };
         }
 
         public override async Task<bool> CheckAllItemsAreLoaded()
@@ -35,9 +37,8 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             if (PartialLoadQuantity != null)
             {
                 progress?.Report($"Loading Point Content from DB - Max {PartialLoadQuantity} Items");
-                listItems.AddRange(
-                    await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                        .Take(PartialLoadQuantity.Value).ToListAsync());
+                listItems.AddRange(await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                    .Take(PartialLoadQuantity.Value).ToListAsync());
 
                 AllItemsLoaded = await CheckAllItemsAreLoaded();
 
@@ -45,9 +46,8 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
             }
 
             progress?.Report("Loading Point Content from DB");
-            listItems.AddRange(
-                await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                    .ToListAsync());
+            listItems.AddRange(await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                .ToListAsync());
 
             return listItems;
         }

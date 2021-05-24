@@ -160,8 +160,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
         public List<NoteListListItem> SelectedItems()
         {
-            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is NoteListListItem)
-                .Cast<NoteListListItem>()
+            return ListContext?.ListSelection?.SelectedItems?.Where(x => x is NoteListListItem).Cast<NoteListListItem>()
                 .ToList() ?? new List<NoteListListItem>();
         }
     }

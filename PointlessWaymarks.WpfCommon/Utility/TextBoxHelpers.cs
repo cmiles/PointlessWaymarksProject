@@ -1,17 +1,26 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace PointlessWaymarks.WpfCommon.Utility
 {
     public static class TextBoxHelpers
     {
+        /// <summary>
+        ///     Useful especially for tracking the cursor in a drag and drop scenario.
+        /// </summary>
+        /// <param name="textBox"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
         public static int GetCaretIndexFromPoint(TextBox textBox, Point point)
         {
+            //You can find this code in a number of answers online that - the modification here
+            //to the most commonly found examples is that this supports a multi-line textbox
             var index = textBox.GetCharacterIndexFromPoint(point, true);
+            var line = textBox.GetLineIndexFromCharacterIndex(index);
+            var lineLength = textBox.GetLineLength(line);
 
-            // GetCharacterIndexFromPoint is missing one caret position, as there is one extra caret position than there are characters (an extra one at the end).
-            //  We have to add that caret index if the given point is at the end of the TextBox
-            if (index != textBox.Text.Length - 1) return index;
+            if (index < lineLength - 1) return index;
 
             // Get the position of the character index using the bounding rectangle
             var caretRect = textBox.GetRectFromCharacterIndex(index);
@@ -19,6 +28,20 @@ namespace PointlessWaymarks.WpfCommon.Utility
 
             if (point.X > caretPoint.X) index += 1;
             return index;
+        }
+
+        /// <summary>
+        ///     Insert text to the focused TextBox via an event - this will put the change on the standard undo stack.
+        /// </summary>
+        /// <param name="toInsert"></param>
+        public static void InsertTextAtCaretAsKeyboardToFocusedTextBox(string toInsert)
+        {
+            //https://stackoverflow.com/questions/1645815/how-can-i-programmatically-generate-keypress-events-in-c
+            var target = Keyboard.FocusedElement;
+            var routedEvent = TextCompositionManager.TextInputEvent;
+
+            target.RaiseEvent(new TextCompositionEventArgs(InputManager.Current.PrimaryKeyboardDevice,
+                new TextComposition(InputManager.Current, target, toInsert)) {RoutedEvent = routedEvent});
         }
     }
 }

@@ -199,8 +199,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
         public List<ImageListListItem> SelectedItems()
         {
             return ListContext?.ListSelection?.SelectedItems?.Where(x => x is ImageListListItem)
-                .Cast<ImageListListItem>()
-                .ToList() ?? new List<ImageListListItem>();
+                .Cast<ImageListListItem>().ToList() ?? new List<ImageListListItem>();
         }
     }
 }
