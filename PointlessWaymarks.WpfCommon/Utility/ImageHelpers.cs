@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PhotoSauce.MagicScaler;
 using PixelFormats = System.Windows.Media.PixelFormats;
@@ -8,8 +10,9 @@ namespace PointlessWaymarks.WpfCommon.Utility
 {
     public static class ImageHelpers
     {
-        public static BitmapSource BlankImage =
-            BitmapSource.Create(1, 1, 1, 1, PixelFormats.BlackWhite, null, new byte[] {1}, 1);
+        //https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.bitmapsource.create?view=net-5.0
+        public static readonly BitmapSource BlankImage = BitmapSource.Create(8, 8, 96, 96, PixelFormats.Indexed1,
+            new BitmapPalette(new List<Color> {Colors.Transparent}), new byte[8], 1);
 
         public static async Task<BitmapSource> InMemoryThumbnailFromFile(FileInfo file, int width, int quality)
         {
