@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -270,27 +271,26 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
 
         public void DragOver(IDropInfo dropInfo)
         {
-            dropInfo.Effects = DragDropEffects.Copy;
+            var data = dropInfo.Data;
+            if(data is string) dropInfo.Effects = DragDropEffects.Copy;
+            if (data is not DataObject dataObject) return;
+            if(dataObject.ContainsText()) dropInfo.Effects = DragDropEffects.Copy;
         }
 
         public async void Drop(IDropInfo dropInfo)
         {
+            var textToProcess = string.Empty;
+            
             var data = dropInfo.Data;
-
-            if (data is DataObject dataObject)
+            textToProcess = data switch
             {
-                var dataFormat = DataFormats.GetDataFormat(DataFormats.Serializable);
-                data = dataObject.GetDataPresent(dataFormat.Name) ? dataObject.GetData(dataFormat.Name) : data;
-            }
+                string stringData => stringData,
+                DataObject dataObject when dataObject.ContainsText() => dataObject.GetText(),
+                _ => textToProcess
+            };
 
-            var wrapper = data as SerializableContentCommonIdList;
-            if (wrapper?.ContentIdList == null || !wrapper.ContentIdList.Any())
-            {
-                StatusContext.ToastWarning("Couldn't add - no items?");
-                return;
-            }
-
-            foreach (var loopGuids in wrapper.ContentIdList) await TryAddSpatialType(loopGuids);
+            var contentIds = BracketCodeCommon.BracketCodeContentIds(textToProcess);
+            foreach (var loopGuids in contentIds) await TryAddSpatialType(loopGuids);
         }
 
         public bool HasChanges

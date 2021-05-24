@@ -33,7 +33,7 @@
                 <MenuItem Command="{Binding ListContext.NewActions.NewImageContentCommand}" Header="Image Content" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewLineContentCommand}" Header="Line Content" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewLinkContentCommand}" Header="Link Content" />
-                <MenuItem Command="{Binding ListContext.NewActions.NewMapContentCommand}" Header="Map Content" />
+                <MenuItem Command="{Binding ListContext.NewActions.NewMapContentCommand}" Header="Map Component" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewNoteContentCommand}" Header="Note Content" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesWithAutosaveCommand}" Header="Photo Content from Files - Auto-Save" />
                 <MenuItem Command="{Binding ListContext.NewActions.NewPhotoContentFromFilesCommand}" Header="Photo Content from Files" />

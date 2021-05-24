@@ -15,7 +15,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
             {
-                DataNotificationContentType.Image
+                DataNotificationContentType.GeoJson
             };
         }
 
@@ -25,7 +25,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 
             var db = await Db.Context();
 
-            return !(await db.ImageContents.CountAsync() > PartialLoadQuantity);
+            return !(await db.GeoJsonContents.CountAsync() > PartialLoadQuantity);
         }
 
         public override async Task<List<object>> LoadItems(IProgress<string> progress = null)
@@ -36,8 +36,8 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 
             if (PartialLoadQuantity != null)
             {
-                progress?.Report($"Loading Image Content from DB - Max {PartialLoadQuantity} Items");
-                listItems.AddRange(await db.ImageContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                progress?.Report($"Loading GeoJson Content from DB - Max {PartialLoadQuantity} Items");
+                listItems.AddRange(await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                     .Take(PartialLoadQuantity.Value).ToListAsync());
 
                 AllItemsLoaded = await CheckAllItemsAreLoaded();
@@ -45,8 +45,8 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
                 return listItems;
             }
 
-            progress?.Report("Loading Image Content from DB");
-            listItems.AddRange(await db.ImageContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+            progress?.Report("Loading GeoJson Content from DB");
+            listItems.AddRange(await db.GeoJsonContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                 .ToListAsync());
 
             return listItems;
