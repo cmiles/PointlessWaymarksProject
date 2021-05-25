@@ -47,6 +47,13 @@
                 <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
                 <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
+            <MenuItem Header="History">
+                <MenuItem Command="{Binding ListContext.ViewHistorySelectedCommand}" Header="View History" />
+            </MenuItem>
+            <MenuItem Header="Processing">
+                <MenuItem Command="{Binding ListContext.GenerateHtmlSelectedCommand}" Header="Generate Html" />
+                <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
+            </MenuItem>
         </Menu>
         <contentList:ContentListControl
             Grid.Row="1"
@@ -54,10 +61,6 @@
             DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <Button
-                    Command="{Binding RefreshDataCommand}"
-                    Content="_Refresh"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ListContext.EditSelectedCommand}"
                     Content="_Edit"
@@ -74,7 +77,10 @@
                     Selected Pinboard Check
                 </Button>
                 <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
-                <Button Command="{Binding ListContext.ViewHistorySelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">View History</Button>
+                <Button
+                    Command="{Binding RefreshDataCommand}"
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <status:StatusControl

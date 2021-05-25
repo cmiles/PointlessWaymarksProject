@@ -1,6 +1,5 @@
 ﻿## Todos
- - All Items Tab
-   - Visible edit button/option
+ - All Items Tab - reports for no tags, etc.
  - For geo types and notes review local file cleanup on delete
  - Right click context menu for items
  - The GUI Context tests are breaking - longer waits needed for the background events to run? Something else?
@@ -12,7 +11,6 @@
    - in Update Notes
    - Potentially in editor
  - Should temp files be auto-deleted or live forever? Review.
- - Review Item History 
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
 Site:
  - Could Tag List javascript be abstracted to site resources easily?
@@ -28,6 +26,12 @@ Site:
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
  
 ## Notes
+
+5/25/2021
+
+Found a bug in the Daily Photos generation in the Changed HTML where the previous generation version was past - fixed.
+
+Did some basic work on menus and action buttons - moved more to menus and made the action buttons more 'top actions'. This will require more work.
 
 5/24/2021
 

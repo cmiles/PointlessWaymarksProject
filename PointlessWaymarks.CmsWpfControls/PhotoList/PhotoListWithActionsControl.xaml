@@ -82,10 +82,6 @@
                 HorizontalAlignment="Center"
                 Orientation="Horizontal">
                 <Button
-                    Command="{Binding RefreshDataCommand}"
-                    Content="_Refresh"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button
                     Command="{Binding ListContext.EditSelectedCommand}"
                     Content="_Edit"
                     Style="{StaticResource ActionPanelButtonStyle}" />
@@ -98,10 +94,6 @@
                     Content="_New w/Autosave"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding ListContext.NewActions.NewPhotoContentCommand}"
-                    Content="New - Blank"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button
                     Command="{Binding PhotoCodesToClipboardForSelectedCommand}"
                     Content="_Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
@@ -109,7 +101,14 @@
                     Command="{Binding PhotoLinkCodesToClipboardForSelectedCommand}"
                     Content="Link Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
+                <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
+                    Delete
+                </Button>
+                <Button
+                    Command="{Binding RefreshDataCommand}"
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+
             </WrapPanel>
         </Border>
         <status:StatusControl

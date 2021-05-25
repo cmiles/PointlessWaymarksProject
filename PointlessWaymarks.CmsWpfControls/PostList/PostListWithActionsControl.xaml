@@ -71,20 +71,12 @@
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
-                    Command="{Binding RefreshDataCommand}"
-                    Content="_Refresh"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button
                     Command="{Binding ListContext.EditSelectedCommand}"
                     Content="_Edit"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ListContext.NewActions.NewPostContentCommand}"
-                    Content="_New Content"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button
-                    Command="{Binding ListContext.GenerateHtmlSelectedCommand}"
-                    Content="_Generate Html"
+                    Content="_New Post"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding PostCodesToClipboardForSelectedCommand}"
@@ -94,19 +86,13 @@
                     Command="{Binding EmailHtmlToClipboardCommand}"
                     Content="Email to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button
-                    Command="{Binding ListContext.OpenUrlSelectedCommand}"
-                    Content="_Open Selected In Browser"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Delete
                 </Button>
-                <Button Command="{Binding ListContext.ViewHistorySelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
-                    View History
-                </Button>
-                <Button Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
-                    Extract Links
-                </Button>
+                <Button
+                    Command="{Binding RefreshDataCommand}"
+                    Content="_Refresh"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <status:StatusControl
