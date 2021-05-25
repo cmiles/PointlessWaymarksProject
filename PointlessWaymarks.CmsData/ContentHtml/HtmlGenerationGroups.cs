@@ -889,7 +889,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 (await Db.DeletedPhotoContent()).Any(x => x.ContentVersion > lastGenerationDateTime);
 
             if (hasDirectPhotoChanges || hasRelatedPhotoChanges || hasDeletedPhotoChanges)
-                await GenerateChangedDailyPhotoGalleries(lastGenerationDateTime, progress);
+                await GenerateChangedDailyPhotoGalleries(generationVersion, progress);
             else
                 progress?.Report(
                     "No changes to Photos directly or thru related content - skipping Daily Photo Page generation.");
