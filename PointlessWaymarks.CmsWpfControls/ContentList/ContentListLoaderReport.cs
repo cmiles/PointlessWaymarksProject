@@ -35,8 +35,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
         public ColumnSortControlContext SortContext()
         {
-            if (_columnSort == null) SortContextDefault();
-            return _columnSort;
+            return _columnSort ?? SortContextDefault();
         }
     }
 }

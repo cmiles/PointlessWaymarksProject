@@ -66,10 +66,10 @@
                 <MenuItem Command="{Binding ListContext.ViewHistorySelectedCommand}" Header="View History" />
             </MenuItem>
             <MenuItem Header="Processing">
-                <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
                 <MenuItem Command="{Binding ListContext.GenerateHtmlSelectedCommand}" Header="Generate Html" />
                 <MenuItem Command="{Binding ForcedResizeCommand}" Header="Reprocess Photo" />
                 <MenuItem Command="{Binding RegenerateHtmlAndReprocessPhotoForSelectedCommand}" Header="Reprocess Photo and Generate Html" />
+                <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
             </MenuItem>
         </Menu>
         <contentList:ContentListControl
