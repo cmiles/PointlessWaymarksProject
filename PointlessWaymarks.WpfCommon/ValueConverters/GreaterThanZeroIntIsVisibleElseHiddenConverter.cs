@@ -15,7 +15,7 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters
                     return Visibility.Visible;
 
                 case < 1:
-                    return Visibility.Hidden;
+                    return Visibility.Collapsed;
 
                 default:
                     return Visibility.Visible;
@@ -24,9 +24,7 @@ namespace PointlessWaymarks.WpfCommon.ValueConverters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is Visibility v)
-                return v == Visibility.Visible;
-            return false;
+            throw new NotImplementedException();
         }
     }
 }

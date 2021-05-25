@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using DocumentFormat.OpenXml.Drawing.Charts;
 using GongSolutions.Wpf.DragDrop;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +24,6 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.StringDataEntry;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
-using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation;
 using PointlessWaymarks.CmsWpfControls.WpfHtml;
 using PointlessWaymarks.WpfCommon.Commands;
@@ -272,15 +270,15 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor
         public void DragOver(IDropInfo dropInfo)
         {
             var data = dropInfo.Data;
-            if(data is string) dropInfo.Effects = DragDropEffects.Copy;
+            if (data is string) dropInfo.Effects = DragDropEffects.Copy;
             if (data is not DataObject dataObject) return;
-            if(dataObject.ContainsText()) dropInfo.Effects = DragDropEffects.Copy;
+            if (dataObject.ContainsText()) dropInfo.Effects = DragDropEffects.Copy;
         }
 
         public async void Drop(IDropInfo dropInfo)
         {
             var textToProcess = string.Empty;
-            
+
             var data = dropInfo.Data;
             textToProcess = data switch
             {
