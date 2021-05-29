@@ -448,8 +448,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             TagEdit = TagsEditorContext.CreateInstance(StatusContext, DbEntry);
             BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-            ElevationEntry = ConversionDataEntryContext<double?>.CreateInstance();
-            ElevationEntry.Converter = ConversionDataEntryHelpers.DoubleNullableConversion;
+            ElevationEntry = ConversionDataEntryContext<double?>.CreateInstance(ConversionDataEntryHelpers.DoubleNullableConversion);
             ElevationEntry.ValidationFunctions = new List<Func<double?, IsValid>>
             {
                 CommonContentValidation.ElevationValidation
@@ -459,8 +458,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             ElevationEntry.ReferenceValue = DbEntry.Elevation;
             ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
 
-            LatitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
-            LatitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
+            LatitudeEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
             LatitudeEntry.ValidationFunctions = new List<Func<double, IsValid>>
             {
                 CommonContentValidation.LatitudeValidation
@@ -476,8 +474,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
                 if (args.PropertyName == nameof(LatitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
             };
 
-            LongitudeEntry = ConversionDataEntryContext<double>.CreateInstance();
-            LongitudeEntry.Converter = ConversionDataEntryHelpers.DoubleConversion;
+            LongitudeEntry = ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
             LongitudeEntry.ValidationFunctions = new List<Func<double, IsValid>>
             {
                 CommonContentValidation.LongitudeValidation
