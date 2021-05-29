@@ -27,6 +27,10 @@ Site:
  
 ## Notes
 
+5/28/2021
+
+First context menu implementation. Interesting process - I first assumed that doing a context menu per item would make the most sense - but just after first use it started to become obvious that the context menu not acting on all selected items was too unexpected for me... So moved to trying context menu at the list rather than the item level - this does mean that in the all items list only the common menu items are available but makes selection work as expected and allows the lists to specialize. It would be interesting to build a dynamic content menu based on common commands for selected types...
+
 5/25/2021
 
 Found a bug in the Daily Photos generation in the Changed HTML where the previous generation version was past - fixed.

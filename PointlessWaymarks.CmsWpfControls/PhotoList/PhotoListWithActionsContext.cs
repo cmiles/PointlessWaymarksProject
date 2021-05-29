@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AngleSharp.Text;
@@ -43,6 +44,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private Command _reportPhotoMetadataCommand;
         private Command _reportTakenAndLicenseYearDoNotMatchCommand;
         private Command _reportTitleAndTakenDoNotMatchCommand;
+        private Command _viewFilesCommand;
 
         public PhotoListWithActionsContext(StatusControlContext statusContext)
         {
@@ -240,6 +242,17 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
         }
 
+        public Command ViewFilesCommand
+        {
+            get => _viewFilesCommand;
+            set
+            {
+                if (Equals(value, _viewFilesCommand)) return;
+                _viewFilesCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task EmailHtmlToClipboard()
@@ -301,6 +314,26 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ListContext = new ContentListContext(StatusContext, new PhotoListLoader(100));
 
             SetupCommands();
+
+            ListContext.ContextMenuItems = new List<ContextMenuItemData>
+            {
+                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new() {ItemName = "View Photos", ItemCommand = ViewFilesCommand},
+                new()
+                {
+                    ItemName = "{{}} Photo Codes to Clipboard", ItemCommand = PhotoCodesToClipboardForSelectedCommand
+                },
+                new()
+                {
+                    ItemName = "{{}} Link Codes to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
+                },
+                new()
+                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
+                new() {ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand},
+                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
+                new()
+                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand}
+            };
 
             await ListContext.LoadData();
         }
@@ -584,6 +617,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
             ForcedResizeCommand = StatusContext.RunBlockingTaskCommand(ForcedResize);
+            ViewFilesCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
 
@@ -600,6 +635,33 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 await RunReport(ReportBlankLicenseGenerator, "Title and Created Mismatch Photo List"));
             ReportMultiSpacesInTitleCommand = StatusContext.RunNonBlockingTaskCommand(async () =>
                 await RunReport(ReportMultiSpacesInTitleGenerator, "Title with Multiple Spaces"));
+        }
+
+        public async Task ViewFilesSelected(CancellationToken cancelToken)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.ListSelection?.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to View?");
+                return;
+            }
+
+            if (ListContext.ListSelection.SelectedItems.Count > 20)
+            {
+                StatusContext.ToastWarning("Sorry - please select less than 20 items to view...");
+                return;
+            }
+
+            var currentSelected = ListContext.ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                if (loopSelected is PhotoListListItem photoItem)
+                    await photoItem.ItemActions.ViewFile(photoItem.DbEntry);
+            }
         }
     }
 }

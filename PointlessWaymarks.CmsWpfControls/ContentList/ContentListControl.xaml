@@ -87,6 +87,16 @@
                 <b:Interaction.Behaviors>
                     <behaviors:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                 </b:Interaction.Behaviors>
+                <ListBox.ContextMenu>
+                    <ContextMenu ItemsSource="{Binding ContextMenuItems}">
+                        <ContextMenu.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Header" Value="{Binding ItemName}" />
+                                <Setter Property="Command" Value="{Binding ItemCommand}" />
+                            </Style>
+                        </ContextMenu.ItemContainerStyle>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
             </ListBox>
         </GroupBox>
     </Grid>

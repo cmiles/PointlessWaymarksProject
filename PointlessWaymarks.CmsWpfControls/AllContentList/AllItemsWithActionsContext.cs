@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.AllContentList
 {
@@ -71,6 +73,21 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
                     StatusContext));
             ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
+
+            ListContext.ContextMenuItems = new List<ContextMenuItemData>
+            {
+                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new()
+                {
+                    ItemName = "{{}} Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                },
+                new()
+                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
+                new() {ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand},
+                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
+                new()
+                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand}
+            };
 
             await ListContext.LoadData();
         }

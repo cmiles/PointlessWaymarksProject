@@ -432,7 +432,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 .ToList();
         }
 
-        private static async Task<List<object>> CameraMakeSearch(PhotoContent content)
+        public static async Task<List<object>> CameraMakeSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -443,7 +443,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ;
         }
 
-        private static async Task<List<object>> CameraModelSearch(PhotoContent content)
+        public static async Task<List<object>> CameraModelSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -454,7 +454,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ;
         }
 
-        private async Task EditContent(PhotoContent content)
+        public async Task EditContent(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -478,7 +478,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
 
-        private static async Task<List<object>> FocalLengthSearch(PhotoContent content)
+        public static async Task<List<object>> FocalLengthSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -489,7 +489,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ;
         }
 
-        private static async Task<List<object>> IsoSearch(PhotoContent content)
+        public static async Task<List<object>> IsoSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -499,7 +499,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ;
         }
 
-        private static async Task<List<object>> LensSearch(PhotoContent content)
+        public static async Task<List<object>> LensSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -528,7 +528,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private static async Task<List<object>> PhotoTakenOnSearch(PhotoContent content)
+        public static async Task<List<object>> PhotoTakenOnSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -545,7 +545,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ;
         }
 
-        private static async Task RunReport(Func<Task<List<object>>> toRun, string title)
+        public static async Task RunReport(Func<Task<List<object>>> toRun, string title)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -561,7 +561,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
 
-        private static async Task<List<object>> ShutterSpeedSearch(PhotoContent content)
+        public static async Task<List<object>> ShutterSpeedSearch(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -573,7 +573,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
 
-        private async Task ViewFile(PhotoContent content)
+        public async Task ViewFile(PhotoContent content)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 

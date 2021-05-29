@@ -31,6 +31,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -40,11 +41,12 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
     {
         private Command _bracketCodeToClipboardSelectedCommand;
         private IContentListLoader _contentListLoader;
+        private List<ContextMenuItemData> _contextMenuItems;
         private Command _deleteSelectedCommand;
         private Command _editSelectedCommand;
         private FileContentActions _fileItemActions;
         private Command _generateHtmlSelectedCommand;
-        private GeoJsonContentActions _geoJasonItemActions;
+        private GeoJsonContentActions _geoJsonItemActions;
         private ImageContentActions _imageItemActions;
         private Command _importFromExcelFileCommand;
         private Command _importFromOpenExcelInstanceCommand;
@@ -73,7 +75,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             ContentListLoader = loader;
 
             FileItemActions = new FileContentActions(StatusContext);
-            GeoJasonItemActions = new GeoJsonContentActions(StatusContext);
+            GeoJsonItemActions = new GeoJsonContentActions(StatusContext);
             ImageItemActions = new ImageContentActions(StatusContext);
             LineItemActions = new LineContentActions(StatusContext);
             LinkItemActions = new LinkContentActions(StatusContext);
@@ -138,6 +140,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
+        public List<ContextMenuItemData> ContextMenuItems
+        {
+            get => _contextMenuItems;
+            set
+            {
+                if (Equals(value, _contextMenuItems)) return;
+                _contextMenuItems = value;
+                OnPropertyChanged();
+            }
+        }
+
         public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
         public Command DeleteSelectedCommand
@@ -186,13 +199,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             }
         }
 
-        public GeoJsonContentActions GeoJasonItemActions
+        public GeoJsonContentActions GeoJsonItemActions
         {
-            get => _geoJasonItemActions;
+            get => _geoJsonItemActions;
             set
             {
-                if (Equals(value, _geoJasonItemActions)) return;
-                _geoJasonItemActions = value;
+                if (Equals(value, _geoJsonItemActions)) return;
+                _geoJsonItemActions = value;
                 OnPropertyChanged();
             }
         }
@@ -767,7 +780,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             return dbItem switch
             {
                 FileContent f => FileContentActions.ListItemFromDbItem(f, FileItemActions, ContentListLoader.ShowType),
-                GeoJsonContent g => GeoJsonContentActions.ListItemFromDbItem(g, GeoJasonItemActions,
+                GeoJsonContent g => GeoJsonContentActions.ListItemFromDbItem(g, GeoJsonItemActions,
                     ContentListLoader.ShowType),
                 ImageContent g => ImageContentActions.ListItemFromDbItem(g, ImageItemActions,
                     ContentListLoader.ShowType),
