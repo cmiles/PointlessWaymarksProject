@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 {
     public class PhotoListLoader : ContentListLoaderBase, IContentListLoader
     {
-        public PhotoListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public PhotoListLoader(int? partialLoadQuantity) : base("Photos", partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
             {

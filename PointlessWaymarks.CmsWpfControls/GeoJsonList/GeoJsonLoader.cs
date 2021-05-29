@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
 {
     public class GeoJsonLoader : ContentListLoaderBase
     {
-        public GeoJsonLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public GeoJsonLoader(int? partialLoadQuantity) : base("GeoJson", partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
             {

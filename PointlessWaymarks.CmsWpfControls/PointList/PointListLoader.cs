@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 {
     public class PointListLoader : ContentListLoaderBase
     {
-        public PointListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public PointListLoader(int? partialLoadQuantity) : base("Points", partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
             {

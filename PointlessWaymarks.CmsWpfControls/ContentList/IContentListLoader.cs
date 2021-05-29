@@ -12,6 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         bool AddNewItemsFromDataNotifications { get; set; }
         bool AllItemsLoaded { get; set; }
         List<DataNotificationContentType> DataNotificationTypesToRespondTo { get; set; }
+        string ListHeaderName { get; }
         int? PartialLoadQuantity { get; set; }
         bool ShowType { get; set; }
         Task<bool> CheckAllItemsAreLoaded();

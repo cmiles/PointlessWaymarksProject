@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 {
     public class PostListLoader : ContentListLoaderBase
     {
-        public PostListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public PostListLoader(int? partialLoadQuantity) : base("Posts", partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Post};
         }

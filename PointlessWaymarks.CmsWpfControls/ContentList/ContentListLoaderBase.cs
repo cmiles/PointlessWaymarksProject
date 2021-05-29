@@ -20,9 +20,10 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
         private bool _showType;
 
-        public ContentListLoaderBase(int? partialLoadQuantity)
+        public ContentListLoaderBase(string headerName, int? partialLoadQuantity)
         {
             PartialLoadQuantity = partialLoadQuantity;
+            ListHeaderName = headerName;
         }
 
         public bool AddNewItemsFromDataNotifications
@@ -59,6 +60,8 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
                 OnPropertyChanged();
             }
         }
+
+        public string ListHeaderName { get; }
 
         public abstract Task<List<object>> LoadItems(IProgress<string> progress = null);
 

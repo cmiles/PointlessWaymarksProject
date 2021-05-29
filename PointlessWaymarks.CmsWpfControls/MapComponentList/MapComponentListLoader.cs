@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
 {
     public class MapComponentListLoader : ContentListLoaderBase
     {
-        public MapComponentListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public MapComponentListLoader(int? partialLoadQuantity) : base("Maps", partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Map};
         }

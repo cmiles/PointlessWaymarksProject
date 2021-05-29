@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 {
     public class LinkListLoader : ContentListLoaderBase
     {
-        public LinkListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public LinkListLoader(int? partialLoadQuantity) : base("Links", partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Link};
         }

@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList
 {
     public class LineListLoader : ContentListLoaderBase
     {
-        public LineListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public LineListLoader(int? partialLoadQuantity) : base("Lines", partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Line};
         }

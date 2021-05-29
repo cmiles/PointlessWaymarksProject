@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 {
     public class ImageListLoader : ContentListLoaderBase
     {
-        public ImageListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public ImageListLoader(int? partialLoadQuantity) : base("Images", partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
             {

@@ -73,7 +73,7 @@
         </Grid>
         <GroupBox
             Grid.Row="1"
-            Header="Posts"
+            Header="{Binding ContentListLoader.ListHeaderName}"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 x:Name="ContentListBox"

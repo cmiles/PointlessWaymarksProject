@@ -10,7 +10,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
 {
     public class ContentListLoaderAllItems : ContentListLoaderBase
     {
-        public ContentListLoaderAllItems(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public ContentListLoaderAllItems(int? partialLoadQuantity) : base("Items", partialLoadQuantity)
         {
             ShowType = true;
         }

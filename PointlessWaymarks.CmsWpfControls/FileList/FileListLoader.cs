@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 {
     public class FileListLoader : ContentListLoaderBase
     {
-        public FileListLoader(int? partialLoadQuantity) : base(partialLoadQuantity)
+        public FileListLoader(int? partialLoadQuantity) : base("Files", partialLoadQuantity)
         {
             DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.File};
         }
