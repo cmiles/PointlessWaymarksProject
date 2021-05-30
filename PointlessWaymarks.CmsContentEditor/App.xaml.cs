@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsContentEditor
     {
         public App()
         {
-            LogConfiguration.InitializeStaticLoggerAsStartupLogger();
+            LogHelpers.InitializeStaticLoggerAsStartupLogger();
 
 #if !DEBUG
             DispatcherUnhandledException += App_DispatcherUnhandledException;

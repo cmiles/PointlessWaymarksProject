@@ -726,7 +726,7 @@ namespace PointlessWaymarks.CmsContentEditor
 
             await UserSettingsUtilities.EnsureDbIsPresent(StatusContext.ProgressTracker());
 
-            LogConfiguration.InitializeStaticLoggerAsEventLogger();
+            LogHelpers.InitializeStaticLoggerAsEventLogger();
 
             StatusContext.Progress("Setting up UI Controls");
 

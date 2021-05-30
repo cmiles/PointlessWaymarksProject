@@ -96,7 +96,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var syncCopyResults = await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry);
 
-            if (!syncCopyResults.HasError) return syncCopyResults;
+            if (syncCopyResults.HasError) return syncCopyResults;
 
             CleanDisplayAndSrcSetFilesInImageDirectory(dbEntry, true, progress);
 

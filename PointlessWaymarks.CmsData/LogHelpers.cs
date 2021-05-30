@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using PointlessWaymarks.CmsData.Content;
 using Serilog;
 using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsData
 {
-    public static class LogConfiguration
+    public static class LogHelpers
     {
         /// <summary>
         ///     Adds File Logging to a Serilog LoggerConfiguration with a by convention file name and
@@ -96,6 +97,43 @@ namespace PointlessWaymarks.CmsData
                 }
 
             Log.Logger = StartupLogger();
+        }
+
+        /// <summary>
+        ///     A helper method to log a GenerationReturn - success or failure.
+        /// </summary>
+        /// <param name="toLog">Appended to the 'messageTemplate'</param>
+        /// <param name="logMessage"></param>
+        public static void LogGenerationReturn(GenerationReturn toLog, string logMessage)
+        {
+            if (toLog == null)
+            {
+                Log.Error("LogGenerationReturn - Null toLog Value Submitted");
+                return;
+            }
+
+            if (toLog.HasError)
+            {
+                Log.ForContext("Generation Return Object", toLog.SafeObjectDump())
+                    .ForContext("Generation Exception", toLog.Exception?.ToString())
+                    .Error($"Generation Return with Error - {logMessage}");
+                return;
+            }
+
+            Log.ForContext("Generation Return Object", toLog.SafeObjectDump())
+                .ForContext("Generation Exception", toLog.Exception?.ToString())
+                .Error($"Generation Return - {logMessage}");
+        }
+
+        /// <summary>
+        ///     Returns a simple string representation of an object with a Max Depth of 2 to avoid unexpected
+        ///     problems and provide generally appropriate output for logging.
+        /// </summary>
+        /// <param name="toDump"></param>
+        /// <returns></returns>
+        public static string SafeObjectDump(this object toDump)
+        {
+            return ObjectDumper.Dump(toDump, new DumpOptions {MaxLevel = 2, DumpStyle = DumpStyle.Console});
         }
 
         /// <summary>

@@ -49,7 +49,7 @@ namespace PointlessWaymarks.CmsTests
             await TestSiteSettings.WriteSettings();
             UserSettingsSingleton.CurrentSettings().InjectFrom(TestSiteSettings);
 
-            LogConfiguration.InitializeStaticLoggerAsEventLogger();
+            LogHelpers.InitializeStaticLoggerAsEventLogger();
         }
 
         [Test]

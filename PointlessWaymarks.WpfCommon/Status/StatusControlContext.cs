@@ -518,6 +518,8 @@ namespace PointlessWaymarks.WpfCommon.Status
             MessageBoxButtonList = buttons;
             MessageBoxVisible = true;
 
+            Log.ForContext("MessageBoxTitle", title).ForContext("MessageBoxMessage", body).ForContext("MessageBoxButtonList", buttons).ForContext("StatusControlContextId", StatusControlContextId).Information("StatusControlContext Showing Message Box");
+            
             await ThreadSwitcher.ThreadSwitcher.ResumeBackgroundAsync();
 
             _currentFullScreenCancellationSource = new CancellationTokenSource();
@@ -545,6 +547,8 @@ namespace PointlessWaymarks.WpfCommon.Status
             ShowMessageResponse = string.Empty;
             MessageBoxVisible = false;
 
+            Log.ForContext("MessageBoxReturn", toReturn).ForContext("StatusControlContextId", StatusControlContextId).Information("StatusControlContext Returning From Message Box");
+            
             return toReturn;
         }
 

@@ -426,7 +426,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
             return newContext;
         }
 
-        private ImageContent CurrentStateToPhotoContent()
+        private ImageContent CurrentStateToImageContent()
         {
             var newEntry = new ImageContent();
 
@@ -517,7 +517,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
                 }
                 else
                 {
-                    await StatusContext.ShowMessage("Missing Photo",
+                    await StatusContext.ShowMessage("Missing Image",
                         $"There is an original image file listed for this image - {DbEntry.OriginalFileName} -" +
                         $" but it was not found in the expected location of {archiveFile.FullName} - " +
                         "this will cause an error and prevent you from saving. You can re-load the image or " +
@@ -578,7 +578,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var (generationReturn, newContent) = await ImageGenerator.SaveAndGenerateHtml(CurrentStateToPhotoContent(),
+            var (generationReturn, newContent) = await ImageGenerator.SaveAndGenerateHtml(CurrentStateToImageContent(),
                 SelectedFile, overwriteExistingFiles, null, StatusContext.ProgressTracker());
 
             if (generationReturn.HasError || newContent == null)

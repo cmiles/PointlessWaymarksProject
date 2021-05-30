@@ -283,7 +283,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         }
 
 
-        private async Task ForcedResize()
+        private async Task ForcedResize(CancellationToken cancellationToken)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -294,15 +294,33 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             }
 
             var totalCount = SelectedItems().Count;
-            var currentLoop = 1;
+            var currentLoop = 0;
 
             foreach (var loopSelected in SelectedItems())
             {
-                if (currentLoop % 10 == 0)
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (++currentLoop % 10 == 0)
                     StatusContext.Progress($"Cleaning Generated Images And Resizing {currentLoop} of {totalCount} - " +
                                            $"{loopSelected.DbEntry.Title}");
-                await PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, StatusContext.ProgressTracker());
-                currentLoop++;
+                var resizeResult =
+                    await PictureResizing.CopyCleanResizePhoto(loopSelected.DbEntry, StatusContext.ProgressTracker());
+
+                if (!resizeResult.HasError) continue;
+
+                LogHelpers.LogGenerationReturn(resizeResult, "Photo Forced Resizing");
+
+                if (currentLoop < totalCount)
+                {
+                    if (await StatusContext.ShowMessage("Error Resizing",
+                        $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}{Environment.NewLine}{Environment.NewLine}Continue?",
+                        new List<string> {"Yes", "No"}) == "No") return;
+                }
+                else
+                {
+                    await StatusContext.ShowMessageWithOkButton("Error Resizing",
+                        $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}");
+                }
             }
         }
 
@@ -320,26 +338,27 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
                 new()
                 {
-                    ItemName = "{{}} Photo Codes to Clipboard", ItemCommand = PhotoCodesToClipboardForSelectedCommand
+                    ItemName = "{{}} Photo Codes to Clipboard",
+                    ItemCommand = PhotoCodesToClipboardForSelectedCommand
                 },
                 new()
                 {
-                    ItemName = "{{}} Link Codes to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
+                    ItemName = "{{}} Link Codes to Clipboard",
+                    ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
                 },
                 new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
                 new() {ItemName = "View Photos", ItemCommand = ViewFilesCommand},
                 new() {ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand},
+                new() {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
+                new() {ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand},
                 new()
-                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-                new()
-                    {ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand},
-                new()
-                    {ItemName = "Generate Html/Process/Resize Selected", ItemCommand = RegenerateHtmlAndReprocessPhotoForSelectedCommand},
+                {
+                    ItemName = "Generate Html/Process/Resize Selected",
+                    ItemCommand = RegenerateHtmlAndReprocessPhotoForSelectedCommand
+                },
                 new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
-                new()
-                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-                new()
-                    {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+                new() {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
+                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
             };
 
             await ListContext.LoadData();
@@ -394,7 +413,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             StatusContext.ToastSuccess($"To Clipboard {finalString}");
         }
 
-        private async Task RegenerateHtmlAndReprocessPhotoForSelected()
+        private async Task RegenerateHtmlAndReprocessPhotoForSelected(CancellationToken cancellationToken)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -413,6 +432,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             foreach (var loopSelected in SelectedItems())
             {
+                if (cancellationToken.IsCancellationRequested) break;
+
                 loopCount++;
 
                 if (loopSelected.DbEntry == null)
@@ -456,7 +477,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             if (errorList.Any())
             {
                 errorList.Reverse();
-                errorList.ForEach(x => StatusContext.ToastError(x));
+                await StatusContext.ShowMessageWithOkButton("Errors Resizing and Regenerating HTML",
+                    string.Join($"{Environment.NewLine}{Environment.NewLine}", errorList));
             }
         }
 
@@ -617,13 +639,14 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
         private void SetupCommands()
         {
             RegenerateHtmlAndReprocessPhotoForSelectedCommand =
-                StatusContext.RunBlockingTaskCommand(RegenerateHtmlAndReprocessPhotoForSelected);
+                StatusContext.RunBlockingTaskWithCancellationCommand(RegenerateHtmlAndReprocessPhotoForSelected,
+                    "Cancel HTML Generation and Photo Resizing");
             PhotoCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(PhotoCodesToClipboardForSelected);
             PhotoLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(PhotoLinkCodesToClipboardForSelected);
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(ListContext.LoadData);
-            ForcedResizeCommand = StatusContext.RunBlockingTaskCommand(ForcedResize);
+            ForcedResizeCommand = StatusContext.RunBlockingTaskWithCancellationCommand(ForcedResize, "Cancel Resizing");
             ViewFilesCommand =
                 StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
