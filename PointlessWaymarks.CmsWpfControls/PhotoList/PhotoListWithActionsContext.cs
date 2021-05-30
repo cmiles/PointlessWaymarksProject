@@ -318,7 +318,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             ListContext.ContextMenuItems = new List<ContextMenuItemData>
             {
                 new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
-                new() {ItemName = "View Photos", ItemCommand = ViewFilesCommand},
                 new()
                 {
                     ItemName = "{{}} Photo Codes to Clipboard", ItemCommand = PhotoCodesToClipboardForSelectedCommand
@@ -327,12 +326,20 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
                 {
                     ItemName = "{{}} Link Codes to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
                 },
+                new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
+                new() {ItemName = "View Photos", ItemCommand = ViewFilesCommand},
+                new() {ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand},
                 new()
                     {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
-                new() {ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand},
+                new()
+                    {ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand},
+                new()
+                    {ItemName = "Generate Html/Process/Resize Selected", ItemCommand = RegenerateHtmlAndReprocessPhotoForSelectedCommand},
                 new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
                 new()
-                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand}
+                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
+                new()
+                    {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
             };
 
             await ListContext.LoadData();
