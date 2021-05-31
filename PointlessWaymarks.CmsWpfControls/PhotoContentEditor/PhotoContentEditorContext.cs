@@ -751,13 +751,15 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             PhotoCreatedByEntry.ReferenceValue = DbEntry.PhotoCreatedBy ?? string.Empty;
             PhotoCreatedByEntry.UserValue = DbEntry.PhotoCreatedBy.TrimNullToEmpty();
 
-            IsoEntry = ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers.IntNullableConversion);
+            IsoEntry = ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers
+                .IntNullableConversion);
             IsoEntry.Title = "ISO";
             IsoEntry.HelpText = "A measure of a sensor films sensitivity to light, 100 is a typical value";
             IsoEntry.ReferenceValue = DbEntry.Iso;
             IsoEntry.UserText = DbEntry.Iso?.ToString("F0") ?? string.Empty;
 
-            PhotoCreatedOnEntry = ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
+            PhotoCreatedOnEntry =
+                ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
             PhotoCreatedOnEntry.Title = "Photo Created On";
             PhotoCreatedOnEntry.HelpText = "Date and, optionally, Time the Photo was Created";
             PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;

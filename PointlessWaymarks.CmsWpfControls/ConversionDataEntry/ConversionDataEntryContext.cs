@@ -174,7 +174,8 @@ namespace PointlessWaymarks.CmsWpfControls.ConversionDataEntry
             ValidationMessage = string.Empty;
         }
 
-        public static ConversionDataEntryContext<T> CreateInstance(Func<string, (bool passed, string conversionMessage, T result)> converter)
+        public static ConversionDataEntryContext<T> CreateInstance(
+            Func<string, (bool passed, string conversionMessage, T result)> converter)
         {
             return new() {Converter = converter};
         }

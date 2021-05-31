@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList
 {
@@ -98,6 +99,22 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
                 StatusContext.RunNonBlockingTaskCommand(PointLinkBracketCodesToClipboardForSelected);
             PointMapBracketCodesToClipboardForSelectedCommand =
                 StatusContext.RunNonBlockingTaskCommand(PointBracketCodesToClipboardForSelected);
+
+            ListContext.ContextMenuItems = new List<ContextMenuItemData>
+            {
+                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new()
+                {
+                    ItemName = "{{}} Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
+                },
+                new()
+                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
+                new() {ItemName = "Open URL", ItemCommand = ListContext.OpenUrlSelectedCommand},
+                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
+                new()
+                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
+                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+            };
 
             await ListContext.LoadData();
         }

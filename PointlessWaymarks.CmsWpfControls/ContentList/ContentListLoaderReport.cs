@@ -10,7 +10,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
         private readonly ColumnSortControlContext _columnSort;
         private readonly Func<Task<List<object>>> _loaderFunc;
 
-        public ContentListLoaderReport(Func<Task<List<object>>> loaderFunc, 
+        public ContentListLoaderReport(Func<Task<List<object>>> loaderFunc,
             ColumnSortControlContext sorting = null) :
             base("Report Results", null)
         {

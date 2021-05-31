@@ -33,7 +33,6 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
             StatusContext.RunFireAndForgetBlockingTaskWithUiMessageReturn(LoadData);
         }
 
-
         public Command EmailHtmlToClipboardCommand
         {
             get => _emailHtmlToClipboardCommand;
@@ -178,8 +177,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
                 new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
                 new()
                     {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand},
-
+                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
             };
 
             await ListContext.LoadData();

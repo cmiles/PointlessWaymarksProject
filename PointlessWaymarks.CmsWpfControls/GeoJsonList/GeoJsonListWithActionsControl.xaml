@@ -64,7 +64,6 @@
             DataContext="{Binding ListContext}" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-
                 <Button
                     Command="{Binding ListContext.EditSelectedCommand}"
                     Content="_Edit"
@@ -80,11 +79,6 @@
                 <Button
                     Command="{Binding GeoJsonMapCodesToClipboardForSelectedCommand}"
                     Content="Map Code to Clipboard"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
-                <Button
-                    Command="{Binding RefreshDataCommand}"
-                    Content="_Refresh"
                     Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>

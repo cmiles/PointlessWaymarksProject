@@ -80,11 +80,6 @@
                     Command="{Binding PointMapBracketCodesToClipboardForSelectedCommand}"
                     Content="Map Code to Clipboard"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete</Button>
-                <Button
-                    Command="{Binding RefreshDataCommand}"
-                    Content="_Refresh"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <status:StatusControl
