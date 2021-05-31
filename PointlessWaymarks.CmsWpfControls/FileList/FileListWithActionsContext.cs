@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using JetBrains.Annotations;
@@ -27,6 +28,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         private Command _firstPagePreviewFromPdfToCairoCommand;
         private ContentListContext _listContext;
         private Command _refreshDataCommand;
+        private Command _viewFilesCommand;
 
         public FileListWithActionsContext(StatusControlContext statusContext)
         {
@@ -119,6 +121,17 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
             {
                 if (Equals(value, _statusContext)) return;
                 _statusContext = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command ViewFilesCommand
+        {
+            get => _viewFilesCommand;
+            set
+            {
+                if (Equals(value, _viewFilesCommand)) return;
+                _viewFilesCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -247,11 +260,47 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
                 StatusContext.RunBlockingTaskCommand(FileImageLinkCodesToClipboardForSelected);
             FileDownloadLinkCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(FileDownloadLinkCodesToClipboardForSelected);
+            ViewFilesCommand =
+                StatusContext.RunBlockingTaskWithCancellationCommand(ViewFilesSelected, "Cancel File View");
 
             FirstPagePreviewFromPdfToCairoCommand =
                 StatusContext.RunBlockingTaskCommand(FirstPagePreviewFromPdfToCairo);
 
             EmailHtmlToClipboardCommand = StatusContext.RunBlockingTaskCommand(EmailHtmlToClipboard);
+
+            ListContext.ContextMenuItems = new List<ContextMenuItemData>
+            {
+                new() {ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand},
+                new()
+                {
+                    ItemName = "{{}} Codes to Clipboard", ItemCommand = FileImageLinkCodesToClipboardForSelectedCommand
+                },
+                new()
+                {
+                    ItemName = "{{}} Link Codes to Clipboard",
+                    ItemCommand = FilePageLinkCodesToClipboardForSelectedCommand
+                },
+                new()
+                {
+                    ItemName = "{{}} Download Codes to Clipboard",
+                    ItemCommand = FileDownloadLinkCodesToClipboardForSelectedCommand
+                },
+                new() {ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand},
+                new() {ItemName = "View Files", ItemCommand = ViewFilesCommand},
+                new() {ItemName = "Open URLs", ItemCommand = ListContext.OpenUrlSelectedCommand},
+                new()
+                    {ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand},
+                new()
+                {
+                    ItemName = "Generate Html",
+                    ItemCommand = ListContext.GenerateHtmlSelectedCommand
+                },
+                new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
+                new()
+                    {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
+                new()
+                    {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
+            };
 
             await ListContext.LoadData();
         }
@@ -266,6 +315,33 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
         {
             return ListContext?.ListSelection?.SelectedItems?.Where(x => x is FileListListItem).Cast<FileListListItem>()
                 .ToList() ?? new List<FileListListItem>();
+        }
+
+        public async Task ViewFilesSelected(CancellationToken cancelToken)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            if (ListContext.ListSelection?.SelectedItems == null || ListContext.ListSelection.SelectedItems.Count < 1)
+            {
+                StatusContext.ToastWarning("Nothing Selected to View?");
+                return;
+            }
+
+            if (ListContext.ListSelection.SelectedItems.Count > 20)
+            {
+                StatusContext.ToastWarning("Sorry - please select less than 20 items to view...");
+                return;
+            }
+
+            var currentSelected = ListContext.ListSelection.SelectedItems;
+
+            foreach (var loopSelected in currentSelected)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                if (loopSelected is FileListListItem fileItem)
+                    await fileItem.ItemActions.ViewFile(fileItem.DbEntry);
+            }
         }
     }
 }

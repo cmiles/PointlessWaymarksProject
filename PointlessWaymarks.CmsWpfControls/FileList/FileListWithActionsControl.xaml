@@ -76,25 +76,12 @@
                     Command="{Binding ListContext.NewActions.NewFileContentFromFilesCommand}"
                     Content="New Content from Files"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding FilePageLinkCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
-                    Link Code
-                </Button>
-                <Button Command="{Binding FileDownloadLinkCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
-                    Download Link Code
-                </Button>
                 <Button Command="{Binding FileImageLinkCodesToClipboardForSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Image Link Code
                 </Button>
                 <Button Command="{Binding FirstPagePreviewFromPdfToCairoCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Generate Cover Image
                 </Button>
-                <Button Command="{Binding ListContext.DeleteSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
-                    Delete
-                </Button>
-                <Button
-                    Command="{Binding RefreshDataCommand}"
-                    Content="_Refresh"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
         <status:StatusControl

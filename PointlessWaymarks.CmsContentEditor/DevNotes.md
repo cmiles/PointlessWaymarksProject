@@ -3,7 +3,7 @@
  - For geo types and notes review local file cleanup on delete
  - Right click context menu for items
  - The GUI Context tests are breaking - longer waits needed for the background events to run? Something else?
- - Check that items like the Menus and Excluded tags are saved to Json and are restored from Json
+ - Check whole site import - test(s)?
  - Deleted Content Report so it is possible to restore completely deleted
  - Text to Speech - abstract to better control:
    - Cancellation
