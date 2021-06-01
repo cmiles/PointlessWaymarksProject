@@ -115,7 +115,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonList
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            ListContext = new ContentListContext(StatusContext, new GeoJsonLoader(100));
+            ListContext = new ContentListContext(StatusContext, new GeoJsonListLoader(100));
 
             GeoJsonMapCodesToClipboardForSelectedCommand =
                 StatusContext.RunBlockingTaskCommand(MapBracketCodesToClipboardForSelected);
