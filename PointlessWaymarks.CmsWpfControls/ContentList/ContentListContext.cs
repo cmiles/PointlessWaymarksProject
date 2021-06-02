@@ -818,8 +818,6 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
             var dbItems = await ContentListLoader.LoadItems(StatusContext.ProgressTracker());
 
-            StatusContext.Progress("Checking for All Items Loaded from Db");
-
             StatusContext.Progress($"All Items Loaded from Db: {ContentListLoader.AllItemsLoaded}");
 
             var contentListItems = new List<IContentListItem>();
@@ -827,14 +825,16 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             StatusContext.Progress("Creating List Items");
 
             var loopCounter = 0;
-            foreach (var loopDbItem in dbItems)
-            {
-                if (loopCounter++ % 250 == 0)
-                    StatusContext.Progress($"Created List Item {loopCounter} of {dbItems.Count}");
-                contentListItems.Add(ListItemFromDbItem(loopDbItem));
-            }
 
-            contentListItems = dbItems.Select(ListItemFromDbItem).ToList();
+            Parallel.ForEach(dbItems, loopDbItem =>
+            {
+                Interlocked.Increment(ref loopCounter);
+
+                if (loopCounter % 250 == 0)
+                    StatusContext.Progress($"Created List Item {loopCounter} of {dbItems.Count}");
+
+                contentListItems.Add(ListItemFromDbItem(loopDbItem));
+            });
 
             await ThreadSwitcher.ResumeForegroundAsync();
 

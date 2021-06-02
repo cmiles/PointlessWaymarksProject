@@ -76,6 +76,14 @@
                                             <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
                                         </b:Interaction.Behaviors>
                                     </TextBox>
+                                    <TextBox
+                                        VerticalAlignment="Center"
+                                        FontSize="14"
+                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{Binding IsExcludedTag, Converter={StaticResource BooleanToVisibility}}">
+                                        [Excluded Tag]
+                                    </TextBox>
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

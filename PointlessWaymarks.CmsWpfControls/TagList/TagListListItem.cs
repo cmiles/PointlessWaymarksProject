@@ -9,6 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
     {
         private int _contentCount;
         private List<TagItemContentInformation> _contentInformation;
+        private bool _isExcludedTag;
         private string _tagName;
 
         public int ContentCount
@@ -29,6 +30,17 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             {
                 if (Equals(value, _contentInformation)) return;
                 _contentInformation = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsExcludedTag
+        {
+            get => _isExcludedTag;
+            set
+            {
+                if (value == _isExcludedTag) return;
+                _isExcludedTag = value;
                 OnPropertyChanged();
             }
         }

@@ -1,4 +1,5 @@
 ﻿## Todos
+ - Tag Exclusion Editor DataNotification Support
  - All Items Tab - reports for no tags, etc.
  - For geo types and notes review local file cleanup on delete
  - Right click context menu for items

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -94,9 +93,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
                 return;
             }
 
-            var db = await Db.Context();
-
-            db.TagExclusions.Remove(tagItem.DbEntry);
+            await Db.DeleteTagExclusion(tagItem.DbEntry.Id);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -107,9 +104,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            var db = await Db.Context();
-
-            var dbItems = await db.TagExclusions.ToListAsync();
+            var dbItems = await Db.TagExclusions();
 
             var listItems = dbItems.Select(x => new TagExclusionEditorListItem {DbEntry = x, TagValue = x.Tag})
                 .OrderBy(x => x.TagValue).ToList();

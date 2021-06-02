@@ -640,6 +640,22 @@ namespace PointlessWaymarks.CmsData.Database
                 DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
         }
 
+        public static async Task DeleteTagExclusion(int tagExclusionDbEntryId, IProgress<string>? progress = null)
+        {
+            var context = await Context();
+
+            var toDelete = context.TagExclusions.Single(x => x.Id == tagExclusionDbEntryId);
+
+            context.TagExclusions.Remove(toDelete);
+
+            await context.SaveChangesAsync(true);
+
+            progress?.Report($"Tag Exclusion {toDelete.Tag} Deleted");
+
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.TagExclusion,
+                DataNotificationUpdateType.Delete, null);
+        }
+
         public static async Task<List<string>> FolderNamesFromContent(dynamic content)
         {
             var db = await Context();
@@ -1566,6 +1582,13 @@ namespace PointlessWaymarks.CmsData.Database
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
                 isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
                 new List<Guid> {toSave.ContentId});
+        }
+
+        public static async Task<List<TagExclusion>> TagExclusions()
+        {
+            var context = await Context();
+
+            return await context.TagExclusions.OrderBy(x => x.Tag).ToListAsync();
         }
 
         public static string TagListCleanup(string? tags)

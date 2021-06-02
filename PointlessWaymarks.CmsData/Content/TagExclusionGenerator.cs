@@ -24,6 +24,11 @@ namespace PointlessWaymarks.CmsData.Content
 
                 await db.AddAsync(toSave);
                 await db.SaveChangesAsync(true);
+
+                DataNotifications.PublishDataNotification("Tag Exclusion Generator",
+                    DataNotificationContentType.TagExclusion,
+                    DataNotificationUpdateType.New, null);
+
                 return (GenerationReturn.Success("Tag Exclusion Saved"), toSave);
             }
 
@@ -33,6 +38,10 @@ namespace PointlessWaymarks.CmsData.Content
             toModify.ContentVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
 
             await db.SaveChangesAsync(true);
+
+            DataNotifications.PublishDataNotification("Tag Exclusion Generator",
+                DataNotificationContentType.TagExclusion,
+                DataNotificationUpdateType.Update, null);
 
             return (GenerationReturn.Success("Tag Exclusion Saved"), toModify);
         }

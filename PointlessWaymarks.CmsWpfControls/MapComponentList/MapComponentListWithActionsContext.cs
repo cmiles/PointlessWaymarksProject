@@ -120,9 +120,9 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentList
                 new() {ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand},
                 new()
                     {ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand},
-                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand},
+                new() {ItemName = "Refresh Data", ItemCommand = RefreshDataCommand}
             };
-            
+
             await ListContext.LoadData();
         }
 

@@ -128,6 +128,7 @@ namespace PointlessWaymarks.CmsData
         Point,
         PointDetail,
         Post,
+        TagExclusion,
         Unknown
     }
 }

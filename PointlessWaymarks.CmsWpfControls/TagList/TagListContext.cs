@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
@@ -260,6 +261,19 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
                 return;
             }
 
+            if (translatedMessage.ContentType == DataNotificationContentType.TagExclusion)
+            {
+                //Tag Exclusions data notifications don't enough information to do anything but process the whole list                
+                var currentExclusions = (await Db.TagExclusions()).Select(x => x.Tag).ToList();
+
+                var items = Items.ToList();
+
+                foreach (var loopItems in items)
+                    loopItems.IsExcludedTag = currentExclusions.Contains(loopItems.TagName);
+
+                return;
+            }
+
             if (translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent) return;
 
             if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
@@ -439,11 +453,18 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
             var allTags = await Db.TagSlugsAndContentList(true, false, StatusContext.ProgressTracker());
 
+            var excludedTags = await (await Db.Context()).TagExclusions.ToListAsync();
+
             var listItems = new List<TagListListItem>();
 
             foreach (var (tag, contentObjects) in allTags)
             {
-                var toAdd = new TagListListItem {TagName = tag, ContentCount = contentObjects.Count};
+                var toAdd = new TagListListItem
+                {
+                    TagName = tag,
+                    ContentCount = contentObjects.Count,
+                    IsExcludedTag = excludedTags.Any(x => x.Tag == tag)
+                };
 
                 var contentDetails = new List<TagItemContentInformation>();
 
