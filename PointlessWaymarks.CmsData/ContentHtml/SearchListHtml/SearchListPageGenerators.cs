@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
@@ -210,9 +211,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
 
             Parallel.ForEach(pageTags, loopTags =>
             {
-                //loopCount++;
+                Interlocked.Increment(ref loopCount);
+                if (loopCount % 50 == 0) progress?.Report($"Generating Tag Pages - {loopCount} of {tags.Count}");
 
-                //if (loopCount % 30 == 0)
                 progress?.Report($"Generating Tag Page {loopTags.tag} - {loopCount} of {tags.Count}");
 
                 WriteSearchListHtml(() => loopTags.contentObjects,

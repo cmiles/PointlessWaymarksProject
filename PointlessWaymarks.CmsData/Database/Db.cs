@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
@@ -815,44 +817,43 @@ namespace PointlessWaymarks.CmsData.Database
             return new MapComponentDto(map, elements);
         }
 
-        public static List<(string tag, List<object> contentObjects)> ParseToTagSlugsAndContentList(
-            List<(string tag, List<object> contentObjects)> list, List<ITag>? toAdd, bool removeExcludedTags,
+        public static List<(string tag, List<object> contentObjects)> ParseToTagSlugsAndContentList(List<ITag>? toAdd,
+            bool removeExcludedTags,
             IProgress<string>? progress = null)
         {
-            list ??= new List<(string tag, List<object> contentObjects)>();
+            var returnList = new List<(string tag, List<object> contentObjects)>();
 
-            if (toAdd == null) return list;
+            if (toAdd == null) return returnList;
+
+            var allResults = new ConcurrentBag<(string tag, object contentObject)>();
 
             var i = 0;
 
-            toAdd.ForEach(x =>
+            Parallel.ForEach(toAdd, x =>
             {
-                i++;
+                Interlocked.Increment(ref i);
 
                 if (i % 20 == 0) progress?.Report($"Processing Tag Content - {i} of {toAdd.Count}");
-                ParseToTagSlugsAndContentList(list, x, removeExcludedTags);
+
+                var results = ParseToTagSlugsAndContentList(x, removeExcludedTags);
+
+                results.ForEach(y => allResults.Add(y));
             });
 
-            return list;
+            var projectedReturn = allResults.GroupBy(x => x.tag)
+                .Select(x => (x.Key, x.Select(y => y.contentObject).ToList())).ToList();
+
+            return projectedReturn;
         }
 
-        public static List<(string tag, List<object> contentObjects)>? ParseToTagSlugsAndContentList(
-            List<(string tag, List<object> contentObjects)>? list, ITag toAdd, bool removeExcludedTags)
+        public static List<(string tag, object contentObject)> ParseToTagSlugsAndContentList(ITag toAdd,
+            bool removeExcludedTags)
         {
-            list ??= new List<(string tag, List<object> contentObjects)>();
-
             var tags = TagListParseToSlugs(toAdd, removeExcludedTags);
 
-            foreach (var loopTags in tags)
-            {
-                var (tag, contentObjects) = list.SingleOrDefault(x => x.tag.ToLower() == loopTags.ToLower());
-                if (string.IsNullOrWhiteSpace(tag))
-                    list.Add((loopTags.ToLower(), new List<object> {toAdd}));
-                else
-                    contentObjects.Add(toAdd);
-            }
-
-            return list;
+            return !tags.Any()
+                ? new List<(string tag, object contentObject)>()
+                : tags.Select(loopTags => (loopTags, (object) toAdd)).ToList();
         }
 
         public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId)
@@ -1705,54 +1706,105 @@ namespace PointlessWaymarks.CmsData.Database
         public static async Task<List<(string tag, List<dynamic> contentObjects)>> TagSlugsAndContentList(
             bool includePagesExcludedFromSearch, bool removeExcludedTags, IProgress<string>? progress = null)
         {
-            var db = await Context();
-
             progress?.Report("Starting Parse of Tag Content");
 
-            var returnList = new List<(string tag, List<object> contentObjects)>();
+            var sourceList =
+                new List<Func<Task<List<(string tag, List<object> contentObjects)>>>>
+                {
+                    async () =>
+                    {
+                        progress?.Report("Process File Content Tags");
+                        var db = await Context();
+                        return ParseToTagSlugsAndContentList(
+                            (await db.FileContents.ToListAsync()).Cast<ITag>().ToList(),
+                            removeExcludedTags, progress);
+                    },
+                    async () =>
+                    {
+                        progress?.Report("Process GeoJson Content Tags");
+                        var db = await Context();
+                        return ParseToTagSlugsAndContentList(
+                            (await db.GeoJsonContents.ToListAsync()).Cast<ITag>().ToList(),
+                            removeExcludedTags, progress);
+                    },
+                    async () =>
+                    {
+                        progress?.Report("Process Image Content Tags");
+                        var db = await Context();
+                        return ParseToTagSlugsAndContentList(
+                            includePagesExcludedFromSearch
+                                ? (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList()
+                                : (await db.ImageContents.Where(y => y.ShowInSearch).ToListAsync()).Cast<ITag>()
+                                .ToList(),
+                            removeExcludedTags, progress);
+                    },
+                    async () =>
+                    {
+                        progress?.Report("Process Line Content Tags");
+                        var db = await Context();
+                        return ParseToTagSlugsAndContentList(
+                            (await db.LineContents.ToListAsync()).Cast<ITag>().ToList(),
+                            removeExcludedTags, progress);
+                    },
+                    async () =>
+                    {
+                        progress?.Report("Process Link Content Tags");
+                        var db = await Context();
+                        return ParseToTagSlugsAndContentList(
+                            (await db.LinkContents.ToListAsync()).Cast<ITag>().ToList(),
+                            removeExcludedTags, progress);
+                    },
+                    async () =>
+                    {
+                        progress?.Report("Process Note Content Tags");
+                        var db = await Context();
+                        return ParseToTagSlugsAndContentList(
+                            (await db.NoteContents.ToListAsync()).Cast<ITag>().ToList(),
+                            removeExcludedTags, progress);
+                    },
+                    async () =>
+                    {
+                        progress?.Report("Process Photo Content Tags");
+                        var db = await Context();
+                        return ParseToTagSlugsAndContentList(
+                            (await db.PhotoContents.ToListAsync()).Cast<ITag>().ToList(),
+                            removeExcludedTags, progress);
+                    },
+                    async () =>
+                    {
+                        progress?.Report("Process Point Content Tags");
+                        var db = await Context();
+                        return ParseToTagSlugsAndContentList(
+                            (await db.PointContents.ToListAsync()).Cast<ITag>().ToList(),
+                            removeExcludedTags, progress);
+                    },
+                    async () =>
+                    {
+                        progress?.Report("Process Post Content Tags");
+                        var db = await Context();
+                        return ParseToTagSlugsAndContentList(
+                            (await db.PostContents.ToListAsync()).Cast<ITag>().ToList(),
+                            removeExcludedTags, progress);
+                    }
+                };
 
-            progress?.Report("Process File Content Tags");
-            ParseToTagSlugsAndContentList(returnList, (await db.FileContents.ToListAsync()).Cast<ITag>().ToList(),
-                removeExcludedTags, progress);
+            var tasks = sourceList
+                .Select(Task.Run).ToList();
 
-            progress?.Report("Process GeoJson Content Tags");
-            ParseToTagSlugsAndContentList(returnList, (await db.GeoJsonContents.ToListAsync()).Cast<ITag>().ToList(),
-                removeExcludedTags, progress);
+            var allResults = await Task.WhenAll(tasks);
 
-            progress?.Report("Process Image Content Tags");
-            ParseToTagSlugsAndContentList(returnList,
-                includePagesExcludedFromSearch
-                    ? (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList()
-                    : (await db.ImageContents.Where(x => x.ShowInSearch).ToListAsync()).Cast<ITag>().ToList(),
-                removeExcludedTags, progress);
+            if (!allResults.Any() || allResults.All(x => x.Count == 0))
+                return new List<(string tag, List<object> contentObjects)>();
 
-            progress?.Report("Process Line Content Tags");
-            ParseToTagSlugsAndContentList(returnList, (await db.LineContents.ToListAsync()).Cast<ITag>().ToList(),
-                removeExcludedTags, progress);
+            var flattened = allResults.Where(x => x.Count > 0).SelectMany(x => x).ToList();
 
-            progress?.Report("Process Link Content Tags");
-            ParseToTagSlugsAndContentList(returnList, (await db.LinkContents.ToListAsync()).Cast<ITag>().ToList(),
-                removeExcludedTags, progress);
-
-            progress?.Report("Process Note Content Tags");
-            ParseToTagSlugsAndContentList(returnList, (await db.NoteContents.ToListAsync()).Cast<ITag>().ToList(),
-                removeExcludedTags, progress);
-
-            progress?.Report("Process Photo Content Tags");
-            ParseToTagSlugsAndContentList(returnList, (await db.PhotoContents.ToListAsync()).Cast<ITag>().ToList(),
-                removeExcludedTags, progress);
-
-            progress?.Report("Process Point Content Tags");
-            ParseToTagSlugsAndContentList(returnList, (await db.PointContents.ToListAsync()).Cast<ITag>().ToList(),
-                removeExcludedTags, progress);
-
-            progress?.Report("Process Post Content Tags");
-            ParseToTagSlugsAndContentList(returnList, (await db.PostContents.ToListAsync()).Cast<ITag>().ToList(),
-                removeExcludedTags, progress);
+            var grouped = flattened.GroupBy(x => x.tag)
+                .Select(x => (x.Key, x.SelectMany(y => y.contentObjects).Cast<dynamic>().ToList())).OrderBy(x => x.Key)
+                .ToList();
 
             progress?.Report("Finished Parsing Tag Content");
 
-            return returnList.OrderBy(x => x.tag).ToList();
+            return grouped;
         }
 
         public record TagSlugAndIsExcluded(string TagSlug, bool IsExcluded);

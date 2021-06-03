@@ -25,6 +25,16 @@ namespace PointlessWaymarks.CmsData
                 yield return new List<T>(source.Skip(size * i).Take(size));
         }
 
+        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> list, int parts)
+        {
+            int i = 0;
+            var splits = from item in list
+                group item by i++ % parts
+                into part
+                select part.AsEnumerable();
+            return splits;
+        }
+
         public static void Sort<T>(this ObservableCollection<T> collection, Comparison<T> comparison)
         {
             //https://stackoverflow.com/questions/19112922/sort-observablecollectionstring-through-c-sharp

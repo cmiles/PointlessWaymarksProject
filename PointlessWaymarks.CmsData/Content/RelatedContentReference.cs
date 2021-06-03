@@ -70,47 +70,82 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task GenerateRelatedContentDbTable(DateTime generationVersion,
             IProgress<string>? progress = null)
         {
-            var db = await Db.Context();
-
             //!!Content Type List!!
-            var files = (await db.FileContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {files.Count} File Content Entries for Related Content");
-            await ExtractAndWriteRelatedContentDbReferences(generationVersion, files, db, progress);
+            var taskFunctionList = new List<Func<Task>>
+            {
+                async () =>
+                {
+                    var db = await Db.Context();
+                    var files = (await db.FileContents.ToListAsync()).Cast<IContentCommon>().ToList();
+                    progress?.Report($"Processing {files.Count} File Content Entries for Related Content");
+                    await ExtractAndWriteRelatedContentDbReferences(generationVersion, files, db, progress);
+                },
+                async () =>
+                {
+                    var db = await Db.Context();
+                    var geoJson = (await db.GeoJsonContents.ToListAsync()).Cast<IContentCommon>().ToList();
+                    progress?.Report($"Processing {geoJson.Count} GeoJson Content Entries for Related Content");
+                    await ExtractAndWriteRelatedContentDbReferences(generationVersion, geoJson, db, progress);
+                },
+                async () =>
+                {
+                    var db = await Db.Context();
+                    var images = (await db.ImageContents.ToListAsync()).Cast<IContentCommon>().ToList();
+                    progress?.Report($"Processing {images.Count} Image Content Entries for Related Content");
+                    await ExtractAndWriteRelatedContentDbReferences(generationVersion, images, db, progress);
+                },
+                async () =>
+                {
+                    var db = await Db.Context();
+                    var lines = (await db.LineContents.ToListAsync()).Cast<IContentCommon>().ToList();
+                    progress?.Report($"Processing {lines.Count} Line Content Entries for Related Content");
+                    await ExtractAndWriteRelatedContentDbReferences(generationVersion, lines, db, progress);
+                },
+                async () =>
+                {
+                    var db = await Db.Context();
+                    var links = await db.LinkContents
+                        .Select(x => new {x.ContentId, toCheck = x.Comments + x.Description})
+                        .ToListAsync();
+                    progress?.Report($"Processing {links.Count} Link Content Entries for Related Content");
+                    foreach (var loopLink in links)
+                        await ExtractAndWriteRelatedContentDbReferencesFromString(loopLink.ContentId, loopLink.toCheck,
+                            db,
+                            progress);
+                },
+                async () =>
+                {
+                    var db = await Db.Context();
+                    var notes = (await db.NoteContents.ToListAsync()).Cast<IContentCommon>().ToList();
+                    progress?.Report($"Processing {notes.Count} Note Content Entries for Related Content");
+                    await ExtractAndWriteRelatedContentDbReferences(generationVersion, notes, db, progress);
+                },
+                async () =>
+                {
+                    var db = await Db.Context();
+                    var photos = (await db.PhotoContents.ToListAsync()).Cast<IContentCommon>().ToList();
+                    progress?.Report($"Processing {photos.Count} Photo Content Entries for Related Content");
+                    await ExtractAndWriteRelatedContentDbReferences(generationVersion, photos, db, progress);
+                },
+                async () =>
+                {
+                    var db = await Db.Context();
+                    var points = (await db.PointContents.ToListAsync()).Cast<IContentCommon>().ToList();
+                    progress?.Report($"Processing {points.Count} Point Content Entries for Related Content");
+                    await ExtractAndWriteRelatedContentDbReferences(generationVersion, points, db, progress);
+                },
+                async () =>
+                {
+                    var db = await Db.Context();
+                    var posts = (await db.PostContents.ToListAsync()).Cast<IContentCommon>().ToList();
+                    progress?.Report($"Processing {posts.Count} Post Content Entries for Related Content");
+                    await ExtractAndWriteRelatedContentDbReferences(generationVersion, posts, db, progress);
+                },
+            };
 
-            var geoJson = (await db.GeoJsonContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {geoJson.Count} GeoJson Content Entries for Related Content");
-            await ExtractAndWriteRelatedContentDbReferences(generationVersion, geoJson, db, progress);
+            var taskList = taskFunctionList.Select(Task.Run).ToList();
 
-            var images = (await db.ImageContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {images.Count} Image Content Entries for Related Content");
-            await ExtractAndWriteRelatedContentDbReferences(generationVersion, images, db, progress);
-
-            var lines = (await db.LineContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {lines.Count} Line Content Entries for Related Content");
-            await ExtractAndWriteRelatedContentDbReferences(generationVersion, lines, db, progress);
-
-            var links = await db.LinkContents.Select(x => new {x.ContentId, toCheck = x.Comments + x.Description})
-                .ToListAsync();
-            progress?.Report($"Processing {links.Count} Link Content Entries for Related Content");
-            foreach (var loopLink in links)
-                await ExtractAndWriteRelatedContentDbReferencesFromString(loopLink.ContentId, loopLink.toCheck, db,
-                    progress);
-
-            var notes = (await db.NoteContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {notes.Count} Note Content Entries for Related Content");
-            await ExtractAndWriteRelatedContentDbReferences(generationVersion, notes, db, progress);
-
-            var photos = (await db.PhotoContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {photos.Count} Photo Content Entries for Related Content");
-            await ExtractAndWriteRelatedContentDbReferences(generationVersion, photos, db, progress);
-
-            var points = (await db.PointContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {points.Count} Point Content Entries for Related Content");
-            await ExtractAndWriteRelatedContentDbReferences(generationVersion, points, db, progress);
-
-            var posts = (await db.PostContents.ToListAsync()).Cast<IContentCommon>().ToList();
-            progress?.Report($"Processing {posts.Count} Post Content Entries for Related Content");
-            await ExtractAndWriteRelatedContentDbReferences(generationVersion, posts, db, progress);
+            await Task.WhenAll(taskList);
         }
     }
 }

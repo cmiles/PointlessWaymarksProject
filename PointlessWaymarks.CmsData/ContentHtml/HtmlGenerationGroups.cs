@@ -734,27 +734,30 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 progress?.Report("Search Tags are the same as the last generation - skipping Tag List creation.");
             }
 
-            //Evaluate each Tag - the tags list is a standard search list showing summary and main image in addition to changes to the linked content also check for changes
-            //to the linked content contents...
-            var allCurrentTags = db.GenerationTagLogs.Where(x => x.GenerationVersion == generationVersion)
-                .Where(x => x.TagSlug != null).Select(x => x.TagSlug!).Distinct().OrderBy(x => x).ToList();
-
-            var tagCompareLogic = new CompareLogic();
-            var spec = new Dictionary<Type, IEnumerable<string>>
+            CompareLogic GetTagCompareLogic()
             {
-                {typeof(GenerationTagLog), new[] {"RelatedContentId"}}
-            };
-            tagCompareLogic.Config.CollectionMatchingSpec = spec;
-            tagCompareLogic.Config.MembersToInclude.Add("RelatedContentId");
+                var tagCompareLogic = new CompareLogic();
+                var spec = new Dictionary<Type, IEnumerable<string>>
+                {
+                    {typeof(GenerationTagLog), new[] {"RelatedContentId"}}
+                };
+                tagCompareLogic.Config.CollectionMatchingSpec = spec;
+                tagCompareLogic.Config.MembersToInclude.Add("RelatedContentId");
 
-            foreach (var loopTags in allCurrentTags)
+                return tagCompareLogic;
+            }
+
+            async Task GenerateTag(DateTime dateTime,
+                PointlessWaymarksContext pointlessWaymarksContext,
+                CompareLogic tagCompareLogic,
+                string tag, IProgress<string>? generateProgress)
             {
-                var contentLastGeneration = await db.GenerationTagLogs.Where(x =>
-                        x.GenerationVersion == lastGeneration.GenerationVersion && x.TagSlug == loopTags)
+                var contentLastGeneration = await pointlessWaymarksContext.GenerationTagLogs.Where(x =>
+                        x.GenerationVersion == lastGeneration.GenerationVersion && x.TagSlug == tag)
                     .OrderBy(x => x.RelatedContentId).ToListAsync();
 
-                var contentThisGeneration = await db.GenerationTagLogs.Where(x =>
-                        x.GenerationVersion == generationVersion && x.TagSlug == loopTags)
+                var contentThisGeneration = await pointlessWaymarksContext.GenerationTagLogs.Where(x =>
+                        x.GenerationVersion == dateTime && x.TagSlug == tag)
                     .OrderBy(x => x.RelatedContentId)
                     .ToListAsync();
 
@@ -763,38 +766,67 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 //List of content is not the same - page must be rebuilt
                 if (!generationComparisonResults.AreEqual)
                 {
-                    progress?.Report($"New content found for tag {loopTags} - creating page");
+                    generateProgress?.Report($"New content found for tag {tag} - creating page");
                     var contentToWrite =
-                        await db.ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList());
-                    SearchListPageGenerators.WriteTagPage(loopTags, contentToWrite, generationVersion, progress);
-                    continue;
+                        await pointlessWaymarksContext.ContentFromContentIds(contentThisGeneration
+                            .Select(x => x.RelatedContentId)
+                            .ToList());
+                    SearchListPageGenerators.WriteTagPage(tag, contentToWrite, dateTime, generateProgress);
+                    return;
                 }
 
                 //Direct content Changes
-                var primaryContentChanges = await db.GenerationChangedContentIds.AnyAsync(x =>
+                var primaryContentChanges = await pointlessWaymarksContext.GenerationChangedContentIds.AnyAsync(x =>
                     contentThisGeneration.Select(y => y.RelatedContentId).Contains(x.ContentId));
 
                 var directTagContent =
-                    await db.ContentFromContentIds(contentThisGeneration.Select(x => x.RelatedContentId).ToList());
+                    await pointlessWaymarksContext.ContentFromContentIds(contentThisGeneration
+                        .Select(x => x.RelatedContentId)
+                        .ToList());
 
                 //Main Image changes
                 var mainImageContentIds = directTagContent.Select(x => Db.MainImageContentIdIfPresent(x))
                     .Where(x => x != null).Cast<Guid>().ToList();
 
-                var mainImageContentChanges = await db.GenerationChangedContentIds.AnyAsync(x =>
+                var mainImageContentChanges = await pointlessWaymarksContext.GenerationChangedContentIds.AnyAsync(x =>
                     mainImageContentIds.Contains(x.ContentId));
 
                 if (primaryContentChanges || mainImageContentChanges)
                 {
-                    progress?.Report($"Content Changes found for tag {loopTags} - creating page");
+                    generateProgress?.Report($"Content Changes found for tag {tag} - creating page");
 
-                    SearchListPageGenerators.WriteTagPage(loopTags, directTagContent, generationVersion, progress);
+                    SearchListPageGenerators.WriteTagPage(tag, directTagContent, dateTime, generateProgress);
 
-                    continue;
+                    return;
                 }
 
-                progress?.Report($"No Changes for tag {loopTags}");
+                generateProgress?.Report($"No Changes for tag {tag}");
             }
+
+            //Evaluate each Tag - the tags list is a standard search list showing summary and main image in addition to changes to the linked content also check for changes
+            //to the linked content contents...
+            var allCurrentTags = db.GenerationTagLogs.Where(x => x.GenerationVersion == generationVersion)
+                .Where(x => x.TagSlug != null).Select(x => x.TagSlug!).Distinct().OrderBy(x => x).ToList();
+
+            var partitionedTags = allCurrentTags.Split(10);
+
+            var allTasks = new List<Task>();
+
+            foreach (var loopPartitions in partitionedTags)
+            {
+                allTasks.Add(Task.Run(async () =>
+                    {
+                        var partitionDb = await Db.Context();
+                        var partitionCompareLogic = GetTagCompareLogic();
+                        foreach (var loopTag in loopPartitions)
+                        {
+                            await GenerateTag(generationVersion, partitionDb, partitionCompareLogic, loopTag, progress);
+                        }
+                    }
+                ));
+            }
+
+            await Task.WhenAll(allTasks);
         }
 
         public static async Task<List<GenerationReturn>> GenerateChangedToHtml(IProgress<string>? progress = null)

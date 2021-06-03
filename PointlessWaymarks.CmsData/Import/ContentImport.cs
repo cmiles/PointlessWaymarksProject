@@ -686,7 +686,8 @@ namespace PointlessWaymarks.CmsData.Import
                 "contentversion",
                 "lastupdatedon",
                 "originalfilename",
-                "pointdetail"
+                "pointdetail",
+                "latestupdate"
             };
             // ReSharper restore StringLiteralTypo
 
