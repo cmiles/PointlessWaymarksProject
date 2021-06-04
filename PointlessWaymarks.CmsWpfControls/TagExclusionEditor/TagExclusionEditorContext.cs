@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -13,6 +14,8 @@ using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.WpfCommon.Commands;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.ThreadSwitcher;
+using Serilog;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
 {
@@ -26,6 +29,8 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
         {
             StatusContext = statusContext ?? new StatusControlContext();
 
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+
             HelpMarkdown = TagExclusionHelpMarkdown.HelpBlock;
             AddNewItemCommand = StatusContext.RunBlockingTaskCommand(async () => await AddNewItem());
             SaveItemCommand = StatusContext.RunNonBlockingTaskCommand<TagExclusionEditorListItem>(SaveItem);
@@ -35,6 +40,8 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
         }
 
         public Command AddNewItemCommand { get; set; }
+
+        public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
 
         public Command<TagExclusionEditorListItem> DeleteItemCommand { get; set; }
 
@@ -82,6 +89,20 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
             Items.Add(new TagExclusionEditorListItem {DbEntry = new TagExclusion()});
         }
 
+        private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
+        {
+            var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+
+            if (translatedMessage.HasError)
+            {
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
+                    translatedMessage.ErrorNote, StatusContext.StatusControlContextId);
+                return;
+            }
+
+            await LoadData();
+        }
+
         private async Task DeleteItem(TagExclusionEditorListItem tagItem)
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
@@ -104,6 +125,8 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
+            DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
             var dbItems = await Db.TagExclusions();
 
             var listItems = dbItems.Select(x => new TagExclusionEditorListItem {DbEntry = x, TagValue = x.Tag})
@@ -117,9 +140,11 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
                 return;
             }
 
+            var currentItems = Items.ToList();
+
             foreach (var loopListItem in listItems)
             {
-                var possibleItem = Items.SingleOrDefault(x => x.DbEntry?.Id == loopListItem.DbEntry.Id);
+                var possibleItem = currentItems.SingleOrDefault(x => x.DbEntry?.Id == loopListItem.DbEntry.Id);
 
                 if (possibleItem == null)
                 {
@@ -132,6 +157,29 @@ namespace PointlessWaymarks.CmsWpfControls.TagExclusionEditor
                     possibleItem.DbEntry = loopListItem.DbEntry;
                 }
             }
+
+            var currentItemsWithDbEntry = currentItems.Where(x => x.DbEntry != null && x.DbEntry.Id >= 0).ToList();
+            var newItemIds = listItems.Select(x => x.DbEntry.Id);
+
+            var deletedItems = currentItemsWithDbEntry.Where(x => !newItemIds.Contains(x.DbEntry.Id)).ToList();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+            foreach (var loopDeleted in deletedItems)
+                try
+                {
+                    Items.Remove(loopDeleted);
+                }
+                catch (Exception e)
+                {
+                    Log.ForContext("loopDeleted", loopDeleted.SafeObjectDump()).Error(e,
+                        "Suppressed error in Tag Exclusion Editor Context - delete item while Loading failed");
+                    Console.WriteLine(e);
+                }
+        }
+
+        private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
+        {
+            DataNotificationsProcessor.Enqueue(e);
         }
 
         [NotifyPropertyChangedInvocator]

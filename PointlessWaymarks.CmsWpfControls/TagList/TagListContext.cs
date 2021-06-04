@@ -8,9 +8,9 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
@@ -39,7 +39,9 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
         private Command _importFromExcelFileCommand;
         private Command _importFromOpenExcelInstanceCommand;
         private ObservableCollection<TagListListItem> _items;
+        private Command<TagListListItem> _makeExcludedTagCommand;
         private Command _refreshDataCommand;
+        private Command<TagListListItem> _removeExcludedTagCommand;
         private Command _selectedDetailItemsToExcelCommand;
         private List<TagListListItem> _selectedItems;
 
@@ -51,7 +53,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
         {
             StatusContext = context ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
+            DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(LoadData);
 
@@ -63,6 +65,9 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             EditContentCommand = StatusContext.RunNonBlockingTaskCommand<Guid>(async x => await EditContent(x));
             VisibleTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(VisibleTagsToExcel);
             SelectedTagsToExcelCommand = StatusContext.RunBlockingTaskCommand(SelectedTagsToExcel);
+
+            MakeExcludedTagCommand = StatusContext.RunBlockingTaskCommand<TagListListItem>(MakeExcludedTag);
+            RemoveExcludedTagCommand = StatusContext.RunBlockingTaskCommand<TagListListItem>(RemoveExcludedTag);
 
             ImportFromExcelFileCommand =
                 StatusContext.RunBlockingTaskCommand(async () => await ExcelHelpers.ImportFromExcelFile(StatusContext));
@@ -160,6 +165,17 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             }
         }
 
+        public Command<TagListListItem> MakeExcludedTagCommand
+        {
+            get => _makeExcludedTagCommand;
+            set
+            {
+                if (Equals(value, _makeExcludedTagCommand)) return;
+                _makeExcludedTagCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Command RefreshDataCommand
         {
             get => _refreshDataCommand;
@@ -167,6 +183,17 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             {
                 if (Equals(value, _refreshDataCommand)) return;
                 _refreshDataCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Command<TagListListItem> RemoveExcludedTagCommand
+        {
+            get => _removeExcludedTagCommand;
+            set
+            {
+                if (Equals(value, _removeExcludedTagCommand)) return;
+                _removeExcludedTagCommand = value;
                 OnPropertyChanged();
             }
         }
@@ -307,7 +334,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             foreach (var loopContent in translatedMessage.ContentIds)
             {
                 var content = await db.ContentFromContentId(loopContent);
-                var tags = Db.TagListParseToSlugs((ITag) content, false);
+                var tags = Db.TagListParseToSlugs((ITag)content, false);
 
                 var listContent = ListItemsWithContentIds(loopContent.AsList());
 
@@ -416,11 +443,11 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            ((CollectionView) CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
             {
                 if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
 
-                var itemToFilter = (TagListListItem) o;
+                var itemToFilter = (TagListListItem)o;
 
                 return ListFilter(itemToFilter);
             };
@@ -453,7 +480,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
             var allTags = await Db.TagSlugsAndContentList(true, false, StatusContext.ProgressTracker());
 
-            var excludedTags = await (await Db.Context()).TagExclusions.ToListAsync();
+            var excludedTagSlugs = await Db.TagExclusionSlugs();
 
             var listItems = new List<TagListListItem>();
 
@@ -463,14 +490,14 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
                 {
                     TagName = tag,
                     ContentCount = contentObjects.Count,
-                    IsExcludedTag = excludedTags.Any(x => x.Tag == tag)
+                    IsExcludedTag = excludedTagSlugs.Any(x => x == tag)
                 };
 
                 var contentDetails = new List<TagItemContentInformation>();
 
                 foreach (var loopContent in contentObjects)
                 {
-                    var detailToAdd = new TagItemContentInformation {ContentId = loopContent.ContentId};
+                    var detailToAdd = new TagItemContentInformation { ContentId = loopContent.ContentId };
 
                     detailToAdd.ContentId = loopContent.ContentId;
                     detailToAdd.Title = loopContent.Title;
@@ -497,6 +524,39 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
         }
 
+        private async Task MakeExcludedTag(TagListListItem arg)
+        {
+            if (arg == null) return;
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var toExclude = arg.TagName;
+
+            var currentEntries = await Db.TagExclusionSlugAndExclusions();
+
+            //In this case the Exclusion exists and the GUI data is out-of-date
+            if (currentEntries.Any(x => x.slug == toExclude))
+            {
+                await LoadData();
+                return;
+            }
+
+            var saveResult = await TagExclusionGenerator.Save(new TagExclusion { Tag = toExclude });
+
+            if (saveResult.generationReturn.HasError)
+            {
+                Log.ForContext("GenerationReturn", saveResult.generationReturn.SafeObjectDump())
+                    .ForContext("TagExclusion", saveResult.returnContent.SafeObjectDump())
+                    .Error("Error Saving Tag Exclusion");
+                await StatusContext.ShowMessageWithOkButton("Trouble Saving Tag Exclusion",
+                    $"Trouble saving Tag Exclusion - {saveResult.generationReturn.GenerationNote}");
+                await LoadData();
+                return;
+            }
+
+            StatusContext.ToastSuccess($"Saved Tag Exclusion {toExclude}");
+        }
+
         private void OnDataNotificationReceived(object sender, TinyMessageReceivedEventArgs e)
         {
             DataNotificationsProcessor.Enqueue(e);
@@ -506,6 +566,30 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task RemoveExcludedTag(TagListListItem arg)
+        {
+            if (arg == null) return;
+
+            await ThreadSwitcher.ResumeBackgroundAsync();
+
+            var toExclude = arg.TagName;
+
+            var currentEntries = await Db.TagExclusionSlugAndExclusions();
+
+            var toRemove = currentEntries.SingleOrDefault(x => x.slug == toExclude);
+
+            //In this case the Exclusion doesn't exist and the GUI data is out-of-date
+            if (toRemove.exclusion == null)
+            {
+                await LoadData();
+                return;
+            }
+
+            await Db.DeleteTagExclusion(toRemove.exclusion.Id);
+
+            StatusContext.ToastSuccess($"Removed Tag Exclusion {toExclude}");
         }
 
         public async Task SelectedTagsToExcel()
@@ -518,7 +602,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
                 return;
             }
 
-            var tagsProjection = SelectedItems.Select(x => new {x.TagName, x.ContentCount}).Cast<object>().ToList();
+            var tagsProjection = SelectedItems.Select(x => new { x.TagName, x.ContentCount }).Cast<object>().ToList();
 
             if (!tagsProjection.Any())
             {
@@ -535,7 +619,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
+            var collectionView = (CollectionView)CollectionViewSource.GetDefaultView(Items);
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;
@@ -584,7 +668,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
                 return;
             }
 
-            var tagsProjection = Items.Where(ListFilter).Select(x => new {x.TagName, x.ContentCount}).Cast<object>()
+            var tagsProjection = Items.Where(ListFilter).Select(x => new { x.TagName, x.ContentCount }).Cast<object>()
                 .ToList();
 
             if (!tagsProjection.Any())

@@ -50,25 +50,26 @@ namespace PointlessWaymarks.CmsData
 
             if (contentType != DataNotificationContentType.FileTransferScriptLog &&
                 contentType != DataNotificationContentType.GenerationLog &&
+                contentType != DataNotificationContentType.TagExclusion &&
                 (contentGuidList == null || !contentGuidList.Any())) return;
 
             var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
             SendMessageQueue.Enqueue(
-                $"{cleanedSender.Replace("|", " ")}|{(int) contentType}|{(int) updateType}|{string.Join(",", contentGuidList ?? new List<Guid>())}");
+                $"{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{string.Join(",", contentGuidList ?? new List<Guid>())}");
         }
 
         public static InterProcessDataNotification TranslateDataNotification(byte[]? received)
         {
             if (received == null || received.Length == 0)
-                return new InterProcessDataNotification {HasError = true, ErrorNote = "No Data"};
+                return new InterProcessDataNotification { HasError = true, ErrorNote = "No Data" };
 
             try
             {
                 var asString = Encoding.UTF8.GetString(received);
 
                 if (string.IsNullOrWhiteSpace(asString))
-                    return new InterProcessDataNotification {HasError = true, ErrorNote = "Data is Blank"};
+                    return new InterProcessDataNotification { HasError = true, ErrorNote = "Data is Blank" };
 
                 var parsedString = asString.Split("|").ToList();
 
@@ -81,15 +82,15 @@ namespace PointlessWaymarks.CmsData
                 return new InterProcessDataNotification
                 {
                     Sender = parsedString[0],
-                    ContentType = (DataNotificationContentType) int.Parse(parsedString[1]),
-                    UpdateType = (DataNotificationUpdateType) int.Parse(parsedString[2]),
+                    ContentType = (DataNotificationContentType)int.Parse(parsedString[1]),
+                    UpdateType = (DataNotificationUpdateType)int.Parse(parsedString[2]),
                     ContentIds = parsedString[3].Split(",", StringSplitOptions.RemoveEmptyEntries)
                         .Select(Guid.Parse).ToList()
                 };
             }
             catch (Exception e)
             {
-                return new InterProcessDataNotification {HasError = true, ErrorNote = e.Message};
+                return new InterProcessDataNotification { HasError = true, ErrorNote = e.Message };
             }
         }
     }

@@ -8,6 +8,7 @@
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:tagList="clr-namespace:PointlessWaymarks.CmsWpfControls.TagList"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     Name="TagListControlXaml"
     d:DataContext="{d:DesignInstance tagList:TagListContext}"
     d:DesignHeight="450"
@@ -18,6 +19,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <valueConverters:BooleanNotConverter x:Key="BooleanNot" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -29,7 +31,8 @@
         <Menu>
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
+                <MenuItem Command="{Binding ImportFromOpenExcelInstanceCommand}"
+                          Header="Import From Open Excel Application" />
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
@@ -60,31 +63,47 @@
                         SelectionMode="Extended">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="tagList:TagListListItem">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox
-                                        VerticalAlignment="Center"
-                                        FontSize="14"
-                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                        TextWrapping="Wrap">
-                                        <TextBox.Text>
-                                            <MultiBinding StringFormat="{}{0} ({1})">
-                                                <Binding Path="TagName" />
-                                                <Binding Path="ContentCount" />
-                                            </MultiBinding>
-                                        </TextBox.Text>
-                                        <b:Interaction.Behaviors>
-                                            <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
-                                        </b:Interaction.Behaviors>
-                                    </TextBox>
-                                    <TextBox
-                                        VerticalAlignment="Center"
-                                        FontSize="14"
-                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                        TextWrapping="Wrap"
-                                        Visibility="{Binding IsExcludedTag, Converter={StaticResource BooleanToVisibility}}">
-                                        [Excluded Tag]
-                                    </TextBox>
-                                </StackPanel>
+                                <Grid HorizontalAlignment="Stretch" Background="Transparent"
+                                      Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}, Path=DataContext}">
+                                    <Grid.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Remove Tag Exclusion" IsEnabled="{Binding IsExcludedTag}"
+                                                      Command="{Binding Path=PlacementTarget.Tag.RemoveExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContextMenu}}"
+                                                      CommandParameter="{Binding .}" />
+                                            <MenuItem Header="Make Tag Exclusion" IsEnabled="{Binding IsExcludedTag, Converter={StaticResource BooleanNot}}"
+                                                      Command="{Binding Path=PlacementTarget.Tag.MakeExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContextMenu}}"
+                                                      CommandParameter="{Binding .}" />
+                                        </ContextMenu>
+                                    </Grid.ContextMenu>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <TextBox
+                                            VerticalAlignment="Center"
+                                            FontSize="14"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                            TextWrapping="Wrap">
+                                            <TextBox.Text>
+                                                <MultiBinding StringFormat="{}{0} ({1})">
+                                                    <Binding Path="TagName" />
+                                                    <Binding Path="ContentCount" />
+                                                </MultiBinding>
+                                            </TextBox.Text>
+                                            <b:Interaction.Behaviors>
+                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                            </b:Interaction.Behaviors>
+                                        </TextBox>
+                                        <TextBox
+                                            VerticalAlignment="Center"
+                                            FontSize="14"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                            TextWrapping="Wrap"
+                                            Visibility="{Binding IsExcludedTag, Converter={StaticResource BooleanToVisibility}}">
+                                            <b:Interaction.Behaviors>
+                                                <wpfBehavior:ReadOnlyTextBoxClickAndKeyboardPass />
+                                            </b:Interaction.Behaviors>
+                                            [Excluded Tag]
+                                        </TextBox>
+                                    </StackPanel>
+                                </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
