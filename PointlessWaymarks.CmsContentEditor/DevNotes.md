@@ -27,6 +27,10 @@ Site:
  
 ## Notes
 
+6/4/2021
+
+I have been struggling a bit to find the best approach to what to do when in the past I would use Parallel ForEach, but now the body has async await in it. Of course there is WhenAll but I continue to be doubtful if WhenAll is a good approach for thousands (or tens of thousands of small tasks - still more reading to do) - so started a branch to explore the idea of using Parallel ForEach with basically https://scatteredcode.net/parallel-foreach-async-in-c/#:~:text=Foreach%20itself%20is%20very%20useful,high%20latency%20or%20long%20processing. as the basis. The immediate results were encouraging, but the code feels to me like I might be missing something, on the otherhadn I think with this code written and maybe some LinqPad type exploration I can do a better job of learning!
+
 5/28/2021
 
 First context menu implementation. Interesting process - I first assumed that doing a context menu per item would make the most sense - but just after first use it started to become obvious that the context menu not acting on all selected items was too unexpected for me... So moved to trying context menu at the list rather than the item level - this does mean that in the all items list only the common menu items are available but makes selection work as expected and allows the lists to specialize. It would be interesting to build a dynamic content menu based on common commands for selected types...

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
@@ -158,7 +160,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleFilePage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleFilePage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem, progress);
 
@@ -181,7 +183,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleGeoJsonPage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleGeoJsonPage(loopItem) { GenerationVersion = generationVersion };
                 await htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -253,7 +255,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleImagePage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleImagePage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -276,7 +278,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleLinePage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
                 await htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -294,7 +296,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             SearchListPageGenerators.WritePointContentListHtml(generationVersion, progress);
             SearchListPageGenerators.WriteNoteContentListHtml(generationVersion, progress);
 
-            var linkListPage = new LinkListPage {GenerationVersion = generationVersion};
+            var linkListPage = new LinkListPage { GenerationVersion = generationVersion };
             linkListPage.WriteLocalHtmlRssAndJson();
             progress?.Report("Creating Link List Json");
             Export.WriteLinkListJson();
@@ -339,7 +341,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for Note Dated {loopItem.CreatedOn:d} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleNotePage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleNotePage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem, progress);
 
@@ -353,21 +355,18 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             var allItems = await db.PhotoContents.ToListAsync();
 
-            var loopCount = 1;
             var totalCount = allItems.Count;
 
             progress?.Report($"Found {totalCount} Photos to Generate");
 
-            foreach (var loopItem in allItems)
+            await allItems.Select(loopItem => new Func<Task>(async () =>
             {
-                progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+                progress?.Report($"Writing HTML for {loopItem.Title}");
 
-                var htmlModel = new SinglePhotoPage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SinglePhotoPage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
-
-                loopCount++;
-            }
+            })).ToList().AsyncParallelForEach();
         }
 
         public static async Task GenerateAllPointHtml(DateTime? generationVersion, IProgress<string>? progress = null)
@@ -378,16 +377,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             var allItems = await db.PointContents.ToListAsync();
 
-            var loopCount = 1;
             var totalCount = allItems.Count;
 
             progress?.Report($"Found {totalCount} Points to Generate");
 
-            foreach (var loopItem in allItems)
+            await allItems.Select(loopItem => new Func<Task>(async () =>
             {
-                progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
+                progress?.Report($"Writing HTML for {loopItem.Title}");
 
-                var dto = await Db.PointAndPointDetails(loopItem.ContentId, db);
+                var dto = await Db.PointAndPointDetails(loopItem.ContentId, await Db.Context());
 
                 if (dto == null)
                 {
@@ -399,12 +397,10 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                     throw toThrow;
                 }
 
-                var htmlModel = new SinglePointPage(dto) {GenerationVersion = generationVersion};
+                var htmlModel = new SinglePointPage(dto) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
-
-                loopCount++;
-            }
+            })).ToList().AsyncParallelForEach();
         }
 
         public static async Task GenerateAllPostHtml(DateTime? generationVersion, IProgress<string>? progress = null)
@@ -422,7 +418,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SinglePostPage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -558,7 +554,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             progress?.Report($"Adding {relatedIds.Distinct().Count()} Content Ids Generate");
 
             await db.GenerationChangedContentIds.AddRangeAsync(contentChanges.Distinct()
-                .Select(x => new GenerationChangedContentId {ContentId = x}).ToList());
+                .Select(x => new GenerationChangedContentId { ContentId = x }).ToList());
 
             await db.SaveChangesAsync();
         }
@@ -677,7 +673,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 SearchListPageGenerators.WriteNoteContentListHtml(generationVersion, progress);
             else progress?.Report("Skipping Note List Generation - no image changes found");
 
-            var linkListPage = new LinkListPage {GenerationVersion = generationVersion};
+            var linkListPage = new LinkListPage { GenerationVersion = generationVersion };
             linkListPage.WriteLocalHtmlRssAndJson();
             progress?.Report("Creating Link List Json");
             Export.WriteLinkListJson();
@@ -739,7 +735,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 var tagCompareLogic = new CompareLogic();
                 var spec = new Dictionary<Type, IEnumerable<string>>
                 {
-                    {typeof(GenerationTagLog), new[] {"RelatedContentId"}}
+                    { typeof(GenerationTagLog), new[] { "RelatedContentId" } }
                 };
                 tagCompareLogic.Config.CollectionMatchingSpec = spec;
                 tagCompareLogic.Config.MembersToInclude.Add("RelatedContentId");
@@ -747,18 +743,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 return tagCompareLogic;
             }
 
-            async Task GenerateTag(DateTime dateTime,
-                PointlessWaymarksContext pointlessWaymarksContext,
-                CompareLogic tagCompareLogic,
-                string tag, IProgress<string>? generateProgress)
+            async Task GenerateTag(DateTime dateTime, PointlessWaymarksContext pointlessWaymarksContext,
+                CompareLogic tagCompareLogic, string tag, IProgress<string>? generateProgress)
             {
                 var contentLastGeneration = await pointlessWaymarksContext.GenerationTagLogs.Where(x =>
                         x.GenerationVersion == lastGeneration.GenerationVersion && x.TagSlug == tag)
                     .OrderBy(x => x.RelatedContentId).ToListAsync();
 
-                var contentThisGeneration = await pointlessWaymarksContext.GenerationTagLogs.Where(x =>
-                        x.GenerationVersion == dateTime && x.TagSlug == tag)
-                    .OrderBy(x => x.RelatedContentId)
+                var contentThisGeneration = await pointlessWaymarksContext.GenerationTagLogs
+                    .Where(x => x.GenerationVersion == dateTime && x.TagSlug == tag).OrderBy(x => x.RelatedContentId)
                     .ToListAsync();
 
                 var generationComparisonResults = tagCompareLogic.Compare(contentLastGeneration, contentThisGeneration);
@@ -769,8 +762,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                     generateProgress?.Report($"New content found for tag {tag} - creating page");
                     var contentToWrite =
                         await pointlessWaymarksContext.ContentFromContentIds(contentThisGeneration
-                            .Select(x => x.RelatedContentId)
-                            .ToList());
+                            .Select(x => x.RelatedContentId).ToList());
                     SearchListPageGenerators.WriteTagPage(tag, contentToWrite, dateTime, generateProgress);
                     return;
                 }
@@ -781,8 +773,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
                 var directTagContent =
                     await pointlessWaymarksContext.ContentFromContentIds(contentThisGeneration
-                        .Select(x => x.RelatedContentId)
-                        .ToList());
+                        .Select(x => x.RelatedContentId).ToList());
 
                 //Main Image changes
                 var mainImageContentIds = directTagContent.Select(x => Db.MainImageContentIdIfPresent(x))
@@ -813,18 +804,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             var allTasks = new List<Task>();
 
             foreach (var loopPartitions in partitionedTags)
-            {
                 allTasks.Add(Task.Run(async () =>
-                    {
-                        var partitionDb = await Db.Context();
-                        var partitionCompareLogic = GetTagCompareLogic();
-                        foreach (var loopTag in loopPartitions)
-                        {
-                            await GenerateTag(generationVersion, partitionDb, partitionCompareLogic, loopTag, progress);
-                        }
-                    }
-                ));
-            }
+                {
+                    var partitionDb = await Db.Context();
+                    var partitionCompareLogic = GetTagCompareLogic();
+                    foreach (var loopTag in loopPartitions)
+                        await GenerateTag(generationVersion, partitionDb, partitionCompareLogic, loopTag, progress);
+                }));
 
             await Task.WhenAll(allTasks);
         }
@@ -867,7 +853,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             var currentGenerationSettings = UserSettingsSingleton.CurrentSettings().GenerationValues();
 
-            var compareLogic = new CompareLogic(new ComparisonConfig {MaxDifferences = 20});
+            var compareLogic = new CompareLogic(new ComparisonConfig { MaxDifferences = 20 });
             var generationSettingsComparison = compareLogic.Compare(lastGenerationSettings, currentGenerationSettings);
 
             var compareReport = new UserFriendlyReport();
@@ -969,7 +955,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleFilePage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleFilePage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem, progress);
 
@@ -994,7 +980,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleGeoJsonPage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleGeoJsonPage(loopItem) { GenerationVersion = generationVersion };
                 await htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -1019,7 +1005,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleImagePage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleImagePage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -1044,7 +1030,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleLinePage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
                 await htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -1093,7 +1079,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for Note Dated {loopItem.CreatedOn:d} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SingleNotePage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SingleNotePage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem, progress);
 
@@ -1118,7 +1104,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SinglePhotoPage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SinglePhotoPage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -1150,7 +1136,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
                 if (loopItemAndDetails == null) continue;
 
-                var htmlModel = new SinglePointPage(loopItemAndDetails) {GenerationVersion = generationVersion};
+                var htmlModel = new SinglePointPage(loopItemAndDetails) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -1175,7 +1161,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 progress?.Report($"Writing HTML for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                var htmlModel = new SinglePostPage(loopItem) {GenerationVersion = generationVersion};
+                var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
                 htmlModel.WriteLocalHtml();
                 await Export.WriteLocalDbJson(loopItem);
 
@@ -1224,7 +1210,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
         public static void GenerateIndex(DateTime? generationVersion, IProgress<string>? progress = null)
         {
-            var index = new IndexPage {GenerationVersion = generationVersion};
+            var index = new IndexPage { GenerationVersion = generationVersion };
             index.WriteLocalHtml();
         }
 
@@ -1263,8 +1249,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             var allPhotoInfo = await db.PhotoContents.AsNoTracking().ToListAsync();
 
             var datesAndContent = allPhotoInfo.GroupBy(x => x.PhotoCreatedOn.Date)
-                .Select(x => new {date = x.Key, contentIds = x.Select(y => y.ContentId)}).OrderByDescending(x => x.date)
-                .ToList();
+                .Select(x => new { date = x.Key, contentIds = x.Select(y => y.ContentId) })
+                .OrderByDescending(x => x.date).ToList();
 
             progress?.Report("Processing Photo Dates and Content");
 
