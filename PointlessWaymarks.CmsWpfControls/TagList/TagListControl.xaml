@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:tagList="clr-namespace:PointlessWaymarks.CmsWpfControls.TagList"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     Name="TagListControlXaml"
     d:DataContext="{d:DesignInstance tagList:TagListContext}"
     d:DesignHeight="450"
@@ -31,8 +31,7 @@
         <Menu>
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ImportFromOpenExcelInstanceCommand}"
-                          Header="Import From Open Excel Application" />
+                <MenuItem Command="{Binding ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
@@ -63,19 +62,25 @@
                         SelectionMode="Extended">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="tagList:TagListListItem">
-                                <Grid HorizontalAlignment="Stretch" Background="Transparent"
-                                      Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}, Path=DataContext}">
+                                <Grid
+                                    HorizontalAlignment="Stretch"
+                                    Background="Transparent"
+                                    Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}, Path=DataContext}">
                                     <Grid.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="Remove Tag Exclusion" IsEnabled="{Binding IsExcludedTag}"
-                                                      Command="{Binding Path=PlacementTarget.Tag.RemoveExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContextMenu}}"
-                                                      CommandParameter="{Binding .}" />
-                                            <MenuItem Header="Make Tag Exclusion" IsEnabled="{Binding IsExcludedTag, Converter={StaticResource BooleanNot}}"
-                                                      Command="{Binding Path=PlacementTarget.Tag.MakeExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContextMenu}}"
-                                                      CommandParameter="{Binding .}" />
+                                            <MenuItem
+                                                Command="{Binding Path=PlacementTarget.Tag.RemoveExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding .}"
+                                                Header="Remove Tag Exclusion"
+                                                IsEnabled="{Binding IsExcludedTag}" />
+                                            <MenuItem
+                                                Command="{Binding Path=PlacementTarget.Tag.MakeExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding .}"
+                                                Header="Make Tag Exclusion"
+                                                IsEnabled="{Binding IsExcludedTag, Converter={StaticResource BooleanNot}}" />
                                         </ContextMenu>
                                     </Grid.ContextMenu>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                    <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal">
                                         <TextBox
                                             VerticalAlignment="Center"
                                             FontSize="14"
@@ -93,7 +98,8 @@
                                         </TextBox>
                                         <TextBox
                                             VerticalAlignment="Center"
-                                            FontSize="14"
+                                            FontSize="11"
+                                            FontWeight="Bold"
                                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             TextWrapping="Wrap"
                                             Visibility="{Binding IsExcludedTag, Converter={StaticResource BooleanToVisibility}}">

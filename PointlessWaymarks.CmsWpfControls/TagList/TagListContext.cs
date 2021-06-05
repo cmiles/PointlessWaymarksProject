@@ -53,7 +53,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
         {
             StatusContext = context ?? new StatusControlContext();
 
-            DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+            DataNotificationsProcessor = new DataNotificationsWorkQueue {Processor = DataNotificationReceived};
 
             RefreshDataCommand = StatusContext.RunBlockingTaskCommand(LoadData);
 
@@ -334,7 +334,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
             foreach (var loopContent in translatedMessage.ContentIds)
             {
                 var content = await db.ContentFromContentId(loopContent);
-                var tags = Db.TagListParseToSlugs((ITag)content, false);
+                var tags = Db.TagListParseToSlugs((ITag) content, false);
 
                 var listContent = ListItemsWithContentIds(loopContent.AsList());
 
@@ -443,11 +443,11 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+            ((CollectionView) CollectionViewSource.GetDefaultView(Items)).Filter = o =>
             {
                 if (string.IsNullOrWhiteSpace(UserFilterText)) return true;
 
-                var itemToFilter = (TagListListItem)o;
+                var itemToFilter = (TagListListItem) o;
 
                 return ListFilter(itemToFilter);
             };
@@ -497,7 +497,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
 
                 foreach (var loopContent in contentObjects)
                 {
-                    var detailToAdd = new TagItemContentInformation { ContentId = loopContent.ContentId };
+                    var detailToAdd = new TagItemContentInformation {ContentId = loopContent.ContentId};
 
                     detailToAdd.ContentId = loopContent.ContentId;
                     detailToAdd.Title = loopContent.Title;
@@ -541,7 +541,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
                 return;
             }
 
-            var saveResult = await TagExclusionGenerator.Save(new TagExclusion { Tag = toExclude });
+            var saveResult = await TagExclusionGenerator.Save(new TagExclusion {Tag = toExclude});
 
             if (saveResult.generationReturn.HasError)
             {
@@ -602,7 +602,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
                 return;
             }
 
-            var tagsProjection = SelectedItems.Select(x => new { x.TagName, x.ContentCount }).Cast<object>().ToList();
+            var tagsProjection = SelectedItems.Select(x => new {x.TagName, x.ContentCount}).Cast<object>().ToList();
 
             if (!tagsProjection.Any())
             {
@@ -619,7 +619,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var collectionView = (CollectionView)CollectionViewSource.GetDefaultView(Items);
+            var collectionView = (CollectionView) CollectionViewSource.GetDefaultView(Items);
             collectionView.SortDescriptions.Clear();
 
             if (string.IsNullOrWhiteSpace(sortColumn)) return;
@@ -668,7 +668,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList
                 return;
             }
 
-            var tagsProjection = Items.Where(ListFilter).Select(x => new { x.TagName, x.ContentCount }).Cast<object>()
+            var tagsProjection = Items.Where(ListFilter).Select(x => new {x.TagName, x.ContentCount}).Cast<object>()
                 .ToList();
 
             if (!tagsProjection.Any())

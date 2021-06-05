@@ -540,7 +540,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report("Gathering deleted and new content with related content...");
 
-            var previousGenerationVersion = mainContext.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
+            var previousGenerationVersion = mainContext.GenerationLogs
+                .Where(x => x.GenerationVersion < generationVersion)
                 .Select(x => x.GenerationVersion).OrderByDescending(x => x).FirstOrDefault();
 
             var lastLoopPrimaryIds = await mainContext.GenerationRelatedContents

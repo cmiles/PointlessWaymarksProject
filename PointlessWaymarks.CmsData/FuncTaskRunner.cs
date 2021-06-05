@@ -14,7 +14,6 @@ namespace PointlessWaymarks.CmsData
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class ParallelForEachExtensions
     {
-
         public static async Task AsyncParallelForEach(this List<Func<Task>> source,
             int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, TaskScheduler scheduler = null)
         {
@@ -34,7 +33,7 @@ namespace PointlessWaymarks.CmsData
             //https://medium.com/@alex.puiu/parallel-foreach-async-in-c-36756f8ebe62
             //https://scatteredcode.net/parallel-foreach-async-in-c/#:~:text=Foreach%20itself%20is%20very%20useful,high%20latency%20or%20long%20processing.
 
-            var options = new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+            var options = new ExecutionDataflowBlockOptions {MaxDegreeOfParallelism = maxDegreeOfParallelism};
             if (scheduler != null)
                 options.TaskScheduler = scheduler;
             var block = new ActionBlock<T>(body, options);

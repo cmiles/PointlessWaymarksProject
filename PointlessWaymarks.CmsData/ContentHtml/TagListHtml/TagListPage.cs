@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.TagListHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class TagListPage : TagListPageBase
     {
@@ -28,91 +28,61 @@ namespace PointlessWaymarks.CmsData.ContentHtml.TagListHtml
         {
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
-            #line 5 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 5 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>Tag List</title>\r\n\r\n    <meta name=\"vi" +
-                    "ewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
+            this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>Tag List</title>\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
             
-            #line 11 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 11 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 12 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 12 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n<body>\r\n    ");
             
-            #line 15 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 15 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 16 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
-            this.Write("\r\n    <div class=\"search-input-container\">\r\n        <input type=\"text\" class=\"sea" +
-                    "rch-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Search Tag" +
-                    "s...\">\r\n    </div>\r\n    ");
+            this.Write("\r\n    <div class=\"search-input-container\">\r\n        <input type=\"text\" class=\"search-input\" id=\"userSearchText\" onkeyup=\"searchContent()\" placeholder=\"Search Tags...\">\r\n    </div>\r\n    ");
             
-            #line 20 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 20 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(TagList()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 21 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 21 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 22 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
+            #line 22 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default
             #line hidden
-            this.Write(@"
-
-<script>
-    function searchContent() {
-      // Declare variables
-      var input, filterText, contentDivs, loopDiv, i, divDataText;
-      input = document.getElementById('userSearchText');
-      filterText = input.value.toUpperCase();
-      contentDivs = document.getElementsByClassName('tag-list-item');
-
-      // Loop through all list items, and hide those who don't match the search query
-      for (i = 0; i < contentDivs.length; i++) {
-        loopDiv = contentDivs[i];
-	    divTagName = loopDiv.getAttribute('data-tagname').toUpperCase();
-	    divTagSlug = loopDiv.getAttribute('data-tagslug').toUpperCase();
-
-        if (divTagName.indexOf(filterText) > -1 || divTagSlug.indexOf(filterText) > -1 ) {
-		    loopDiv.style.display = """";
-        } else {
-		    loopDiv.style.display = ""none"";
-        }
-      }
-    }
-</script>
-
-</body>
-
-</html>");
+            this.Write("\r\n\r\n<script>\r\n    function searchContent() {\r\n      // Declare variables\r\n      var input, filterText, contentDivs, loopDiv, i, divDataText;\r\n      input = document.getElementById('userSearchText');\r\n      filterText = input.value.toUpperCase();\r\n      contentDivs = document.getElementsByClassName('tag-list-item');\r\n\r\n      // Loop through all list items, and hide those who don't match the search query\r\n      for (i = 0; i < contentDivs.length; i++) {\r\n        loopDiv = contentDivs[i];\r\n\t    divTagName = loopDiv.getAttribute('data-tagname').toUpperCase();\r\n\t    divTagSlug = loopDiv.getAttribute('data-tagslug').toUpperCase();\r\n\r\n        if (divTagName.indexOf(filterText) > -1 || divTagSlug.indexOf(filterText) > -1 ) {\r\n\t\t    loopDiv.style.display = \"\";\r\n        } else {\r\n\t\t    loopDiv.style.display = \"none\";\r\n        }\r\n      }\r\n    }\r\n</script>\r\n\r\n</body>\r\n\r\n</html>");
             return this.GenerationEnvironment.ToString();
         }
     }

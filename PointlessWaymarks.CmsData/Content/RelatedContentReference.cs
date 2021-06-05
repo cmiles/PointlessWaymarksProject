@@ -140,7 +140,7 @@ namespace PointlessWaymarks.CmsData.Content
                     var posts = (await db.PostContents.ToListAsync()).Cast<IContentCommon>().ToList();
                     progress?.Report($"Processing {posts.Count} Post Content Entries for Related Content");
                     await ExtractAndWriteRelatedContentDbReferences(generationVersion, posts, db, progress);
-                },
+                }
             };
 
             var taskList = taskFunctionList.Select(Task.Run).ToList();

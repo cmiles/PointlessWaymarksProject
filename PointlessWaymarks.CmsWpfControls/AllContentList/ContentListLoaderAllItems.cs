@@ -108,7 +108,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
                             .Take(PartialLoadQuantity.Value).ToListAsync());
                     }
                 }.AsyncParallelForEach();
-                
+
                 AllItemsLoaded = await CheckAllItemsAreLoaded();
 
                 return listItems;

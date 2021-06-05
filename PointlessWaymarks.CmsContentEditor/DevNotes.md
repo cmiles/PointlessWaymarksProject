@@ -1,9 +1,8 @@
 ﻿## Todos
- - DataNotification should transmit a project identifier
+ - NoIndex on excluded tags
  - All Items Tab - reports for no tags, etc.
  - For geo types and notes review local file cleanup on delete
- - Right click context menu for items
- - The GUI Context tests are breaking - longer waits needed for the background events to run? Something else?
+ - Appium GUI Test
  - Check whole site import - test(s)?
  - Deleted Content Report so it is possible to restore completely deleted
  - Text to Speech - abstract to better control:
@@ -12,6 +11,7 @@
    - Potentially in editor
  - Should temp files be auto-deleted or live forever? Review.
  - Figure out a system to allow StatusContext to help out positioning a new window vs the launch window
+  - All Items list needs access to fuller item level menus, how? 
 Site:
  - Could Tag List javascript be abstracted to site resources easily?
  - Better loading indication on the search lists site pages
@@ -21,8 +21,6 @@ Site:
 ## Ideas
  - Should the code record a checksum of media archive files to be able to check if they change on disk rather than thru the program?
  - Could I successfully tuck away a copy of the current edits to help in unexpected shut downs? No good if I can't expose these in a helpful way...
- - Track tags in db so changes can be more quickly detected (long generation time on PointlessWaymarks.com after adding all photos)
- - GUI Automation Testing https://docs.microsoft.com/en-us/archive/msdn-magazine/2009/march/test-run-automating-ui-tests-in-wpf-applications
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
  
 ## Notes
