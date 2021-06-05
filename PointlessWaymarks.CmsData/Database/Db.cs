@@ -1723,84 +1723,79 @@ namespace PointlessWaymarks.CmsData.Database
         {
             progress?.Report("Starting Parse of Tag Content");
 
-            var sourceList = new List<Func<Task<List<(string tag, List<object> contentObjects)>>>>
+            var tagBag = new List<List<(string tag, List<dynamic> contentObjects)>>();
+            
+            await new List<Func<Task>>
             {
                 async () =>
                 {
                     progress?.Report("Process File Content Tags");
                     var db = await Context();
-                    return ParseToTagSlugsAndContentList((await db.FileContents.ToListAsync()).Cast<ITag>().ToList(),
-                        removeExcludedTags, progress);
+                    tagBag.Add(ParseToTagSlugsAndContentList((await db.FileContents.ToListAsync()).Cast<ITag>().ToList(),
+                        removeExcludedTags, progress));
                 },
                 async () =>
                 {
                     progress?.Report("Process GeoJson Content Tags");
                     var db = await Context();
-                    return ParseToTagSlugsAndContentList((await db.GeoJsonContents.ToListAsync()).Cast<ITag>().ToList(),
-                        removeExcludedTags, progress);
+                    tagBag.Add( ParseToTagSlugsAndContentList((await db.GeoJsonContents.ToListAsync()).Cast<ITag>().ToList(),
+                        removeExcludedTags, progress));
                 },
                 async () =>
                 {
                     progress?.Report("Process Image Content Tags");
                     var db = await Context();
-                    return ParseToTagSlugsAndContentList(
+                    tagBag.Add( ParseToTagSlugsAndContentList(
                         includePagesExcludedFromSearch
                             ? (await db.ImageContents.ToListAsync()).Cast<ITag>().ToList()
                             : (await db.ImageContents.Where(y => y.ShowInSearch).ToListAsync()).Cast<ITag>().ToList(),
-                        removeExcludedTags, progress);
+                        removeExcludedTags, progress));
                 },
                 async () =>
                 {
                     progress?.Report("Process Line Content Tags");
                     var db = await Context();
-                    return ParseToTagSlugsAndContentList((await db.LineContents.ToListAsync()).Cast<ITag>().ToList(),
-                        removeExcludedTags, progress);
+                    tagBag.Add( ParseToTagSlugsAndContentList((await db.LineContents.ToListAsync()).Cast<ITag>().ToList(),
+                        removeExcludedTags, progress));
                 },
                 async () =>
                 {
                     progress?.Report("Process Link Content Tags");
                     var db = await Context();
-                    return ParseToTagSlugsAndContentList((await db.LinkContents.ToListAsync()).Cast<ITag>().ToList(),
-                        removeExcludedTags, progress);
+                    tagBag.Add( ParseToTagSlugsAndContentList((await db.LinkContents.ToListAsync()).Cast<ITag>().ToList(),
+                        removeExcludedTags, progress));
                 },
                 async () =>
                 {
                     progress?.Report("Process Note Content Tags");
                     var db = await Context();
-                    return ParseToTagSlugsAndContentList((await db.NoteContents.ToListAsync()).Cast<ITag>().ToList(),
-                        removeExcludedTags, progress);
+                    tagBag.Add( ParseToTagSlugsAndContentList((await db.NoteContents.ToListAsync()).Cast<ITag>().ToList(),
+                        removeExcludedTags, progress));
                 },
                 async () =>
                 {
                     progress?.Report("Process Photo Content Tags");
                     var db = await Context();
-                    return ParseToTagSlugsAndContentList((await db.PhotoContents.ToListAsync()).Cast<ITag>().ToList(),
-                        removeExcludedTags, progress);
+                    tagBag.Add( ParseToTagSlugsAndContentList((await db.PhotoContents.ToListAsync()).Cast<ITag>().ToList(),
+                        removeExcludedTags, progress));
                 },
                 async () =>
                 {
                     progress?.Report("Process Point Content Tags");
                     var db = await Context();
-                    return ParseToTagSlugsAndContentList((await db.PointContents.ToListAsync()).Cast<ITag>().ToList(),
-                        removeExcludedTags, progress);
+                    tagBag.Add( ParseToTagSlugsAndContentList((await db.PointContents.ToListAsync()).Cast<ITag>().ToList(),
+                        removeExcludedTags, progress));
                 },
                 async () =>
                 {
                     progress?.Report("Process Post Content Tags");
                     var db = await Context();
-                    return ParseToTagSlugsAndContentList((await db.PostContents.ToListAsync()).Cast<ITag>().ToList(),
-                        removeExcludedTags, progress);
+                    tagBag.Add( ParseToTagSlugsAndContentList((await db.PostContents.ToListAsync()).Cast<ITag>().ToList(),
+                        removeExcludedTags, progress));
                 }
-            };
+            }.AsyncParallelForEach();
 
-            var tasks = sourceList.Select(Task.Run).ToList();
-
-            var allResults = await Task.WhenAll(tasks);
-
-            if (!allResults.Any() || allResults.All(x => x.Count == 0))
-                return new List<(string tag, List<object> contentObjects)>();
-
-            var flattened = allResults.Where(x => x.Count > 0).SelectMany(x => x).ToList();
+            var flattened = tagBag.Where(x => x.Count > 0).SelectMany(x => x).ToList();
 
             var grouped = flattened.GroupBy(x => x.tag)
                 .Select(x => (x.Key, x.SelectMany(y => y.contentObjects).Cast<dynamic>().ToList())).OrderBy(x => x.Key)
