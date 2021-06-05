@@ -29,6 +29,8 @@ Site:
 
 6/4/2021
 
+Moving the parallel code to main - I'm still not completely sure about approach but at least parts of it are immediately attractive when working with the program so I don't think there is any going back even if the approach changes radically.
+
 I have been struggling a bit to find the best approach to what to do when in the past I would use Parallel ForEach, but now the body has async await in it. Of course there is WhenAll but I continue to be doubtful if WhenAll is a good approach for thousands (or tens of thousands of small tasks - still more reading to do) - so started a branch to explore the idea of using Parallel ForEach with basically https://scatteredcode.net/parallel-foreach-async-in-c/#:~:text=Foreach%20itself%20is%20very%20useful,high%20latency%20or%20long%20processing. as the basis. The immediate results were encouraging, but the code feels to me like I might be missing something, on the otherhadn I think with this code written and maybe some LinqPad type exploration I can do a better job of learning!
 
 5/28/2021
