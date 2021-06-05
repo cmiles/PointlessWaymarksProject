@@ -434,11 +434,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         public static async Task GenerateChangedContentIdReferences(DateTime contentAfter, DateTime generationVersion,
             IProgress<string>? progress = null)
         {
-            var db = await Db.Context();
+            var mainContext = await Db.Context();
 
             //!!Content Type List!!
             progress?.Report("Clearing GenerationChangedContentIds Table");
-            await db.Database.ExecuteSqlRawAsync("DELETE FROM [" + "GenerationChangedContentIds" + "];");
+            await mainContext.Database.ExecuteSqlRawAsync("DELETE FROM [" + "GenerationChangedContentIds" + "];");
 
             var guidBag = new ConcurrentBag<List<Guid>>();
 
@@ -446,6 +446,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 async () =>
                 {
+                    var db = await Db.Context();
                     var files = await db.FileContents.Where(x => x.ContentVersion > contentAfter)
                         .Select(x => x.ContentId)
                         .ToListAsync();
@@ -454,6 +455,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 },
                 async () =>
                 {
+                    var db = await Db.Context();
                     var geoJson =
                         await db.GeoJsonContents.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId)
                             .ToListAsync();
@@ -462,6 +464,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 },
                 async () =>
                 {
+                    var db = await Db.Context();
                     var images = await db.ImageContents.Where(x => x.ContentVersion > contentAfter)
                         .Select(x => x.ContentId)
                         .ToListAsync();
@@ -470,6 +473,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 },
                 async () =>
                 {
+                    var db = await Db.Context();
                     var lines = await db.LineContents.Where(x => x.ContentVersion > contentAfter)
                         .Select(x => x.ContentId)
                         .ToListAsync();
@@ -478,6 +482,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 },
                 async () =>
                 {
+                    var db = await Db.Context();
                     var links = await db.LinkContents.Where(x => x.ContentVersion > contentAfter)
                         .Select(x => x.ContentId)
                         .ToListAsync();
@@ -486,6 +491,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 },
                 async () =>
                 {
+                    var db = await Db.Context();
                     var maps = await db.MapComponents.Where(x => x.ContentVersion > contentAfter)
                         .Select(x => x.ContentId)
                         .ToListAsync();
@@ -494,6 +500,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 },
                 async () =>
                 {
+                    var db = await Db.Context();
                     var notes = await db.NoteContents.Where(x => x.ContentVersion > contentAfter)
                         .Select(x => x.ContentId)
                         .ToListAsync();
@@ -502,6 +509,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 },
                 async () =>
                 {
+                    var db = await Db.Context();
                     var photos = await db.PhotoContents.Where(x => x.ContentVersion > contentAfter)
                         .Select(x => x.ContentId)
                         .ToListAsync();
@@ -510,6 +518,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 },
                 async () =>
                 {
+                    var db = await Db.Context();
                     var points = await db.PointContents.Where(x => x.ContentVersion > contentAfter)
                         .Select(x => x.ContentId)
                         .ToListAsync();
@@ -518,6 +527,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 },
                 async () =>
                 {
+                    var db = await Db.Context();
                     var posts = await db.PostContents.Where(x => x.ContentVersion > contentAfter)
                         .Select(x => x.ContentId)
                         .ToListAsync();
@@ -530,14 +540,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report("Gathering deleted and new content with related content...");
 
-            var previousGenerationVersion = db.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
+            var previousGenerationVersion = mainContext.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
                 .Select(x => x.GenerationVersion).OrderByDescending(x => x).FirstOrDefault();
 
-            var lastLoopPrimaryIds = await db.GenerationRelatedContents
+            var lastLoopPrimaryIds = await mainContext.GenerationRelatedContents
                 .Where(x => x.GenerationVersion == previousGenerationVersion).Select(x => x.ContentOne).Distinct()
                 .ToListAsync();
 
-            var thisLoopPrimaryIds = await db.GenerationRelatedContents
+            var thisLoopPrimaryIds = await mainContext.GenerationRelatedContents
                 .Where(x => x.GenerationVersion == generationVersion).Select(x => x.ContentOne).Distinct()
                 .ToListAsync();
 
@@ -561,16 +571,16 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             foreach (var loopSets in originalContentSets)
             {
                 progress?.Report($"Processing Related Content Set {currentCount++}");
-                relatedIds.AddRange(await db.GenerationRelatedContents
+                relatedIds.AddRange(await mainContext.GenerationRelatedContents
                     .Where(x => loopSets.Contains(x.ContentTwo) && x.GenerationVersion == generationVersion)
                     .Select(x => x.ContentOne).Distinct().ToListAsync());
-                relatedIds.AddRange(await db.GenerationRelatedContents
+                relatedIds.AddRange(await mainContext.GenerationRelatedContents
                     .Where(x => loopSets.Contains(x.ContentTwo) && x.GenerationVersion == previousGenerationVersion)
                     .Select(x => x.ContentOne).Distinct().ToListAsync());
-                relatedIds.AddRange(await db.GenerationRelatedContents
+                relatedIds.AddRange(await mainContext.GenerationRelatedContents
                     .Where(x => loopSets.Contains(x.ContentOne) && x.GenerationVersion == generationVersion)
                     .Select(x => x.ContentTwo).Distinct().ToListAsync());
-                relatedIds.AddRange(await db.GenerationRelatedContents
+                relatedIds.AddRange(await mainContext.GenerationRelatedContents
                     .Where(x => loopSets.Contains(x.ContentOne) && x.GenerationVersion == previousGenerationVersion)
                     .Select(x => x.ContentTwo).Distinct().ToListAsync());
 
@@ -583,10 +593,10 @@ namespace PointlessWaymarks.CmsData.ContentHtml
 
             progress?.Report($"Adding {relatedIds.Distinct().Count()} Content Ids Generate");
 
-            await db.GenerationChangedContentIds.AddRangeAsync(contentChanges.Distinct()
+            await mainContext.GenerationChangedContentIds.AddRangeAsync(contentChanges.Distinct()
                 .Select(x => new GenerationChangedContentId {ContentId = x}).ToList());
 
-            await db.SaveChangesAsync();
+            await mainContext.SaveChangesAsync();
         }
 
         public static async Task GenerateChangedDailyPhotoGalleries(DateTime generationVersion,
