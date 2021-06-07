@@ -3,7 +3,7 @@
 
 <div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>">
     <#= NoteParts.NoteTitleLinkDiv(DbEntry) #>
-    <#= Tags.PostBodyDiv(DbEntry) #>
+    <#= Tags.PostBodyDiv(DbEntry).Result #>
     <#=
                 BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
 </div>

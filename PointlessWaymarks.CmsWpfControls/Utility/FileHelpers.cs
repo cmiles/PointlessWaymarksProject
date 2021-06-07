@@ -27,7 +27,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
         public static async Task RenameSelectedFile(FileInfo selectedFile, StatusControlContext statusContext,
             Action<FileInfo> setSelectedFile)
         {
-            if (selectedFile == null || !selectedFile.Exists)
+            if (selectedFile is not {Exists: true})
             {
                 statusContext.ToastWarning("No file to rename?");
                 return;

@@ -17,7 +17,7 @@ namespace PointlessWaymarks.WpfCommon.ToastControl
 
         private void Notification_OnNotificationClosed(object sender, RoutedEventArgs e)
         {
-            if (!(sender is ToastControl control))
+            if (sender is not ToastControl control)
                 return;
 
             (DataContext as ToastSource)?.Hide(control.Toast.Id);

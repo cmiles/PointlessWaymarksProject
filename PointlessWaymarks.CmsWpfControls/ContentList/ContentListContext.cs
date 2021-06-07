@@ -727,7 +727,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
 
                 var loweredString = UserFilterText.ToLower();
 
-                if (!(o is IContentListItem toFilter)) return false;
+                if (o is not IContentListItem toFilter) return false;
                 if ((toFilter.Content().Title ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((toFilter.Content().Tags ?? string.Empty).ToLower().Contains(loweredString)) return true;
                 if ((toFilter.Content().Summary ?? string.Empty).ToLower().Contains(loweredString)) return true;

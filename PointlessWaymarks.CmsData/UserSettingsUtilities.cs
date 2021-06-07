@@ -247,7 +247,7 @@ namespace PointlessWaymarks.CmsData
 
         public static FileInfo? LocalMediaArchiveImageContentFile(this UserSettings settings, ImageContent? content)
         {
-            if (content == null || content.OriginalFileName == null) return null;
+            if (content?.OriginalFileName == null) return null;
 
             var directory = settings.LocalMediaArchiveImageDirectory();
 

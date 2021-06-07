@@ -452,7 +452,7 @@ namespace PointlessWaymarks.CmsData.Import
                         updateList);
 
                 var internalSlugDuplicates = updateList.Where(x => x.ToUpdate != null).Select(x => x.ToUpdate!)
-                    .Where(x => !(x is LinkContent)).GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key)
+                    .Where(x => x is not LinkContent).GroupBy(x => x.Slug).Where(x => x.Count() > 1).Select(x => x.Key)
                     .Cast<string>().ToList();
 
                 if (internalSlugDuplicates.Any())
@@ -587,7 +587,7 @@ namespace PointlessWaymarks.CmsData.Import
                         var archiveFile = UserSettingsSingleton.CurrentSettings()
                             .LocalMediaArchivePhotoContentFile(photo);
 
-                        if (archiveFile == null || !archiveFile.Exists)
+                        if (archiveFile is not {Exists: true})
                         {
                             generationResult = GenerationReturn.Error(
                                 $"Can not find media archive file for Photo Titled {photo.Title} - file: {archiveFile?.FullName}",
@@ -604,7 +604,7 @@ namespace PointlessWaymarks.CmsData.Import
                         var archiveFile = UserSettingsSingleton.CurrentSettings()
                             .LocalMediaArchiveFileContentFile(file);
 
-                        if (archiveFile == null || !archiveFile.Exists)
+                        if (archiveFile is not {Exists: true})
                         {
                             generationResult = GenerationReturn.Error(
                                 $"Can not find media archive file for Photo Titled {file.Title} - file: {archiveFile?.FullName}",
@@ -621,7 +621,7 @@ namespace PointlessWaymarks.CmsData.Import
                         var archiveFile = UserSettingsSingleton.CurrentSettings()
                             .LocalMediaArchiveImageContentFile(image);
 
-                        if (archiveFile == null || !archiveFile.Exists)
+                        if (archiveFile is not {Exists: true})
                         {
                             generationResult = GenerationReturn.Error(
                                 $"Can not find media archive file for Photo Titled {image.Title} - file: {archiveFile?.FullName}",

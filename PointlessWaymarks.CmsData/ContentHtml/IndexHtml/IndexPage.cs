@@ -192,7 +192,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
             this.Write("\r\n    ");
             
             #line 46 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
             #line hidden

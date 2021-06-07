@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var settings = new ProcessImageSettings {Width = width, JpegQuality = quality};
 
-            using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
+            await using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
             var results = MagicImageProcessor.ProcessImage(toResize.FullNameWithLongFilePrefix(), outStream, settings);
 
             await outStream.DisposeAsync();
@@ -48,7 +48,7 @@ namespace PointlessWaymarks.CmsData.Content
             using var pl =
                 MagicImageProcessor.BuildPipeline(toRotate.FullNameWithLongFilePrefix(), new ProcessImageSettings());
             pl.AddTransform(new OrientationTransform(orientation));
-            using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
+            await using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
 
             pl.WriteOutput(outStream);
 

@@ -161,7 +161,7 @@ namespace PointlessWaymarks.CmsData.Content
                 if (!string.IsNullOrWhiteSpace(possibleTitleDate))
                     try
                     {
-                        var tempDate = new DateTime(int.Parse(possibleTitleDate.Substring(0, 4)),
+                        var tempDate = new DateTime(int.Parse(possibleTitleDate[..4]),
                             int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
                         toReturn.Summary = $"{toReturn.Title[possibleTitleDate.Length..]}";
@@ -182,7 +182,7 @@ namespace PointlessWaymarks.CmsData.Content
                 {
                     if (Regex.IsMatch(toReturn.Title, @"\A[01]\d\d\d\s.*", RegexOptions.IgnoreCase))
                     {
-                        var year = int.Parse(toReturn.Title.Substring(0, 2));
+                        var year = int.Parse(toReturn.Title[..2]);
                         var month = int.Parse(toReturn.Title.Substring(2, 2));
 
                         var tempDate = year < 20
@@ -229,13 +229,13 @@ namespace PointlessWaymarks.CmsData.Content
                 if (!string.IsNullOrWhiteSpace(possibleTitleDate))
                     try
                     {
-                        var tempDate = new DateTime(int.Parse(possibleTitleDate.Substring(0, 4)),
+                        var tempDate = new DateTime(int.Parse(possibleTitleDate[..4]),
                             int.Parse(possibleTitleDate.Substring(5, 2)), 1);
 
                         toReturn.Summary =
-                            $"{toReturn.Title.Substring(0, toReturn.Title.Length - possibleTitleDate.Length)}";
+                            $"{toReturn.Title[..^possibleTitleDate.Length]}";
                         toReturn.Title =
-                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title.Substring(0, toReturn.Title.Length - possibleTitleDate.Length)}";
+                            $"{tempDate:yyyy} {tempDate:MMMM} {toReturn.Title[..^possibleTitleDate.Length]}";
 
                         progress?.Report("Title updated based on 2yyy MM end pattern for file name");
                     }

@@ -54,7 +54,7 @@
         <#= Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>
-    <#= Footer.StandardFooterDiv() #>
+    <#= Footer.StandardFooterDiv().Result #>
 </body>
 
 </html>

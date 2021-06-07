@@ -140,7 +140,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility
                     }
                 }
 
-                if (updatedDestination == null || !updatedDestination.Exists)
+                if (updatedDestination is not {Exists: true})
                 {
                     if (await statusContext.ShowMessage("PDF Generation Problem",
                         $"Execution Failed for {content.Title} - Continue??{Environment.NewLine}{errorOutput}",

@@ -19,7 +19,7 @@
     </div>
     <#= TagList() #>
     <#= HorizontalRule.StandardRule() #>
-    <#= Footer.StandardFooterDiv() #>
+    <#= Footer.StandardFooterDiv().Result #>
 
 <script>
     function searchContent() {

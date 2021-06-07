@@ -163,7 +163,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             this.Write("\r\n    ");
             
             #line 42 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
             #line hidden

@@ -25,7 +25,7 @@
         <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search <#= ListTitle #>...">
     </div>
     <#= LinkTableTag() #>
-    <#= Footer.StandardFooterDiv() #>
+    <#= Footer.StandardFooterDiv().Result #>
 
 <script>
     function searchContent() {

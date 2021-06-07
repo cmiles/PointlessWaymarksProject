@@ -19,7 +19,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
 
         private static void SelectedTextChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            if (!(obj is TextBox tb)) return;
+            if (obj is not TextBox tb) return;
 
             if (e.OldValue == null && e.NewValue != null)
                 tb.SelectionChanged += TextBoxSelectionChanged;

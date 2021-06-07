@@ -43,7 +43,7 @@
     <#= IndexPosts() #>
     <#= Tags.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()) #>
     <#= HorizontalRule.StandardRuleIfNotEmptyTag(Tags.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()))#>
-    <#= Footer.StandardFooterDiv() #>
+    <#= Footer.StandardFooterDiv().Result #>
 </body>
 
 </html>

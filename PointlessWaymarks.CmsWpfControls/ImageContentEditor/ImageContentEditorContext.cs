@@ -675,8 +675,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (SelectedFile == null || !SelectedFile.Exists || SelectedFile.Directory == null ||
-                !SelectedFile.Directory.Exists)
+            if (SelectedFile is not {Exists: true, Directory: {Exists: true}})
             {
                 StatusContext.ToastError("No Selected File or Selected File no longer exists?");
                 return;

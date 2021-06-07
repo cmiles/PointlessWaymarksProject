@@ -28,7 +28,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         private static void OnCommandBindingsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
 #pragma warning disable IDE0083 // Use pattern matching
-            if (!(sender is AttachCommandBindingsBehavior b))
+            if (sender is not AttachCommandBindingsBehavior b)
 #pragma warning restore IDE0083 // Use pattern matching
                 return;
 

@@ -120,7 +120,7 @@ namespace PointlessWaymarks.CmsTests
                 UpdateNotesFormat = ContentFormatDefaults.Content.ToString()
             };
 
-        public static PhotoContent IronwoodPodContent02_CamerModelLensSummary =>
+        public static PhotoContent IronwoodPodContent02_CameraModelLensSummary =>
             new()
             {
                 Aperture = "f/16.0",

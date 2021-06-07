@@ -209,7 +209,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         /// </summary>
         public bool MustToggleIsEnabledValue
         {
-            get => _mustToggleValue == null ? MustToggleIsEnabled : _mustToggleValue.Value;
+            get => _mustToggleValue ?? MustToggleIsEnabled;
 
             set
             {

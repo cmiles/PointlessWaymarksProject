@@ -106,7 +106,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
             this.Write("\r\n    ");
             
             #line 28 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\LinkListHtml\LinkListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
             #line hidden

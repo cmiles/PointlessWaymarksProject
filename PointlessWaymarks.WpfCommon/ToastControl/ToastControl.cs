@@ -72,7 +72,7 @@ namespace PointlessWaymarks.WpfCommon.ToastControl
         private static void NotificationChanged(DependencyObject dependencyObject,
             DependencyPropertyChangedEventArgs eventArgs)
         {
-            if (!(dependencyObject is ToastControl control) || !(eventArgs.NewValue is ToastViewModel notification))
+            if (dependencyObject is not ToastControl control || eventArgs.NewValue is not ToastViewModel notification)
                 return;
 
             notification.InvokeHideAnimation = control.InvokeHideAnimation;

@@ -224,16 +224,16 @@ namespace PointlessWaymarks.CmsTests
                 .WorksheetRow().RowNumber();
 
             worksheet.Cell(podSheetRow, cameraModelSheetColumn).Value =
-                IronwoodPhotoInfo.IronwoodPodContent02_CamerModelLensSummary.CameraModel;
+                IronwoodPhotoInfo.IronwoodPodContent02_CameraModelLensSummary.CameraModel;
 
             worksheet.Cell(podSheetRow, lensSheetColumn).Value =
-                IronwoodPhotoInfo.IronwoodPodContent02_CamerModelLensSummary.Lens;
+                IronwoodPhotoInfo.IronwoodPodContent02_CameraModelLensSummary.Lens;
 
             worksheet.Cell(podSheetRow, summarySheetColumn).Value =
-                IronwoodPhotoInfo.IronwoodPodContent02_CamerModelLensSummary.Summary;
+                IronwoodPhotoInfo.IronwoodPodContent02_CameraModelLensSummary.Summary;
 
             worksheet.Cell(podSheetRow, updatedBySheetColumn).Value =
-                IronwoodPhotoInfo.IronwoodPodContent02_CamerModelLensSummary.LastUpdatedBy;
+                IronwoodPhotoInfo.IronwoodPodContent02_CameraModelLensSummary.LastUpdatedBy;
 
             workbook.Save();
 
@@ -248,11 +248,11 @@ namespace PointlessWaymarks.CmsTests
             Assert.False(hasError);
 
             var updatedPodPhoto = db.PhotoContents.Single(x =>
-                x.Title == IronwoodPhotoInfo.IronwoodPodContent02_CamerModelLensSummary.Title);
+                x.Title == IronwoodPhotoInfo.IronwoodPodContent02_CameraModelLensSummary.Title);
             var updatedTreePhoto = db.PhotoContents.Single(x =>
                 x.Title == IronwoodPhotoInfo.IronwoodTreeContent02_SlugTitleSummaryTagsUpdateNotesUpdatedBy.Title);
 
-            var podReference = IronwoodPhotoInfo.IronwoodPodContent02_CamerModelLensSummary;
+            var podReference = IronwoodPhotoInfo.IronwoodPodContent02_CameraModelLensSummary;
             podReference.LastUpdatedOn = updatedPodPhoto.LastUpdatedOn;
 
             var (areEqual, comparisonNotes) = IronwoodPhotoInfo.CompareContent(podReference, updatedPodPhoto);
@@ -606,7 +606,7 @@ namespace PointlessWaymarks.CmsTests
             Assert.AreEqual(
                 allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count(), 1);
 
-            //Todo: Check that the excluded photo is not regened
+            //Todo: Check that the excluded photo is not regenerated
         }
 
         public async Task H10_PostUpdateChangedDetectionTest()

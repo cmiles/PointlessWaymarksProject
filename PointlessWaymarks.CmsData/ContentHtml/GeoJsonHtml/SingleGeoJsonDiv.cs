@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class SingleGeoJsonDiv : SingleGeoJsonDivBase
     {
@@ -28,42 +28,42 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
         {
             this.Write("\r\n<div class=\"content-container\" data-contentversion=\"");
             
-            #line 4 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
+            #line 4 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")));
             
             #line default
             #line hidden
             this.Write("\">\r\n    ");
             
-            #line 5 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
+            #line 5 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleLinkDiv(DbEntry, DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 6 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
+            #line 6 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 7 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
+            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GeoJsonParts.GeoJsonDivAndScript(DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 8 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry)));
+            #line 8 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).Result));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 9 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
+            #line 9 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result));
             
             #line default

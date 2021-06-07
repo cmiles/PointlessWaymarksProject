@@ -12,7 +12,7 @@ namespace PointlessWaymarks.WpfCommon.ToastControl
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            if (!(item is ToastViewModel toastViewModel))
+            if (item is not ToastViewModel toastViewModel)
                 return null;
 
             switch (toastViewModel.Type)

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarksCmsData.Json;
 
 namespace PointlessWaymarks.CmsData.Json
 {
@@ -27,7 +28,7 @@ namespace PointlessWaymarks.CmsData.Json
 
         public static void FullImportFromRootDirectory(DirectoryInfo? rootDirectory, IProgress<string>? progress = null)
         {
-            if (rootDirectory == null || !rootDirectory.Exists)
+            if (rootDirectory is not {Exists: true})
             {
                 progress?.Report("Root Directory does not exist?");
                 return;

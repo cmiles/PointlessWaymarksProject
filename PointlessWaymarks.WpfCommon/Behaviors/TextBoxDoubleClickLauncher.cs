@@ -16,7 +16,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         private void AssociatedObjectOnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
 #pragma warning disable IDE0083 // Use pattern matching
-            if (!(sender is TextBox textBox)) return;
+            if (sender is not TextBox textBox) return;
 #pragma warning restore IDE0083 // Use pattern matching
 
             if (string.IsNullOrWhiteSpace(textBox.Text)) return;

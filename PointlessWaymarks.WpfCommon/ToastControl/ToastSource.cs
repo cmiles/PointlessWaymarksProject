@@ -80,13 +80,13 @@ namespace PointlessWaymarks.WpfCommon.ToastControl
 
         private void RemoveNotificationsTimer_OnTick(object sender, EventArgs eventArgs)
         {
-            if (!(sender is DispatcherTimer timer)) return;
+            if (sender is not DispatcherTimer timer) return;
 
             // Stop the timer and cleanup for GC
             timer.Tick += RemoveNotificationsTimer_OnTick;
             timer.Stop();
 
-            if (!(timer.Tag is ToastViewModel n)) return;
+            if (timer.Tag is not ToastViewModel n) return;
 
             NotificationMessages.Remove(n);
 

@@ -246,7 +246,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
             this.Write("\r\n    ");
             
             #line 54 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\GeoJsonHtml\SingleGeoJsonPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
             #line hidden

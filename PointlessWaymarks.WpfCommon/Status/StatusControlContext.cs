@@ -533,7 +533,7 @@ namespace PointlessWaymarks.WpfCommon.Status
             }
             catch (Exception e)
             {
-                if (!(e is OperationCanceledException)) Progress($"ShowMessage Exception {e.Message}");
+                if (e is not OperationCanceledException) Progress($"ShowMessage Exception {e.Message}");
             }
             finally
             {
@@ -579,7 +579,7 @@ namespace PointlessWaymarks.WpfCommon.Status
             }
             catch (Exception e)
             {
-                if (!(e is OperationCanceledException)) Progress($"ShowStringEntry Exception {e.Message}");
+                if (e is not OperationCanceledException) Progress($"ShowStringEntry Exception {e.Message}");
 #pragma warning disable 4014
                 // Intended intended as Fire and Forget
                 Task.Run(() => Log.Error(e, "NonBlockTaskCompleted Exception - Status Context Id: {10}",

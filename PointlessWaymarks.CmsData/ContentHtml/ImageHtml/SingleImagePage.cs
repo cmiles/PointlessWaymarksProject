@@ -225,7 +225,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ImageHtml
             this.Write("\r\n    ");
             
             #line 58 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ImageHtml\SingleImagePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
             #line hidden

@@ -42,9 +42,9 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.Aws
             //Unexpected Condition - I think the best we can do is clean up and continue
             if (possibleCredentials.Count > 1) possibleCredentials.Skip(1).ToList().ForEach(x => vault.Remove(x));
 
-            possibleCredentials.First().RetrievePassword();
+            possibleCredentials[0].RetrievePassword();
 
-            return (possibleCredentials.First().UserName, possibleCredentials.First().Password);
+            return (possibleCredentials[0].UserName, possibleCredentials[0].Password);
         }
 
         /// <summary>

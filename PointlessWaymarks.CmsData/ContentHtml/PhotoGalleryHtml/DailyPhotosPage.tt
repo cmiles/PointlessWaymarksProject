@@ -58,7 +58,7 @@
                 DailyPhotosPageParts.PreviousAndNextPostsDiv(this) #>
     </div>
     <#= HorizontalRule.StandardRule() #>
-    <#= Footer.StandardFooterDiv() #>
+    <#= Footer.StandardFooterDiv().Result #>
 </body>
 
 </html>

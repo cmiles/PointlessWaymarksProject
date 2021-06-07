@@ -13,7 +13,7 @@ namespace PointlessWaymarksCmsData.Json
     public static class DbImport
     {
 <#
-    foreach (string loopTypeNames in
+    foreach (var loopTypeNames in
         new List<string> {"FileContent", "PhotoContent", "PostContent", "ImageContent", "NoteContent", "LinkContent"})
     {
 #>
@@ -103,7 +103,7 @@ namespace PointlessWaymarksCmsData.Json
 #>
 
 <#
-    foreach (string loopTypeNames in
+    foreach (var loopTypeNames in
         new List<string>
         {
             "HistoricFileContent",

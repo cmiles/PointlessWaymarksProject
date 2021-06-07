@@ -5,7 +5,7 @@
     <#= Tags.TitleLinkDiv(DbEntry, DbEntry) #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= PointParts.PointDivAndScript(DbEntry.Slug) #>
-    <#= Tags.PostBodyDiv(DbEntry) #>
+    <#= Tags.PostBodyDiv(DbEntry).Result #>
     <#= PointParts.PointDetailsDiv(DbEntry).ToString() #>
     <#= BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
 </div>

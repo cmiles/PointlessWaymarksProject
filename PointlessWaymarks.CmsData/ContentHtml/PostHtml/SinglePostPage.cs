@@ -246,7 +246,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
             this.Write("\r\n    ");
             
             #line 57 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
             #line hidden

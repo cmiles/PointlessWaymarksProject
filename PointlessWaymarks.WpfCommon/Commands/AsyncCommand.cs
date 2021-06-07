@@ -65,7 +65,7 @@ namespace PointlessWaymarks.WpfCommon.Commands
         }
 
         /// <summary>
-        ///     Event triggered when Can Excecute changes.
+        ///     Event triggered when Can Execute changes.
         /// </summary>
         public event EventHandler? CanExecuteChanged
         {
@@ -73,14 +73,10 @@ namespace PointlessWaymarks.WpfCommon.Commands
             remove => _weakEventManager.RemoveEventHandler(value);
         }
 
-        #region Explicit implementations
-
         public void Execute(object? parameter)
         {
             ExecuteAsync().SafeFireAndForget(_onException, _continueOnCapturedContext);
         }
-
-        #endregion
     }
 
     /// <summary>
@@ -138,7 +134,7 @@ namespace PointlessWaymarks.WpfCommon.Commands
         }
 
         /// <summary>
-        ///     Event triggered when Can Excecute changes.
+        ///     Event triggered when Can Execute changes.
         /// </summary>
         public event EventHandler? CanExecuteChanged
         {
@@ -146,16 +142,12 @@ namespace PointlessWaymarks.WpfCommon.Commands
             remove => _weakEventManager.RemoveEventHandler(value);
         }
 
-        #region Explicit implementations
-
         public void Execute(object? parameter)
         {
             if (CommandUtils.IsValidCommandParameter<T?>(parameter))
                 ExecuteAsync(parameter == null ? default : (T) parameter)
                     .SafeFireAndForget(_onException, _continueOnCapturedContext);
         }
-
-        #endregion
     }
 
     public interface IAsyncCommand : ICommand

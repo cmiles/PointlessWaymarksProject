@@ -198,7 +198,7 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport
                 var loweredString = UserFilterText.ToLower();
 
 #pragma warning disable IDE0083 // Use pattern matching
-                if (!(o is WordPressXmlImportListItem pi)) return false;
+                if (o is not WordPressXmlImportListItem pi) return false;
 #pragma warning restore IDE0083 // Use pattern matching
                 if (pi.Category.ToLower().Contains(loweredString)) return true;
                 if (pi.Slug.ToLower().Contains(loweredString)) return true;

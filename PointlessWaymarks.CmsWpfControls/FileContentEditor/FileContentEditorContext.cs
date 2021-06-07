@@ -576,8 +576,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (SelectedFile == null || !SelectedFile.Exists || SelectedFile.Directory == null ||
-                !SelectedFile.Directory.Exists)
+            if (SelectedFile is not {Exists: true, Directory: {Exists: true}})
             {
                 StatusContext.ToastError("No Selected File or Selected File no longer exists?");
                 return;
@@ -593,8 +592,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
 
-            if (SelectedFile == null || !SelectedFile.Exists || SelectedFile.Directory == null ||
-                !SelectedFile.Directory.Exists)
+            if (SelectedFile is not {Exists: true, Directory: {Exists: true}})
             {
                 StatusContext.ToastWarning("No Selected File or Selected File no longer exists?");
                 return;
@@ -608,7 +606,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
 
         private async Task SaveAndExtractImageFromPdf()
         {
-            if (SelectedFile == null || !SelectedFile.Exists || !SelectedFile.Extension.ToLower().Contains("pdf"))
+            if (SelectedFile is not {Exists: true} || !SelectedFile.Extension.ToLower().Contains("pdf"))
             {
                 StatusContext.ToastError("Please selected a valid pdf file");
                 return;

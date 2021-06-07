@@ -92,9 +92,6 @@
             <TabItem Header="Tags">
                 <tagList:TagListControl DataContext="{Binding TabTagListContext}" />
             </TabItem>
-            <TabItem Header="Settings">
-                <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />
-            </TabItem>
             <TabItem Header="HTML Generation">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -133,6 +130,9 @@
                         </StackPanel>
                     </GroupBox>
                 </Grid>
+            </TabItem>
+            <TabItem Header="File Log">
+                <filesWrittenLogList:FilesWrittenLogListControl DataContext="{Binding FilesWrittenContext}" />
             </TabItem>
             <TabItem Header="Diagnostics">
                 <StackPanel Orientation="Vertical">
@@ -190,8 +190,8 @@
                     </GroupBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="File Log">
-                <filesWrittenLogList:FilesWrittenLogListControl DataContext="{Binding FilesWrittenContext}" />
+            <TabItem Header="Settings">
+                <userSettingsEditor:UserSettingsEditorControl DataContext="{Binding SettingsEditorContext}" />
             </TabItem>
             <TabItem Header="About">
                 <helpDisplay:HelpDisplayControl DataContext="{Binding SoftwareComponentsHelpContext}" />

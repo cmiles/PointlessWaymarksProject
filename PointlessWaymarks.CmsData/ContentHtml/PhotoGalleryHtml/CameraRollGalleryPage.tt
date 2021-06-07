@@ -48,7 +48,7 @@
                 Tags.TitleDiv($"{SiteName} - Photographs").ToString() #>
     <#= CameraRollContentTag?.ToString() #>
     <#= HorizontalRule.StandardRule() #>
-    <#= Footer.StandardFooterDiv() #>
+    <#= Footer.StandardFooterDiv().Result #>
 </body>
 
 </html>

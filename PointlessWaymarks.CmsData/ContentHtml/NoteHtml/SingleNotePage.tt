@@ -51,7 +51,7 @@
                 Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
     </div>
     <#= HorizontalRule.StandardRule() #>
-    <#= Footer.StandardFooterDiv() #>
+    <#= Footer.StandardFooterDiv().Result #>
 </body>
 
 </html>
