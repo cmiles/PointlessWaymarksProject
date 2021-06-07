@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -8,14 +9,15 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ImageHtml
 {
     public static class ImageParts
     {
-        public static HtmlTag ImageSourceNotesDivTag(ImageContent dbEntry, IProgress<string>? progress = null)
+        public static async Task<HtmlTag> ImageSourceNotesDivTag(ImageContent dbEntry,
+            IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
 
             var sourceNotesContainer = new DivTag().AddClass("image-source-notes-container");
             var sourceNotes = new DivTag().AddClass("image-source-notes-content").Encoded(false).Text(
                 ContentProcessing.ProcessContent(
-                    BracketCodeCommon.ProcessCodesForSite($"Source: {dbEntry.BodyContent}", progress),
+                    await BracketCodeCommon.ProcessCodesForSite($"Source: {dbEntry.BodyContent}", progress),
                     ContentFormatEnum.MarkdigMarkdown01));
             sourceNotesContainer.Children.Add(sourceNotes);
 

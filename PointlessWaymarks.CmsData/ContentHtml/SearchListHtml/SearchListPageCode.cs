@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
@@ -24,6 +25,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             GenerationVersion = generationVersion;
         }
 
+        public bool AddNoIndexTag { get; set; }
         public Func<List<object>> ContentFunction { get; }
         public DateTime? GenerationVersion { get; }
         public string ListTitle { get; }
@@ -116,7 +118,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             };
         }
 
-        public void WriteLocalHtml()
+        public async Task WriteLocalHtml()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -136,7 +138,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
                 htmlFileInfo.Refresh();
             }
 
-            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
     }
 }

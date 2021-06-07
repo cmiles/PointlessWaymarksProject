@@ -207,7 +207,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList
 
             var htmlContext = new SingleFilePage(content);
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
 
             StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
         }

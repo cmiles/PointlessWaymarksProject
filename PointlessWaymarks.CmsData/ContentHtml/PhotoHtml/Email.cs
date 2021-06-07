@@ -44,7 +44,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
 
             mdBuilder.AppendLine($"<p style=\"text-align: center;\">{Tags.CreatedByAndUpdatedOnString(content)}</p>");
 
-            var preprocessResults = BracketCodeCommon.ProcessCodesForEmail(mdBuilder.ToString(), progress);
+            var preprocessResults = await BracketCodeCommon.ProcessCodesForEmail(mdBuilder.ToString(), progress);
             var bodyHtmlString = ContentProcessing.ProcessContent(preprocessResults, content.BodyContentFormat);
 
             var innerContent = HtmlEmail.ChildrenIntoTableCells(

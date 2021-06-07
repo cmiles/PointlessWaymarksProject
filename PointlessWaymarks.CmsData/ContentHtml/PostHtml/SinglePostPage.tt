@@ -4,24 +4,24 @@
 <html lang="en">
 <head data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>" data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
     <meta charset="utf-8">
-    <title><#=DbEntry.Title?.HtmlEncode() #></title>
-    <meta name="description" content="<#=DbEntry.Summary?.HtmlEncode() #>">
-    <meta name="author" content="<#=DbEntry.CreatedBy?.HtmlEncode() #>">
-    <meta name="keywords" content="<#= DbEntry.Tags?.HtmlEncode() #>" >
+    <title><#=DbEntry.Title.HtmlEncode() #></title>
+    <meta name="description" content="<#=DbEntry.Summary.HtmlEncode() #>">
+    <meta name="author" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
+    <meta name="keywords" content="<#= DbEntry.Tags.HtmlEncode() #>" >
 
     <meta property="og:site_name" content="<#=SiteName.HtmlEncode() #>" />
     <meta property="og:url" content="https:<#=PageUrl #>" />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="<#=DbEntry.Title?.HtmlEncode() #>" />
-    <meta property="og:description" content="<#=DbEntry.Summary?.HtmlEncode() #>" />
+    <meta property="og:title" content="<#=DbEntry.Title.HtmlEncode() #>" />
+    <meta property="og:description" content="<#=DbEntry.Summary.HtmlEncode() #>" />
 
     <#= Tags.OpenGraphImageMetaTags(MainImage) #>
 
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
-    <meta name="DC.Title" content="<#=DbEntry.Title?.HtmlEncode() #>">
-    <meta name ="DC.Creator" content="<#=DbEntry.CreatedBy?.HtmlEncode() #>">
+    <meta name="DC.Title" content="<#=DbEntry.Title.HtmlEncode() #>">
+    <meta name ="DC.Creator" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
     <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
-    <meta name="DC.Description" content="<#=DbEntry.Summary?.HtmlEncode() #>">
+    <meta name="DC.Description" content="<#=DbEntry.Summary.HtmlEncode() #>">
     <meta name="DC.Date" content="<#=
                 DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">
     <meta name="DC.Format" content="text/html">
@@ -38,12 +38,12 @@
 </head>
 
 <body>
-    <#= Tags.StandardHeader().ToString() #>
+    <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#=
                 Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
-    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
+    <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
@@ -51,7 +51,7 @@
                 BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
         <#=
                 Tags.PreviousAndNextPostsDiv(PreviousPosts, LaterPosts) #>
-        <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
+        <#= Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>

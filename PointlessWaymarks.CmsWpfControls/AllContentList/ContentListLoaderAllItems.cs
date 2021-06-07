@@ -45,66 +45,74 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList
                 {
                     async () =>
                     {
-                        var db = await Db.Context();
+                        var funcDb = await Db.Context();
                         progress?.Report($"Loading File Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await db.FileContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                            .Take(PartialLoadQuantity.Value).ToListAsync());
-                    },
-                    async () =>
-                    {
-                        var db = await Db.Context();
-                        progress?.Report($"Loading GeoJson Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await db.GeoJsonContents
+                        listItems.AddRange(await funcDb.FileContents
                             .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                             .Take(PartialLoadQuantity.Value).ToListAsync());
                     },
                     async () =>
                     {
-                        var db = await Db.Context();
+                        var funcDb = await Db.Context();
+                        progress?.Report($"Loading GeoJson Content from DB - Max {PartialLoadQuantity} Items");
+                        listItems.AddRange(await funcDb.GeoJsonContents
+                            .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                            .Take(PartialLoadQuantity.Value).ToListAsync());
+                    },
+                    async () =>
+                    {
+                        var funcDb = await Db.Context();
                         progress?.Report($"Loading Line Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        listItems.AddRange(await funcDb.LineContents
+                            .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                             .Take(PartialLoadQuantity.Value).ToListAsync());
                     },
                     async () =>
                     {
-                        var db = await Db.Context();
+                        var funcDb = await Db.Context();
                         progress?.Report($"Loading Link Content from DB- Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await db.LinkContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        listItems.AddRange(await funcDb.LinkContents
+                            .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                             .Take(PartialLoadQuantity.Value).ToListAsync());
                     },
                     async () =>
                     {
-                        var db = await Db.Context();
+                        var funcDb = await Db.Context();
                         progress?.Report($"Loading Map Content from DB- Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await db.MapComponents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        listItems.AddRange(await funcDb.MapComponents
+                            .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                             .Take(PartialLoadQuantity.Value).ToListAsync());
                     },
                     async () =>
                     {
-                        var db = await Db.Context();
+                        var funcDb = await Db.Context();
                         progress?.Report($"Loading Note Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await db.NoteContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        listItems.AddRange(await funcDb.NoteContents
+                            .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                             .Take(PartialLoadQuantity.Value).ToListAsync());
                     },
                     async () =>
                     {
-                        var db = await Db.Context();
+                        var funcDb = await Db.Context();
                         progress?.Report($"Loading Photo Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await db.PhotoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        listItems.AddRange(await funcDb.PhotoContents
+                            .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                             .Take(PartialLoadQuantity.Value).ToListAsync());
                     },
                     async () =>
                     {
-                        var db = await Db.Context();
+                        var funcDb = await Db.Context();
                         progress?.Report($"Loading Point Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        listItems.AddRange(await funcDb.PointContents
+                            .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                             .Take(PartialLoadQuantity.Value).ToListAsync());
                     },
                     async () =>
                     {
-                        var db = await Db.Context();
+                        var funcDb = await Db.Context();
                         progress?.Report($"Loading Post Content from DB - Max {PartialLoadQuantity} Items");
-                        listItems.AddRange(await db.PostContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        listItems.AddRange(await funcDb.PostContents
+                            .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
                             .Take(PartialLoadQuantity.Value).ToListAsync());
                     }
                 }.AsyncParallelForEach();

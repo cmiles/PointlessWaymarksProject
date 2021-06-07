@@ -4,7 +4,7 @@
 <div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>">
     <#=
                 PictureInformation.PictureFigureWithCaptionTag("100vw") #>
-    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
+    <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#=
                 BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
 </div>

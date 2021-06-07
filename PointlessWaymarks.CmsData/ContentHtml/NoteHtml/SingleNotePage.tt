@@ -38,10 +38,10 @@
 </head>
 
 <body>
-    <#= Tags.StandardHeader().ToString() #>
+    <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= NoteParts.NoteTitleDiv(DbEntry) #>
-    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
+    <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
      <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>

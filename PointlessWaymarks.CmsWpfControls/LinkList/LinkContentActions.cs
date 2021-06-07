@@ -196,7 +196,7 @@ namespace PointlessWaymarks.CmsWpfControls.LinkList
 
             var htmlContext = new LinkListPage();
 
-            htmlContext.WriteLocalHtmlRssAndJson();
+            await htmlContext.WriteLocalHtmlRssAndJson();
 
             var settings = UserSettingsSingleton.CurrentSettings();
 

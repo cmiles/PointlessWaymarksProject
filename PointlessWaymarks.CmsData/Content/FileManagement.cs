@@ -5,10 +5,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using Polly;
 using Serilog;
 
 namespace PointlessWaymarks.CmsData.Content
@@ -319,11 +321,11 @@ namespace PointlessWaymarks.CmsData.Content
             return returnList;
         }
 
-        public static FileInfo CopyToAndLog(this FileInfo fileInfo, string destinationFileName)
+        public static async Task<FileInfo> CopyToAndLog(this FileInfo fileInfo, string destinationFileName)
         {
             var returnValue = fileInfo.CopyTo(destinationFileName);
 
-            LogFileWrite(destinationFileName);
+            await LogFileWriteAsync(destinationFileName);
 
             return returnValue;
         }
@@ -337,35 +339,35 @@ namespace PointlessWaymarks.CmsData.Content
             return returnValue;
         }
 
-        public static void LogFileWrite(string fileName)
-        {
-            var db = Db.Context().Result;
-
-            db.GenerationFileWriteLogs.Add(new GenerationFileWriteLog
-            {
-                FileName = fileName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
-            });
-
-            db.SaveChanges(true);
-        }
-
         public static async Task LogFileWriteAsync(string fileName)
         {
-            var db = await Db.Context();
-
-            await db.GenerationFileWriteLogs.AddAsync(new GenerationFileWriteLog
+            await Policy.Handle<SqliteException>(ex => ex.SqliteErrorCode == 5).WaitAndRetryAsync(new[]
+                {
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(2),
+                    TimeSpan.FromSeconds(4),
+                    TimeSpan.FromSeconds(4)
+                },
+                (_, _, retryCount, _) =>
+                    Log.Debug("Sqlite Locked Db Retry - LogFileWriteAsync {fileName}, Retry Count {retryCount}",
+                        fileName,
+                        retryCount)).ExecuteAsync(async () =>
             {
-                FileName = fileName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
-            });
+                var db = await Db.Context();
 
-            await db.SaveChangesAsync(true);
+                await db.GenerationFileWriteLogs.AddAsync(new GenerationFileWriteLog
+                {
+                    FileName = fileName, WrittenOnVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime()
+                });
+                await db.SaveChangesAsync(true);
+            });
         }
 
-        public static void MoveFileAndLog(string sourceFile, string destinationFile)
+        public static async Task MoveFileAndLog(string sourceFile, string destinationFile)
         {
             File.Move(sourceFile, destinationFile);
 
-            LogFileWrite(destinationFile);
+            await LogFileWriteAsync(destinationFile);
         }
 
         public static async Task MoveFileAndLogAsync(string sourceFile, string destinationFile)
@@ -997,18 +999,18 @@ namespace PointlessWaymarks.CmsData.Content
             };
         }
 
-        public static void WriteAllTextToFileAndLog(string path, string contents)
+        public static async Task WriteAllTextToFileAndLog(string path, string contents)
         {
-            File.WriteAllText(path, contents);
+            await File.WriteAllTextAsync(path, contents);
 
-            LogFileWrite(path);
+            await LogFileWriteAsync(path);
         }
 
-        public static void WriteAllTextToFileAndLog(string path, string contents, Encoding encoding)
+        public static async Task WriteAllTextToFileAndLog(string path, string contents, Encoding encoding)
         {
-            File.WriteAllText(path, contents, encoding);
+            await File.WriteAllTextAsync(path, contents, encoding);
 
-            LogFileWrite(path);
+            await LogFileWriteAsync(path);
         }
 
         public static async Task WriteAllTextToFileAndLogAsync(string path, string contents)
@@ -1038,7 +1040,7 @@ namespace PointlessWaymarks.CmsData.Content
                     siteResources.Name));
 
             var destinationDirectory = destinationFile.Directory;
-            if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
+            if (destinationDirectory is {Exists: false}) destinationDirectory.Create();
 
             var fileStream = File.Create(destinationFile.FullName);
             fileAsStream.Seek(0, SeekOrigin.Begin);
@@ -1050,7 +1052,7 @@ namespace PointlessWaymarks.CmsData.Content
             progress?.Report($"Site Resources - Writing {siteResources.Name} to {destinationFile.FullName}");
         }
 
-        public static void WriteSelectedFileContentFileToMediaArchive(FileInfo selectedFile)
+        public static async Task WriteSelectedFileContentFileToMediaArchive(FileInfo selectedFile)
         {
             var userSettings = UserSettingsSingleton.CurrentSettings();
             var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveFileDirectory().FullName,
@@ -1062,7 +1064,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            selectedFile.CopyToAndLog(destinationFileName);
+            await selectedFile.CopyToAndLog(destinationFileName);
         }
 
         public static async Task<GenerationReturn> WriteSelectedFileContentFileToMediaArchive(FileInfo selectedFile,
@@ -1084,7 +1086,7 @@ namespace PointlessWaymarks.CmsData.Content
             return GenerationReturn.Success("File is copied to Media Archive");
         }
 
-        public static void WriteSelectedImageContentFileToMediaArchive(FileInfo selectedFile)
+        public static async Task WriteSelectedImageContentFileToMediaArchive(FileInfo selectedFile)
         {
             var userSettings = UserSettingsSingleton.CurrentSettings();
             var destinationFileName = Path.Combine(userSettings.LocalMediaArchiveImageDirectory().FullName,
@@ -1096,7 +1098,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            selectedFile.CopyToAndLog(destinationFileName);
+            await selectedFile.CopyToAndLog(destinationFileName);
         }
 
         public static async Task<GenerationReturn> WriteSelectedImageContentFileToMediaArchive(FileInfo selectedFile,
@@ -1118,7 +1120,7 @@ namespace PointlessWaymarks.CmsData.Content
             return GenerationReturn.Success("Image is copied to Media Archive");
         }
 
-        public static void WriteSelectedPhotoContentFileToMediaArchive(FileInfo selectedFile)
+        public static async Task WriteSelectedPhotoContentFileToMediaArchive(FileInfo selectedFile)
         {
             var userSettings = UserSettingsSingleton.CurrentSettings();
             var destinationFileName = Path.Combine(userSettings.LocalMediaArchivePhotoDirectory().FullName,
@@ -1130,7 +1132,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (destinationFile.Exists) destinationFile.Delete();
 
-            selectedFile.CopyToAndLog(destinationFileName);
+            await selectedFile.CopyToAndLog(destinationFileName);
         }
 
         public static async Task<GenerationReturn> WriteSelectedPhotoContentFileToMediaArchive(FileInfo selectedFile,
@@ -1176,7 +1178,7 @@ namespace PointlessWaymarks.CmsData.Content
                         filePathStyleName));
 
                 var destinationDirectory = destinationFile.Directory;
-                if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
+                if (destinationDirectory is {Exists: false}) destinationDirectory.Create();
 
                 var fileStream = File.Create(destinationFile.FullName);
                 fileAsStream.Seek(0, SeekOrigin.Begin);
@@ -1202,7 +1204,7 @@ namespace PointlessWaymarks.CmsData.Content
                     siteResources.Name));
 
             var destinationDirectory = destinationFile.Directory;
-            if (destinationDirectory != null && !destinationDirectory.Exists) destinationDirectory.Create();
+            if (destinationDirectory is {Exists: false}) destinationDirectory.Create();
 
             var fileStream = File.Create(destinationFile.FullName);
             fileAsStream.Seek(0, SeekOrigin.Begin);

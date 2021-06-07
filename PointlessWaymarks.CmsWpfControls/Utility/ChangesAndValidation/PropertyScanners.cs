@@ -58,7 +58,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.ChangesAndValidation
                     var value = loopProperties.GetValue(toScan);
                     if (value == null) continue;
 
-                    ((INotifyPropertyChanged) value).PropertyChanged += (sender, args) =>
+                    ((INotifyPropertyChanged) value).PropertyChanged += (_, args) =>
                     {
                         if (string.IsNullOrWhiteSpace(args?.PropertyName) || actionOnStatusChange == null) return;
                         if (args.PropertyName == "HasChanges" || args.PropertyName == "HasValidationIssues")

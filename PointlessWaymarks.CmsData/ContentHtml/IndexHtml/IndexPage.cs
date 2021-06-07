@@ -18,7 +18,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class IndexPage : IndexPageBase
     {
@@ -30,172 +30,168 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
         {
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
-            #line 7 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
             
-            #line 9 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 9 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
             
             #line default
             #line hidden
             this.Write("</title>\r\n    <meta name=\"description\" content=\"");
             
-            #line 10 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 10 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"author\" content=\"");
             
-            #line 11 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 11 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
             
-            #line 12 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 12 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteKeywords.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" >\r\n\r\n    <meta property=\"og:site_name\" content=\"");
             
-            #line 14 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 14 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
             
-            #line 15 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 15 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:type\" content=\"website\" />\r\n    <meta property=\"og:t" +
-                    "itle\" content=\"");
+            this.Write("\" />\r\n    <meta property=\"og:type\" content=\"website\" />\r\n    <meta property=\"og:title\" content=\"");
             
-            #line 17 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 17 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:description\" content=\"");
             
-            #line 18 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 18 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\r\n    ");
             
-            #line 20 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 20 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.OpenGraphImageMetaTags(MainImage)));
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <" +
-                    "meta name=\"DC.Title\" content=\"");
+            this.Write("\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <meta name=\"DC.Title\" content=\"");
             
-            #line 23 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name =\"DC.Creator\" content=\"");
             
-            #line 24 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 24 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name =\"DC.Publisher\" content=\"");
             
-            #line 25 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 25 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Description\" content=\"");
             
-            #line 26 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 26 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name=\"DC.Format\" content=\"text/html\">\r\n    <meta name=\"DC.Language\"" +
-                    " content=\"en-US\">\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, init" +
-                    "ial-scale=1.0\">\r\n\r\n    ");
+            this.Write("\">\r\n    <meta name=\"DC.Format\" content=\"text/html\">\r\n    <meta name=\"DC.Language\" content=\"en-US\">\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
             
-            #line 32 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 32 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.SiteMainRss()));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n    ");
             
-            #line 34 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 34 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 35 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 35 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n    ");
             
-            #line 37 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 37 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SpatialScripts.IncludeIfNeeded(IncludeSpatialScripts)));
             
             #line default
             #line hidden
             this.Write("\r\n</head>\r\n\r\n<body>\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
+            #line 41 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 42 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 42 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 43 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 43 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(IndexPosts()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 44 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 44 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>())));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 45 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 45 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRuleIfNotEmptyTag(Tags.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()))));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 46 "C:\Code\PointlessWaymarksCms01\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
+            #line 46 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
             
             #line default

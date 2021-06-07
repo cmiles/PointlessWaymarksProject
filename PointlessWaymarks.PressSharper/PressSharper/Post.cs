@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PressSharper
+namespace PointlessWaymarks.PressSharper
 {
     public class Post
     {

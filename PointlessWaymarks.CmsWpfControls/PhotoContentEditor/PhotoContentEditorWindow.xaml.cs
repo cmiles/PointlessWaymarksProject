@@ -24,7 +24,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             {
                 PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext);
 
-                PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -42,7 +42,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             {
                 PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, initialPhoto);
 
-                PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -60,7 +60,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor
             {
                 PhotoEditor = await PhotoContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-                PhotoEditor.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                PhotoEditor.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, PhotoEditor);
 
                 await ThreadSwitcher.ResumeForegroundAsync();

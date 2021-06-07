@@ -14,14 +14,14 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class NoteGenerator
     {
-        public static void GenerateHtml(NoteContent toGenerate, DateTime? generationVersion,
+        public static async Task GenerateHtml(NoteContent toGenerate, DateTime? generationVersion,
             IProgress<string>? progress = null)
         {
             progress?.Report($"Note Content - Generate HTML for {toGenerate.Title}");
 
             var htmlContext = new SingleNotePage(toGenerate) {GenerationVersion = generationVersion};
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
         }
 
         public static async Task<(GenerationReturn generationReturn, NoteContent? noteContent)> SaveAndGenerateHtml(
@@ -35,7 +35,7 @@ namespace PointlessWaymarks.CmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             await Db.SaveNoteContent(toSave);
-            GenerateHtml(toSave, generationVersion, progress);
+            await GenerateHtml(toSave, generationVersion, progress);
             await Export.WriteLocalDbJson(toSave, progress);
 
             DataNotifications.PublishDataNotification("Note Generator", DataNotificationContentType.Note,

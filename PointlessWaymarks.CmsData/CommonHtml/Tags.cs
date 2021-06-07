@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HtmlTags;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -9,7 +10,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 {
     public static class Tags
     {
-        public static HtmlTag CoreLinksDiv(IProgress<string>? progress = null)
+        public static async Task<HtmlTag> CoreLinksDiv(IProgress<string>? progress = null)
         {
             var db = Db.Context().Result;
 
@@ -22,7 +23,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             foreach (var loopItems in items)
             {
                 var html = ContentProcessing.ProcessContent(
-                    BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag ?? string.Empty, progress),
+                    await BracketCodeCommon.ProcessCodesForSite(loopItems.LinkTag ?? string.Empty, progress),
                     ContentFormatEnum.MarkdigMarkdown01);
 
                 var coreLinkContainer = new DivTag().AddClass("core-links-item").Text(html).Encoded(false);
@@ -378,14 +379,14 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return outerLink;
         }
 
-        public static HtmlTag PostBodyDiv(IBodyContent dbEntry, IProgress<string>? progress = null)
+        public static async Task<HtmlTag> PostBodyDiv(IBodyContent dbEntry, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
 
             var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
             var bodyText = ContentProcessing.ProcessContent(
-                BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress), dbEntry.BodyContentFormat);
+                await BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress), dbEntry.BodyContentFormat);
 
             bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
 
@@ -452,7 +453,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                     $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
         }
 
-        public static HtmlTag StandardHeader()
+        public static async Task<HtmlTag> StandardHeader()
         {
             var titleContainer = new DivTag().AddClass("site-header-container");
 
@@ -470,7 +471,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 titleContainer.Children.Add(titleSiteSummary);
             }
 
-            titleContainer.Children.Add(CoreLinksDiv());
+            titleContainer.Children.Add(await CoreLinksDiv());
 
             return titleContainer;
         }
@@ -576,7 +577,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return titleContainer;
         }
 
-        public static HtmlTag UpdateNotesDiv(IUpdateNotes dbEntry)
+        public static async Task<HtmlTag> UpdateNotesDiv(IUpdateNotes dbEntry)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.UpdateNotes)) return HtmlTag.Empty();
 
@@ -587,7 +588,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             var updateNotesContentContainer = new DivTag().AddClass("update-notes-content");
 
             var updateNotesHtml = ContentProcessing.ProcessContent(
-                BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes), dbEntry.UpdateNotesFormat);
+                await BracketCodeCommon.ProcessCodesForSite(dbEntry.UpdateNotes), dbEntry.UpdateNotesFormat);
 
             updateNotesContentContainer.Encoded(false).Text(updateNotesHtml);
 

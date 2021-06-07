@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HtmlTags;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
@@ -16,7 +18,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static List<PostContent> DbContentFromBracketCodes(string toProcess, IProgress<string>? progress = null)
+        public static async Task<List<PostContent>> DbContentFromBracketCodes(string toProcess,
+            IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<PostContent>();
 
@@ -29,7 +32,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!guidList.Any()) return returnList;
 
-            var context = Db.Context().Result;
+            var context = await Db.Context();
 
             foreach (var loopMatch in guidList)
             {
@@ -44,7 +47,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return returnList;
         }
 
-        public static string Process(string toProcess, IProgress<string>? progress = null)
+        public static async Task<string> Process(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -54,11 +57,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = Db.Context().Result;
+            var context = await Db.Context();
 
             foreach (var loopMatch in resultList)
             {
-                var dbContent = context.PostContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                var dbContent =
+                    await context.PostContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
                 if (dbContent == null) continue;
 
                 progress?.Report($"Adding post link {dbContent.Title} from Code");

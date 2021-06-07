@@ -68,11 +68,13 @@
                                     Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}, Path=DataContext}">
                                     <Grid.ContextMenu>
                                         <ContextMenu>
+                                            <!--  ReSharper disable once Xaml.BindingWithContextNotResolved - For Tag on Placement Target  -->
                                             <MenuItem
                                                 Command="{Binding Path=PlacementTarget.Tag.RemoveExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding .}"
                                                 Header="Remove Tag Exclusion"
                                                 IsEnabled="{Binding IsExcludedTag}" />
+                                            <!--  ReSharper disable once Xaml.BindingWithContextNotResolved - For Tag on Placement Target  -->
                                             <MenuItem
                                                 Command="{Binding Path=PlacementTarget.Tag.MakeExcludedTagCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}"
                                                 CommandParameter="{Binding .}"

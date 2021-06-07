@@ -27,7 +27,7 @@ namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
         {
             var returnList = new List<string>();
 
-            foreach (var loopDetails in toProcess.PointDetails ?? new List<PointDetail>())
+            foreach (var loopDetails in toProcess.PointDetails)
             {
                 var detailString = PointDetailHumanReadableType(loopDetails);
 

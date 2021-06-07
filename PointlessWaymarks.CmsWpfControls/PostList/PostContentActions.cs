@@ -191,7 +191,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList
 
             var htmlContext = new SinglePostPage(content);
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
 
             StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
         }

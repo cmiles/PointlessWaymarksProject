@@ -193,7 +193,7 @@ namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor
 
             try
             {
-                var preprocessResults =
+                var preprocessResults = await
                     BracketCodeCommon.ProcessCodesForLocalDisplay(UpdateNotes, StatusContext.ProgressTracker());
                 var processResults =
                     ContentProcessing.ProcessContent(preprocessResults, UpdateNotesFormat.SelectedContentFormat);

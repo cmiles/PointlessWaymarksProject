@@ -13,14 +13,14 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class FileGenerator
     {
-        public static void GenerateHtml(FileContent toGenerate, DateTime? generationVersion,
+        public static async Task GenerateHtml(FileContent toGenerate, DateTime? generationVersion,
             IProgress<string>? progress = null)
         {
             progress?.Report($"File Content - Generate HTML for {toGenerate.Title}");
 
             var htmlContext = new SingleFilePage(toGenerate) {GenerationVersion = generationVersion};
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
         }
 
 
@@ -36,10 +36,10 @@ namespace PointlessWaymarks.CmsData.Content
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
             toSave.OriginalFileName = selectedFile.Name;
-            FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile);
+            await FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile);
             await Db.SaveFileContent(toSave);
-            WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles);
-            GenerateHtml(toSave, generationVersion, progress);
+            await WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles);
+            await GenerateHtml(toSave, generationVersion, progress);
             await Export.WriteLocalDbJson(toSave, progress);
 
             DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
@@ -90,7 +90,7 @@ namespace PointlessWaymarks.CmsData.Content
             return GenerationReturn.Success("File Content Validation Successful");
         }
 
-        public static void WriteFileFromMediaArchiveToLocalSite(FileContent fileContent, bool overwriteExisting)
+        public static async Task WriteFileFromMediaArchiveToLocalSite(FileContent fileContent, bool overwriteExisting)
         {
             if (string.IsNullOrWhiteSpace(fileContent.OriginalFileName))
             {
@@ -113,7 +113,7 @@ namespace PointlessWaymarks.CmsData.Content
                 targetFile.Refresh();
             }
 
-            if (!targetFile.Exists) sourceFile.CopyToAndLog(targetFile.FullName);
+            if (!targetFile.Exists) await sourceFile.CopyToAndLog(targetFile.FullName);
         }
     }
 }

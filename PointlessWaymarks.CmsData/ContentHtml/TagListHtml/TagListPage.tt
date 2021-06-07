@@ -12,7 +12,7 @@
     <#= Tags.FavIconFileString() #>
 </head>
 <body>
-    <#= Tags.StandardHeader().ToString() #>
+    <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <div class="search-input-container">
         <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search Tags...">

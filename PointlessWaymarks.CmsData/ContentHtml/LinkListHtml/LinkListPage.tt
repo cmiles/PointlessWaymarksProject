@@ -18,7 +18,7 @@
 </head>
 
 <body>
-    <#= Tags.StandardHeader().ToString() #>
+    <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <h1 class="site-header-title"><#= $"{ListTitle}" #></h1>
     <div class="search-input-container">

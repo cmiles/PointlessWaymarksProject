@@ -106,12 +106,6 @@ namespace PointlessWaymarks.CmsData
         /// <param name="logMessage"></param>
         public static void LogGenerationReturn(GenerationReturn toLog, string logMessage)
         {
-            if (toLog == null)
-            {
-                Log.Error("LogGenerationReturn - Null toLog Value Submitted");
-                return;
-            }
-
             if (toLog.HasError)
             {
                 Log.ForContext("Generation Return Object", toLog.SafeObjectDump())

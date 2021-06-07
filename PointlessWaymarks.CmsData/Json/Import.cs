@@ -18,7 +18,6 @@ namespace PointlessWaymarks.CmsData.Json
 
             foreach (var loopFiles in contentFiles)
             {
-                if (loopFiles == null) continue;
                 var deserialized = JsonSerializer.Deserialize<T>(File.ReadAllText(loopFiles));
                 if (deserialized != null) returnList.Add(deserialized);
             }

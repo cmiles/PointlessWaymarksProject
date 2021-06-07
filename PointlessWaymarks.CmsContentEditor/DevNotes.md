@@ -1,5 +1,9 @@
 ﻿## Todos
+ - Eliminate sync FileWriteLog usage
+ - Look for .Result and other that can be eliminated
+ - Change FileWriteLog to a store in memory and batch insert  
  - NoIndex on excluded tags
+ - Check if excluded tags are properly picked up for changed html  
  - All Items Tab - reports for no tags, etc.
  - For geo types and notes review local file cleanup on delete
  - Appium GUI Test
@@ -24,6 +28,20 @@ Site:
  - Could all font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
  
 ## Notes
+
+6/7/2021
+
+Large commit resulting from cascading async changes and some other cleanup. With these changes in places I was able to complete the Photo reprocessing on PointlessWaymarks without an error and unbound on the parallel foreach processing, not convinced that unbound is the right choice and skeptical about where the slow downs are...
+
+6/6/2021
+
+First experience running into issues with the Sqlite DB being locked. With the AsyncParallelForeach, on my desktop with an Unbound DOP the file log writes were enough to trigger File is Locked errors. Next steps:
+ - Execution Strategy - this is a good reminder that all things fail, I think this could be automatically retried in EF Core with a custom retry (I don't think Sqlite has the equivalent of the SqlServer providers 'enable retry')
+ - I think it makes sense that this code was the problem since it is fairly unique in potentially producing a stream of small inserts - but I do need to review the code and make sure that I'm not doing something unfortunate here that is a bug
+ - One improvement came with using the async FileLog method - at this point all non-async usages should be eliminated
+ - Potentially change the write strategy and cache FileLog entries - worse implications on failure but this data is far less priority than Content
+This did make me wonder about Firebird and RavenDb - it would be interesting to try something different, especially since this app is a dedicated Windows desktop app so the sqlite everywhere story isn't as important and since I am largely using sqlite as a typed datastore rather than leaning on relationships...
+
 
 6/4/2021
 

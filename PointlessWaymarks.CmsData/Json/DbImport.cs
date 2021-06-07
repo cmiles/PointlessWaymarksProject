@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("FileContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No FileContent items to import...");
                 return;
@@ -96,7 +96,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("HistoricFileContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No items to import?");
                 return;
@@ -136,7 +136,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("HistoricImageContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No items to import?");
                 return;
@@ -176,7 +176,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("HistoricLinkContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No items to import?");
                 return;
@@ -216,7 +216,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("HistoricNoteContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No items to import?");
                 return;
@@ -256,7 +256,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("HistoricPhotoContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No items to import?");
                 return;
@@ -296,7 +296,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("HistoricPostContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No items to import?");
                 return;
@@ -335,7 +335,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("ImageContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No ImageContent items to import...");
                 return;
@@ -417,7 +417,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("LinkContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No LinkContent items to import...");
                 return;
@@ -499,7 +499,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("NoteContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No NoteContent items to import...");
                 return;
@@ -581,7 +581,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("PhotoContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No PhotoContent items to import...");
                 return;
@@ -663,7 +663,7 @@ namespace PointlessWaymarks.CmsData.Json
         {
             progress?.Report("PostContent - Starting");
 
-            if (toImport == null || !toImport.Any())
+            if (!toImport.Any())
             {
                 progress?.Report("No PostContent items to import...");
                 return;

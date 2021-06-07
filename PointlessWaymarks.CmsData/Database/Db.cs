@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
@@ -826,14 +825,8 @@ namespace PointlessWaymarks.CmsData.Database
 
             var allResults = new ConcurrentBag<(string tag, object contentObject)>();
 
-            var i = 0;
-
             Parallel.ForEach(toAdd, x =>
             {
-                Interlocked.Increment(ref i);
-
-                if (i % 20 == 0) progress?.Report($"Processing Tag Content - {i} of {toAdd.Count}");
-
                 var results = ParseToTagSlugsAndContentList(x, removeExcludedTags);
 
                 results.ForEach(y => allResults.Add(y));

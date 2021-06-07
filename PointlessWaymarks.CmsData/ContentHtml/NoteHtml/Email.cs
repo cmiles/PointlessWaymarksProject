@@ -11,7 +11,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
         {
             if (content == null) return string.Empty;
 
-            var preprocessResults = BracketCodeCommon.ProcessCodesForEmail(content.BodyContent, progress);
+            var preprocessResults = await BracketCodeCommon.ProcessCodesForEmail(content.BodyContent, progress);
             var bodyHtmlString = ContentProcessing.ProcessContent(preprocessResults, content.BodyContentFormat);
 
             var tags = Tags.TagListTextLinkList(content);

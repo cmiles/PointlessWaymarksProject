@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -36,7 +37,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
         public string SiteName { get; }
         public string SiteUrl { get; }
 
-        public void WriteLocalHtml()
+        public async Task WriteLocalHtml()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -64,7 +65,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
                 htmlFileInfo.Refresh();
             }
 
-            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
     }
 }

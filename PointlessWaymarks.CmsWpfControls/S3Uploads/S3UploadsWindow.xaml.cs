@@ -79,8 +79,6 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
                 Close();
             }
 
-            ;
-
             var userAction = await StatusContext.ShowMessage("Running Upload...",
                 "Exiting this window with an upload running could create errors on S3:",
                 new List<string> {"Close Immediately", "Cancel and Close", "Return to Upload"});
@@ -94,13 +92,11 @@ namespace PointlessWaymarks.CmsWpfControls.S3Uploads
                     Close();
                     break;
                 }
-                    ;
                 case "Return and Cancel":
                 {
                     UploadContext?.UploadBatch?.Cancellation?.Cancel();
                     break;
                 }
-                    ;
             }
         }
     }

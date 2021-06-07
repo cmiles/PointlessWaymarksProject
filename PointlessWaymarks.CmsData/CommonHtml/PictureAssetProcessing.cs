@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -10,7 +11,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 {
     public static class PictureAssetProcessing
     {
-        public static void ConfirmOrGenerateImageDirectoryAndPictures(ImageContent dbEntry)
+        public static async Task ConfirmOrGenerateImageDirectoryAndPictures(ImageContent dbEntry)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName)) return;
 
@@ -20,10 +21,10 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
 
-            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false);
+            await PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false);
         }
 
-        public static void ConfirmOrGeneratePhotoDirectoryAndPictures(PhotoContent dbEntry)
+        public static async Task ConfirmOrGeneratePhotoDirectoryAndPictures(PhotoContent dbEntry)
         {
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName)) return;
 
@@ -33,7 +34,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
 
-            PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false);
+            await PictureResizing.ResizeForDisplayAndSrcset(sourceImage, false);
         }
 
         public static PictureAsset? ProcessImageDirectory(Guid photoOrImageContentId)

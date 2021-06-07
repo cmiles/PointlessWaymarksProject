@@ -9,7 +9,7 @@ namespace PointlessWaymarks.CmsContentEditor
     /// <summary>
     ///     Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App
     {
         public App()
         {
@@ -21,7 +21,7 @@ namespace PointlessWaymarks.CmsContentEditor
         }
 
 
-        private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        private void App_DispatcherUnhandledException(object _, DispatcherUnhandledExceptionEventArgs e)
         {
             if (!HandleApplicationException(e.Exception))
                 Environment.Exit(1);

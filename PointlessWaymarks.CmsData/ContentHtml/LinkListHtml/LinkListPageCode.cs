@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.ServiceModel.Syndication;
 using System.Text;
+using System.Threading.Tasks;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
@@ -57,19 +57,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
             return allContentContainer;
         }
 
-        private static void WriteContentListRss()
+        private static async Task WriteContentListRss()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var db = Db.Context().Result;
 
             var content = db.LinkContents.Where(x => x.ShowInLinkRss).OrderByDescending(x => x.CreatedOn).ToList();
-
-            var feed = new SyndicationFeed(settings.SiteName, $"{settings.SiteSummary} - Links",
-                new Uri($"https://{settings.SiteUrl}"), $"https:{settings.LinkRssUrl()}", DateTime.Now)
-            {
-                Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {settings.SiteAuthors}")
-            };
 
             var items = new List<string>();
 
@@ -94,12 +88,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
                 localIndexFile.Refresh();
             }
 
-            FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
+            await FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
                 RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName} - Link List",
                     string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }
 
-        public void WriteLocalHtmlRssAndJson()
+        public async Task WriteLocalHtmlRssAndJson()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -119,9 +113,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml
                 htmlFileInfo.Refresh();
             }
 
-            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
 
-            WriteContentListRss();
+            await WriteContentListRss();
         }
     }
 }

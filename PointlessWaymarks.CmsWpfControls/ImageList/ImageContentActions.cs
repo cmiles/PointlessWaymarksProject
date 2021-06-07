@@ -202,7 +202,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList
 
             var htmlContext = new SingleImagePage(content);
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
 
             StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
         }

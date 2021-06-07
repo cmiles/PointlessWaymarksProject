@@ -4,10 +4,15 @@
 <html lang="en">
 <head data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
     <meta charset="utf-8">
+    <# if (AddNoIndexTag)
+       {
+    #>
+        <meta name="robots" content="noindex" />
+    <#
+       }
+    #>
     <title><#= ListTitle.HtmlEncode() #></title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <#
     if (!string.IsNullOrWhiteSpace(RssUrl))
     {
@@ -25,7 +30,7 @@
 </head>
 
 <body>
-    <#= Tags.StandardHeader().ToString() #>
+    <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <h1 class="site-header-title"><#= $"Search {ListTitle}" #></h1>
     <div class="search-input-container">

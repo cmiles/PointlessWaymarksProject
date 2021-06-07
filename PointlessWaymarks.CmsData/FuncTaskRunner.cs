@@ -15,19 +15,19 @@ namespace PointlessWaymarks.CmsData
     public static class ParallelForEachExtensions
     {
         public static async Task AsyncParallelForEach(this List<Func<Task>> source,
-            int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, TaskScheduler scheduler = null)
+            int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, TaskScheduler? scheduler = null)
         {
             await source.ToListAsync().AsyncParallelForEach(async x => await x(), maxDegreeOfParallelism, scheduler);
         }
 
         public static async Task AsyncParallelForEach<T>(this List<T> source, Func<T, Task> body,
-            int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, TaskScheduler scheduler = null)
+            int maxDegreeOfParallelism = -1, TaskScheduler? scheduler = null)
         {
             await source.ToListAsync().AsyncParallelForEach(body, maxDegreeOfParallelism, scheduler);
         }
 
         public static async Task AsyncParallelForEach<T>(this IAsyncEnumerable<T> source, Func<T, Task> body,
-            int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, TaskScheduler scheduler = null)
+            int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, TaskScheduler? scheduler = null)
         {
             //Code and excellent article here
             //https://medium.com/@alex.puiu/parallel-foreach-async-in-c-36756f8ebe62
@@ -43,10 +43,16 @@ namespace PointlessWaymarks.CmsData
             await block.Completion;
         }
 
+#pragma warning disable 1998
         private static async IAsyncEnumerable<T> ToListAsync<T>(this List<T> toEnumerate,
+#pragma warning restore 1998
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            for (var i = 0; i < toEnumerate.Count; i++) yield return toEnumerate[i];
+            for (var i = 0; i < toEnumerate.Count; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                yield return toEnumerate[i];
+            }
         }
     }
 }

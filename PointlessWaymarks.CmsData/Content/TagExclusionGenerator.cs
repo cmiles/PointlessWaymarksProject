@@ -48,8 +48,6 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static async Task<GenerationReturn> Validate(TagExclusion toValidate)
         {
-            if (toValidate == null) return GenerationReturn.Error("Excluded Tag can not be empty");
-
             if (string.IsNullOrWhiteSpace(toValidate.Tag))
                 return GenerationReturn.Error("Excluded Tag can not be blank");
 

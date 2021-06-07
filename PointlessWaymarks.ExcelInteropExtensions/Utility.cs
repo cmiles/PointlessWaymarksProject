@@ -12,7 +12,7 @@ namespace PointlessWaymarks.ExcelInteropExtensions
             {
                 var currentLetterNumber = (columnNumber - 1) % 26;
                 var currentLetter = (char) (currentLetterNumber + 65);
-                columnString = currentLetter + columnString;
+                columnString = $"{currentLetter}{columnString}";
                 columnNumber = (columnNumber - (currentLetterNumber + 1)) / 26;
             }
 

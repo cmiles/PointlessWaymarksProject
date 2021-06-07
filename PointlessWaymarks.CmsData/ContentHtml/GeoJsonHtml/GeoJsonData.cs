@@ -35,7 +35,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml
 
             jsonString = jsonString.Replace("{{self}}", pageUrl);
 
-            BracketCodeCommon.ProcessCodesForSite(jsonString);
+            await BracketCodeCommon.ProcessCodesForSite(jsonString);
 
             return jsonString;
         }

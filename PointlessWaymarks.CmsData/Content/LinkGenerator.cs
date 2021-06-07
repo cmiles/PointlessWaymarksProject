@@ -13,13 +13,13 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class LinkGenerator
     {
-        public static void GenerateHtmlAndJson(DateTime? generationVersion, IProgress<string>? progress = null)
+        public static async Task GenerateHtmlAndJson(DateTime? generationVersion, IProgress<string>? progress = null)
         {
             progress?.Report("Link Content - Generate HTML");
 
             var htmlContext = new LinkListPage {GenerationVersion = generationVersion};
 
-            htmlContext.WriteLocalHtmlRssAndJson();
+            await htmlContext.WriteLocalHtmlRssAndJson();
         }
 
         public static async Task<(GenerationReturn generationReturn, LinkMetadata? metadata)> LinkMetadataFromUrl(
@@ -169,7 +169,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             await Db.SaveLinkContent(toSave);
             await SaveLinkToPinboard(toSave, progress);
-            GenerateHtmlAndJson(generationVersion, progress);
+            await GenerateHtmlAndJson(generationVersion, progress);
 
             DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Link,
                 DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});

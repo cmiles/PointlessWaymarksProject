@@ -15,7 +15,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
         public static int GetCaretIndexFromPoint(TextBox textBox, Point point)
         {
             //You can find this code in a number of answers online that - the modification here
-            //to the most commonly found examples is that this supports a multi-line textbox
+            //to the most commonly found examples is that this supports a multi-line TextBox
             var index = textBox.GetCharacterIndexFromPoint(point, true);
             var line = textBox.GetLineIndexFromCharacterIndex(index);
             var lineLength = textBox.GetLineLength(line);

@@ -4,7 +4,7 @@ namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels
 {
     public class Parking : IPointDetailData
     {
-        public bool Fee { get; set; } = false;
+        public bool Fee { get; set; }
         public string? Notes { get; set; }
         public string? NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
         public string DataTypeIdentifier => "Parking";

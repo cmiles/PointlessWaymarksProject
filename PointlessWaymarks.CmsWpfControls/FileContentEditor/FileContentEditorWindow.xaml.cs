@@ -23,7 +23,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
             {
                 FileContent = await FileContentEditorContext.CreateInstance(StatusContext);
 
-                FileContent.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -40,7 +40,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
             {
                 FileContent = await FileContentEditorContext.CreateInstance(StatusContext, initialFile);
 
-                FileContent.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -57,7 +57,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor
             {
                 FileContent = await FileContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-                FileContent.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                FileContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, FileContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();

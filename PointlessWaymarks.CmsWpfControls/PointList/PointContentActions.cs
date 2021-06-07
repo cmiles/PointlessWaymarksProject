@@ -199,7 +199,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList
 
             var htmlContext = new SinglePointPage(fullItem);
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
 
             StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
         }

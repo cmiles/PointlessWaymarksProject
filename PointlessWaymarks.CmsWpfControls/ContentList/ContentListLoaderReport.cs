@@ -18,7 +18,9 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList
             _columnSort = sorting;
         }
 
+#pragma warning disable 1998
         public override async Task<bool> CheckAllItemsAreLoaded()
+#pragma warning restore 1998
         {
             return true;
         }

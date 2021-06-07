@@ -25,7 +25,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor
             {
                 GeoJsonContent = await GeoJsonContentEditorContext.CreateInstance(StatusContext, toLoad);
 
-                GeoJsonContent.RequestContentEditorWindowClose += (sender, args) => { Dispatcher?.Invoke(Close); };
+                GeoJsonContent.RequestContentEditorWindowClose += (_, _) => { Dispatcher?.Invoke(Close); };
                 AccidentalCloserHelper = new WindowAccidentalClosureHelper(this, StatusContext, GeoJsonContent);
 
                 await ThreadSwitcher.ResumeForegroundAsync();

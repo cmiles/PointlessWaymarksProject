@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
@@ -15,7 +17,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static List<FileContent> DbContentFromBracketCodes(string toProcess, IProgress<string>? progress = null)
+        public static async Task<List<FileContent>> DbContentFromBracketCodes(string toProcess,
+            IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
 
@@ -30,9 +33,9 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             foreach (var loopGuid in resultList)
             {
-                var context = Db.Context().Result;
+                var context = await Db.Context();
 
-                var dbContent = context.FileContents.FirstOrDefault(x => x.ContentId == loopGuid);
+                var dbContent = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid);
                 if (dbContent == null) continue;
 
                 progress?.Report($"File Image Code - Adding DbContent For {dbContent.Title}");
@@ -51,7 +54,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         /// <param name="pageConversion"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        private static string Process(string toProcess,
+        private static async Task<string> Process(string toProcess,
             Func<(PictureSiteInformation pictureInfo, string linkUrl), string> pageConversion,
             IProgress<string>? progress = null)
         {
@@ -63,11 +66,11 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = Db.Context().Result;
+            var context = await Db.Context();
 
             foreach (var loopMatch in resultList)
             {
-                var dbFile = context.FileContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                var dbFile = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
 
                 if (dbFile == null) continue;
                 if (dbFile.MainPicture == null)
@@ -77,7 +80,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                     loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
 
-                    BracketCodeFiles.Process(toProcess);
+                    await BracketCodeFiles.Process(toProcess);
 
                     continue;
                 }
@@ -91,7 +94,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                     loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
 
-                    BracketCodeFiles.Process(toProcess);
+                    await BracketCodeFiles.Process(toProcess);
 
                     continue;
                 }
@@ -112,9 +115,10 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static string ProcessForDirectLocalAccess(string toProcess, IProgress<string>? progress = null)
+        public static async Task<string> ProcessForDirectLocalAccess(string toProcess,
+            IProgress<string>? progress = null)
         {
-            return Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString(),
+            return await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString(),
                 progress);
         }
 
@@ -124,9 +128,9 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static string ProcessForEmail(string toProcess, IProgress<string>? progress = null)
+        public static async Task<string> ProcessForEmail(string toProcess, IProgress<string>? progress = null)
         {
-            return Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString(),
+            return await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString(),
                 progress);
         }
 
@@ -136,9 +140,9 @@ namespace PointlessWaymarks.CmsData.CommonHtml
         /// <param name="toProcess"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static string ProcessToFigureWithLink(string toProcess, IProgress<string>? progress = null)
+        public static async Task<string> ProcessToFigureWithLink(string toProcess, IProgress<string>? progress = null)
         {
-            return Process(toProcess,
+            return await Process(toProcess,
                 pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl)
                     .ToString(), progress);
         }

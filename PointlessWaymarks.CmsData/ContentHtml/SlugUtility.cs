@@ -175,9 +175,6 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         /// <returns></returns>
         public static string CreateSpacedString(bool toLower, string value, int? maxLength = 100)
         {
-            if (value == null)
-                return "";
-
             var normalized = value.Normalize(NormalizationForm.FormKD);
 
             var len = normalized.Length;

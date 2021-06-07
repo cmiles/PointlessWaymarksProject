@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database.Models;
+using SQLitePCL;
 
 #pragma warning disable 8618
 
@@ -9,6 +10,9 @@ namespace PointlessWaymarks.CmsData.Database
     {
         public PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext> options) : base(options)
         {
+            //https://github.com/dotnet/efcore/issues/9994
+            Batteries.Init();
+            raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
         }
 
         public DbSet<FileContent> FileContents { get; set; }

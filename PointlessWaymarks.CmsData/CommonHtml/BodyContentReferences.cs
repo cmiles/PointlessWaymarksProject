@@ -129,21 +129,27 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 await RelatedContentReferencesFromOtherContent(db, toCheckFor, generationVersion));
 
             //5/4/2021 - Based on looking at Pointless Waymarks it doesn't seem useful to link back to all the content that is used - for example an Image that is displayed doesn't merit a related content link to the image (the display of the image seems self documenting), otoh just using a link to an image seems like it may be worth a related link.
-            contentCommonList.AddRange(BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(
+                await BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             //contentCommonList.AddRange(BracketCodeFileImage.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
-                BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             //contentCommonList.AddRange(BracketCodeGeoJson.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             contentCommonList.AddRange(
-                BracketCodeGeoJsonLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+                await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             //contentCommonList.AddRange(BracketCodeImages.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(
+                await BracketCodeImageLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             //contentCommonList.AddRange(BracketCodeLines.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodeLineLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(
+                await BracketCodeLineLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(
+                await BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
             //contentCommonList.AddRange(BracketCodePoints.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodePointLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
-            contentCommonList.AddRange(BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(
+                await BracketCodePointLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            contentCommonList.AddRange(
+                await BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
 
             var transformedList = new List<(DateTime sortDateTime, HtmlTag tagContent)>();
 
@@ -159,8 +165,9 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 }
             }
 
-            var photoContent = BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress);
-            photoContent.AddRange(BracketCodePhotoLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+            var photoContent = await BracketCodePhotos.DbContentFromBracketCodes(bodyContentToCheckIn, progress);
+            photoContent.AddRange(
+                await BracketCodePhotoLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
 
             //If the object itself is a photo add it to the list
             photoContent.AddIfNotNull(await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == toCheckFor));

@@ -318,7 +318,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             var htmlContext = new SinglePhotoPage(content);
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
 
             StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
         }
@@ -440,7 +440,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             return (await db.PhotoContents.Where(x => x.CameraMake == content.CameraMake).ToListAsync()).Cast<object>()
                 .ToList();
-            ;
         }
 
         public static async Task<List<object>> CameraModelSearch(PhotoContent content)
@@ -451,7 +450,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             return (await db.PhotoContents.Where(x => x.CameraModel == content.CameraModel).ToListAsync())
                 .Cast<object>().ToList();
-            ;
         }
 
         public async Task EditContent(PhotoContent content)
@@ -486,7 +484,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             return (await db.PhotoContents.Where(x => x.FocalLength == content.FocalLength).ToListAsync())
                 .Cast<object>().ToList();
-            ;
         }
 
         public static async Task<List<object>> IsoSearch(PhotoContent content)
@@ -496,7 +493,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             var db = await Db.Context();
 
             return (await db.PhotoContents.Where(x => x.Iso == content.Iso).ToListAsync()).Cast<object>().ToList();
-            ;
         }
 
         public static async Task<List<object>> LensSearch(PhotoContent content)
@@ -506,7 +502,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             var db = await Db.Context();
 
             return (await db.PhotoContents.Where(x => x.Lens == content.Lens).ToListAsync()).Cast<object>().ToList();
-            ;
         }
 
         public static PhotoListListItem ListItemFromDbItem(PhotoContent content,
@@ -542,7 +537,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
             return (await db.PhotoContents
                     .Where(x => x.PhotoCreatedOn > dateTimeAfter && x.PhotoCreatedOn < dateTimeBefore).ToListAsync())
                 .Cast<object>().ToList();
-            ;
         }
 
         public static async Task RunReport(Func<Task<List<object>>> toRun, string title)
@@ -569,7 +563,6 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList
 
             return (await db.PhotoContents.Where(x => x.ShutterSpeed == content.ShutterSpeed).ToListAsync())
                 .Cast<object>().ToList();
-            ;
         }
 
 

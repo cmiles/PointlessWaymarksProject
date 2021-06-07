@@ -63,7 +63,7 @@ namespace PointlessWaymarks.WpfCommon.Commands
         ///     Command that takes an action to execute.
         /// </summary>
         /// <param name="execute">Action to execute.</param>
-        public Command(Action execute) : this(o => execute())
+        public Command(Action execute) : this(_ => execute())
         {
             if (execute == null)
                 throw new ArgumentNullException(nameof(execute));
@@ -84,13 +84,13 @@ namespace PointlessWaymarks.WpfCommon.Commands
         /// </summary>
         /// <param name="execute">Action to execute.</param>
         /// <param name="canExecute">Function to determine if can execute.</param>
-        public Command(Action execute, Func<bool> canExecute) : this(o => execute())
+        public Command(Action execute, Func<bool> canExecute) : this(_ => execute())
         {
             if (execute == null)
                 throw new ArgumentNullException(nameof(execute));
 
             if (canExecute != null)
-                _canExecute = o => canExecute();
+                _canExecute = _ => canExecute();
         }
 
         /// <summary>

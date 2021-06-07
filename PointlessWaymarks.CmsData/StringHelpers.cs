@@ -48,7 +48,7 @@ namespace PointlessWaymarks.CmsData
         /// </summary>
         /// <param name="toEncode"></param>
         /// <returns></returns>
-        public static string HtmlEncode(this string toEncode)
+        public static string HtmlEncode(this string? toEncode)
         {
             return string.IsNullOrWhiteSpace(toEncode) ? string.Empty : HttpUtility.HtmlEncode(toEncode);
         }

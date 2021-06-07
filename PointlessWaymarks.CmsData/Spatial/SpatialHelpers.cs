@@ -184,7 +184,7 @@ namespace PointlessWaymarks.CmsData.Spatial
             double maxElevation = 0;
             double minElevation = 0;
 
-            if (line == null || line.Count < 2)
+            if (line.Count < 2)
                 return new LineStatsInMeters(length, climb, descent, maxElevation, minElevation);
 
             var previousPoint = line[0];
@@ -225,7 +225,7 @@ namespace PointlessWaymarks.CmsData.Spatial
         {
             var returnList = new List<(string description, List<CoordinateZ>)>();
 
-            if (gpxFile == null || !gpxFile.Exists) return returnList;
+            if (gpxFile is not {Exists: true}) return returnList;
 
             GpxFile parsedGpx;
 

@@ -46,31 +46,31 @@ namespace PointlessWaymarks.CmsWpfControls.ColumnSort
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void AddItem(ColumnSortControlSortItem x)
+        private void AddItem(ColumnSortControlSortItem sortItem)
         {
             var currentSortCount = Items.Count(x => x.Order > 0);
-            if (Items.Count(x => x.Order > 0) == 0 || currentSortCount == 1 && x.Order > 0)
+            if (Items.Count(x => x.Order > 0) == 0 || currentSortCount == 1 && sortItem.Order > 0)
             {
-                ToggleItem(x);
+                ToggleItem(sortItem);
                 return;
             }
 
-            if (x.Order > 0 && x.SortDirection != x.DefaultSortDirection)
+            if (sortItem.Order > 0 && sortItem.SortDirection != sortItem.DefaultSortDirection)
             {
-                x.SortDirection = x.DefaultSortDirection;
-                x.Order = 0;
+                sortItem.SortDirection = sortItem.DefaultSortDirection;
+                sortItem.Order = 0;
                 OrderSorts();
                 return;
             }
 
-            if (x.Order > 0)
+            if (sortItem.Order > 0)
             {
-                x.SortDirection = ChangeSortDirection(x.SortDirection);
+                sortItem.SortDirection = ChangeSortDirection(sortItem.SortDirection);
                 return;
             }
 
-            x.SortDirection = x.DefaultSortDirection;
-            x.Order = Items.Max(y => y.Order) + 1;
+            sortItem.SortDirection = sortItem.DefaultSortDirection;
+            sortItem.Order = Items.Max(y => y.Order) + 1;
         }
 
         public ListSortDirection ChangeSortDirection(ListSortDirection currentDirection)

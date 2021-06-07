@@ -25,7 +25,7 @@ namespace PointlessWaymarks.ExcelInteropExtensions
 
         private const uint WindowObjectId = 0xFFFFFFF0;
 
-        private static readonly byte[] _windowInterfaceId =
+        private static readonly byte[] WindowInterfaceId =
             new Guid("{00020400-0000-0000-C000-000000000046}").ToByteArray();
 
         /// <summary>Retrieves the address of the specified interface for the object associated with the specified window.</summary>
@@ -101,7 +101,7 @@ namespace PointlessWaymarks.ExcelInteropExtensions
 
         public static XL.Window ExcelWindowFromHandle(int handle)
         {
-            AccessibleObjectFromWindow(handle, WindowObjectId, _windowInterfaceId, out var result);
+            AccessibleObjectFromWindow(handle, WindowObjectId, WindowInterfaceId, out var result);
             return result;
         }
 

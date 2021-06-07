@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 
-namespace PressSharper.UnitTests
+namespace PointlessWaymarks.PressSharper.UnitTests
 {
     [TestFixture]
     public class BlogTests

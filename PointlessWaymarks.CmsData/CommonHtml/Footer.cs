@@ -1,16 +1,17 @@
-﻿using HtmlTags;
+﻿using System.Threading.Tasks;
+using HtmlTags;
 
 namespace PointlessWaymarks.CmsData.CommonHtml
 {
     public static class Footer
     {
-        public static HtmlTag StandardFooterDiv()
+        public static async Task<HtmlTag> StandardFooterDiv()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
             var footerDiv = new HtmlTag("footer").AddClass("footer-container");
 
-            footerDiv.Children.Add(Tags.CoreLinksDiv());
+            footerDiv.Children.Add(await Tags.CoreLinksDiv());
 
             if (!string.IsNullOrWhiteSpace(settings.SiteEmailTo))
             {

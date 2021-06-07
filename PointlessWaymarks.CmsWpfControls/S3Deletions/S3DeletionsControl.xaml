@@ -18,7 +18,6 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <wpfConverter:NullToCollapsedVisibilityConverter x:Key="NullToCollapsedVisibility" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -48,7 +47,7 @@
                     </Style>
                 </WrapPanel.Resources>
                 <Button Command="{Binding DeleteSelectedCommand}">Delete Selected</Button>
-                <Button Grid.Column="1" Command="{Binding DeleteAllCommand}">Delete All</Button>
+                <Button Command="{Binding DeleteAllCommand}">Delete All</Button>
             </WrapPanel>
         </GroupBox>
         <GroupBox

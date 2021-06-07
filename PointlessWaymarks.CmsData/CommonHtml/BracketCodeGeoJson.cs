@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HtmlTags;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -17,7 +19,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static List<GeoJsonContent> DbContentFromBracketCodes(string toProcess,
+        public static async Task<List<GeoJsonContent>> DbContentFromBracketCodes(string toProcess,
             IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<GeoJsonContent>();
@@ -31,11 +33,11 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!guidList.Any()) return returnList;
 
-            var context = Db.Context().Result;
+            var context = await Db.Context();
 
             foreach (var loopMatch in guidList)
             {
-                var dbContent = context.GeoJsonContents.FirstOrDefault(x => x.ContentId == loopMatch);
+                var dbContent = await context.GeoJsonContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch);
                 if (dbContent == null) continue;
 
                 progress?.Report($"GeoJson Code - Adding DbContent For {dbContent.Title}");
@@ -46,7 +48,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return returnList;
         }
 
-        public static string Process(string toProcess, IProgress<string>? progress = null)
+        public static async Task<string> Process(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -56,11 +58,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = Db.Context().Result;
+            var context = await Db.Context();
 
             foreach (var loopMatch in resultList)
             {
-                var dbContent = context.GeoJsonContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                var dbContent =
+                    await context.GeoJsonContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
                 if (dbContent == null) continue;
 
                 progress?.Report($"Adding GeoJson {dbContent.Title} from Code");
@@ -72,7 +75,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return toProcess;
         }
 
-        public static string ProcessForDirectLocalAccess(string toProcess, IProgress<string>? progress = null)
+        public static async Task<string> ProcessForDirectLocalAccess(string toProcess,
+            IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -82,11 +86,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = Db.Context().Result;
+            var context = await Db.Context();
 
             foreach (var loopMatch in resultList)
             {
-                var dbContent = context.GeoJsonContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                var dbContent =
+                    await context.GeoJsonContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
                 if (dbContent == null) continue;
 
                 progress?.Report($"Adding GeoJson {dbContent.Title} from Code");
@@ -98,7 +103,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return toProcess;
         }
 
-        public static string ProcessForEmail(string toProcess, IProgress<string>? progress = null)
+        public static async Task<string> ProcessForEmail(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -108,11 +113,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = Db.Context().Result;
+            var context = await Db.Context();
 
             foreach (var loopMatch in resultList)
             {
-                var dbContent = context.GeoJsonContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                var dbContent =
+                    await context.GeoJsonContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
                 if (dbContent == null) continue;
 
                 progress?.Report($"For Email Subbing GeoJson Map for Link {dbContent.Title} from Code");

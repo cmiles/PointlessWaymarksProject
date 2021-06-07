@@ -632,7 +632,7 @@ namespace PointlessWaymarks.CmsTests
             var dailyBeforeAfterItems =
                 document.QuerySelectorAll(".post-related-posts-container .related-post-container");
 
-            Assert.AreEqual(2, relatedItems.Length);
+            Assert.AreEqual(2, dailyBeforeAfterItems.Length);
         }
     }
 }

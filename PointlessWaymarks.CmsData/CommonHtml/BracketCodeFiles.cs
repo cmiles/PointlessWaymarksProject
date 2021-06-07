@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HtmlTags;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
@@ -16,7 +18,8 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
         }
 
-        public static List<FileContent> DbContentFromBracketCodes(string toProcess, IProgress<string>? progress = null)
+        public static async Task<List<FileContent>> DbContentFromBracketCodes(string toProcess,
+            IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
 
@@ -27,11 +30,11 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!guidList.Any()) return returnList;
 
-            var context = Db.Context().Result;
+            var context = await Db.Context();
 
             foreach (var loopGuid in guidList)
             {
-                var dbContent = context.FileContents.FirstOrDefault(x => x.ContentId == loopGuid);
+                var dbContent = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid);
                 if (dbContent == null) continue;
 
                 progress?.Report($"File Code - Adding DbContent For {dbContent.Title}");
@@ -42,7 +45,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             return returnList;
         }
 
-        public static string Process(string toProcess, IProgress<string>? progress = null)
+        public static async Task<string> Process(string toProcess, IProgress<string>? progress = null)
         {
             if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
@@ -52,11 +55,12 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             if (!resultList.Any()) return toProcess;
 
-            var context = Db.Context().Result;
+            var context = await Db.Context();
 
             foreach (var loopMatch in resultList)
             {
-                var dbContent = context.FileContents.FirstOrDefault(x => x.ContentId == loopMatch.contentGuid);
+                var dbContent =
+                    await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid);
                 if (dbContent == null) continue;
 
                 progress?.Report($"Adding file link {dbContent.Title} from Code");

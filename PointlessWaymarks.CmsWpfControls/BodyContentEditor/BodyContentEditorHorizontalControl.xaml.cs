@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
+﻿namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
 {
     /// <summary>
     ///     Interaction logic for BodyContentEditorHorizontalControl.xaml
     /// </summary>
-    public partial class BodyContentEditorHorizontalControl : UserControl
+    public partial class BodyContentEditorHorizontalControl
     {
         public BodyContentEditorHorizontalControl()
         {

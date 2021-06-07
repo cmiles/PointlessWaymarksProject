@@ -52,7 +52,7 @@ namespace PointlessWaymarks.CmsData.Spatial.Elevation
 
             foreach (var loopResults in resultList)
             {
-                if (loopResults?.Location == null) continue;
+                if (loopResults.Location == null) continue;
                 // ReSharper disable CompareOfFloatsByEqualityOperator
                 //Expecting to get the exact Lat Long back thru the elevation query
                 coordinates.Where(x => x.X == loopResults.Location.Longitude && x.Y == loopResults.Location.Latitude)

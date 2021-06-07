@@ -84,9 +84,6 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<GenerationReturn> CopyCleanResizeImage(ImageContent dbEntry,
             IProgress<string>? progress = null)
         {
-            if (dbEntry == null)
-                return GenerationReturn.Error("Null Image Content submitted to Copy Clean and Resize");
-
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
@@ -100,7 +97,8 @@ namespace PointlessWaymarks.CmsData.Content
 
             CleanDisplayAndSrcSetFilesInImageDirectory(dbEntry, true, progress);
 
-            ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(imageDirectory.FullName, dbEntry.OriginalFileName)),
+            await ResizeForDisplayAndSrcset(
+                new FileInfo(Path.Combine(imageDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);
 
             return GenerationReturn.Success($"{dbEntry.Title} Copied, Cleaned, Resized", dbEntry.ContentId);
@@ -114,9 +112,6 @@ namespace PointlessWaymarks.CmsData.Content
         public static async Task<GenerationReturn> CopyCleanResizePhoto(PhotoContent dbEntry,
             IProgress<string>? progress = null)
         {
-            if (dbEntry == null)
-                return GenerationReturn.Error("Null Photo Content submitted to Copy Clean and Resize");
-
             progress?.Report($"Starting Copy, Clean and Resize for {dbEntry.Title}");
 
             if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
@@ -130,7 +125,8 @@ namespace PointlessWaymarks.CmsData.Content
 
             CleanDisplayAndSrcSetFilesInPhotoDirectory(dbEntry, true, progress);
 
-            ResizeForDisplayAndSrcset(new FileInfo(Path.Combine(photoDirectory.FullName, dbEntry.OriginalFileName)),
+            await ResizeForDisplayAndSrcset(
+                new FileInfo(Path.Combine(photoDirectory.FullName, dbEntry.OriginalFileName)),
                 false, progress);
 
             return GenerationReturn.Success($"{dbEntry.Title} Copied, Cleaned, Resized", dbEntry.ContentId);
@@ -146,7 +142,7 @@ namespace PointlessWaymarks.CmsData.Content
         public static void DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(PhotoContent dbEntry,
             IProgress<string>? progress = null)
         {
-            if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+            if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
             {
                 progress?.Report("Nothing to delete.");
                 return;
@@ -178,7 +174,7 @@ namespace PointlessWaymarks.CmsData.Content
         public static void DeleteSupportedPictureFilesInDirectoryOtherThanOriginalFile(ImageContent dbEntry,
             IProgress<string>? progress = null)
         {
-            if (dbEntry == null || string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
+            if (string.IsNullOrWhiteSpace(dbEntry.OriginalFileName))
             {
                 progress?.Report("Nothing to delete.");
                 return;
@@ -214,14 +210,14 @@ namespace PointlessWaymarks.CmsData.Content
             return originalWidth;
         }
 
-        public static FileInfo? ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
+        public static async Task<FileInfo?> ResizeForDisplay(FileInfo fileToProcess, bool overwriteExistingFile,
             IProgress<string>? progress = null)
         {
             var displayWidth = DisplayPictureWidth(fileToProcess);
 
             progress?.Report($"Resize For Display: {displayWidth}, 82");
 
-            return ResizeWithForDisplayFileName(fileToProcess, displayWidth, 82, overwriteExistingFile, progress);
+            return await ResizeWithForDisplayFileName(fileToProcess, displayWidth, 82, overwriteExistingFile, progress);
         }
 
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(PhotoContent dbEntry,
@@ -237,7 +233,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
 
-            return ResizeForDisplayAndSrcset(sourceImage, overwriteExistingFiles, progress);
+            return await ResizeForDisplayAndSrcset(sourceImage, overwriteExistingFiles, progress);
         }
 
         public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(ImageContent dbEntry,
@@ -258,23 +254,24 @@ namespace PointlessWaymarks.CmsData.Content
 
             var sourceImage = new FileInfo(Path.Combine(targetDirectory.FullName, dbEntry.OriginalFileName));
 
-            return ResizeForDisplayAndSrcset(sourceImage, overwriteExistingFiles, progress);
+            return await ResizeForDisplayAndSrcset(sourceImage, overwriteExistingFiles, progress);
         }
 
-        public static List<FileInfo> ResizeForDisplayAndSrcset(FileInfo originalImage, bool overwriteExistingFiles,
+        public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(FileInfo originalImage,
+            bool overwriteExistingFiles,
             IProgress<string>? progress = null)
         {
             var fullList = new List<FileInfo>
             {
-                originalImage, ResizeForDisplay(originalImage, overwriteExistingFiles, progress)!
+                originalImage, (await ResizeForDisplay(originalImage, overwriteExistingFiles, progress))!
             };
 
-            fullList.AddRange(ResizeForSrcset(originalImage, overwriteExistingFiles, progress));
+            fullList.AddRange(await ResizeForSrcset(originalImage, overwriteExistingFiles, progress));
 
             return fullList;
         }
 
-        public static List<FileInfo> ResizeForSrcset(FileInfo fileToProcess, bool overwriteExistingFiles,
+        public static async Task<List<FileInfo>> ResizeForSrcset(FileInfo fileToProcess, bool overwriteExistingFiles,
             IProgress<string>? progress = null)
         {
             var sizeQualityList = SrcSetSizeAndQualityList().OrderByDescending(x => x.size).ToList();
@@ -291,14 +288,14 @@ namespace PointlessWaymarks.CmsData.Content
                 if (originalWidth >= size || size == smallestSrcSetSize)
                 {
                     progress?.Report($"Resize: {size}, {quality}");
-                    returnList.Add(ResizeWithWidthAndHeightFileName(fileToProcess, size, quality,
-                        overwriteExistingFiles, progress)!);
+                    returnList.Add((await ResizeWithWidthAndHeightFileName(fileToProcess, size, quality,
+                        overwriteExistingFiles, progress))!);
                 }
 
             return returnList;
         }
 
-        public static FileInfo? ResizeWithForDisplayFileName(FileInfo toResize, int width, int quality,
+        public static async Task<FileInfo?> ResizeWithForDisplayFileName(FileInfo toResize, int width, int quality,
             bool overwriteExistingFiles, IProgress<string>? progress = null)
         {
             if (!toResize.Exists || toResize.Directory == null)
@@ -325,11 +322,11 @@ namespace PointlessWaymarks.CmsData.Content
 
             var resizer = new MagicScalerImageResizer();
 
-            return resizer.ResizeTo(toResize, width, quality, "For-Display", true, progress);
+            return await resizer.ResizeTo(toResize, width, quality, "For-Display", true, progress);
         }
 
 
-        public static FileInfo? ResizeWithWidthAndHeightFileName(FileInfo toResize, int width, int quality,
+        public static async Task<FileInfo?> ResizeWithWidthAndHeightFileName(FileInfo toResize, int width, int quality,
             bool overwriteExistingFiles, IProgress<string>? progress = null)
         {
             if (!toResize.Exists || toResize.Directory == null)
@@ -356,7 +353,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             var resizer = new MagicScalerImageResizer();
 
-            return resizer.ResizeTo(toResize, width, quality, "Sized", true, progress);
+            return await resizer.ResizeTo(toResize, width, quality, "Sized", true, progress);
         }
 
         public static List<(int size, int quality)> SrcSetSizeAndQualityList()

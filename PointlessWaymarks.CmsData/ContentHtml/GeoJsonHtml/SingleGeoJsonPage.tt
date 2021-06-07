@@ -37,18 +37,18 @@
 </head>
 
 <body>
-    <#= Tags.StandardHeader().ToString() #>
+    <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(DbEntry).ToString() #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= GeoJsonParts.GeoJsonDivAndScript(DbEntry) #>
-    <#= Tags.PostBodyDiv(DbEntry).ToString() #>
+    <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=
                 BodyContentReferences.RelatedContentTag(DbEntry, GenerationVersion).Result #>
-        <#= Tags.UpdateNotesDiv(DbEntry).ToString() #>
+        <#= Tags.UpdateNotesDiv(DbEntry).Result.ToString() #>
     </div>
     <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv() #>

@@ -43,7 +43,7 @@
 </head>
 
 <body>
-    <#= Tags.StandardHeader().ToString() #>
+    <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <#= Tags.TitleDiv(Title).ToString() #>
     <#=

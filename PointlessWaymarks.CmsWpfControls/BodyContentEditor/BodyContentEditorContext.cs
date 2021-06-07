@@ -290,7 +290,7 @@ namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor
             try
             {
                 var preprocessResults =
-                    BracketCodeCommon.ProcessCodesForLocalDisplay(BodyContent, StatusContext.ProgressTracker());
+                    await BracketCodeCommon.ProcessCodesForLocalDisplay(BodyContent, StatusContext.ProgressTracker());
                 var processResults =
                     ContentProcessing.ProcessContent(preprocessResults, BodyContentFormat.SelectedContentFormat);
 

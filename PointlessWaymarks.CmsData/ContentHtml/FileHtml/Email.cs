@@ -9,7 +9,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
     {
         public static async Task<string> ToHtmlEmail(FileContent content, IProgress<string>? progress = null)
         {
-            var preprocessResults = BracketCodeCommon.ProcessCodesForEmail(content.BodyContent, progress);
+            var preprocessResults = await BracketCodeCommon.ProcessCodesForEmail(content.BodyContent, progress);
             var bodyHtmlString = ContentProcessing.ProcessContent(preprocessResults, content.BodyContentFormat);
 
             var tags = Tags.TagListTextLinkList(content);

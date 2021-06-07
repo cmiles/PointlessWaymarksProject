@@ -50,7 +50,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.TagListHtml
             this.Write("\r\n</head>\r\n<body>\r\n    ");
             
             #line 15 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\TagListHtml\TagListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().ToString()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden

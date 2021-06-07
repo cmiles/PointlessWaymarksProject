@@ -13,7 +13,7 @@ namespace PointlessWaymarks.CmsData.Json
 {
     public static class Export
     {
-        public static void WriteLinkListJson()
+        public static async Task WriteLinkListJson()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -28,7 +28,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry);
 
             var latestHistoricEntries = db.HistoricLinkContents.ToList();
 
@@ -42,7 +42,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
             jsonHistoricFile.Refresh();
 
-            FileManagement.WriteAllTextToFileAndLog(jsonHistoricFile.FullName, jsonHistoricDbEntry);
+            await FileManagement.WriteAllTextToFileAndLog(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
         public static async Task WriteLocalDbJson(FileContent dbEntry, IProgress<string>? progress = null)
@@ -359,7 +359,7 @@ namespace PointlessWaymarks.CmsData.Json
             await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry);
         }
 
-        public static void WriteMenuLinksJson()
+        public static async Task WriteMenuLinksJson()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -374,10 +374,10 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry);
         }
 
-        public static void WriteTagExclusionsJson()
+        public static async Task WriteTagExclusionsJson()
         {
             var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -392,7 +392,7 @@ namespace PointlessWaymarks.CmsData.Json
             if (jsonFile.Exists) jsonFile.Delete();
             jsonFile.Refresh();
 
-            FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry);
+            await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry);
         }
     }
 }

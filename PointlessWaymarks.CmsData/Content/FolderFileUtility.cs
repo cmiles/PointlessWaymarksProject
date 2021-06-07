@@ -86,7 +86,6 @@ namespace PointlessWaymarks.CmsData.Content
 
         public static bool PictureFileTypeIsSupported(FileInfo toCheck)
         {
-            if (toCheck == null) return false;
             if (!toCheck.Exists) return false;
 
             return toCheck.Extension.ToLower().Contains("jpg") || toCheck.Extension.ToLower().Contains("jpeg");

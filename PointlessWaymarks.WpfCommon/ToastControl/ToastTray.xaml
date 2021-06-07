@@ -31,11 +31,6 @@
                 <Setter Property="MinHeight" Value="70" />
             </Style>
 
-            <Style x:Key="NotificationPanel" TargetType="StackPanel">
-                <Setter Property="Orientation" Value="Horizontal" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-            </Style>
-
             <Style x:Key="NotificationIcon" TargetType="Rectangle">
                 <Setter Property="Width" Value="24" />
                 <Setter Property="Height" Value="24" />

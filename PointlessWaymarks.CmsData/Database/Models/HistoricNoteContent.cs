@@ -22,6 +22,6 @@ namespace PointlessWaymarks.CmsData.Database.Models
         public string? Folder { get; set; }
         public string? Slug { get; set; }
         public string? Summary { get; set; }
-        [NotMapped] public string? Title => $"Notes - {NoteParts.NoteCreatedByAndUpdatedOnString(this)}";
+        [NotMapped] public string Title => $"Notes - {NoteParts.NoteCreatedByAndUpdatedOnString(this)}";
     }
 }

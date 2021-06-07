@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using PhotoSauce.MagicScaler;
 using PhotoSauce.MagicScaler.Transforms;
 
@@ -7,7 +8,8 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public class MagicScalerImageResizer : IPictureResizer
     {
-        public FileInfo? ResizeTo(FileInfo toResize, int width, int quality, string imageTypeString, bool addSizeString,
+        public async Task<FileInfo?> ResizeTo(FileInfo toResize, int width, int quality, string imageTypeString,
+            bool addSizeString,
             IProgress<string>? progress = null)
         {
             if (!toResize.Exists) return null;
@@ -22,19 +24,19 @@ namespace PointlessWaymarks.CmsData.Content
             using var outStream = new FileStream(newFileInfo.FullName, FileMode.Create);
             var results = MagicImageProcessor.ProcessImage(toResize.FullNameWithLongFilePrefix(), outStream, settings);
 
-            outStream.Dispose();
+            await outStream.DisposeAsync();
 
             var finalFileName = Path.Combine(toResize.Directory?.FullName ?? string.Empty,
                 $"{Path.GetFileNameWithoutExtension(toResize.Name)}--{imageTypeString}{(addSizeString ? $"--{width}w--{results.Settings.Height}h" : string.Empty)}.jpg");
 
-            FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName);
+            await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName);
 
             newFileInfo = new FileInfo(finalFileName);
 
             return newFileInfo;
         }
 
-        public FileInfo? Rotate(FileInfo toRotate, Orientation orientation)
+        public async Task<FileInfo?> Rotate(FileInfo toRotate, Orientation orientation)
         {
             if (!toRotate.Exists) return null;
 
@@ -51,13 +53,13 @@ namespace PointlessWaymarks.CmsData.Content
             pl.WriteOutput(outStream);
 
             pl.Dispose();
-            outStream.Dispose();
+            await outStream.DisposeAsync();
 
             var finalFileName = toRotate.FullName;
 
             toRotate.Delete();
 
-            FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName);
+            await FileManagement.MoveFileAndLog(newFileInfo.FullName, finalFileName);
 
             newFileInfo = new FileInfo(finalFileName);
 

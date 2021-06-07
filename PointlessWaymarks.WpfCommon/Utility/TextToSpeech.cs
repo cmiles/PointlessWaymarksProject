@@ -64,7 +64,7 @@ namespace PointlessWaymarks.WpfCommon.Utility
                            "</speak>";
 
                 var tcs = new TaskCompletionSource<object>();
-                var handler = new TypedEventHandler<MediaPlayer, object>((sender, args) => tcs.TrySetResult(null));
+                var handler = new TypedEventHandler<MediaPlayer, object>((_, _) => tcs.TrySetResult(null));
 
                 try
                 {

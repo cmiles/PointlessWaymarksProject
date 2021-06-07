@@ -9,8 +9,6 @@ namespace PointlessWaymarks.CmsData.CommonHtml
     {
         public static HtmlTag FromContentCommon(IContentCommon content)
         {
-            if (content == null) return HtmlTag.Empty();
-
             var compactContentContainerDiv = new DivTag().AddClass("content-compact-container");
 
             var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
@@ -59,8 +57,6 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
         public static HtmlTag FromLinkContent(LinkContent content)
         {
-            if (content == null) return HtmlTag.Empty();
-
             var compactContentContainerDiv = new DivTag().AddClass("content-compact-container");
 
             var compactContentMainTextContentDiv = new DivTag().AddClass("link-compact-text-content-container");

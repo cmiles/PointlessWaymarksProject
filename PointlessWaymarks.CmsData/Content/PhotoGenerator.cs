@@ -21,14 +21,14 @@ namespace PointlessWaymarks.CmsData.Content
 {
     public static class PhotoGenerator
     {
-        public static void GenerateHtml(PhotoContent toGenerate, DateTime? generationVersion,
+        public static async Task GenerateHtml(PhotoContent toGenerate, DateTime? generationVersion,
             IProgress<string>? progress = null)
         {
             progress?.Report($"Photo Content - Generate HTML for {toGenerate.Title}");
 
             var htmlContext = new SinglePhotoPage(toGenerate) {GenerationVersion = generationVersion};
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
         }
 
         public static (GenerationReturn generationReturn, PhotoMetadata? metadata) PhotoMetadataFromFile(
@@ -358,10 +358,10 @@ namespace PointlessWaymarks.CmsData.Content
             Db.DefaultPropertyCleanup(toSave);
             toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-            FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
+            await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
             await WritePhotoFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress);
-            GenerateHtml(toSave, generationVersion, progress);
+            await GenerateHtml(toSave, generationVersion, progress);
             await Export.WriteLocalDbJson(toSave);
 
             DataNotifications.PublishDataNotification("Photo Generator", DataNotificationContentType.Photo,
@@ -377,7 +377,7 @@ namespace PointlessWaymarks.CmsData.Content
 
             if (validationReturn.HasError) return (validationReturn, null);
 
-            FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
+            await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile);
             await Db.SavePhotoContent(toSave);
 
             return (GenerationReturn.Success($"Saved {toSave.Title}"), toSave);

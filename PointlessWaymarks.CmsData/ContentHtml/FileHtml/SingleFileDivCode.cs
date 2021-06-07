@@ -1,5 +1,4 @@
 ﻿using System;
-using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
@@ -14,8 +13,6 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
             SiteUrl = settings.SiteUrl;
             SiteName = settings.SiteName;
             PageUrl = settings.FilePageUrl(DbEntry);
-
-            var db = Db.Context().Result;
         }
 
         public FileContent DbEntry { get; set; }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace PressSharper
+namespace PointlessWaymarks.PressSharper
 {
     public class Blog
     {
@@ -181,7 +181,7 @@ namespace PressSharper
             var page = new Page
             {
                 Id = int.Parse(pageIdElement.Value),
-                ParentId = pageParentIdElement.Value != "0" ? int.Parse(pageParentIdElement.Value) : (int?) null,
+                ParentId = pageParentIdElement.Value != "0" ? int.Parse(pageParentIdElement.Value) : null,
                 Author = GetAuthorByUsername(pageUsernameElement.Value),
                 Body = pageBodyElement.Value,
                 PublishDate = DateTime.Parse(pagePublishDateElement.Value),

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
 using HtmlTags;
@@ -18,7 +19,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         public string? PageUrl { get; set; }
         public string? SiteName { get; set; }
 
-        public void WriteLocalHtml()
+        public async Task WriteLocalHtml()
         {
             var parser = new HtmlParser();
             var htmlDoc = parser.ParseDocument(TransformText());
@@ -36,7 +37,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
                 htmlFileInfo.Refresh();
             }
 
-            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
     }
 }

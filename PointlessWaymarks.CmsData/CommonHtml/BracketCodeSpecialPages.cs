@@ -15,6 +15,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             var specialPageLookup = new List<(string bracketCode, string defaultDisplayString, string url)>
             {
                 ("index", "Main", $"https:{UserSettingsSingleton.CurrentSettings().IndexPageUrl()}"),
+                // ReSharper disable StringLiteralTypo
                 ("indexrss", "Main Page RSS Feed",
                     $"https:{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}"),
                 ("filerss", "Files RSS Feed", $"https:{UserSettingsSingleton.CurrentSettings().FileRssUrl()}"),
@@ -28,6 +29,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
                 ("searchpage", "Search", $"https:{UserSettingsSingleton.CurrentSettings().AllContentListUrl()}"),
                 ("tagspage", "Tags", $"https:{UserSettingsSingleton.CurrentSettings().AllTagsListUrl()}"),
                 ("linklistpage", "Links", $"https:{UserSettingsSingleton.CurrentSettings().LinkListUrl()}")
+                // ReSharper restore StringLiteralTypo
             };
 
             foreach (var loopLookups in specialPageLookup)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using AngleSharp.Html;
 using AngleSharp.Html.Parser;
@@ -155,9 +156,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
             return indexBodyContainer;
         }
 
-        public void WriteLocalHtml()
+        public async Task WriteLocalHtml()
         {
-            WriteRss();
+            await WriteRss();
 
             foreach (var loopPosts in IndexContent.Take(NumberOfContentItemsToDisplay))
                 if (BracketCodeCommon.ContainsSpatialBracketCodes(loopPosts) ||
@@ -182,11 +183,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
                 htmlFileInfo.Refresh();
             }
 
-            FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
+            await FileManagement.WriteAllTextToFileAndLog(htmlFileInfo.FullName, htmlString);
         }
 
 
-        public void WriteRss()
+        public async Task WriteRss()
         {
             var items = new List<string>();
 
@@ -333,7 +334,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
                 localIndexFile.Refresh();
             }
 
-            FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
+            await FileManagement.WriteAllTextToFileAndLog(localIndexFile.FullName,
                 RssBuilder.RssFileString($"{UserSettingsSingleton.CurrentSettings().SiteName}",
                     string.Join(Environment.NewLine, items)), Encoding.UTF8);
         }

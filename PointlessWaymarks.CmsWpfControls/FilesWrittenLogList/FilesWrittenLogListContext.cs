@@ -486,7 +486,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
 
         private async Task DataNotificationReceived(TinyMessageReceivedEventArgs? e)
         {
-            var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+            var translatedMessage = DataNotifications.TranslateDataNotification(e?.Message);
 
             if (translatedMessage.HasError)
             {
@@ -815,7 +815,7 @@ namespace PointlessWaymarks.CmsWpfControls.FilesWrittenLogList
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 var newUploaderWindow = new S3UploadsWindow(items.Select(x =>
-                    new S3Upload(new FileInfo(x.fileFullName), x.S3Key, x.BucketName, x.Region, x.Note)).ToList());
+                    new S3Upload(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region, x.Note)).ToList());
                 newUploaderWindow.PositionWindowAndShow();
             }
             catch (Exception e)

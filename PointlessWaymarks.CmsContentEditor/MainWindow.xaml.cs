@@ -87,6 +87,7 @@ namespace PointlessWaymarks.CmsContentEditor
             WindowInitialPositionHelpers.EnsureWindowIsVisible(this);
 
             InfoTitle =
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse for generated ThisAssembly.Git.IsDirty
                 $"Pointless Waymarks CMS - Built On {GetBuildDate(Assembly.GetEntryAssembly())} - Commit {ThisAssembly.Git.Commit} {(ThisAssembly.Git.IsDirty ? "(Has Local Changes)" : string.Empty)}";
 
             ShowSettingsFileChooser = true;
@@ -625,7 +626,7 @@ namespace PointlessWaymarks.CmsContentEditor
             {
                 StatusContext.Progress($"Confirming Image Content for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                PictureAssetProcessing.ConfirmOrGenerateImageDirectoryAndPictures(loopItem);
+                await PictureAssetProcessing.ConfirmOrGenerateImageDirectoryAndPictures(loopItem);
 
                 loopCount++;
             }
@@ -648,7 +649,7 @@ namespace PointlessWaymarks.CmsContentEditor
             {
                 StatusContext.Progress($"Confirming Photos for {loopItem.Title} - {loopCount} of {totalCount}");
 
-                PictureAssetProcessing.ConfirmOrGeneratePhotoDirectoryAndPictures(loopItem);
+                await PictureAssetProcessing.ConfirmOrGeneratePhotoDirectoryAndPictures(loopItem);
 
                 loopCount++;
             }

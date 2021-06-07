@@ -1,4 +1,4 @@
-﻿namespace PressSharper
+﻿namespace PointlessWaymarks.PressSharper
 {
     public class Author
     {

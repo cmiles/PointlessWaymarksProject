@@ -190,7 +190,7 @@ namespace PointlessWaymarks.CmsWpfControls.NoteList
 
             var htmlContext = new SingleNotePage(content);
 
-            htmlContext.WriteLocalHtml();
+            await htmlContext.WriteLocalHtml();
 
             StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
         }
