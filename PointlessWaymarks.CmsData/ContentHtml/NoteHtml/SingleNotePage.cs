@@ -89,14 +89,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Creator\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
             #line 18 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Publisher\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
             #line 19 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));

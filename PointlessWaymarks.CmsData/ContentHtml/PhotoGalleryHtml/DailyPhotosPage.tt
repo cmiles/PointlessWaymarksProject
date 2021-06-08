@@ -21,8 +21,8 @@
 
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
     <meta name="DC.Title" content="<#=Title.HtmlEncode() #>">
-    <meta name ="DC.Creator" content="<#=CreatedBy.HtmlEncode() #>">
-    <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
+    <meta name="DC.Creator" content="<#=CreatedBy.HtmlEncode() #>">
+    <meta name="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Description" content="<#=Summary.HtmlEncode() #>">
     <meta name="DC.Date" content="<#=
                 PhotoPageDate.ToString("yyyy-MM-dd").HtmlEncode() #>">

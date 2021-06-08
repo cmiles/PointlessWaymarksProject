@@ -17,7 +17,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
             outerContainer.Children.Add(Tags.InfoDivTag(dbEntry.ShutterSpeed, "photo-detail", "shutter-speed",
                 dbEntry.ShutterSpeed));
             //InfoDivTag guards against null and empty but because we put ISO in the string guard against blank (and sanity check) ISO.
-            if (dbEntry.Iso != null && dbEntry.Iso.Value > 0)
+            if (dbEntry.Iso is > 0)
                 outerContainer.Children.Add(Tags.InfoDivTag($"ISO {dbEntry.Iso?.ToString("F0")}", "photo-detail", "iso",
                     dbEntry.Iso?.ToString("F0")));
             outerContainer.Children.Add(Tags.InfoDivTag(dbEntry.Lens, "photo-detail", "lens", dbEntry.Lens));

@@ -17,8 +17,8 @@
 
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
     <meta name="DC.Title" content="<#=DbEntry.Title.HtmlEncode() #>">
-    <meta name ="DC.Creator" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
-    <meta name ="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
+    <meta name="DC.Creator" content="<#=DbEntry.CreatedBy.HtmlEncode() #>">
+    <meta name="DC.Publisher" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Description" content="<#=DbEntry.Summary.HtmlEncode() #>">
     <meta name="DC.Date" content="<#=
                 DbEntry.CreatedOn.ToString("yyyy-MM-dd").HtmlEncode() #>">

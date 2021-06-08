@@ -110,14 +110,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Creator\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
             #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Publisher\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
             #line 24 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
@@ -232,7 +232,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml
             this.Write("\r\n    ");
             
             #line 60 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoHtml\SinglePhotoPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
             #line hidden

@@ -159,7 +159,7 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var displayImageFile = possibleDisplayImageFile.FirstOrDefault();
 
-            if (displayImageFile != null && displayImageFile.Exists)
+            if (displayImageFile is {Exists: true})
                 toReturn.DisplayPicture = new PictureFile
                 {
                     FileName = displayImageFile.Name,

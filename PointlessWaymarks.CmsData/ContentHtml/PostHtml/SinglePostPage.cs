@@ -110,14 +110,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Creator\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
             #line 22 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Publisher\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
             #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));

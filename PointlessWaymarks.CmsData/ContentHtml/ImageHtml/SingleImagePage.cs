@@ -103,7 +103,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ImageHtml
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Creator\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
             #line 20 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ImageHtml\SingleImagePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.CreatedBy.HtmlEncode()));

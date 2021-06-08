@@ -6,6 +6,7 @@
 <html lang="en">
 <head data-generationversion="<#=GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
     <meta charset="utf-8">
+    <meta name="robots" content="noindex" />
     <title><#=SiteName #></title>
     <meta name="description" content="<#= SiteSummary.HtmlEncode() #>">
     <meta name="author" content="<#= SiteAuthors.HtmlEncode() #>">
@@ -17,8 +18,6 @@
     <meta property="og:title" content="<#=SiteName.HtmlEncode() #>" />
     <meta property="og:description" content="<#= SiteSummary.HtmlEncode() #>" />
 
-    <#= Tags.OpenGraphImageMetaTags(MainImage) #>
-
     <link rel = "schema.DC" href = "http://purl.org/DC/elements/1.0/">
     <meta name="DC.Title" content="<#=SiteName.HtmlEncode() #>">
     <meta name="DC.Creator" content="<#=SiteAuthors.HtmlEncode() #>">
@@ -29,20 +28,16 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <#= Tags.SiteMainRss() #>
-
     <#= Tags.CssStyleFileString() #>
     <#= Tags.FavIconFileString() #>
-
-    <#= SpatialScripts.IncludeIfNeeded(IncludeSpatialScripts) #>
 </head>
 
 <body>
-    <#= Tags.StandardHeader().Result.ToString() #>
+   <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
-    <#= IndexPosts() #>
-    <#= Tags.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()) #>
-    <#= HorizontalRule.StandardRuleIfNotEmptyTag(Tags.PreviousAndNextPostsDiv(PreviousPosts, new List <IContentCommon>()))#>
+    <#= Tags.TitleDiv("Error...").ToString() #>
+    <#= Tags.PostBodyDivFromMarkdown("<p style=\"text-align: center;\">There was an unexpected error - maybe try again, go back or visit the {{index; text homepage;}}?</p>").Result.ToString() #>
+    <#= HorizontalRule.StandardRule() #>
     <#= Footer.StandardFooterDiv().Result #>
 </body>
 

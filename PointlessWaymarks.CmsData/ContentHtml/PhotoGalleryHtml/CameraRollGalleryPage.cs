@@ -82,7 +82,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <meta name=\"DC.Title\" content=\"Photographs By Date\">\r\n    <meta name =\"DC.Creator\" content=\"");
+            this.Write("\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <meta name=\"DC.Title\" content=\"Photographs By Date\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
             #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CreatedBy?.HtmlEncode()));

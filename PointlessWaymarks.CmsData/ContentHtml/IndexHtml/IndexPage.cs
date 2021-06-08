@@ -105,14 +105,14 @@ namespace PointlessWaymarks.CmsData.ContentHtml.IndexHtml
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Creator\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
             #line 24 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name =\"DC.Publisher\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
             #line 25 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\IndexHtml\IndexPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));

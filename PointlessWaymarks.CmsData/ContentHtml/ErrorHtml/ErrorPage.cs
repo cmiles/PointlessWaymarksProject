@@ -7,9 +7,9 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
+namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml
 {
-    using System.Linq;
+    using System.Collections.Generic;
     using Database.Models;
     using CommonHtml;
     using System;
@@ -18,9 +18,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+    #line 1 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public partial class DailyPhotosPage : DailyPhotosPageBase
+    public partial class ErrorPage : ErrorPageBase
     {
 #line hidden
         /// <summary>
@@ -30,204 +30,147 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
         {
             this.Write("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head data-generationversion=\"");
             
-            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 7 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty));
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <title>");
+            this.Write("\">\r\n    <meta charset=\"utf-8\">\r\n    <meta name=\"robots\" content=\"noindex\" />\r\n    <title>");
             
-            #line 9 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Title.HtmlEncode()));
+            #line 10 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName));
             
             #line default
             #line hidden
             this.Write("</title>\r\n    <meta name=\"description\" content=\"");
             
-            #line 10 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Summary.HtmlEncode()));
+            #line 11 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"author\" content=\"");
             
-            #line 11 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(CreatedBy.HtmlEncode()));
+            #line 12 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"keywords\" content=\"");
             
-            #line 12 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(string.Join(",", PhotoTags).HtmlEncode()));
+            #line 13 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteKeywords.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" >\r\n\r\n    <meta property=\"og:site_name\" content=\"");
             
-            #line 14 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 15 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:url\" content=\"https:");
             
-            #line 15 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 16 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(PageUrl));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n    <meta property=\"og:type\" content=\"article\" />\r\n    <meta property=\"og:title\" content=\"");
+            this.Write("\" />\r\n    <meta property=\"og:type\" content=\"website\" />\r\n    <meta property=\"og:title\" content=\"");
             
-            #line 17 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Title.HtmlEncode()));
+            #line 18 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\" />\r\n    <meta property=\"og:description\" content=\"");
             
-            #line 18 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Summary.HtmlEncode()));
+            #line 19 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n\r\n    ");
+            this.Write("\" />\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <meta name=\"DC.Title\" content=\"");
             
-            #line 20 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.OpenGraphImageMetaTags(MainImage)));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n    <link rel = \"schema.DC\" href = \"http://purl.org/DC/elements/1.0/\">\r\n    <meta name=\"DC.Title\" content=\"");
-            
-            #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Title.HtmlEncode()));
+            #line 22 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Creator\" content=\"");
             
-            #line 24 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(CreatedBy.HtmlEncode()));
+            #line 23 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteAuthors.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Publisher\" content=\"");
             
-            #line 25 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 24 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SiteName.HtmlEncode()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    <meta name=\"DC.Description\" content=\"");
             
-            #line 26 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Summary.HtmlEncode()));
+            #line 25 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SiteSummary.HtmlEncode()));
             
             #line default
             #line hidden
-            this.Write("\">\r\n    <meta name=\"DC.Date\" content=\"");
+            this.Write("\">\r\n    <meta name=\"DC.Format\" content=\"text/html\">\r\n    <meta name=\"DC.Language\" content=\"en-US\">\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
             
-            #line 27 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(PhotoPageDate.ToString("yyyy-MM-dd").HtmlEncode()));
-            
-            #line default
-            #line hidden
-            this.Write("\">\r\n    <meta name=\"DC.Format\" content=\"text/html\">\r\n    <meta name=\"DC.Language\" content=\"en-US\">\r\n\r\n    <link rel=\"alternate\" type=\"application/rss+xml\" \r\n      title=\"");
-            
-            #line 33 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture($"RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName} - Photos".HtmlEncode()));
-            
-            #line default
-            #line hidden
-            this.Write("\"\r\n      href=\"https:");
-            
-            #line 35 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().PhotoRssUrl()));
-            
-            #line default
-            #line hidden
-            this.Write("\" />\r\n\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    ");
-            
-            #line 40 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 31 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.CssStyleFileString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 41 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 32 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.FavIconFileString()));
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n</head>\r\n\r\n<body>\r\n    ");
+            this.Write("\r\n</head>\r\n\r\n<body>\r\n   ");
             
-            #line 46 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 36 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.StandardHeader().Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 47 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 37 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 48 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv(Title).ToString()));
+            #line 38 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleDiv("Error...").ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 49 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DailyPhotosPageParts.PhotoList(ImageList)));
+            #line 39 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDivFromMarkdown("<p style=\"text-align: center;\">There was an unexpected error - maybe try again, go back or visit the {{index; text homepage;}}?</p>").Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 51 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    <div class=\"information-section\">\r\n        ");
-            
-            #line 53 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(PhotoTags).ToString()));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n        ");
-            
-            #line 54 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.RelatedContentTag(
-                    ImageList.Select(x => ((IContentId) x.Pictures.DbEntry).ContentId).ToList(), GenerationVersion).Result));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n        ");
-            
-            #line 57 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DailyPhotosPageParts.PreviousAndNextPostsDiv(this)));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    </div>\r\n    ");
-            
-            #line 60 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 40 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 61 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt"
+            #line 41 "C:\Code\PointlessWaymarksCms02\PointlessWaymarks.CmsData\ContentHtml\ErrorHtml\ErrorPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default
@@ -244,7 +187,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public class DailyPhotosPageBase
+    public class ErrorPageBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

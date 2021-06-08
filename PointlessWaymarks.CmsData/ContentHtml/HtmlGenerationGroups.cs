@@ -8,6 +8,7 @@ using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
@@ -219,7 +220,8 @@ namespace PointlessWaymarks.CmsData.ContentHtml
                 async () => await GenerateAllTagHtml(generationVersion, progress),
                 async () => await GenerateAllListHtml(generationVersion, progress),
                 async () => await GenerateAllUtilityJson(progress),
-                async () => await GenerateIndex(generationVersion, progress)
+                async () => await GenerateIndex(generationVersion, progress),
+                async () => await GenerateErrorPage(generationVersion, progress)
             }.AsyncParallelForEach();
 
             progress?.Report(
@@ -960,8 +962,9 @@ namespace PointlessWaymarks.CmsData.ContentHtml
             {
                 GenerateChangedTagHtml(generationVersion, progress),
                 GenerateChangedListHtml(lastGenerationDateTime, generationVersion, progress),
-                Task.Run(() => GenerateAllUtilityJson(progress)),
-                Task.Run(() => GenerateIndex(generationVersion, progress))
+                GenerateAllUtilityJson(progress),
+                GenerateIndex(generationVersion, progress),
+                GenerateErrorPage(generationVersion, progress)
             };
 
             await Task.WhenAll(tagAndListTasks);
@@ -1224,6 +1227,12 @@ namespace PointlessWaymarks.CmsData.ContentHtml
         {
             var index = new IndexPage {GenerationVersion = generationVersion};
             await index.WriteLocalHtml();
+        }
+        
+        public static async Task GenerateErrorPage(DateTime? generationVersion, IProgress<string>? progress = null)
+        {
+            var error = new ErrorPage() {GenerationVersion = generationVersion};
+            await error.WriteLocalHtml();
         }
 
         public static async Task GenerateMainFeedContent(DateTime generationVersion, IProgress<string>? progress = null)

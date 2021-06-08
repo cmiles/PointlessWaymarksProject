@@ -138,16 +138,18 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
         public static string ImageCaptionText(ImageContent dbEntry, bool includeTitle = false)
         {
-            var summaryString = includeTitle ? dbEntry.Title : string.Empty;
+            var summaryString = (includeTitle ? dbEntry.Title : string.Empty).TrimNullToEmpty();
 
             if (!string.IsNullOrWhiteSpace(dbEntry.Summary))
             {
                 if (includeTitle) summaryString += ": ";
-                if (!dbEntry.Summary.Trim().EndsWith(".")) summaryString += $"{dbEntry.Summary.Trim()}.";
-                else summaryString += $"{dbEntry.Summary.Trim()}";
+                summaryString += $"{dbEntry.Summary.Trim()}";
             }
+            
+            if (!char.IsPunctuation(summaryString[^1]))
+                summaryString += ".";
 
-            return string.Join(" ", summaryString);
+            return summaryString;
         }
 
         public static HtmlTag ImageFigCaptionTag(ImageContent dbEntry, bool includeTitle = false)
@@ -248,14 +250,14 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
                     if (!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullToEmpty()}";
                 }
-
-                if (!titleSummaryString.EndsWith(".")) titleSummaryString += ".";
             }
             else
             {
                 titleSummaryString = dbEntry.Summary.TrimNullToEmpty();
-                if (!titleSummaryString.EndsWith(".")) titleSummaryString += ".";
             }
+            
+            if (!string.IsNullOrWhiteSpace(titleSummaryString) && !char.IsPunctuation(titleSummaryString[^1]))
+                titleSummaryString += ".";
 
             summaryStringList.Add(titleSummaryString);
 
@@ -387,6 +389,22 @@ namespace PointlessWaymarks.CmsData.CommonHtml
 
             var bodyText = ContentProcessing.ProcessContent(
                 await BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress), dbEntry.BodyContentFormat);
+
+            bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
+
+            return bodyContainer;
+        }
+
+        public static async Task<HtmlTag> PostBodyDivFromMarkdown(string bodyContent,
+            IProgress<string>? progress = null)
+        {
+            if (string.IsNullOrWhiteSpace(bodyContent)) return HtmlTag.Empty();
+
+            var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
+
+            var bodyText = ContentProcessing.ProcessContent(
+                await BracketCodeCommon.ProcessCodesForSite(bodyContent, progress),
+                ContentFormatEnum.MarkdigMarkdown01);
 
             bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));
 
